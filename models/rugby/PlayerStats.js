@@ -6,7 +6,8 @@ const playerStats = new Schema({
 	singular: String,
 	plural: String,
 	unit: { type: String, default: null },
-	storedInDatabase: Boolean
+	storedInDatabase: Boolean,
+	moreIsBetter: { type: Boolean, default: true }
 });
 
 mongoose.model("playerStats", playerStats);

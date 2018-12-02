@@ -48,7 +48,7 @@ const personSchema = new Schema({
 				{
 					competition: {
 						type: Schema.Types.ObjectId,
-						ref: "competition"
+						ref: "competitions.segments"
 					},
 					stats: playerStatsCollectionSchema
 				}
