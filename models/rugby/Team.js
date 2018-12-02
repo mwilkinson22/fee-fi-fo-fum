@@ -19,6 +19,7 @@ const teamSchema = new Schema({
 	},
 	shirt: [
 		{
+			year: Number,
 			colour: String,
 			sleeveTrim: { type: String, default: null },
 			collarTrim: { type: String, default: null },
