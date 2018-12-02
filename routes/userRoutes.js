@@ -26,8 +26,9 @@ module.exports = app => {
 		if (user) {
 			res.send(user);
 		} else {
-			res.status(400);
-			res.send(`User '${req.params.username}' does not exist`);
+			res.status(400).send(
+				`User '${req.params.username}' does not exist`
+			);
 		}
 	});
 
