@@ -34,11 +34,11 @@ module.exports = app => {
 					googlePlaceId: sql.google_place_id
 				},
 				parking: {
-					stadium: sql.stadium_parking === 1,
-					roadside: sql.roadside_paring === 1
+					stadium: sql.stadium_parking === "1",
+					roadside: sql.roadside_paring === "1"
 				},
 				directions,
-				addThe: sql.add_the === 1
+				addThe: sql.add_the == "1"
 			});
 			await ground.save();
 
