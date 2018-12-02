@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const PlayerStatsCollectionSchema = require("./PlayerStatsCollection");
 
 const gameSchema = new Schema({
 	_competition: { type: Schema.Types.ObjectId, ref: "competition.segments" },
@@ -9,6 +10,12 @@ const gameSchema = new Schema({
 	pregameSquads: {
 		home: [{ type: Schema.Types.ObjectId, ref: "people" }],
 		away: [{ type: Schema.Types.ObjectId, ref: "people" }]
+	},
+	playerStats: {
+		_player: { type: Schema.Types.ObjectId, ref: "people" },
+		_team: { type: Schema.Types.ObjectId, ref: "teams" },
+		position: Number,
+		stats: PlayerStatsCollectionSchema
 	},
 	_ground: { type: Schema.Types.ObjectId, ref: "grounds", default: null },
 	Title: String,
