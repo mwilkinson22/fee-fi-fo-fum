@@ -16,6 +16,7 @@ const groundSchema = new Schema({
 	directions: [
 		{
 			method: { type: String, enum: ["train", "bus", "walk"] },
+			destination: String,
 			duration: Number
 		}
 	],

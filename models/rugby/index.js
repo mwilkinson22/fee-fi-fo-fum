@@ -1,0 +1,10 @@
+require("./Competition");
+require("./City");
+require("./Country");
+require("./Game");
+require("./Ground");
+require("./NeutralGame");
+require("./Person");
+require("./PlayerStatsCollection");
+require("./Position");
+require("./Team");

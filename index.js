@@ -4,7 +4,11 @@ const cookieSession = require("cookie-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const keys = require("./config/keys");
+
+//Add Mongoose Models
 require("./models/User");
+require("./models/IdLink");
+require("./models/rugby");
 
 mongoose.connect(keys.mongoURI);
 
@@ -31,6 +35,7 @@ app.use(passport.session());
 
 // API Routes
 require("./routes/userRoutes")(app);
+require("./routes/dataImport")(app);
 
 if (process.env.NODE_ENV === "production") {
 	//Express will serve up production assets like main.js or main.css

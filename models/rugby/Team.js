@@ -10,23 +10,23 @@ const teamSchema = new Schema({
 	_ground: { type: Schema.Types.ObjectId, ref: "grounds" },
 	hashtagPrefix: String,
 	colours: {
-		main: String,
-		trim1: String,
-		trim2: String,
-		text: String,
-		pitchColour: String,
-		statBarColour: String
+		main: [Number],
+		trim1: [Number],
+		trim2: [Number],
+		text: [Number],
+		pitchColour: [Number],
+		statBarColour: [Number]
 	},
 	shirt: [
 		{
 			year: Number,
-			colour: String,
-			sleeveTrim: { type: String, default: null },
-			collarTrim: { type: String, default: null },
+			colour: [Number],
+			sleeveTrim: { type: [Number], default: null },
+			collarTrim: { type: [Number], default: null },
 			pattern: [
 				{
 					style: String,
-					color: String
+					colour: [[Number]]
 				}
 			]
 		}

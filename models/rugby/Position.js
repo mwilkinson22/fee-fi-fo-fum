@@ -8,4 +8,4 @@ const positionSchema = new Schema({
 	numbers: [Number]
 });
 
-mongoose.model("users", positionSchema);
+mongoose.model("positions", positionSchema);

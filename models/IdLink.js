@@ -3,9 +3,13 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const idLinkSchema = new Schema({
-	collection: String,
-	sqlId: Number,
-	mongoId: Schema.Types.ObjectId
+	collectionName: String,
+	sqlId: Number
 });
+
+idLinkSchema.statics.convertId = async function(sqlId, collectionName) {
+	const idLink = await this.findOne({ sqlId, collectionName });
+	return idLink._id;
+};
 
 mongoose.model("IdLinks", idLinkSchema);

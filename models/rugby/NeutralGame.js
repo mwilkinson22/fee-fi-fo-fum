@@ -12,4 +12,4 @@ const neutralGameSchema = new Schema({
 	rflFixtureId: Number
 });
 
-mongoose.model("neutralGame", neutralGameSchema);
+mongoose.model("neutralGames", neutralGameSchema);
