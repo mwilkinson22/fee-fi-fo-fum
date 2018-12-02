@@ -3,7 +3,6 @@ const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
 
 const personSchema = new Schema({
-	_id: Number,
 	name: {
 		first: String,
 		last: String
@@ -64,7 +63,8 @@ const personSchema = new Schema({
 			l: Number,
 			d: Number
 		}
-	]
+	],
+	slug: { type: String, unique: true }
 });
 
 mongoose.model("people", personSchema);

@@ -23,7 +23,8 @@ const gameSchema = new Schema({
 		sky: Boolean,
 		bbc: Boolean
 	},
-	rflFixtureId: Number
+	rflFixtureId: Number,
+	slug: { type: String, unique: true }
 });
 
 mongoose.model("game", gameSchema);
