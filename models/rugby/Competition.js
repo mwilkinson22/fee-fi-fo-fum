@@ -26,7 +26,13 @@ const competitionSchema = new Schema({
 							overwriteBaseHashtag: Boolean
 						}
 					],
-					teams: [{ type: Schema.Types.ObjectId, ref: "teams" }]
+					teams: [{ type: Schema.Types.ObjectId, ref: "teams" }],
+					leagueTableColours: [
+						{
+							className: String,
+							position: [Number]
+						}
+					]
 				}
 			]
 		}
