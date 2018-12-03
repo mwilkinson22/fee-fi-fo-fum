@@ -25,7 +25,10 @@ const competitionSchema = new Schema({
 							round: Number,
 							name: String,
 							hashtag: [String],
-							overwriteBaseHashtag: Boolean
+							overwriteBaseHashtag: {
+								type: Boolean,
+								default: false
+							}
 						}
 					],
 					teams: [{ type: Schema.Types.ObjectId, ref: "teams" }],

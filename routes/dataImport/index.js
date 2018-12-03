@@ -3,5 +3,6 @@ module.exports = app => {
 	require("./competition")(app);
 	require("./country")(app);
 	require("./ground")(app);
+	require("./neutralGames")(app);
 	require("./team")(app);
 };

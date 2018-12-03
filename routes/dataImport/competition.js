@@ -73,6 +73,48 @@ module.exports = app => {
 		res.send({});
 	});
 
+	app.post("/api/competitions/segments/instances", async (req, res) => {
+		await _.each(req.body, async sql => {
+			//Get Parent Comp Id
+			const competitionSegmentId = await IdLink.convertId(
+				sql.segment,
+				"competitionSegments"
+			);
+			const competition = await Competition.findOne({
+				segments: {
+					$elemMatch: {
+						_id: competitionSegmentId
+					}
+				}
+			});
+
+			const competitionSegment = await competition.segments.id(
+				competitionSegmentId
+			);
+
+			let teams = null;
+			if (sql.teams) {
+				const teamArray = sql.teams.split(";");
+				teams = [];
+				for (let i = 0; i < teamArray.length; i++) {
+					let newId = await IdLink.convertId(teamArray[i], "teams");
+					await teams.push(newId);
+				}
+			}
+
+			await competitionSegment.instances.push({
+				year: sql.year,
+				sponsor: sql.sponsor,
+				specialRounds: sql.specialRounds || null,
+				teams,
+				leagueTableColours: sql.leagueTableColours || null
+			});
+
+			await competition.save();
+		});
+		res.send({});
+	});
+
 	app.delete("/api/competitions", async (req, res) => {
 		await IdLink.remove({ collectionName });
 		res.send({});
