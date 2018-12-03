@@ -4,12 +4,14 @@ const competitionTypes = require("../../constants/competitionTypes");
 
 const competitionSchema = new Schema({
 	type: { type: String, enum: competitionTypes },
+	name: String,
 	playerLimit: { type: Boolean, default: "true" },
 	segments: [
 		{
 			type: { type: String, enum: competitionTypes },
 			name: String,
 			appendCompetitionName: Boolean,
+			hashtagPrefix: String,
 			_pointsCarriedFrom: {
 				type: Schema.Types.ObjectId,
 				ref: "users.segments"

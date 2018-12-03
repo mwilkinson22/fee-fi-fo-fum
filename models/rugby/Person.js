@@ -67,4 +67,4 @@ const personSchema = new Schema({
 	slug: { type: String, unique: true }
 });
 
-mongoose.model("people", personSchema);
+mongoose.model("people", personSchema, "people"); //Third argument added to prevent "peoples"
