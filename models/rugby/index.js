@@ -6,5 +6,4 @@ require("./Ground");
 require("./NeutralGame");
 require("./Person");
 require("./PlayerStatsCollection");
-require("./Position");
 require("./Team");

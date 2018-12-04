@@ -8,9 +8,16 @@ const keys = require("./config/keys");
 //Add Mongoose Models
 require("./models/User");
 require("./models/IdLink");
+require("./models/SlugRedirect");
 require("./models/rugby");
 
-mongoose.connect(keys.mongoURI);
+mongoose.connect(
+	keys.mongoURI,
+	{
+		useNewUrlParser: true,
+		useCreateIndex: true
+	}
+);
 
 const app = express();
 

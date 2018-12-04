@@ -11,12 +11,14 @@ const gameSchema = new Schema({
 		home: [{ type: Schema.Types.ObjectId, ref: "people" }],
 		away: [{ type: Schema.Types.ObjectId, ref: "people" }]
 	},
-	playerStats: {
-		_player: { type: Schema.Types.ObjectId, ref: "people" },
-		_team: { type: Schema.Types.ObjectId, ref: "teams" },
-		position: Number,
-		stats: PlayerStatsCollectionSchema
-	},
+	playerStats: [
+		{
+			_player: { type: Schema.Types.ObjectId, ref: "people" },
+			_team: { type: Schema.Types.ObjectId, ref: "teams" },
+			position: Number,
+			stats: PlayerStatsCollectionSchema
+		}
+	],
 	_ground: { type: Schema.Types.ObjectId, ref: "grounds", default: null },
 	Title: String,
 	Hashtags: [String],
@@ -34,4 +36,4 @@ const gameSchema = new Schema({
 	slug: { type: String, unique: true }
 });
 
-mongoose.model("game", gameSchema);
+mongoose.model("games", gameSchema);

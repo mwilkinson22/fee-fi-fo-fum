@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const slugRedirectSchema = new Schema({
 	oldSlug: String,
-	document: String,
+	collectionName: String,
 	itemId: Schema.Types.ObjectId
 });
 

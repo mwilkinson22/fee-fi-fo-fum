@@ -17,6 +17,21 @@ const teamSchema = new Schema({
 		pitchColour: [Number],
 		statBarColour: [Number]
 	},
+	squads: [
+		{
+			year: Number,
+			players: [
+				{
+					_player: { type: Schema.Types.ObjectId, ref: "people" },
+					number: Number,
+					from: Date,
+					to: Date,
+					onLoan: Boolean,
+					friendlyOnly: Boolean
+				}
+			]
+		}
+	],
 	shirt: [
 		{
 			year: Number,

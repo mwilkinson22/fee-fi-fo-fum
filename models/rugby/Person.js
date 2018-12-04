@@ -1,6 +1,9 @@
+const _ = require("lodash");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
+
+const { positionKeys } = require("../../constants/playerPositions");
 
 const personSchema = new Schema({
 	name: {
@@ -20,10 +23,8 @@ const personSchema = new Schema({
 	isReferee: Boolean,
 	playerDetails: {
 		contractEnds: Number,
-		positions: {
-			type: [{ type: Schema.Types.ObjectId, ref: "positions" }],
-			required: true
-		}
+		mainPosition: { type: String, enum: positionKeys },
+		otherPositions: [{ type: String, enum: positionKeys }]
 	},
 	coachDetails: [
 		{

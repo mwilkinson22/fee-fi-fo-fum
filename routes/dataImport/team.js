@@ -57,6 +57,33 @@ module.exports = app => {
 		res.send({});
 	});
 
+	app.post("/api/teams/squadnumbers", async (req, res) => {
+		await _.each(req.body, async obj => {
+			const teamId = await IdLink.convertId(obj.team, "teams");
+			const team = await Team.findById(teamId);
+			if (!team.squads) team.squads = [];
+
+			const players = [];
+			for (const p of obj.players) {
+				const { from, to, number, onLoan, friendlyOnly } = await p;
+				const newObj = await { from, to, number, onLoan, friendlyOnly };
+				const playerId = await IdLink.convertId(p.player, "people");
+				newObj._player = await playerId;
+				await players.push(newObj);
+			}
+			await team.squads.push({
+				year: obj.year,
+				players
+			});
+			await team.save();
+		});
+		res.send({});
+	});
+
+	app.delete("/api/teams/squadnumbers", async (req, res) => {
+		await Team.update({}, { squads: [] }, { multi: true });
+		res.send({});
+	});
 	app.delete("/api/teams", async (req, res) => {
 		await IdLink.remove({ collectionName });
 		res.send({});
