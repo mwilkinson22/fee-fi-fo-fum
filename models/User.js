@@ -9,7 +9,8 @@ const userSchema = new Schema({
 		first: String,
 		last: String
 	},
-	email: String
+	email: String,
+	isAdmin: Boolean
 });
 
 //password hashing

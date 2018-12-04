@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as actions from "../actions";
 import LoadingPage from "./LoadingPage";
+import SearchBar from "./PersonSearch";
 
 class App extends Component {
 	componentDidMount() {
@@ -15,11 +16,9 @@ class App extends Component {
 		} else {
 			return (
 				<div>
-					<h2>
-						Hello,{" "}
-						{this.props.auth ? this.props.auth.name.first : "World"}
-					</h2>
+					<h2>Hello, {this.props.auth ? this.props.auth.name.first : "World"}</h2>
 					<p>Let's get started</p>
+					<SearchBar />
 				</div>
 			);
 		}

@@ -2,7 +2,6 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
-
 const { positionKeys } = require("../../constants/playerPositions");
 
 const personSchema = new Schema({
@@ -65,7 +64,23 @@ const personSchema = new Schema({
 			d: Number
 		}
 	],
+
 	slug: { type: String, unique: true }
 });
+
+personSchema.statics.searchByName = async function(str, extraParams = {}, limit = 20) {
+	const regex = new RegExp(str, "ig");
+
+	const results = await this.aggregate([
+		// Project the concatenated full name along with the original doc
+		{ $match: extraParams },
+		{ $project: { fullname: { $concat: ["$name.first", " ", "$name.last"] }, doc: "$$ROOT" } },
+		{ $match: { fullname: regex } },
+		{ $sort: { fullname: 1 } },
+		{ $limit: limit }
+	]);
+
+	return results;
+};
 
 mongoose.model("people", personSchema, "people"); //Third argument added to prevent "peoples"

@@ -3,3 +3,5 @@ node_modules
 
 #webstorm project settings
 .idea
+
+config/dev.js

@@ -42,7 +42,7 @@ app.use(passport.session());
 
 // API Routes
 require("./routes/userRoutes")(app);
-require("./routes/dataImport")(app);
+require("./routes/rugby")(app);
 
 if (process.env.NODE_ENV === "production") {
 	//Express will serve up production assets like main.js or main.css
