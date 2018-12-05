@@ -83,4 +83,30 @@ personSchema.statics.searchByName = async function(str, extraParams = {}, limit 
 	return results;
 };
 
+personSchema.statics.generateSlug = async function(firstName, lastName) {
+	const coreSlugText = (firstName + " " + lastName)
+		.replace(/\s/g, "-")
+		.replace(/[^A-Za-z-]/gi, "")
+		.toLowerCase();
+
+	let slugExists = await this.findOne({
+		slug: coreSlugText
+	});
+
+	if (!slugExists) {
+		return coreSlugText;
+	} else {
+		let i = 2;
+		let slug;
+		while (slugExists) {
+			slug = coreSlugText + "-" + i++;
+			slugExists = await this.findOne({
+				slug
+			});
+		}
+
+		return slug;
+	}
+};
+
 mongoose.model("people", personSchema, "people"); //Third argument added to prevent "peoples"

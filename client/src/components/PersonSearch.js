@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import _ from "lodash";
+import "./PersonSearch.css";
 
 export default class SearchBar extends Component {
 	constructor(props) {
@@ -25,9 +26,15 @@ export default class SearchBar extends Component {
 
 	render() {
 		return (
-			<div>
-				<input type="text" placeholder="search" onChange={ev => this.updateList(ev.target.value)} />
-				<div>{this.state.list}</div>
+			<div style={{ position: "relative", display: "inline-block" }}>
+				<input
+					id="nameSearch"
+					ref="nameInput"
+					type="text"
+					placeholder="Search"
+					onChange={ev => this.updateList(ev.target.value)}
+				/>
+				<div className="results">{this.state.list}</div>
 			</div>
 		);
 	}

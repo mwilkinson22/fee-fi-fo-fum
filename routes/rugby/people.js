@@ -5,6 +5,7 @@ const Person = mongoose.model(collectionName);
 const IdLink = mongoose.model("IdLinks");
 const SlugRedirect = mongoose.model("slugRedirect");
 const validateMongooseId = require("../../utils/validateMongooseId");
+const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
 	//Get
@@ -59,5 +60,12 @@ module.exports = app => {
 	app.get("/api/person/search/:name", async (req, res) => {
 		const results = await Person.searchByName(decodeURI(req.params.name));
 		res.send(results);
+	});
+
+	app.post("/api/person", requireAdmin, async (req, res) => {
+		// const {name, nickname, dateOfBirth, }
+		// const dateOfBirth = new Date(dateOfBirth);
+		// const slug = Person.generateSlug();
+		res.send(req.body);
 	});
 };
