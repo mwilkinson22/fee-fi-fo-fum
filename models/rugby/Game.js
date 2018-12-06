@@ -28,12 +28,37 @@ const gameSchema = new Schema({
 	_referee: { type: Schema.Types.ObjectId, ref: "people" },
 	_video_referee: { type: Schema.Types.ObjectId, ref: "people" },
 	attendance: Number,
-	tv: {
-		sky: Boolean,
-		bbc: Boolean
-	},
+	tv: { type: String, enum: [false, "bbc", "sky"], default: false },
 	rflFixtureId: Number,
 	slug: { type: String, unique: true }
 });
+
+gameSchema.statics.generateSlug = async function(opposition, date) {
+	const Team = mongoose.models("teams");
+	const team = await Team.findById(opposition);
+	const coreSlugText = (team.name.short + " " + date)
+		.replace(/\s/g, "-")
+		.replace(/[^A-Za-z-]/gi, "")
+		.toLowerCase();
+
+	let slugExists = await this.findOne({
+		slug: coreSlugText
+	});
+
+	if (!slugExists) {
+		return coreSlugText;
+	} else {
+		let i = 2;
+		let slug;
+		while (slugExists) {
+			slug = coreSlugText + "-" + i++;
+			slugExists = await this.findOne({
+				slug
+			});
+		}
+
+		return slug;
+	}
+};
 
 mongoose.model("games", gameSchema);

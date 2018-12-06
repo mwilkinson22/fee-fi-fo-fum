@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const collectionName = "games";
-const Person = mongoose.model(collectionName);
+const Game = mongoose.model(collectionName);
+const Team = mongoose.model("teams");
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");
@@ -16,5 +17,29 @@ module.exports = app => {
 	});
 	app.get("/api/games/slug/:slug", async (req, res) => {
 		getItemBySlug(collectionName, req.params.slug, req, res);
+	});
+
+	app.post("/api/games", requireAdmin, async (req, res) => {
+		const { data } = req.body;
+
+		//Add ground
+		if (!data._ground) {
+			const opposition = await Team.findById(data._opposition);
+			data._ground = opposition._ground;
+		}
+
+		const game = await new Game({
+			...data,
+
+			//Create Slug
+			slug: Game.generateSlug(data._opposition, data.date),
+
+			//Convert DOB to date format
+			date: new Date(data.date)
+		});
+
+		await game.save();
+
+		res.send(game);
 	});
 };
