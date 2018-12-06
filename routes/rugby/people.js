@@ -24,9 +24,32 @@ module.exports = app => {
 	});
 
 	app.post("/api/people", requireAdmin, async (req, res) => {
-		// const {name, nickname, dateOfBirth, }
-		// const dateOfBirth = new Date(dateOfBirth);
-		// const slug = Person.generateSlug();
-		res.send(req.body);
+		const { data } = req.body;
+
+		//Remove unneccessary details
+		/* Possibly unneccesary. Depends on react-router behaviour. Will test once we get the front-end up and running
+		if (!data.isPlayer) {
+			delete data.playerDetails;
+			delete data.additionalPlayerStats;
+		}
+		if (!data.isCoach) {
+			delete data.coachDetails;
+			delete data.additionalCoachStats;
+		}
+		if (!data.isReferee) {
+			delete data.refereeDetails;
+		}
+		*/
+
+		const person = await new Person({
+			...data,
+
+			//Convert DOB to date format
+			dateOfBirth: new Date(data.dateOfBirth)
+		});
+
+		await person.save();
+
+		res.send(person);
 	});
 };
