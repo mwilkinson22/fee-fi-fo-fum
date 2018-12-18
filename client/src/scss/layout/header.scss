@@ -130,6 +130,7 @@ header {
 		.nav-section {
 			display: inline-block;
 			position: relative;
+			font-size: 14pt;
 
 			&:not(:hover) ul {
 				display:none;
@@ -139,6 +140,9 @@ header {
 				padding: 4pt 6pt;
 				display: inline-block;
 
+				&.with-submenu::after {
+					content: "\25BE";
+				}
 			}
 			&:first-child .nav-menu-header {
 				padding-left: 0;
@@ -146,6 +150,7 @@ header {
 
 			ul {
 				position: absolute;
+				top:100%;
 				background:$claret;
 				li a {
 					padding: 8pt 10pt 8pt 6pt;

@@ -59,7 +59,7 @@ class Header extends Component {
 				<NavLink
 					activeClassName={activeClassName}
 					to={section.headerLink}
-					className="nav-menu-header"
+					className={"nav-menu-header" + (section.subMenu ? " with-submenu" : "")}
 					children={section.header}
 					onClick={() => this.setState({ showMobileNav: false })}
 					exact={section.headerLink === "/"}
