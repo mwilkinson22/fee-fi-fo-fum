@@ -1,0 +1,35 @@
+//Colours
+$claret: #751432;
+$gold: #ffcc00;
+
+//Media queries
+$mobile-only: "only screen and (max-width: 777px)";
+$desktop-only: "only screen and (min-width: 778px)";
+
+//Default properties
+$transition: all 300ms;
+
+//Styles
+@mixin header {
+	font-family: "Montserrat";
+	font-weight: 600;
+	text-transform: uppercase;
+}
+@mixin link {
+	text-decoration: none;
+	cursor: pointer;
+	color: inherit;
+	&:hover {
+		color: $gold;
+	}
+}
+@mixin mobileOnly {
+	@media #{$desktop-only} {
+		display: none;
+	}
+}
+@mixin desktopOnly {
+	@media #{$mobile-only} {
+		display: none;
+	}
+}

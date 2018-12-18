@@ -28,21 +28,19 @@ module.exports = app => {
 		if (user) {
 			res.send(user);
 		} else {
-			res.status(400).send(
-				`User '${req.params.username}' does not exist`
-			);
+			res.status(400).send(`User '${req.params.username}' does not exist`);
 		}
 	});
 
 	//Login
 	app.post("/auth/login", passport.authenticate("local"), (req, res) => {
-		res.redirect("/admin");
+		res.send(req.user);
 	});
 
 	//Logout
 	app.get("/api/logout", (req, res) => {
 		req.logout();
-		res.redirect("/");
+		res.send({});
 	});
 
 	//Get currently logged in user

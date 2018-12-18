@@ -16,6 +16,7 @@ module.exports = app => {
 	app.get("/api/people/slug/:slug", GenericController.getItemBySlug);
 
 	app.get("/api/people/search/:name", async (req, res) => {
+		console.log("sup");
 		const results = await Person.searchByName(decodeURI(req.params.name));
 		res.send(results);
 	});
