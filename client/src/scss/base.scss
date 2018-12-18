@@ -84,8 +84,7 @@ video {
 	margin: 0;
 	padding: 0;
 	border: 0;
-	font-size: 100%;
-	font: inherit;
+	font-family: inherit;
 	vertical-align: baseline;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -140,6 +139,13 @@ h4,
 h5,
 h6 {
 	@include header;
+	color: $claret;
+}
+
+h1 {
+	font-size: 3em;
+	text-align: center;
+	margin: 10pt;
 }
 
 a {
@@ -158,4 +164,10 @@ a {
 	box-sizing: border-box;
 	position: relative;
 	padding: 0 1%;
+}
+
+//Text highlighting
+*::selection {
+	color: $gold;
+	background: $claret;
 }

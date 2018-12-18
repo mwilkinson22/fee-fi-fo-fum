@@ -1,6 +1,8 @@
 @import "../variables";
 
 header {
+	@include noTextSelect;
+
 	background-color: $claret;
 	color: white;
 	position: sticky;
@@ -15,7 +17,7 @@ header {
 				@include header;
 
 				ul a {
-					display:block;
+					display: block;
 					font-size: 0.8em;
 					font-weight: 400;
 				}
@@ -29,7 +31,6 @@ header {
 			}
 		}
 	}
-
 
 	.active-nav-link {
 		color: $gold;
@@ -107,8 +108,8 @@ header {
 					}
 
 					a {
-						width:100%;
-						display:block;
+						width: 100%;
+						display: block;
 						padding: 8pt 20pt;
 					}
 
@@ -116,7 +117,6 @@ header {
 						padding-left: 30pt;
 					}
 				}
-
 			}
 			&.active > .root-nav-list {
 				transform: translateX(100%);
@@ -132,28 +132,36 @@ header {
 			position: relative;
 			font-size: 14pt;
 
-			&:not(:hover) ul {
-				display:none;
+			ul {
+				display: none;
 			}
 
 			.nav-menu-header {
 				padding: 4pt 6pt;
 				display: inline-block;
 
-				&.with-submenu::after {
-					content: "\25BE";
+				&.with-submenu {
+					padding-right: 0pt;
+					&::after {
+						content: "\25BE";
+					}
 				}
 			}
 			&:first-child .nav-menu-header {
 				padding-left: 0;
 			}
 
-			ul {
-				position: absolute;
-				top:100%;
-				background:$claret;
-				li a {
-					padding: 8pt 10pt 8pt 6pt;
+			&:hover {
+				ul {
+					display: block;
+					background: $claret;
+					position: absolute;
+					top: 100%;
+					min-width: 100%;
+					border-radius: 0 0 3pt 3pt;
+					li a {
+						padding: 8pt 10pt 8pt 6pt;
+					}
 				}
 			}
 		}

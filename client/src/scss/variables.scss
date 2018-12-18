@@ -9,7 +9,7 @@ $desktop-only: "only screen and (min-width: 778px)";
 //Default properties
 $transition: all 300ms;
 
-//Styles
+//Utility Classes
 @mixin header {
 	font-family: "Montserrat";
 	font-weight: 600;
@@ -32,4 +32,8 @@ $transition: all 300ms;
 	@media #{$mobile-only} {
 		display: none;
 	}
+}
+
+@mixin noTextSelect {
+	user-select: none;
 }

@@ -21,94 +21,10 @@ class App extends Component {
 					<div id="wrapper">
 						<Header />
 						<div className="container">
-							<h2>Hello, {this.props.auth ? this.props.auth.name.first : "World"}</h2>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
-							<p>Let's get started</p>
+							<h1>Test</h1>
+							<h2>Test</h2>
+							<h3>Test</h3>
+							<h4>Test</h4>
 						</div>
 					</div>
 				</BrowserRouter>
