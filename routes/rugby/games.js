@@ -1,23 +1,20 @@
 const mongoose = require("mongoose");
 const collectionName = "games";
+
+//Models
 const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
+
+//Controllers
+const GenericController = require("../../controllers/rugby/generic_controller")(collectionName);
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");
 
-//Getters
-const getItemById = require("../../middlewares/getters/getItemById");
-const getItemBySlug = require("../../middlewares/getters/getItemBySlug");
-
 module.exports = app => {
-	//Get
-	app.get("/api/games/:id", async (req, res) => {
-		getItemById(collectionName, req.params.id, req, res);
-	});
-	app.get("/api/games/slug/:slug", async (req, res) => {
-		getItemBySlug(collectionName, req.params.slug, req, res);
-	});
+	//Getters
+	app.get("/api/games/:id", GenericController.getItemById);
+	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
 
 	app.post("/api/games", requireAdmin, async (req, res) => {
 		const { data } = req.body;
