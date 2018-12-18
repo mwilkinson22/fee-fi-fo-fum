@@ -1,11 +1,22 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import { connect } from "react-redux";
+
+//Actions
 import * as actions from "../actions";
-import LoadingPage from "./LoadingPage";
-import Header from "./Header";
+
+//Stylesheets
 import "../scss/base.scss";
 import "../scss/style.scss";
+
+//Components
+import Header from "./Header";
+import HomePage from "./Homepage";
+import GameRouter from "./games";
+import TeamRouter from "./teams";
+import AdminRouter from "./admin";
+import NewsRouter from "./news";
+import LoadingPage from "./LoadingPage";
 
 class App extends Component {
 	componentDidMount() {
@@ -13,23 +24,18 @@ class App extends Component {
 	}
 
 	render() {
-		if (this.props.auth === null) {
-			return <LoadingPage />;
-		} else {
-			return (
-				<BrowserRouter>
-					<div id="wrapper">
-						<Header />
-						<div className="container">
-							<h1>Test</h1>
-							<h2>Test</h2>
-							<h3>Test</h3>
-							<h4>Test</h4>
-						</div>
-					</div>
-				</BrowserRouter>
-			);
-		}
+		return (
+			<BrowserRouter>
+				<div id="wrapper">
+					<Header />
+					<Route path="/games" component={GameRouter} />
+					<Route path="/teams" component={TeamRouter} />
+					<Route path="/news/" component={NewsRouter} />
+					<Route path="/admin" component={AdminRouter} />
+					<Route path="/" component={HomePage} exact />
+				</div>
+			</BrowserRouter>
+		);
 	}
 }
 

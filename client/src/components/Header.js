@@ -21,6 +21,7 @@ class Header extends Component {
 			{
 				header: "Games",
 				headerLink: "/games",
+				headerClickable: false,
 				subMenu: {
 					Fixtures: "/fixtures",
 					Results: "/results"
@@ -43,14 +44,20 @@ class Header extends Component {
 		];
 
 		if (this.props.auth) {
-			navMenu.push({
-				header: "Admin",
-				headerLink: "/admin",
-				subMenu: {
-					Teams: "/teams",
-					Games: "/games"
+			navMenu.push(
+				{
+					header: "Admin",
+					headerLink: "/admin",
+					subMenu: {
+						Teams: "/teams",
+						Games: "/games"
+					}
+				},
+				{
+					header: "Logout",
+					headerLink: "/auth/logout"
 				}
-			});
+			);
 		}
 
 		return _.map(navMenu, section => {
