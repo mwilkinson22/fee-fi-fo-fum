@@ -1,0 +1,22 @@
+@import "../variables";
+
+.form-card {
+	background: #fff;
+	display: block;
+	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+}
+
+.login-card {
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: auto;
+	display: block;
+	max-width: 400px;
+	padding: 5%;
+
+	form {
+		display: flex;
+		flex-direction: column;
+	}
+}

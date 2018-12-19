@@ -14,9 +14,13 @@ const requireAdmin = require("../../middlewares/requireAdmin");
 module.exports = app => {
 	//Getters
 	app.get("/api/games/fixtures", async (req, res) => {
-		const games = await Game.find({ date: { $gt: new Date() } });
+		const games = await Game.find({ date: { $gt: new Date() } })
+			.sort({ date: 1 })
+			.populate("_ground")
+			.populate("_opposition");
 		res.send(games);
 	});
+
 	app.get("/api/games/:id", GenericController.getItemById);
 	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
 
