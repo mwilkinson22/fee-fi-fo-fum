@@ -86,8 +86,8 @@ module.exports = {
 			};
 		} else {
 			teamQuery.date = {
-				$gte: new Date(year + "01-01"),
-				$lt: new Date(Number(year) + 1 + "01-01")
+				$gte: new Date(year + "-01-01"),
+				$lt: new Date(Number(year) + 1 + "-01-01")
 			};
 		}
 		const teamIds = await Game.find(teamQuery).distinct("_opposition");
