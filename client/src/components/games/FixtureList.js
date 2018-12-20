@@ -1,11 +1,14 @@
-import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchFixtures } from "../../actions/games";
+import { fetchFixtures, updateFilters } from "../../actions/games";
 import GameList from "./GameList";
 
 class FixtureList extends GameList {
 	fetchGameList() {
-		this.props.fetchFixtures();
+		this.props.fetchFixtures(this.state.filters);
+	}
+
+	fetchFilters() {
+		this.props.updateFilters("fixtures");
 	}
 
 	generatePageHeader() {
@@ -14,10 +17,10 @@ class FixtureList extends GameList {
 }
 
 function mapStateToProps({ games }) {
-	return { games: games.fixtures || null };
+	return { games: games.fixtures || null, filters: games.filters };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchFixtures }
+	{ fetchFixtures, updateFilters }
 )(FixtureList);

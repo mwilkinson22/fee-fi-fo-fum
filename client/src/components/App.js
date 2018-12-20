@@ -16,7 +16,6 @@ import GameRouter from "./games";
 import TeamRouter from "./teams";
 import AdminRouter from "./admin";
 import NewsRouter from "./news";
-import LoadingPage from "./LoadingPage";
 
 class App extends Component {
 	componentDidMount() {

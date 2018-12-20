@@ -146,6 +146,16 @@ h1 {
 	font-size: 3em;
 	text-align: center;
 	margin-bottom: 10pt;
+	select {
+		font: inherit;
+		color: inherit;
+		background: transparent;
+		border: none;
+		outline: none;
+		option {
+			font-size: initial;
+		}
+	}
 }
 
 a {

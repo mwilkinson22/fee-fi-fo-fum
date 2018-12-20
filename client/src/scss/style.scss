@@ -25,3 +25,26 @@ body {
 		margin-bottom: 40pt;
 	}
 }
+
+.list-filters {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	select {
+		width: 100%;
+		padding: 4pt 8pt;
+		font: inherit;
+		border-radius: 4pt;
+	}
+
+	@media #{$desktop-only} {
+		.list-filter {
+			flex-grow: 1;
+			padding: 0 8pt;
+		}
+	}
+	@media #{$mobile-only} {
+		flex-direction: column;
+	}
+}

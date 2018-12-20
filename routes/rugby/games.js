@@ -15,6 +15,8 @@ const requireAdmin = require("../../middlewares/requireAdmin");
 module.exports = app => {
 	//Getters
 	app.get("/api/games/fixtures/", GameController.getFixtures);
+	app.get("/api/games/results/years", GameController.getYearsWithResults);
+	app.get("/api/games/filters/:year", GameController.getFilters);
 	app.get("/api/games/results/:year", GameController.getResults);
 
 	app.get("/api/games/:id", GenericController.getItemById);
