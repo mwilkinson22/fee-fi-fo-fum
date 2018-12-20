@@ -1,5 +1,7 @@
+const _ = require("lodash");
 const mongoose = require("mongoose");
 const Game = mongoose.model("games");
+const Team = mongoose.model("teams");
 
 function buildQuery(params) {
 	const query = {};
@@ -76,14 +78,27 @@ module.exports = {
 	async getFilters(req, res) {
 		const { year } = req.params;
 
+		//Get Teams
+		const teamQuery = {};
+		if (year === "fixtures") {
+			teamQuery.date = {
+				$gte: new Date()
+			};
+		} else {
+			teamQuery.date = {
+				$gte: new Date(year + "01-01"),
+				$lt: new Date(Number(year) + 1 + "01-01")
+			};
+		}
+		const teamIds = await Game.find(teamQuery).distinct("_opposition");
+		const opposition = await Team.find({ _id: { $in: teamIds } }, { "name.long": 1 }).sort({
+			"name.long": 1
+		});
+
 		const competitions = {
 			1: "Super League",
 			2: "Challenge Cup",
 			3: "Friendlies"
-		};
-		const opposition = {
-			"5c041478e2b66153542b373e": "Salford",
-			"5c041478e2b66153542b3746": "Wigan"
 		};
 		const venue = {
 			h: "Home",
@@ -91,7 +106,7 @@ module.exports = {
 		};
 		res.send({
 			competitions,
-			opposition,
+			opposition: _.mapValues(_.keyBy(opposition, "_id"), "name.long"),
 			venue
 		});
 	}

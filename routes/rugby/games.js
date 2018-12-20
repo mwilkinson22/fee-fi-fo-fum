@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const mongoose = require("mongoose");
 const collectionName = "games";
 
@@ -19,6 +20,14 @@ module.exports = app => {
 	app.get("/api/games/filters/:year", GameController.getFilters);
 	app.get("/api/games/results/:year", GameController.getResults);
 
+	app.get("/api/games/getTeamsByYear", async (req, res) => {
+		const team_Ids = await Game.find({}).distinct("_opposition");
+		const teams = await Team.find({ _id: { $in: team_Ids } }, { "name.long": 1 }).sort({
+			"name.long": 1
+		});
+
+		res.send();
+	});
 	app.get("/api/games/:id", GenericController.getItemById);
 	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
 
