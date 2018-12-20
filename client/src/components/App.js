@@ -24,7 +24,7 @@ class App extends Component {
 
 	render() {
 		return (
-			<BrowserRouter>
+			<BrowserRouter onUpdate={() => window.scrollTo(0, 0)}>
 				<div id="wrapper">
 					<Header />
 					<Route path="/games" component={GameRouter} />
