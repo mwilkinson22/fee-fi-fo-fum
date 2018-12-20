@@ -1,45 +1,23 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGames } from "../../actions/index";
+import { fetchFixtures } from "../../actions/games";
+import GameList from "./GameList";
 
-class FixtureList extends Component {
-	componentDidMount() {
-		this.props.fetchGames();
+class FixtureList extends GameList {
+	fetchGameList() {
+		this.props.fetchFixtures();
 	}
 
-	populateFixtureList() {
-		if (this.props.games === null) {
-			return "Loading...";
-		} else if (this.props.games.length === 0) {
-			return "No fixtures found";
-		} else {
-			const fixtures = this.props.games.map(game => {
-				return (
-					<p key={game._id}>
-						{game._opposition.name.short} {game.date}
-					</p>
-				);
-			});
-			console.log(fixtures);
-			return <div children={fixtures} />;
-		}
-	}
-
-	render() {
-		return (
-			<div>
-				<h1>Fixtures</h1>
-				{this.populateFixtureList()}
-			</div>
-		);
+	generatePageHeader() {
+		return "Fixtures";
 	}
 }
 
 function mapStateToProps({ games }) {
-	return { games };
+	return { games: games.fixtures || null };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchGames }
+	{ fetchFixtures }
 )(FixtureList);

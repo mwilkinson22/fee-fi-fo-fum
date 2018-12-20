@@ -7,19 +7,15 @@ const Team = mongoose.model("teams");
 
 //Controllers
 const GenericController = require("../../controllers/rugby/generic_controller")(collectionName);
+const GameController = require("../../controllers/rugby/games_controller");
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
 	//Getters
-	app.get("/api/games/fixtures", async (req, res) => {
-		const games = await Game.find({ date: { $gt: new Date() } })
-			.sort({ date: 1 })
-			.populate("_ground")
-			.populate("_opposition");
-		res.send(games);
-	});
+	app.get("/api/games/fixtures/", GameController.getFixtures);
+	app.get("/api/games/results/:year", GameController.getResults);
 
 	app.get("/api/games/:id", GenericController.getItemById);
 	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
