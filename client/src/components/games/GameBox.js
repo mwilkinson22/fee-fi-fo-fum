@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import * as colour from "../../utils/colourHelper";
 
 export default class GameBox extends Component {
 	constructor(props) {
@@ -51,8 +52,8 @@ export default class GameBox extends Component {
 						key={segment + "-val"}
 						className="value"
 						style={{
-							backgroundColor: `rgba(${opposition.colours.text.join(",")}, 0.9)`,
-							color: `rgb(${opposition.colours.main.join(",")})`
+							backgroundColor: colour.toRgb(opposition.colours.text),
+							color: colour.toRgb(opposition.colours.main)
 						}}
 					>
 						{this.state[segment.toLowerCase()]}
@@ -85,9 +86,9 @@ export default class GameBox extends Component {
 				<div
 					className="game-box-content"
 					style={{
-						backgroundColor: `rgba(${opposition.colours.main.join(",")}, 0.9)`,
-						color: `rgb(${opposition.colours.text.join(",")})`,
-						borderColor: `rgb(${opposition.colours.trim1.join(",")})`
+						backgroundColor: colour.toRgba(opposition.colours.main, 0.9),
+						color: colour.toRgb(opposition.colours.text),
+						borderColor: colour.toRgb(opposition.colours.trim1)
 					}}
 				>
 					<div
