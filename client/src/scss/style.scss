@@ -21,7 +21,7 @@ body {
 		background-image: url("https://www.giantsfanzine.co.uk/resources/newsite/paper.png");
 		background-repeat: repeat-x;
 		background-size: contain;
-		transform: translateY(100%);
+		transform: translateY(99%);
 		display: block;
 		margin-bottom: 40pt;
 	}
@@ -47,5 +47,8 @@ body {
 	}
 	@media #{$mobile-only} {
 		flex-direction: column;
+		.list-filter {
+			width: 100%;
+		}
 	}
 }

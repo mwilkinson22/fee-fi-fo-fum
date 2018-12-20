@@ -3,7 +3,7 @@
 	padding-top: 30%;
 	background-size: cover;
 	background-position: center;
-	box-shadow: 2pt 3pt 5pt rgba(0, 0, 0, 0.5);
+	box-shadow: 3pt 3pt 4pt rgba(0, 0, 0, 0.5);
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
@@ -53,8 +53,11 @@
 
 .game-list {
 	display: grid;
-	grid-gap: 20pt;
+	@media #{$mobile-only} {
+		grid-gap: 10pt;
+	}
 	@media #{$desktop-only} {
+		grid-gap: 20pt;
 		grid-template-columns: 1fr 1fr;
 	}
 
