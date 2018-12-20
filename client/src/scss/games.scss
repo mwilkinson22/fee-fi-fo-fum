@@ -1,0 +1,71 @@
+.game-box {
+	font-size: 12pt;
+	padding-top: 30%;
+	background-size: cover;
+	background-position: center;
+	box-shadow: 2pt 3pt 5pt rgba(0, 0, 0, 0.5);
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	.game-box-content {
+		display: flex;
+		align-items: center;
+		border-left: solid 8pt;
+		padding: 2%;
+		.team-badge {
+			width: 40pt;
+			padding-top: 40pt;
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+			margin-right: 10pt;
+		}
+		h4 {
+			color: inherit;
+			font-size: 1.5em;
+			font-weight: bold;
+		}
+	}
+
+	.game-countdown {
+		font-weight: bold;
+
+		.value {
+			width: 2em;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+			display: inline-block;
+			padding: 4pt;
+			text-align: center;
+			background: #fff;
+			color: #222;
+		}
+		.label {
+			margin-left: 4pt;
+			margin-right: 10pt;
+			text-transform: uppercase;
+		}
+	}
+	.game-countdown .label {
+	}
+}
+
+.game-list {
+	display: grid;
+	grid-gap: 20pt;
+	@media #{$desktop-only} {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.game-box {
+		width: 100%;
+		&:first-child {
+			.team-badge {
+				padding: 4%;
+			}
+			padding-top: 20%;
+			grid-column: 1 / -1;
+		}
+	}
+}

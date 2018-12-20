@@ -60,5 +60,4 @@ gameSchema.statics.generateSlug = async function(opposition, date) {
 		return slug;
 	}
 };
-
 mongoose.model("games", gameSchema);

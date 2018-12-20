@@ -20,33 +20,47 @@ function buildQuery(params) {
 	if (params.venue && params.venue !== null) {
 		query.isAway = params.venue === "a";
 	}
-	console.log(params);
-	console.log(query);
 
 	return query;
 }
 
+async function getGameList(query, sort, res) {
+	const games = await Game.find(query, {
+		_id: 1,
+		_opposition: 1,
+		_ground: 1,
+		_competition: 1,
+		isAway: 1,
+		date: 1
+	})
+		.sort(sort)
+		.populate({
+			path: "_opposition",
+			select: ["name", "colours", "image"]
+		})
+		.populate({
+			path: "_ground",
+			select: ["name", "address", "image"],
+			populate: {
+				path: "address._city"
+			}
+		});
+	res.send(games);
+}
+
 module.exports = {
 	async getFixtures(req, res) {
-		const games = await Game.find({
+		const query = {
 			date: { $gt: new Date() },
 			...buildQuery(req.query)
-		})
-			.sort({ date: 1 })
-			.populate("_ground")
-			.populate("_opposition");
-		res.send(games);
+		};
+		getGameList(query, { date: 1 }, res);
 	},
 
 	async getResults(req, res) {
 		const { year } = req.params;
-
 		const query = buildQuery({ ...req.query, year });
-		const games = await Game.find(query)
-			.sort({ date: -1 })
-			.populate("_ground")
-			.populate("_opposition");
-		res.send(games);
+		getGameList(query, { date: -1 }, res);
 	},
 
 	async getYearsWithResults(req, res) {

@@ -20,7 +20,8 @@ const groundSchema = new Schema({
 			duration: Number
 		}
 	],
-	addThe: Boolean
+	addThe: Boolean,
+	image: String
 });
 
 mongoose.model("grounds", groundSchema);

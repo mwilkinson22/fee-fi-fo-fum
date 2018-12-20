@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import LoadingPage from "../LoadingPage";
+import GameBox from "./GameBox";
 import _ from "lodash";
 
 class GameList extends Component {
@@ -26,14 +27,13 @@ class GameList extends Component {
 		} else if (games.length === 0) {
 			return "No games found";
 		} else {
+			let isFirst = true;
 			const renderedGames = games.map(game => {
-				return (
-					<p key={game._id}>
-						{game._opposition.name.short} {game.date} {game.isAway ? "away" : "home"}
-					</p>
-				);
+				const includeCountdown = isFirst;
+				isFirst = false;
+				return <GameBox key={game._id} game={game} includeCountdown={includeCountdown} />;
 			});
-			return <div>{renderedGames}</div>;
+			return <div className="container game-list">{renderedGames}</div>;
 		}
 	}
 
@@ -67,7 +67,10 @@ class GameList extends Component {
 				return (
 					<div key={filterName} className="list-filter">
 						<h4>{filterName.toUpperCase()}</h4>
-						<select onChange={ev => this.updateFilters(filterName, ev)}>
+						<select
+							onChange={ev => this.updateFilters(filterName, ev)}
+							value={this.state.filters[filterName] || ""}
+						>
 							<option value="">All</option>
 							{options}
 						</select>
@@ -86,7 +89,7 @@ class GameList extends Component {
 						<div className="list-filters">{this.generateFilters()}</div>
 					</div>
 				</div>
-				<div className="container">{this.populateGameList()}</div>
+				{this.populateGameList()}
 			</div>
 		);
 	}

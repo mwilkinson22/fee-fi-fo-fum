@@ -8,6 +8,7 @@ class FixtureList extends GameList {
 	}
 
 	fetchFilters() {
+		this.setState({ filters: {} });
 		this.props.updateFilters("fixtures");
 	}
 

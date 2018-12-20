@@ -45,7 +45,8 @@ const teamSchema = new Schema({
 				}
 			]
 		}
-	]
+	],
+	image: String
 });
 
 mongoose.model("teams", teamSchema);

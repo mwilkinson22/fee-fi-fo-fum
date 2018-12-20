@@ -20,6 +20,7 @@ class ResultList extends GameList {
 	}
 
 	fetchFilters() {
+		this.setState({ filters: {} });
 		this.props.updateFilters(this.props.year);
 	}
 
