@@ -59,16 +59,16 @@
 	@media #{$desktop-only} {
 		grid-gap: 20pt;
 		grid-template-columns: 1fr 1fr;
-	}
-
-	.game-box {
-		width: 100%;
-		&:first-child {
+		.game-box:first-child {
 			.team-badge {
 				padding: 4%;
 			}
 			padding-top: 20%;
 			grid-column: 1 / -1;
 		}
+	}
+
+	.game-box {
+		width: 100%;
 	}
 }
