@@ -24,11 +24,6 @@ const app = express();
 //Enable bodyParser
 app.use(bodyParser.json());
 
-//Hello
-app.get("/", (req, res) => {
-	res.send("Hello, world");
-});
-
 //Set up passport
 require("./services/passport");
 app.use(
