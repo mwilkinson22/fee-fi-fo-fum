@@ -31,7 +31,8 @@ async function getGameList(query, sort, res) {
 		_ground: 1,
 		_competition: 1,
 		isAway: 1,
-		date: 1
+		date: 1,
+		slug: 1
 	})
 		.sort(sort)
 		.populate({
