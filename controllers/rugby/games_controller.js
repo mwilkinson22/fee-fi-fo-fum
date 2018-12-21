@@ -79,18 +79,19 @@ module.exports = {
 		const { year } = req.params;
 
 		//Get Teams
-		const teamQuery = {};
+		const query = {};
 		if (year === "fixtures") {
-			teamQuery.date = {
+			query.date = {
 				$gte: new Date()
 			};
 		} else {
-			teamQuery.date = {
+			query.date = {
 				$gte: new Date(year + "-01-01"),
 				$lt: new Date(Number(year) + 1 + "-01-01")
 			};
 		}
-		const teamIds = await Game.find(teamQuery).distinct("_opposition");
+		//Get Teams
+		const teamIds = await Game.find(query).distinct("_opposition");
 		const opposition = await Team.find({ _id: { $in: teamIds } }, { "name.long": 1 }).sort({
 			"name.long": 1
 		});
