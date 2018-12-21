@@ -1,4 +1,5 @@
 require("./Competition");
+require("./CompetitionSegment");
 require("./City");
 require("./Country");
 require("./Game");

@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const PlayerStatsCollectionSchema = require("./PlayerStatsCollection");
 
 const gameSchema = new Schema({
-	_competition: { type: Schema.Types.ObjectId, ref: "competition.segments" },
+	_competition: { type: Schema.Types.ObjectId, ref: "competitionSegments" },
 	_opposition: { type: Schema.Types.ObjectId, ref: "teams" },
 	isAway: Boolean,
 	date: Date,
