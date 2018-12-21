@@ -53,6 +53,8 @@
 
 .game-list {
 	display: grid;
+	padding-bottom: 20pt;
+
 	@media #{$mobile-only} {
 		grid-gap: 10pt;
 	}
