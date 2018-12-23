@@ -2,6 +2,7 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const Game = mongoose.model("games");
 const Team = mongoose.model("teams");
+const CompetitionSegment = mongoose.model("competitionSegments");
 
 function buildQuery(params) {
 	const query = {};
@@ -15,12 +16,16 @@ function buildQuery(params) {
 		};
 	}
 
-	if (params.opposition && params.opposition !== null) {
+	if (params.opposition) {
 		query._opposition = params.opposition;
 	}
 
-	if (params.venue && params.venue !== null) {
+	if (params.venue) {
 		query.isAway = params.venue === "a";
+	}
+
+	if (params.competitions) {
+		query._competition = params.competitions;
 	}
 
 	return query;
@@ -47,6 +52,10 @@ async function getGameList(query, sort, res) {
 			populate: {
 				path: "address._city"
 			}
+		})
+		.populate({
+			path: "_competition",
+			select: []
 		});
 	res.send(games);
 }
@@ -96,17 +105,22 @@ module.exports = {
 			"name.long": 1
 		});
 
-		const competitions = {
-			1: "Super League",
-			2: "Challenge Cup",
-			3: "Friendlies"
-		};
+		//Get Competitions
+		const competitionIds = await Game.find(query).distinct("_competition");
+
+		const competitions = await CompetitionSegment.find(
+			{ _id: { $in: competitionIds } },
+			"name _parentCompetition appendCompetitionName"
+		)
+			.populate({ path: "_parentCompetition", select: "name" })
+			.sort("frontendTitle");
+
 		const venue = {
 			h: "Home",
 			a: "Away"
 		};
 		res.send({
-			competitions,
+			competitions: _.mapValues(_.keyBy(competitions, "_id"), "frontendTitle"),
 			opposition: _.mapValues(_.keyBy(opposition, "_id"), "name.long"),
 			venue
 		});

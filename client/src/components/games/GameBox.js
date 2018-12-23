@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import * as colour from "../../utils/colourHelper";
+import "datejs";
 
 export default class GameBox extends Component {
 	constructor(props) {
@@ -74,7 +75,7 @@ export default class GameBox extends Component {
 	render() {
 		const opposition = this.props.game._opposition;
 		const ground = this.props.game._ground;
-		const date = new Date(this.props.game.date);
+		const date = new Date(this.props.game.date).toString("H:mm | dddd dS MMM yyyy");
 		const homeAwayText = this.props.game.isAway ? "(A)" : "(H)";
 		const url = this.props.game.slug;
 		return (
