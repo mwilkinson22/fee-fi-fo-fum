@@ -177,7 +177,36 @@ module.exports = {
 			{ $group: { _id: "$_opposition._id", name: { $first: "$_opposition.name.long" } } },
 			{ $sort: { name: 1 } }
 		]);
-		const venue = [{ _id: "h", name: "home" }, { _id: "a", name: "away" }];
+
+		const venue = await Game.aggregate([
+			{ $match: query },
+			{
+				$project: {
+					_id: {
+						$cond: {
+							if: "$isAway",
+							then: "a",
+							else: "h"
+						}
+					},
+					name: {
+						$cond: {
+							if: "$isAway",
+							then: "Away",
+							else: "Home"
+						}
+					}
+				}
+			},
+			{
+				$group: { _id: "$_id", name: { $first: "$name" } }
+			},
+			{
+				$sort: {
+					name: -1
+				}
+			}
+		]);
 		res.send({
 			competitions,
 			opposition,
