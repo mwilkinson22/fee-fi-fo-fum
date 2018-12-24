@@ -78,6 +78,7 @@ export default class GameBox extends Component {
 		const date = new Date(this.props.game.date).toString("H:mm | dddd dS MMM yyyy");
 		const homeAwayText = this.props.game.isAway ? "(A)" : "(H)";
 		const url = this.props.game.slug;
+		const title = this.props.game.title;
 		return (
 			<Link
 				to={"/games/" + url}
@@ -105,6 +106,7 @@ export default class GameBox extends Component {
 							<li>
 								{ground.name}, {ground.address._city.name}
 							</li>
+							<li>{title}</li>
 							{this.generateCountdown()}
 						</ul>
 					</div>
