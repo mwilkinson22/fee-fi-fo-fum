@@ -171,7 +171,11 @@ pipelines.gameList = _.concat(
 								},
 								then: "$_competition.name",
 								else: {
-									$concat: ["$_competition.name", " Round "]
+									$concat: [
+										"$_competition.name",
+										" Round ",
+										{ $toLower: "$round" } //TODO Add special rounds
+									]
 								}
 							}
 						}
