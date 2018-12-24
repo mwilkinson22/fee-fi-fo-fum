@@ -7,11 +7,9 @@ class GameList extends Component {
 	constructor(props) {
 		super(props);
 
-		const state = {
+		this.state = {
 			filters: {}
 		};
-
-		this.state = state;
 	}
 
 	async componentDidMount() {
@@ -57,10 +55,10 @@ class GameList extends Component {
 	generateFilters() {
 		if (this.props.filters) {
 			return _.map(this.props.filters, (list, filterName) => {
-				const options = _.map(list, (name, value) => {
+				const options = _.map(list, option => {
 					return (
-						<option key={value} value={value}>
-							{name}
+						<option key={option._id} value={option._id}>
+							{option.name}
 						</option>
 					);
 				});

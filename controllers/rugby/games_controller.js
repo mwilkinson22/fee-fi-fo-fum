@@ -1,8 +1,5 @@
-const _ = require("lodash");
 const mongoose = require("mongoose");
 const Game = mongoose.model("games");
-const Team = mongoose.model("teams");
-const CompetitionSegment = mongoose.model("competitionSegments");
 
 function buildQuery(params) {
 	const query = {};
@@ -37,9 +34,13 @@ async function getGameList(query, sort, res) {
 		_opposition: 1,
 		_ground: 1,
 		_competition: 1,
+		round: 1,
 		isAway: 1,
 		date: 1,
-		slug: 1
+		slug: 1,
+		title: 1,
+		generatedTitle: 1,
+		year: 1
 	})
 		.sort(sort)
 		.populate({
@@ -55,7 +56,17 @@ async function getGameList(query, sort, res) {
 		})
 		.populate({
 			path: "_competition",
-			select: []
+			select: [
+				"name",
+				"_parentCompetition",
+				"appendCompetitionName",
+				"frontendTitle",
+				"instances.year",
+				"instances.sponsor"
+			],
+			populate: {
+				path: "_parentCompetition"
+			}
 		});
 	res.send(games);
 }
@@ -87,7 +98,7 @@ module.exports = {
 	async getFilters(req, res) {
 		const { year } = req.params;
 
-		//Get Teams
+		//Create query
 		const query = {};
 		if (year === "fixtures") {
 			query.date = {
@@ -99,29 +110,77 @@ module.exports = {
 				$lt: new Date(Number(year) + 1 + "-01-01")
 			};
 		}
-		//Get Teams
-		const teamIds = await Game.find(query).distinct("_opposition");
-		const opposition = await Team.find({ _id: { $in: teamIds } }, { "name.long": 1 }).sort({
-			"name.long": 1
-		});
 
-		//Get Competitions
-		const competitionIds = await Game.find(query).distinct("_competition");
+		//Get competitions
+		const competitions = await Game.aggregate([
+			{ $match: query },
+			{
+				$lookup: {
+					from: "competitionsegments",
+					localField: "_competition",
+					foreignField: "_id",
+					as: "_competition"
+				}
+			},
+			{
+				$unwind: "$_competition"
+			},
+			{
+				$lookup: {
+					from: "competitions",
+					localField: "_competition._parentCompetition",
+					foreignField: "_id",
+					as: "_parentCompetition"
+				}
+			},
+			{
+				$unwind: "$_parentCompetition"
+			},
+			{
+				$project: {
+					name: {
+						$cond: {
+							if: "$_competition.appendCompetitionName",
+							then: {
+								$concat: ["$_parentCompetition.name", " ", "$_competition.name"]
+							},
+							else: "$_parentCompetition.name"
+						}
+					},
+					_id: "$_competition._id"
+				}
+			},
+			{
+				$group: {
+					_id: "$_id",
+					name: { $first: "$name" }
+				}
+			},
+			{
+				$sort: {
+					name: 1
+				}
+			}
+		]);
 
-		const competitions = await CompetitionSegment.find(
-			{ _id: { $in: competitionIds } },
-			"name _parentCompetition appendCompetitionName"
-		)
-			.populate({ path: "_parentCompetition", select: "name" })
-			.sort("frontendTitle");
-
-		const venue = {
-			h: "Home",
-			a: "Away"
-		};
+		//Get Opposition
+		const opposition = await Game.aggregate([
+			{ $match: query },
+			{
+				$lookup: {
+					from: "teams",
+					localField: "_opposition",
+					foreignField: "_id",
+					as: "_opposition"
+				}
+			},
+			{ $group: { _id: "$_opposition._id", name: { $first: "$_opposition.name.long" } } },
+			{ $sort: { name: 1 } }
+		]);
+		const venue = [{ _id: "h", name: "home" }, { _id: "a", name: "away" }];
 		res.send({
-			competitions: _.mapValues(_.keyBy(competitions, "_id"), "frontendTitle"),
-			opposition: _.mapValues(_.keyBy(opposition, "_id"), "name.long"),
+			competitions,
+			opposition,
 			venue
 		});
 	}
