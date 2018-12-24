@@ -20,6 +20,7 @@ const gameSchema = new Schema(
 				stats: PlayerStatsCollectionSchema
 			}
 		],
+		round: Number,
 		_ground: { type: Schema.Types.ObjectId, ref: "grounds", default: null },
 		title: String,
 		hashtags: [String],
@@ -42,8 +43,6 @@ const gameSchema = new Schema(
 		}
 	}
 );
-
-gameSchema.virtual("generatedTitle").get(function() {});
 
 gameSchema.statics.generateSlug = async function(opposition, date) {
 	const Team = mongoose.models("teams");
