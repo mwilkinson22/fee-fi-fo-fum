@@ -47,12 +47,4 @@ const competitionSegmentSchema = new Schema(
 	}
 );
 
-competitionSegmentSchema.virtual("frontendTitle").get(function() {
-	if (this.appendCompetitionName) {
-		return this._parentCompetition.name + " " + this.name;
-	} else {
-		return this._parentCompetition.name;
-	}
-});
-
 mongoose.model("competitionSegments", competitionSegmentSchema);

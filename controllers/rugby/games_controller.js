@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const mongoose = require("mongoose");
+const { localTeam } = require("../../config/keys");
 const Game = mongoose.model("games");
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -114,7 +115,9 @@ pipelines.competitionInfo = [
 		}
 	}
 ];
-pipelines.gameList = _.concat(
+pipelines.gameData = _.concat(
+	//Get Competition Info
+	pipelines.competitionInfo,
 	[
 		//Get Team Info
 		{
@@ -127,6 +130,26 @@ pipelines.gameList = _.concat(
 		},
 		{
 			$unwind: "$_opposition"
+		},
+		{
+			$addFields: {
+				teams: {
+					home: {
+						$cond: {
+							if: "$isAway",
+							then: "$_opposition._id",
+							else: localTeam
+						}
+					},
+					away: {
+						$cond: {
+							if: "$isAway",
+							then: localTeam,
+							else: "$_opposition._id"
+						}
+					}
+				}
+			}
 		},
 
 		//Get Ground Info
@@ -151,11 +174,7 @@ pipelines.gameList = _.concat(
 		},
 		{
 			$unwind: "$_ground.address._city"
-		}
-	],
-	//Get Competition Info
-	pipelines.competitionInfo,
-	[
+		},
 		{
 			$addFields: {
 				title: {
@@ -182,24 +201,26 @@ pipelines.gameList = _.concat(
 					}
 				}
 			}
-		},
-		{
-			$project: {
-				_id: 1,
-				isAway: 1,
-				date: 1,
-				slug: 1,
-				title: 1,
-				"_opposition.colours": 1,
-				"_opposition.name": 1,
-				"_opposition.image": 1,
-				"_ground.address._city": 1,
-				"_ground.name": 1,
-				"_ground.image": 1
-			}
 		}
 	]
 );
+pipelines.basicInfoOnly = [
+	{
+		$project: {
+			_id: 1,
+			isAway: 1,
+			date: 1,
+			slug: 1,
+			title: 1,
+			"_opposition.colours": 1,
+			"_opposition.name": 1,
+			"_opposition.image": 1,
+			"_ground.address._city": 1,
+			"_ground.name": 1,
+			"_ground.image": 1
+		}
+	}
+];
 
 module.exports = {
 	async getFixtures(req, res) {
@@ -218,7 +239,8 @@ module.exports = {
 						}
 					}
 				],
-				pipelines.gameList
+				pipelines.gameData,
+				pipelines.basicInfoOnly
 			)
 		);
 		res.send(games);
@@ -237,7 +259,8 @@ module.exports = {
 						}
 					}
 				],
-				pipelines.gameList
+				pipelines.gameData,
+				pipelines.basicInfoOnly
 			)
 		);
 		res.send(games);
