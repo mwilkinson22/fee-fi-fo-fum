@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 const collectionName = "games";
+const pipelines = require("../../pipelines/rugby/gamesPipelines");
 
 //Models
 const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
 
 //Controllers
-const GenericController = require("../../controllers/rugby/genericController")(collectionName);
+const GenericController = require("../../controllers/rugby/genericController")(
+	collectionName,
+	pipelines.getFullGame
+);
+
 const GameController = require("../../controllers/rugby/gamesController");
 
 //Middleware

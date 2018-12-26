@@ -1,7 +1,31 @@
 const validateId = require("../../utils/validateMongooseId");
 const mongoose = require("mongoose");
+const _ = require("lodash");
+const ObjectId = mongoose.Types.ObjectId;
 
-module.exports = collectionName => {
+module.exports = (collectionName, getter = null) => {
+	async function getterHelper(params) {
+		const Collection = mongoose.model(collectionName);
+		let item;
+		if (getter) {
+			console.log(getter);
+			const items = await Collection.aggregate(
+				_.concat(
+					[
+						{
+							$match: params
+						}
+					],
+					getter
+				)
+			);
+			if (items.length) item = items[0];
+		} else {
+			item = await Collection.findOne(params);
+		}
+		return item;
+	}
+
 	return {
 		async getItemById(req, res) {
 			const id = req.params.id;
@@ -9,7 +33,7 @@ module.exports = collectionName => {
 
 			if (idIsValid) {
 				const Collection = mongoose.model(collectionName);
-				const item = await Collection.findById(id);
+				const item = await getterHelper({ _id: ObjectId(id) });
 				if (item) {
 					res.status(200).send(item);
 				} else {
@@ -46,11 +70,15 @@ module.exports = collectionName => {
 				}
 			}
 
+			if (item && getter) {
+				item = await getterHelper({ _id: ObjectId(item._id) });
+			}
+
 			//Return value
 			if (item) {
 				res.status(200).send(item);
 			} else {
-				res.status(400).send({
+				res.status(404).send({
 					Response: "Item not found",
 					parameters: req.params
 				});
