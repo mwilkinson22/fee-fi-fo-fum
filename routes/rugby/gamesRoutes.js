@@ -6,8 +6,8 @@ const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
 
 //Controllers
-const GenericController = require("../../controllers/rugby/generic_controller")(collectionName);
-const GameController = require("../../controllers/rugby/games_controller");
+const GenericController = require("../../controllers/rugby/genericController")(collectionName);
+const GameController = require("../../controllers/rugby/gamesController");
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");

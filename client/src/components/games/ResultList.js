@@ -5,7 +5,7 @@ import {
 	fetchYearsWithResults,
 	updateActiveYear,
 	updateFilters
-} from "../../actions/games";
+} from "../../actions/gamesActions";
 import GameList from "./GameList";
 import LoadingPage from "../LoadingPage";
 

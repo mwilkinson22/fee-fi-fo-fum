@@ -1,5 +1,5 @@
 import { connect } from "react-redux";
-import { fetchFixtures, updateFilters } from "../../actions/games";
+import { fetchFixtures, updateFilters } from "../../actions/gamesActions";
 import GameList from "./GameList";
 
 class FixtureList extends GameList {

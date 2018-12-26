@@ -1,5 +1,5 @@
 module.exports = app => {
-	require("./games")(app);
-	require("./people")(app);
-	require("./teams")(app);
+	require("./gamesRoutes")(app);
+	require("./peopleRoutes")(app);
+	require("./teamsRoutes")(app);
 };

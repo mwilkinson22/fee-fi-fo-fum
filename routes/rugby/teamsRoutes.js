@@ -6,7 +6,7 @@ const Team = mongoose.model(collectionName);
 const IdLink = mongoose.model("IdLinks");
 
 //Controllers
-const GenericController = require("../../controllers/rugby/generic_controller")(collectionName);
+const GenericController = require("../../controllers/rugby/genericController")(collectionName);
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");

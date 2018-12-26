@@ -36,7 +36,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // API Routes
-require("./routes/userRoutes")(app);
+require("./routes/usersRoutes")(app);
 require("./routes/rugby")(app);
 
 if (process.env.NODE_ENV === "production") {
