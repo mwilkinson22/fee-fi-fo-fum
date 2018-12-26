@@ -11,7 +11,7 @@ export default class GameRouter extends Component {
 				<Switch>
 					<Route path="/games/results" component={ResultList} />
 					<Route path="/games/fixtures" component={FixtureList} />
-					<Route path="/games/:slug" component={GamePage} />
+					<Route path="/games/:slug" component={GamePage} props={{ test: "Hi" }} />
 					<Route path="/games" render={() => <Redirect to="/games/fixtures" />} />
 				</Switch>
 			</div>

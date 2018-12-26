@@ -3,11 +3,20 @@ import {
 	FETCH_RESULTS,
 	FETCH_RESULT_YEARS,
 	UPDATE_ACTIVE_YEAR,
-	UPDATE_FILTERS
+	UPDATE_FILTERS,
+	FETCH_GAME
 } from "../actions/types";
 
-export default function(state = {}, action) {
+export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
+		case FETCH_GAME:
+			return {
+				...state,
+				fullGames: {
+					...state.fullGames,
+					[action.payload.slug]: action.payload
+				}
+			};
 		case FETCH_FIXTURES:
 			return { ...state, fixtures: action.payload };
 		case FETCH_RESULTS:

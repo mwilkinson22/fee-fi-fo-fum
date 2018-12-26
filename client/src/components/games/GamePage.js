@@ -1,14 +1,30 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { fetchGame } from "../../actions/gamesActions";
+import LoadingPage from "../../components/LoadingPage";
 
 class GamePage extends Component {
+	componentWillMount() {
+		this.props.fetchGame(this.props.match.params.slug);
+	}
+
 	render() {
-		return <h1>{this.props.match.params.slug}</h1>;
+		const { game } = this.props;
+		if (!game) {
+			return <LoadingPage />;
+		} else {
+			return <h1>{game._id}</h1>;
+		}
 	}
 }
 
-function mapStateToProps() {
-	return {};
+function mapStateToProps({ games }, ownProps) {
+	const { slug } = ownProps.match.params;
+	const { fullGames } = games;
+	return { game: fullGames[slug] };
 }
 
-export default connect(mapStateToProps)(GamePage);
+export default connect(
+	mapStateToProps,
+	{ fetchGame }
+)(GamePage);

@@ -5,9 +5,14 @@ import {
 	FETCH_RESULTS,
 	FETCH_RESULT_YEARS,
 	UPDATE_ACTIVE_YEAR,
-	UPDATE_FILTERS
+	UPDATE_FILTERS,
+	FETCH_GAME
 } from "./types";
 
+export const fetchGame = slug => async dispatch => {
+	const res = await axios.get("/api/games/slug/" + slug);
+	dispatch({ type: FETCH_GAME, payload: res.data });
+};
 export const fetchFixtures = filters => async dispatch => {
 	const res = await axios.get(`/api/games/fixtures${convertObjectToQuery(filters)}`);
 	dispatch({ type: FETCH_FIXTURES, payload: res.data });
