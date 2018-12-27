@@ -1,23 +1,22 @@
 const validateId = require("../../utils/validateMongooseId");
 const mongoose = require("mongoose");
 const _ = require("lodash");
-const ObjectId = mongoose.Types.ObjectId;
+const ObjectId = require("mongodb").ObjectId;
 
 module.exports = (collectionName, getter = null) => {
 	async function getterHelper(params) {
 		const Collection = mongoose.model(collectionName);
 		let item;
 		if (getter) {
-			const items = await Collection.aggregate(
-				_.concat(
-					[
-						{
-							$match: params
-						}
-					],
-					getter
-				)
+			const aggregateQuery = _.concat(
+				[
+					{
+						$match: params
+					}
+				],
+				getter
 			);
+			const items = await Collection.aggregate(aggregateQuery);
 			if (items.length) item = items[0];
 		} else {
 			item = await Collection.findOne(params);
@@ -69,7 +68,7 @@ module.exports = (collectionName, getter = null) => {
 				}
 			}
 
-			if (item && process.env.NODE_ENV !== "production") {
+			if (item && getter) {
 				item = await getterHelper({ _id: ObjectId(item._id) });
 			}
 

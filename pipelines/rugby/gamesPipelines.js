@@ -1,7 +1,6 @@
 const _ = require("lodash");
 const { localTeam } = require("../../config/keys");
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Types;
+const { ObjectId } = require("mongodb");
 
 const getCompetitionInfo = [
 	{
