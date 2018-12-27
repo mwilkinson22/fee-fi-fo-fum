@@ -5,7 +5,9 @@ import LoadingPage from "../../components/LoadingPage";
 
 class GamePage extends Component {
 	componentWillMount() {
-		this.props.fetchGame(this.props.match.params.slug);
+		if (!this.props.game) {
+			this.props.fetchGame(this.props.match.params.slug);
+		}
 	}
 
 	render() {

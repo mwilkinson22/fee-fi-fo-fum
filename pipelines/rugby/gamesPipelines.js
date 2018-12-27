@@ -189,9 +189,7 @@ const exportBasicInfoOnly = [
 	}
 ];
 
-const getFullGame = [
-	//TODO
-];
+const getFullGame = _.concat(getBasicGameData);
 
 module.exports = {
 	getCompetitionInfo,

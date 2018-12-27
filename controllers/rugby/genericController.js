@@ -8,7 +8,6 @@ module.exports = (collectionName, getter = null) => {
 		const Collection = mongoose.model(collectionName);
 		let item;
 		if (getter) {
-			console.log(getter);
 			const items = await Collection.aggregate(
 				_.concat(
 					[
