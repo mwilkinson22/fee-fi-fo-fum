@@ -50,6 +50,7 @@ header {
 @media #{$mobile-and-tablet} {
 	header {
 		position: relative;
+		z-index: 1000;
 		.container {
 			display: flex;
 			align-items: center;
