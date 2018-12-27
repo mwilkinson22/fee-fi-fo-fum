@@ -37,3 +37,9 @@ $transition: all 300ms;
 @mixin noTextSelect {
 	user-select: none;
 }
+
+@mixin pseudoImage {
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
