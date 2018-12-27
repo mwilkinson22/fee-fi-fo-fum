@@ -2,11 +2,90 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchGame } from "../../actions/gamesActions";
 import LoadingPage from "../../components/LoadingPage";
+import "datejs";
+import * as colourHelper from "../../utils/colourHelper";
+import Countdown from "./Countdown";
 
 class GamePage extends Component {
-	componentWillMount() {
+	async componentWillMount() {
 		if (!this.props.game) {
-			this.props.fetchGame(this.props.match.params.slug);
+			await this.props.fetchGame(this.props.match.params.slug);
+		}
+	}
+
+	generateHeaderInfoBar() {
+		const { game } = this.props;
+		const fields = [
+			<span>
+				{game._ground.name}, {game._ground.address._city.name}
+			</span>,
+			<span>{new Date(this.props.game.date).toString("dddd dS MMM yyyy H:mm")}</span>,
+			<span>{game.title}</span>
+		];
+
+		if (game.tv)
+			fields.push(
+				<img
+					src={`https://www.giantsfanzine.co.uk/resources/images/tv/${game.tv}.svg`}
+					className="tv-logo"
+				/>
+			);
+		let i = 0;
+		return (
+			<ul>
+				{fields.map(field => (
+					<li key={i++}>{field}</li>
+				))}
+			</ul>
+		);
+	}
+
+	generateTeamBanners() {
+		const { teams } = this.props.game;
+		const elements = [];
+		for (const ha in teams) {
+			const team = teams[ha];
+			elements.push(
+				<div
+					key={ha}
+					className={`team-banner ${ha}`}
+					style={{
+						backgroundColor: colourHelper.toRgb(team.colours.main),
+						color: colourHelper.toRgb(team.colours.text)
+					}}
+				>
+					<div className={`trim ${ha}`}>
+						<span style={{ backgroundColor: colourHelper.toRgb(team.colours.trim1) }} />
+						<span style={{ backgroundColor: colourHelper.toRgb(team.colours.trim2) }} />
+					</div>
+					<div className="container">
+						<h4>
+							<div
+								style={{ backgroundImage: `url('${team.image}')` }}
+								className="team-badge"
+							/>
+							{team.name.short}
+						</h4>
+					</div>
+				</div>
+			);
+		}
+		return elements;
+	}
+
+	generateCountdown() {
+		const date = Date.parse(new Date(this.props.game.date));
+		if (date > new Date()) {
+			return (
+				<section className="countdown">
+					<div className="container">
+						<h3>Countdown to Kickoff</h3>
+						<Countdown date={date} />
+					</div>
+				</section>
+			);
+		} else {
+			return null;
 		}
 	}
 
@@ -15,7 +94,20 @@ class GamePage extends Component {
 		if (!game) {
 			return <LoadingPage />;
 		} else {
-			return <h1>{game._id}</h1>;
+			return (
+				<div className="game-page">
+					<section
+						className="header"
+						style={{ backgroundImage: `url(${game._ground.image})` }}
+					>
+						<div className="game-details">
+							<div className="container">{this.generateHeaderInfoBar()}</div>
+						</div>
+					</section>
+					<section className="team-banners">{this.generateTeamBanners()}</section>
+					{this.generateCountdown()}
+				</div>
+			);
 		}
 	}
 }

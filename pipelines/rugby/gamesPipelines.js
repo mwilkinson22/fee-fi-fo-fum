@@ -1,5 +1,7 @@
 const _ = require("lodash");
 const { localTeam } = require("../../config/keys");
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Types;
 
 const getCompetitionInfo = [
 	{
@@ -98,26 +100,6 @@ const getBasicGameData = _.concat(
 		{
 			$unwind: "$_opposition"
 		},
-		{
-			$addFields: {
-				teams: {
-					home: {
-						$cond: {
-							if: "$isAway",
-							then: "$_opposition._id",
-							else: localTeam
-						}
-					},
-					away: {
-						$cond: {
-							if: "$isAway",
-							then: localTeam,
-							else: "$_opposition._id"
-						}
-					}
-				}
-			}
-		},
 
 		//Get Ground Info
 		{
@@ -189,7 +171,50 @@ const exportBasicInfoOnly = [
 	}
 ];
 
-const getFullGame = _.concat(getBasicGameData);
+const getFullGame = _.concat(getBasicGameData, [
+	{
+		$addFields: {
+			teams: {
+				home: {
+					$cond: {
+						if: "$isAway",
+						then: "$_opposition._id",
+						else: ObjectId(localTeam)
+					}
+				},
+				away: {
+					$cond: {
+						if: "$isAway",
+						then: ObjectId(localTeam),
+						else: "$_opposition._id"
+					}
+				}
+			}
+		}
+	},
+	{
+		$lookup: {
+			from: "teams",
+			localField: "teams.home",
+			foreignField: "_id",
+			as: "teams.home"
+		}
+	},
+	{
+		$lookup: {
+			from: "teams",
+			localField: "teams.away",
+			foreignField: "_id",
+			as: "teams.away"
+		}
+	},
+	{
+		$unwind: "$teams.home"
+	},
+	{
+		$unwind: "$teams.away"
+	}
+]);
 
 module.exports = {
 	getCompetitionInfo,

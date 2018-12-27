@@ -35,20 +35,17 @@ export default class Countdown extends Component {
 
 		["Days", "Hours", "Minutes", "Seconds"].forEach(segment => {
 			elements.push(
-				<span
-					key={segment + "-val"}
-					className="value"
-					style={{
-						backgroundColor: this.props.background,
-						color: this.props.colour
-					}}
-				>
-					{this.state[segment.toLowerCase()]}
-				</span>
-			);
-			elements.push(
-				<span key={segment + "-label"} className="label">
-					{segment}
+				<span className="group" key={segment}>
+					<span
+						className="value"
+						style={{
+							backgroundColor: this.props.background,
+							color: this.props.colour
+						}}
+					>
+						{this.state[segment.toLowerCase()]}
+					</span>
+					<span className="label">{segment}</span>
 				</span>
 			);
 		});

@@ -42,7 +42,7 @@ header {
 	}
 }
 
-@media #{$mobile-only} {
+@media #{$mobile-and-tablet} {
 	header {
 		.container {
 			display: flex;

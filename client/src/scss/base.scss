@@ -144,7 +144,7 @@ h6 {
 
 h1 {
 	font-size: 3em;
-	@media #{$mobile-only} {
+	@media #{$mobile-and-tablet} {
 		font-size: 2em;
 	}
 	text-align: center;

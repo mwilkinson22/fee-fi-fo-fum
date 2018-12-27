@@ -45,7 +45,7 @@ body {
 			padding: 0 8pt;
 		}
 	}
-	@media #{$mobile-only} {
+	@media #{$mobile-and-tablet} {
 		flex-direction: column;
 		.list-filter {
 			width: 100%;
