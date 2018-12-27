@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import * as colour from "../../utils/colourHelper";
 import "datejs";
+import Countdown from "./Countdown";
 
 export default class GameBox extends Component {
 	constructor(props) {
@@ -13,61 +14,16 @@ export default class GameBox extends Component {
 		};
 	}
 
-	componentWillMount() {
-		if (this.state.includeCountdown) {
-			this.getCountdownValues();
-			this.interval = setInterval(() => {
-				this.getCountdownValues();
-			}, 1000);
-		}
-	}
-
-	componentWillUnmount() {
-		clearInterval(this.interval);
-	}
-
-	getCountdownValues() {
-		const timeDiff = this.state.gameDate - Date.parse(new Date());
-		if (timeDiff < 0) {
-			clearInterval(this.interval);
-		}
-
-		this.setState({
-			seconds: this.addLeadingZeroes(Math.floor(timeDiff / 1000) % 60),
-			minutes: this.addLeadingZeroes(Math.floor(timeDiff / 1000 / 60) % 60),
-			hours: this.addLeadingZeroes(Math.floor(timeDiff / 1000 / 60 / 60) % 24),
-			days: this.addLeadingZeroes(Math.floor(timeDiff / 1000 / 60 / 60 / 24))
-		});
-	}
-
-	addLeadingZeroes(num) {
-		return num < 10 ? "0" + num.toString() : num.toString();
-	}
 	generateCountdown() {
 		if (this.state.includeCountdown) {
-			const elements = [];
 			const opposition = this.props.game._opposition;
-			["Days", "Hours", "Minutes", "Seconds"].forEach(segment => {
-				elements.push(
-					<span
-						key={segment + "-val"}
-						className="value"
-						style={{
-							backgroundColor: colour.toRgb(opposition.colours.text),
-							color: colour.toRgb(opposition.colours.main)
-						}}
-					>
-						{this.state[segment.toLowerCase()]}
-					</span>
-				);
-				elements.push(
-					<span key={segment + "-label"} className="label">
-						{segment}
-					</span>
-				);
-			});
-
-			return <span className="game-countdown">{elements}</span>;
+			return (
+				<Countdown
+					date={this.state.gameDate}
+					background={colour.toRgb(opposition.colours.text)}
+					colour={colour.toRgb(opposition.colours.main)}
+				/>
+			);
 		} else {
 			return null;
 		}
