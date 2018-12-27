@@ -1,4 +1,3 @@
-const validateId = require("../../utils/validateMongooseId");
 const mongoose = require("mongoose");
 const _ = require("lodash");
 const ObjectId = require("mongodb").ObjectId;
@@ -27,9 +26,7 @@ module.exports = (collectionName, getter = null) => {
 	return {
 		async getItemById(req, res) {
 			const id = req.params.id;
-			const idIsValid = await validateId(id);
-
-			if (idIsValid) {
+			if (ObjectId.isValid(id)) {
 				const Collection = mongoose.model(collectionName);
 				const item = await getterHelper({ _id: ObjectId(id) });
 				if (item) {
