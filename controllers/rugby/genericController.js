@@ -69,7 +69,7 @@ module.exports = (collectionName, getter = null) => {
 				}
 			}
 
-			if (item && getter) {
+			if (item && process.env.NODE_ENV !== "production") {
 				item = await getterHelper({ _id: ObjectId(item._id) });
 			}
 
@@ -83,8 +83,7 @@ module.exports = (collectionName, getter = null) => {
 				};
 				res.status(404).send({
 					Response: "Item not found",
-					parameters: req.params,
-					debugObject
+					parameters: req.params
 				});
 			}
 		}
