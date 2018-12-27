@@ -80,7 +80,13 @@ class GamePage extends Component {
 				<section className="countdown">
 					<div className="container">
 						<h3>Countdown to Kickoff</h3>
-						<Countdown date={date} />
+						<Countdown
+							date={date}
+							onFinish={() => {
+								const section = document.querySelector(".game-page .countdown");
+								section.className = section.className + " completed";
+							}}
+						/>
 					</div>
 				</section>
 			);

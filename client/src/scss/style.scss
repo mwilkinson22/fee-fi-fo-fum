@@ -42,6 +42,7 @@ body {
 	@media #{$desktop-only} {
 		.list-filter {
 			flex-grow: 1;
+			width: 100%;
 			padding: 0 8pt;
 		}
 	}

@@ -226,6 +226,13 @@
 		@include noTextSelect;
 		text-align: center;
 		font-size: 20pt;
+		transition: height 300ms, opacity 300ms, padding 300ms;
+		&.completed {
+			height: 0;
+			opacity: 0;
+			padding: 0;
+			overflow: hidden;
+		}
 		.value {
 			color: white;
 			background: $claret;

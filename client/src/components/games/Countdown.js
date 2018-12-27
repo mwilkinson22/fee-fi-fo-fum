@@ -16,6 +16,7 @@ export default class Countdown extends Component {
 		const timeDiff = this.props.date - Date.parse(new Date());
 		if (timeDiff < 0) {
 			clearInterval(this.interval);
+			if (this.props.onFinish) this.props.onFinish();
 		}
 
 		this.setState({
