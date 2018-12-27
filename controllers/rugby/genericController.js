@@ -77,9 +77,14 @@ module.exports = (collectionName, getter = null) => {
 			if (item) {
 				res.status(200).send(item);
 			} else {
+				const debugObject = {
+					getter,
+					item
+				};
 				res.status(404).send({
 					Response: "Item not found",
-					parameters: req.params
+					parameters: req.params,
+					debugObject
 				});
 			}
 		}
