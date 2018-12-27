@@ -50,48 +50,27 @@ module.exports = app => {
 		await _.each(req.body, async sql => {
 			try {
 				//Get Variables
-				const competition = await IdLink.convertId(
-					sql.comp_id,
-					"competitionSegments"
-				);
-				const opposition = await IdLink.convertId(
-					sql.opposition_id,
-					"teams"
-				);
+				const competition = await IdLink.convertId(sql.comp_id, "competitionSegments");
+				const opposition = await IdLink.convertId(sql.opposition_id, "teams");
 				const isAway = sql.away == 1;
 				let homePregame;
 				let awayPregame;
 				if (isAway) {
-					homePregame = await createPregameSquads(
-						sql.opposition_pregame_squad
-					);
-					awayPregame = await createPregameSquads(
-						sql.huddersfield_pregame_squad
-					);
+					homePregame = await createPregameSquads(sql.opposition_pregame_squad);
+					awayPregame = await createPregameSquads(sql.huddersfield_pregame_squad);
 				} else {
-					homePregame = await createPregameSquads(
-						sql.huddersfield_pregame_squad
-					);
-					awayPregame = await createPregameSquads(
-						sql.opposition_pregame_squad
-					);
+					homePregame = await createPregameSquads(sql.huddersfield_pregame_squad);
+					awayPregame = await createPregameSquads(sql.opposition_pregame_squad);
 				}
 
-				const ground = await getGround(
-					sql.ground,
-					isAway ? sql.opposition_id : 1
-				);
+				const ground = await getGround(sql.ground, isAway ? sql.opposition_id : 1);
 
-				const motm = sql.motm
-					? await IdLink.convertId(sql.motm, "people")
-					: null;
+				const motm = sql.motm ? await IdLink.convertId(sql.motm, "people") : null;
 				const fan_motm = sql.fan_motm
 					? await IdLink.convertId(sql.fan_motm, "people")
 					: null;
 
-				const referee = sql.ref
-					? await IdLink.convertId(sql.ref, "people")
-					: null;
+				const referee = sql.ref ? await IdLink.convertId(sql.ref, "people") : null;
 				const videoReferee = sql.video_ref
 					? await IdLink.convertId(sql.video_ref, "people")
 					: null;
