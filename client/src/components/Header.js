@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { NavLink, withRouter } from "react-router-dom";
+import { Link, NavLink, withRouter } from "react-router-dom";
 import _ from "lodash";
 
 class Header extends Component {
@@ -111,7 +111,13 @@ class Header extends Component {
 						<span />
 						<span />
 					</div>
-					<span>Logo goes here</span>
+					<Link to="/">
+						<img
+							className="main-header-logo"
+							src="https://www.giantsfanzine.co.uk/resources/images/4fs/logos/long-no-tagline.svg"
+							alt="Fee Fi Fo Fum Logo"
+						/>
+					</Link>
 					<nav className={this.state.showMobileNav ? "active" : null}>
 						<div
 							className="mobile-nav-background"
