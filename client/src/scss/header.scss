@@ -87,9 +87,15 @@ header {
 			justify-content: space-evenly;
 			span {
 				width: 100%;
-				background: #fff;
+				background: $gold;
 				height: 3pt;
 				display: block;
+				&:first-child {
+					background: lighten($claret, 17%);
+				}
+				&:last-child {
+					background: #fff;
+				}
 			}
 		}
 
@@ -148,7 +154,7 @@ header {
 				display: inline-block;
 
 				&.with-submenu {
-					padding-right: 0pt;
+					padding-right: 0;
 					&::after {
 						content: "\25BE";
 					}
