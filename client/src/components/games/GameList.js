@@ -81,12 +81,12 @@ class GameList extends Component {
 	render() {
 		return (
 			<div>
-				<div className="page-header">
+				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
 						<div className="list-filters">{this.generateFilters()}</div>
 					</div>
-				</div>
+				</section>
 				{this.populateGameList()}
 			</div>
 		);

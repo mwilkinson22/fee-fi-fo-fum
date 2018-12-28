@@ -13,7 +13,7 @@ import "../scss/style.scss";
 import Header from "./Header";
 import HomePage from "./Homepage";
 import GameRouter from "./games";
-import TeamRouter from "./teams";
+import TeamList from "./teams/TeamList";
 import AdminRouter from "./admin";
 import NewsRouter from "./news";
 
@@ -28,7 +28,7 @@ class App extends Component {
 				<div id="wrapper">
 					<Header />
 					<Route path="/games" component={GameRouter} />
-					<Route path="/teams" component={TeamRouter} />
+					<Route path="/teams" component={TeamList} />
 					<Route path="/news/" component={NewsRouter} />
 					<Route path="/admin" component={AdminRouter} />
 					<Route path="/" component={HomePage} exact />
