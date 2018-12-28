@@ -10,6 +10,7 @@ import "../scss/base.scss";
 import "../scss/style.scss";
 
 //Components
+import ScrollToTop from "./ScrollToTop";
 import Header from "./Header";
 import HomePage from "./Homepage";
 import GameRouter from "./games";
@@ -24,15 +25,17 @@ class App extends Component {
 
 	render() {
 		return (
-			<BrowserRouter onUpdate={() => window.scrollTo(0, 0)}>
-				<div id="wrapper">
-					<Header />
-					<Route path="/games" component={GameRouter} />
-					<Route path="/teams" component={TeamList} />
-					<Route path="/news/" component={NewsRouter} />
-					<Route path="/admin" component={AdminRouter} />
-					<Route path="/" component={HomePage} exact />
-				</div>
+			<BrowserRouter>
+				<ScrollToTop>
+					<div id="wrapper">
+						<Header />
+						<Route path="/games" component={GameRouter} />
+						<Route path="/teams" component={TeamList} />
+						<Route path="/news/" component={NewsRouter} />
+						<Route path="/admin" component={AdminRouter} />
+						<Route path="/" component={HomePage} exact />
+					</div>
+				</ScrollToTop>
 			</BrowserRouter>
 		);
 	}
