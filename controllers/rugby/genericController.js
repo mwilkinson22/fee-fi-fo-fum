@@ -71,7 +71,7 @@ module.exports = (collectionName, getter = null) => {
 
 		async getItemBySlug(req, res) {
 			const id = await getIdFromSlug(req.params.slug, collectionName);
-			const item = getterHelper({ _id: ObjectId(id) });
+			const item = await getterHelper({ _id: ObjectId(id) });
 			//Return value
 			if (item) {
 				res.status(200).send(item);
