@@ -6,7 +6,7 @@ const {
 	getCompetitionInfo,
 	exportBasicInfoOnly
 } = require("../../pipelines/rugby/gamesPipelines");
-const ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = require("mongodb");
 
 function buildQuery(params) {
 	const query = {};
