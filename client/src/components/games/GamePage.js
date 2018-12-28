@@ -113,6 +113,59 @@ class GamePage extends Component {
 						<div className="team-banners">{this.generateTeamBanners()}</div>
 					</section>
 					{this.generateCountdown()}
+					<ul>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+						<li>Test</li>
+					</ul>
 				</div>
 			);
 		}
