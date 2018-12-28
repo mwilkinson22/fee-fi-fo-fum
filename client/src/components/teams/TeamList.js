@@ -87,13 +87,6 @@ class TeamList extends Component {
 					</div>
 				</section>
 				<div className="container">{this.generateTeamList()}</div>
-				<button
-					onClick={() => {
-						console.log(this.state);
-					}}
-				>
-					Go
-				</button>
 			</div>
 		);
 	}
