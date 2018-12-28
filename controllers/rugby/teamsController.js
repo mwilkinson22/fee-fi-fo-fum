@@ -126,6 +126,7 @@ module.exports = {
 							_player: {
 								_id: 1,
 								name: 1,
+								image: 1,
 								mainPosition: 1,
 								otherPositions: 1,
 								slug: 1

@@ -2,7 +2,7 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
-const { positionKeys } = require("../../constants/playerPositions");
+const { positionKeys } = _.concat(require("../../constants/playerPositions"), [null]);
 
 const personSchema = new Schema({
 	name: {
@@ -65,7 +65,8 @@ const personSchema = new Schema({
 		}
 	],
 
-	slug: { type: String, unique: true }
+	slug: { type: String, unique: true },
+	image: String
 });
 
 personSchema.statics.searchByName = async function(str, extraParams = {}, limit = 20) {

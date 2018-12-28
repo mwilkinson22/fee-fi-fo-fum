@@ -59,34 +59,39 @@ class TeamList extends Component {
 		}
 	}
 
-	generateTeamList() {
+	generateSquadList() {
 		const { squad } = this.state;
 		if (!squad) {
 			return <LoadingPage />;
 		} else {
-			const playerList = _.map(squad, player => {
-				const { number, slug, name } = player;
+			const players = _.map(squad, player => {
+				const { number, slug, name, image } = player;
 				return (
-					<li key={player.id}>
-						<Link to={`/players/${slug}`}>
-							{number}: {name.first} {name.last}
-						</Link>
-					</li>
+					<Link to={`/players/${slug}`} key={player._id}>
+						<div className="player">
+							<div className="number">{number}</div>
+							<div className="image" style={{ backgroundImage: `url('${image}')` }} />
+							<div className="name">
+								{name.first}
+								<span>{name.last}</span>
+							</div>
+						</div>
+					</Link>
 				);
 			});
-			return <ul>{playerList}</ul>;
+			return <div className="squad-list">{players}</div>;
 		}
 	}
 
 	render() {
 		return (
-			<div className="team-list">
+			<div className="team-page">
 				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
 					</div>
 				</section>
-				<div className="container">{this.generateTeamList()}</div>
+				<div className="container">{this.generateSquadList()}</div>
 			</div>
 		);
 	}
