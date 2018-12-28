@@ -2,6 +2,28 @@ const mongoose = require("mongoose");
 const _ = require("lodash");
 const ObjectId = require("mongodb").ObjectId;
 
+async function getIdFromSlug(slug, collectionName) {
+	const Collection = mongoose.model(collectionName);
+	const SlugRedirect = mongoose.model("slugRedirect");
+	let item = await Collection.findOne({ slug });
+
+	//If the slug doesn't match, check slugRedirect, to avoid broken links
+	if (!item) {
+		const slugRedirect = await SlugRedirect.findOne({
+			oldSlug: slug,
+			collectionName
+		});
+
+		if (slugRedirect) {
+			item = await Collection.findOne({
+				_id: slugRedirect.itemId
+			});
+		}
+	}
+	if (item) return item._id;
+	else return null;
+}
+
 module.exports = (collectionName, getter = null) => {
 	async function getterHelper(params) {
 		const Collection = mongoose.model(collectionName);
@@ -45,30 +67,11 @@ module.exports = (collectionName, getter = null) => {
 			}
 		},
 
+		getIdFromSlug,
+
 		async getItemBySlug(req, res) {
-			const Collection = mongoose.model(collectionName);
-			const SlugRedirect = mongoose.model("slugRedirect");
-			const slug = req.params.slug;
-			let item = await Collection.findOne({ slug });
-
-			//If the slug doesn't match, check slugRedirect, to avoid broken links
-			if (!item) {
-				const slugRedirect = await SlugRedirect.findOne({
-					oldSlug: slug,
-					collectionName
-				});
-
-				if (slugRedirect) {
-					item = await Collection.findOne({
-						_id: slugRedirect.itemId
-					});
-				}
-			}
-
-			if (item && getter) {
-				item = await getterHelper({ _id: ObjectId(item._id) });
-			}
-
+			const id = await getIdFromSlug(req.params.slug, collectionName);
+			const item = getterHelper({ _id: ObjectId(id) });
 			//Return value
 			if (item) {
 				res.status(200).send(item);

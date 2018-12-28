@@ -12,3 +12,8 @@ export const UPDATE_FILTERS = "update_active_filters";
 //Teams
 export const FETCH_SQUAD = "fetch_squad";
 export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
+
+//News
+export const FETCH_NEWS_CATEGORIES = "fetch_news_categories";
+export const FETCH_NEWS_POST = "fetch_news_post";
+export const FETCH_RECENT_NEWS = "fetch_recent_news";

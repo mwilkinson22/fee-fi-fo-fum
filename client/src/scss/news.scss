@@ -1,0 +1,92 @@
+.news-post {
+	.post-wrapper {
+		padding: 14pt 0;
+		.post-header,
+		.post-body {
+			line-height: 1.4;
+			box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
+		}
+
+		.post-header {
+			@include noTextSelect;
+			&.has-image {
+				padding-top: 30%;
+				@include pseudoImage;
+				background-size: cover;
+				.post-meta {
+					background: rgba($claret, 0.9);
+				}
+			}
+			.post-meta {
+				background: $claret;
+				padding: 2% 3%;
+				h5 {
+					color: white;
+				}
+				&,
+				& h1 {
+					color: $gold;
+					text-align: left;
+				}
+				h1 {
+					border-bottom: solid thin $gold;
+				}
+			}
+		}
+
+		.post-body {
+			background: #f4f4f4;
+			padding: 4%;
+			p {
+				margin-bottom: 8pt;
+			}
+			h6 {
+				font-size: 16pt;
+				&:not(:first-child) {
+					margin-top: 12pt;
+				}
+			}
+		}
+
+		.other-posts {
+			position: sticky;
+			top: 0;
+			h4 {
+				font-size: 16pt;
+			}
+			.post-preview {
+				margin: 10pt 0;
+			}
+		}
+	}
+
+	@media #{$desktop-and-tablet} {
+		.post-wrapper {
+			display: grid;
+			grid-template-columns: 2fr 1fr;
+			grid-gap: 10pt;
+			.post-header {
+				grid-column: span 2;
+			}
+		}
+	}
+}
+
+.post-preview {
+	background: #f4f4f4;
+	box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
+	&:hover p {
+		color: #444;
+	}
+	.post-image {
+		@include pseudoImage;
+		background-size: cover;
+		padding-top: 40%;
+	}
+	.post-content {
+		padding: 4%;
+	}
+	h5 {
+		font-size: 14pt;
+	}
+}

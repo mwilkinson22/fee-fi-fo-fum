@@ -5,7 +5,7 @@ import { createStore, applyMiddleware } from "redux";
 import reduxThunk from "redux-thunk";
 
 import App from "./components/App";
-import reducers from "./reducers";
+import reducers from "./reducers/combinedReducer";
 
 import axios from "axios";
 window.axios = axios;

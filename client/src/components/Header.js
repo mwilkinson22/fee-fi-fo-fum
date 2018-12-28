@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink, withRouter } from "react-router-dom";
+import { fetchNewsCategories } from "../actions/newsActions";
 import _ from "lodash";
 
 class Header extends Component {
@@ -10,9 +11,16 @@ class Header extends Component {
 		this.state = {
 			showMobileNav: false
 		};
+
+		this.props.fetchNewsCategories();
 	}
 
 	generateNavMenu() {
+		const newsSubmenu = _.chain(this.props.newsCategories)
+			.keyBy("name")
+			.mapValues("slug")
+			.value();
+
 		const navMenu = [
 			{
 				header: "Home",
@@ -20,29 +28,23 @@ class Header extends Component {
 			},
 			{
 				header: "Games",
-				headerLink: "/games",
+				headerLink: "/games/",
 				headerClickable: false,
 				subMenu: {
-					Fixtures: "/fixtures",
-					Results: "/results"
+					Fixtures: "fixtures",
+					Results: "results"
 				}
 			},
 			{
 				header: "Teams",
-				headerLink: "/teams"
+				headerLink: "/teams/"
 			},
 			{
 				header: "News",
-				headerLink: "/news",
-				subMenu: {
-					Previews: "/previews",
-					Recaps: "/recaps",
-					Features: "/features",
-					Opinions: "/opinions"
-				}
+				headerLink: "/news/",
+				subMenu: newsSubmenu
 			}
 		];
-
 		if (this.props.auth) {
 			navMenu.push(
 				{
@@ -131,8 +133,13 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ auth }) {
-	return { auth };
+function mapStateToProps({ auth, news }) {
+	return { auth, newsCategories: news.categories };
 }
 
-export default withRouter(connect(mapStateToProps)(Header));
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchNewsCategories }
+	)(Header)
+);

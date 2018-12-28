@@ -10,6 +10,7 @@ require("./models/User");
 require("./models/IdLink");
 require("./models/SlugRedirect");
 require("./models/rugby");
+require("./models/NewsPost");
 
 mongoose.connect(
 	keys.mongoURI,
@@ -38,6 +39,7 @@ app.use(passport.session());
 // API Routes
 require("./routes/usersRoutes")(app);
 require("./routes/rugby")(app);
+require("./routes/newsRoutes")(app);
 
 if (process.env.NODE_ENV === "production") {
 	//Express will serve up production assets like main.js or main.css
