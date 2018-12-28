@@ -28,6 +28,7 @@ class GamePage extends Component {
 				<img
 					src={`https://www.giantsfanzine.co.uk/resources/images/tv/${game.tv}.svg`}
 					className="tv-logo"
+					alt={`${game.tv} Logo`}
 				/>
 			);
 		let i = 0;
