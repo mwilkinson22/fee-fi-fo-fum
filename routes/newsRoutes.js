@@ -55,7 +55,7 @@ module.exports = app => {
 			"slug title image dateCreated category"
 		)
 			.sort({ dateCreated: -1 })
-			.limit(5);
+			.limit(8);
 		res.send(posts);
 	});
 };
