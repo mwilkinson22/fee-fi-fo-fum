@@ -90,3 +90,19 @@
 		font-size: 14pt;
 	}
 }
+
+.post-list {
+	padding: 20pt 0;
+	display: grid;
+	grid-gap: 12pt;
+	.post-preview {
+		height: 100%;
+	}
+	@media #{$mobile-only} {
+		grid-template-columns: 1fr;
+	}
+
+	@media #{$desktop-and-tablet} {
+		grid-template-columns: repeat(auto-fill, minmax(280pt, 1fr));
+	}
+}
