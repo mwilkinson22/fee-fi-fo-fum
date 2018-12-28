@@ -7,10 +7,30 @@ import * as colourHelper from "../../utils/colourHelper";
 import Countdown from "./Countdown";
 
 class GamePage extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
+
 	async componentWillMount() {
-		if (!this.props.game) {
+		const { game } = this.props;
+		if (game) {
+			this.setStateFromGame(game);
+		} else {
 			await this.props.fetchGame(this.props.match.params.slug);
 		}
+	}
+
+	setStateFromGame(game) {
+		if (game) {
+			const date = Date.parse(new Date(game.date));
+			this.setState({ date, isFixture: date > new Date() });
+		}
+	}
+
+	componentWillReceiveProps(nextProps, nextContext) {
+		const { game } = nextProps;
+		this.setStateFromGame(game);
 	}
 
 	generateHeaderInfoBar() {
@@ -75,20 +95,31 @@ class GamePage extends Component {
 	}
 
 	generateCountdown() {
-		const date = Date.parse(new Date(this.props.game.date));
-		if (date > new Date()) {
+		if (this.state.isFixture) {
 			return (
 				<section className="countdown">
 					<div className="container">
 						<h3>Countdown to Kickoff</h3>
 						<Countdown
-							date={date}
+							date={this.state.date}
 							onFinish={() => {
 								const section = document.querySelector(".game-page .countdown");
 								section.className = section.className + " completed";
 							}}
 						/>
 					</div>
+				</section>
+			);
+		} else {
+			return null;
+		}
+	}
+
+	generateForm() {
+		if (this.state.isFixture) {
+			return (
+				<section className="form">
+					<div className="container" />
 				</section>
 			);
 		} else {
@@ -113,59 +144,7 @@ class GamePage extends Component {
 						<div className="team-banners">{this.generateTeamBanners()}</div>
 					</section>
 					{this.generateCountdown()}
-					<ul>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-						<li>Test</li>
-					</ul>
+					{this.generateForm()}
 				</div>
 			);
 		}
