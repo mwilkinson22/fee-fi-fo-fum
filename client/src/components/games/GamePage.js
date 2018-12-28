@@ -110,8 +110,8 @@ class GamePage extends Component {
 						<div className="game-details">
 							<div className="container">{this.generateHeaderInfoBar()}</div>
 						</div>
+						<div className="team-banners">{this.generateTeamBanners()}</div>
 					</section>
-					<section className="team-banners">{this.generateTeamBanners()}</section>
 					{this.generateCountdown()}
 				</div>
 			);
