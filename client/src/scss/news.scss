@@ -1,3 +1,40 @@
+.post-preview {
+	@include pseudoImage;
+	background-size: cover;
+	padding-top: 30%;
+	box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
+	&:hover p {
+		color: #444;
+	}
+	.post-image {
+		@include pseudoImage;
+		background-size: cover;
+		padding-top: 40%;
+	}
+	.post-meta {
+		background: rgba($claret, 0.9);
+		padding: 4%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		.title {
+			color: $gold;
+			font-size: 14pt;
+			margin-bottom: 6pt;
+		}
+		.title {
+		}
+		h6 {
+			padding-top: 6pt;
+			border-top: solid thin $gold;
+			color: white;
+			display: flex;
+			justify-content: space-between;
+		}
+	}
+}
+
 .news-post {
 	.post-wrapper {
 		padding: 14pt 0;
@@ -9,28 +46,13 @@
 
 		.post-header {
 			@include noTextSelect;
-			&.has-image {
-				padding-top: 30%;
-				@include pseudoImage;
-				background-size: cover;
-				.post-meta {
-					background: rgba($claret, 0.9);
-				}
+			h6 {
+				color: white;
 			}
-			.post-meta {
-				background: $claret;
-				padding: 2% 3%;
-				h5 {
-					color: white;
-				}
-				&,
-				& h1 {
-					color: $gold;
-					text-align: left;
-				}
-				h1 {
-					border-bottom: solid thin $gold;
-				}
+			&,
+			& h1 {
+				color: $gold;
+				text-align: left;
 			}
 		}
 
@@ -67,43 +89,19 @@
 			grid-gap: 10pt;
 			.post-header {
 				grid-column: span 2;
+				h1 {
+					font-size: 3em;
+				}
+				h6 {
+					font-size: 13pt;
+				}
 			}
 		}
 	}
 }
 
-.post-preview {
-	@include pseudoImage;
-	background-size: cover;
-	padding-top: 35%;
-	box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
-	&:hover p {
-		color: #444;
-	}
-	.post-image {
-		@include pseudoImage;
-		background-size: cover;
-		padding-top: 40%;
-	}
-	.post-content {
-		background: rgba($claret, 0.9);
-		padding: 4%;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		h5 {
-			font-size: 14pt;
-			color: $gold;
-		}
-		h6 {
-			color: white;
-		}
-	}
-}
-
 .post-list-page {
-	padding: 20pt 0;
+	padding: 10pt 0;
 	.post-list {
 		display: grid;
 		grid-gap: 12pt;
@@ -132,17 +130,18 @@
 				align-items: center;
 				justify-content: center;
 				font-weight: bold;
+				border-radius: 100%;
 
 				&.current-page {
 					pointer-events: none;
 					background: $claret;
 					color: white;
-					border-radius: 100%;
 				}
 
 				@media #{$desktop-only} {
 					&:hover {
 						color: $claret;
+						background: rgba(white, 0.8);
 					}
 				}
 			}

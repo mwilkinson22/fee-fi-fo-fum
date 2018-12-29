@@ -4,7 +4,7 @@ import LoadingPage from "../LoadingPage";
 import { fetchNewsPostBySlug, fetchSidebarPosts } from "../../actions/newsActions";
 import "datejs";
 import connect from "react-redux/es/connect/connect";
-import NewsPostPreview from "./NewsPostPreview";
+import NewsPostPreview from "./NewsPostCard";
 
 class NewsPostPage extends Component {
 	componentWillMount() {
@@ -37,14 +37,8 @@ class NewsPostPage extends Component {
 		return (
 			<div className="container">
 				<div className="post-wrapper">
-					<div
-						className={`post-header ${post.image ? "has-image" : "no-image"}`}
-						style={{ backgroundImage: `url('${post.image}')` }}
-					>
-						<div className="post-meta">
-							<h1>{post.title}</h1>
-							<h5>{new Date(post.dateCreated).toString("dddd dS MMM yyyy H:mm")}</h5>
-						</div>
+					<div className="post-header">
+						<NewsPostPreview post={post} inArticle={true} />
 					</div>
 					<div className="post-body">{Parser(post.content)}</div>
 					<ul className="other-posts">

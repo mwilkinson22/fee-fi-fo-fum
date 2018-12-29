@@ -2,10 +2,9 @@ import React, { Component } from "react";
 import connect from "react-redux/es/connect/connect";
 import { fetchPostPagination, fetchPostList } from "../../actions/newsActions";
 import LoadingPage from "../LoadingPage";
-import NewsPostPreview from "./NewsPostPreview";
+import NewsPostPreview from "./NewsPostCard";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
-import qs from "query-string";
 
 class NewsList extends Component {
 	async componentWillMount() {
@@ -96,7 +95,6 @@ class NewsList extends Component {
 function mapStateToProps({ news }, ownProps) {
 	const category = ownProps.match.params.category || "all";
 	const { postList, pages } = news;
-	console.debug(news.postList);
 	return { postList: postList[category], pages };
 }
 
