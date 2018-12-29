@@ -12,8 +12,35 @@ body {
 
 .page-header {
 	background: #fff;
-	margin-bottom: 10pt;
+	margin-bottom: 0;
 	padding-top: 10pt;
+	h1 {
+		margin: 0;
+	}
+	.sub-menu {
+		text-align: center;
+		a {
+			padding: 0 8pt;
+			display: inline-block;
+			color: #aaa;
+			font-weight: bold;
+			font-size: 14pt;
+			transition: color 100ms;
+
+			&:hover {
+				color: #666;
+			}
+
+			&.active {
+				color: $claret;
+				pointer-events: none;
+			}
+
+			&:not(:last-child) {
+				border-right: solid 1pt #ccc;
+			}
+		}
+	}
 
 	&::after {
 		content: " ";

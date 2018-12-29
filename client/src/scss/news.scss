@@ -101,7 +101,6 @@
 }
 
 .post-list-page {
-	padding: 10pt 0;
 	.post-list {
 		display: grid;
 		grid-gap: 12pt;
@@ -121,7 +120,7 @@
 			@include noTextSelect;
 			display: flex;
 			justify-content: center;
-			margin-top: 10pt;
+			margin: 20pt 0;
 			a {
 				width: 20pt;
 				height: 20pt;

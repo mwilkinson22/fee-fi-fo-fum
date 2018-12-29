@@ -47,7 +47,6 @@ class NewsPostCard extends Component {
 
 function mapStateToProps({ news }) {
 	const { categories } = news;
-	console.log(categories);
 	return { categories };
 }
 

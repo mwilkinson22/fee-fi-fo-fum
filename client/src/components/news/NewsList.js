@@ -28,15 +28,32 @@ class NewsList extends Component {
 			category,
 			page
 		});
-		await this.props.fetchPostPagination(this.state.category);
 		if (!props.postList || !props.postList[this.state.page])
-			props.fetchPostList(this.state.category, this.state.page);
+			await props.fetchPostList(this.state.category, this.state.page);
+		await this.props.fetchPostPagination(this.state.category);
 	}
 
 	generateHeader() {
-		const { category } = this.state;
-		if (category !== "all") return <h1>News - {category}</h1>;
-		else return <h1>News</h1>;
+		if (!this.props.categories) {
+			return <LoadingPage />;
+		} else {
+			const categories = _.concat([{ name: "All", slug: "all" }], this.props.categories);
+			const subMenu = categories.map(category => {
+				return (
+					<NavLink to={`/news/${category.slug}`} activeClassName="active">
+						{category.name}
+					</NavLink>
+				);
+			});
+			return (
+				<section className="page-header">
+					<div className="container">
+						<h1>News</h1>
+						<div className="sub-menu">{subMenu}</div>
+					</div>
+				</section>
+			);
+		}
 	}
 
 	generateList() {
@@ -76,26 +93,24 @@ class NewsList extends Component {
 
 	render() {
 		const { postList } = this.props;
-		if (!postList) {
-			return <LoadingPage fullscreen={true} />;
-		} else {
-			return (
-				<div className="post-list-page">
+		return (
+			<div className="post-list-page">
+				{this.generateHeader()}
+				<section className="posts">
 					<div className="container">
-						{this.generateHeader()}
 						{this.generateList()}
 						<div className="post-pagination">{this.generatePagination()}</div>
 					</div>
-				</div>
-			);
-		}
+				</section>
+			</div>
+		);
 	}
 }
 
 function mapStateToProps({ news }, ownProps) {
 	const category = ownProps.match.params.category || "all";
-	const { postList, pages } = news;
-	return { postList: postList[category], pages };
+	const { postList, pages, categories } = news;
+	return { postList: postList[category], pages, categories };
 }
 
 export default connect(
