@@ -73,7 +73,9 @@
 }
 
 .post-preview {
-	background: #f4f4f4;
+	@include pseudoImage;
+	background-size: cover;
+	padding-top: 35%;
 	box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
 	&:hover p {
 		color: #444;
@@ -84,25 +86,64 @@
 		padding-top: 40%;
 	}
 	.post-content {
+		background: rgba($claret, 0.9);
 		padding: 4%;
-	}
-	h5 {
-		font-size: 14pt;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		h5 {
+			font-size: 14pt;
+			color: $gold;
+		}
+		h6 {
+			color: white;
+		}
 	}
 }
 
-.post-list {
+.post-list-page {
 	padding: 20pt 0;
-	display: grid;
-	grid-gap: 12pt;
-	.post-preview {
-		height: 100%;
-	}
-	@media #{$mobile-only} {
-		grid-template-columns: 1fr;
-	}
+	.post-list {
+		display: grid;
+		grid-gap: 12pt;
+		.post-preview {
+			height: 100%;
+		}
+		@media #{$mobile-only} {
+			grid-template-columns: 1fr;
+		}
 
-	@media #{$desktop-and-tablet} {
-		grid-template-columns: repeat(auto-fill, minmax(280pt, 1fr));
+		@media #{$desktop-and-tablet} {
+			grid-template-columns: repeat(auto-fill, minmax(280pt, 1fr));
+		}
+	}
+	.post-pagination {
+		ul {
+			@include noTextSelect;
+			display: flex;
+			justify-content: center;
+			margin-top: 10pt;
+			a {
+				width: 20pt;
+				height: 20pt;
+				margin: 0 4pt;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: bold;
+
+				&.current-page {
+					pointer-events: none;
+					background: $claret;
+					color: white;
+					border-radius: 100%;
+				}
+
+				&:hover {
+					color: $claret;
+				}
+			}
+		}
 	}
 }

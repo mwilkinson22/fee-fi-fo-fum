@@ -28,4 +28,15 @@ const newsPostSchema = new Schema({
 	tags: [String],
 	slug: { type: String, unique: true }
 });
+
+newsPostSchema.query.forList = function() {
+	return this.select({
+		slug: 1,
+		title: 1,
+		image: 1,
+		dateCreated: 1,
+		category: 1
+	});
+};
+
 mongoose.model("newsPosts", newsPostSchema);

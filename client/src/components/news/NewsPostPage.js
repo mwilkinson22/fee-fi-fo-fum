@@ -1,24 +1,25 @@
 import React, { Component } from "react";
 import Parser from "html-react-parser";
-import { Link } from "react-router-dom";
 import LoadingPage from "../LoadingPage";
-import { fetchNewsPostBySlug, fetchRecentPosts } from "../../actions/newsActions";
+import { fetchNewsPostBySlug, fetchSidebarPosts } from "../../actions/newsActions";
 import "datejs";
 import connect from "react-redux/es/connect/connect";
 import NewsPostPreview from "./NewsPostPreview";
 
-class NewsPost extends Component {
+class NewsPostPage extends Component {
 	componentWillMount() {
 		const { category, slug } = this.props.match.params;
 		if (!this.props.post) this.props.fetchNewsPostBySlug(category, slug);
-		if (!this.props.recentPosts) this.props.fetchRecentPosts();
+		if (!this.props.recentPosts) this.props.fetchSidebarPosts();
 	}
 
 	formatSidebar() {
 		if (this.props.recentPosts) {
 			return this.props.recentPosts.map(post => {
-				if (post.slug != this.props.post.slug) {
+				if (post.slug !== this.props.post.slug) {
 					return <NewsPostPreview post={post} includeContent={false} key={post.slug} />;
+				} else {
+					return null;
 				}
 			});
 		} else {
@@ -76,5 +77,5 @@ function mapStateToProps({ news }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchNewsPostBySlug, fetchRecentPosts }
-)(NewsPost);
+	{ fetchNewsPostBySlug, fetchSidebarPosts }
+)(NewsPostPage);

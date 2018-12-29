@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Route, Switch } from "react-router-dom";
-import NewsPost from "./NewsPost";
+import { Redirect, Route, Switch } from "react-router-dom";
+import NewsPost from "./NewsPostPage";
 import NewsList from "./NewsList";
 
 export default class NewsRouter extends Component {
@@ -8,9 +8,10 @@ export default class NewsRouter extends Component {
 		return (
 			<div>
 				<Switch>
-					<Route path="/news/:category/:slug" component={NewsPost} />
+					<Route path="/news/:category/post/:slug" component={NewsPost} />
+					<Route path="/news/:category/:page" component={NewsList} />
 					<Route path="/news/:category/" component={NewsList} />
-					<Route path="/news/" component={NewsList} />
+					<Route path="/news/" render={() => <Redirect to="/news/all" />} />
 				</Switch>
 			</div>
 		);

@@ -5,7 +5,7 @@ const collectionName = "people";
 const Person = mongoose.model(collectionName);
 
 //Controllers
-const GenericController = require("../../controllers/rugby/genericController")(collectionName);
+const GenericController = require("../../controllers/genericController")(collectionName);
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");
