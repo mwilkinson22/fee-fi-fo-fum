@@ -140,8 +140,10 @@
 					border-radius: 100%;
 				}
 
-				&:hover {
-					color: $claret;
+				@media #{$desktop-only} {
+					&:hover {
+						color: $claret;
+					}
 				}
 			}
 		}
