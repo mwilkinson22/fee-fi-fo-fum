@@ -8,7 +8,7 @@ export default class NewsRouter extends Component {
 		return (
 			<div>
 				<Switch>
-					<Route path="/news/:category/post/:slug" component={NewsPost} />
+					<Route path="/news/post/:slug" component={NewsPost} />
 					<Route path="/news/:category/:page" component={NewsList} />
 					<Route path="/news/:category/" component={NewsList} />
 					<Route path="/news/" render={() => <Redirect to="/news/all" />} />

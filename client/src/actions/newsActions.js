@@ -12,8 +12,8 @@ export const fetchNewsCategories = () => async dispatch => {
 	dispatch({ type: FETCH_NEWS_CATEGORIES, payload: res.data });
 };
 
-export const fetchNewsPostBySlug = (category, slug) => async dispatch => {
-	const res = await axios.get(`/api/news/slug/${category}/${slug}`);
+export const fetchNewsPostBySlug = slug => async dispatch => {
+	const res = await axios.get(`/api/news/slug/${slug}`);
 	dispatch({ type: FETCH_NEWS_POST, payload: res.data });
 };
 

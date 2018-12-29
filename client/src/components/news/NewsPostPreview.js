@@ -12,7 +12,7 @@ export default class NewsPostPreview extends Component {
 	render() {
 		const { post } = this.props;
 		return (
-			<Link to={`/news/${post.category}/post/${post.slug}`}>
+			<Link to={`/news/post/${post.slug}`}>
 				<div
 					className="post-preview"
 					style={{

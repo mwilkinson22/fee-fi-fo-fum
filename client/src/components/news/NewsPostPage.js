@@ -8,8 +8,8 @@ import NewsPostPreview from "./NewsPostPreview";
 
 class NewsPostPage extends Component {
 	componentWillMount() {
-		const { category, slug } = this.props.match.params;
-		if (!this.props.post) this.props.fetchNewsPostBySlug(category, slug);
+		const { slug } = this.props.match.params;
+		if (!this.props.post) this.props.fetchNewsPostBySlug(slug);
 		if (!this.props.recentPosts) this.props.fetchSidebarPosts();
 	}
 
@@ -28,8 +28,8 @@ class NewsPostPage extends Component {
 	}
 
 	componentWillReceiveProps(nextProps, nextContext) {
-		const { category, slug } = nextProps.match.params;
-		if (!nextProps.post) this.props.fetchNewsPostBySlug(category, slug);
+		const { slug } = nextProps.match.params;
+		if (!nextProps.post) this.props.fetchNewsPostBySlug(slug);
 	}
 
 	formatPost() {
