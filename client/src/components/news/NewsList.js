@@ -40,7 +40,11 @@ class NewsList extends Component {
 			const categories = _.concat([{ name: "All", slug: "all" }], this.props.categories);
 			const subMenu = categories.map(category => {
 				return (
-					<NavLink to={`/news/${category.slug}`} activeClassName="active">
+					<NavLink
+						key={category.slug}
+						to={`/news/${category.slug}`}
+						activeClassName="active"
+					>
 						{category.name}
 					</NavLink>
 				);
@@ -92,7 +96,6 @@ class NewsList extends Component {
 	}
 
 	render() {
-		const { postList } = this.props;
 		return (
 			<div className="post-list-page">
 				{this.generateHeader()}

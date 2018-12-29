@@ -5,6 +5,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "datejs": "^1.0.0-rc3",
+    "detect-browser": "^3.0.1",
+    "es6-promise": "^4.2.5",
     "http-proxy-middleware": "^0.19.1",
     "node-sass": "^4.10.0",
     "react": "^16.6.3",

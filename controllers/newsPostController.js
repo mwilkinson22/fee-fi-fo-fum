@@ -5,11 +5,21 @@ const NewsPost = mongoose.model(collectionName);
 const postsPerPage = 9;
 const GenericController = require("./genericController")(collectionName);
 
+async function getRecentPosts(count, mustBePublished) {
+	const query = mustBePublished ? { isPublished: true } : {};
+	const posts = await NewsPost.find(query)
+		.sort({ dateCreated: -1 })
+		.limit(count)
+		.forList();
+	return posts;
+}
+
 module.exports = {
 	async getCategoryList(req, res) {
 		const categories = require("../constants/newsCategories");
 		res.send(categories);
 	},
+
 	async getPagination(req, res) {
 		const { category } = req.params;
 		const query = category === "all" ? {} : { category };
@@ -32,10 +42,11 @@ module.exports = {
 		res.send({ category, page, posts });
 	},
 	async getSidebarPosts(req, res) {
-		const posts = await NewsPost.find({ isPublished: true })
-			.sort({ dateCreated: -1 })
-			.limit(8)
-			.forList();
+		const posts = await getRecentPosts(8, true);
+		res.send(posts);
+	},
+	async getFrontpagePosts(req, res) {
+		const posts = await getRecentPosts(3, true);
 		res.send(posts);
 	},
 

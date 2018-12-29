@@ -1,4 +1,5 @@
 import {
+	FETCH_FRONTPAGE_POSTS,
 	FETCH_NEWS_CATEGORIES,
 	FETCH_NEWS_POST,
 	FETCH_POST_LIST,
@@ -8,6 +9,12 @@ import {
 
 export default function(state = { posts: {}, postList: {} }, action) {
 	switch (action.type) {
+		case FETCH_FRONTPAGE_POSTS:
+			return {
+				...state,
+				frontpagePosts: action.payload
+			};
+
 		case FETCH_POST_LIST:
 			const { category, page, posts } = action.payload;
 			return {

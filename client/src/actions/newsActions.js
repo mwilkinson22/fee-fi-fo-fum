@@ -1,5 +1,6 @@
 import axios from "axios";
 import {
+	FETCH_FRONTPAGE_POSTS,
 	FETCH_NEWS_CATEGORIES,
 	FETCH_NEWS_POST,
 	FETCH_POST_LIST,
@@ -20,6 +21,11 @@ export const fetchNewsPostBySlug = slug => async dispatch => {
 export const fetchSidebarPosts = () => async dispatch => {
 	const res = await axios.get("/api/news/sidebarPosts");
 	dispatch({ type: FETCH_SIDEBAR_POSTS, payload: res.data });
+};
+
+export const fetchFrontpagePosts = () => async dispatch => {
+	const res = await axios.get("/api/news/frontpagePosts");
+	dispatch({ type: FETCH_FRONTPAGE_POSTS, payload: res.data });
 };
 
 export const fetchPostList = (category, page) => async dispatch => {

@@ -100,48 +100,46 @@
 	}
 }
 
-.post-list-page {
-	.post-list {
-		display: grid;
-		grid-gap: 12pt;
-		.post-preview {
-			height: 100%;
-		}
-		@media #{$mobile-only} {
-			grid-template-columns: 1fr;
-		}
-
-		@media #{$desktop-and-tablet} {
-			grid-template-columns: repeat(auto-fill, minmax(280pt, 1fr));
-		}
+.post-list {
+	display: grid;
+	grid-gap: 12pt;
+	.post-preview {
+		height: 100%;
 	}
-	.post-pagination {
-		ul {
-			@include noTextSelect;
-			display: flex;
+	@media #{$mobile-only} {
+		grid-template-columns: 1fr;
+	}
+
+	@media #{$desktop-and-tablet} {
+		grid-template-columns: repeat(auto-fill, minmax(280pt, 1fr));
+	}
+}
+.post-pagination {
+	ul {
+		@include noTextSelect;
+		display: flex;
+		justify-content: center;
+		margin: 20pt 0;
+		a {
+			width: 20pt;
+			height: 20pt;
+			margin: 0 4pt;
+			display: inline-flex;
+			align-items: center;
 			justify-content: center;
-			margin: 20pt 0;
-			a {
-				width: 20pt;
-				height: 20pt;
-				margin: 0 4pt;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				font-weight: bold;
-				border-radius: 100%;
+			font-weight: bold;
+			border-radius: 100%;
 
-				&.current-page {
-					pointer-events: none;
-					background: $claret;
-					color: white;
-				}
+			&.current-page {
+				pointer-events: none;
+				background: $claret;
+				color: white;
+			}
 
-				@media #{$desktop-only} {
-					&:hover {
-						color: $claret;
-						background: rgba(white, 0.8);
-					}
+			@media #{$desktop-only} {
+				&:hover {
+					color: $claret;
+					background: rgba(white, 0.8);
 				}
 			}
 		}
