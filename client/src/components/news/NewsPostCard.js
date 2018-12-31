@@ -16,7 +16,7 @@ class NewsPostCard extends Component {
 
 	generateContent() {
 		const { post } = this.props;
-		const category = _.keyBy(this.props.categories, "slug")[post.category].name;
+		const category = _.keyBy(this.props.categories, "slug")[post.category];
 		return (
 			<div
 				className="post-preview"
@@ -27,7 +27,9 @@ class NewsPostCard extends Component {
 				<div className="post-meta">
 					{this.getTitle()}
 					<h6>
-						<span>{category}</span>
+						<span>
+							<Link to={`/news/${category.slug}`}>{category.name}</Link>
+						</span>
 						<span>{new Date(post.dateCreated).toString("dddd dS MMM yyyy H:mm")}</span>
 					</h6>
 				</div>
