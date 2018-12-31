@@ -53,12 +53,12 @@ export default class GameBox extends Component {
 						style={{ backgroundImage: `url('${opposition.image}')` }}
 						className="team-badge"
 					/>
-					<div>
+					<div class="game-details-wrapper">
 						<h4>
 							{opposition.name.short} {homeAwayText}
 						</h4>
 						<ul>
-							<li>{date.toLocaleString()}</li>
+							<li class="date">{date.toLocaleString()}</li>
 							<li>
 								{ground.name}, {ground.address._city.name}
 							</li>
