@@ -3,6 +3,7 @@ export const FETCH_USER = "fetch_user";
 
 //Games
 export const FETCH_GAME = "fetch_game";
+export const FETCH_FRONTPAGE_GAMES = "fetch_frontpage_games";
 export const FETCH_FIXTURES = "fetch_fixtures";
 export const FETCH_RESULTS = "fetch_results";
 export const FETCH_RESULT_YEARS = "fetch_result_years";

@@ -37,48 +37,83 @@ function buildQuery(params) {
 	return query;
 }
 
+async function aggregateForList(initialPipelines) {
+	const games = await Game.aggregate(
+		_.concat(initialPipelines, getBasicGameData, exportBasicInfoOnly)
+	);
+
+	return games;
+}
+
 module.exports = {
 	async getFixtures(req, res) {
 		const query = {
 			date: { $gt: new Date() },
 			...buildQuery(req.query)
 		};
-
-		const games = await Game.aggregate(
-			_.concat(
-				[
-					{ $match: query },
-					{
-						$sort: {
-							date: 1
-						}
-					}
-				],
-				getBasicGameData,
-				exportBasicInfoOnly
-			)
-		);
+		const games = await aggregateForList([
+			{ $match: query },
+			{
+				$sort: {
+					date: 1
+				}
+			}
+		]);
 		res.send(games);
 	},
 
 	async getResults(req, res) {
 		const { year } = req.params;
 		const query = buildQuery({ ...req.query, year });
-		const games = await Game.aggregate(
-			_.concat(
-				[
-					{ $match: query },
-					{
-						$sort: {
-							date: -1
-						}
-					}
-				],
-				getBasicGameData,
-				exportBasicInfoOnly
-			)
-		);
+		const games = await aggregateForList([
+			{ $match: query },
+			{
+				$sort: {
+					date: -1
+				}
+			}
+		]);
 		res.send(games);
+	},
+
+	async getFrontpageGames(req, res) {
+		const lastGame = await Game.findOne({}, "_id")
+			.getFixtures(false)
+			.sort({ date: -1 });
+		const nextGame = await Game.findOne({}, "isAway")
+			.getFixtures(true)
+			.sort({ date: 1 });
+		const games = [lastGame, nextGame];
+		if (nextGame.isAway) {
+			const nextHomeGame = await Game.findOne({ isAway: false }, "_id")
+				.getFixtures(true)
+				.sort({ date: 1 });
+			games.push(nextHomeGame);
+		}
+		console.log(games);
+		const gameIds = [];
+		for (const game of games) {
+			if (game && game._id) {
+				gameIds.push(ObjectId(game._id));
+			}
+		}
+
+		const results = await aggregateForList([
+			{
+				$match: {
+					_id: {
+						$in: gameIds
+					}
+				}
+			},
+			{
+				$sort: {
+					date: 1
+				}
+			}
+		]);
+
+		res.send(results);
 	},
 
 	async getYearsWithResults(req, res) {

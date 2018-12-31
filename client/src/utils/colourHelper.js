@@ -1,6 +1,5 @@
 import { detect } from "detect-browser";
 const browser = detect();
-console.log(browser);
 
 export function toRgb(colour) {
 	return `rgb(${colour.join(",")})`;

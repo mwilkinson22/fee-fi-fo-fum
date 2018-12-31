@@ -1,4 +1,18 @@
 .homepage {
-	.latest-news {
+	section {
+		padding: 14pt 0 7pt;
+	}
+
+	.games-and-table {
+		.container {
+			display: grid;
+			grid-gap: 20pt;
+			.game-box-wrapper {
+				margin-bottom: 14pt;
+			}
+			@media #{$desktop-and-tablet} {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
 	}
 }

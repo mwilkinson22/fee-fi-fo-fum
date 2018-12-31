@@ -2,46 +2,72 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "./LoadingPage";
 import NewsPostCard from "./news/NewsPostCard";
+import GameBox from "./games/GameBox";
 import { fetchFrontpagePosts } from "../actions/newsActions";
+import { fetchFrontpageGames } from "../actions/gamesActions";
 
 class HomePage extends Component {
-	componentWillMount() {
-		this.props.fetchFrontpagePosts();
+	async componentWillMount() {
+		await this.props.fetchFrontpagePosts();
+		await this.props.fetchFrontpageGames();
 	}
 
-	getNewsPosts() {
-		const { posts } = this.props;
-		console.log(posts);
-		if (!posts) {
+	generateNewsPosts() {
+		const { frontpagePosts } = this.props;
+		if (!frontpagePosts) {
 			return <LoadingPage />;
 		} else {
-			const postCards = posts.map(post => {
+			const postCards = frontpagePosts.map(post => {
 				return <NewsPostCard post={post} key={post.slug} />;
 			});
-			return <div className="post-list">{postCards}</div>;
+			return (
+				<div className="container">
+					<h2>Latest News</h2>
+					<div className="post-list">{postCards}</div>
+				</div>
+			);
+		}
+	}
+
+	generateGames() {
+		const { frontpageGames } = this.props;
+		if (!frontpageGames) {
+			return <LoadingPage />;
+		} else {
+			const titles = ["Last Game", "Next Game", "Next Home Game"];
+			let i = 0;
+			const games = frontpageGames.map(game => {
+				return (
+					<div className="game-box-wrapper">
+						<h2>{titles[i++]}</h2>
+						<GameBox game={game} includeCountdown={true} />
+					</div>
+				);
+			});
+			return <div className="frontpage-game-list">{games}</div>;
 		}
 	}
 
 	render() {
 		return (
 			<div className="homepage">
-				<section className="latest-news">
-					<div className="container">
-						<h2>News</h2>
-						{this.getNewsPosts()}
-					</div>
+				<section className="latest-news">{this.generateNewsPosts()}</section>
+				<section className="games-and-table">
+					<div className="container">{this.generateGames()}</div>
 				</section>
 			</div>
 		);
 	}
 }
 
-function mapStateToProps({ news }) {
-	const posts = news.frontpagePosts;
-	return { posts };
+function mapStateToProps({ news, games }) {
+	console.log(games);
+	const { frontpagePosts } = news;
+	const { frontpageGames } = games;
+	return { frontpagePosts, frontpageGames };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchFrontpagePosts }
+	{ fetchFrontpagePosts, fetchFrontpageGames }
 )(HomePage);

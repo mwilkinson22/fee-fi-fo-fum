@@ -71,4 +71,13 @@ gameSchema.statics.generateSlug = async function(opposition, date) {
 		return slug;
 	}
 };
+
+gameSchema.query.getFixtures = function(fixtures) {
+	const now = new Date();
+	if (fixtures) {
+		return this.where({ date: { $gt: now } });
+	} else {
+		return this.where({ date: { $lte: now } });
+	}
+};
 mongoose.model("games", gameSchema);

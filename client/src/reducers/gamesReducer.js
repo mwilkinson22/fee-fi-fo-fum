@@ -4,7 +4,8 @@ import {
 	FETCH_RESULT_YEARS,
 	UPDATE_ACTIVE_YEAR,
 	UPDATE_FILTERS,
-	FETCH_GAME
+	FETCH_GAME,
+	FETCH_FRONTPAGE_GAMES
 } from "../actions/types";
 
 export default function(state = { fullGames: {} }, action) {
@@ -21,6 +22,8 @@ export default function(state = { fullGames: {} }, action) {
 			return { ...state, fixtures: action.payload };
 		case FETCH_RESULTS:
 			return { ...state, results: action.payload };
+		case FETCH_FRONTPAGE_GAMES:
+			return { ...state, frontpageGames: action.payload };
 		case FETCH_RESULT_YEARS:
 			return { year: action.payload[0], years: action.payload, ...state };
 		case UPDATE_ACTIVE_YEAR:

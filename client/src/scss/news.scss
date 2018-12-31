@@ -111,7 +111,7 @@
 	}
 
 	@media #{$desktop-and-tablet} {
-		grid-template-columns: repeat(auto-fill, minmax(280pt, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(270pt, 1fr));
 	}
 }
 .post-pagination {

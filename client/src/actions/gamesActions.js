@@ -6,12 +6,17 @@ import {
 	FETCH_RESULT_YEARS,
 	UPDATE_ACTIVE_YEAR,
 	UPDATE_FILTERS,
-	FETCH_GAME
+	FETCH_GAME,
+	FETCH_FRONTPAGE_GAMES
 } from "./types";
 
 export const fetchGame = slug => async dispatch => {
 	const res = await axios.get("/api/games/slug/" + slug);
 	dispatch({ type: FETCH_GAME, payload: res.data });
+};
+export const fetchFrontpageGames = () => async dispatch => {
+	const res = await axios.get("/api/games/frontpage/");
+	dispatch({ type: FETCH_FRONTPAGE_GAMES, payload: res.data });
 };
 export const fetchFixtures = filters => async dispatch => {
 	const res = await axios.get(`/api/games/fixtures${convertObjectToQuery(filters)}`);

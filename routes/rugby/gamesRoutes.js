@@ -23,6 +23,7 @@ module.exports = app => {
 	app.get("/api/games/results/years", GameController.getYearsWithResults);
 	app.get("/api/games/filters/:year", GameController.getFilters);
 	app.get("/api/games/results/:year", GameController.getResults);
+	app.get("/api/games/frontpage", GameController.getFrontpageGames);
 	app.get("/api/games/:id", GenericController.getItemById);
 	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
 
