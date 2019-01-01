@@ -59,6 +59,34 @@
 		.post-body {
 			background: #f4f4f4;
 			padding: 4%;
+			.post-author {
+				border-bottom: solid 1pt $claret;
+				display: flex;
+				align-items: center;
+				padding-bottom: 8pt;
+				margin-bottom: 8pt;
+				.author-image {
+					@include pseudoImage;
+					height: 40pt;
+					width: 40pt;
+					margin-right: 8pt;
+					border-radius: 100%;
+				}
+				h4 {
+					font-size: 14pt;
+					margin-bottom: 0;
+					span {
+						color: darken($gold, 8%);
+					}
+				}
+				a {
+					color: $twitterBlue;
+					font-weight: bold;
+					&:hover {
+						color: darken($twitterBlue, 10%);
+					}
+				}
+			}
 			p {
 				margin-bottom: 8pt;
 			}

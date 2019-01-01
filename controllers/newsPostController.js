@@ -72,7 +72,7 @@ module.exports = {
 			}
 		).populate({
 			path: "_author",
-			select: "name"
+			select: "name frontendName twitter image"
 		});
 		if (newsPost && (newsPost.isPublished || (req.user && req.user.isAdmin))) {
 			res.send(newsPost);

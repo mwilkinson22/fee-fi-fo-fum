@@ -9,6 +9,9 @@ const userSchema = new Schema({
 		first: String,
 		last: String
 	},
+	frontendName: String,
+	twitter: String,
+	image: String,
 	email: String,
 	isAdmin: Boolean
 });

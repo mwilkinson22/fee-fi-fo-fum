@@ -34,13 +34,52 @@ class NewsPostPage extends Component {
 
 	formatPost() {
 		const post = this.props.post;
+		const author = post._author;
+		let authorName;
+		if (author.frontendName) {
+			authorName = <h4>{author.frontendName}</h4>;
+		} else {
+			authorName = (
+				<h4>
+					{author.name.first} <span>{author.name.last}</span>
+				</h4>
+			);
+		}
+
+		let authorDetails;
+		if (author.twitter) {
+			authorDetails = (
+				<div className="author-details">
+					{authorName}
+					<a
+						href={`https://www.twitter.com/${author.twitter}`}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						@{author.twitter}
+					</a>
+				</div>
+			);
+		} else {
+			authorDetails = <div className="author-details">{authorName}</div>;
+		}
+
 		return (
 			<div className="container">
 				<div className="post-wrapper">
 					<div className="post-header">
 						<NewsPostPreview post={post} inArticle={true} />
 					</div>
-					<div className="post-body">{Parser(post.content)}</div>
+					<div className="post-body">
+						<div className="post-author">
+							<div
+								className="author-image"
+								style={{ backgroundImage: `url('${author.image}')` }}
+							/>
+							{authorDetails}
+						</div>
+						<div className="post-content">{Parser(post.content)}</div>
+					</div>
 					<ul className="other-posts">
 						<li>
 							<h4>Recent Posts</h4>
