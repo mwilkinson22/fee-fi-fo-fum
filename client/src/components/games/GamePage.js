@@ -12,12 +12,12 @@ class GamePage extends Component {
 		this.state = {};
 	}
 
-	async componentWillMount() {
+	componentDidMount() {
 		const { game } = this.props;
 		if (game) {
 			this.setStateFromGame(game);
 		} else {
-			await this.props.fetchGame(this.props.match.params.slug);
+			this.props.fetchGame(this.props.match.params.slug);
 		}
 	}
 

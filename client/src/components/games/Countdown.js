@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 
 export default class Countdown extends Component {
-	componentWillMount() {
-		this.getCountdownValues();
+	constructor(props) {
+		super(props);
+		this.state = this.getCountdownValues();
 		this.interval = setInterval(() => {
-			this.getCountdownValues();
+			this.setState(this.getCountdownValues());
 		}, 1000);
 	}
 
@@ -19,12 +20,12 @@ export default class Countdown extends Component {
 			if (this.props.onFinish) this.props.onFinish();
 		}
 
-		this.setState({
+		return {
 			seconds: this.addLeadingZeroes(Math.floor(timeDiff / 1000) % 60),
 			minutes: this.addLeadingZeroes(Math.floor(timeDiff / 1000 / 60) % 60),
 			hours: this.addLeadingZeroes(Math.floor(timeDiff / 1000 / 60 / 60) % 24),
 			days: this.addLeadingZeroes(Math.floor(timeDiff / 1000 / 60 / 60 / 24))
-		});
+		};
 	}
 
 	addLeadingZeroes(num) {
@@ -35,6 +36,7 @@ export default class Countdown extends Component {
 		const elements = [];
 
 		["Days", "Hours", "Minutes", "Seconds"].forEach(segment => {
+			const value = this.state[segment.toLowerCase()] || null;
 			elements.push(
 				<span className="group" key={segment}>
 					<span
@@ -44,7 +46,7 @@ export default class Countdown extends Component {
 							color: this.props.colour
 						}}
 					>
-						{this.state[segment.toLowerCase()]}
+						{value}
 					</span>
 					<span className="label">{segment}</span>
 				</span>

@@ -12,8 +12,8 @@ class GameList extends Component {
 		};
 	}
 
-	async componentDidMount() {
-		await this.fetchFilters();
+	componentDidMount() {
+		this.fetchFilters();
 		this.fetchGameList();
 	}
 
