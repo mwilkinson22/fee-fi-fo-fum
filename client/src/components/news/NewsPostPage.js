@@ -5,6 +5,7 @@ import { fetchNewsPostBySlug, fetchSidebarPosts } from "../../actions/newsAction
 import "datejs";
 import connect from "react-redux/es/connect/connect";
 import NewsPostPreview from "./NewsPostCard";
+import { FacebookProvider, Comments } from "react-facebook";
 
 class NewsPostPage extends Component {
 	componentWillMount() {
@@ -86,7 +87,15 @@ class NewsPostPage extends Component {
 						</li>
 						{this.formatSidebar()}
 					</ul>
-					<div className="post-comments" />
+					<div className="post-comments">
+						<FacebookProvider appId="1610338439232779">
+							<Comments
+								href={`https://www.giantsfanzine.co.uk/news/post/${post.slug}`}
+								width="100%"
+								mobile={true}
+							/>
+						</FacebookProvider>
+					</div>
 				</div>
 			</div>
 		);

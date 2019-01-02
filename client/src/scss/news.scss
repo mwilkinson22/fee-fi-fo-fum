@@ -39,7 +39,8 @@
 	.post-wrapper {
 		padding: 14pt 0;
 		.post-header,
-		.post-body {
+		.post-body,
+		.post-comments {
 			line-height: 1.4;
 			box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
 		}
@@ -56,9 +57,13 @@
 			}
 		}
 
-		.post-body {
+		.post-body,
+		.post-comments {
 			background: #f4f4f4;
 			padding: 4%;
+		}
+
+		.post-body {
 			.post-author {
 				border-bottom: solid 1pt $claret;
 				display: flex;
@@ -97,10 +102,13 @@
 				}
 			}
 		}
+		.post-comments {
+			.fb-comments iframe {
+				width: 100% !important;
+			}
+		}
 
 		.other-posts {
-			position: sticky;
-			top: 0;
 			h4 {
 				font-size: 16pt;
 			}
@@ -110,7 +118,7 @@
 		}
 	}
 
-	@media #{$desktop-and-tablet} {
+	@media #{$desktop-only} {
 		.post-wrapper {
 			display: grid;
 			grid-template-columns: 2fr 1fr;
@@ -124,6 +132,12 @@
 					font-size: 13pt;
 				}
 			}
+		}
+	}
+
+	@media #{$mobile-and-tablet} {
+		.other-posts {
+			display: none;
 		}
 	}
 }
