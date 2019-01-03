@@ -61,7 +61,6 @@ class HomePage extends Component {
 }
 
 function mapStateToProps({ news, games }) {
-	console.log(games);
 	const { frontpagePosts } = news;
 	const { frontpageGames } = games;
 	return { frontpagePosts, frontpageGames };
