@@ -32,6 +32,7 @@ class TeamList extends Component {
 		const squad = this.props.squads[year];
 		if (!squad) await this.props.fetchSquad(year);
 		await this.setState({
+			year,
 			squad: this.props.squads[year]
 		});
 	}
@@ -66,10 +67,11 @@ class TeamList extends Component {
 		} else {
 			const players = _.map(squad, player => {
 				const { number, slug, name, image } = player;
+				const printNumber = process.env.NODE_ENV === "production" ? null : number; //Temp, to prevent leaking squad numbers
 				return (
 					<Link to={`/players/${slug}`} key={player._id}>
 						<div className="player">
-							<div className="number">{number}</div>
+							<div className="number">{printNumber}</div>
 							<div className="image" style={{ backgroundImage: `url('${image}')` }} />
 							<div className="name">
 								{name.first}
