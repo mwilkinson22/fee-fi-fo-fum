@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import LoadingPage from "../LoadingPage";
-import GameBox from "./GameBox";
+import GameCard from "./GameCard";
 import _ from "lodash";
 
 class GameList extends Component {
@@ -29,7 +29,7 @@ class GameList extends Component {
 			const renderedGames = games.map(game => {
 				const includeCountdown = isFirst;
 				isFirst = false;
-				return <GameBox key={game._id} game={game} includeCountdown={includeCountdown} />;
+				return <GameCard key={game._id} game={game} includeCountdown={includeCountdown} />;
 			});
 			return <div className="container game-list">{renderedGames}</div>;
 		}

@@ -4,7 +4,7 @@ import * as colour from "../../utils/colourHelper";
 import "datejs";
 import Countdown from "./Countdown";
 
-export default class GameBox extends Component {
+export default class GameCard extends Component {
 	constructor(props) {
 		super(props);
 		const gameDate = Date.parse(new Date(this.props.game.date));
@@ -12,6 +12,14 @@ export default class GameBox extends Component {
 			gameDate,
 			includeCountdown: this.props.includeCountdown && gameDate > new Date()
 		};
+	}
+
+	componentWillReceiveProps(nextProps, nextContext) {
+		if (this.props.includeCountdown !== nextProps.includeCountdown) {
+			this.setState({
+				includeCountdown: nextProps.includeCountdown && this.state.gameDate > new Date()
+			});
+		}
 	}
 
 	generateCountdown() {

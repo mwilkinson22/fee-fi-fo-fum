@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "./LoadingPage";
 import NewsPostCard from "./news/NewsPostCard";
-import GameBox from "./games/GameBox";
+import GameCard from "./games/GameCard";
 import { fetchFrontpagePosts } from "../actions/newsActions";
 import { fetchFrontpageGames } from "../actions/gamesActions";
 
@@ -40,7 +40,7 @@ class HomePage extends Component {
 				return (
 					<div className="game-box-wrapper">
 						<h2>{titles[i++]}</h2>
-						<GameBox game={game} includeCountdown={true} />
+						<GameCard game={game} includeCountdown={true} />
 					</div>
 				);
 			});
