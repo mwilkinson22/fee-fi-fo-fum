@@ -7,6 +7,7 @@ const {
 	exportBasicInfoOnly
 } = require("../../pipelines/rugby/gamesPipelines");
 const { ObjectId } = require("mongodb");
+const { earliestGiantsData } = require("../../config/keys");
 
 function buildQuery(params) {
 	const query = {};
@@ -118,7 +119,14 @@ module.exports = {
 	async getYearsWithResults(req, res) {
 		const years = await Game.aggregate([
 			{ $sort: { date: 1 } },
-			{ $match: { date: { $lt: new Date() } } },
+			{
+				$match: {
+					$and: [
+						{ date: { $lt: new Date() } },
+						{ date: { $gte: new Date(`${earliestGiantsData}-01-01`) } }
+					]
+				}
+			},
 			{ $group: { _id: { $year: "$date" } } }
 		]);
 		res.send(years.map(year => year._id));
