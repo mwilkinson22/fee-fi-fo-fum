@@ -90,7 +90,6 @@ module.exports = {
 				.sort({ date: 1 });
 			games.push(nextHomeGame);
 		}
-		console.log(games);
 		const gameIds = [];
 		for (const game of games) {
 			if (game && game._id) {
