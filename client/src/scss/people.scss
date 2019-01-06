@@ -1,0 +1,67 @@
+.person-card-wrapper {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding-top: 20%;
+	transition: transform 200ms, box-shadow 200ms;
+	-webkit-font-smoothing: antialiased;
+
+	&:hover {
+		transform: translateY(-2px);
+		.person-card {
+			box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
+		}
+	}
+
+	.person-card {
+		display: flex;
+		height: 100%;
+		border-radius: 0 4pt;
+		overflow: hidden;
+		box-shadow: 3pt 3pt 4pt rgba(0, 0, 0, 0.5);
+
+		.trim,
+		.main {
+			display: flex;
+			flex-direction: column;
+		}
+		.trim {
+			background: white;
+			font-family: "Montserrat";
+			font-weight: bold;
+			font-size: 14pt;
+			color: $claret;
+			min-width: 30%;
+			padding: 10pt;
+		}
+		.main {
+			background: $claret;
+			flex-grow: 1;
+			justify-content: flex-end;
+			padding: 20pt 10pt 20pt 23%;
+			color: white;
+			.name {
+				color: inherit;
+				font-size: 16pt;
+				span {
+					color: $gold;
+					display: block;
+				}
+			}
+			.positions {
+				color: #ddd;
+			}
+		}
+	}
+	.image {
+		@include pseudoImage;
+		background-position: right bottom;
+		position: absolute;
+		width: 45%;
+		height: 100%;
+		left: 5%;
+		bottom: 0;
+		z-index: 2;
+	}
+}

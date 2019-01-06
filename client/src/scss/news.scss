@@ -2,7 +2,6 @@
 	@include pseudoImage;
 	background-size: cover;
 	padding-top: 30%;
-	box-shadow: 2pt 2pt 4pt rgba(0, 0, 0, 0.4);
 	&:hover p {
 		color: #444;
 	}

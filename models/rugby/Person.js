@@ -110,4 +110,8 @@ personSchema.statics.generateSlug = async function(firstName, lastName) {
 	}
 };
 
+personSchema.virtual("name.full").get(function() {
+	return this.name.first + " " + this.name.last;
+});
+
 mongoose.model("people", personSchema, "people"); //Third argument added to prevent "peoples"

@@ -3,12 +3,7 @@ const mongoose = require("mongoose");
 const Team = mongoose.model("teams");
 const { ObjectId } = require("mongodb");
 const { localTeam } = require("../../config/keys");
-
-function buildQuery(params) {
-	const query = {};
-
-	return query;
-}
+const { positions } = require("../../constants/playerPositions");
 
 function validateTeam(team) {
 	if (team === "local") {
@@ -52,11 +47,12 @@ module.exports = {
 	},
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
+		const { year } = req.params;
 
 		if (team) {
 			let { includeFriendlyOnly } = req.query;
 
-			const results = await Team.aggregate([
+			const aggregation = await Team.aggregate([
 				{
 					$match: {
 						_id: team
@@ -127,20 +123,31 @@ module.exports = {
 								_id: 1,
 								name: 1,
 								image: 1,
-								mainPosition: 1,
-								otherPositions: 1,
+								playerDetails: 1,
 								slug: 1
 							}
 						}
 					}
 				}
 			]);
-			const year = results[0]._id;
-			const players = _.mapValues(results[0].players, player => {
-				const { number } = player;
-				return { number, ...player._player[0] };
+			const results = aggregation[0];
+			const players = _.mapValues(results.players, wrapper => {
+				const { number } = wrapper;
+				const player = wrapper._player[0];
+				const { playerDetails } = player;
+				if (playerDetails.mainPosition) {
+					playerDetails.mainPosition = positions[playerDetails.mainPosition].name;
+				}
+				if (playerDetails.otherPositions && playerDetails.otherPositions.length) {
+					playerDetails.otherPositions = _.map(
+						playerDetails.otherPositions,
+						key => positions[key].name
+					);
+				}
+				player.playerDetails = playerDetails;
+				return { number, ...player };
 			});
-			res.send({ year, players });
+			res.send({ year: results._id, players });
 		} else {
 			res.status(404).send("Invalid team Id");
 		}

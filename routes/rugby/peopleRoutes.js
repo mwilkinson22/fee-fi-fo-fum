@@ -16,7 +16,6 @@ module.exports = app => {
 	app.get("/api/people/slug/:slug", GenericController.getItemBySlug);
 
 	app.get("/api/people/search/:name", async (req, res) => {
-		console.log("sup");
 		const results = await Person.searchByName(decodeURI(req.params.name));
 		res.send(results);
 	});
@@ -25,7 +24,7 @@ module.exports = app => {
 		const { data } = req.body;
 
 		//Remove unneccessary details
-		/* Possibly unneccesary. Depends on react-router behaviour. Will test once we get the front-end up and running
+		/* Possibly unneccesary. Depends on redux-form behaviour. Will test once we get the front-end up and running
 		if (!data.isPlayer) {
 			delete data.playerDetails;
 			delete data.additionalPlayerStats;

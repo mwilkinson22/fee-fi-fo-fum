@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 import { fetchYearsWithSquads, fetchSquad } from "../../actions/teamsActions";
 import LoadingPage from "../LoadingPage";
+import PersonCard from "../people/PersonCard";
 import _ from "lodash";
+import { NavLink } from "react-router-dom";
 
 class TeamList extends Component {
 	constructor(props) {
@@ -66,34 +67,40 @@ class TeamList extends Component {
 			return <LoadingPage />;
 		} else {
 			const players = _.map(squad, player => {
-				const { number, slug, name, image } = player;
-				const printNumber = process.env.NODE_ENV === "production" ? null : number; //Temp, to prevent leaking squad numbers
-				return (
-					<Link to={`/players/${slug}`} key={player._id}>
-						<div className="player">
-							<div className="number">{printNumber}</div>
-							<div className="image" style={{ backgroundImage: `url('${image}')` }} />
-							<div className="name">
-								{name.first}
-								<span>{name.last}</span>
-							</div>
-						</div>
-					</Link>
-				);
+				return <PersonCard person={player} personType="player" key={player._id} />;
 			});
 			return <div className="squad-list">{players}</div>;
 		}
 	}
 
 	render() {
+		const categories = [
+			{ name: "First Team", slug: "" },
+			{ name: "U19 Academy", slug: "academy" },
+			{ name: "Womens First Team", slug: "womens" },
+			{ name: "U19 Girls", slug: "girls" }
+		];
+		const subMenu = categories.map(category => {
+			return (
+				<NavLink
+					exact={true}
+					key={category.slug}
+					to={`/teams/${category.slug}`}
+					activeClassName="active"
+				>
+					{category.name}
+				</NavLink>
+			);
+		});
 		return (
 			<div className="team-page">
 				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
+						<div className="sub-menu">{subMenu}</div>
 					</div>
 				</section>
-				<div className="container">{this.generateSquadList()}</div>
+				{this.generateSquadList()}
 			</div>
 		);
 	}

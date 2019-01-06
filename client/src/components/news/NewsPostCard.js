@@ -42,7 +42,11 @@ class NewsPostCard extends Component {
 		if (this.props.inArticle) {
 			return this.generateContent();
 		} else {
-			return <Link to={`/news/post/${slug}`}>{this.generateContent()}</Link>;
+			return (
+				<Link to={`/news/post/${slug}`} className="card">
+					{this.generateContent()}
+				</Link>
+			);
 		}
 	}
 }

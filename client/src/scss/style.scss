@@ -6,6 +6,7 @@
 @import "games";
 @import "teams";
 @import "news";
+@import "people";
 
 body {
 	background: #ddd;
@@ -63,7 +64,7 @@ body::-webkit-scrollbar-thumb {
 		background-image: url("https://www.giantsfanzine.co.uk/resources/newsite/paper.png");
 		background-repeat: repeat-x;
 		background-size: contain;
-		transform: translateY(99%);
+		transform: translateY(90%);
 		display: block;
 		margin-bottom: 40pt;
 	}
@@ -94,5 +95,16 @@ body::-webkit-scrollbar-thumb {
 		.list-filter {
 			width: 100%;
 		}
+	}
+}
+
+.card {
+	box-shadow: 3pt 3pt 4pt rgba(0, 0, 0, 0.5);
+	transition: transform 200ms, box-shadow 200ms;
+	-webkit-font-smoothing: antialiased;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 	}
 }

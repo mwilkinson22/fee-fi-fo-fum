@@ -46,11 +46,11 @@ export default class GameCard extends Component {
 		return (
 			<Link
 				to={"/games/" + url}
-				className="game-box"
+				className="game-card card"
 				style={{ backgroundImage: `url('${ground.image}')` }}
 			>
 				<div
-					className="game-box-content"
+					className="game-card-content"
 					style={{
 						backgroundColor: colour.toRgba(opposition.colours.main, 0.9),
 						color: colour.toRgb(opposition.colours.text),
