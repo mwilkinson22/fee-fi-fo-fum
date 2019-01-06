@@ -4,7 +4,6 @@ import { fetchYearsWithSquads, fetchSquad } from "../../actions/teamsActions";
 import LoadingPage from "../LoadingPage";
 import PersonCard from "../people/PersonCard";
 import _ from "lodash";
-import { NavLink } from "react-router-dom";
 
 class TeamList extends Component {
 	constructor(props) {
@@ -74,30 +73,11 @@ class TeamList extends Component {
 	}
 
 	render() {
-		const categories = [
-			{ name: "First Team", slug: "" },
-			{ name: "U19 Academy", slug: "academy" },
-			{ name: "Womens First Team", slug: "womens" },
-			{ name: "U19 Girls", slug: "girls" }
-		];
-		const subMenu = categories.map(category => {
-			return (
-				<NavLink
-					exact={true}
-					key={category.slug}
-					to={`/teams/${category.slug}`}
-					activeClassName="active"
-				>
-					{category.name}
-				</NavLink>
-			);
-		});
 		return (
 			<div className="team-page">
 				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
-						<div className="sub-menu">{subMenu}</div>
 					</div>
 				</section>
 				{this.generateSquadList()}
