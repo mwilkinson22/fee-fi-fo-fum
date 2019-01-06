@@ -19,6 +19,17 @@ const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
 	//Getters
+	app.get("/api/filerenamer/", async (req, res) => {
+		const People = mongoose.model("people");
+		const people = await People.find({ image: { $ne: null } }, "image slug");
+		const arr = [];
+		for (const person of people) {
+			person.image = person.slug + ".png";
+			await person.save();
+			arr.push(person);
+		}
+		res.send(arr);
+	});
 	app.get("/api/games/fixtures/", GameController.getFixtures);
 	app.get("/api/games/results/years", GameController.getYearsWithResults);
 	app.get("/api/games/filters/:year", GameController.getFilters);
