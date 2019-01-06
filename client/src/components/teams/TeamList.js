@@ -13,7 +13,7 @@ class TeamList extends Component {
 		};
 	}
 
-	async componentWillMount() {
+	async componentDidMount() {
 		await this.props.fetchYearsWithSquads();
 		await this.setState({ year: this.props.years[0] });
 		this.getSquad();

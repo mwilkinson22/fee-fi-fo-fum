@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import { connect } from "react-redux";
+import { Helmet } from "react-helmet";
 
 //Actions
 import * as actions from "../actions";
@@ -20,6 +21,10 @@ import NewsRouter from "./news";
 import PersonPage from "./people/PersonPage";
 
 class App extends Component {
+	constructor(props) {
+		super(props);
+		this.coreUrl = window.location.protocol + "//" + window.location.host;
+	}
 	componentDidMount() {
 		this.props.fetchUser();
 	}
@@ -28,6 +33,10 @@ class App extends Component {
 		return (
 			<BrowserRouter>
 				<ScrollToTop>
+					<Helmet>
+						<link rel="canonical" href="https://www.giantsfanzine.co.uk" />
+						<title>Fee Fi Fo Fum - The Huddersfield Giants Fanpage</title>
+					</Helmet>
 					<div id="wrapper">
 						<Header />
 						<Route path="/games" component={GameRouter} />

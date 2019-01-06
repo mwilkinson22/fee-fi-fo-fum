@@ -65,3 +65,116 @@
 		z-index: 2;
 	}
 }
+
+.person-page {
+	section.header {
+		position: relative;
+		height: 40vh;
+		overflow: hidden;
+		.background {
+			position: absolute;
+			height: 100%;
+			top: 0;
+			bottom: 0;
+			margin: auto;
+			z-index: -1;
+			background-size: cover;
+			background-position: 100% 50%;
+			background-repeat: no-repeat;
+			background-image: url("#{$googleBucket}layout/john-smiths.jpg");
+			left: 0;
+			width: 60%;
+			filter: blur(2px);
+		}
+		.container {
+			display: flex;
+			align-items: stretch;
+			.overlay {
+				background: darken($claret, 5%);
+				position: relative;
+				flex-grow: 1;
+				margin-left: 10%;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				padding: 20pt;
+				color: white;
+
+				&::before,
+				&::after {
+					content: "";
+					position: absolute;
+					height: 100%;
+					top: 0;
+					bottom: 0;
+				}
+				&::after {
+					right: 99%;
+					width: 20%;
+					background-image: url("#{$googleBucket}layout/player-header-divider.png");
+					@include pseudoImage;
+					background-size: cover;
+					background-position: right center;
+				}
+				&::before {
+					background: inherit;
+					left: 99%;
+					width: 400vw;
+				}
+
+				h1 {
+					text-align: left;
+					color: white;
+					font-size: 4em;
+					line-height: 1.1;
+					border-bottom: solid 2pt $gold;
+					span {
+						color: $gold;
+						display: block;
+					}
+				}
+
+				.social {
+					border-bottom: solid 2pt white;
+					margin-bottom: 4pt;
+					padding-bottom: 4pt;
+					a {
+						display: flex;
+						align-items: center;
+						font-size: 14pt;
+						margin-bottom: 4pt;
+						img {
+							height: 20pt;
+							margin-right: 10pt;
+						}
+					}
+				}
+			}
+			.image {
+				max-height: 40vh;
+				margin-right: 5%;
+			}
+		}
+	}
+
+	section.person-data {
+		padding: 20pt 0;
+		.container {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			grid-gap: 20pt;
+			.info-table {
+				background: #f4f4f4;
+				box-shadow: 2pt 2pt 4pt rgba(black, 0.5);
+				th,
+				td {
+					padding: 10pt 20pt;
+				}
+				tr {
+					border-bottom: solid thin #ddd;
+					text-align: left;
+				}
+			}
+		}
+	}
+}
