@@ -17,6 +17,7 @@ import GameRouter from "./games";
 import TeamList from "./teams/TeamList";
 import AdminRouter from "./admin";
 import NewsRouter from "./news";
+import PersonPage from "./people/PersonPage";
 
 class App extends Component {
 	componentDidMount() {
@@ -32,6 +33,14 @@ class App extends Component {
 						<Route path="/games" component={GameRouter} />
 						<Route path="/teams" component={TeamList} />
 						<Route path="/news/" component={NewsRouter} />
+						<Route
+							path="/players/:slug"
+							render={props => <PersonPage {...props} personRole="player" />}
+						/>
+						<Route
+							path="/coaches/:slug"
+							render={props => <PersonPage {...props} personRole="coach" />}
+						/>
 						<Route path="/admin" component={AdminRouter} />
 						<Route path="/" component={HomePage} exact />
 					</div>

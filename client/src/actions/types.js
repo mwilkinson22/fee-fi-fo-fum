@@ -21,3 +21,6 @@ export const FETCH_SIDEBAR_POSTS = "fetch_sidebar_posts";
 export const FETCH_FRONTPAGE_POSTS = "fetch_frontpage_posts";
 export const FETCH_POST_LIST = "fetch_post_list";
 export const FETCH_POST_PAGINATION = "fetch_post_pagination";
+
+//People
+export const FETCH_PERSON = "fetch_person";

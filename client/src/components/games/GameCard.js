@@ -61,12 +61,12 @@ export default class GameCard extends Component {
 						style={{ backgroundImage: `url('${opposition.image}')` }}
 						className="team-badge"
 					/>
-					<div class="game-details-wrapper">
+					<div className="game-details-wrapper">
 						<h4>
 							{opposition.name.short} {homeAwayText}
 						</h4>
 						<ul>
-							<li class="date">{date.toLocaleString()}</li>
+							<li className="date">{date.toLocaleString()}</li>
 							<li>
 								{ground.name}, {ground.address._city.name}
 							</li>
