@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Team = mongoose.model("teams");
 const { ObjectId } = require("mongodb");
 const { localTeam } = require("../../config/keys");
-const { positions } = require("../../constants/playerPositions");
+const getPositions = require("../../utils/getPositions");
 
 function validateTeam(team) {
 	if (team === "local") {
@@ -47,7 +47,6 @@ module.exports = {
 	},
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
-		const { year } = req.params;
 
 		if (team) {
 			let { includeFriendlyOnly } = req.query;
@@ -134,17 +133,7 @@ module.exports = {
 			const players = _.mapValues(results.players, wrapper => {
 				const { number } = wrapper;
 				const player = wrapper._player[0];
-				const { playerDetails } = player;
-				if (playerDetails.mainPosition) {
-					playerDetails.mainPosition = positions[playerDetails.mainPosition].name;
-				}
-				if (playerDetails.otherPositions && playerDetails.otherPositions.length) {
-					playerDetails.otherPositions = _.map(
-						playerDetails.otherPositions,
-						key => positions[key].name
-					);
-				}
-				player.playerDetails = playerDetails;
+				player.playerDetails = getPositions(player.playerDetails);
 				return { number, ...player };
 			});
 			res.send({ year: results._id, players });

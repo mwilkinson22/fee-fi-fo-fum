@@ -149,6 +149,12 @@
 						}
 					}
 				}
+				.position {
+					font-size: 14pt;
+					&.other-position {
+						color: #ccc;
+					}
+				}
 			}
 			.image {
 				max-height: 40vh;
@@ -163,16 +169,29 @@
 			display: grid;
 			grid-template-columns: 1fr 1fr;
 			grid-gap: 20pt;
-			.info-table {
+			& > div {
+				padding: 4%;
 				background: #f4f4f4;
 				box-shadow: 2pt 2pt 4pt rgba(black, 0.5);
-				th,
-				td {
-					padding: 10pt 20pt;
+				&.info-table {
+					table {
+						width: 100%;
+						th,
+						td {
+							padding: 10pt;
+						}
+						tr {
+							text-align: left;
+							&:not(:last-child) {
+								border-bottom: solid thin #ddd;
+							}
+						}
+					}
 				}
-				tr {
-					border-bottom: solid thin #ddd;
-					text-align: left;
+				&.description {
+					p {
+						margin-bottom: 8pt;
+					}
 				}
 			}
 		}

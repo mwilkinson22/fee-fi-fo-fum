@@ -12,7 +12,7 @@ const personSchema = new Schema({
 	nickname: { type: String, default: null },
 	dateOfBirth: Date,
 	_hometown: { type: Schema.Types.ObjectId, ref: "cities" },
-	_represents: { type: Schema.Types.ObjectId, ref: "country", default: null },
+	_represents: { type: Schema.Types.ObjectId, ref: "countries", default: null },
 	twitter: String,
 	instagram: String,
 	rflSiteName: String,
@@ -66,7 +66,8 @@ const personSchema = new Schema({
 	],
 
 	slug: { type: String, unique: true },
-	image: String
+	image: String,
+	description: String
 });
 
 personSchema.statics.searchByName = async function(str, extraParams = {}, limit = 20) {

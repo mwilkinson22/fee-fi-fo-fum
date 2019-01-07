@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "../LoadingPage";
+import Parser from "html-react-parser";
 // import { Link } from "react-router-dom";
 import { personImagePath, layoutImagePath } from "../../extPaths";
 import { fetchPersonBySlug } from "../../actions/peopleActions";
@@ -23,7 +24,12 @@ class PersonCard extends Component {
 		const { twitter, instagram } = this.props.person;
 		if (twitter) {
 			social.push(
-				<a href={`https://www.twitter.com/${twitter}`} className="twitter" target="_blank">
+				<a
+					href={`https://www.twitter.com/${twitter}`}
+					className="twitter"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					<img src={`${layoutImagePath}twitter.svg`} alt="Twitter Logo" />@{twitter}
 				</a>
 			);
@@ -34,6 +40,7 @@ class PersonCard extends Component {
 					href={`https://www.instagram.com/${instagram}`}
 					className="instagram"
 					target="_blank"
+					rel="noopener noreferrer"
 				>
 					<img src={`${layoutImagePath}instagram.svg`} alt="Instagram Logo" />@{instagram}
 				</a>
@@ -41,6 +48,33 @@ class PersonCard extends Component {
 		}
 		if (social.length) {
 			return <div className="social">{social}</div>;
+		} else {
+			return null;
+		}
+	}
+
+	getPositions() {
+		const { person } = this.props;
+		if (person.isPlayer) {
+			const { mainPosition, otherPositions } = person.playerDetails;
+			const results = [];
+			if (mainPosition) {
+				results.push(
+					<div key="main" className="position main-position">
+						{mainPosition}
+					</div>
+				);
+			}
+			if (otherPositions) {
+				results.push(
+					<div key="other" className="position other-position">
+						{otherPositions.join(", ")}
+					</div>
+				);
+			}
+
+			console.log(results);
+			return results;
 		} else {
 			return null;
 		}
@@ -55,23 +89,23 @@ class PersonCard extends Component {
 			const today = new Date();
 			const age = Math.abs(today.getTime() - dob.getTime());
 
-			data["Date of Birth"] = dob.toString("dd/MM/yyyy");
+			data["Date of Birth"] = dob.toString("dS MMMM yyyy");
 			data["Age"] = Math.floor(age / (1000 * 3600 * 24 * 365));
 		}
 
 		if (person.nickname) {
-			data["Nickname"] = person.nickname;
+			data["AKA"] = person.nickname;
 		}
 
 		if (person._hometown) {
-			data["From"] = person._hometown;
+			const town = person._hometown;
+			data["From"] = `${town.name}, ${town._country.name}`;
 		}
 
 		if (person._represents) {
-			data["Represents"] = person._represents;
+			data["Represents"] = person._represents.name;
 		}
 
-		console.log(playerDetails.contractEnds);
 		if (playerDetails.contractEnds && playerDetails.contractEnds >= new Date().getFullYear()) {
 			data["Contracted Until"] = playerDetails.contractEnds;
 		}
@@ -85,10 +119,21 @@ class PersonCard extends Component {
 			);
 		});
 		return (
-			<table className="info-table">
-				<tbody>{rows}</tbody>
-			</table>
+			<div className="info-table">
+				<table>
+					<tbody>{rows}</tbody>
+				</table>
+			</div>
 		);
+	}
+
+	getDescription() {
+		const { person } = this.props;
+		if (person.description) {
+			return <div className="description">{Parser(person.description)}</div>;
+		} else {
+			return null;
+		}
 	}
 
 	render() {
@@ -121,14 +166,15 @@ class PersonCard extends Component {
 									<span>{person.name.last}</span>
 								</h1>
 								{this.getSocial()}
-								<div className="main-position">
-									{person.playerDetails.mainPosition}
-								</div>
+								{this.getPositions()}
 							</div>
 						</div>
 					</section>
 					<section className="person-data">
-						<div className="container">{this.getInfoTable()}</div>
+						<div className="container">
+							{this.getInfoTable()}
+							{this.getDescription()}
+						</div>
 					</section>
 				</div>
 			);
