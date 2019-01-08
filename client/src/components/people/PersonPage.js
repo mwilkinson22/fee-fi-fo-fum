@@ -10,7 +10,7 @@ import { localUrl } from "../../extPaths";
 import "datejs";
 import _ from "lodash";
 
-class PersonCard extends Component {
+class PersonPage extends Component {
 	constructor(props) {
 		super(props);
 		const { person } = this.props;
@@ -192,4 +192,4 @@ function mapStateToProps({ people }, ownProps) {
 export default connect(
 	mapStateToProps,
 	{ fetchPersonBySlug }
-)(PersonCard);
+)(PersonPage);

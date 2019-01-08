@@ -2,7 +2,7 @@
 	.squad-list {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(250pt, 1fr));
-		grid-gap: 10pt 20pt;
+		grid-gap: 10pt;
 		padding: 10pt 5%;
 	}
 }
