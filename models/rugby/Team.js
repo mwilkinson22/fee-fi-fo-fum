@@ -20,6 +20,10 @@ const teamSchema = new Schema({
 	squads: [
 		{
 			year: Number,
+			_teamType: {
+				type: Schema.Types.ObjectId,
+				ref: "teamTypes"
+			},
 			players: [
 				{
 					_player: { type: Schema.Types.ObjectId, ref: "people" },

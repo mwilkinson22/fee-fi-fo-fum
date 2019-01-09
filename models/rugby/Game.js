@@ -32,7 +32,11 @@ const gameSchema = new Schema(
 		attendance: Number,
 		tv: { type: String, enum: [false, "bbc", "sky"], default: false },
 		rflFixtureId: Number,
-		slug: { type: String, unique: true }
+		slug: { type: String, unique: true },
+		_teamType: {
+			type: Schema.Types.ObjectId,
+			ref: "teamTypes"
+		}
 	},
 	{
 		toObject: {

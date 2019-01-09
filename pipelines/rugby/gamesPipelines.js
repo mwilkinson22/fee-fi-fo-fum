@@ -160,6 +160,8 @@ const exportBasicInfoOnly = [
 			date: 1,
 			slug: 1,
 			title: 1,
+			_competition: 1,
+			"_opposition._id": 1,
 			"_opposition.colours": 1,
 			"_opposition.name": 1,
 			"_opposition.image": 1,
