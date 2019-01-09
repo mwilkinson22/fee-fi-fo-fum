@@ -10,6 +10,10 @@ const competitionSegmentSchema = new Schema(
 		},
 		type: { type: String, enum: competitionTypes },
 		name: String,
+		_teamType: {
+			type: Schema.Types.ObjectId,
+			ref: "teamTypes"
+		},
 		appendCompetitionName: Boolean,
 		hashtagPrefix: String,
 		_pointsCarriedFrom: {

@@ -19,24 +19,12 @@ const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
 	//Getters
-	app.get("/api/filerenamer/", async (req, res) => {
-		const People = mongoose.model("people");
-		const people = await People.find({ image: { $ne: null } }, "image slug");
-		const arr = [];
-		for (const person of people) {
-			person.image = person.slug + ".png";
-			await person.save();
-			arr.push(person);
-		}
-		res.send(arr);
-	});
-	app.get("/api/games/fixtures/", GameController.getFixtures);
-	app.get("/api/games/results/years", GameController.getYearsWithResults);
-	app.get("/api/games/filters/:year", GameController.getFilters);
-	app.get("/api/games/results/:year", GameController.getResults);
+	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
+	app.get("/api/games/:year/:teamType", GameController.getGames);
+
+	app.get("/api/games/lists", GameController.getLists);
 	app.get("/api/games/frontpage", GameController.getFrontpageGames);
 	app.get("/api/games/:id", GenericController.getItemById);
-	app.get("/api/games/slug/:slug", GenericController.getItemBySlug);
 
 	app.post("/api/games", requireAdmin, async (req, res) => {
 		const { data } = req.body;

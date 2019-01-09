@@ -8,3 +8,4 @@ require("./NeutralGame");
 require("./Person");
 require("./PlayerStatsCollection");
 require("./Team");
+require("./TeamTypes");

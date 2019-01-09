@@ -1,8 +1,8 @@
 import { connect } from "react-redux";
 import { fetchFixtures, updateFilters } from "../../actions/gamesActions";
-import GameList from "./GameList";
+import GameListOld from "./GameList-old";
 
-class FixtureList extends GameList {
+class FixtureList extends GameListOld {
 	fetchGameList() {
 		this.props.fetchFixtures(this.state.filters);
 	}

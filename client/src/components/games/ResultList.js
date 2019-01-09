@@ -6,10 +6,10 @@ import {
 	updateActiveYear,
 	updateFilters
 } from "../../actions/gamesActions";
-import GameList from "./GameList";
+import GameListOld from "./GameList-old";
 import LoadingPage from "../LoadingPage";
 
-class ResultList extends GameList {
+class ResultList extends GameListOld {
 	async componentDidMount() {
 		await this.props.fetchYearsWithResults();
 		super.componentDidMount();
