@@ -30,7 +30,7 @@ const gameSchema = new Schema(
 		_referee: { type: Schema.Types.ObjectId, ref: "people" },
 		_video_referee: { type: Schema.Types.ObjectId, ref: "people" },
 		attendance: Number,
-		tv: { type: String, enum: [false, "bbc", "sky"], default: false },
+		tv: { type: String, enum: [false, "bbc", "sky"], default: null },
 		rflFixtureId: Number,
 		slug: { type: String, unique: true },
 		_teamType: {

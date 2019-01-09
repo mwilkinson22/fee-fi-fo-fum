@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import LoadingPage from "../LoadingPage";
 import { fetchGames, fetchGameLists } from "../../actions/gamesActions";
 import GameCard from "./GameCard";
+import { NavLink } from "react-router-dom";
 
 class GameList extends Component {
 	constructor(props) {
@@ -94,6 +95,30 @@ class GameList extends Component {
 				<span key="results-header"> Results</span>
 			];
 		}
+	}
+
+	generateTeamMenu() {
+		const { year } = this.state;
+		const { lists } = this.props;
+		const coreUrl = year === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
+		const submenu = _.chain(lists[year])
+			.sortBy("sortOrder")
+			.map(team => {
+				const { name, slug } = team;
+				return (
+					<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
+						{name}
+					</NavLink>
+				);
+			})
+			.value();
+
+		return (
+			<div className="sub-menu">
+				<NavLink exact={true} className="hidden" to={coreUrl} activeClassName="active" />
+				{submenu}
+			</div>
+		);
 	}
 
 	generateFilters() {
@@ -207,6 +232,7 @@ class GameList extends Component {
 					<section className="page-header">
 						<div className="container">
 							<h1>{this.generatePageHeader()}</h1>
+							{this.generateTeamMenu()}
 							<div className="list-filters">{this.generateFilters()}</div>
 						</div>
 					</section>

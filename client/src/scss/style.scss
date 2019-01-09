@@ -33,6 +33,7 @@ body::-webkit-scrollbar-thumb {
 	}
 	.sub-menu {
 		text-align: center;
+		padding-bottom: 10pt;
 		a {
 			padding: 0 8pt;
 			display: inline-block;
@@ -41,13 +42,18 @@ body::-webkit-scrollbar-thumb {
 			font-size: 14pt;
 			transition: color 100ms;
 
-			&:hover {
-				color: #666;
+			.hidden {
+				display: none;
 			}
 
-			&.active {
+			&.active,
+			&.active.hidden + a {
 				color: $claret;
 				pointer-events: none;
+			}
+
+			&:hover {
+				color: #666;
 			}
 
 			&:not(:last-child) {
