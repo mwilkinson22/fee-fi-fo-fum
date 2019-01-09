@@ -39,6 +39,7 @@ class GameList extends Component {
 			}
 			if (year !== prevState.year) {
 				newState.year = year;
+				newState.activeFilters = {};
 			}
 
 			//Get Team Type
@@ -50,6 +51,7 @@ class GameList extends Component {
 			}
 			if (teamType !== prevState.teamType) {
 				newState.teamType = teamType;
+				newState.activeFilters = {};
 			}
 
 			//Get Games
@@ -94,11 +96,6 @@ class GameList extends Component {
 		}
 	}
 
-	filterGames() {
-		const { year, teamType } = this.state;
-		const activeFilters = this.props.lists[year][teamType].activeFilters || {};
-	}
-
 	generateFilters() {
 		const { games } = this.state;
 		const filters = {
@@ -126,6 +123,8 @@ class GameList extends Component {
 
 		return _.map(filters, (data, filter) => {
 			const { name } = data;
+
+			//Create Options
 			const options = _.map(data.options, option => {
 				return (
 					<option key={option.value} value={option.value}>
@@ -134,10 +133,24 @@ class GameList extends Component {
 				);
 			});
 
+			//Determine Value
+			let value;
+			const { activeFilters } = this.state;
+			if (filter === "isAway") {
+				value = activeFilters.isAway !== null ? activeFilters.isAway : "";
+			} else {
+				value = activeFilters[filter] ? activeFilters[filter]._id : "";
+			}
+
+			//Return JSX
 			return (
 				<div key={filter} className="list-filter">
 					<h4>{name}</h4>
-					<select>
+					<select
+						onChange={ev => this.updateFilters(ev.target)}
+						name={filter}
+						value={value}
+					>
 						<option value="">All</option>
 						{options}
 					</select>
@@ -146,21 +159,41 @@ class GameList extends Component {
 		});
 	}
 
-	populateGameList() {
-		const { games } = this.state;
+	updateFilters(target) {
+		const { name, value } = target;
+		const { activeFilters } = this.state;
 
+		if (value.length === 0) {
+			delete activeFilters[name];
+		} else if (name === "isAway") {
+			activeFilters[name] = value === "true";
+		} else {
+			activeFilters[name] = {};
+			activeFilters[name]._id = value;
+		}
+
+		this.setState({ activeFilters });
+	}
+
+	populateGameList() {
+		const { games, activeFilters } = this.state;
 		if (!games) {
 			return <LoadingPage />;
-		} else if (games.length === 0) {
-			return "No games found";
 		} else {
 			let isFirst = true;
-			const renderedGames = games.map(game => {
-				const includeCountdown = isFirst;
-				isFirst = false;
-				return <GameCard key={game._id} game={game} includeCountdown={includeCountdown} />;
-			});
-			return <div className="container game-list">{renderedGames}</div>;
+			const renderedGames = _.chain(games)
+				.filter(activeFilters)
+				.map(game => {
+					const includeCountdown = isFirst;
+					isFirst = false;
+					return (
+						<GameCard key={game._id} game={game} includeCountdown={includeCountdown} />
+					);
+				})
+				.value();
+
+			const result = renderedGames.length ? renderedGames : <h3>No games found</h3>;
+			return <div className="container game-list">{result}</div>;
 		}
 	}
 
