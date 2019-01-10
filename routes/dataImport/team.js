@@ -40,14 +40,14 @@ module.exports = app => {
 						colour: colourToArray(sql.shirt_colour),
 						sleeveTrim: colourToArray(sql.shirt_sleeve),
 						collarTrim: colourToArray(sql.shirt_collar),
-						pattern: null //legacy data here is pretty much broken. Better to build a GUI and manually update teams
+						pattern: null //legacy data here is pretty much broken. Better to build a GUI and manually update squads
 					}
 				]
 			});
 
 			await team.save();
 
-			//Add new teams to idLink document
+			//Add new squads to idLink document
 			await new IdLink({
 				_id: team._id,
 				sqlId: sql.id,

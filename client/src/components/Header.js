@@ -36,8 +36,8 @@ class Header extends Component {
 				}
 			},
 			{
-				header: "Teams",
-				headerLink: "/teams/"
+				header: "squads",
+				headerLink: "/squads/"
 			},
 			{
 				header: "News",
@@ -51,7 +51,7 @@ class Header extends Component {
 					header: "Admin",
 					headerLink: "/admin",
 					subMenu: {
-						Teams: "/teams",
+						Teams: "/squads",
 						Games: "/games"
 					}
 				},

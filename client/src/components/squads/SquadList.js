@@ -5,7 +5,7 @@ import LoadingPage from "../LoadingPage";
 import PersonCard from "../people/PersonCard";
 import _ from "lodash";
 
-class TeamList extends Component {
+class SquadList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -94,4 +94,4 @@ function mapStateToProps({ teams }) {
 export default connect(
 	mapStateToProps,
 	{ fetchSquad, fetchYearsWithSquads }
-)(TeamList);
+)(SquadList);

@@ -15,7 +15,7 @@ import ScrollToTop from "./ScrollToTop";
 import Header from "./Header";
 import HomePage from "./Homepage";
 import GameRouter from "./games";
-import TeamList from "./teams/TeamList";
+import SquadList from "./squads/SquadList";
 import AdminRouter from "./admin";
 import NewsRouter from "./news";
 import PersonPage from "./people/PersonPage";
@@ -40,7 +40,7 @@ class App extends Component {
 					<div id="wrapper">
 						<Header />
 						<Route path="/games" component={GameRouter} />
-						<Route path="/teams" component={TeamList} />
+						<Route path="/squads" component={SquadList} />
 						<Route path="/news/" component={NewsRouter} />
 						<Route
 							path="/players/:slug"
