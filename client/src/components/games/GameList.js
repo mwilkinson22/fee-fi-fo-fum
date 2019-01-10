@@ -99,7 +99,7 @@ class GameList extends Component {
 
 	generateTeamMenu() {
 		const { year } = this.state;
-		const { lists } = this.props;
+		const { lists, listType } = this.props;
 		const coreUrl = year === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
 		const submenu = _.chain(lists[year])
 			.sortBy("sortOrder")
@@ -112,10 +112,25 @@ class GameList extends Component {
 				);
 			})
 			.value();
+		const dummyLinkUrls = [coreUrl];
+		if (listType === "results") {
+			dummyLinkUrls.push("/games/results");
+		}
+		const dummyLinks = dummyLinkUrls.map(url => {
+			return (
+				<NavLink
+					key={url}
+					exact={true}
+					className="hidden"
+					to={url}
+					activeClassName="active"
+				/>
+			);
+		});
 
 		return (
 			<div className="sub-menu">
-				<NavLink exact={true} className="hidden" to={coreUrl} activeClassName="active" />
+				{dummyLinks}
 				{submenu}
 			</div>
 		);

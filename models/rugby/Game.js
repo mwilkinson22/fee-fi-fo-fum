@@ -4,10 +4,10 @@ const PlayerStatsCollectionSchema = require("./PlayerStatsCollection");
 
 const gameSchema = new Schema(
 	{
-		_competition: { type: Schema.Types.ObjectId, ref: "competitionSegments" },
-		_opposition: { type: Schema.Types.ObjectId, ref: "teams" },
-		isAway: Boolean,
-		date: Date,
+		_competition: { type: Schema.Types.ObjectId, ref: "competitionSegments", required: true },
+		_opposition: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+		isAway: { type: Boolean, required: true },
+		date: { type: Date, required: true },
 		pregameSquads: {
 			home: [{ type: Schema.Types.ObjectId, ref: "people" }],
 			away: [{ type: Schema.Types.ObjectId, ref: "people" }]
@@ -20,22 +20,23 @@ const gameSchema = new Schema(
 				stats: PlayerStatsCollectionSchema
 			}
 		],
-		round: Number,
-		_ground: { type: Schema.Types.ObjectId, ref: "grounds", default: null },
-		title: String,
+		round: { type: Number, default: null },
+		_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+		title: { type: String, default: null },
 		hashtags: [String],
-		_motm: { type: Schema.Types.ObjectId, ref: "people" },
-		_fan_motm: { type: Schema.Types.ObjectId, ref: "people" },
-		fan_motm_link: String,
-		_referee: { type: Schema.Types.ObjectId, ref: "people" },
-		_video_referee: { type: Schema.Types.ObjectId, ref: "people" },
-		attendance: Number,
+		_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		_fan_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		fan_motm_link: { type: String, default: null },
+		_referee: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		_video_referee: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		attendance: { type: Number, default: null },
 		tv: { type: String, enum: [false, "bbc", "sky"], default: null },
-		rflFixtureId: Number,
-		slug: { type: String, unique: true },
+		rflFixtureId: { type: Number, default: null },
+		slug: { type: String, unique: true, required: true },
 		_teamType: {
 			type: Schema.Types.ObjectId,
-			ref: "teamTypes"
+			ref: "teamTypes",
+			required: true
 		}
 	},
 	{

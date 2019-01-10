@@ -46,8 +46,12 @@ body::-webkit-scrollbar-thumb {
 				display: none;
 			}
 
+			/* active links */
 			&.active,
-			&.active.hidden + a {
+			/* links next to hidden active links*/
+			&.active.hidden + a,
+			/* first visible link after a hidden active link */
+			&.active.hidden ~ .hidden + a {
 				color: $claret;
 				pointer-events: none;
 			}
