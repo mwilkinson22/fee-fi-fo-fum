@@ -54,15 +54,22 @@
 			}
 		}
 	}
-	.image {
-		@include pseudoImage;
-		background-position: right bottom;
+	.person-image-wrapper {
 		position: absolute;
-		width: 45%;
-		height: 100%;
-		left: 5%;
+		display: flex;
+		left: 0;
+		right: 0;
 		bottom: 0;
-		z-index: 2;
+		margin: auto;
+		max-height: 100%;
+		width: 100%;
+		align-items: start;
+		overflow: hidden;
+		.person-image {
+			top: 0;
+			margin-left: 6%;
+			width: 45%;
+		}
 	}
 }
 

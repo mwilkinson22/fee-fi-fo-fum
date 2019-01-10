@@ -50,10 +50,13 @@ export default class PersonCard extends Component {
 						</h4>
 						{this.additionalData}
 					</div>
-					<div
-						style={{ backgroundImage: `url('${personImagePath}${image}')` }}
-						className="image"
-					/>
+					<div className="person-image-wrapper">
+						<img
+							className="person-image"
+							src={personImagePath + image}
+							alt={`${name.first} ${name.last}`}
+						/>
+					</div>
 				</div>
 			</Link>
 		);
