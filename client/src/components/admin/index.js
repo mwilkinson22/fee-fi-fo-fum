@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoginPage from "./Login";
 import { Route } from "react-router-dom";
-import "../../scss/admin.scss";
 
 class AdminRouter extends Component {
 	render() {

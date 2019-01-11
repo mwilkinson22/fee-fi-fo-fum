@@ -7,7 +7,6 @@ import { Helmet } from "react-helmet";
 import * as actions from "../actions";
 
 //Stylesheets
-import "../scss/base.scss";
 import "../scss/style.scss";
 
 //Components

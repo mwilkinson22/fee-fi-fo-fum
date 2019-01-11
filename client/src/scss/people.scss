@@ -77,96 +77,173 @@
 .person-page {
 	section.header {
 		position: relative;
-		height: 40vh;
 		overflow: hidden;
-		.background {
-			position: absolute;
-			height: 100%;
-			top: 0;
-			bottom: 0;
-			margin: auto;
-			z-index: -1;
-			background-size: cover;
-			background-position: 100% 50%;
-			background-repeat: no-repeat;
-			background-image: url("#{$googleBucket}layout/john-smiths.jpg");
-			left: 0;
-			width: 60%;
-			filter: blur(2px);
-		}
 		.container {
-			display: flex;
-			align-items: stretch;
 			.overlay {
-				background: darken($claret, 5%);
-				position: relative;
-				flex-grow: 1;
-				margin-left: 10%;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				padding: 20pt;
 				color: white;
-
-				&::before,
-				&::after {
-					content: "";
-					position: absolute;
-					height: 100%;
-					top: 0;
-					bottom: 0;
-				}
-				&::after {
-					right: 99%;
-					width: 20%;
-					background-image: url("#{$googleBucket}layout/player-header-divider.png");
-					@include pseudoImage;
-					background-size: cover;
-					background-position: right center;
-				}
-				&::before {
-					background: inherit;
-					left: 99%;
-					width: 400vw;
-				}
-
 				h1 {
-					text-align: left;
 					color: white;
-					font-size: 4em;
 					line-height: 1.1;
-					border-bottom: solid 2pt $gold;
 					span {
 						color: $gold;
-						display: block;
 					}
 				}
-
-				.social {
-					border-bottom: solid 2pt white;
+				.positions {
 					margin-bottom: 4pt;
-					padding-bottom: 4pt;
-					a {
-						display: flex;
-						align-items: center;
+					.position {
 						font-size: 14pt;
-						margin-bottom: 4pt;
-						img {
-							height: 20pt;
-							margin-right: 10pt;
+						padding: 0 4pt;
+						display: inline-block;
+						&:first-child {
+							padding-left: 0;
+							font-weight: 600;
+						}
+						&:not(:first-child) {
+							border-left: solid 1pt rgba(white, 0.4);
+							opacity: 0.8;
 						}
 					}
 				}
-				.position {
-					font-size: 14pt;
-					&.other-position {
-						color: #ccc;
+				.social {
+					a {
+						display: flex;
+						align-items: center;
+						vertical-align: middle;
 					}
 				}
 			}
-			.image {
-				max-height: 40vh;
-				margin-right: 5%;
+		}
+
+		@media #{$mobile-only} {
+			background: darken($claret, 5%);
+			.container {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-start;
+				max-height: 100%;
+				padding-left: 0;
+				padding-right: 0;
+				.image {
+					height: 50vh;
+				}
+				.overlay {
+					padding: 10pt;
+					background: rgba(black, 0.9);
+					width: 100%;
+					h1,
+					.social {
+						border-width: 1pt;
+					}
+					h1 {
+						font-size: 1.8em;
+						margin-bottom: 2pt;
+						span {
+							display: inline-block;
+						}
+					}
+					.social {
+						display: flex;
+						justify-content: space-around;
+						a {
+							font-size: 11pt;
+							margin-bottom: 2pt;
+							img {
+								height: 12pt;
+								margin-right: 8pt;
+							}
+						}
+					}
+					.positions {
+						text-align: center;
+					}
+				}
+			}
+		}
+		@media #{$desktop-only} {
+			height: 40vh;
+			.background {
+				position: absolute;
+				height: 100%;
+				top: 0;
+				bottom: 0;
+				margin: auto;
+				z-index: -1;
+				background-size: cover;
+				background-position: 100% 50%;
+				background-repeat: no-repeat;
+				background-image: url("#{$googleBucket}layout/john-smiths.jpg");
+				left: 0;
+				width: 60%;
+				filter: blur(2px);
+			}
+			.container {
+				display: flex;
+				align-items: stretch;
+				.overlay {
+					background: darken($claret, 5%);
+					position: relative;
+					flex-grow: 1;
+					margin-left: 10%;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					padding: 20pt;
+					color: white;
+
+					&::before,
+					&::after {
+						content: "";
+						position: absolute;
+						height: 100%;
+						top: 0;
+						bottom: 0;
+					}
+					&::after {
+						right: 99%;
+						width: 30%;
+						background-image: url("#{$googleBucket}layout/player-header-divider.png");
+						@include pseudoImage;
+						background-size: cover;
+						background-position: right center;
+					}
+					&::before {
+						background: inherit;
+						left: 99%;
+						width: 400vw;
+					}
+
+					.positions {
+						padding-bottom: 4pt;
+					}
+					h1 {
+						text-align: left;
+						font-size: 4em;
+						line-height: 1.1;
+						border-bottom: solid 2pt $gold;
+						span {
+							display: block;
+						}
+					}
+
+					.social {
+						padding: 8pt 0;
+						border-top: solid 2pt white;
+						a {
+							font-size: 14pt;
+							margin-bottom: 4pt;
+							img {
+								height: 20pt;
+								margin-right: 10pt;
+							}
+						}
+					}
+				}
+				.image {
+					max-height: 40vh;
+					margin-right: 5%;
+					pointer-events: none;
+				}
 			}
 		}
 	}
@@ -175,7 +252,6 @@
 		padding: 20pt 0;
 		.container {
 			display: grid;
-			grid-template-columns: 1fr 1fr;
 			grid-gap: 20pt;
 			& > div {
 				padding: 4%;
@@ -201,6 +277,10 @@
 						margin-bottom: 8pt;
 					}
 				}
+			}
+
+			@media #{$desktop-only} {
+				grid-template-columns: 1fr 1fr;
 			}
 		}
 	}

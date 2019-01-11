@@ -23,10 +23,10 @@ $twitterBlue: #549ad6;
 }
 
 //Media queries
+$mobile-only: "only screen and (max-width:699px)";
 $mobile-and-tablet: "only screen and (max-width: 777px)";
 $desktop-and-tablet: "only screen and (min-width: 700px)";
 $desktop-only: "only screen and (min-width: 778px)";
-$mobile-only: "only screen and (max-width:699px)";
 
 //Default properties
 $transition: all 300ms;

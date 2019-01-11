@@ -57,24 +57,10 @@ class PersonPage extends Component {
 		const { person } = this.props;
 		if (person.isPlayer) {
 			const { mainPosition, otherPositions } = person.playerDetails;
-			const results = [];
-			if (mainPosition) {
-				results.push(
-					<div key="main" className="position main-position">
-						{mainPosition}
-					</div>
-				);
-			}
-			if (otherPositions) {
-				results.push(
-					<div key="other" className="position other-position">
-						{otherPositions.join(", ")}
-					</div>
-				);
-			}
-
-			console.log(results);
-			return results;
+			const allPositions = _.concat(mainPosition, otherPositions).map(position => {
+				return <div className="position">{position}</div>;
+			});
+			return <div className="positions">{allPositions}</div>;
 		} else {
 			return null;
 		}
@@ -163,10 +149,11 @@ class PersonPage extends Component {
 							<div className="overlay">
 								<h1>
 									{person.name.first}
+									&nbsp;
 									<span>{person.name.last}</span>
 								</h1>
-								{this.getSocial()}
 								{this.getPositions()}
+								{this.getSocial()}
 							</div>
 						</div>
 					</section>

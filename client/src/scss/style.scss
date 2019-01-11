@@ -1,12 +1,5 @@
 @import "variables";
-@import "header";
-@import "admin";
-@import "loading";
-@import "homepage";
-@import "games";
-@import "teams";
-@import "news";
-@import "people";
+@import "base";
 
 body {
 	background: #ddd;
@@ -118,3 +111,12 @@ body::-webkit-scrollbar-thumb {
 		box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 	}
 }
+
+@import "header";
+@import "admin";
+@import "loading";
+@import "homepage";
+@import "games";
+@import "teams";
+@import "news";
+@import "people";
