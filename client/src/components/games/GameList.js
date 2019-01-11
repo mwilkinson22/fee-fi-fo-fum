@@ -2,6 +2,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "../LoadingPage";
+import GameFilters from "./GameFilters";
 import { fetchGames, fetchGameLists } from "../../actions/gamesActions";
 import GameCard from "./GameCard";
 import { NavLink } from "react-router-dom";
@@ -136,85 +137,6 @@ class GameList extends Component {
 		);
 	}
 
-	generateFilters() {
-		const { games } = this.state;
-		const filters = {
-			_competition: { name: "Competition", options: [] },
-			_opposition: { name: "Opposition", options: [] },
-			isAway: {
-				name: "Venue",
-				options: [{ name: "Home", value: false }, { name: "Away", value: true }]
-			}
-		};
-
-		if (games) {
-			filters._competition.options = _.chain(games)
-				.map(game => ({ name: game._competition.name, value: game._competition._id }))
-				.uniqBy("value")
-				.sortBy("name")
-				.value();
-
-			filters._opposition.options = _.chain(games)
-				.map(game => ({ name: game._opposition.name.long, value: game._opposition._id }))
-				.uniqBy("value")
-				.sortBy("name")
-				.value();
-		}
-
-		return _.map(filters, (data, filter) => {
-			const { name } = data;
-
-			//Create Options
-			const options = _.map(data.options, option => {
-				return (
-					<option key={option.value} value={option.value}>
-						{option.name}
-					</option>
-				);
-			});
-
-			//Determine Value
-			let value;
-			const { activeFilters } = this.state;
-			if (filter === "isAway") {
-				value = activeFilters.isAway !== null ? activeFilters.isAway : "";
-			} else {
-				value = activeFilters[filter] ? activeFilters[filter]._id : "";
-			}
-
-			//Return JSX
-			return (
-				<div key={filter} className="list-filter">
-					<h4>{name}</h4>
-					<select
-						onChange={ev => this.updateFilters(ev.target)}
-						name={filter}
-						value={value}
-					>
-						<option value="">All</option>
-						{options}
-					</select>
-				</div>
-			);
-		});
-	}
-
-	updateFilters(target) {
-		const { name, value } = target;
-		const { activeFilters } = this.state;
-
-		if (value.length === 0) {
-			delete activeFilters[name];
-		} else if (name === "isAway") {
-			activeFilters[name] = value === "true";
-		} else {
-			activeFilters[name] = {};
-			activeFilters[name]._id = value;
-		}
-
-		this.setState({ activeFilters });
-	}
-
 	populateGameList() {
 		const { games, activeFilters } = this.state;
 		if (!games) {
@@ -248,7 +170,11 @@ class GameList extends Component {
 						<div className="container">
 							<h1>{this.generatePageHeader()}</h1>
 							{this.generateTeamMenu()}
-							<div className="list-filters">{this.generateFilters()}</div>
+							<GameFilters
+								games={this.state.games}
+								onFilterChange={activeFilters => this.setState({ activeFilters })}
+								activeFilters={this.state.activeFilters}
+							/>
 						</div>
 					</section>
 					{this.populateGameList()}

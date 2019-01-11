@@ -6,6 +6,7 @@ const Person = mongoose.model(collectionName);
 
 //Controllers
 const GenericController = require("../../controllers/genericController")(collectionName);
+const PeopleController = require("../../controllers/rugby/peopleController");
 
 //Middleware & Utils
 const requireAdmin = require("../../middlewares/requireAdmin");
@@ -37,8 +38,12 @@ module.exports = app => {
 		}
 	});
 
+	app.get("/api/people/playerStatsYears/:id/", PeopleController.getPlayerStatsYears);
+	app.get("/api/people/playerStats/:id/:year", PeopleController.getPlayerStatsByYear);
+
 	app.get("/api/people/search/:name", async (req, res) => {
-		const results = await Person.searchByName(decodeURI(req.params.name));
+		const { name } = req.params;
+		const results = await Person.searchByName(decodeURI(name));
 		res.send(results);
 	});
 

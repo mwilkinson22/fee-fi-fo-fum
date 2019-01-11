@@ -2,6 +2,23 @@ const _ = require("lodash");
 const { localTeam } = require("../../config/keys");
 const { ObjectId } = require("mongodb");
 
+const projections = {};
+projections.basic = {
+	_id: 1,
+	isAway: 1,
+	date: 1,
+	slug: 1,
+	title: 1,
+	_competition: 1,
+	"_opposition._id": 1,
+	"_opposition.colours": 1,
+	"_opposition.name": 1,
+	"_opposition.image": 1,
+	"_ground.address._city": 1,
+	"_ground.name": 1,
+	"_ground.image": 1
+};
+
 const getCompetitionInfo = [
 	{
 		$lookup: {
@@ -152,25 +169,6 @@ const getBasicGameData = _.concat(
 		}
 	]
 );
-const exportBasicInfoOnly = [
-	{
-		$project: {
-			_id: 1,
-			isAway: 1,
-			date: 1,
-			slug: 1,
-			title: 1,
-			_competition: 1,
-			"_opposition._id": 1,
-			"_opposition.colours": 1,
-			"_opposition.name": 1,
-			"_opposition.image": 1,
-			"_ground.address._city": 1,
-			"_ground.name": 1,
-			"_ground.image": 1
-		}
-	}
-];
 
 const getFullGame = _.concat(getBasicGameData, [
 	{
@@ -218,8 +216,8 @@ const getFullGame = _.concat(getBasicGameData, [
 ]);
 
 module.exports = {
+	projections,
 	getCompetitionInfo,
 	getBasicGameData,
-	getFullGame,
-	exportBasicInfoOnly
+	getFullGame
 };

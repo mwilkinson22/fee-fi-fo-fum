@@ -1,5 +1,4 @@
 import { FETCH_SQUAD, FETCH_YEARS_WITH_SQUADS } from "../actions/types";
-import _ from "lodash";
 
 export default function(state = { squads: {} }, action) {
 	switch (action.type) {

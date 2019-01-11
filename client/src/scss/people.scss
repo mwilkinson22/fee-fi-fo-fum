@@ -63,7 +63,7 @@
 		margin: auto;
 		max-height: 100%;
 		width: 100%;
-		align-items: start;
+		align-items: flex-start;
 		overflow: hidden;
 		.person-image {
 			pointer-events: none;
@@ -114,7 +114,7 @@
 			}
 		}
 
-		@media #{$mobile-only} {
+		@media #{$mobile-and-tablet} {
 			background: darken($claret, 5%);
 			.container {
 				display: flex;
@@ -129,7 +129,7 @@
 				}
 				.overlay {
 					padding: 10pt;
-					background: rgba(black, 0.9);
+					background: $claret;
 					width: 100%;
 					h1,
 					.social {

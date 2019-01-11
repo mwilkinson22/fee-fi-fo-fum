@@ -1,22 +1,58 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import LoadingPage from "../LoadingPage";
 import Parser from "html-react-parser";
 // import { Link } from "react-router-dom";
 import { personImagePath, layoutImagePath } from "../../extPaths";
-import { fetchPersonBySlug } from "../../actions/peopleActions";
+import {
+	fetchPersonBySlug,
+	fetchPlayerStatYears,
+	fetchPlayerStats
+} from "../../actions/peopleActions";
+import { fetchPlayerStatTypes } from "../../actions/statsActions";
 import { Helmet } from "react-helmet";
 import { localUrl } from "../../extPaths";
 import "datejs";
-import _ from "lodash";
+import GameFilters from "../games/GameFilters";
 
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { person } = this.props;
+		const { person, playerStatTypes, fetchPlayerStatTypes } = this.props;
+		if (!playerStatTypes) {
+			fetchPlayerStatTypes();
+		}
+
 		if (!person) {
 			this.props.fetchPersonBySlug(this.props.match.params.slug);
 		}
+
+		this.state = { activeFilters: {} };
+	}
+
+	static getDerivedStateFromProps(newProps, prevState) {
+		const newState = {};
+		const { person } = newProps;
+
+		if (!person) {
+			return {};
+		}
+
+		//Handle playerStats
+		if (person.playerStats) {
+			//Active Year
+			if (!prevState.playerStatYear) {
+				newState.playerStatYear = _.chain(person.playerStats)
+					.keys(person.playerStats)
+					.map(Number)
+					.max()
+					.value();
+			}
+		}
+
+		return newState;
 	}
 
 	getSocial() {
@@ -25,6 +61,7 @@ class PersonPage extends Component {
 		if (twitter) {
 			social.push(
 				<a
+					key="twitter"
 					href={`https://www.twitter.com/${twitter}`}
 					className="twitter"
 					target="_blank"
@@ -37,6 +74,7 @@ class PersonPage extends Component {
 		if (instagram) {
 			social.push(
 				<a
+					key="insta"
 					href={`https://www.instagram.com/${instagram}`}
 					className="instagram"
 					target="_blank"
@@ -58,7 +96,11 @@ class PersonPage extends Component {
 		if (person.isPlayer) {
 			const { mainPosition, otherPositions } = person.playerDetails;
 			const allPositions = _.concat(mainPosition, otherPositions).map(position => {
-				return <div className="position">{position}</div>;
+				return (
+					<div key={position} className="position">
+						{position}
+					</div>
+				);
 			});
 			return <div className="positions">{allPositions}</div>;
 		} else {
@@ -122,6 +164,97 @@ class PersonPage extends Component {
 		}
 	}
 
+	getPlayerStats() {
+		const { person, fetchPlayerStatYears, fetchPlayerStats } = this.props;
+		if (!person && !person.isPlayer) {
+			return null;
+		} else if (!person.playerStats) {
+			fetchPlayerStatYears(person._id);
+			return <LoadingPage />;
+		} else if (Object.keys(person.playerStats).length === 0) {
+			return null;
+		}
+
+		//Create Header
+		const years = _.chain(person.playerStats)
+			.keys(person.playerStats)
+			.sort()
+			.reverse()
+			.value();
+		let yearSelector;
+		if (years.length === 1) {
+			yearSelector = years[0];
+		} else {
+			yearSelector = (
+				<select
+					value={this.state.playerStatYear}
+					onChange={ev => this.setState({ playerStatYear: ev.target.value })}
+				>
+					{years.map(year => (
+						<option key={year}>{year}</option>
+					))}
+				</select>
+			);
+		}
+		const header = <h1>{yearSelector} Playing Stats</h1>;
+
+		//Get Stats
+		const games = person.playerStats[this.state.playerStatYear];
+		const content = [];
+		if (!games) {
+			fetchPlayerStats(person._id, this.state.playerStatYear);
+			content.push(<LoadingPage key="loading" />);
+		} else {
+			//Game Filters
+			const filters = (
+				<div className="container" key="filters">
+					<GameFilters
+						games={games}
+						onFilterChange={activeFilters => this.setState(activeFilters)}
+						activeFilters={this.state.activeFilters}
+					/>
+				</div>
+			);
+			content.push(filters);
+
+			//Stat Boxes
+			const statBoxStats = {
+				Scoring: ["T", "TA", "PT", "G", "KS"],
+				Attack: ["M", "C", "AG", "TB", "CB", "E", "DR", "FT", "OF"],
+				Defence: ["TK", "MT", "TS", "P"]
+			};
+
+			const totalStats = PlayerStatsHelper.sumStats(
+				_.map(games, game => game.playerStats[0].stats)
+			);
+
+			const statBoxes = _.map(statBoxStats, (keys, category) => {
+				const header = <h2 key={category}>{category}</h2>;
+				const boxes = _.chain(keys)
+					.filter(key => totalStats[key] > 0)
+					.map(key => `${key}: ${totalStats[key]} - `)
+					.value();
+				return (
+					<div>
+						{header}
+						{boxes}
+					</div>
+				);
+			});
+
+			console.log(statBoxes);
+
+			content.push(<div className="container">{statBoxes}</div>);
+		}
+
+		return (
+			<section className="player-stats">
+				{header}
+				{content}
+			</section>
+		);
+	}
+
 	render() {
 		const { person } = this.props;
 		if (person) {
@@ -163,6 +296,7 @@ class PersonPage extends Component {
 							{this.getDescription()}
 						</div>
 					</section>
+					{this.getPlayerStats()}
 				</div>
 			);
 		} else {
@@ -171,12 +305,13 @@ class PersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ people }, ownProps) {
+function mapStateToProps({ people, stats }, ownProps) {
 	const { slug } = ownProps.match.params;
-	return { person: people[slug], ...ownProps };
+	const { playerStatTypes } = stats;
+	return { person: people[slug], playerStatTypes, ...ownProps };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchPersonBySlug }
+	{ fetchPersonBySlug, fetchPlayerStats, fetchPlayerStatYears, fetchPlayerStatTypes }
 )(PersonPage);

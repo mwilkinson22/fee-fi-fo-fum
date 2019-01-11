@@ -4,7 +4,7 @@ const Game = mongoose.model("games");
 const {
 	getBasicGameData,
 	getCompetitionInfo,
-	exportBasicInfoOnly
+	projections
 } = require("../../pipelines/rugby/gamesPipelines");
 const { ObjectId } = require("mongodb");
 const { earliestGiantsData } = require("../../config/keys");
@@ -40,7 +40,7 @@ function buildQuery(params) {
 
 async function aggregateForList(initialPipelines) {
 	const games = await Game.aggregate(
-		_.concat(initialPipelines, getBasicGameData, exportBasicInfoOnly)
+		_.concat(initialPipelines, getBasicGameData, { $project: projections.basic })
 	);
 
 	return games;

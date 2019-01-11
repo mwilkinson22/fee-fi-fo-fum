@@ -12,10 +12,10 @@ import axios from "axios";
 polyfill(); //IE Support
 window.axios = axios;
 
-const store = createStore(reducers, {}, applyMiddleware(reduxThunk));
+export const reduxStore = createStore(reducers, {}, applyMiddleware(reduxThunk));
 
 ReactDOM.render(
-	<Provider store={store}>
+	<Provider store={reduxStore}>
 		<App />
 	</Provider>,
 	document.querySelector("#root")
