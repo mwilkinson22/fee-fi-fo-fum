@@ -4,17 +4,9 @@ import _ from "lodash";
 export default function(state = { squads: {} }, action) {
 	switch (action.type) {
 		case FETCH_SQUAD:
-			let { players } = action.payload;
-			if (process.env.NODE_ENV === "production" && action.payload.year === 2019) {
-				//TODO remove once squadnumbers are announced
-				players = _.map(players, player => {
-					player.number = null;
-					return player;
-				});
-			}
 			return {
 				...state,
-				squads: { ...state.squads, [action.payload.year]: players }
+				squads: { ...state.squads, [action.payload.year]: action.payload.players }
 			};
 		case FETCH_YEARS_WITH_SQUADS:
 			return {
