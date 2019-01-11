@@ -79,11 +79,15 @@ body::-webkit-scrollbar-thumb {
 	align-items: center;
 
 	select {
+		background: #fdfdfd;
 		width: 100%;
 		padding: 4pt 8pt;
 		font: inherit;
 		border-radius: 4pt;
 		outline: none;
+		option {
+			outline: none !important;
+		}
 	}
 
 	@media #{$desktop-only} {
