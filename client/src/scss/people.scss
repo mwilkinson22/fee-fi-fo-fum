@@ -286,6 +286,15 @@
 	}
 
 	section.player-stats {
+		.section-header {
+			background: darken($claret, 5%);
+			padding: 20pt 0;
+			h1,
+			h2,
+			h4 {
+				color: white;
+			}
+		}
 		h2 {
 			font-size: 2em;
 			text-align: center;

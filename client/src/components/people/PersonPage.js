@@ -198,6 +198,7 @@ class PersonPage extends Component {
 			);
 		}
 		const header = <h1>{yearSelector} Playing Stats</h1>;
+		let filters;
 
 		//Get Stats
 		const games = person.playerStats[this.state.playerStatYear];
@@ -207,7 +208,7 @@ class PersonPage extends Component {
 			content.push(<LoadingPage key="loading" />);
 		} else {
 			//Game Filters
-			const filters = (
+			filters = (
 				<div className="container" key="filters">
 					<GameFilters
 						games={games}
@@ -216,7 +217,6 @@ class PersonPage extends Component {
 					/>
 				</div>
 			);
-			content.push(filters);
 
 			//Appearances
 
@@ -261,8 +261,11 @@ class PersonPage extends Component {
 
 		return (
 			<section className="player-stats">
-				{header}
-				{content}
+				<div className="section-header">
+					{header}
+					{filters}
+				</div>
+				<div className="section-content">{content}</div>
 			</section>
 		);
 	}
