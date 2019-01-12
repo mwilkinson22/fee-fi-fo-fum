@@ -284,4 +284,16 @@
 			}
 		}
 	}
+
+	section.player-stats {
+		h2 {
+			font-size: 2em;
+			text-align: center;
+			margin: 8pt 0 4pt;
+		}
+
+		.single-stat-boxes {
+			margin-bottom: 10pt;
+		}
+	}
 }

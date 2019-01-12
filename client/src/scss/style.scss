@@ -115,6 +115,45 @@ body::-webkit-scrollbar-thumb {
 		box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 	}
 }
+.single-stat-boxes {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	@include noTextSelect;
+
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	grid-gap: 20pt;
+
+	.single-stat-box {
+		height: 100%;
+		display: block;
+		background: #f4f4f4;
+		padding: 20pt;
+		display: flex;
+		flex-grow: 1;
+		text-align: center;
+		flex-direction: column;
+
+		.total {
+			font-size: 2.5em;
+			font-weight: 200;
+		}
+		.name {
+			font-weight: 600;
+			border-bottom: solid 1pt $claret;
+			width: 100%;
+			padding-bottom: 4pt;
+			margin-bottom: 4pt;
+		}
+
+		.average,
+		.best {
+			font-size: 0.9em;
+		}
+	}
+}
 
 @import "header";
 @import "admin";

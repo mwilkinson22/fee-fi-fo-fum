@@ -16,6 +16,7 @@ import { Helmet } from "react-helmet";
 import { localUrl } from "../../extPaths";
 import "datejs";
 import GameFilters from "../games/GameFilters";
+import SingleStatBox from "../stats/SingleStatBox";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -217,6 +218,8 @@ class PersonPage extends Component {
 			);
 			content.push(filters);
 
+			//Appearances
+
 			//Stat Boxes
 			const statBoxStats = {
 				Scoring: ["T", "TA", "PT", "G", "KS"],
@@ -231,18 +234,27 @@ class PersonPage extends Component {
 			const statBoxes = _.map(statBoxStats, (keys, category) => {
 				const header = <h2 key={category}>{category}</h2>;
 				const boxes = _.chain(keys)
-					.filter(key => totalStats[key] > 0)
-					.map(key => `${key}: ${totalStats[key]} - `)
+					.filter(key => totalStats[key])
+					.filter(
+						key =>
+							totalStats[key].total > 0 ||
+							!this.props.playerStatTypes[key].moreIsBetter
+					)
+					.map(key => (
+						<SingleStatBox key={key} statKey={key} statValues={totalStats[key]} />
+					))
 					.value();
-				return (
-					<div>
-						{header}
-						{boxes}
-					</div>
-				);
+				if (boxes.length) {
+					return (
+						<div key={header}>
+							{header}
+							<div className="single-stat-boxes">{boxes}</div>
+						</div>
+					);
+				} else {
+					return null;
+				}
 			});
-
-			console.log(statBoxes);
 
 			content.push(<div className="container">{statBoxes}</div>);
 		}
