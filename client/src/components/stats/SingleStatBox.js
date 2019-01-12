@@ -7,27 +7,61 @@ class SingleStatBox extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {}
 
 	render() {
-		const { statValues, statType } = this.props;
+		const { statKey, statValues, statType } = this.props;
 		const { total, average, best } = statValues;
 		const { singular, plural, unit } = statType;
-
-		return (
-			<div className="single-stat-box card">
-				<div className="total">
-					{total}
-					{unit}
-				</div>
-				<div className="name">{total === 1 ? singular : plural}</div>
-				<div className="average">
-					Average per game: {average.toFixed(2)}
-					{unit}
-				</div>
-				<div className="best">
-					Best game: {best}
-					{unit}
-				</div>
-			</div>
-		);
+		const rootClassName = "single-stat-box card";
+		switch (statKey) {
+			case "TS":
+			case "KS":
+				return (
+					<div className={`${rootClassName} percentage`}>
+						<svg width="100%" height="100%" viewBox="0 0 42 42" className="donut">
+							<circle
+								className="donut-ring"
+								cx="21"
+								cy="21"
+								r="15.91549430918954"
+								fill="transparent"
+								stroke="#d2d3d4"
+								stroke-width="3"
+							/>
+							<circle
+								className="donut-segment"
+								cx="21"
+								cy="21"
+								r="15.91549430918954"
+								fill="transparent"
+								stroke-width="3"
+								stroke-dasharray={`${total} ${100 - total}`}
+								stroke-dashoffset="25"
+							/>
+							<text className="total" x="50%" y="57%">
+								{total}%
+							</text>
+						</svg>
+						<div className="name">{singular}</div>
+					</div>
+				);
+			default:
+				return (
+					<div className={`${rootClassName}`}>
+						<div className="total">
+							{total}
+							{unit}
+						</div>
+						<div className="name">{total === 1 ? singular : plural}</div>
+						<div className="average">
+							Average per game: {average.toFixed(2)}
+							{unit}
+						</div>
+						<div className="best">
+							Best game: {best}
+							{unit}
+						</div>
+					</div>
+				);
+		}
 	}
 }
 

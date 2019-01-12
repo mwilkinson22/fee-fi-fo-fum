@@ -135,6 +135,8 @@ body::-webkit-scrollbar-thumb {
 		flex-grow: 1;
 		text-align: center;
 		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 
 		.total {
 			font-size: 2.5em;
@@ -142,15 +144,36 @@ body::-webkit-scrollbar-thumb {
 		}
 		.name {
 			font-weight: 600;
-			border-bottom: solid 1pt $claret;
 			width: 100%;
-			padding-bottom: 4pt;
 			margin-bottom: 4pt;
+		}
+
+		.average {
+			padding-top: 4pt;
+			border-top: solid 2pt $claret;
 		}
 
 		.average,
 		.best {
 			font-size: 0.9em;
+		}
+
+		&.percentage {
+			svg {
+				fill: transparent;
+				stroke-width: 3.75;
+				position: relative;
+				max-height: 120pt;
+			}
+			.donut-segment {
+				stroke: $claret;
+			}
+			text.total {
+				text-anchor: middle;
+				font-size: 50%;
+				font-weight: 400;
+				fill: black;
+			}
 		}
 	}
 }
