@@ -307,6 +307,36 @@
 
 		.single-stat-boxes {
 			margin-bottom: 10pt;
+			&.positions {
+				table {
+					width: 100%;
+					text-align: left;
+					white-space: nowrap;
+					vertical-align: middle;
+					th,
+					td {
+						box-sizing: border-box;
+						padding: 4pt 10pt;
+					}
+					td {
+						width: 100%;
+						position: relative;
+						.position-bar {
+							color: white;
+							font-weight: bold;
+							padding: 4pt 10pt;
+							text-align: right;
+							background-color: $claret;
+							height: 80%;
+							display: block;
+							border-radius: 4pt 10pt 10pt 4pt;
+						}
+					}
+				}
+				@media #{$desktop-only} {
+					grid-template-columns: 1fr 2fr;
+				}
+			}
 		}
 	}
 }

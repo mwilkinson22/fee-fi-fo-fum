@@ -13,7 +13,7 @@ const PlayerPositions = {
 			numbers: [2, 5]
 		},
 		C: {
-			name: "Center",
+			name: "Centre",
 			type: "Back",
 			numbers: [3, 4]
 		},

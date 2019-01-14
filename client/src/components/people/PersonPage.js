@@ -217,46 +217,11 @@ class PersonPage extends Component {
 					/>
 				</div>
 			);
-
-			//Appearances
-
-			//Stat Boxes
-			const statBoxStats = {
-				Scoring: ["T", "TA", "PT", "G", "KS"],
-				Attack: ["M", "C", "AG", "TB", "CB", "E", "DR", "FT", "OF"],
-				Defence: ["TK", "MT", "TS", "P"]
-			};
-
-			const totalStats = PlayerStatsHelper.sumStats(
-				_.map(games, game => game.playerStats[0].stats)
+			content.push(
+				<div className="container" key="statBoxes">
+					{this.getPlayerStatBoxes(games)}
+				</div>
 			);
-
-			const statBoxes = _.map(statBoxStats, (keys, category) => {
-				const header = <h2 key={category}>{category}</h2>;
-				const boxes = _.chain(keys)
-					.filter(key => totalStats[key])
-					.filter(
-						key =>
-							totalStats[key].total > 0 ||
-							!this.props.playerStatTypes[key].moreIsBetter
-					)
-					.map(key => (
-						<SingleStatBox key={key} statKey={key} statValues={totalStats[key]} />
-					))
-					.value();
-				if (boxes.length) {
-					return (
-						<div key={header}>
-							{header}
-							<div className="single-stat-boxes">{boxes}</div>
-						</div>
-					);
-				} else {
-					return null;
-				}
-			});
-
-			content.push(<div className="container">{statBoxes}</div>);
 		}
 
 		return (
@@ -267,6 +232,108 @@ class PersonPage extends Component {
 				</div>
 				<div className="section-content">{content}</div>
 			</section>
+		);
+	}
+
+	getPlayerStatBoxes(games) {
+		const positions = _.chain(games)
+			.map(game => {
+				switch (game.playerStats[0].position) {
+					case 1:
+						return "Fullback";
+					case 2:
+					case 5:
+						return "Wing";
+					case 3:
+					case 4:
+						return "Centre";
+					case 6:
+						return "Stand Off";
+					case 7:
+						return "Scrum Half";
+					case 8:
+					case 10:
+						return "Prop";
+					case 9:
+						return "Hooker";
+					case 11:
+					case 12:
+						return "Second Row";
+					case 13:
+						return "Loose Forward";
+					default:
+						return "Interchange";
+				}
+			})
+			.groupBy()
+			.map((arr, position) => ({ position, count: arr.length }))
+			.sortBy("count")
+			.reverse()
+			.value();
+
+		const maxPosition = _.map(positions)[0].count;
+		const positionCards = _.map(positions, ({ count, position }) => (
+			<tr key={position}>
+				<th>{position}</th>
+				<td>
+					<span
+						className="position-bar"
+						style={{ width: `${(count / maxPosition) * 100}%` }}
+					>
+						{count}
+					</span>
+				</td>
+			</tr>
+		));
+
+		const statBoxStats = {
+			Scoring: ["T", "TA", "PT", "G", "KS"],
+			Attack: ["M", "C", "AG", "TB", "CB", "E", "DR", "FT", "OF"],
+			Defence: ["TK", "MT", "TS", "P"]
+		};
+
+		const totalStats = PlayerStatsHelper.sumStats(
+			_.map(games, game => game.playerStats[0].stats)
+		);
+
+		const statBoxes = _.map(statBoxStats, (keys, category) => {
+			const header = <h2 key={category}>{category}</h2>;
+			const boxes = _.chain(keys)
+				.filter(key => totalStats[key])
+				.filter(
+					key =>
+						totalStats[key].total > 0 || !this.props.playerStatTypes[key].moreIsBetter
+				)
+				.map(key => <SingleStatBox key={key} statKey={key} statValues={totalStats[key]} />)
+				.value();
+			if (boxes.length) {
+				return (
+					<div key={category}>
+						{header}
+						<div className="single-stat-boxes">{boxes}</div>
+					</div>
+				);
+			} else {
+				return null;
+			}
+		});
+
+		return (
+			<div className="container">
+				<h2>Games</h2>
+				<div className="single-stat-boxes positions">
+					<div className="single-stat-box card">
+						<div className="total">{games.length}</div>
+						<div className="name">Games</div>
+					</div>
+					<div className="single-stat-box card">
+						<table>
+							<tbody>{positionCards}</tbody>
+						</table>
+					</div>
+				</div>
+				{statBoxes}
+			</div>
 		);
 	}
 

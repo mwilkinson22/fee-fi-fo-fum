@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 class SingleStatBox extends Component {
-	componentDidMount() {}
-
-	static getDerivedStateFromProps(nextProps, prevState) {}
-
 	render() {
 		const { statKey, statValues, statType } = this.props;
 		const { total, average, best } = statValues;
@@ -24,7 +20,7 @@ class SingleStatBox extends Component {
 								r="15.91549430918954"
 								fill="transparent"
 								stroke="#d2d3d4"
-								stroke-width="3"
+								strokeWidth="3"
 							/>
 							<circle
 								className="donut-segment"
@@ -32,9 +28,9 @@ class SingleStatBox extends Component {
 								cy="21"
 								r="15.91549430918954"
 								fill="transparent"
-								stroke-width="3"
-								stroke-dasharray={`${total} ${100 - total}`}
-								stroke-dashoffset="25"
+								strokeWidth="3"
+								strokeDasharray={`${total} ${100 - total}`}
+								strokeDashoffset="25"
 							/>
 							<text className="total" x="50%" y="57%">
 								{total}%
