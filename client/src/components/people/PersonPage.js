@@ -17,6 +17,7 @@ import { localUrl } from "../../extPaths";
 import "datejs";
 import GameFilters from "../games/GameFilters";
 import SingleStatBox from "../stats/SingleStatBox";
+import StatsTables from "../games/StatsTables";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -223,8 +224,9 @@ class PersonPage extends Component {
 			);
 			if (games.length) {
 				content.push(
-					<div className="container" key="statBoxes">
+					<div className="container" key="playerStats">
 						{this.getPlayerStatBoxes(games)}
+						<StatsTables list="games" games={games} />
 					</div>
 				);
 			} else {

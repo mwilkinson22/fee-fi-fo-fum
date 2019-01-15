@@ -95,6 +95,7 @@ module.exports = {
 							motm: 1,
 							fan_motm: 1,
 							slug: 1,
+							title: 1,
 							playerStats: {
 								$filter: {
 									input: "$playerStats",
