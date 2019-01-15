@@ -189,7 +189,9 @@ class PersonPage extends Component {
 			yearSelector = (
 				<select
 					value={this.state.playerStatYear}
-					onChange={ev => this.setState({ playerStatYear: ev.target.value })}
+					onChange={ev =>
+						this.setState({ playerStatYear: ev.target.value, activeFilters: {} })
+					}
 				>
 					{years.map(year => (
 						<option key={year}>{year}</option>
@@ -201,27 +203,37 @@ class PersonPage extends Component {
 		let filters;
 
 		//Get Stats
-		const games = person.playerStats[this.state.playerStatYear];
+		const allGames = person.playerStats[this.state.playerStatYear];
 		const content = [];
-		if (!games) {
+		if (!allGames) {
 			fetchPlayerStats(person._id, this.state.playerStatYear);
 			content.push(<LoadingPage key="loading" />);
 		} else {
 			//Game Filters
+			const { activeFilters } = this.state;
+			const games = _.filter(allGames, activeFilters);
 			filters = (
 				<div className="container" key="filters">
 					<GameFilters
-						games={games}
+						games={allGames}
 						onFilterChange={activeFilters => this.setState(activeFilters)}
 						activeFilters={this.state.activeFilters}
 					/>
 				</div>
 			);
-			content.push(
-				<div className="container" key="statBoxes">
-					{this.getPlayerStatBoxes(games)}
-				</div>
-			);
+			if (games.length) {
+				content.push(
+					<div className="container" key="statBoxes">
+						{this.getPlayerStatBoxes(games)}
+					</div>
+				);
+			} else {
+				content.push(
+					<div className="container no-games-found" key="no-games-found">
+						No game data available
+					</div>
+				);
+			}
 		}
 
 		return (
@@ -338,6 +350,7 @@ class PersonPage extends Component {
 	}
 
 	render() {
+		const { activeFilters } = this.state;
 		const { person } = this.props;
 		if (person) {
 			return (
