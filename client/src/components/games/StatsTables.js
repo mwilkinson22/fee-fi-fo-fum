@@ -82,28 +82,33 @@ class StatsTables extends Component {
 				<tbody>
 					{rows.map(row => {
 						const { firstColumn, slug, stats } = row;
-						return (
-							<tr key={slug}>
-								<th>{firstColumn}</th>
-								{statTypes.map(key => {
-									const value = stats[key];
-									if (value !== undefined) {
-										return (
-											<td value={value} key={`${slug} ${key}`}>
-												{value}
-												{playerStatTypes[key].unit}
-											</td>
-										);
-									} else {
-										return (
-											<td value={null} key={`${slug} ${key}`}>
-												-
-											</td>
-										);
-									}
-								})}
-							</tr>
-						);
+						console.log(slug);
+						if (_.sumBy(statTypes, key => stats[key] !== undefined) === 0) {
+							return null;
+						} else {
+							return (
+								<tr key={slug}>
+									<th>{firstColumn}</th>
+									{statTypes.map(key => {
+										const value = stats[key];
+										if (value !== undefined) {
+											return (
+												<td value={value} key={`${slug} ${key}`}>
+													{value}
+													{playerStatTypes[key].unit}
+												</td>
+											);
+										} else {
+											return (
+												<td value={null} key={`${slug} ${key}`}>
+													-
+												</td>
+											);
+										}
+									})}
+								</tr>
+							);
+						}
 					})}
 				</tbody>
 			</table>
