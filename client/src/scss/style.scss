@@ -123,14 +123,12 @@ body {
 	@include noTextSelect;
 
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 	grid-gap: 20pt;
 
 	.single-stat-box {
 		height: 100%;
 		display: block;
 		background: #f4f4f4;
-		padding: 20pt;
 		display: flex;
 		flex-grow: 1;
 		text-align: center;
@@ -148,7 +146,7 @@ body {
 			margin-bottom: 4pt;
 		}
 
-		.average {
+		.name + * {
 			padding-top: 4pt;
 			border-top: solid 2pt $claret;
 		}
@@ -173,6 +171,27 @@ body {
 				font-size: 50%;
 				font-weight: 400;
 				fill: black;
+			}
+		}
+	}
+
+	@media #{$mobile-only} {
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		.single-stat-box {
+			padding: 10pt;
+			.total {
+				font-size: 1.4em;
+				font-weight: 400;
+			}
+		}
+	}
+	@media #{$desktop-and-tablet} {
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		.single-stat-box {
+			padding: 20pt;
+			.total {
+				font-size: 2.5em;
+				font-weight: 200;
 			}
 		}
 	}
@@ -229,13 +248,26 @@ body {
 					top: 0;
 				}
 			}
+			tfoot {
+				th,
+				td {
+					background: #222;
+					color: $table-header-col;
+					position: sticky;
+					z-index: 20;
+					bottom: 0;
+					.total {
+						display: block;
+					}
+				}
+			}
 			tbody {
 				tr {
 					td,
 					th {
 						background: $table-bg;
 					}
-					&:hover tr,
+					&:hover th,
 					&:hover td {
 						background: darken($table-bg, 5%);
 					}
@@ -244,7 +276,6 @@ body {
 						position: sticky;
 						left: 0;
 						a {
-							white-space: nowrap;
 							padding: 4pt;
 							display: block;
 							&:hover {
@@ -252,6 +283,12 @@ body {
 							}
 							img {
 								max-height: 30pt;
+							}
+							.title {
+								font-weight: normal;
+								@media #{$mobile-only} {
+									display: none;
+								}
 							}
 						}
 					}

@@ -340,7 +340,10 @@
 						}
 					}
 				}
-				@media #{$desktop-only} {
+				@media #{$mobile-only} {
+					grid-template-columns: 1fr;
+				}
+				@media #{$desktop-and-tablet} {
 					grid-template-columns: 1fr 2fr;
 				}
 			}

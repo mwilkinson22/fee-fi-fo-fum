@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import _ from "lodash";
 import "datejs";
+import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 
 class StatsTables extends Component {
 	constructor(props) {
@@ -67,6 +68,7 @@ class StatsTables extends Component {
 		const { rows, activeTab } = this.state;
 		const { playerStatTypes } = this.props;
 		const statTypes = this.state.statTypes[activeTab];
+		const summedStats = PlayerStatsHelper.sumStats(rows.map(row => row.stats));
 		return (
 			<table className="stat-table">
 				<thead>
@@ -82,7 +84,6 @@ class StatsTables extends Component {
 				<tbody>
 					{rows.map(row => {
 						const { firstColumn, slug, stats } = row;
-						console.log(slug);
 						if (_.sumBy(statTypes, key => stats[key] !== undefined) === 0) {
 							return null;
 						} else {
@@ -111,6 +112,32 @@ class StatsTables extends Component {
 						}
 					})}
 				</tbody>
+				<tfoot>
+					<tr>
+						<th>
+							<span className="total">Total</span>
+							<span className="average">Average</span>
+						</th>
+						{statTypes.map(key => {
+							const unit = playerStatTypes[key].unit || "";
+							const content = [];
+							if (["TS", "KS"].indexOf(key) === -1) {
+								content.push(
+									<span className="total" key="total">
+										{summedStats[key].total.toFixed(2)} {unit}
+									</span>
+								);
+							}
+							content.push(
+								<span className="average" key="average">
+									{summedStats[key].average.toFixed(2)} {unit}
+								</span>
+							);
+
+							return <td key={`${key}`}>{content}</td>;
+						})}
+					</tr>
+				</tfoot>
 			</table>
 		);
 	}

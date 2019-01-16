@@ -40,6 +40,15 @@ class SingleStatBox extends Component {
 					</div>
 				);
 			default:
+				let averageDiv;
+				if (statKey !== "AG") {
+					averageDiv = (
+						<div className="average">
+							Average: {average.toFixed(2)}
+							{unit}
+						</div>
+					);
+				}
 				return (
 					<div className={`${rootClassName}`}>
 						<div className="total">
@@ -47,10 +56,7 @@ class SingleStatBox extends Component {
 							{unit}
 						</div>
 						<div className="name">{total === 1 ? singular : plural}</div>
-						<div className="average">
-							Average per game: {average.toFixed(2)}
-							{unit}
-						</div>
+						{averageDiv}
 						<div className="best">
 							Best game: {best}
 							{unit}
