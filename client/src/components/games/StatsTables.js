@@ -9,7 +9,7 @@ class StatsTables extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			sortBy: "first"
+			sortBy: { key: null, asc: true }
 		};
 	}
 
@@ -42,7 +42,13 @@ class StatsTables extends Component {
 			.reverse()
 			.value();
 
-		return { statTypes, rows, activeTab: prevState.activeTab || _.keys(statTypes)[0] };
+		const tabs = _.keys(statTypes);
+		let { activeTab } = prevState;
+		if (tabs.indexOf(activeTab) === -1) {
+			activeTab = tabs[0];
+		}
+
+		return { statTypes, rows, activeTab };
 	}
 
 	static processGameList(games) {
@@ -56,7 +62,7 @@ class StatsTables extends Component {
 				</Link>
 			);
 			const { stats } = game.playerStats[0];
-			return { firstColumn, stats, slug, date };
+			return { firstColumn, stats, slug, date, sortBy: { asc: true } };
 		});
 
 		return rows;
@@ -64,18 +70,52 @@ class StatsTables extends Component {
 
 	static processPlayerList() {}
 
-	generateTable() {
-		const { rows, activeTab } = this.state;
+	handleTableHeaderClick(inputKey = null, enforcedDirection = null) {
+		const { key, asc } = this.state.sortBy;
 		const { playerStatTypes } = this.props;
+		const sortBy = { key: inputKey };
+		if (enforcedDirection) {
+			sortBy.asc = enforcedDirection;
+		} else if (key === inputKey) {
+			sortBy.asc = !asc;
+		} else if (playerStatTypes[inputKey]) {
+			sortBy.asc = playerStatTypes[inputKey].moreIsBetter;
+		} else {
+			sortBy.asc = true;
+		}
+		this.setState({ sortBy });
+	}
+
+	handleTabClick(tab) {
+		this.handleTableHeaderClick(null, true);
+		this.setState({ activeTab: tab });
+	}
+
+	generateTable() {
+		const { activeTab, sortBy } = this.state;
+		let { rows } = this.state;
+		const { playerStatTypes } = this.props;
+
+		if (sortBy.key) {
+			rows = _.orderBy(rows, row => row.stats[sortBy.key]);
+		}
+		if (sortBy.asc) {
+			rows = _.reverse(rows);
+		}
+
 		const statTypes = this.state.statTypes[activeTab];
 		const summedStats = PlayerStatsHelper.sumStats(rows.map(row => row.stats));
 		return (
 			<table className="stat-table">
 				<thead>
 					<tr>
-						<th onClick={() => this.setState({ sortBy: "first" })} />
+						<th onClick={() => this.handleTableHeaderClick()} />
 						{statTypes.map(key => (
-							<th onClick={() => this.setState({ sortBy: key })} key={key}>
+							<th
+								onClick={() => this.handleTableHeaderClick(key)}
+								key={key}
+								className={sortBy.key === key ? "active" : ""}
+							>
 								{playerStatTypes[key].plural}
 							</th>
 						))}
@@ -120,19 +160,27 @@ class StatsTables extends Component {
 						</th>
 						{statTypes.map(key => {
 							const unit = playerStatTypes[key].unit || "";
+							let { total, average } = summedStats[key];
 							const content = [];
+
+							//Fix string to max 2 decimal places
+							total = Math.round(total * 100) / 100;
+							average = Math.round(average * 100) / 100;
+
+							content.push(
+								<span className="total" key="total">
+									{total}
+									{unit}
+								</span>
+							);
 							if (["TS", "KS"].indexOf(key) === -1) {
 								content.push(
-									<span className="total" key="total">
-										{summedStats[key].total.toFixed(2)} {unit}
+									<span className="average" key="average">
+										{average}
+										{unit}
 									</span>
 								);
 							}
-							content.push(
-								<span className="average" key="average">
-									{summedStats[key].average.toFixed(2)} {unit}
-								</span>
-							);
 
 							return <td key={`${key}`}>{content}</td>;
 						})}
@@ -144,6 +192,7 @@ class StatsTables extends Component {
 
 	render() {
 		const { statTypes, activeTab } = this.state;
+
 		return (
 			<div className="stat-tables">
 				<h2>Games</h2>
@@ -151,7 +200,7 @@ class StatsTables extends Component {
 					{_.map(statTypes, (keys, statType) => (
 						<div
 							className={`stat-table-tab ${statType === activeTab ? "active" : ""}`}
-							onClick={() => this.setState({ activeTab: statType })}
+							onClick={() => this.handleTabClick(statType)}
 							key={statType}
 						>
 							{statType}

@@ -109,11 +109,10 @@ body {
 	box-shadow: 3pt 3pt 4pt rgba(0, 0, 0, 0.5);
 	transition: transform 200ms, box-shadow 200ms;
 	-webkit-font-smoothing: antialiased;
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
-	}
+}
+a.card:hover {
+	transform: translateY(-2px);
+	box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 }
 .single-stat-boxes {
 	display: flex;
@@ -135,6 +134,7 @@ body {
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		border-left: solid 10pt $claret;
 
 		.total {
 			font-size: 2.5em;
@@ -244,8 +244,15 @@ body {
 					color: $table-header-col;
 					position: sticky;
 					padding: 10pt 4pt;
-					z-index: 20;
+					z-index: 2;
 					top: 0;
+					cursor: pointer;
+					&:hover {
+						background: darken($table-header-bg, 3%);
+					}
+					&.active {
+						color: $gold;
+					}
 				}
 			}
 			tfoot {
