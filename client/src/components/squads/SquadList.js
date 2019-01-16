@@ -8,50 +8,50 @@ import _ from "lodash";
 class SquadList extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			squad: null
-		};
+		this.state = {};
 	}
 
-	async componentDidMount() {
-		await this.props.fetchYearsWithSquads();
-		await this.setState({ year: this.props.years[0] });
-		this.getSquad();
-	}
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const newState = {};
+		const { squads, fetchSquad, fetchYearsWithSquads } = nextProps;
+		const years = _.keys(squads);
 
-	componentWillReceiveProps(nextProps, nextContext) {
-		if (this.state.year) {
-			this.setState({ squad: nextProps.squads[this.state.year] });
+		if (squads) {
+			const year = prevState.year || _.max(years);
+			console.log(year);
+			if (!squads[year]) {
+				fetchSquad(year);
+			} else {
+				newState.squad = squads[year];
+			}
+
+			return { year, ...newState };
+		} else {
+			fetchYearsWithSquads();
+			return {};
 		}
 	}
 
-	async getSquad(val = null) {
-		//Either the component has just mounted and set a default active year
-		//or the active year has been updated
-		const year = val || this.props.years[0];
-		const squad = this.props.squads[year];
-		if (!squad) await this.props.fetchSquad(year);
-		await this.setState({
-			year,
-			squad: this.props.squads[year]
-		});
-	}
-
 	generatePageHeader() {
-		if (this.props.years) {
-			const options = this.props.years.map(year => {
-				return (
-					<option key={year} value={year}>
-						{year}
-					</option>
-				);
-			});
+		if (this.props.squads) {
+			const options = _.chain(this.props.squads)
+				.keys()
+				.sort()
+				.reverse()
+				.map(year => {
+					return (
+						<option key={year} value={year}>
+							{year}
+						</option>
+					);
+				})
+				.value();
 			return [
 				<select
 					key="year-selector"
 					children={options}
-					onChange={ev => this.getSquad(ev.target.value)}
-					value={this.props.year}
+					onChange={ev => this.setState({ year: ev.target.value })}
+					value={this.state.year}
 				/>,
 				<span key="results-header"> Squad</span>
 			];
@@ -87,8 +87,8 @@ class SquadList extends Component {
 }
 
 function mapStateToProps({ teams }) {
-	const { squads, years } = teams;
-	return { squads, years };
+	const { squads } = teams;
+	return { squads };
 }
 
 export default connect(

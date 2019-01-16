@@ -1,6 +1,7 @@
 import { FETCH_SQUAD, FETCH_YEARS_WITH_SQUADS } from "../actions/types";
+import _ from "lodash";
 
-export default function(state = { squads: {} }, action) {
+export default function(state = {}, action) {
 	switch (action.type) {
 		case FETCH_SQUAD:
 			return {
@@ -10,7 +11,10 @@ export default function(state = { squads: {} }, action) {
 		case FETCH_YEARS_WITH_SQUADS:
 			return {
 				...state,
-				years: action.payload
+				squads: _.chain(action.payload)
+					.map(year => [year, null])
+					.fromPairs()
+					.value()
 			};
 		default:
 			return state;
