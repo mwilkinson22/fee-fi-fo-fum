@@ -29,7 +29,7 @@ module.exports = {
 	},
 	MG: {
 		singular: "Missed Goal",
-		plural: "Missed goals",
+		plural: "Missed Goals",
 		storedInDatabase: true,
 		moreIsBetter: false,
 		type: "Scoring"

@@ -352,7 +352,6 @@ class PersonPage extends Component {
 	}
 
 	render() {
-		const { activeFilters } = this.state;
 		const { person } = this.props;
 		if (person) {
 			return (
