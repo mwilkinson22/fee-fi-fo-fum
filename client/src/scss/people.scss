@@ -11,6 +11,9 @@
 		transform: translateY(-2px);
 		.person-card {
 			box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
+			.trim {
+				color: darken($gold, 7%);
+			}
 		}
 	}
 
