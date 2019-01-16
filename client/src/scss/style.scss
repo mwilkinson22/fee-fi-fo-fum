@@ -5,15 +5,15 @@ body {
 	background: #ddd;
 }
 
-body::-webkit-scrollbar {
+*::-webkit-scrollbar {
 	width: 8pt;
 }
 
-body::-webkit-scrollbar-track {
-	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+*::-webkit-scrollbar-track {
+	background-color: #eee;
 }
 
-body::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
 	background-color: #333;
 }
 
@@ -184,6 +184,8 @@ body::-webkit-scrollbar-thumb {
 	$table-header-bg: darken($claret, 5%);
 	$table-header-col: white;
 	$table-border: solid thin #ddd;
+	padding-bottom: 20pt;
+	@include noTextSelect;
 	.stat-table-tabs {
 		div {
 			cursor: pointer;
@@ -205,35 +207,64 @@ body::-webkit-scrollbar-thumb {
 			}
 		}
 	}
-	.stat-table {
-		width: 100%;
-		background-color: $table-bg;
-		color: $table-col;
-		text-align: center;
+	.stat-table-wrapper {
+		position: relative;
+		max-height: 75vh;
+		max-width: 100%;
+		overflow: auto;
+		box-shadow: 2pt 2pt 4pt rgba(black, 0.3);
+		.stat-table {
+			width: 100%;
+			background-color: $table-bg;
+			color: $table-col;
+			text-align: center;
 
-		thead {
-			background: $table-header-bg;
-			color: $table-header-col;
-			position: sticky;
-			top: 0;
-			th {
-				padding: 10pt 4pt;
-			}
-		}
-		tbody {
-			tr {
-				&:not(:last-child) {
-					border-bottom: $table-border;
+			thead {
+				th {
+					background: $table-header-bg;
+					color: $table-header-col;
+					position: sticky;
+					padding: 10pt 4pt;
+					z-index: 20;
+					top: 0;
 				}
 			}
-		}
-		td,
-		th {
-			vertical-align: middle;
-			padding: 4pt;
-		}
-		img {
-			max-height: 20pt;
+			tbody {
+				tr {
+					td,
+					th {
+						background: $table-bg;
+					}
+					&:hover tr,
+					&:hover td {
+						background: darken($table-bg, 5%);
+					}
+					th {
+						padding: 0;
+						position: sticky;
+						left: 0;
+						a {
+							white-space: nowrap;
+							padding: 4pt;
+							display: block;
+							&:hover {
+								color: inherit;
+							}
+							img {
+								max-height: 30pt;
+							}
+						}
+					}
+					&:not(:last-child) {
+						border-bottom: $table-border;
+					}
+				}
+			}
+			td,
+			th {
+				vertical-align: middle;
+				padding: 4pt;
+			}
 		}
 	}
 }

@@ -126,7 +126,7 @@ class StatsTables extends Component {
 						</div>
 					))}
 				</div>
-				{this.generateTable()}
+				<div className="stat-table-wrapper">{this.generateTable()}</div>
 			</div>
 		);
 	}
