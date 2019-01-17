@@ -14,6 +14,7 @@ export default class GameCard extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 		const { game } = nextProps;
+		const { _opposition, playerStats, isAway, scores } = game;
 
 		//Get date
 		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));
@@ -26,17 +27,7 @@ export default class GameCard extends Component {
 		newState.isFixture = isFixture;
 
 		//Score
-		if (!isFixture) {
-			const { _opposition, playerStats, isAway } = game;
-			const scores = _.chain(playerStats)
-				.groupBy("_team")
-				.mapValues(team => {
-					return _.sumBy(team, statList => {
-						const { T, CN, PK, DG } = statList.stats;
-						return T * 4 + CN * 2 + PK * 2 + DG;
-					});
-				})
-				.value();
+		if (scores) {
 			const localScore = scores["5c041478e2b66153542b3742"];
 			const oppositionScore = scores[_opposition._id];
 			if (localScore && oppositionScore) {

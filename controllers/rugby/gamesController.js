@@ -42,8 +42,26 @@ async function aggregateForList(initialPipelines) {
 	const games = await Game.aggregate(
 		_.concat(initialPipelines, getBasicGameData, { $project: projections.basic })
 	);
+	console.log("hi");
 
-	return games;
+	return _.map(games, game => getScores(game));
+}
+
+function getScores(game) {
+	const gameDate = Date.parse(new Date(game.date));
+
+	if (gameDate <= new Date()) {
+		game.scores = _.chain(game.playerStats)
+			.groupBy("_team")
+			.mapValues(team => {
+				return _.sumBy(team, statList => {
+					const { T, CN, PK, DG } = statList.stats;
+					return T * 4 + CN * 2 + PK * 2 + DG;
+				});
+			})
+			.value();
+	}
+	return game;
 }
 
 module.exports = {
