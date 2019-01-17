@@ -7,23 +7,29 @@ import Countdown from "./Countdown";
 export default class GameCard extends Component {
 	constructor(props) {
 		super(props);
-		const gameDate = Date.parse(new Date(this.props.game.date));
-		this.state = {
-			gameDate,
-			includeCountdown: this.props.includeCountdown && gameDate > new Date()
-		};
+		this.state = {};
 	}
 
-	componentWillReceiveProps(nextProps, nextContext) {
-		if (this.props.includeCountdown !== nextProps.includeCountdown) {
-			this.setState({
-				includeCountdown: nextProps.includeCountdown && this.state.gameDate > new Date()
-			});
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const newState = {};
+
+		//Get date
+		const gameDate = prevState.gameDate || Date.parse(new Date(nextProps.game.date));
+		if (!prevState.gameDate) {
+			newState.gameDate = gameDate;
 		}
+
+		//Include countdown?
+		newState.includeCountdown = nextProps.includeCountdown && gameDate > new Date();
+
+		console.log(newState);
+
+		return newState;
 	}
 
 	generateCountdown() {
-		if (this.state.includeCountdown) {
+		const { includeCountdown } = this.state;
+		if (includeCountdown) {
 			const opposition = this.props.game._opposition;
 			return (
 				<Countdown
