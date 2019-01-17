@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import * as colour from "../../utils/colourHelper";
 import "datejs";
 import Countdown from "./Countdown";
+import _ from "lodash";
 
 export default class GameCard extends Component {
 	constructor(props) {
@@ -12,17 +13,44 @@ export default class GameCard extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
+		const { game } = nextProps;
 
 		//Get date
-		const gameDate = prevState.gameDate || Date.parse(new Date(nextProps.game.date));
+		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));
 		if (!prevState.gameDate) {
 			newState.gameDate = gameDate;
 		}
 
-		//Include countdown?
-		newState.includeCountdown = nextProps.includeCountdown && gameDate > new Date();
+		//isFixture?
+		const isFixture = gameDate > new Date();
+		newState.isFixture = isFixture;
 
-		console.log(newState);
+		//Score
+		if (!isFixture) {
+			const { _opposition, playerStats, isAway } = game;
+			const scores = _.chain(playerStats)
+				.groupBy("_team")
+				.mapValues(team => {
+					return _.sumBy(team, statList => {
+						const { T, CN, PK, DG } = statList.stats;
+						return T * 4 + CN * 2 + PK * 2 + DG;
+					});
+				})
+				.value();
+			const localScore = scores["5c041478e2b66153542b3742"];
+			const oppositionScore = scores[_opposition._id];
+			if (localScore && oppositionScore) {
+				const oppositionName = _opposition.name.short;
+				if (isAway) {
+					newState.scoreString = `${oppositionName} ${oppositionScore}-${localScore} Giants`;
+				} else {
+					newState.scoreString = `Giants ${localScore}-${oppositionScore} ${oppositionName}`;
+				}
+			}
+		}
+
+		//Include countdown?
+		newState.includeCountdown = nextProps.includeCountdown && isFixture;
 
 		return newState;
 	}
@@ -69,7 +97,7 @@ export default class GameCard extends Component {
 					/>
 					<div className="game-details-wrapper">
 						<h4>
-							{opposition.name.short} {homeAwayText}
+							{this.state.scoreString || `${opposition.name.short} ${homeAwayText}`}
 						</h4>
 						<ul>
 							<li className="date">{date.toLocaleString()}</li>

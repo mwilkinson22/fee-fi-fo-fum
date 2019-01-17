@@ -16,7 +16,8 @@ projections.basic = {
 	"_opposition.image": 1,
 	"_ground.address._city": 1,
 	"_ground.name": 1,
-	"_ground.image": 1
+	"_ground.image": 1,
+	playerStats: 1
 };
 
 const getCompetitionInfo = [
