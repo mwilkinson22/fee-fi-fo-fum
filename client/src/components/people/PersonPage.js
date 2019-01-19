@@ -70,7 +70,7 @@ class PersonPage extends Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img src={`${layoutImagePath}twitter.svg`} alt="Twitter Logo" />@{twitter}
+					<img src={`${layoutImagePath}icons/twitter.svg`} alt="Twitter Logo" />@{twitter}
 				</a>
 			);
 		}
@@ -83,7 +83,8 @@ class PersonPage extends Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img src={`${layoutImagePath}instagram.svg`} alt="Instagram Logo" />@{instagram}
+					<img src={`${layoutImagePath}icons/instagram.svg`} alt="Instagram Logo" />@
+					{instagram}
 				</a>
 			);
 		}

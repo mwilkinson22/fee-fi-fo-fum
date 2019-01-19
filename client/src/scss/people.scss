@@ -179,7 +179,7 @@
 				background-size: cover;
 				background-position: 100% 50%;
 				background-repeat: no-repeat;
-				background-image: url("#{$googleBucket}layout/john-smiths.jpg");
+				background-image: url("#{$googleBucket}images/layout/john-smiths.jpg");
 				left: 0;
 				width: 60%;
 				filter: blur(2px);
@@ -209,7 +209,7 @@
 					&::after {
 						right: 99%;
 						width: 30%;
-						background-image: url("#{$googleBucket}layout/player-header-divider.png");
+						background-image: url("#{$googleBucket}images/layout/person-header-divider.png");
 						@include pseudoImage;
 						background-size: cover;
 						background-position: right center;
