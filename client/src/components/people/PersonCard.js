@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { personImagePath } from "../../extPaths";
+import PersonImage from "./PersonImage";
 
 export default class PersonCard extends Component {
 	constructor(props) {
@@ -51,11 +52,7 @@ export default class PersonCard extends Component {
 						{this.additionalData}
 					</div>
 					<div className="person-image-wrapper">
-						<img
-							className="person-image"
-							src={personImagePath + image}
-							alt={`${name.first} ${name.last}`}
-						/>
+						<PersonImage person={person} />
 					</div>
 				</div>
 			</Link>

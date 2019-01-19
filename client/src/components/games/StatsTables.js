@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import _ from "lodash";
 import "datejs";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
+import TeamImage from "../teams/TeamImage";
 
 class StatsTables extends Component {
 	constructor(props) {
@@ -56,7 +57,7 @@ class StatsTables extends Component {
 			const { slug, _opposition, date, title } = game;
 			const firstColumn = (
 				<Link to={`/games/${slug}`} className="fixture-box">
-					<img src={_opposition.image} alt={_opposition.name.long} />
+					<TeamImage team={_opposition} />
 					<div className="date">{new Date(date).toString("dS MMMM yyyy")}</div>
 					<div className="title">{title}</div>
 				</Link>

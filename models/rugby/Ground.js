@@ -21,7 +21,8 @@ const groundSchema = new Schema({
 		}
 	],
 	addThe: Boolean,
-	image: String
+	image: String,
+	slug: String
 });
 
 mongoose.model("grounds", groundSchema);

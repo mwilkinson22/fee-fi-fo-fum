@@ -5,6 +5,8 @@ import LoadingPage from "../../components/LoadingPage";
 import "datejs";
 import * as colourHelper from "../../utils/colourHelper";
 import Countdown from "./Countdown";
+import GameHeaderImage from "./GameHeaderImage";
+import TeamImage from "../teams/TeamImage";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -81,10 +83,7 @@ class GamePage extends Component {
 					</div>
 					<div className="container">
 						<h4>
-							<div
-								style={{ backgroundImage: `url('${team.image}')` }}
-								className="team-badge"
-							/>
+							<TeamImage team={team} />
 							{team.name.short}
 						</h4>
 					</div>
@@ -134,10 +133,8 @@ class GamePage extends Component {
 		} else {
 			return (
 				<div className="game-page">
-					<section
-						className="header"
-						style={{ backgroundImage: `url(${game._ground.image})` }}
-					>
+					<section className="header">
+						<GameHeaderImage game={game} className="game-header-image" />
 						<div className="game-details">
 							<div className="container">{this.generateHeaderInfoBar()}</div>
 						</div>

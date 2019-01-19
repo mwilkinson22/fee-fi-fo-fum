@@ -50,7 +50,8 @@ const teamSchema = new Schema({
 			]
 		}
 	],
-	image: String
+	image: String,
+	slug: String
 });
 
 mongoose.model("teams", teamSchema);

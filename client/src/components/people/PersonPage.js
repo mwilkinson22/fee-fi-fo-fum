@@ -18,6 +18,7 @@ import "datejs";
 import GameFilters from "../games/GameFilters";
 import SingleStatBox from "../stats/SingleStatBox";
 import StatsTables from "../games/StatsTables";
+import PersonImage from "./PersonImage";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -370,11 +371,7 @@ class PersonPage extends Component {
 					<section className="header">
 						<div className="background" />
 						<div className="container">
-							<img
-								className="image"
-								src={`${personImagePath}${person.image}`}
-								alt={`${person.name.first} ${person.name.last}`}
-							/>
+							<PersonImage person={person} />
 							<div className="overlay">
 								<h1>
 									{person.name.first}

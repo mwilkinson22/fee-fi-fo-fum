@@ -1,3 +1,7 @@
+.person-image {
+	pointer-events: none;
+}
+
 .person-card-wrapper {
 	position: relative;
 	display: flex;
@@ -127,7 +131,7 @@
 				max-height: 100%;
 				padding-left: 0;
 				padding-right: 0;
-				.image {
+				.person-image {
 					height: 50vh;
 				}
 				.overlay {
@@ -242,7 +246,7 @@
 						}
 					}
 				}
-				.image {
+				.person-image {
 					max-height: 40vh;
 					margin-right: 5%;
 					pointer-events: none;

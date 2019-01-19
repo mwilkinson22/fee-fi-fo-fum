@@ -37,6 +37,11 @@ const gameSchema = new Schema(
 			type: Schema.Types.ObjectId,
 			ref: "teamTypes",
 			required: true
+		},
+		images: {
+			header: String,
+			midpage: String,
+			logo: String
 		}
 	},
 	{

@@ -4,6 +4,8 @@ import * as colour from "../../utils/colourHelper";
 import "datejs";
 import Countdown from "./Countdown";
 import _ from "lodash";
+import GameHeaderImage from "./GameHeaderImage";
+import TeamImage from "../teams/TeamImage";
 
 export default class GameCard extends Component {
 	constructor(props) {
@@ -62,18 +64,18 @@ export default class GameCard extends Component {
 		}
 	}
 	render() {
-		const opposition = this.props.game._opposition;
-		const ground = this.props.game._ground;
-		const date = new Date(this.props.game.date).toString("H:mm | dddd dS MMM yyyy");
-		const homeAwayText = this.props.game.isAway ? "(A)" : "(H)";
-		const url = this.props.game.slug;
-		const title = this.props.game.title;
+		const { game } = this.props;
+		const opposition = game._opposition;
+		const ground = game._ground;
+		const date = new Date(game.date).toString("H:mm | dddd dS MMM yyyy");
+		const homeAwayText = game.isAway ? "(A)" : "(H)";
+		const url = game.slug;
+		const title = game.title;
 		return (
-			<Link
-				to={"/games/" + url}
-				className="game-card card"
-				style={{ backgroundImage: `url('${ground.image}')` }}
-			>
+			<Link to={"/games/" + url} className="game-card card">
+				<div className="background-image-wrapper">
+					<GameHeaderImage game={game} />
+				</div>
 				<div
 					className="game-card-content"
 					style={{
@@ -82,10 +84,7 @@ export default class GameCard extends Component {
 						borderColor: colour.toRgb(opposition.colours.trim1)
 					}}
 				>
-					<div
-						style={{ backgroundImage: `url('${opposition.image}')` }}
-						className="team-badge"
-					/>
+					<TeamImage team={opposition} />
 					<div className="game-details-wrapper">
 						<h4>
 							{this.state.scoreString || `${opposition.name.short} ${homeAwayText}`}
