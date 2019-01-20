@@ -100,15 +100,25 @@ const getCompetitionInfo = [
 					if: "$_competition.appendCompetitionName",
 					then: {
 						$concat: [
-							"$_competition.sponsor",
 							"$_competition._parentCompetition.name",
 							" ",
 							"$_competition.name"
 						]
 					},
-					else: {
-						$concat: ["$_competition.sponsor", "$_competition._parentCompetition.name"]
-					}
+					else: "$_competition._parentCompetition.name"
+				}
+			}
+		}
+	},
+	{
+		$addFields: {
+			"_competition.name": {
+				$cond: {
+					if: "$_competition.sponsor",
+					then: {
+						$concat: ["$_competition.sponsor", " ", "$_competition.name"]
+					},
+					else: "$_competition.name"
 				}
 			}
 		}
