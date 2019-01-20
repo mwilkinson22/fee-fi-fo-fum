@@ -18,7 +18,8 @@ projections.basic = {
 	"_ground.name": 1,
 	"_ground.image": 1,
 	playerStats: 1,
-	images: 1
+	images: 1,
+	tv: 1
 };
 
 const getCompetitionInfo = [
@@ -76,7 +77,18 @@ const getCompetitionInfo = [
 				$cond: {
 					if: "$_competition.instances.sponsor",
 					then: { $concat: ["$_competition.instances.sponsor", " "] },
-					else: ""
+					else: null
+				}
+			}
+		}
+	},
+	{
+		$addFields: {
+			"_competition.image": {
+				$cond: {
+					if: "$_competition.instances.image",
+					then: { $concat: ["$_competition.instances.image", " "] },
+					else: null
 				}
 			}
 		}

@@ -7,6 +7,7 @@ import * as colourHelper from "../../utils/colourHelper";
 import Countdown from "./Countdown";
 import GameHeaderImage from "./GameHeaderImage";
 import TeamImage from "../teams/TeamImage";
+import { imagePath } from "../../extPaths";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -48,7 +49,7 @@ class GamePage extends Component {
 		if (game.tv)
 			fields.push(
 				<img
-					src={`https://www.giantsfanzine.co.uk/resources/images/tv/${game.tv}.svg`}
+					src={`${imagePath}layout/icons/${game.tv}.svg`}
 					className="tv-logo"
 					alt={`${game.tv} Logo`}
 				/>

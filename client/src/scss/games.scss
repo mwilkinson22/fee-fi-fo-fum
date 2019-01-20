@@ -63,6 +63,25 @@
 			}
 		}
 	}
+
+	@media #{$mobile-only} {
+		.game-icons {
+			display: none;
+		}
+	}
+
+	@media #{$desktop-and-tablet} {
+		.game-icons {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			img {
+				max-width: 60pt;
+				max-height: 40pt;
+				margin: 2pt 0;
+			}
+		}
+	}
 }
 
 .game-countdown {

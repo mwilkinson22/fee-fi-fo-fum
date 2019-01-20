@@ -24,6 +24,7 @@ const competitionSegmentSchema = new Schema(
 			{
 				year: Number,
 				sponsor: String,
+				image: String,
 				specialRounds: [
 					{
 						round: Number,

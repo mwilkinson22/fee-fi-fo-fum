@@ -5,6 +5,8 @@ import "datejs";
 import Countdown from "./Countdown";
 import GameHeaderImage from "./GameHeaderImage";
 import TeamImage from "../teams/TeamImage";
+import GameLogo from "./GameLogo";
+import { imagePath } from "../../extPaths";
 
 export default class GameCard extends Component {
 	constructor(props) {
@@ -70,6 +72,9 @@ export default class GameCard extends Component {
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const url = game.slug;
 		const title = game.title;
+		const tvLogo = game.tv ? (
+			<img src={`${imagePath}layout/icons/${game.tv}.svg`} alt={game.tv + " logo"} />
+		) : null;
 		return (
 			<Link to={"/games/" + url} className="game-card card">
 				<div className="background-image-wrapper">
@@ -96,6 +101,10 @@ export default class GameCard extends Component {
 							<li>{title}</li>
 							{this.generateCountdown()}
 						</ul>
+					</div>
+					<div className="game-icons">
+						<GameLogo game={game} className="game-logo" />
+						{tvLogo}
 					</div>
 				</div>
 			</Link>
