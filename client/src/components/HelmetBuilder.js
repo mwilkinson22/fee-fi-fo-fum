@@ -4,7 +4,7 @@ import { localUrl, imagePath } from "../extPaths";
 
 export default class HelmetBuilder extends Component {
 	render() {
-		const { title, canonical } = this.props;
+		const { title, canonical, author } = this.props;
 		const fullTitle = (title ? title + " - " : "") + "Fee Fi Fo Fum";
 		document.title = fullTitle;
 		return (
@@ -12,6 +12,10 @@ export default class HelmetBuilder extends Component {
 				<title>{fullTitle}</title>
 				<link rel="canonical" href={`${localUrl}/${canonical || ""}`} />
 				<link rel="shortcut icon" href={`${imagePath}favicon.png`} />
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta name="twitter:title" content={fullTitle} />
+				<meta name="twitter:site" content="@GiantsFanzine" />
+				<meta name="twitter:creator" content={`@${author || "GiantsFanzine"}`} />
 			</Helmet>
 		);
 	}
