@@ -16,6 +16,7 @@ export default class HelmetBuilder extends Component {
 				<meta name="twitter:title" property="og:title" content={fullTitle} />
 				<meta name="twitter:site" content="@GiantsFanzine" />
 				<meta name="twitter:creator" content={`@${author || "GiantsFanzine"}`} />
+				<meta property="og:type" content="website" />
 				<meta
 					name="twitter:image"
 					property="og:image"
