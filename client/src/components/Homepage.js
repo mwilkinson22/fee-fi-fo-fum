@@ -38,7 +38,7 @@ class HomePage extends Component {
 			let i = 0;
 			const games = frontpageGames.map(game => {
 				return (
-					<div className="game-box-wrapper">
+					<div className="game-box-wrapper" key={game._id}>
 						<h2>{titles[i++]}</h2>
 						<GameCard game={game} includeCountdown={true} />
 					</div>
