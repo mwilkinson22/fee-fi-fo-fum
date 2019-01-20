@@ -107,11 +107,10 @@ body {
 
 .card {
 	box-shadow: 3pt 3pt 4pt rgba(0, 0, 0, 0.5);
-	transition: transform 200ms, box-shadow 200ms;
+	transition: box-shadow 200ms;
 	-webkit-font-smoothing: antialiased;
 }
 a.card:hover {
-	transform: translateY(-2px);
 	box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 }
 .single-stat-boxes {
