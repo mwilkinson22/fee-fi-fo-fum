@@ -7,13 +7,35 @@ import { fetchFrontpagePosts } from "../actions/newsActions";
 import { fetchFrontpageGames } from "../actions/gamesActions";
 
 class HomePage extends Component {
-	async componentWillMount() {
-		await this.props.fetchFrontpagePosts();
-		await this.props.fetchFrontpageGames();
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
+
+	static getDerivedStateFromProps(nextProps) {
+		const {
+			frontpagePosts,
+			frontpageGames,
+			fetchFrontpagePosts,
+			fetchFrontpageGames
+		} = nextProps;
+		const newState = {};
+		if (!frontpagePosts) {
+			fetchFrontpagePosts();
+		} else {
+			newState.frontpagePosts = frontpagePosts;
+		}
+		if (!frontpageGames) {
+			fetchFrontpageGames();
+		} else {
+			newState.frontpageGames = frontpageGames;
+		}
+
+		return newState;
 	}
 
 	generateNewsPosts() {
-		const { frontpagePosts } = this.props;
+		const { frontpagePosts } = this.state;
 		if (!frontpagePosts) {
 			return <LoadingPage />;
 		} else {
@@ -30,7 +52,7 @@ class HomePage extends Component {
 	}
 
 	generateGames() {
-		const { frontpageGames } = this.props;
+		const { frontpageGames } = this.state;
 		if (!frontpageGames) {
 			return <LoadingPage />;
 		} else {
