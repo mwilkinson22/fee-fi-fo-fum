@@ -5,6 +5,7 @@ import LoadingPage from "../LoadingPage";
 import NewsPostPreview from "./NewsPostCard";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
+import HelmetBuilder from "../HelmetBuilder";
 
 class NewsList extends Component {
 	async componentWillMount() {
@@ -96,8 +97,14 @@ class NewsList extends Component {
 	}
 
 	render() {
+		const { category } = this.state;
+		let pageTitle = "News";
+		if (category && this.props.categories && category !== "all") {
+			pageTitle += " - " + _.keyBy(this.props.categories, "slug")[category].name;
+		}
 		return (
 			<div className="post-list-page">
+				<HelmetBuilder title={pageTitle} canonical={`news/${category}`} />
 				{this.generateHeader()}
 				<section className="posts">
 					<div className="container">

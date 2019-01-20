@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import { connect } from "react-redux";
-import { Helmet } from "react-helmet";
 
 //Actions
 import * as actions from "../actions";
@@ -18,6 +17,7 @@ import SquadList from "./squads/SquadList";
 import AdminRouter from "./admin";
 import NewsRouter from "./news";
 import PersonPage from "./people/PersonPage";
+import HelmetBuilder from "./HelmetBuilder";
 
 class App extends Component {
 	constructor(props) {
@@ -32,10 +32,7 @@ class App extends Component {
 		return (
 			<BrowserRouter>
 				<ScrollToTop>
-					<Helmet>
-						<link rel="canonical" href="https://www.giantsfanzine.co.uk" />
-						<title>Fee Fi Fo Fum - The Huddersfield Giants Fanpage</title>
-					</Helmet>
+					<HelmetBuilder />
 					<div id="wrapper">
 						<Header />
 						<Route path="/games" component={GameRouter} />

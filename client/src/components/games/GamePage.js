@@ -8,6 +8,7 @@ import Countdown from "./Countdown";
 import GameHeaderImage from "./GameHeaderImage";
 import TeamImage from "../teams/TeamImage";
 import { imagePath } from "../../extPaths";
+import HelmetBuilder from "../HelmetBuilder";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -127,6 +128,30 @@ class GamePage extends Component {
 		}
 	}
 
+	getPageTitle() {
+		const { game } = this.props;
+		const { isAway, scores, _opposition, date } = game;
+		let strings;
+		if (scores && Object.keys(scores).length) {
+			strings = [
+				"Huddersfield Giants",
+				" ",
+				scores["5c041478e2b66153542b3742"],
+				"-",
+				scores[_opposition._id],
+				" ",
+				_opposition.name.long
+			];
+		} else {
+			strings = ["Huddersfield Giants", " vs ", _opposition.name.long];
+		}
+		if (isAway) {
+			strings = strings.reverse();
+		}
+
+		return strings.join("") + " - " + new Date(date).toString("dd/MM/yyyy");
+	}
+
 	render() {
 		const { game } = this.props;
 		if (!game) {
@@ -134,6 +159,7 @@ class GamePage extends Component {
 		} else {
 			return (
 				<div className="game-page">
+					<HelmetBuilder title={this.getPageTitle()} canonical={`games/${game.slug}`} />
 					<section className="header">
 						<GameHeaderImage game={game} className="game-header-image" />
 						<div className="game-details">

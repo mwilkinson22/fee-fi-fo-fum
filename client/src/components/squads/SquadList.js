@@ -4,6 +4,7 @@ import { fetchYearsWithSquads, fetchSquad } from "../../actions/teamsActions";
 import LoadingPage from "../LoadingPage";
 import PersonCard from "../people/PersonCard";
 import _ from "lodash";
+import HelmetBuilder from "../HelmetBuilder";
 
 class SquadList extends Component {
 	constructor(props) {
@@ -75,6 +76,10 @@ class SquadList extends Component {
 	render() {
 		return (
 			<div className="team-page">
+				<HelmetBuilder
+					title={`${this.state.year} Huddersfield Giants Squad`}
+					canonical={`squads`}
+				/>
 				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>

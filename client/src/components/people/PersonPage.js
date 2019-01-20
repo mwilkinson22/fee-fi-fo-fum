@@ -11,13 +11,12 @@ import {
 	fetchPlayerStats
 } from "../../actions/peopleActions";
 import { fetchPlayerStatTypes } from "../../actions/statsActions";
-import { Helmet } from "react-helmet";
-import { localUrl } from "../../extPaths";
 import "datejs";
 import GameFilters from "../games/GameFilters";
 import SingleStatBox from "../stats/SingleStatBox";
 import StatsTables from "../games/StatsTables";
 import PersonImage from "./PersonImage";
+import HelmetBuilder from "../HelmetBuilder";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -357,17 +356,10 @@ class PersonPage extends Component {
 		if (person) {
 			return (
 				<div className={`person-page`}>
-					<Helmet>
-						<title>
-							{person.name.first} {person.name.last} - Fee Fi Fo Fum
-						</title>
-						<link
-							rel="canonical"
-							href={`${localUrl}/${person.isCoach ? "coaches" : "players"}/${
-								person.slug
-							}`}
-						/>
-					</Helmet>
+					<HelmetBuilder
+						title={`${person.name.first} ${person.name.last}`}
+						canonical={`${person.isCoach ? "coaches" : "players"}/${person.slug}`}
+					/>
 					<section className="header">
 						<div className="background" />
 						<div className="container">

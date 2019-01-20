@@ -1,7 +1,11 @@
 const _ = require("lodash");
 const mongoose = require("mongoose");
 const Game = mongoose.model("games");
-const { getBasicGameData, projections } = require("../../pipelines/rugby/gamesPipelines");
+const {
+	getBasicGameData,
+	getFullGame,
+	projections
+} = require("../../pipelines/rugby/gamesPipelines");
 const { ObjectId } = require("mongodb");
 
 async function aggregateForList(initialPipelines) {
@@ -29,6 +33,12 @@ function getScores(game) {
 }
 
 module.exports = {
+	async getItemBySlug(req, res) {
+		const { slug } = req.params;
+		const game = await Game.aggregate(_.concat([{ $match: { slug } }], getFullGame));
+
+		res.send(getScores(game[0]));
+	},
 	async getGames(req, res) {
 		const { year, teamType } = req.params;
 		const query = {};

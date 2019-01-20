@@ -6,6 +6,7 @@ import "datejs";
 import connect from "react-redux/es/connect/connect";
 import NewsPostPreview from "./NewsPostCard";
 import { FacebookProvider, Comments } from "react-facebook";
+import HelmetBuilder from "../HelmetBuilder";
 
 class NewsPostPage extends Component {
 	componentWillMount() {
@@ -103,10 +104,15 @@ class NewsPostPage extends Component {
 
 	render() {
 		const post = this.props.post;
-		if (!this.props.post) {
+		if (!post) {
 			return <LoadingPage />;
 		} else {
-			return <div className={`news-post ${post.category}`}>{this.formatPost()}</div>;
+			return (
+				<div className={`news-post ${post.category}`}>
+					<HelmetBuilder title={post.title} canonical={`news/post/${post.slug}`} />
+					{this.formatPost()}
+				</div>
+			);
 		}
 	}
 }

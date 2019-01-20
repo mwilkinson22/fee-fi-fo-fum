@@ -6,6 +6,7 @@ import GameFilters from "./GameFilters";
 import { fetchGames, fetchGameLists } from "../../actions/gamesActions";
 import GameCard from "./GameCard";
 import { NavLink } from "react-router-dom";
+import HelmetBuilder from "../HelmetBuilder";
 
 class GameList extends Component {
 	constructor(props) {
@@ -60,6 +61,7 @@ class GameList extends Component {
 			const { games } = lists[year][teamType];
 			if (!games) {
 				fetchGames(year, teamType);
+				newState.games = null;
 			} else {
 				newState.games = games;
 			}
@@ -164,8 +166,15 @@ class GameList extends Component {
 		if (!year || !teamType) {
 			return <LoadingPage />;
 		} else {
+			const canonical =
+				year === "fixtures" ? `fixtures/${teamType}` : `results/${year}/${teamType}`;
+			const pageTitle =
+				year === "fixtures"
+					? "Huddersfield Giants Fixtures"
+					: `Huddersfield Giants ${year} Results`;
 			return (
 				<div>
+					<HelmetBuilder title={pageTitle} canonical={canonical} />
 					<section className="page-header">
 						<div className="container">
 							<h1>{this.generatePageHeader()}</h1>
