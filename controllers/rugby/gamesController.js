@@ -18,7 +18,7 @@ async function aggregateForList(initialPipelines) {
 function getScores(game) {
 	const gameDate = Date.parse(new Date(game.date));
 
-	if (gameDate <= new Date()) {
+	if (gameDate <= new Date() && game.playerStats.length > 0) {
 		game.scores = _.chain(game.playerStats)
 			.groupBy("_team")
 			.mapValues(team => {

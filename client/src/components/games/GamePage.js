@@ -66,7 +66,7 @@ class GamePage extends Component {
 	}
 
 	generateTeamBanners() {
-		const { teams } = this.props.game;
+		const { teams, scores } = this.props.game;
 		const elements = [];
 		for (const ha in teams) {
 			const team = teams[ha];
@@ -86,7 +86,8 @@ class GamePage extends Component {
 					<div className="container">
 						<h4>
 							<TeamImage team={team} />
-							{team.name.short}
+							<span className="teamname">{team.name.short}</span>
+							{scores ? <span className="score">{scores[team._id]}</span> : null}
 						</h4>
 					</div>
 				</div>
@@ -132,7 +133,7 @@ class GamePage extends Component {
 		const { game } = this.props;
 		const { isAway, scores, _opposition, date } = game;
 		let strings;
-		if (scores && Object.keys(scores).length) {
+		if (scores) {
 			strings = [
 				"Huddersfield Giants",
 				" ",

@@ -216,6 +216,9 @@
 					align-items: center;
 					font-size: 24pt;
 					color: inherit;
+					.teamname {
+						flex-grow: 1;
+					}
 				}
 			}
 		}
