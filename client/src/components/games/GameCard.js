@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import * as colour from "../../utils/colourHelper";
 import "datejs";
 import Countdown from "./Countdown";
-import _ from "lodash";
 import GameHeaderImage from "./GameHeaderImage";
 import TeamImage from "../teams/TeamImage";
 
@@ -16,7 +15,7 @@ export default class GameCard extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 		const { game } = nextProps;
-		const { _opposition, playerStats, isAway, scores } = game;
+		const { _opposition, isAway, scores } = game;
 
 		//Get date
 		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));

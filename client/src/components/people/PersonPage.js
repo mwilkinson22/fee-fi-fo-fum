@@ -4,8 +4,7 @@ import { connect } from "react-redux";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import LoadingPage from "../LoadingPage";
 import Parser from "html-react-parser";
-// import { Link } from "react-router-dom";
-import { personImagePath, layoutImagePath } from "../../extPaths";
+import { layoutImagePath } from "../../extPaths";
 import {
 	fetchPersonBySlug,
 	fetchPlayerStatYears,

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { personImagePath } from "../../extPaths";
 import PersonImage from "./PersonImage";
 
 export default class PersonCard extends Component {
@@ -39,7 +38,7 @@ export default class PersonCard extends Component {
 
 	render() {
 		const { person } = this.props;
-		const { number, slug, name, image } = person;
+		const { number, slug, name } = person;
 		return (
 			<Link className="person-card-wrapper" to={`/players/${slug}`}>
 				<div className="person-card">
