@@ -47,6 +47,7 @@ module.exports = {
 	},
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
+		const { year } = req.params;
 
 		if (team) {
 			let { includeFriendlyOnly } = req.query;
@@ -63,7 +64,7 @@ module.exports = {
 							$filter: {
 								input: "$squads",
 								as: "squad",
-								cond: { $eq: [{ $toLower: "$$squad.year" }, req.params.year] }
+								cond: { $eq: [{ $toLower: "$$squad.year" }, year] }
 							}
 						}
 					}
@@ -91,11 +92,6 @@ module.exports = {
 				},
 				{
 					$unwind: "$squad.players"
-				},
-				{
-					$sort: {
-						"squad.players.number": 1
-					}
 				},
 				{
 					$lookup: {
@@ -129,14 +125,14 @@ module.exports = {
 					}
 				}
 			]);
-			const results = aggregation[0];
-			const players = _.mapValues(results.players, wrapper => {
+			const results = _.sortBy(aggregation[0].players, player => player.number || 1000 ); //If number === null, we push it to the end
+			const players = _.mapValues(results, wrapper => {
 				const { number } = wrapper;
 				const player = wrapper._player[0];
 				player.playerDetails = getPositions(player.playerDetails);
 				return { number, ...player };
 			});
-			res.send({ year: results._id, players });
+			res.send({ year, players });
 		} else {
 			res.status(404).send("Invalid team Id");
 		}
