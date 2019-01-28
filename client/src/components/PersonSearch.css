@@ -1,45 +1,45 @@
 .results {
-	position:absolute;
-	width:100%;
-	top:100%;
-	left:0;
-	display:block;
-	height:200pt;
+	position: absolute;
+	width: 100%;
+	top: 100%;
+	left: 0;
+	display: block;
+	height: 200pt;
 	border-radius: 0 0 10pt 10pt;
 }
 
 input {
 	border: none;
-	outline:none !important;
+	outline: none !important;
 	padding: 4pt 8pt;
 	border-radius: 4pt 4pt 0 0;
 }
 
-
-input, .results ul {
-	font-family: 'Titillium Web';
-	background: #F4F4F4;
+input,
+.results ul {
+	font-family: "Titillium Web";
+	background: #f4f4f4;
 	font-size: 12pt;
 }
 
 input:not(:focus) + .results {
-	display:none;
+	display: none;
 }
 
 .results ul {
-	list-style:none;
-	margin:auto;
-	padding:0;
-	max-height:100%;
-	overflow:auto;
+	list-style: none;
+	margin: auto;
+	padding: 0;
+	max-height: 100%;
+	overflow: auto;
 }
 
 .results li {
 	padding: 2pt 6pt;
-	border-bottom: solid thin #DDD;
-	cursor:pointer;
+	border-bottom: solid thin #ddd;
+	cursor: pointer;
 }
 
 .results li:hover {
-	background: #FAFAFA;
+	background: #fafafa;
 }

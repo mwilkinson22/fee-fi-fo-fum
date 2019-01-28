@@ -125,7 +125,7 @@ module.exports = {
 					}
 				}
 			]);
-			const results = _.sortBy(aggregation[0].players, player => player.number || 1000 ); //If number === null, we push it to the end
+			const results = _.sortBy(aggregation[0].players, player => player.number || 1000); //If number === null, we push it to the end
 			const players = _.mapValues(results, wrapper => {
 				const { number } = wrapper;
 				const player = wrapper._player[0];
