@@ -3,7 +3,7 @@ import Parser from "html-react-parser";
 import LoadingPage from "../components/LoadingPage";
 import { fetchNewsPostBySlug, fetchSidebarPosts } from "../actions/newsActions";
 import "datejs";
-import connect from "react-redux";
+import { connect } from "react-redux";
 import NewsPostPreview from "../components/news/NewsPostCard";
 import { FacebookProvider, Comments } from "react-facebook";
 import HelmetBuilder from "../components/HelmetBuilder";

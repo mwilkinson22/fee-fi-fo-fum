@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import connect from "react-redux/es/connect/connect";
+import { connect } from "react-redux";
 import { fetchPostPagination, fetchPostList } from "../actions/newsActions";
 import LoadingPage from "../components/LoadingPage";
 import NewsPostPreview from "../components/news/NewsPostCard";

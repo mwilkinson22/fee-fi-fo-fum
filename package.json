@@ -53,7 +53,7 @@
     "react-helmet": "^5.2.0",
     "react-image-webp": "^0.2.2",
     "react-redux": "^6.0.0",
-    "react-router-config": "^4.4.0-beta.6",
+    "react-router-config": "^1.0.0-beta.4",
     "react-router-dom": "^4.3.1",
     "redux": "^4.0.1",
     "redux-form": "^8.1.0",

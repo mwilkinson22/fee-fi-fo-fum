@@ -1,10 +1,10 @@
 import _ from "lodash";
-import { reduxStore } from "../";
+// import { reduxStore } from "../";
 
 export default class PlayerStatsHelper {
 	static getPlayerStatType(key) {
 		if (!this.playerStatTypes) {
-			this.playerStatTypes = reduxStore.getState().stats.playerStatTypes;
+			// this.playerStatTypes = reduxStore.getState().stats.playerStatTypes;
 		}
 
 		return this.playerStatTypes[key];

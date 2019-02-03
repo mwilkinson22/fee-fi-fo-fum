@@ -46,16 +46,12 @@ app.use(passport.session());
 app.use(express.static("public"));
 
 // API Routes
-// require("./routes/usersRoutes")(app);
-// require("./routes/rugby")(app);
-// require("./routes/newsRoutes")(app);
+require("./routes/usersRoutes")(app);
+require("./routes/rugby")(app);
+require("./routes/newsRoutes")(app);
 
 //Render
 app.get("*", (req, res) => {
-	console.log("---------------------------------------");
-	console.log("HELLO WORLD");
-	console.log("---------------------------------------");
-
 	const store = createStore(req);
 
 	const promises = matchRoutes(Routes, req.path)
