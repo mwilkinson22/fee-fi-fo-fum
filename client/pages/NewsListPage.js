@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import connect from "react-redux/es/connect/connect";
-import { fetchPostPagination, fetchPostList } from "../../actions/newsActions";
-import LoadingPage from "../LoadingPage";
-import NewsPostPreview from "./NewsPostCard";
+import { fetchPostPagination, fetchPostList } from "../actions/newsActions";
+import LoadingPage from "../components/LoadingPage";
+import NewsPostPreview from "../components/news/NewsPostCard";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
-import HelmetBuilder from "../HelmetBuilder";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class NewsListPage extends Component {
 	async componentWillMount() {

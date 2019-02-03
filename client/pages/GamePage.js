@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGame } from "../../actions/gamesActions";
-import LoadingPage from "../../components/LoadingPage";
+import { fetchGame } from "../actions/gamesActions";
+import LoadingPage from "../components/LoadingPage";
 import "datejs";
-import * as colourHelper from "../../utils/colourHelper";
-import Countdown from "./Countdown";
-import GameHeaderImage from "./GameHeaderImage";
-import TeamImage from "../teams/TeamImage";
-import { imagePath } from "../../extPaths";
-import HelmetBuilder from "../HelmetBuilder";
+import * as colourHelper from "../utils/colourHelper";
+import Countdown from "../components/games/Countdown";
+import GameHeaderImage from "../components/games/GameHeaderImage";
+import TeamImage from "../components/teams/TeamImage";
+import { imagePath } from "../extPaths";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class GamePage extends Component {
 	constructor(props) {

@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchYearsWithSquads, fetchSquad } from "../../actions/teamsActions";
-import LoadingPage from "../LoadingPage";
-import PersonCard from "../people/PersonCard";
+import { fetchYearsWithSquads, fetchSquad } from "../actions/teamsActions";
+import LoadingPage from "../components/LoadingPage";
+import PersonCard from "../components/people/PersonCard";
 import _ from "lodash";
-import HelmetBuilder from "../HelmetBuilder";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class SquadListPage extends Component {
 	constructor(props) {

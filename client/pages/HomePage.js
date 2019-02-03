@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import LoadingPage from "./LoadingPage";
-import NewsPostCard from "./news/NewsPostCard";
-import GameCard from "./games/GameCard";
+import LoadingPage from "../components/LoadingPage";
+import NewsPostCard from "../components/news/NewsPostCard";
+import GameCard from "../components/games/GameCard";
 import { fetchFrontpagePosts } from "../actions/newsActions";
 import { fetchFrontpageGames } from "../actions/gamesActions";
 

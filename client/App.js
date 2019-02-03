@@ -3,13 +3,14 @@ import { connect } from "react-redux";
 import { renderRoutes } from "react-router-config";
 
 //Actions
-import * as actions from "../actions";
+import * as actions from "./actions";
 
 //Stylesheets
-import "../scss/style.scss";
+// import "./scss/style.scss";
 
 //Components
-import ScrollToTop from "./ScrollToTop";
+import Header from "./components/Header";
+import ScrollToTop from "./components/ScrollToTop";
 
 class App extends Component {
 	constructor(props) {

@@ -1,6 +1,12 @@
 export const googleBucket = "https://storage.googleapis.com/giantsfanzine.co.uk/";
 export const imagePath = googleBucket + "images/";
-export const localUrl = window.location.protocol + "//" + window.location.host;
+let localUrl;
+if (typeof window !== "undefined") {
+	localUrl = window.location.protocol + "//" + window.location.host;
+} else {
+	localUrl = "";
+}
+export { localUrl };
 export const personImagePath = imagePath + "people/full/";
 export const teamImagePath = imagePath + "teams/";
 export const gameImagePath = imagePath + "games/";

@@ -1,22 +1,22 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
-import LoadingPage from "../LoadingPage";
+import PlayerStatsHelper from "../helperClasses/PlayerStatsHelper";
+import LoadingPage from "../components/LoadingPage";
 import Parser from "html-react-parser";
-import { layoutImagePath } from "../../extPaths";
+import { layoutImagePath } from "../extPaths";
 import {
 	fetchPersonBySlug,
 	fetchPlayerStatYears,
 	fetchPlayerStats
-} from "../../actions/peopleActions";
-import { fetchPlayerStatTypes } from "../../actions/statsActions";
+} from "../actions/peopleActions";
+import { fetchPlayerStatTypes } from "../actions/statsActions";
 import "datejs";
-import GameFilters from "../games/GameFilters";
-import SingleStatBox from "../stats/SingleStatBox";
-import StatsTables from "../games/StatsTables";
-import PersonImage from "./PersonImage";
-import HelmetBuilder from "../HelmetBuilder";
+import GameFilters from "../components/games/GameFilters";
+import SingleStatBox from "../components/stats/SingleStatBox";
+import StatsTables from "../components/games/StatsTables";
+import PersonImage from "../components/people/PersonImage";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class PersonPage extends Component {
 	constructor(props) {

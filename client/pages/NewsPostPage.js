@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import Parser from "html-react-parser";
-import LoadingPage from "../LoadingPage";
-import { fetchNewsPostBySlug, fetchSidebarPosts } from "../../actions/newsActions";
+import LoadingPage from "../components/LoadingPage";
+import { fetchNewsPostBySlug, fetchSidebarPosts } from "../actions/newsActions";
 import "datejs";
-import connect from "react-redux/es/connect/connect";
-import NewsPostPreview from "./NewsPostCard";
+import connect from "react-redux";
+import NewsPostPreview from "../components/news/NewsPostCard";
 import { FacebookProvider, Comments } from "react-facebook";
-import HelmetBuilder from "../HelmetBuilder";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class NewsPostPage extends Component {
 	componentWillMount() {

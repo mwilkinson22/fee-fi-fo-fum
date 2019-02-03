@@ -79,7 +79,8 @@ export default [
 			},
 			...gameRoutes,
 			...personRoutes,
-			...squadRoutes
+			...squadRoutes,
+			...newsRoutes
 		]
 	}
 ];

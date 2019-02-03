@@ -1,12 +1,12 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import LoadingPage from "../LoadingPage";
-import GameFilters from "./GameFilters";
-import { fetchGames, fetchGameLists } from "../../actions/gamesActions";
-import GameCard from "./GameCard";
+import LoadingPage from "../components/LoadingPage";
+import GameFilters from "../components/games/GameFilters";
+import { fetchGames, fetchGameLists } from "../actions/gamesActions";
+import GameCard from "../components/games/GameCard";
 import { NavLink } from "react-router-dom";
-import HelmetBuilder from "../HelmetBuilder";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class GameList extends Component {
 	constructor(props) {

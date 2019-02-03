@@ -12,11 +12,11 @@ import bodyParser from "body-parser";
 import keys from "./config/keys";
 
 //Add Mongoose Models
-require("./models/User");
-require("./models/IdLink");
-require("./models/SlugRedirect");
-require("./models/rugby");
-require("./models/NewsPost");
+import "./models/User";
+import "./models/IdLink";
+import "./models/SlugRedirect";
+import "./models/rugby";
+import "./models/NewsPost";
 
 mongoose.connect(
 	keys.mongoURI,
@@ -32,7 +32,7 @@ const app = express();
 app.use(bodyParser.json());
 
 //Set up passport
-require("./services/passport");
+import "./services/passport";
 app.use(
 	cookieSession({
 		maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -46,12 +46,16 @@ app.use(passport.session());
 app.use(express.static("public"));
 
 // API Routes
-require("./routes/usersRoutes")(app);
-require("./routes/rugby")(app);
-require("./routes/newsRoutes")(app);
+// require("./routes/usersRoutes")(app);
+// require("./routes/rugby")(app);
+// require("./routes/newsRoutes")(app);
 
 //Render
 app.get("*", (req, res) => {
+	console.log("---------------------------------------");
+	console.log("HELLO WORLD");
+	console.log("---------------------------------------");
+
 	const store = createStore(req);
 
 	const promises = matchRoutes(Routes, req.path)
@@ -60,7 +64,7 @@ app.get("*", (req, res) => {
 		})
 		.map(promise => {
 			if (promise) {
-				return new Promise((resolve, reject) => {
+				return new Promise(resolve => {
 					promise.then(resolve).catch(resolve);
 				});
 			}
