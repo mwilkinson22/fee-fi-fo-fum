@@ -201,7 +201,9 @@ function mapStateToProps({ games }, ownProps) {
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGames, fetchGameLists }
-)(GameList);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchGames, fetchGameLists }
+	)(GameList)
+};

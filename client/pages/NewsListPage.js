@@ -7,7 +7,7 @@ import _ from "lodash";
 import { NavLink } from "react-router-dom";
 import HelmetBuilder from "../HelmetBuilder";
 
-class NewsList extends Component {
+class NewsListPage extends Component {
 	async componentWillMount() {
 		await this.pageLoad(this.props);
 	}
@@ -123,7 +123,9 @@ function mapStateToProps({ news }, ownProps) {
 	return { postList: postList[category], pages, categories };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchPostPagination, fetchPostList }
-)(NewsList);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchPostPagination, fetchPostList }
+	)(NewsListPage)
+};

@@ -1,9 +1,15 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cookieSession = require("cookie-session");
-const passport = require("passport");
-const bodyParser = require("body-parser");
-const keys = require("./config/keys");
+import "babel-polyfill";
+import express from "express";
+import { matchRoutes } from "react-router-config";
+import Routes from "./client/Routes";
+import renderer from "./helpers/renderer";
+import createStore from "./helpers/createStore";
+
+import mongoose from "mongoose";
+import cookieSession from "cookie-session";
+import passport from "passport";
+import bodyParser from "body-parser";
+import keys from "./config/keys";
 
 //Add Mongoose Models
 require("./models/User");
@@ -36,21 +42,44 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Set up static routes
+app.use(express.static("public"));
+
 // API Routes
 require("./routes/usersRoutes")(app);
 require("./routes/rugby")(app);
 require("./routes/newsRoutes")(app);
 
-if (process.env.NODE_ENV === "production") {
-	//Express will serve up production assets like main.js or main.css
-	app.use(express.static("client/build"));
+//Render
+app.get("*", (req, res) => {
+	const store = createStore(req);
 
-	//Express will serve up index.html file if it doesn't recognise the route
-	const path = require("path");
-	app.get("*", (req, res) => {
-		res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+	const promises = matchRoutes(Routes, req.path)
+		.map(({ route }) => {
+			return route.loadData ? route.loadData(store) : null;
+		})
+		.map(promise => {
+			if (promise) {
+				return new Promise((resolve, reject) => {
+					promise.then(resolve).catch(resolve);
+				});
+			}
+		});
+
+	Promise.all(promises).then(() => {
+		const context = {};
+		const content = renderer(req, store, context);
+
+		if (context.url) {
+			return res.redirect(301, context.url);
+		}
+
+		if (context.notFound) {
+			res.status(404);
+		}
+
+		res.send(content);
 	});
-}
-
-const PORT = process.env.PORT || 5000;
+});
+const PORT = process.env.PORT || 3000;
 app.listen(PORT);

@@ -396,7 +396,9 @@ function mapStateToProps({ people, stats }, ownProps) {
 	return { person: people[slug], playerStatTypes, ...ownProps };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchPersonBySlug, fetchPlayerStats, fetchPlayerStatYears, fetchPlayerStatTypes }
-)(PersonPage);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchPersonBySlug, fetchPlayerStats, fetchPlayerStatYears, fetchPlayerStatTypes }
+	)(PersonPage)
+};

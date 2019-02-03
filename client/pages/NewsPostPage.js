@@ -123,7 +123,9 @@ function mapStateToProps({ news }, ownProps) {
 	return { post: posts[slug], recentPosts };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchNewsPostBySlug, fetchSidebarPosts }
-)(NewsPostPage);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchNewsPostBySlug, fetchSidebarPosts }
+	)(NewsPostPage)
+};

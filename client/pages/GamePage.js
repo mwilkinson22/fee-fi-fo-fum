@@ -182,7 +182,9 @@ function mapStateToProps({ games }, ownProps) {
 	return { game: fullGames[slug] };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGame }
-)(GamePage);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchGame }
+	)(GamePage)
+};

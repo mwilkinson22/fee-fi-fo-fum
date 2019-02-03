@@ -6,7 +6,7 @@ import PersonCard from "../people/PersonCard";
 import _ from "lodash";
 import HelmetBuilder from "../HelmetBuilder";
 
-class SquadList extends Component {
+class SquadListPage extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -96,7 +96,9 @@ function mapStateToProps({ teams }) {
 	return { squads };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchSquad, fetchYearsWithSquads }
-)(SquadList);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchSquad, fetchYearsWithSquads }
+	)(SquadListPage)
+};
