@@ -13,16 +13,12 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 	}
-	componentDidMount() {
-		this.props.fetchUser();
-	}
-
 	render() {
 		return (
 			<div>
 				<ScrollToTop>
 					<Header />
-					{renderRoutes(this.props.routes)}
+					{renderRoutes(this.props.route.routes)}
 				</ScrollToTop>
 			</div>
 		);

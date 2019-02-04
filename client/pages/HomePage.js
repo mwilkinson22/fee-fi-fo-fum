@@ -88,7 +88,9 @@ function mapStateToProps({ news, games }) {
 	return { frontpagePosts, frontpageGames };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchFrontpagePosts, fetchFrontpageGames }
-)(HomePage);
+export default {
+	component: connect(
+		mapStateToProps,
+		{ fetchFrontpagePosts, fetchFrontpageGames }
+	)(HomePage)
+};
