@@ -12,5 +12,4 @@ const config = {
 		path: path.resolve(__dirname, "public")
 	}
 };
-
 module.exports = merge(baseConfig, config);

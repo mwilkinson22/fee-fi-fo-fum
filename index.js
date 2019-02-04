@@ -42,6 +42,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+import "./client/scss/styles.scss";
+
 //Set up static routes
 app.use(express.static("public"));
 

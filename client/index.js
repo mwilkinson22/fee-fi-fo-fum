@@ -10,6 +10,9 @@ import Routes from "./Routes";
 import { renderRoutes } from "react-router-config";
 import reducers from "./reducers/combinedReducer";
 
+//Stylesheets
+import "./scss/styles.scss";
+
 polyfill(); //IE Support
 
 const store = createStore(reducers, window.INITIAL_STATE, applyMiddleware(thunk));

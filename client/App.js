@@ -5,9 +5,6 @@ import { renderRoutes } from "react-router-config";
 //Actions
 import * as actions from "./actions";
 
-//Stylesheets
-// import "./scss/style.scss";
-
 //Components
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";

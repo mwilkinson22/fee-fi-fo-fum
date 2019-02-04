@@ -20,6 +20,7 @@ export default (req, store, context) => {
 	return `
 		<html>
 			<head>
+				<link rel="stylesheet" type="text/css" href="styles.css" />
 				${helmet.title.toString()}
 				${helmet.meta.toString()}
 			</head>
