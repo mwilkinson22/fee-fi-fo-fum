@@ -9,13 +9,17 @@ import { Provider } from "react-redux";
 import Routes from "./Routes";
 import { renderRoutes } from "react-router-config";
 import reducers from "./reducers/combinedReducer";
+import axios from "axios";
 
 //Stylesheets
 import "./scss/styles.scss";
 
 polyfill(); //IE Support
 
-const store = createStore(reducers, window.INITIAL_STATE, applyMiddleware(thunk));
+const axiosInstance = axios.create({
+	baseURL: "/api"
+});
+const store = createStore(reducers, {}, applyMiddleware(thunk.withExtraArgument(axiosInstance)));
 
 ReactDOM.hydrate(
 	<Provider store={store}>

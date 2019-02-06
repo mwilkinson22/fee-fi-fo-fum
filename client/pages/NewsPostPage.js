@@ -123,9 +123,19 @@ function mapStateToProps({ news }, ownProps) {
 	return { post: posts[slug], recentPosts };
 }
 
+function loadData(store, path) {
+	const slug = path.split("/")[3];
+	const promises = [
+		store.dispatch(fetchNewsPostBySlug(slug)),
+		store.dispatch(fetchSidebarPosts())
+	];
+	return Promise.all(promises);
+}
+
 export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchNewsPostBySlug, fetchSidebarPosts }
-	)(NewsPostPage)
+	)(NewsPostPage),
+	loadData
 };

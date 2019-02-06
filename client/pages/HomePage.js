@@ -9,7 +9,11 @@ import { fetchFrontpageGames } from "../actions/gamesActions";
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		const { frontpagePosts, frontPageGames } = props;
+		this.state = {
+			frontpagePosts,
+			frontPageGames
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -82,6 +86,11 @@ class HomePage extends Component {
 	}
 }
 
+function loadData(store) {
+	const promises = [store.dispatch(fetchFrontpageGames()), store.dispatch(fetchFrontpagePosts())];
+	return Promise.all(promises);
+}
+
 function mapStateToProps({ news, games }) {
 	const { frontpagePosts } = news;
 	const { frontpageGames } = games;
@@ -92,5 +101,6 @@ export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchFrontpagePosts, fetchFrontpageGames }
-	)(HomePage)
+	)(HomePage),
+	loadData
 };

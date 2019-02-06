@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
 	FETCH_FRONTPAGE_POSTS,
 	FETCH_NEWS_CATEGORIES,
@@ -8,32 +7,32 @@ import {
 	FETCH_SIDEBAR_POSTS
 } from "./types";
 
-export const fetchNewsCategories = () => async dispatch => {
-	const res = await axios.get("/api/news/categories");
+export const fetchNewsCategories = () => async (dispatch, getState, api) => {
+	const res = await api.get("/news/categories");
 	dispatch({ type: FETCH_NEWS_CATEGORIES, payload: res.data });
 };
 
-export const fetchNewsPostBySlug = slug => async dispatch => {
-	const res = await axios.get(`/api/news/slug/${slug}`);
+export const fetchNewsPostBySlug = slug => async (dispatch, getState, api) => {
+	const res = await api.get(`/news/slug/${slug}`);
 	dispatch({ type: FETCH_NEWS_POST, payload: res.data });
 };
 
-export const fetchSidebarPosts = () => async dispatch => {
-	const res = await axios.get("/api/news/sidebarPosts");
+export const fetchSidebarPosts = () => async (dispatch, getState, api) => {
+	const res = await api.get("/news/sidebarPosts");
 	dispatch({ type: FETCH_SIDEBAR_POSTS, payload: res.data });
 };
 
-export const fetchFrontpagePosts = () => async dispatch => {
-	const res = await axios.get("/api/news/frontpagePosts");
+export const fetchFrontpagePosts = () => async (dispatch, getState, api) => {
+	const res = await api.get("/news/frontpagePosts");
 	dispatch({ type: FETCH_FRONTPAGE_POSTS, payload: res.data });
 };
 
-export const fetchPostList = (category, page) => async dispatch => {
-	const res = await axios.get(`/api/news/posts/${category}/${page}`);
+export const fetchPostList = (category, page) => async (dispatch, getState, api) => {
+	const res = await api.get(`/news/posts/${category}/${page}`);
 	dispatch({ type: FETCH_POST_LIST, payload: res.data });
 };
 
-export const fetchPostPagination = category => async dispatch => {
-	const res = await axios.get(`/api/news/pagination/${category}`);
+export const fetchPostPagination = category => async (dispatch, getState, api) => {
+	const res = await api.get(`/news/pagination/${category}`);
 	dispatch({ type: FETCH_POST_PAGINATION, payload: res.data });
 };

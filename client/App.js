@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { renderRoutes } from "react-router-config";
+import { fetchNewsCategories } from "./actions/newsActions";
 
 //Actions
 import * as actions from "./actions";
@@ -29,9 +30,14 @@ function mapStateToProps({ auth }) {
 	return { auth };
 }
 
+function loadData(store, path) {
+	return store.dispatch(fetchNewsCategories());
+}
+
 export default {
 	component: connect(
 		mapStateToProps,
 		actions
-	)(App)
+	)(App),
+	loadData
 };

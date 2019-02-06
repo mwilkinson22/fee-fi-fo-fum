@@ -6,7 +6,6 @@ export default class HelmetBuilder extends Component {
 	render() {
 		const { title, canonical, author, cardImage, description } = this.props;
 		const fullTitle = (title ? title + " - " : "") + "Fee Fi Fo Fum";
-		document.title = fullTitle;
 		return (
 			<Helmet>
 				<title>{fullTitle}</title>

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink, withRouter } from "react-router-dom";
-import { fetchNewsCategories } from "../actions/newsActions";
 import _ from "lodash";
 
 class Header extends Component {
@@ -11,8 +10,6 @@ class Header extends Component {
 		this.state = {
 			showMobileNav: false
 		};
-
-		this.props.fetchNewsCategories();
 	}
 
 	generateNavMenu() {
@@ -137,9 +134,4 @@ function mapStateToProps({ auth, news }) {
 	return { auth, newsCategories: news.categories };
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchNewsCategories }
-	)(Header)
-);
+export default withRouter(connect(mapStateToProps)(Header));
