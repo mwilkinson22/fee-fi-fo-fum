@@ -9,16 +9,16 @@
 	},
 	"scripts": {
 		"start": "node build/bundle.js",
-		"build": "npm run prod",
+		"build": "NODE_ENV=production npm-run-all --parallel build:*",
+		"build:client": "webpack --config webpack.client.js -p",
+		"build:css" : "node-sass client/scss/styles.scss --output-style compressed -o public",
+		"build:server": "webpack --config webpack.server.js -p",
 		"dev": "npm-run-all --parallel dev:*",
 		"dev:css": "node-sass client/scss/styles.scss -o public",
 		"dev:server": "nodemon --watch build --exec node build/bundle.js",
 		"dev:build-server": "webpack --config webpack.server.js --watch",
 		"dev:build-client": "webpack --config webpack.client.js --watch",
-		"prod": "NODE_ENV=production npm-run-all --parallel prod:*",
-		"prod:client": "webpack --config webpack.client.js -p",
-		"prod:css" : "node-sass client/scss/styles.scss --output-style compressed -o public",
-		"prod:server": "webpack --config webpack.server.js -p"
+		"heroku-postbuild": "npm run build"
 	},
 	"author": "",
 	"license": "ISC",
