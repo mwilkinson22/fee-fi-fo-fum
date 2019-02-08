@@ -3,47 +3,43 @@ import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import NewsPostCard from "../components/news/NewsPostCard";
 import GameCard from "../components/games/GameCard";
-import { fetchFrontpagePosts } from "../actions/newsActions";
-import { fetchFrontpageGames } from "../actions/gamesActions";
+import { fetchHomepagePosts } from "../actions/newsActions";
+import { fetchHomepageGames } from "../actions/gamesActions";
 
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
-		const { frontpagePosts, frontpageGames } = props;
+		const { homepagePosts, homepageGames } = props;
 		this.state = {
-			frontpagePosts,
-			frontpageGames
+			homepagePosts,
+			homepageGames
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const {
-			frontpagePosts,
-			frontpageGames,
-			fetchFrontpagePosts,
-			fetchFrontpageGames
-		} = nextProps;
+		const { homepagePosts, homepageGames, fetchHomepagePosts, fetchHomepageGames } = nextProps;
 		const newState = {};
-		if (!frontpagePosts) {
-			fetchFrontpagePosts();
+		// console.log(homepagePosts);
+		if (!homepagePosts) {
+			fetchHomepagePosts();
 		} else {
-			newState.frontpagePosts = frontpagePosts;
+			newState.homepagePosts = homepagePosts;
 		}
-		if (!frontpageGames) {
-			fetchFrontpageGames();
+		if (!homepageGames) {
+			fetchHomepageGames();
 		} else {
-			newState.frontpageGames = frontpageGames;
+			newState.homepageGames = homepageGames;
 		}
 
 		return newState;
 	}
 
 	generateNewsPosts() {
-		const { frontpagePosts } = this.state;
-		if (!frontpagePosts) {
+		const { homepagePosts } = this.state;
+		if (!homepagePosts) {
 			return <LoadingPage />;
 		} else {
-			const postCards = frontpagePosts.map(post => {
+			const postCards = homepagePosts.map(post => {
 				return <NewsPostCard post={post} key={post.slug} />;
 			});
 			return (
@@ -56,15 +52,13 @@ class HomePage extends Component {
 	}
 
 	generateGames() {
-		if (this.state.frontpageGames) console.log(this.state.frontpageGames.length);
-		else console.log("NOPE");
-		const { frontpageGames } = this.state;
-		if (!frontpageGames) {
+		const { homepageGames } = this.state;
+		if (!homepageGames) {
 			return <LoadingPage />;
 		} else {
 			const titles = ["Last Game", "Next Game", "Next Home Game"];
 			let i = 0;
-			const games = frontpageGames.map(game => {
+			const games = homepageGames.map(game => {
 				return (
 					<div className="game-box-wrapper" key={game._id}>
 						<h2>{titles[i++]}</h2>
@@ -72,7 +66,7 @@ class HomePage extends Component {
 					</div>
 				);
 			});
-			return <div className="frontpage-game-list">{games}</div>;
+			return <div className="homepage-game-list">{games}</div>;
 		}
 	}
 
@@ -89,20 +83,21 @@ class HomePage extends Component {
 }
 
 function loadData(store) {
-	const promises = [store.dispatch(fetchFrontpageGames()), store.dispatch(fetchFrontpagePosts())];
+	const promises = [store.dispatch(fetchHomepageGames()), store.dispatch(fetchHomepagePosts())];
 	return Promise.all(promises);
 }
 
-function mapStateToProps({ news, games }) {
-	const { frontpagePosts } = news;
-	const { frontpageGames } = games;
-	return { frontpagePosts, frontpageGames };
+function mapStateToProps(state) {
+	const { news, games } = state;
+	const { homepagePosts } = news;
+	const { homepageGames } = games;
+	return { homepagePosts, homepageGames };
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchFrontpagePosts, fetchFrontpageGames }
+		{ fetchHomepagePosts, fetchHomepageGames }
 	)(HomePage),
 	loadData
 };

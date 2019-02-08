@@ -23,7 +23,7 @@ module.exports = app => {
 	app.get("/api/games/:year/:teamType", GameController.getGames);
 
 	app.get("/api/games/lists", GameController.getLists);
-	app.get("/api/games/frontpage", GameController.getFrontpageGames);
+	app.get("/api/games/homepage", GameController.getFrontpageGames);
 	app.get("/api/games/:id", GenericController.getItemById);
 
 	app.post("/api/games", requireAdmin, async (req, res) => {

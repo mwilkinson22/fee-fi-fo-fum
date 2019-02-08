@@ -1,5 +1,5 @@
 import {
-	FETCH_FRONTPAGE_POSTS,
+	FETCH_HOMEPAGE_POSTS,
 	FETCH_NEWS_CATEGORIES,
 	FETCH_NEWS_POST,
 	FETCH_POST_LIST,
@@ -9,10 +9,10 @@ import {
 
 export default function(state = { posts: {}, postList: {} }, action) {
 	switch (action.type) {
-		case FETCH_FRONTPAGE_POSTS:
+		case FETCH_HOMEPAGE_POSTS:
 			return {
 				...state,
-				frontpagePosts: action.payload
+				homepagePosts: action.payload
 			};
 
 		case FETCH_POST_LIST:

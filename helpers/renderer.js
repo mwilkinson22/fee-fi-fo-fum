@@ -20,6 +20,10 @@ export default (req, store, context) => {
 	return `
 		<html>
 			<head>
+				<meta charset="utf-8">
+   				<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Titillium+Web:200,400,600,700" rel="stylesheet">
+    			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    			<meta name="theme-color" content="#751432">
 				<link rel="stylesheet" type="text/css" href="/styles.css" />
 				${helmet.title.toString()}
 				${helmet.meta.toString()}
@@ -27,7 +31,7 @@ export default (req, store, context) => {
 			<body>
 				<div id="root">${content}</div>
 				<script>window.INITIAL_STATE = ${serialize(store.getState())}</script>
-				<script src="bundle.js"></script>
+				<script src="/bundle.js"></script>
 			</body>
 		</html>
 	`;

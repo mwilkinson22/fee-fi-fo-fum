@@ -1,4 +1,4 @@
-import { FETCH_GAME, FETCH_FRONTPAGE_GAMES, FETCH_GAMES, FETCH_GAME_LISTS } from "../actions/types";
+import { FETCH_GAME, FETCH_HOMEPAGE_GAMES, FETCH_GAMES, FETCH_GAME_LISTS } from "../actions/types";
 
 export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
@@ -34,8 +34,8 @@ export default function(state = { fullGames: {} }, action) {
 				}
 			};
 
-		case FETCH_FRONTPAGE_GAMES:
-			return { ...state, frontpageGames: action.payload };
+		case FETCH_HOMEPAGE_GAMES:
+			return { ...state, homepageGames: action.payload };
 
 		default:
 			return state;

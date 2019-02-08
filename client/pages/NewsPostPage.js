@@ -9,17 +9,54 @@ import { FacebookProvider, Comments } from "react-facebook";
 import HelmetBuilder from "../components/HelmetBuilder";
 
 class NewsPostPage extends Component {
-	componentWillMount() {
-		const { slug } = this.props.match.params;
-		if (!this.props.post) this.props.fetchNewsPostBySlug(slug);
-		if (!this.props.recentPosts) this.props.fetchSidebarPosts();
+	constructor(props) {
+		super(props);
+		const { post, fetchNewsPostBySlug, recentPosts, fetchSidebarPosts } = props;
+		const { slug } = props.match.params;
+
+		//Handle Post
+		if (!post) {
+			fetchNewsPostBySlug(slug);
+		}
+
+		//Handle Sidebar
+		if (!recentPosts) {
+			fetchSidebarPosts();
+		}
+
+		this.state = {
+			post,
+			recentPosts
+		};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const newState = {};
+
+		//Handle Post
+		if (nextProps.post && !prevState.recentPosts) {
+			newState.post = nextProps.post;
+		}
+
+		//Handle Sidebar
+		if (nextProps.recentPosts && !prevState.recentPosts) {
+			newState.recentPosts = nextProps.recentPosts;
+		}
+		return newState;
 	}
 
 	formatSidebar() {
-		if (this.props.recentPosts) {
-			return this.props.recentPosts.map(post => {
-				if (post.slug !== this.props.post.slug) {
-					return <NewsPostPreview post={post} includeContent={false} key={post.slug} />;
+		const { post, recentPosts } = this.state;
+		if (recentPosts) {
+			return recentPosts.map(recentPost => {
+				if (recentPost.slug !== post.slug) {
+					return (
+						<NewsPostPreview
+							post={recentPost}
+							includeContent={false}
+							key={recentPost.slug}
+						/>
+					);
 				} else {
 					return null;
 				}
@@ -29,13 +66,8 @@ class NewsPostPage extends Component {
 		}
 	}
 
-	componentWillReceiveProps(nextProps, nextContext) {
-		const { slug } = nextProps.match.params;
-		if (!nextProps.post) this.props.fetchNewsPostBySlug(slug);
-	}
-
 	formatPost() {
-		const post = this.props.post;
+		const post = this.state.post;
 		const author = post._author;
 		let authorName;
 		if (author.frontendName) {
@@ -103,7 +135,7 @@ class NewsPostPage extends Component {
 	}
 
 	render() {
-		const post = this.props.post;
+		const { post } = this.state;
 		if (!post) {
 			return <LoadingPage />;
 		} else {

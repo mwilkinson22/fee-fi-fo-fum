@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 //Controllers
 const NewsPostController = require("../controllers/newsPostController");
 
@@ -12,7 +10,7 @@ module.exports = app => {
 
 	app.get("/api/news/slug/:slug", NewsPostController.getPostBySlug);
 
-	app.get("/api/news/frontpagePosts", NewsPostController.getFrontpagePosts);
+	app.get("/api/news/homepage", NewsPostController.getFrontpagePosts);
 
 	app.get("/api/news/sidebarPosts", NewsPostController.getSidebarPosts);
 };
