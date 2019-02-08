@@ -11,8 +11,17 @@ import HelmetBuilder from "../components/HelmetBuilder";
 class NewsPostPage extends Component {
 	constructor(props) {
 		super(props);
-		const { post, fetchNewsPostBySlug, recentPosts, fetchSidebarPosts } = props;
-		const { slug } = props.match.params;
+		const { post, recentPosts } = props;
+
+		this.state = {
+			post,
+			recentPosts
+		};
+	}
+
+	componentDidMount() {
+		const { post, fetchNewsPostBySlug, recentPosts, fetchSidebarPosts, match } = this.props;
+		const { slug } = match.params;
 
 		//Handle Post
 		if (!post) {
@@ -23,18 +32,13 @@ class NewsPostPage extends Component {
 		if (!recentPosts) {
 			fetchSidebarPosts();
 		}
-
-		this.state = {
-			post,
-			recentPosts
-		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 
 		//Handle Post
-		if (nextProps.post && !prevState.recentPosts) {
+		if (nextProps.post && !prevState.post) {
 			newState.post = nextProps.post;
 		}
 
@@ -42,6 +46,7 @@ class NewsPostPage extends Component {
 		if (nextProps.recentPosts && !prevState.recentPosts) {
 			newState.recentPosts = nextProps.recentPosts;
 		}
+
 		return newState;
 	}
 
@@ -67,7 +72,7 @@ class NewsPostPage extends Component {
 	}
 
 	formatPost() {
-		const post = this.state.post;
+		const { post } = this.state;
 		const author = post._author;
 		let authorName;
 		if (author.frontendName) {
@@ -152,6 +157,7 @@ class NewsPostPage extends Component {
 function mapStateToProps({ news }, ownProps) {
 	const { slug } = ownProps.match.params;
 	const { posts, recentPosts } = news;
+
 	return { post: posts[slug], recentPosts };
 }
 
