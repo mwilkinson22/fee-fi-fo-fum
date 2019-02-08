@@ -3,6 +3,7 @@ import _ from "lodash";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import "datejs";
+import newsCategories from "../../../constants/newsCategories";
 
 class NewsPostCard extends Component {
 	getTitle() {
@@ -16,7 +17,7 @@ class NewsPostCard extends Component {
 
 	generateContent() {
 		const { post, inArticle } = this.props;
-		const category = _.keyBy(this.props.categories, "slug")[post.category];
+		const category = _.keyBy(newsCategories, "slug")[post.category];
 		const categoryElement = inArticle ? (
 			<Link to={`/news/${category.slug}`}>{category.name}</Link>
 		) : (

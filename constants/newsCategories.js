@@ -1,4 +1,4 @@
-module.exports = [
+export default [
 	{ name: "Previews", slug: "previews" },
 	{ name: "Recaps", slug: "recaps" },
 	{ name: "Features", slug: "features" },

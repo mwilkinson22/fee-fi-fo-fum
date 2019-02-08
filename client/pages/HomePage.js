@@ -9,10 +9,10 @@ import { fetchFrontpageGames } from "../actions/gamesActions";
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
-		const { frontpagePosts, frontPageGames } = props;
+		const { frontpagePosts, frontpageGames } = props;
 		this.state = {
 			frontpagePosts,
-			frontPageGames
+			frontpageGames
 		};
 	}
 
@@ -56,6 +56,8 @@ class HomePage extends Component {
 	}
 
 	generateGames() {
+		if (this.state.frontpageGames) console.log(this.state.frontpageGames.length);
+		else console.log("NOPE");
 		const { frontpageGames } = this.state;
 		if (!frontpageGames) {
 			return <LoadingPage />;

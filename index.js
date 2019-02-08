@@ -84,5 +84,5 @@ app.get("*", (req, res) => {
 		res.send(content);
 	});
 });
-const PORT = process.env.PORT || 3000;
+export const PORT = process.env.PORT || 3000;
 app.listen(PORT);

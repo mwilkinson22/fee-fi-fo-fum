@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink, withRouter } from "react-router-dom";
 import _ from "lodash";
+import newsCategories from "../../constants/newsCategories";
 
 class Header extends Component {
 	constructor(props) {
@@ -13,7 +14,7 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
-		const newsSubmenu = _.chain(this.props.newsCategories)
+		const newsSubmenu = _.chain(newsCategories)
 			.keyBy("name")
 			.mapValues("slug")
 			.value();
@@ -66,10 +67,11 @@ class Header extends Component {
 					activeClassName={activeClassName}
 					to={section.headerLink}
 					className={"nav-menu-header" + (section.subMenu ? " with-submenu" : "")}
-					children={section.header}
 					onClick={() => this.setState({ showMobileNav: false })}
 					exact={section.headerLink === "/"}
-				/>
+				>
+					{section.header}
+				</NavLink>
 			);
 			let sectionBody;
 
@@ -80,9 +82,10 @@ class Header extends Component {
 							<NavLink
 								activeClassName={activeClassName}
 								to={section.headerLink + link}
-								children={name}
 								onClick={() => this.setState({ showMobileNav: false })}
-							/>
+							>
+								{name}
+							</NavLink>
 						</li>
 					);
 				});
@@ -130,8 +133,8 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ auth, news }) {
-	return { auth, newsCategories: news.categories };
+function mapStateToProps({ auth }) {
+	return { auth };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));

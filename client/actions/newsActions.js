@@ -7,11 +7,6 @@ import {
 	FETCH_SIDEBAR_POSTS
 } from "./types";
 
-export const fetchNewsCategories = () => async (dispatch, getState, api) => {
-	const res = await api.get("/news/categories");
-	dispatch({ type: FETCH_NEWS_CATEGORIES, payload: res.data });
-};
-
 export const fetchNewsPostBySlug = slug => async (dispatch, getState, api) => {
 	const res = await api.get(`/news/slug/${slug}`);
 	dispatch({ type: FETCH_NEWS_POST, payload: res.data });
