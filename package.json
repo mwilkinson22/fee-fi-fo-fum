@@ -15,11 +15,10 @@
 		"dev:server": "nodemon --watch build --exec node build/bundle.js",
 		"dev:build-server": "webpack --config webpack.server.js --watch",
 		"dev:build-client": "webpack --config webpack.client.js --watch",
-		"prod": "npm-run-all --parallel prod:*",
+		"prod": "NODE_ENV=production npm-run-all --parallel prod:*",
 		"prod:client": "webpack --config webpack.client.js -p",
 		"prod:css" : "node-sass client/scss/styles.scss --output-style compressed -o public",
-		"prod:server": "webpack --config webpack.server.js -p",
-		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && npm-run-all --parallel build:*"
+		"prod:server": "webpack --config webpack.server.js -p"
 	},
 	"author": "",
 	"license": "ISC",
