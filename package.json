@@ -8,7 +8,7 @@
 		"npm": "6.4.1"
 	},
 	"scripts": {
-		"start": "node build/index.js",
+		"start": "node build/bundle.js",
 		"build:client": "webpack --config webpack.client.js",
 		"build:css" : "node-sass client/scss/styles.scss -o public",
 		"build:server": "webpack --config webpack.server.js",
