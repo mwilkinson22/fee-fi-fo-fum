@@ -19,7 +19,6 @@ class SquadListPage extends Component {
 
 		if (squads) {
 			const year = prevState.year || _.max(years);
-			console.log(year);
 			if (!squads[year]) {
 				fetchSquad(year);
 			} else {
@@ -91,6 +90,13 @@ class SquadListPage extends Component {
 	}
 }
 
+async function loadData(store) {
+	await store.dispatch(fetchYearsWithSquads());
+	const years = _.keys(store.getState().teams.squads);
+	const firstYear = _.max(years);
+	return store.dispatch(fetchSquad(firstYear));
+}
+
 function mapStateToProps({ teams }) {
 	const { squads } = teams;
 	return { squads };
@@ -100,5 +106,6 @@ export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchSquad, fetchYearsWithSquads }
-	)(SquadListPage)
+	)(SquadListPage),
+	loadData
 };
