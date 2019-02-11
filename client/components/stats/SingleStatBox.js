@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
+import playerStatTypes from "../../../constants/playerStatTypes";
 
-class SingleStatBox extends Component {
+export default class SingleStatBox extends Component {
 	render() {
-		const { statKey, statValues, statType } = this.props;
+		const { statKey, statValues } = this.props;
 		const { total, average, best } = statValues;
-		const { singular, plural, unit } = statType;
+		const { singular, plural, unit } = playerStatTypes[statKey];
 		const rootClassName = "single-stat-box card";
 		switch (statKey) {
 			case "TS":
@@ -66,10 +66,3 @@ class SingleStatBox extends Component {
 		}
 	}
 }
-
-function mapStateToProps({ stats }, ownProps) {
-	const { playerStatTypes } = stats;
-	return { ...ownProps, statType: playerStatTypes[ownProps.statKey] };
-}
-
-export default connect(mapStateToProps)(SingleStatBox);

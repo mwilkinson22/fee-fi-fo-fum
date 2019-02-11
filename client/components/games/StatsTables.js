@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import _ from "lodash";
 import "datejs";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import TeamImage from "../teams/TeamImage";
+import playerStatTypes from "../../../constants/playerStatTypes";
 
-class StatsTables extends Component {
+export default class StatsTables extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -15,7 +15,7 @@ class StatsTables extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { games, players, playerStatTypes } = nextProps;
+		const { games, players } = nextProps;
 
 		//Ensure exactly one type of table is called
 		if (!games && !players) {
@@ -73,7 +73,6 @@ class StatsTables extends Component {
 
 	handleTableHeaderClick(inputKey = null, enforcedDirection = null) {
 		const { key, asc } = this.state.sortBy;
-		const { playerStatTypes } = this.props;
 		const sortBy = { key: inputKey };
 		if (enforcedDirection) {
 			sortBy.asc = enforcedDirection;
@@ -95,7 +94,6 @@ class StatsTables extends Component {
 	generateTable() {
 		const { activeTab, sortBy } = this.state;
 		let { rows } = this.state;
-		const { playerStatTypes } = this.props;
 
 		if (sortBy.key) {
 			rows = _.orderBy(rows, row => row.stats[sortBy.key]);
@@ -213,10 +211,3 @@ class StatsTables extends Component {
 		);
 	}
 }
-
-function mapStateToProps({ stats }, ownProps) {
-	const { playerStatTypes } = stats;
-	return { ...ownProps, playerStatTypes };
-}
-
-export default connect(mapStateToProps)(StatsTables);

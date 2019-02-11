@@ -10,21 +10,18 @@ import {
 	fetchPlayerStatYears,
 	fetchPlayerStats
 } from "../actions/peopleActions";
-import { fetchPlayerStatTypes } from "../actions/statsActions";
 import "datejs";
 import GameFilters from "../components/games/GameFilters";
 import SingleStatBox from "../components/stats/SingleStatBox";
 import StatsTables from "../components/games/StatsTables";
 import PersonImage from "../components/people/PersonImage";
 import HelmetBuilder from "../components/HelmetBuilder";
+import playerStatTypes from "../../constants/playerStatTypes";
 
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { person, playerStatTypes, fetchPlayerStatTypes } = this.props;
-		if (!playerStatTypes) {
-			fetchPlayerStatTypes();
-		}
+		const { person } = this.props;
 
 		if (!person) {
 			this.props.fetchPersonBySlug(this.props.match.params.slug);
@@ -45,11 +42,7 @@ class PersonPage extends Component {
 		if (person.playerStats) {
 			//Active Year
 			if (!prevState.playerStatYear) {
-				newState.playerStatYear = _.chain(person.playerStats)
-					.keys(person.playerStats)
-					.map(Number)
-					.max()
-					.value();
+				newState.playerStatYear = getInitialPlayerStatYear(_.keys(person.playerStats));
 			}
 		}
 
@@ -314,10 +307,7 @@ class PersonPage extends Component {
 			const header = <h2 key={category}>{category}</h2>;
 			const boxes = _.chain(keys)
 				.filter(key => totalStats[key])
-				.filter(
-					key =>
-						totalStats[key].total > 0 || !this.props.playerStatTypes[key].moreIsBetter
-				)
+				.filter(key => totalStats[key].total > 0 || !playerStatTypes[key].moreIsBetter)
 				.map(key => <SingleStatBox key={key} statKey={key} statValues={totalStats[key]} />)
 				.value();
 			if (boxes.length) {
@@ -390,15 +380,36 @@ class PersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ people, stats }, ownProps) {
+function getInitialPlayerStatYear(years) {
+	return _.chain(years)
+		.map(Number)
+		.max()
+		.value();
+}
+
+function mapStateToProps({ people }, ownProps) {
 	const { slug } = ownProps.match.params;
-	const { playerStatTypes } = stats;
-	return { person: people[slug], playerStatTypes, ...ownProps };
+	return { person: people[slug], ...ownProps };
+}
+
+async function loadData(store, path) {
+	const [empty, role, slug] = path.split("/");
+
+	await store.dispatch(fetchPersonBySlug(slug));
+	const person = store.getState().people[slug];
+	if (person.isPlayer) {
+		await store.dispatch(fetchPlayerStatYears(person._id));
+		const years = _.keys(store.getState().people[slug].playerStats);
+		return store.dispatch(fetchPlayerStats(person._id, getInitialPlayerStatYear(years)));
+	}
+
+	return null;
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchPersonBySlug, fetchPlayerStats, fetchPlayerStatYears, fetchPlayerStatTypes }
-	)(PersonPage)
+		{ fetchPersonBySlug, fetchPlayerStats, fetchPlayerStatYears }
+	)(PersonPage),
+	loadData
 };

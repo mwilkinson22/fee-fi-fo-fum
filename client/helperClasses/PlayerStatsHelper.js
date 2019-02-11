@@ -1,14 +1,7 @@
 import _ from "lodash";
-// import { reduxStore } from "../";
+import playerStatTypes from "../../constants/playerStatTypes";
 
 export default class PlayerStatsHelper {
-	static getPlayerStatType(key) {
-		if (!this.playerStatTypes) {
-			// this.playerStatTypes = reduxStore.getState().stats.playerStatTypes;
-		}
-
-		return this.playerStatTypes[key];
-	}
 	static processStats(stats) {
 		const { T, CN, PK, DG, MG, TK, MI, M, C } = stats;
 		//Average Gain
@@ -47,7 +40,7 @@ export default class PlayerStatsHelper {
 			.filter(key => key !== "_id")
 			.forEach(key => {
 				const total = _.sumBy(stats, key);
-				const statType = this.getPlayerStatType(key);
+				const statType = playerStatTypes[key];
 				const gameCount = _.sumBy(stats, obj => {
 					return obj.hasOwnProperty(key) ? 1 : 0;
 				});
