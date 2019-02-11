@@ -36,7 +36,6 @@
 
 .news-post {
 	.post-wrapper {
-		padding: 14pt 0;
 		.post-header,
 		.post-body,
 		.post-comments {
@@ -123,6 +122,7 @@
 			display: grid;
 			grid-template-columns: 2fr 1fr;
 			grid-gap: 10pt;
+			padding: 14pt 0;
 			.post-header {
 				grid-column: span 2;
 				h1 {
@@ -139,12 +139,23 @@
 		.other-posts {
 			display: none;
 		}
+
+		.post-wrapper .post-header .post-meta {
+			height: auto;
+		}
+
+		.container {
+			padding: 0;
+		}
 	}
 }
 
 .post-list {
 	display: grid;
 	grid-gap: 12pt;
+	.card {
+		height: 100%;
+	}
 	.post-preview {
 		height: 100%;
 	}
