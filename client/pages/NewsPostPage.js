@@ -146,7 +146,12 @@ class NewsPostPage extends Component {
 		} else {
 			return (
 				<div className={`news-post ${post.category}`}>
-					<HelmetBuilder title={post.title} canonical={`news/post/${post.slug}`} />
+					<HelmetBuilder
+						title={post.title}
+						canonical={`news/post/${post.slug}`}
+						cardImage={post.image}
+						description={post.content.replace(/<[^>]*>/g, "").substring(0, 500) + "..."}
+					/>
 					{this.formatPost()}
 				</div>
 			);
