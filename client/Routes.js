@@ -60,11 +60,11 @@ const newsRoutes = [
 	},
 	{
 		...NewsListPage,
-		path: "/news/:category"
+		path: "/news/:category/:page"
 	},
 	{
 		...NewsListPage,
-		path: "/news/:category/:page"
+		path: "/news/:category"
 	}
 ];
 

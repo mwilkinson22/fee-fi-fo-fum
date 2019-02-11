@@ -28,5 +28,5 @@ export const fetchPostList = (category, page) => async (dispatch, getState, api)
 
 export const fetchPostPagination = category => async (dispatch, getState, api) => {
 	const res = await api.get(`/news/pagination/${category}`);
-	dispatch({ type: FETCH_POST_PAGINATION, payload: res.data });
+	dispatch({ type: FETCH_POST_PAGINATION, payload: { [category]: res.data.pages } });
 };

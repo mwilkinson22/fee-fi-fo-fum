@@ -7,7 +7,7 @@ import {
 	FETCH_SIDEBAR_POSTS
 } from "../actions/types";
 
-export default function(state = { posts: {}, postList: {} }, action) {
+export default function(state = { posts: {}, postList: {}, pages: {} }, action) {
 	switch (action.type) {
 		case FETCH_HOMEPAGE_POSTS:
 			return {
@@ -28,9 +28,7 @@ export default function(state = { posts: {}, postList: {} }, action) {
 				}
 			};
 		case FETCH_POST_PAGINATION:
-			return { ...state, ...action.payload };
-		case FETCH_NEWS_CATEGORIES:
-			return { ...state, categories: action.payload };
+			return { ...state, pages: { ...state.pages, ...action.payload } };
 
 		case FETCH_NEWS_POST:
 			return {
