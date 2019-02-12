@@ -100,7 +100,7 @@ export default [
 				exact: true
 			},
 			{
-				...NotFoundPage,
+				component: NotFoundPage,
 				path: "/"
 			}
 		]
