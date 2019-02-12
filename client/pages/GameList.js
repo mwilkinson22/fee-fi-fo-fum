@@ -11,19 +11,24 @@ import HelmetBuilder from "../components/HelmetBuilder";
 class GameList extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
-	}
+		const { lists, match, fetchGameLists } = props;
 
-	componentDidMount() {
-		const { lists, fetchGameLists } = this.props;
+		const listType = match.path.split("/")[2];
+
 		if (!lists) {
 			fetchGameLists();
 		}
+
+		this.state = { listType };
 	}
 
-	static getDerivedStateFromProps(newProps, prevState) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { lists, listType, match, fetchGames } = newProps;
+		const { lists, match, fetchGames } = nextProps;
+
+		//Fixtures or Results?
+		const listType = match.path.split("/")[2];
+		if (prevState.listType !== listType) newState.listType = listType;
 
 		if (lists) {
 			//Get Year
@@ -33,12 +38,7 @@ class GameList extends Component {
 			} else if (lists[match.params.year]) {
 				year = match.params.year;
 			} else {
-				const years = _.chain(lists)
-					.keys()
-					.filter(year => !isNaN(Number(year)))
-					.value();
-
-				year = _.max(years);
+				year = getMostRecentYear(lists);
 			}
 			if (year !== prevState.year) {
 				newState.year = year;
@@ -71,7 +71,7 @@ class GameList extends Component {
 	}
 
 	generatePageHeader() {
-		const { listType } = this.props;
+		const { listType } = this.state;
 		if (listType === "fixtures") {
 			return "Fixtures";
 		} else {
@@ -102,7 +102,8 @@ class GameList extends Component {
 
 	generateTeamMenu() {
 		const { year } = this.state;
-		const { lists, listType } = this.props;
+		const { lists } = this.props;
+		const { listType } = this.state;
 		const coreUrl = year === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
 		const submenu = _.chain(lists[year])
 			.sortBy("sortOrder")
@@ -201,9 +202,55 @@ function mapStateToProps({ games }, ownProps) {
 	};
 }
 
+function getMostRecentYear(lists) {
+	return _.chain(lists)
+		.keys()
+		.filter(year => !isNaN(Number(year)))
+		.max()
+		.value();
+}
+
+async function loadData(store, path) {
+	await store.dispatch(fetchGameLists());
+	const { lists } = store.getState().games;
+	const splitPath = path.split("/");
+	const listType = splitPath[2];
+	let list, teamType, year;
+
+	if (listType === "fixtures") {
+		//No year for fixtures
+		year = listType;
+
+		//Add team type
+		if (splitPath.length > 3 && lists[year][splitPath[3]]) {
+			teamType = splitPath[3];
+		}
+	} else {
+		//Get Year
+		if (splitPath.length > 3 && lists[splitPath[3]]) {
+			year = splitPath[3];
+		} else {
+			year = getMostRecentYear(lists);
+		}
+
+		//Add team type
+		if (splitPath.length > 4 && lists[year][splitPath[4]]) {
+			teamType = splitPath[4];
+		}
+	}
+
+	//Get TeamType, if not already defined
+	if (!teamType) {
+		teamType = _.sortBy(lists[year], "sortOrder")[0].slug;
+	}
+
+	return store.dispatch(fetchGames(year, teamType));
+}
+
 export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchGames, fetchGameLists }
-	)(GameList)
+	)(GameList),
+	loadData
 };
