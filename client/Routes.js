@@ -10,12 +10,8 @@ import NewsPostPage from "./pages/NewsPostPage";
 
 const gameRoutes = [
 	{
-		...GamePage,
-		path: "/games/:slug"
-	},
-	{
 		...GameList,
-		path: "/games/results"
+		path: "/games/results/:year/:teamType"
 	},
 	{
 		...GameList,
@@ -23,15 +19,19 @@ const gameRoutes = [
 	},
 	{
 		...GameList,
-		path: "/games/results/:year/:teamType"
+		path: "/games/results"
+	},
+	{
+		...GameList,
+		path: "/games/fixtures/:teamType"
 	},
 	{
 		...GameList,
 		path: "/games/fixtures"
 	},
 	{
-		...GameList,
-		path: "/games/fixtures/:teamType"
+		...GamePage,
+		path: "/games/:slug"
 	}
 ];
 
