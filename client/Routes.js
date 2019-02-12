@@ -8,6 +8,11 @@ import SquadListPage from "./pages/SquadListPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { Redirect } from "react-router-dom";
+
+const TestComponent = ({ staticContext }) => {
+	return <Redirect />;
+};
 
 const gameRoutes = [
 	{
@@ -33,6 +38,11 @@ const gameRoutes = [
 	{
 		...GamePage,
 		path: "/games/:slug"
+	},
+	{
+		component: () => <Redirect to="/games/fixtures" />,
+		path: "/games",
+		exact: true
 	}
 ];
 
@@ -66,6 +76,11 @@ const newsRoutes = [
 	{
 		...NewsListPage,
 		path: "/news/:category"
+	},
+	{
+		component: () => <Redirect to="/news/all" />,
+		path: "/news",
+		exact: true
 	}
 ];
 
@@ -77,6 +92,11 @@ export default [
 			...personRoutes,
 			...squadRoutes,
 			...newsRoutes,
+			{
+				component: TestComponent,
+				path: "/abc",
+				exact: true
+			},
 			{
 				...HomePage,
 				path: "/",
