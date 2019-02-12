@@ -5,7 +5,6 @@ import gamesReducer from "./gamesReducer";
 import teamsReducer from "./teamsReducer";
 import newsReducer from "./newsReducer";
 import peopleReducer from "./peopleReducer";
-import statsReducer from "./statsReducer";
 
 export default combineReducers({
 	auth: authReducer,
@@ -13,6 +12,5 @@ export default combineReducers({
 	games: gamesReducer,
 	news: newsReducer,
 	people: peopleReducer,
-	stats: statsReducer,
 	teams: teamsReducer
 });

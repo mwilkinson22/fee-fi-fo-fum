@@ -23,6 +23,3 @@ export const FETCH_POST_PAGINATION = "fetch_post_pagination";
 export const FETCH_PERSON = "fetch_person";
 export const FETCH_PLAYER_STAT_YEARS = "fetch_player_stat_years";
 export const FETCH_PLAYER_STATS = "fetch_player_stats";
-
-//Stats
-export const FETCH_PLAYER_STAT_TYPES = "fetch_player_stat_types";
