@@ -1,5 +1,6 @@
 import React from "react";
 import App from "./App";
+import { Redirect } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import GamePage from "./pages/GamePage";
 import GameList from "./pages/GameList";
@@ -8,11 +9,6 @@ import SquadListPage from "./pages/SquadListPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import { Redirect } from "react-router-dom";
-
-const TestComponent = ({ staticContext }) => {
-	return <Redirect />;
-};
 
 const gameRoutes = [
 	{
@@ -40,7 +36,7 @@ const gameRoutes = [
 		path: "/games/:slug"
 	},
 	{
-		component: () => <Redirect to="/games/fixtures" />,
+		component: <Redirect to="/games/fixtures" />,
 		path: "/games",
 		exact: true
 	}
@@ -54,6 +50,12 @@ const personRoutes = [
 	{
 		...PersonPage,
 		path: "/coaches/:slug"
+	},
+	{
+		//For the legacy site
+		component: <Redirect to="/squads" />,
+		path: "/players",
+		exact: true
 	}
 ];
 
@@ -78,7 +80,7 @@ const newsRoutes = [
 		path: "/news/:category"
 	},
 	{
-		component: () => <Redirect to="/news/all" />,
+		component: <Redirect to="/news/all" />,
 		path: "/news",
 		exact: true
 	}
@@ -92,11 +94,6 @@ export default [
 			...personRoutes,
 			...squadRoutes,
 			...newsRoutes,
-			{
-				component: TestComponent,
-				path: "/abc",
-				exact: true
-			},
 			{
 				...HomePage,
 				path: "/",
