@@ -7,6 +7,7 @@ import PersonPage from "./pages/PersonPage";
 import SquadListPage from "./pages/SquadListPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const gameRoutes = [
 	{
@@ -72,15 +73,19 @@ export default [
 	{
 		...App,
 		routes: [
+			...gameRoutes,
+			...personRoutes,
+			...squadRoutes,
+			...newsRoutes,
 			{
 				...HomePage,
 				path: "/",
 				exact: true
 			},
-			...gameRoutes,
-			...personRoutes,
-			...squadRoutes,
-			...newsRoutes
+			{
+				...NotFoundPage,
+				path: "/"
+			}
 		]
 	}
 ];
