@@ -182,9 +182,15 @@ function mapStateToProps({ games }, ownProps) {
 	return { game: fullGames[slug] };
 }
 
+function loadData(store, path) {
+	const slug = path.split("/")[2];
+	return store.dispatch(fetchGame(slug));
+}
+
 export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchGame }
-	)(GamePage)
+	)(GamePage),
+	loadData
 };
