@@ -26,7 +26,8 @@ class Header extends Component {
 			},
 			{
 				header: "Games",
-				headerLink: "/games/",
+				headerLink: "/games/fixtures",
+				subMenuRootLink: "/games/",
 				headerClickable: false,
 				subMenu: {
 					Fixtures: "fixtures",
@@ -39,8 +40,9 @@ class Header extends Component {
 			},
 			{
 				header: "News",
-				headerLink: "/news/",
-				subMenu: newsSubmenu
+				headerLink: "/news/all",
+				subMenuRootLink: "/news/",
+				subMenu: { All: "all", ...newsSubmenu }
 			}
 		];
 		if (this.props.auth) {
@@ -48,9 +50,10 @@ class Header extends Component {
 				{
 					header: "Admin",
 					headerLink: "/admin",
+					subMenuRootLink: "/admin/",
 					subMenu: {
-						Teams: "/squads",
-						Games: "/games"
+						Teams: "teams",
+						Games: "games"
 					}
 				},
 				{
@@ -81,7 +84,7 @@ class Header extends Component {
 						<li key={section.header + name}>
 							<NavLink
 								activeClassName={activeClassName}
-								to={section.headerLink + link}
+								to={section.subMenuRootLink + link}
 								onClick={() => this.setState({ showMobileNav: false })}
 							>
 								{name}
