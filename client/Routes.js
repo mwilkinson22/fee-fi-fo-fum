@@ -36,7 +36,7 @@ const gameRoutes = [
 		path: "/games/:slug"
 	},
 	{
-		component: <Redirect to="/games/fixtures" />,
+		component: () => <Redirect to="/games/fixtures" />,
 		path: "/games",
 		exact: true
 	}
@@ -53,7 +53,7 @@ const personRoutes = [
 	},
 	{
 		//For the legacy site
-		component: <Redirect to="/squads" />,
+		component: () => <Redirect to="/squads" />,
 		path: "/players",
 		exact: true
 	}
@@ -80,7 +80,7 @@ const newsRoutes = [
 		path: "/news/:category"
 	},
 	{
-		component: <Redirect to="/news/all" />,
+		component: () => <Redirect to="/news/all" />,
 		path: "/news",
 		exact: true
 	}
