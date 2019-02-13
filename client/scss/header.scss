@@ -26,6 +26,15 @@ header {
 				}
 			}
 		}
+		.social {
+			flex-grow: 1;
+			justify-content: flex-end;
+			display: flex;
+			img {
+				height: 20pt;
+				margin: 3pt;
+			}
+		}
 
 		.nav-menu-header {
 			.nav-dropdown-arrow {
@@ -139,40 +148,56 @@ header {
 
 @media #{$desktop-only} {
 	header {
-		.nav-section {
-			display: inline-block;
-			position: relative;
-			font-size: 14pt;
+		nav {
+			& > ul {
+				display: flex;
+				align-items: center;
+				.nav-section {
+					display: inline-block;
+					position: relative;
+					font-size: 14pt;
 
-			ul {
-				display: none;
-			}
-
-			.nav-menu-header {
-				padding: 4pt 6pt;
-				display: inline-block;
-
-				&.with-submenu {
-					padding-right: 0;
-					&::after {
-						content: "\25BE";
+					ul {
+						display: none;
 					}
-				}
-			}
-			&:first-child .nav-menu-header {
-				padding-left: 0;
-			}
 
-			&:hover {
-				ul {
-					display: block;
-					background: $claret;
-					position: absolute;
-					top: 100%;
-					min-width: 100%;
-					border-radius: 0 0 3pt 3pt;
-					li a {
-						padding: 8pt 10pt 8pt 6pt;
+					&.social {
+						flex-grow: 1;
+						justify-content: flex-end;
+						display: flex;
+						img {
+							height: 20pt;
+							margin: 3pt;
+						}
+					}
+
+					.nav-menu-header {
+						padding: 4pt 6pt;
+						display: inline-block;
+
+						&.with-submenu {
+							padding-right: 0;
+							&::after {
+								content: "\25BE";
+							}
+						}
+					}
+					&:first-child .nav-menu-header {
+						padding-left: 0;
+					}
+
+					&:hover {
+						ul {
+							display: block;
+							background: $claret;
+							position: absolute;
+							top: 100%;
+							min-width: 100%;
+							border-radius: 0 0 3pt 3pt;
+							li a {
+								padding: 8pt 10pt 8pt 6pt;
+							}
+						}
 					}
 				}
 			}

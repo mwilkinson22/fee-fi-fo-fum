@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Link, NavLink, withRouter } from "react-router-dom";
 import _ from "lodash";
 import newsCategories from "../../constants/newsCategories";
+import { layoutImagePath } from "../extPaths";
 
 class Header extends Component {
 	constructor(props) {
@@ -11,6 +12,26 @@ class Header extends Component {
 		this.state = {
 			showMobileNav: false
 		};
+	}
+
+	getSocial() {
+		const icons = ["Twitter", "Facebook", "Instagram"].map(social => {
+			return (
+				<a
+					href={`https://www.${social.toLowerCase()}.com/GiantsFanzine`}
+					target="_blank"
+					rel="noopener noreferrer"
+					key={social}
+				>
+					<img
+						src={`${layoutImagePath}icons/${social.toLowerCase()}.svg`}
+						alt={`${social} Logo`}
+						title={`Follow us on ${social}`}
+					/>
+				</a>
+			);
+		});
+		return <li className="nav-section social">{icons}</li>;
 	}
 
 	generateNavMenu() {
@@ -128,7 +149,10 @@ class Header extends Component {
 							className="mobile-nav-background"
 							onClick={() => this.setState({ showMobileNav: false })}
 						/>
-						<ul className="root-nav-list">{this.generateNavMenu()}</ul>
+						<ul className="root-nav-list">
+							{this.generateNavMenu()}
+							{this.getSocial()}
+						</ul>
 					</nav>
 				</div>
 			</header>
