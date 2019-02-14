@@ -2,8 +2,13 @@ import { FETCH_PERSON, FETCH_PLAYER_STAT_YEARS, FETCH_PLAYER_STATS } from "./typ
 import PlayerStatsHelper from "../helperClasses/PlayerStatsHelper";
 
 export const fetchPersonBySlug = slug => async (dispatch, getState, api) => {
-	const res = await api.get(`/people/slug/${slug}`);
-	dispatch({ type: FETCH_PERSON, payload: res.data });
+	let payload;
+	const res = await api.get(`/people/slug/${slug}`).catch(e => {
+		payload = false;
+	});
+	if (payload === undefined) payload = res.data;
+
+	dispatch({ type: FETCH_PERSON, payload, slug });
 };
 
 export const fetchPlayerStatYears = id => async (dispatch, getState, api) => {

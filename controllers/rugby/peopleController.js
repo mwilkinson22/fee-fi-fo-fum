@@ -46,7 +46,6 @@ module.exports = {
 				}
 			}
 		]);
-
 		res.send({ slug, years: years.map(obj => obj._id) });
 	},
 	async getPlayerStatsByYear(req, res) {

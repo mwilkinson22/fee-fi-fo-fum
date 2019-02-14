@@ -17,31 +17,36 @@ import StatsTables from "../components/games/StatsTables";
 import PersonImage from "../components/people/PersonImage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import playerStatTypes from "../../constants/playerStatTypes";
+import NotFoundPage from "./NotFoundPage";
 
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { person } = this.props;
+		const { person, fetchPersonBySlug, match } = props;
+		const initialState = {};
 
-		if (!person) {
-			this.props.fetchPersonBySlug(this.props.match.params.slug);
+		if (person === undefined) {
+			fetchPersonBySlug(match.params.slug);
+		} else {
+			initialState.person = person;
+
+			if (person.isPlayer && person.playerStats) {
+				initialState.playerStatYear = getInitialPlayerStatYear(_.keys(person.playerStats));
+			}
 		}
 
-		this.state = { activeFilters: {} };
+		this.state = { activeFilters: {}, ...initialState };
 	}
 
-	static getDerivedStateFromProps(newProps, prevState) {
-		const newState = {};
-		const { person } = newProps;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { person, fetchPlayerStatYears } = nextProps;
+		const newState = { person };
 
-		if (!person) {
-			return {};
-		}
-
-		//Handle playerStats
-		if (person.playerStats) {
-			//Active Year
-			if (!prevState.playerStatYear) {
+		if (person && person.isPlayer) {
+			//Get Stat Years, if required
+			if (!person.playerStats) {
+				fetchPlayerStatYears(person._id);
+			} else if (!prevState.playerStatYear) {
 				newState.playerStatYear = getInitialPlayerStatYear(_.keys(person.playerStats));
 			}
 		}
@@ -51,7 +56,7 @@ class PersonPage extends Component {
 
 	getSocial() {
 		const social = [];
-		const { twitter, instagram } = this.props.person;
+		const { twitter, instagram } = this.state.person;
 		if (twitter) {
 			social.push(
 				<a
@@ -87,7 +92,7 @@ class PersonPage extends Component {
 	}
 
 	getPositions() {
-		const { person } = this.props;
+		const { person } = this.state;
 		if (person.isPlayer) {
 			const { mainPosition, otherPositions } = person.playerDetails;
 			const allPositions = _.concat(mainPosition, otherPositions).map(position => {
@@ -104,10 +109,10 @@ class PersonPage extends Component {
 	}
 
 	getInfoTable() {
-		const { person } = this.props;
-		const { playerDetails } = person;
+		const { person } = this.state;
+		const { playerDetails, dateOfBirth, nickname, _hometown, _represents } = person;
 		const data = {};
-		if (person.dateOfBirth) {
+		if (dateOfBirth) {
 			const dob = new Date(person.dateOfBirth);
 			const today = new Date();
 			const age = Math.abs(today.getTime() - dob.getTime());
@@ -116,17 +121,16 @@ class PersonPage extends Component {
 			data["Age"] = Math.floor(age / (1000 * 3600 * 24 * 365));
 		}
 
-		if (person.nickname) {
-			data["AKA"] = person.nickname;
+		if (nickname) {
+			data["AKA"] = nickname;
 		}
 
-		if (person._hometown) {
-			const town = person._hometown;
-			data["From"] = `${town.name}, ${town._country.name}`;
+		if (_hometown) {
+			data["From"] = `${_hometown.name}, ${_hometown._country.name}`;
 		}
 
-		if (person._represents) {
-			data["Represents"] = person._represents.name;
+		if (_represents) {
+			data["Represents"] = _represents.name;
 		}
 
 		if (playerDetails.contractEnds && playerDetails.contractEnds >= new Date().getFullYear()) {
@@ -151,7 +155,7 @@ class PersonPage extends Component {
 	}
 
 	getDescription() {
-		const { person } = this.props;
+		const { person } = this.state;
 		if (person.description) {
 			return <div className="description">{Parser(person.description)}</div>;
 		} else {
@@ -160,8 +164,10 @@ class PersonPage extends Component {
 	}
 
 	getPlayerStats() {
-		const { person, fetchPlayerStatYears, fetchPlayerStats } = this.props;
-		if (!person && !person.isPlayer) {
+		const { fetchPlayerStatYears, fetchPlayerStats } = this.props;
+		const { person, playerStatYear } = this.state;
+
+		if (!person || !person.isPlayer) {
 			return null;
 		} else if (!person.playerStats) {
 			fetchPlayerStatYears(person._id);
@@ -182,7 +188,7 @@ class PersonPage extends Component {
 		} else {
 			yearSelector = (
 				<select
-					value={this.state.playerStatYear}
+					value={playerStatYear}
 					onChange={ev =>
 						this.setState({ playerStatYear: ev.target.value, activeFilters: {} })
 					}
@@ -197,10 +203,10 @@ class PersonPage extends Component {
 		let filters;
 
 		//Get Stats
-		const allGames = person.playerStats[this.state.playerStatYear];
+		const allGames = person.playerStats[playerStatYear];
 		const content = [];
 		if (!allGames) {
-			fetchPlayerStats(person._id, this.state.playerStatYear);
+			fetchPlayerStats(person._id, playerStatYear);
 			content.push(<LoadingPage key="loading" />);
 		} else {
 			//Game Filters
@@ -342,8 +348,23 @@ class PersonPage extends Component {
 	}
 
 	render() {
-		const { person } = this.props;
-		if (person) {
+		const { match } = this.props;
+		const { person } = this.state;
+
+		if (person === undefined) {
+			return <LoadingPage />;
+		}
+
+		const role = match.url.split("/")[1]; //players or coaches
+		if (
+			!person ||
+			(role === "players" && !person.isPlayer) ||
+			(role === "coaches" && !person.isCoach)
+		) {
+			return (
+				<NotFoundPage message={`${role === "players" ? "Player" : "Coach"} not found`} />
+			);
+		} else {
 			return (
 				<div className={`person-page`}>
 					<HelmetBuilder
@@ -374,8 +395,6 @@ class PersonPage extends Component {
 					{this.getPlayerStats()}
 				</div>
 			);
-		} else {
-			return <LoadingPage />;
 		}
 	}
 }
@@ -400,7 +419,9 @@ async function loadData(store, path) {
 	if (person.isPlayer) {
 		await store.dispatch(fetchPlayerStatYears(person._id));
 		const years = _.keys(store.getState().people[slug].playerStats);
-		return store.dispatch(fetchPlayerStats(person._id, getInitialPlayerStatYear(years)));
+		if (years.length) {
+			return store.dispatch(fetchPlayerStats(person._id, getInitialPlayerStatYear(years)));
+		}
 	}
 
 	return null;
