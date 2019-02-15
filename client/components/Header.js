@@ -19,7 +19,7 @@ class Header extends Component {
 			return (
 				<a
 					href={`https://www.${social.toLowerCase()}.com/GiantsFanzine`}
-					target="_blank"
+					target="_system"
 					rel="noopener noreferrer"
 					key={social}
 				>
