@@ -19,14 +19,17 @@ class Header extends Component {
 		const urls = {};
 		switch (deviceType) {
 			case "android":
-				urls.Twitter = "twitter://user?screen_name=GiantsFanzine";
-				urls.Facebook = "fb://profile/699949263420705";
-				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
+				urls.Twitter =
+					"intent://twitter.com/GiantsFanzine#Intent;package=com.twitter.android;scheme=https;end";
+				urls.Facebook =
+					"intent://#Intent;package=com.facebook.katana;scheme=fb://page/699949263420705?referrer=app_link;end";
+				urls.Instagram =
+					"intent://instagram.com/_u/Giantsfanzine/#Intent;package=com.instagram.android;scheme=https;end";
 				break;
 			case "ios":
 				urls.Twitter = "twitter://user?screen_name=GiantsFanzine";
 				urls.Facebook = "fb://profile/699949263420705";
-				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
+				urls.Instagram = "instagram://user?username=Giantsfanzine";
 				break;
 			default:
 				urls.Twitter = "https://www.twitter.com/GiantsFanzine";
