@@ -19,7 +19,7 @@ class NewsPostCard extends Component {
 		const { post, inArticle } = this.props;
 		const category = _.keyBy(newsCategories, "slug")[post.category];
 		const categoryElement = inArticle ? (
-			<Link to={`/news/${category.slug}`}>{category.name}</Link>
+			<Link to={`/news/category/${category.slug}`}>{category.name}</Link>
 		) : (
 			category.name
 		);

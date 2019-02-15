@@ -7,6 +7,7 @@ import _ from "lodash";
 import { NavLink } from "react-router-dom";
 import HelmetBuilder from "../components/HelmetBuilder";
 import newsCategories from "../../constants/newsCategories";
+import NotFoundPage from "./NotFoundPage";
 
 class NewsListPage extends Component {
 	constructor(props) {
@@ -61,7 +62,11 @@ class NewsListPage extends Component {
 		const categories = _.concat([{ name: "All", slug: "all" }], newsCategories);
 		const subMenu = categories.map(category => {
 			return (
-				<NavLink key={category.slug} to={`/news/${category.slug}`} activeClassName="active">
+				<NavLink
+					key={category.slug}
+					to={`/news/category/${category.slug}`}
+					activeClassName="active"
+				>
 					{category.name}
 				</NavLink>
 			);
@@ -97,7 +102,7 @@ class NewsListPage extends Component {
 		} else {
 			let links = [];
 			for (let i = 1; i <= pages[category]; i++) {
-				let url = `/news/${category}`;
+				let url = `/news/category/${category}`;
 				if (i > 1) url += `/${i}`;
 				links.push(
 					<li key={i}>
@@ -114,21 +119,25 @@ class NewsListPage extends Component {
 	render() {
 		const { category } = this.state;
 		let pageTitle = "News";
-		if (category !== "all") {
-			pageTitle += " - " + _.keyBy(newsCategories, "slug")[category].name;
+		if (category !== "all" && !_.keyBy(newsCategories, "slug")[category]) {
+			return <NotFoundPage message="Category not found" />;
+		} else {
+			if (category !== "all") {
+				pageTitle += " - " + _.keyBy(newsCategories, "slug")[category].name;
+			}
+			return (
+				<div className="post-list-page">
+					<HelmetBuilder title={pageTitle} canonical={`news/${category}`} />
+					{this.generateHeader()}
+					<section className="posts">
+						<div className="container">
+							{this.generateList()}
+							<div className="post-pagination">{this.generatePagination()}</div>
+						</div>
+					</section>
+				</div>
+			);
 		}
-		return (
-			<div className="post-list-page">
-				<HelmetBuilder title={pageTitle} canonical={`news/${category}`} />
-				{this.generateHeader()}
-				<section className="posts">
-					<div className="container">
-						{this.generateList()}
-						<div className="post-pagination">{this.generatePagination()}</div>
-					</div>
-				</section>
-			</div>
-		);
 	}
 }
 
@@ -139,8 +148,8 @@ function mapStateToProps({ news }, ownProps) {
 
 async function loadData(store, path) {
 	const splitPath = path.split("/");
-	const category = splitPath.length > 2 ? path.split("/")[2] : "all";
-	const page = splitPath.length > 3 ? path.split("/")[3] : 1;
+	const category = splitPath.length > 3 ? path.split("/")[3] : "all";
+	const page = splitPath.length > 4 ? path.split("/")[4] : 1;
 	const promises = [
 		store.dispatch(fetchPostPagination(category)),
 		store.dispatch(fetchPostList(category, page))

@@ -61,8 +61,8 @@ class Header extends Component {
 			},
 			{
 				header: "News",
-				headerLink: "/news/all",
-				subMenuRootLink: "/news/",
+				headerLink: "/news/category/all",
+				subMenuRootLink: "/news/category/",
 				subMenu: { All: "all", ...newsSubmenu }
 			}
 		];

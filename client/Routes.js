@@ -73,14 +73,19 @@ const newsRoutes = [
 	},
 	{
 		...NewsListPage,
-		path: "/news/:category/:page"
+		path: "/news/category/:category/:page"
 	},
 	{
 		...NewsListPage,
-		path: "/news/:category"
+		path: "/news/category/:category"
 	},
 	{
-		component: () => <Redirect to="/news/all" />,
+		component: () => <Redirect to="/news/category/all" />,
+		path: "/news/category",
+		exact: true
+	},
+	{
+		component: () => <Redirect to="/news/category/all" />,
 		path: "/news",
 		exact: true
 	}
