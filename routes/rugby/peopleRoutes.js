@@ -3,6 +3,7 @@ const collectionName = "people";
 
 //Models
 const Person = mongoose.model(collectionName);
+const SlugRedirect = mongoose.model("slugRedirect");
 
 //Controllers
 const GenericController = require("../../controllers/genericController")(collectionName);
@@ -17,24 +18,23 @@ module.exports = app => {
 	app.get("/api/people/:id", GenericController.getItemById);
 	app.get("/api/people/slug/:slug", async (req, res) => {
 		const { slug } = req.params;
-		const id = await GenericController.getIdFromSlug(slug, collectionName);
-
-		//Return value
-		if (id) {
-			const person = await Person.findById(id)
-				.populate("_represents")
-				.populate({ path: "_hometown", populate: { path: "_country" } });
-
+		let person = await Person.findOne({ slug })
+			.populate("_represents")
+			.populate({ path: "_hometown", populate: { path: "_country" } });
+		if (person) {
 			if (person.isPlayer) {
 				person.playerDetails = getPositions(person.playerDetails);
 			}
-
-			res.status(200).send(person);
+			res.send(person);
 		} else {
-			res.status(404).send({
-				Response: "Person not found",
-				parameters: req.params
-			});
+			//Check for a redirect
+			const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
+			if (slugRedirect) {
+				person = await Person.findById(slugRedirect.itemId, { slug: 1 });
+				res.status(308).send(person);
+			} else {
+				res.status(404).send({});
+			}
 		}
 	});
 

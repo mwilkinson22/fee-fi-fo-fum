@@ -4,9 +4,21 @@ import PlayerStatsHelper from "../helperClasses/PlayerStatsHelper";
 export const fetchPersonBySlug = slug => async (dispatch, getState, api) => {
 	let payload;
 	const res = await api.get(`/people/slug/${slug}`).catch(e => {
-		payload = false;
+		switch (e.response.status) {
+			case 307:
+			case 308:
+				payload = { ...e.response.data, redirect: true };
+				break;
+			case 404:
+				payload = false;
+				break;
+		}
 	});
-	if (payload === undefined) payload = res.data;
+
+	//Handle retrieved player
+	if (payload === undefined) {
+		payload = res.data;
+	}
 
 	dispatch({ type: FETCH_PERSON, payload, slug });
 };

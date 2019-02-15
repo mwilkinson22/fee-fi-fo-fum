@@ -18,6 +18,7 @@ import PersonImage from "../components/people/PersonImage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import playerStatTypes from "../../constants/playerStatTypes";
 import NotFoundPage from "./NotFoundPage";
+import { Redirect } from "react-router-dom";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -350,13 +351,13 @@ class PersonPage extends Component {
 	render() {
 		const { match } = this.props;
 		const { person } = this.state;
-
+		const role = match.url.split("/")[1]; //players or coaches
+		// console.log(person);
 		if (person === undefined) {
 			return <LoadingPage />;
-		}
-
-		const role = match.url.split("/")[1]; //players or coaches
-		if (
+		} else if (person && person.redirect) {
+			return <Redirect to={`/${role}/${person.slug}`} />;
+		} else if (
 			!person ||
 			(role === "players" && !person.isPlayer) ||
 			(role === "coaches" && !person.isCoach)
@@ -416,6 +417,7 @@ async function loadData(store, path) {
 
 	await store.dispatch(fetchPersonBySlug(slug));
 	const person = store.getState().people[slug];
+
 	if (person.isPlayer) {
 		await store.dispatch(fetchPlayerStatYears(person._id));
 		const years = _.keys(store.getState().people[slug].playerStats);
