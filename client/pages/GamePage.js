@@ -9,6 +9,8 @@ import GameHeaderImage from "../components/games/GameHeaderImage";
 import TeamImage from "../components/teams/TeamImage";
 import { imagePath } from "../extPaths";
 import HelmetBuilder from "../components/HelmetBuilder";
+import { Redirect } from "react-router-dom";
+import NotFoundPage from "./NotFoundPage";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -155,8 +157,12 @@ class GamePage extends Component {
 
 	render() {
 		const { game } = this.props;
-		if (!game) {
+		if (game === undefined) {
 			return <LoadingPage />;
+		} else if (game.redirect) {
+			return <Redirect to={`/games/${game.slug}`} />;
+		} else if (!game) {
+			return <NotFoundPage message="Game not found" />;
 		} else {
 			return (
 				<div className="game-page">

@@ -7,7 +7,7 @@ export default function(state = { fullGames: {} }, action) {
 				...state,
 				fullGames: {
 					...state.fullGames,
-					[action.payload.slug]: action.payload
+					[action.slug]: action.payload
 				}
 			};
 		case FETCH_GAMES:

@@ -1,8 +1,25 @@
 import { FETCH_GAME, FETCH_GAMES, FETCH_GAME_LISTS, FETCH_HOMEPAGE_GAMES } from "./types";
 
 export const fetchGame = slug => async (dispatch, getState, api) => {
-	const res = await api.get("/games/slug/" + slug);
-	dispatch({ type: FETCH_GAME, payload: res.data });
+	let payload;
+	const res = await api.get("/games/slug/" + slug).catch(e => {
+		switch (e.response.status) {
+			case 307:
+			case 308:
+				payload = { ...e.response.data, redirect: true };
+				break;
+			case 404:
+				payload = false;
+				break;
+		}
+	});
+
+	//Handle retrieved player
+	if (payload === undefined) {
+		payload = res.data;
+	}
+
+	dispatch({ type: FETCH_GAME, payload, slug });
 };
 
 export const fetchGames = (year, teamType) => async (dispatch, getState, api) => {

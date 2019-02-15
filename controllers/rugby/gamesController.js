@@ -1,6 +1,8 @@
 const _ = require("lodash");
 const mongoose = require("mongoose");
-const Game = mongoose.model("games");
+const collectionName = "games";
+const Game = mongoose.model(collectionName);
+const SlugRedirect = mongoose.model("slugRedirect");
 const {
 	getBasicGameData,
 	getFullGame,
@@ -35,9 +37,20 @@ function getScores(game) {
 module.exports = {
 	async getItemBySlug(req, res) {
 		const { slug } = req.params;
-		const game = await Game.aggregate(_.concat([{ $match: { slug } }], getFullGame));
+		let game = await Game.aggregate(_.concat([{ $match: { slug } }], getFullGame));
 
-		res.send(getScores(game[0]));
+		if (game.length) {
+			res.send(getScores(game[0]));
+		} else {
+			//Check for a redirect
+			const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
+			if (slugRedirect) {
+				game = await Game.findById(slugRedirect.itemId, { slug: 1 });
+				res.status(308).send(game);
+			} else {
+				res.status(404).send({});
+			}
+		}
 	},
 	async getGames(req, res) {
 		const { year, teamType } = req.params;
