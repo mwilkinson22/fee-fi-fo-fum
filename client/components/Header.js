@@ -15,14 +15,14 @@ class Header extends Component {
 	}
 
 	getSocial() {
-		const { deviceType } = this.props;
-		const urls = {};
-		urls.Twitter = "https://twitter.com/GiantsFanzine";
-		urls.Instagram = "http://instagram.com/_u/GiantsFanzine";
-		urls.Facebook = "https://facebook.com/GiantsFanzine";
 		const icons = ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
-				<a href={urls[social]} target="_blank" rel="noopener nofollow" key={social}>
+				<a
+					href={`https://www.${social.toLowerCase()}.com/GiantsFanzine`}
+					target="_blank"
+					rel="noopener noreferrer"
+					key={social}
+				>
 					<img
 						src={`${layoutImagePath}icons/${social.toLowerCase()}.svg`}
 						alt={`${social} Logo`}
@@ -160,9 +160,8 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ auth, config }) {
-	const { deviceType } = config;
-	return { auth, deviceType };
+function mapStateToProps({ auth }) {
+	return { auth };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));
