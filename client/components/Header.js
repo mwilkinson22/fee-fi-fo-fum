@@ -18,28 +18,28 @@ class Header extends Component {
 		const { deviceType } = this.props;
 		const urls = {};
 		switch (deviceType) {
-			case "android":
-				urls.Twitter =
-					"intent://twitter.com/GiantsFanzine#Intent;package=com.twitter.android;scheme=https;end";
-				urls.Facebook =
-					"intent://#Intent;package=com.facebook.katana;scheme=fb://page/699949263420705?referrer=app_link;end";
-				urls.Instagram =
-					"intent://instagram.com/_u/Giantsfanzine/#Intent;package=com.instagram.android;scheme=https;end";
-				break;
-			case "ios":
-				urls.Twitter = "twitter://user?screen_name=GiantsFanzine";
-				urls.Facebook = "fb://profile/699949263420705";
-				urls.Instagram = "instagram://user?username=Giantsfanzine";
-				break;
+			// case "android":
+			// 	urls.Twitter =
+			// 		"intent://twitter.com/GiantsFanzine#Intent;package=com.twitter.android;scheme=https;end";
+			// 	urls.Facebook =
+			// 		"intent://#Intent;package=com.facebook.katana;scheme=fb://page/699949263420705?referrer=app_link;end";
+			// 	urls.Instagram =
+			// 		"intent://instagram.com/_u/Giantsfanzine/#Intent;package=com.instagram.android;scheme=https;end";
+			// 	break;
+			// case "ios":
+			// 	urls.Twitter = "twitter://user?screen_name=GiantsFanzine";
+			// 	urls.Facebook = "fb://profile/699949263420705";
+			// 	urls.Instagram = "instagram://user?username=Giantsfanzine";
+			// 	break;
 			default:
-				urls.Twitter = "https://www.twitter.com/GiantsFanzine";
+				urls.Twitter = "https://twitter.com/intent/user?screen_name=GiantsFanzine";
 				urls.Facebook = "https://www.facebook.com/GiantsFanzine";
 				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
 				break;
 		}
 		const icons = ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
-				<a href={urls[social]} target="_system" rel="noopener noreferrer" key={social}>
+				<a href={urls[social]} target="_system" key={social}>
 					<img
 						src={`${layoutImagePath}icons/${social.toLowerCase()}.svg`}
 						alt={`${social} Logo`}
