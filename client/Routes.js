@@ -9,6 +9,7 @@ import SquadListPage from "./pages/SquadListPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
 
 const gameRoutes = [
 	{
@@ -78,6 +79,11 @@ const newsRoutes = [
 	{
 		...NewsListPage,
 		path: "/news/category/:category"
+	},
+	{
+		//Handle old links from social media
+		...NewsPostLegacyRedirect,
+		path: "/news/:legacycategory/:id"
 	},
 	{
 		component: () => <Redirect to="/news/category/all" />,

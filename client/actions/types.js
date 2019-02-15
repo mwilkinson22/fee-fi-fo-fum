@@ -14,6 +14,7 @@ export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
 //News
 export const FETCH_NEWS_CATEGORIES = "fetch_news_categories";
 export const FETCH_NEWS_POST = "fetch_news_post";
+export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_SIDEBAR_POSTS = "fetch_sidebar_posts";
 export const FETCH_HOMEPAGE_POSTS = "fetch_homepage_posts";
 export const FETCH_POST_LIST = "fetch_post_list";

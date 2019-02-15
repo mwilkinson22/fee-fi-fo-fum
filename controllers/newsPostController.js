@@ -2,6 +2,7 @@ const _ = require("lodash");
 const collectionName = "newsPosts";
 const mongoose = require("mongoose");
 const NewsPost = mongoose.model(collectionName);
+const SlugRedirect = mongoose.model("slugRedirect");
 const postsPerPage = 9;
 const GenericController = require("./genericController")(collectionName);
 
@@ -48,6 +49,17 @@ module.exports = {
 	async getFrontpagePosts(req, res) {
 		const posts = await getRecentPosts(3, true);
 		res.send(posts);
+	},
+
+	async getLegacyPost(req, res) {
+		const { id } = req.params;
+		const redir = await SlugRedirect.findOne({ collectionName, oldSlug: id });
+		if (redir) {
+			const post = await NewsPost.findById(redir.itemId, "slug");
+			res.send(post);
+		} else {
+			res.status(404).send({});
+		}
 	},
 
 	async getPostBySlug(req, res) {
