@@ -15,14 +15,28 @@ class Header extends Component {
 	}
 
 	getSocial() {
+		const { deviceType } = this.props;
+		const urls = {};
+		switch (deviceType) {
+			case "android":
+				urls.Twitter = "twitter://user?screen_name=GiantsFanzine";
+				urls.Facebook = "fb://profile/699949263420705";
+				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
+				break;
+			case "ios":
+				urls.Twitter = "twitter://user?screen_name=GiantsFanzine";
+				urls.Facebook = "fb://profile/699949263420705";
+				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
+				break;
+			default:
+				urls.Twitter = "https://www.twitter.com/GiantsFanzine";
+				urls.Facebook = "https://www.facebook.com/GiantsFanzine";
+				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
+				break;
+		}
 		const icons = ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
-				<a
-					href={`https://www.${social.toLowerCase()}.com/GiantsFanzine`}
-					target="_system"
-					rel="noopener noreferrer"
-					key={social}
-				>
+				<a href={urls[social]} target="_system" rel="noopener noreferrer" key={social}>
 					<img
 						src={`${layoutImagePath}icons/${social.toLowerCase()}.svg`}
 						alt={`${social} Logo`}
@@ -160,8 +174,9 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ auth }) {
-	return { auth };
+function mapStateToProps({ auth, config }) {
+	const { deviceType } = config;
+	return { auth, deviceType };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));

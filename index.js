@@ -5,10 +5,13 @@ import Routes from "./client/Routes";
 import renderer from "./helpers/renderer";
 import createStore from "./helpers/createStore";
 
+import { getCoreConfig } from "./client/actions/configActions";
+
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";
 import passport from "passport";
 import bodyParser from "body-parser";
+import useragent from "express-useragent";
 import keys from "./config/keys";
 
 //Add Mongoose Models
@@ -30,6 +33,9 @@ const app = express();
 
 //Enable bodyParser
 app.use(bodyParser.json());
+
+//Set up useragent detection
+app.use(useragent.express());
 
 //Set up passport
 import "./services/passport";
@@ -53,8 +59,10 @@ require("./routes/rugby")(app);
 require("./routes/newsRoutes")(app);
 
 //Render
-app.get("*", (req, res) => {
+app.get("*", async (req, res) => {
 	const store = createStore(req);
+
+	await store.dispatch(getCoreConfig(req));
 
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
@@ -80,7 +88,6 @@ app.get("*", (req, res) => {
 		if (context.notFound) {
 			res.status(404);
 		}
-
 		res.send(content);
 	});
 });

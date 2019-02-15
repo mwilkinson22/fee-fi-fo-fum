@@ -12,7 +12,6 @@ export const FETCH_SQUAD = "fetch_squad";
 export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
 
 //News
-export const FETCH_NEWS_CATEGORIES = "fetch_news_categories";
 export const FETCH_NEWS_POST = "fetch_news_post";
 export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_SIDEBAR_POSTS = "fetch_sidebar_posts";
@@ -24,3 +23,6 @@ export const FETCH_POST_PAGINATION = "fetch_post_pagination";
 export const FETCH_PERSON = "fetch_person";
 export const FETCH_PLAYER_STAT_YEARS = "fetch_player_stat_years";
 export const FETCH_PLAYER_STATS = "fetch_player_stats";
+
+//Config
+export const GET_CORE_CONFIG = "get_core_config";
