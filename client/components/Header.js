@@ -32,7 +32,7 @@ class Header extends Component {
 			// 	urls.Instagram = "instagram://user?username=Giantsfanzine";
 			// 	break;
 			default:
-				urls.Twitter = "https://twitter.com/intent/user?screen_name=GiantsFanzine";
+				urls.Twitter = "https://twitter.com/GiantsFanzine";
 				urls.Facebook = "https://www.facebook.com/GiantsFanzine";
 				urls.Instagram = "https://www.instagram.com/GiantsFanzine";
 				break;
