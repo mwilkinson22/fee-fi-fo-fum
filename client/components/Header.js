@@ -17,26 +17,12 @@ class Header extends Component {
 	getSocial() {
 		const { deviceType } = this.props;
 		const urls = {};
-		let target;
 		urls.Twitter = "https://twitter.com/GiantsFanzine";
 		urls.Instagram = "http://instagram.com/_u/GiantsFanzine";
-		switch (deviceType) {
-			case "android":
-				urls.Facebook = "fb://facewebmodal/f?href=https://www.facebook.com/GiantsFanzine";
-				target = "_system";
-				break;
-			case "ios":
-				urls.Facebook = "fb://profile/699949263420705";
-				target = "_system";
-				break;
-			default:
-				urls.Facebook = "https://www.facebook.com/GiantsFanzine";
-				target = "_blank";
-				break;
-		}
+		urls.Facebook = "https://facebook.com/GiantsFanzine";
 		const icons = ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
-				<a href={urls[social]} target={target} key={social}>
+				<a href={urls[social]} target="_blank" rel="noopener nofollow" key={social}>
 					<img
 						src={`${layoutImagePath}icons/${social.toLowerCase()}.svg`}
 						alt={`${social} Logo`}
