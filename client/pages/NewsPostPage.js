@@ -7,6 +7,8 @@ import { connect } from "react-redux";
 import NewsPostPreview from "../components/news/NewsPostCard";
 import { FacebookProvider, Comments } from "react-facebook";
 import HelmetBuilder from "../components/HelmetBuilder";
+import NotFoundPage from "./NotFoundPage";
+import { Redirect } from "react-router-dom";
 
 class NewsPostPage extends Component {
 	constructor(props) {
@@ -141,8 +143,12 @@ class NewsPostPage extends Component {
 
 	render() {
 		const { post } = this.state;
-		if (!post) {
+		if (post === undefined) {
 			return <LoadingPage />;
+		} else if (!post) {
+			return <NotFoundPage message="Post not found" />;
+		} else if (post.redirect) {
+			return <Redirect to={`/news/post/${post.slug}`} />;
 		} else {
 			return (
 				<div className={`news-post ${post.category}`}>

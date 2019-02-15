@@ -8,8 +8,25 @@ import {
 } from "./types";
 
 export const fetchNewsPostBySlug = slug => async (dispatch, getState, api) => {
-	const res = await api.get(`/news/slug/${slug}`);
-	dispatch({ type: FETCH_NEWS_POST, payload: res.data });
+	let payload;
+	const res = await api.get(`/news/slug/${slug}`).catch(e => {
+		switch (e.response.status) {
+			case 307:
+			case 308:
+				payload = { ...e.response.data, redirect: true };
+				break;
+			case 404:
+				payload = false;
+				break;
+		}
+	});
+
+	//Handle retrieved player
+	if (payload === undefined) {
+		payload = res.data;
+	}
+
+	dispatch({ type: FETCH_NEWS_POST, payload, slug });
 };
 
 export const fetchSidebarPosts = () => async (dispatch, getState, api) => {

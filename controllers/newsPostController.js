@@ -63,10 +63,10 @@ module.exports = {
 	},
 
 	async getPostBySlug(req, res) {
-		const postId = await GenericController.getIdFromSlug(req.params.slug, collectionName);
-		const newsPost = await NewsPost.findOne(
+		const { slug } = req.params;
+		let newsPost = await NewsPost.findOne(
 			{
-				_id: postId
+				slug
 			},
 			{
 				_people: 1,
@@ -86,9 +86,15 @@ module.exports = {
 			path: "_author",
 			select: "name frontendName twitter image"
 		});
+
 		if (newsPost && (newsPost.isPublished || (req.user && req.user.isAdmin))) {
 			res.send(newsPost);
 		} else {
+			const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
+			if (slugRedirect) {
+				newsPost = await NewsPost.findById(slugRedirect.itemId, { slug: 1 });
+				res.status(308).send(newsPost);
+			}
 			res.status(404).send("Post not found");
 		}
 	}

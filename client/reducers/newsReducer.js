@@ -35,7 +35,7 @@ export default function(state = { posts: {}, postList: {}, pages: {}, redirects:
 				...state,
 				posts: {
 					...state.posts,
-					[action.payload.slug]: action.payload
+					[action.slug]: action.payload
 				}
 			};
 
