@@ -43,7 +43,7 @@ module.exports = {
 		res.send({ category, page, posts });
 	},
 	async getSidebarPosts(req, res) {
-		const posts = await getRecentPosts(8, true);
+		const posts = await getRecentPosts(5, true);
 		res.send(posts);
 	},
 	async getFrontpagePosts(req, res) {
