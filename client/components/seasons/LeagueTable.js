@@ -9,7 +9,8 @@ class LeagueTable extends Component {
 	constructor(props) {
 		super(props);
 		const { competition, year, fetchLeagueTable, leagueTables, fromDate, toDate } = props;
-		const leagueTable = _.find(leagueTables, { competition, year, fromDate, toDate });
+		const key = [competition, year, fromDate, toDate].join("-");
+		const leagueTable = leagueTables[key];
 		if (!leagueTable) {
 			fetchLeagueTable(competition, year, fromDate, toDate);
 		}
@@ -18,7 +19,8 @@ class LeagueTable extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { competition, year, fetchLeagueTable, leagueTables, fromDate, toDate } = nextProps;
-		const leagueTable = _.find(leagueTables, { competition, year, fromDate, toDate });
+		const key = [competition, year, fromDate, toDate].join("-");
+		const leagueTable = leagueTables[key];
 		if (!leagueTable) {
 			fetchLeagueTable(competition, year, fromDate, toDate);
 		}
