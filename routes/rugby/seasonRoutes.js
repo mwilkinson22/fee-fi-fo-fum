@@ -76,7 +76,7 @@ module.exports = app => {
 		} else {
 			//Get Table Meta
 			const instance = _.keyBy(competition.instances, "year")[year];
-			const tableMeta = _.pick(instance, ["leagueTableColours", "sponsor", "image"]);
+			const tableMeta = _.pick(instance, ["sponsor", "image"]);
 
 			//Get Teams and implement tallies
 			const tallies = ["W", "D", "L", "F", "A"];
