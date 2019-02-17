@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchLeagueTable } from "../../actions/seasonActions";
 import LoadingPage from "../../components/LoadingPage";
+import { teamImagePath } from "../../extPaths";
 
 class LeagueTable extends Component {
 	constructor(props) {
@@ -40,35 +41,36 @@ class LeagueTable extends Component {
 				Pts: "Points"
 			};
 
-			const orderedTable = _.chain(leagueTable.teams)
-				.map(team => team) //Convert to array
-				.orderBy(["Pts", "Diff", "F", "Pld"], ["desc", "desc", "desc", "asc"])
-				.value();
-
 			return (
-				<table className="league-table">
+				<table className="league-table card">
 					<thead>
 						<tr>
-							<th colSpan="3" />
+							<th className="position" />
+							<th className="team-badge" />
+							<th className="team-name" />
 							{_.map(columns, (title, header) => (
-								<th title={title} key={header}>
+								<th title={title} key={header} className={header}>
 									{header}
 								</th>
 							))}
 						</tr>
 					</thead>
 					<tbody>
-						{_.map(orderedTable, (team, pos) => {
+						{_.map(leagueTable.teams, team => {
+							const { name, position, classNames, image } = team;
 							return (
-								<tr key={team.name}>
-									<th>{pos + 1}</th>
-									<th />
-									<th>{team.name}</th>
+								<tr key={position} className={classNames.join(" ")}>
+									<th className="position">{position}</th>
+									<th className="team-badge">
+										<img src={`${teamImagePath}${image}`} />
+									</th>
+									<th className="team-name">{name}</th>
 									{_.map(columns, (title, key) => {
 										return (
 											<td
-												key={team.name + key}
-												title={`${team.name} ${title}`}
+												key={name + key}
+												title={`${name} ${title}`}
+												className={key}
 											>
 												{team[key]}
 											</td>

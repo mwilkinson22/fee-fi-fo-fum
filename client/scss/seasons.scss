@@ -1,0 +1,58 @@
+.league-table {
+	@include noTextSelect;
+	width: 100%;
+	max-width: 100%;
+	th,
+	td {
+		padding: 8pt;
+		text-align: center;
+		vertical-align: middle;
+	}
+	thead {
+		tr {
+			background: #29426e;
+			color: white;
+		}
+	}
+	tbody {
+		tr {
+			background: white;
+			&.champions {
+				background: #518c56;
+				color: white;
+			}
+			&.top {
+				background: #77b66b;
+				color: white;
+			}
+			&.bottom {
+				background: #b63c3d;
+				color: white;
+			}
+			th {
+				font-weight: 600;
+				&.team-badge {
+					text-align: center;
+					img {
+						max-height: 20pt;
+					}
+				}
+				&.team-name {
+					text-align: left;
+					width: 100%;
+				}
+			}
+			td {
+				text-align: center;
+			}
+		}
+	}
+	@media #{$mobile-only} {
+		.team-name,
+		.Pld,
+		.F,
+		.A {
+			display: none;
+		}
+	}
+}

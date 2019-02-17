@@ -10,7 +10,7 @@
 			.game-box-wrapper {
 				margin-bottom: 14pt;
 			}
-			@media #{$desktop-and-tablet} {
+			@media #{$desktop-only} {
 				grid-template-columns: 1fr 1fr;
 			}
 		}
