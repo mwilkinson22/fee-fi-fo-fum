@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import Image from "react-image-webp";
+import { connect } from "react-redux";
 import { gameImagePath, groundImagePath } from "../../extPaths";
 import "datejs";
 
-export default class GameHeaderImage extends Component {
+class GameHeaderImage extends Component {
 	render() {
-		const { game, className } = this.props;
+		const { game, className, useWebp } = this.props;
 		let image;
 		let alt;
 
@@ -24,6 +24,15 @@ export default class GameHeaderImage extends Component {
 
 		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
 
-		return <Image src={image} webp={webp} className={className} alt={alt} />;
+		return <img src={useWebp ? webp : image} className={className} alt={alt} />;
 	}
 }
+
+function mapStateToProps({ config }, ownProps) {
+	return {
+		useWebp: config.webp,
+		...ownProps
+	};
+}
+
+export default connect(mapStateToProps)(GameHeaderImage);

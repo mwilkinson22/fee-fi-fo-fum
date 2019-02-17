@@ -1,37 +1,35 @@
 import React, { Component } from "react";
-import Image from "react-image-webp";
+import { connect } from "react-redux";
 import { teamImagePath } from "../../extPaths";
 
-export default class TeamImage extends Component {
+class TeamImage extends Component {
 	render() {
-		const { team } = this.props;
+		const { team, useWebp, className } = this.props;
 		const { name, image } = team;
-		const { className } = this.props;
-		const useWebp =
+		const isRaster =
 			["png", "jpg", "jpeg"].indexOf(
 				image
 					.split(".")
 					.pop()
 					.toLowerCase()
 			) > -1;
-		if (useWebp) {
-			const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
-			return (
-				<Image
-					src={teamImagePath + image}
-					webp={teamImagePath + webp}
-					className={`team-image ${className || ""}`}
-					alt={name.long}
-				/>
-			);
-		} else {
-			return (
-				<img
-					src={teamImagePath + image}
-					className={`team-image ${className || ""}`}
-					alt={name.long}
-				/>
-			);
-		}
+		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
+		return (
+			<img
+				src={`${teamImagePath}${useWebp && isRaster ? webp : image}`}
+				webp={teamImagePath + webp}
+				className={`team-image ${className || ""}`}
+				alt={name.long}
+			/>
+		);
 	}
 }
+
+function mapStateToProps({ config }, ownProps) {
+	return {
+		useWebp: config.webp,
+		...ownProps
+	};
+}
+
+export default connect(mapStateToProps)(TeamImage);

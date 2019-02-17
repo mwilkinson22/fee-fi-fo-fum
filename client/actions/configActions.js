@@ -1,12 +1,14 @@
 import { GET_CORE_CONFIG } from "./types";
 
-export const getCoreConfig = req => async dispatch => {
+export const getCoreConfig = ({ headers, useragent }) => async dispatch => {
 	const config = {};
 
+	config.webp = headers.accept.indexOf("image/webp") > -1;
+
 	//Check for device
-	if (req.useragent.isiPad || req.useragent.isiPhone) {
+	if (useragent.isiPad || useragent.isiPhone) {
 		config.deviceType = "ios";
-	} else if (req.useragent.isAndroid) {
+	} else if (useragent.isAndroid) {
 		config.deviceType = "android";
 	} else {
 		config.deviceType = "desktop";
