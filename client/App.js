@@ -3,12 +3,11 @@ import { connect } from "react-redux";
 import { renderRoutes } from "react-router-config";
 
 //Actions
-import * as actions from "./actions";
+import { fetchUser } from "./actions/userActions";
 
 //Components
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
-import LoginPage from "./components/admin/Login";
 
 class App extends Component {
 	constructor(props) {
@@ -46,6 +45,6 @@ function mapStateToProps({ auth }) {
 export default {
 	component: connect(
 		mapStateToProps,
-		actions
+		{ fetchUser }
 	)(App)
 };

@@ -6,6 +6,7 @@ import renderer from "./helpers/renderer";
 import createStore from "./helpers/createStore";
 
 import { getCoreConfig } from "./client/actions/configActions";
+import { fetchUser } from "./client/actions/userActions";
 
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";
@@ -61,8 +62,8 @@ require("./routes/newsRoutes")(app);
 //Render
 app.get("*", async (req, res) => {
 	const store = createStore(req);
-
 	await store.dispatch(getCoreConfig(req));
+	await store.dispatch(fetchUser());
 
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {

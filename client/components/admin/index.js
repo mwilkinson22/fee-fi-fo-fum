@@ -1,19 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import LoginPage from "./Login";
-import { Route } from "react-router-dom";
+import Login from "./Login";
+import { Switch, Route } from "react-router-dom";
+import Logout from "./Logout";
 
 class AdminRouter extends Component {
 	render() {
 		if (this.props.auth) {
 			return (
-				<div>
-					<h1>Admin</h1>
-					<Route path="/admin/logout" />
-				</div>
+				<Switch>
+					<Route path="/admin/logout" component={Logout} />
+				</Switch>
 			);
 		} else {
-			return <LoginPage />;
+			return <Login />;
 		}
 	}
 }

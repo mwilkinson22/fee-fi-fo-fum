@@ -3,7 +3,7 @@ import { GET_CORE_CONFIG } from "./types";
 export const getCoreConfig = ({ headers, useragent }) => async dispatch => {
 	const config = {};
 
-	config.webp = headers.accept.indexOf("image/webp") > -1;
+	config.webp = headers.accept && headers.accept.indexOf("image/webp") > -1;
 
 	//Check for device
 	if (useragent.isiPad || useragent.isiPhone) {

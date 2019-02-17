@@ -2,6 +2,31 @@
 	background: #fff;
 	display: block;
 	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+
+	input {
+		padding: 2pt 4pt;
+		font-size: 12pt;
+		outline: none;
+		border: none;
+		border-bottom: solid thin #222;
+	}
+
+	.error {
+		color: #900;
+	}
+
+	button {
+		background: #eee;
+		font-size: 12pt;
+		padding: 2pt 4pt;
+		outline: none;
+		cursor: pointer;
+		border-radius: 2pt;
+
+		&:hover {
+			background: #ddd;
+		}
+	}
 }
 
 .login-card {
@@ -16,5 +41,15 @@
 	form {
 		display: flex;
 		flex-direction: column;
+		label,
+		input,
+		.error {
+			display: block;
+			width: 100%;
+		}
+
+		.field-group {
+			margin-bottom: 8pt;
+		}
 	}
 }

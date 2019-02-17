@@ -33,12 +33,12 @@ module.exports = app => {
 	});
 
 	//Login
-	app.post("/auth/login", passport.authenticate("local"), (req, res) => {
+	app.post("/api/login", passport.authenticate("local"), (req, res) => {
 		res.send(req.user);
 	});
 
 	//Logout
-	app.get("/auth/logout", (req, res) => {
+	app.get("/api/logout", async (req, res) => {
 		req.logout();
 		res.send({});
 	});

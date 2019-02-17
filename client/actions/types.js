@@ -1,5 +1,6 @@
 //Auth
 export const FETCH_USER = "fetch_user";
+export const LOGOUT = "logout";
 
 //Games
 export const FETCH_GAME = "fetch_game";

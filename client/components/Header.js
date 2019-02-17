@@ -77,7 +77,7 @@ class Header extends Component {
 				},
 				{
 					header: "Logout",
-					headerLink: "/auth/logout"
+					headerLink: "/admin/logout"
 				}
 			);
 		}
