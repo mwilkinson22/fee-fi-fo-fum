@@ -35,11 +35,6 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
-		const newsSubmenu = _.chain(newsCategories)
-			.keyBy("name")
-			.mapValues("slug")
-			.value();
-
 		const navMenu = [
 			{
 				header: "Home",
@@ -63,7 +58,10 @@ class Header extends Component {
 				header: "News",
 				headerLink: "/news/category/all",
 				subMenuRootLink: "/news/category/",
-				subMenu: { All: "all", ...newsSubmenu }
+				subMenu: _.chain(newsCategories)
+					.keyBy("name")
+					.mapValues("slug")
+					.value()
 			}
 		];
 		if (this.props.auth) {
