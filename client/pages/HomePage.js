@@ -5,6 +5,9 @@ import NewsPostCard from "../components/news/NewsPostCard";
 import GameCard from "../components/games/GameCard";
 import { fetchHomepagePosts } from "../actions/newsActions";
 import { fetchHomepageGames } from "../actions/gamesActions";
+import LeagueTable from "../components/seasons/LeagueTable";
+
+//TODO automatically add correct year + competition
 
 class HomePage extends Component {
 	constructor(props) {
@@ -75,8 +78,18 @@ class HomePage extends Component {
 			<div className="homepage">
 				<section className="latest-news">{this.generateNewsPosts()}</section>
 				<section className="games-and-table">
-					<div className="container">{this.generateGames()}</div>
+					<div className="container">
+						{this.generateGames()}
+						<div>
+							<h2>League Table</h2>
+							<LeagueTable
+								competition="5c05342af22062c1fc3fe3c5"
+								year={new Date().getFullYear()}
+							/>
+						</div>
+					</div>
 				</section>
+				<section className="latest-league-table" />
 			</div>
 		);
 	}
