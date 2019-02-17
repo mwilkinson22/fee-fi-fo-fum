@@ -12,19 +12,23 @@ const NeutralGame = mongoose.model("neutralGames");
 
 //Helper functions
 import { getScores } from "../../controllers/rugby/gamesController";
-async function updateLeagueTable(_competition, date, teams) {
+async function updateLeagueTable(_competition, date, teams, adjustments = []) {
 	//Get main games
 	let games = await Game.find({ _competition, date }, "_opposition isAway playerStats date");
-	games = games.map(game => {
+	games = _.map(games, game => {
 		const { _opposition, scores, isAway } = getScores(game);
 		const _homeTeam = isAway ? _opposition : localTeam;
 		const _awayTeam = isAway ? localTeam : _opposition;
-		return {
-			_homeTeam,
-			_awayTeam,
-			homePoints: scores[_homeTeam],
-			awayPoints: scores[_awayTeam]
-		};
+		if (scores) {
+			return {
+				_homeTeam,
+				_awayTeam,
+				homePoints: scores[_homeTeam],
+				awayPoints: scores[_awayTeam]
+			};
+		} else {
+			return null;
+		}
 	});
 
 	//Add Neutral Games
@@ -36,8 +40,10 @@ async function updateLeagueTable(_competition, date, teams) {
 		"_homeTeam _awayTeam homePoints awayPoints"
 	);
 
+	const allGames = _.pickBy(games.concat(neutralGames), _.identity);
+
 	//Process Results
-	for (const game of games.concat(neutralGames)) {
+	_.each(allGames, game => {
 		const { _homeTeam, _awayTeam, homePoints, awayPoints } = game;
 		const result = {};
 		if (homePoints > awayPoints) {
@@ -54,17 +60,48 @@ async function updateLeagueTable(_competition, date, teams) {
 			team.F += homePoints;
 			team.A += awayPoints;
 			team[result.home]++;
+			switch (result.home) {
+				case "W":
+					team.Pts += 2;
+					break;
+				case "D":
+					team.Pts += 1;
+					break;
+			}
 		}
 		if (teams[_awayTeam]) {
 			const team = teams[_awayTeam];
 			team.F += awayPoints;
 			team.A += homePoints;
 			team[result.away]++;
+			switch (result.home) {
+				case "W":
+					team.Pts += 2;
+					break;
+				case "D":
+					team.Pts += 1;
+					break;
+			}
 		}
-	}
+	});
+
+	//Process Adjustments
+	_.map(adjustments, a => {
+		const { _team, adjustment } = a;
+		if (teams[_team]) {
+			teams[_team].Pts += adjustment;
+		}
+	});
 }
 
 module.exports = app => {
+	app.get("/api/addAdjustments", async (req, res) => {
+		const competitionSegments = await CompetitionSegment.find();
+		_.each(competitionSegments, async c => {
+			await c.save();
+		});
+		res.send({});
+	});
 	app.get("/api/leagueTable/:competition_id/:year", async (req, res) => {
 		let { competition_id, year } = req.params;
 		let competition = await CompetitionSegment.findOne({
@@ -79,7 +116,7 @@ module.exports = app => {
 			const tableMeta = _.pick(instance, ["sponsor", "image"]);
 
 			//Get Teams and implement tallies
-			const tallies = ["W", "D", "L", "F", "A"];
+			const tallies = ["W", "D", "L", "F", "A", "Pts"];
 			let teams = await Team.find({ _id: { $in: instance.teams } }, "name image");
 			teams = _.chain(teams)
 				.keyBy("_id")
@@ -109,7 +146,7 @@ module.exports = app => {
 
 			//Loop through relevant competitions to get data
 			while (competition_id) {
-				await updateLeagueTable(competition_id, dateObj, teams);
+				await updateLeagueTable(competition_id, dateObj, teams, instance.adjustments);
 				competition_id = competition._pointsCarriedFrom;
 				if (competition_id) {
 					competition = await CompetitionSegment.findOne({
@@ -122,7 +159,6 @@ module.exports = app => {
 			//Set Points and Points Difference
 			_.each(teams, team => {
 				team.Diff = team.F - team.A;
-				team.Pts = team.W * 2 + team.D;
 				team.Pld = team.W + team.D + team.L;
 			});
 
@@ -132,7 +168,10 @@ module.exports = app => {
 				//Convert to array
 				.map(team => team)
 				//Order
-				.orderBy(["Pts", "Diff", "F", "Pld"], ["desc", "desc", "desc", "asc"])
+				.orderBy(
+					["Pts", "Diff", "F", "Pld", "name"],
+					["desc", "desc", "desc", "asc", "asc"]
+				)
 				//Add position and classnames
 				.map(team => {
 					position++;
