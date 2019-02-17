@@ -12,6 +12,5 @@ export const getCoreConfig = req => async dispatch => {
 		config.deviceType = "desktop";
 	}
 
-	console.log(config);
 	dispatch({ type: GET_CORE_CONFIG, payload: config });
 };
