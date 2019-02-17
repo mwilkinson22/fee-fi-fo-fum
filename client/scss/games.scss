@@ -82,6 +82,43 @@
 			}
 		}
 	}
+
+	&.admin-game-card {
+		padding: 0;
+		.game-card-content {
+			border: none;
+		}
+
+		.game-details-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			.game-details {
+				padding-right: 10pt;
+				flex-grow: 100000000;
+			}
+			.game-status {
+				flex-grow: 1;
+			}
+			@media #{$mobile-only} {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+		}
+		.game-status {
+			background: black;
+			display: flex;
+			padding: 4pt;
+			border-radius: 4pt;
+			div {
+				width: 10pt;
+				height: 10pt;
+				border-radius: 100%;
+				margin: 0 4pt;
+			}
+		}
+	}
 }
 
 .game-countdown {

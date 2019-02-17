@@ -23,6 +23,13 @@ body {
 	padding-top: 10pt;
 	h1 {
 		margin: 0;
+		select {
+			&.with-border {
+				padding: 4pt 14pt;
+				border-radius: 4pt;
+				border: solid thin rgba($claret, 0.2);
+			}
+		}
 	}
 	.sub-menu {
 		text-align: center;

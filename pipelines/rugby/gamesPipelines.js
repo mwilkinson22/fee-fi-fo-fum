@@ -19,7 +19,8 @@ projections.basic = {
 	"_ground.image": 1,
 	playerStats: 1,
 	images: 1,
-	tv: 1
+	tv: 1,
+	pregameSquads: 1
 };
 
 const getCompetitionInfo = [

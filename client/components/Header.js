@@ -71,8 +71,8 @@ class Header extends Component {
 					headerLink: "/admin",
 					subMenuRootLink: "/admin/",
 					subMenu: {
-						Teams: "teams",
-						Games: "games"
+						Games: "games",
+						Teams: "teams"
 					}
 				},
 				{
