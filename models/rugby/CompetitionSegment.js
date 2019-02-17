@@ -20,6 +20,12 @@ const competitionSegmentSchema = new Schema(
 			type: Schema.Types.ObjectId,
 			ref: "competitionSegments"
 		},
+		adjustments: [
+			{
+				_team: { type: Schema.Types.ObjectId, ref: "teams" },
+				adjustment: Number
+			}
+		],
 		instances: [
 			{
 				year: Number,
