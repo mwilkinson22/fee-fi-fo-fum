@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import Image from "react-image-webp";
+import { connect } from "react-redux";
 import { gameImagePath, competitionImagePath } from "../../extPaths";
 
-export default class GameLogo extends Component {
+class GameLogo extends Component {
 	render() {
-		const { game } = this.props;
+		const { game, useWebp } = this.props;
 		const className = this.props.className || "";
 		let image;
 		let alt;
@@ -18,21 +18,34 @@ export default class GameLogo extends Component {
 		}
 
 		if (image) {
-			const useWebp =
+			const isRaster =
 				["png", "jpg", "jpeg"].indexOf(
 					image
 						.split(".")
 						.pop()
 						.toLowerCase()
 				) > -1;
-			if (useWebp) {
-				const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
-				return <Image src={image} webp={webp} className={className} alt={alt} />;
-			} else {
-				return <img src={image} className={className} alt={alt} />;
-			}
+
+			const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
+			return (
+				<img
+					src={useWebp && isRaster ? webp : image}
+					webp={webp}
+					className={className}
+					alt={alt}
+				/>
+			);
 		} else {
 			return null;
 		}
 	}
 }
+
+function mapStateToProps({ config }, ownProps) {
+	return {
+		useWebp: config.webp,
+		...ownProps
+	};
+}
+
+export default connect(mapStateToProps)(GameLogo);
