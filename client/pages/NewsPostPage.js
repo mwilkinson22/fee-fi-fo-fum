@@ -9,6 +9,18 @@ import { FacebookProvider, Comments } from "react-facebook";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
 import { Redirect } from "react-router-dom";
+import {
+	FacebookShareButton,
+	FacebookIcon,
+	TwitterShareButton,
+	TwitterIcon,
+	WhatsappShareButton,
+	WhatsappIcon,
+	RedditShareButton,
+	RedditIcon,
+	EmailShareButton,
+	EmailIcon
+} from "react-share";
 
 class NewsPostPage extends Component {
 	constructor(props) {
@@ -50,6 +62,11 @@ class NewsPostPage extends Component {
 		}
 
 		return newState;
+	}
+
+	getUrl() {
+		const { post } = this.state;
+		return `https://www.giantsfanzine.co.uk/news/post/${post.slug}`;
 	}
 
 	formatSidebar() {
@@ -105,6 +122,10 @@ class NewsPostPage extends Component {
 			authorDetails = <div className="author-details">{authorName}</div>;
 		}
 
+		const shareIconProps = {
+			size: 34
+		};
+
 		return (
 			<div className="container">
 				<div className="post-wrapper">
@@ -112,12 +133,38 @@ class NewsPostPage extends Component {
 						<NewsPostPreview post={post} inArticle={true} />
 					</div>
 					<div className="post-body">
-						<div className="post-author">
-							<div
-								className="author-image"
-								style={{ backgroundImage: `url('${author.image}')` }}
-							/>
-							{authorDetails}
+						<div className="post-body-header">
+							<div className="post-author">
+								<div
+									className="author-image"
+									style={{ backgroundImage: `url('${author.image}')` }}
+								/>
+								{authorDetails}
+							</div>
+							<div className="post-share">
+								<FacebookShareButton url={this.getUrl()}>
+									<FacebookIcon {...shareIconProps} />
+								</FacebookShareButton>
+								<TwitterShareButton
+									url={this.getUrl()}
+									title={post.title}
+									via="GiantsFanzine"
+								>
+									<TwitterIcon {...shareIconProps} />
+								</TwitterShareButton>
+								<RedditShareButton url={this.getUrl()} title={post.title}>
+									<RedditIcon {...shareIconProps} />
+								</RedditShareButton>
+								<WhatsappShareButton url={this.getUrl()} title={post.title}>
+									<WhatsappIcon {...shareIconProps} />
+								</WhatsappShareButton>
+								<EmailShareButton
+									url={this.getUrl()}
+									subject={`Fee Fi Fo Fum - ${post.title}`}
+								>
+									<EmailIcon {...shareIconProps} />
+								</EmailShareButton>
+							</div>
 						</div>
 						<div className="post-content">{Parser(post.content)}</div>
 					</div>
@@ -128,13 +175,7 @@ class NewsPostPage extends Component {
 						{this.formatSidebar()}
 					</ul>
 					<div className="post-comments">
-						<FacebookProvider appId="1610338439232779">
-							<Comments
-								href={`https://www.giantsfanzine.co.uk/news/post/${post.slug}`}
-								width="100%"
-								mobile={true}
-							/>
-						</FacebookProvider>
+						<Comments href={this.getUrl()} width="100%" mobile={true} />
 					</div>
 				</div>
 			</div>
@@ -151,25 +192,30 @@ class NewsPostPage extends Component {
 			return <Redirect to={`/news/post/${post.slug}`} />;
 		} else {
 			return (
-				<div className={`news-post ${post.category}`}>
-					<HelmetBuilder
-						title={post.title}
-						canonical={`news/post/${post.slug}`}
-						cardImage={post.image}
-						description={post.content.replace(/<[^>]*>/g, "").substring(0, 500) + "..."}
-					/>
-					{this.formatPost()}
-				</div>
+				<FacebookProvider appId="1610338439232779">
+					<div className={`news-post ${post.category}`}>
+						<HelmetBuilder
+							title={post.title}
+							canonical={`news/post/${post.slug}`}
+							cardImage={post.image}
+							description={
+								post.content.replace(/<[^>]*>/g, "").substring(0, 500) + "..."
+							}
+						/>
+						{this.formatPost()}
+					</div>
+				</FacebookProvider>
 			);
 		}
 	}
 }
 
-function mapStateToProps({ news }, ownProps) {
+function mapStateToProps({ news, config }, ownProps) {
 	const { slug } = ownProps.match.params;
 	const { posts, recentPosts } = news;
+	const { deviceType } = config;
 
-	return { post: posts[slug], recentPosts };
+	return { post: posts[slug], recentPosts, deviceType };
 }
 
 function loadData(store, path) {

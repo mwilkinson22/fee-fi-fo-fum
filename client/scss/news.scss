@@ -62,31 +62,50 @@
 		}
 
 		.post-body {
-			.post-author {
-				border-bottom: solid 1pt $claret;
+			overflow: auto;
+			.post-body-header {
 				display: flex;
-				align-items: center;
-				padding-bottom: 8pt;
-				margin-bottom: 8pt;
-				.author-image {
-					@include pseudoImage;
-					height: 40pt;
-					width: 40pt;
-					margin-right: 8pt;
-					border-radius: 100%;
+				justify-content: space-between;
+				flex-wrap: wrap;
+				.post-author,
+				.post-share {
+					border-bottom: solid 1pt $claret;
+					margin-bottom: 8pt;
+					padding-bottom: 8pt;
 				}
-				h4 {
-					font-size: 14pt;
-					margin-bottom: 0;
-					span {
-						color: darken($gold, 8%);
+				.post-author {
+					display: flex;
+					align-items: center;
+					flex-grow: 100000000; //Only allows .post-share to grow when on its own row
+					padding-right: 4pt;
+					.author-image {
+						@include pseudoImage;
+						height: 40pt;
+						width: 40pt;
+						margin-right: 8pt;
+						border-radius: 100%;
+					}
+					h4 {
+						font-size: 14pt;
+						margin-bottom: 0;
+						span {
+							color: darken($gold, 8%);
+						}
+					}
+					a {
+						color: $twitterBlue;
+						font-weight: bold;
+						&:hover {
+							color: darken($twitterBlue, 10%);
+						}
 					}
 				}
-				a {
-					color: $twitterBlue;
-					font-weight: bold;
-					&:hover {
-						color: darken($twitterBlue, 10%);
+				.post-share {
+					display: flex;
+					flex-grow: 1;
+					align-items: center;
+					svg {
+						cursor: pointer;
 					}
 				}
 			}
@@ -116,7 +135,25 @@
 			}
 		}
 	}
-
+	//
+	//@media #{$mobile-only} {
+	//	.post-body-header {
+	//		flex-direction: column;
+	//		.post-share {
+	//			border-top: solid 1pt $claret;
+	//			border-bottom: solid 1pt $claret;
+	//			padding: 8pt 0;
+	//			margin: 8pt 0;
+	//		}
+	//	}
+	//}
+	//@media #{$desktop-and-tablet} {
+	//	.post-body-header {
+	//		border-bottom: solid 1pt $claret;
+	//		padding-bottom: 8pt;
+	//		margin-bottom: 8pt;
+	//	}
+	//}
 	@media #{$desktop-only} {
 		.post-wrapper {
 			display: grid;
