@@ -8,6 +8,10 @@ export const fetchLeagueTable = (competition, year, fromDate, toDate) => async (
 	const res = await api.get(`/leagueTable/${competition}/${year}`);
 	dispatch({
 		type: FETCH_LEAGUE_TABLE,
-		payload: { competition, year, fromDate, toDate, ...res.data }
+		payload: res.data,
+		competition,
+		year,
+		fromDate,
+		toDate
 	});
 };
