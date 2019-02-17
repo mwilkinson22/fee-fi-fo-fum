@@ -84,11 +84,11 @@ module.exports = app => {
 			teams = _.chain(teams)
 				.keyBy("_id")
 				.mapValues(team => {
-					const { name, image } = team;
+					const { name, image, _id } = team;
 					const data = tallies.reduce(function(o, v) {
 						return (o[v] = 0), o;
 					}, {});
-					return { name: name.short, image, ...data };
+					return { _id, name: name.short, image, ...data };
 				})
 				.value();
 
@@ -125,6 +125,26 @@ module.exports = app => {
 				team.Pts = team.W * 2 + team.D;
 				team.Pld = team.W + team.D + team.L;
 			});
+
+			//Process final table
+			let position = 0;
+			teams = _.chain(teams)
+				//Convert to array
+				.map(team => team)
+				//Order
+				.orderBy(["Pts", "Diff", "F", "Pld"], ["desc", "desc", "desc", "asc"])
+				//Add position and classnames
+				.map(team => {
+					position++;
+					const classNames = [];
+					_.each(instance.leagueTableColours, classObj => {
+						if (classObj.position.indexOf(position) > -1) {
+							classNames.push(classObj.className);
+						}
+					});
+					return { position, classNames, ...team };
+				})
+				.value();
 
 			const table = { ...tableMeta, teams };
 			res.send(table);
