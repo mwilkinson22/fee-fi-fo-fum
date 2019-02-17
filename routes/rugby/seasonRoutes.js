@@ -41,25 +41,25 @@ async function updateLeagueTable(_competition, date, teams) {
 		const { _homeTeam, _awayTeam, homePoints, awayPoints } = game;
 		const result = {};
 		if (homePoints > awayPoints) {
-			result.home = "w";
-			result.away = "l";
+			result.home = "W";
+			result.away = "L";
 		} else if (awayPoints > homePoints) {
-			result.home = "l";
-			result.away = "w";
+			result.home = "L";
+			result.away = "W";
 		} else {
-			result.home = result.away = "d";
+			result.home = result.away = "D";
 		}
 		if (teams[_homeTeam]) {
-			const { data } = teams[_homeTeam];
-			data.f += homePoints;
-			data.a += awayPoints;
-			data[result.home]++;
+			const team = teams[_homeTeam];
+			team.F += homePoints;
+			team.A += awayPoints;
+			team[result.home]++;
 		}
 		if (teams[_awayTeam]) {
-			const { data } = teams[_awayTeam];
-			data.f += awayPoints;
-			data.a += homePoints;
-			data[result.away]++;
+			const team = teams[_awayTeam];
+			team.F += awayPoints;
+			team.A += homePoints;
+			team[result.away]++;
 		}
 	}
 }
@@ -79,7 +79,7 @@ module.exports = app => {
 			const tableMeta = _.pick(instance, ["leagueTableColours", "sponsor", "image"]);
 
 			//Get Teams and implement tallies
-			const tallies = ["w", "d", "l", "f", "a"];
+			const tallies = ["W", "D", "L", "F", "A"];
 			let teams = await Team.find({ _id: { $in: instance.teams } }, "name image");
 			teams = _.chain(teams)
 				.keyBy("_id")
@@ -88,7 +88,7 @@ module.exports = app => {
 					const data = tallies.reduce(function(o, v) {
 						return (o[v] = 0), o;
 					}, {});
-					return { name: name.short, image, data };
+					return { name: name.short, image, ...data };
 				})
 				.value();
 
@@ -121,10 +121,9 @@ module.exports = app => {
 
 			//Set Points and Points Difference
 			_.each(teams, team => {
-				const { data } = team;
-				data.diff = data.f - data.a;
-				data.pts = data.w * 2 + data.d;
-				data.pld = data.w + data.d + data.l;
+				team.Diff = team.F - team.A;
+				team.Pts = team.W * 2 + team.D;
+				team.Pld = team.W + team.D + team.L;
 			});
 
 			const table = { ...tableMeta, teams };
