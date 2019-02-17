@@ -9,6 +9,7 @@ import SquadListPage from "./pages/SquadListPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import AdminRouter from "./components/admin";
 import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
 
 const gameRoutes = [
@@ -109,6 +110,10 @@ export default [
 				...HomePage,
 				path: "/",
 				exact: true
+			},
+			{
+				...AdminRouter,
+				path: "/admin"
 			},
 			{
 				component: NotFoundPage,

@@ -21,4 +21,4 @@ function mapStateToProps({ auth }) {
 	return { auth };
 }
 
-export default connect(mapStateToProps)(AdminRouter);
+export default { component: connect(mapStateToProps)(AdminRouter) };
