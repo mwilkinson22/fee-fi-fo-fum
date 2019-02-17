@@ -66,8 +66,8 @@ async function updateLeagueTable(_competition, date, teams) {
 
 module.exports = app => {
 	app.get("/api/leagueTable/:competition_id/:year", async (req, res) => {
-		const { competition_id, year } = req.params;
-		const competition = await CompetitionSegment.findOne({
+		let { competition_id, year } = req.params;
+		let competition = await CompetitionSegment.findOne({
 			_id: competition_id,
 			"instances.year": year
 		});
@@ -106,7 +106,18 @@ module.exports = app => {
 				$gte: fromDate,
 				$lte: toDate
 			};
-			await updateLeagueTable(competition_id, dateObj, teams);
+
+			//Loop through relevant competitions to get data
+			while (competition_id) {
+				await updateLeagueTable(competition_id, dateObj, teams);
+				competition_id = competition._pointsCarriedFrom;
+				if (competition_id) {
+					competition = await CompetitionSegment.findOne({
+						_id: competition_id,
+						"instances.year": year
+					});
+				}
+			}
 
 			//Set Points and Points Difference
 			_.each(teams, team => {
