@@ -6,6 +6,7 @@ import gamesReducer from "./gamesReducer";
 import teamsReducer from "./teamsReducer";
 import newsReducer from "./newsReducer";
 import peopleReducer from "./peopleReducer";
+import seasonReducer from "./seasonReducer";
 
 export default combineReducers({
 	auth: authReducer,
@@ -14,5 +15,6 @@ export default combineReducers({
 	games: gamesReducer,
 	news: newsReducer,
 	people: peopleReducer,
+	seasons: seasonReducer,
 	teams: teamsReducer
 });
