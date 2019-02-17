@@ -124,7 +124,7 @@ class Header extends Component {
 	}
 
 	handleLongpressStart() {
-		this.buttonPressTimer = setTimeout(() => alert("long press activated"), 1500);
+		this.buttonPressTimer = setTimeout(() => (window.location.href = "/admin"), 2000);
 	}
 
 	handleLongpressRelease() {
@@ -154,10 +154,12 @@ class Header extends Component {
 						<div
 							className="mobile-nav-background"
 							onClick={() => this.setState({ showMobileNav: false })}
+						/>
+						<ul
+							className="root-nav-list"
 							onTouchStart={() => this.handleLongpressStart()}
 							onTouchEnd={() => this.handleLongpressRelease()}
-						/>
-						<ul className="root-nav-list">
+						>
 							{this.generateNavMenu()}
 							{this.getSocial()}
 						</ul>
