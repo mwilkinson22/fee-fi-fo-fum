@@ -5,7 +5,9 @@ import NewsPostCard from "../components/news/NewsPostCard";
 import GameCard from "../components/games/GameCard";
 import { fetchHomepagePosts } from "../actions/newsActions";
 import { fetchHomepageGames } from "../actions/gamesActions";
+import { fetchLeagueTable } from "../actions/seasonActions";
 import LeagueTable from "../components/seasons/LeagueTable";
+const superLeagueId = "5c05342af22062c1fc3fe3c5";
 
 //TODO automatically add correct year + competition
 
@@ -83,7 +85,7 @@ class HomePage extends Component {
 						<div>
 							<h2>League Table</h2>
 							<LeagueTable
-								competition="5c05342af22062c1fc3fe3c5"
+								competition={superLeagueId}
 								year={new Date().getFullYear()}
 							/>
 						</div>
@@ -96,7 +98,11 @@ class HomePage extends Component {
 }
 
 function loadData(store) {
-	const promises = [store.dispatch(fetchHomepageGames()), store.dispatch(fetchHomepagePosts())];
+	const promises = [
+		store.dispatch(fetchHomepageGames()),
+		store.dispatch(fetchHomepagePosts()),
+		store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
+	];
 	return Promise.all(promises);
 }
 
