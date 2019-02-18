@@ -14,10 +14,23 @@ async function aggregateForList(initialPipelines) {
 	const games = await Game.aggregate(
 		_.concat(initialPipelines, getBasicGameData, { $project: projections.basic })
 	);
-	return _.map(games, game => getScores(game));
+	return _.map(games, game => getVirtuals(game));
 }
 
-function getScores(game) {
+function getVirtuals(game) {
+	//Get status
+	const { pregameSquads, playerStats } = game;
+	if (Object.keys(_.pickBy(pregameSquads)).length < 2) {
+		game.status = 0;
+	} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2) {
+		game.status = 1;
+	} else if (!_.sumBy(playerStats, "stats.TK")) {
+		game.status = 2;
+	} else {
+		game.status = 3;
+	}
+
+	//Get Scores
 	const gameDate = Date.parse(new Date(game.date));
 	if (gameDate <= new Date() && game.playerStats.length > 0) {
 		game.scores = _.chain(game.playerStats)
@@ -34,13 +47,13 @@ function getScores(game) {
 }
 
 module.exports = {
-	getScores,
+	getVirtuals,
 	async getItemBySlug(req, res) {
 		const { slug } = req.params;
 		let game = await Game.aggregate(_.concat([{ $match: { slug } }], getFullGame));
 
 		if (game.length) {
-			res.send(getScores(game[0]));
+			res.send(getVirtuals(game[0]));
 		} else {
 			//Check for a redirect
 			const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });

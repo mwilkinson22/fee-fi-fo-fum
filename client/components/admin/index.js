@@ -7,12 +7,14 @@ import { Switch, Route } from "react-router-dom";
 import AdminGameList from "../../pages/AdminGameList";
 import Logout from "./Logout";
 import NotFoundPage from "../../pages/NotFoundPage";
+import AdminGamePage from "../../pages/AdminGamePage";
 
 class AdminRouter extends Component {
 	render() {
 		if (this.props.auth) {
 			return (
 				<Switch>
+					<Route path="/admin/game/:slug" component={AdminGamePage} />
 					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />
 					<Route path="/admin/games/" exact component={AdminGameList} />

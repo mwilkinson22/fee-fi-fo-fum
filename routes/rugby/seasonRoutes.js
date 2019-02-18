@@ -11,12 +11,12 @@ const Game = mongoose.model("games");
 const NeutralGame = mongoose.model("neutralGames");
 
 //Helper functions
-import { getScores } from "../../controllers/rugby/gamesController";
+import { getVirtuals } from "../../controllers/rugby/gamesController";
 async function updateLeagueTable(_competition, date, teams, adjustments = []) {
 	//Get main games
 	let games = await Game.find({ _competition, date }, "_opposition isAway playerStats date");
 	games = _.map(games, game => {
-		const { _opposition, scores, isAway } = getScores(game);
+		const { _opposition, scores, isAway } = getVirtuals(game);
 		const _homeTeam = isAway ? _opposition : localTeam;
 		const _awayTeam = isAway ? localTeam : _opposition;
 		if (scores) {

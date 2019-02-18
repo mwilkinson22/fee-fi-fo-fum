@@ -52,7 +52,7 @@ body {
 			&.active.hidden + a,
 			/* first visible link after a hidden active link */
 			&.active.hidden ~ .hidden + a {
-				color: $claret;
+				color: $claret !important;
 				pointer-events: none;
 			}
 
