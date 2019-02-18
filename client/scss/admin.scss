@@ -1,7 +1,33 @@
 .form-card {
 	background: #fff;
-	display: block;
+	display: grid;
+	align-items: center;
+	grid-template-columns: minmax(min-content, 1fr) minmax(250px, 10fr);
 	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+	padding: 20pt;
+
+	h6,
+	.error,
+	.buttons {
+		grid-column: 1 / -1;
+	}
+
+	h6 {
+		font-size: 1.4em;
+		&:not(:first-child) {
+			margin-top: 10pt;
+		}
+	}
+
+	.error {
+		margin-bottom: 10pt;
+		display: block;
+	}
+
+	.buttons {
+		display: flex;
+		justify-content: space-between;
+	}
 
 	input {
 		padding: 2pt 4pt;
@@ -9,6 +35,14 @@
 		outline: none;
 		border: none;
 		border-bottom: solid thin #222;
+	}
+
+	label.required::after {
+		content: "*";
+		color: $claret;
+		font-weight: bold;
+		margin: 0 2pt;
+		display: inline-block;
 	}
 
 	.error {
