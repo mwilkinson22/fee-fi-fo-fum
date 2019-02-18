@@ -6,7 +6,8 @@ import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
 import { localTeam } from "../../config/keys";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, Switch, Route } from "react-router-dom";
+import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -85,6 +86,18 @@ class AdminGamePage extends Component {
 		);
 	}
 
+	getContent() {
+		return (
+			<div>
+				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
+				<Switch>
+					<Route path="/admin/game/:slug" exact component={AdminGameOverview} />
+					<Route path="/" component={NotFoundPage} />
+				</Switch>
+			</div>
+		);
+	}
+
 	render() {
 		const { game } = this.state;
 		let content, header;
@@ -93,12 +106,9 @@ class AdminGamePage extends Component {
 		} else if (!game) {
 			content = <NotFoundPage message="Game not found" />;
 		} else {
+			const { slug } = game;
 			header = [<h1 key="header">{this.getPageTitle()}</h1>, this.getSubmenu()];
-			content = (
-				<div>
-					<HelmetBuilder title={this.getPageTitle()} />
-				</div>
-			);
+			content = this.getContent();
 		}
 
 		return (

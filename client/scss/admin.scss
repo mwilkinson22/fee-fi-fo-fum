@@ -37,12 +37,15 @@
 		border-bottom: solid thin #222;
 	}
 
-	label.required::after {
-		content: "*";
-		color: $claret;
-		font-weight: bold;
-		margin: 0 2pt;
-		display: inline-block;
+	label {
+		white-space: nowrap;
+		&.required::after {
+			content: "*";
+			color: $claret;
+			font-weight: bold;
+			margin: 0 2pt;
+			display: inline-block;
+		}
 	}
 
 	.error {

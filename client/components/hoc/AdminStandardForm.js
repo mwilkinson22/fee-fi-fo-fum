@@ -51,6 +51,8 @@ export default props => {
 	function validate(values) {
 		const errors = {};
 
+		console.log(values);
+
 		_.map(fieldGroups, fields => {
 			_.map(fields, field => {
 				const { name, required } = field;
