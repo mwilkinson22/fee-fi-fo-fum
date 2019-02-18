@@ -29,6 +29,11 @@
 				background: #b63c3d;
 				color: white;
 			}
+			&.local {
+				background: $claret;
+				color: $gold;
+				font-weight: bold;
+			}
 			th {
 				font-weight: 600;
 				&.team-badge {

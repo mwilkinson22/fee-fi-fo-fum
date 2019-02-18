@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { fetchLeagueTable } from "../../actions/seasonActions";
 import LoadingPage from "../../components/LoadingPage";
 import { teamImagePath } from "../../extPaths";
+import { localTeam } from "../../../config/keys";
 
 class LeagueTable extends Component {
 	constructor(props) {
@@ -59,7 +60,10 @@ class LeagueTable extends Component {
 					</thead>
 					<tbody>
 						{_.map(leagueTable.teams, team => {
-							const { name, position, classNames, image } = team;
+							const { _id, name, position, classNames, image } = team;
+							if (_id === localTeam) {
+								classNames.push("local");
+							}
 							return (
 								<tr key={position} className={classNames.join(" ")}>
 									<th className="position">{position}</th>
