@@ -3,11 +3,11 @@ import React, { Component } from "react";
 import { reduxForm, Field } from "redux-form";
 
 export default props => {
-	const { fieldGroups, onSubmit, formName, customValidation, isNew } = props;
+	const { fieldGroups, formName, customValidation, isNew } = props;
 
 	class AdminStandardForm extends Component {
 		renderField(field) {
-			const { touched, error } = field.meta;
+			const { submitFailed, error } = field.meta;
 			const id = field.input.name;
 			return [
 				<label key="label" htmlFor={id} className={field.required ? "required" : ""}>
@@ -15,7 +15,7 @@ export default props => {
 				</label>,
 				<input key="input" type={field.type} {...field.input} value={field.defaultValue} />,
 				<span key="error" className="error">
-					{touched ? error : ""}
+					{submitFailed ? error : ""}
 				</span>
 			];
 		}
@@ -30,7 +30,7 @@ export default props => {
 		}
 
 		render() {
-			const { handleSubmit } = this.props;
+			const { handleSubmit, onSubmit } = this.props;
 			return (
 				<div className="container">
 					<form onSubmit={handleSubmit(onSubmit)}>
@@ -50,9 +50,6 @@ export default props => {
 	//Helper Methods
 	function validate(values) {
 		const errors = {};
-
-		console.log(values);
-
 		_.map(fieldGroups, fields => {
 			_.map(fields, field => {
 				const { name, required } = field;
@@ -65,7 +62,7 @@ export default props => {
 		});
 
 		if (customValidation) {
-			customValidation(values, errors);
+			customValidation(values, errors, fieldGroups);
 		}
 
 		return errors;

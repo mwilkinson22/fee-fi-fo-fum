@@ -11,6 +11,7 @@ export const FETCH_HOMEPAGE_GAMES = "fetch_homepage_games";
 //Teams
 export const FETCH_SQUAD = "fetch_squad";
 export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
+export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
 
 //News
 export const FETCH_NEWS_POST = "fetch_news_post";
