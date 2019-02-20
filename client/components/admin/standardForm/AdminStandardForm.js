@@ -9,21 +9,53 @@ export default props => {
 		renderField(field) {
 			const { submitFailed, error } = field.meta;
 			const id = field.input.name;
+			let inputElement;
+
+			switch (field.type) {
+				case "select":
+					inputElement = this.renderSelect(field);
+					break;
+				default:
+					inputElement = (
+						<input
+							key={field.name}
+							type={field.type}
+							{...field.input}
+							value={field.defaultValue}
+						/>
+					);
+					break;
+			}
 			return [
 				<label key="label" htmlFor={id} className={field.required ? "required" : ""}>
 					{field.label}
 				</label>,
-				<input key="input" type={field.type} {...field.input} value={field.defaultValue} />,
+				inputElement,
 				<span key="error" className="error">
 					{submitFailed ? error : ""}
 				</span>
 			];
 		}
 
+		renderSelect(field) {
+			let i = 0;
+			return (
+				<select key="input" {...field.input} value={field.defaultValue}>
+					{_.map(field.options, (value, title) => {
+						return (
+							<option key={i++} value={value}>
+								{title}
+							</option>
+						);
+					})}
+				</select>
+			);
+		}
+
 		renderFieldGroups() {
 			return _.map(fieldGroups, (fields, header) => {
 				const elements = _.map(fields, field => (
-					<Field key={field.name} component={this.renderField} {...field} />
+					<Field key={field.name} component={this.renderField.bind(this)} {...field} />
 				));
 				return [<h6 key={header}>{header}</h6>, ...elements];
 			});
@@ -52,11 +84,21 @@ export default props => {
 		const errors = {};
 		_.map(fieldGroups, fields => {
 			_.map(fields, field => {
-				const { name, required } = field;
+				const { name, required, type } = field;
 
 				//Check for empty required fields
-				if (required && !values[name]) {
-					errors[name] = "Please enter a value";
+				if (required) {
+					let isValid = false;
+					switch (type) {
+						case "select":
+							break;
+						default:
+							isValid = values[name];
+					}
+
+					if (!isValid) {
+						errors[name] = "Please enter a value";
+					}
 				}
 			});
 		});
