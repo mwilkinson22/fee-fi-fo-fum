@@ -1,4 +1,9 @@
-import { FETCH_ALL_TEAM_TYPES, FETCH_SQUAD, FETCH_YEARS_WITH_SQUADS } from "../actions/types";
+import {
+	FETCH_ALL_TEAM_TYPES,
+	FETCH_SQUAD,
+	FETCH_YEARS_WITH_SQUADS,
+	FETCH_ALL_TEAMS
+} from "../actions/types";
 import _ from "lodash";
 
 export default function(state = {}, action) {
@@ -15,6 +20,12 @@ export default function(state = {}, action) {
 					.map(year => [year, null])
 					.fromPairs()
 					.value()
+			};
+
+		case FETCH_ALL_TEAMS:
+			return {
+				...state,
+				teamList: action.payload
 			};
 
 		case FETCH_ALL_TEAM_TYPES:

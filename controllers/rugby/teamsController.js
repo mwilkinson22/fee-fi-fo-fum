@@ -45,6 +45,10 @@ module.exports = {
 			res.status(404).send("Invalid team Id");
 		}
 	},
+	async getAll(req, res) {
+		const teams = await Team.find({});
+		res.send(teams);
+	},
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
 		const { year } = req.params;

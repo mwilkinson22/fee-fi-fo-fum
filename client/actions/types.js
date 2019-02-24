@@ -11,6 +11,7 @@ export const FETCH_HOMEPAGE_GAMES = "fetch_homepage_games";
 //Teams
 export const FETCH_SQUAD = "fetch_squad";
 export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
+export const FETCH_ALL_TEAMS = "fetch_all_teams";
 export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
 
 //News
@@ -28,6 +29,7 @@ export const FETCH_PLAYER_STATS = "fetch_player_stats";
 
 //Seasons
 export const FETCH_LEAGUE_TABLE = "fetch_league_table";
+export const FETCH_ALL_COMPETITIONS = "fetch_all_competitions";
 
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
