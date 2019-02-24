@@ -15,7 +15,8 @@ export const fieldGroups = {
 		{
 			name: "team_type",
 			type: "select",
-			label: "Team Type"
+			label: "Team Type",
+			validation: Yup.string().required()
 		},
 		{
 			name: "competition",
@@ -87,7 +88,7 @@ class Form extends Component {
 				if (field.name === "team_type") {
 					field.options = _.map(teamTypes, teamType => ({
 						label: teamType.name,
-						value: teamType.slug
+						value: teamType._id
 					}));
 				}
 				if (field.name === "opposition") {
@@ -113,10 +114,6 @@ class Form extends Component {
 		});
 	}
 
-	testCallback() {
-		console.log(3);
-	}
-
 	render() {
 		const { game, fieldGroups } = this.state;
 		if (game.status > 0) {
@@ -140,13 +137,7 @@ class Form extends Component {
 
 		this.addReduxOptions();
 
-		return (
-			<AdminStandardForm
-				onChange={this.testCallback}
-				fieldGroups={fieldGroups}
-				onSubmit={v => console.log(v)}
-			/>
-		);
+		return <AdminStandardForm fieldGroups={fieldGroups} onSubmit={v => console.log(v)} />;
 	}
 }
 

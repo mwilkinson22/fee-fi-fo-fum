@@ -26,7 +26,7 @@ export default class AdminStandardForm extends Component {
 		return initialValues;
 	}
 
-	renderForm() {
+	renderForm(formikProps) {
 		const { fieldGroups } = this.state;
 		const content = [];
 		_.each(fieldGroups, (fields, group) => {
@@ -56,7 +56,7 @@ export default class AdminStandardForm extends Component {
 				);
 
 				//Add Field
-				content.push(this.renderField(field));
+				content.push(<Field {...this.getFieldProps(field, formikProps)} />);
 
 				//Add Error Message
 				content.push(
@@ -79,7 +79,7 @@ export default class AdminStandardForm extends Component {
 		);
 	}
 
-	renderField(field) {
+	getFieldProps(field, formikProps) {
 		const { name, type, label, disabled, validation } = field;
 		const fieldProps = {
 			key: name + " field",
@@ -100,6 +100,7 @@ export default class AdminStandardForm extends Component {
 				fieldProps.component = Select;
 				fieldProps.isDisabled = field.disabled;
 				fieldProps.options = field.options;
+				fieldProps.onChange = option => formikProps.setFieldValue(field.name, option.value);
 				fieldProps.styles = {
 					option: (provided, state) => ({
 						...provided,
@@ -137,8 +138,7 @@ export default class AdminStandardForm extends Component {
 				}
 				break;
 		}
-
-		return <Field {...fieldProps} />;
+		return fieldProps;
 	}
 
 	getValidationSchema() {
@@ -164,7 +164,8 @@ export default class AdminStandardForm extends Component {
 				<Formik
 					initialValues={this.getInitialValues()}
 					validationSchema={this.getValidationSchema()}
-					render={() => this.renderForm()}
+					onSubmit={onSubmit}
+					render={props => this.renderForm(props)}
 				/>
 			);
 		}
