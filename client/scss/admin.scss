@@ -13,6 +13,7 @@
 	}
 
 	h6 {
+		@include noTextSelect;
 		font-size: 1.4em;
 		&:not(:first-child) {
 			margin-top: 10pt;
@@ -20,7 +21,7 @@
 	}
 
 	.error {
-		margin-bottom: 10pt;
+		margin: 4pt 0 10pt;
 		display: block;
 	}
 
@@ -38,7 +39,9 @@
 	}
 
 	label {
+		@include noTextSelect;
 		white-space: nowrap;
+		padding-right: 8pt;
 		&.required::after {
 			content: "*";
 			color: $claret;
@@ -62,6 +65,65 @@
 
 		&:hover {
 			background: #ddd;
+		}
+	}
+
+	// Field Types
+	.radio-fields {
+		input {
+			display: none;
+		}
+
+		label {
+			@include noTextSelect;
+			cursor: pointer;
+			padding: 2pt 8pt;
+			border-radius: 4pt;
+			background: rgba(black, 0.05);
+			margin-right: 4pt;
+			&:hover {
+				background: rgba(black, 0.1);
+			}
+		}
+
+		input:checked + label {
+			color: white;
+			background: $claret;
+		}
+	}
+	.boolean {
+		.boolean-checkbox {
+			display: none;
+		}
+
+		.boolean-slider {
+			cursor: pointer;
+			width: 28pt;
+			height: 15pt;
+			display: inline-block;
+			background: rgba(black, 0.05);
+			border-radius: 10pt;
+			position: relative;
+			margin-left: 2pt;
+			&::after {
+				content: "";
+				height: 18pt;
+				width: 18pt;
+				display: inline-block;
+				background: #ddd;
+				border-radius: 100%;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: -2pt;
+				margin: auto;
+				transition: left 200ms, background 200ms;
+			}
+		}
+
+		.boolean-checkbox:checked + .boolean-slider::after {
+			background: $claret;
+			left: 12pt;
 		}
 	}
 }
