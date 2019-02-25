@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { renderRoutes } from "react-router-config";
@@ -9,6 +10,18 @@ import { fetchUser } from "./actions/userActions";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 
+//Action Type Sanity Check
+import * as actionTypes from "./actions/types";
+const duplicatedTypes = _.chain(actionTypes)
+	.groupBy()
+	.filter(arr => arr.length > 1)
+	.map(arr => arr[0])
+	.value();
+if (duplicatedTypes.length) {
+	console.warn("Two or more action types are using the following strings:", duplicatedTypes);
+}
+
+//App Component
 class App extends Component {
 	constructor(props) {
 		super(props);
