@@ -11,6 +11,7 @@ import AdminGameList from "../../pages/AdminGameList";
 import AdminGamePage from "../../pages/AdminGamePage";
 
 import AdminTeamList from "../../pages/AdminTeamList";
+import AdminTeamPage from "../../pages/AdminTeamPage";
 
 class AdminRouter extends Component {
 	render() {
@@ -22,6 +23,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />
 					<Route path="/admin/games/" exact component={AdminGameList} />
 
+					<Route path="/admin/teams/:slug" component={AdminTeamPage} />
 					<Route path="/admin/teams/" exact component={AdminTeamList} />
 
 					<Route path="/admin/logout" component={Logout} />
