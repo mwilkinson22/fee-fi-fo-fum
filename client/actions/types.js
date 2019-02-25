@@ -30,6 +30,7 @@ export const FETCH_PLAYER_STATS = "fetch_player_stats";
 //Seasons
 export const FETCH_LEAGUE_TABLE = "fetch_league_table";
 export const FETCH_ALL_COMPETITIONS = "fetch_all_competitions";
+export const FETCH_ALL_COMPETITION_SEGMENTS = "fetch_all_competition_segments";
 
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
