@@ -21,7 +21,7 @@ export default class AdminStandardForm extends Component {
 	getInitialValues() {
 		const initialValues = {};
 		_.each(this.state.fieldGroups, fields => {
-			_.each(fields, field => (initialValues[field.name] = field.value || ""));
+			_.each(fields, field => (initialValues[field.name] = field.defaultValue || ""));
 		});
 		return initialValues;
 	}
@@ -99,6 +99,7 @@ export default class AdminStandardForm extends Component {
 			case "select":
 				fieldProps.component = Select;
 				fieldProps.isDisabled = field.disabled;
+				fieldProps.defaultValue = field.defaultValue;
 				fieldProps.options = field.options;
 				fieldProps.onChange = option => formikProps.setFieldValue(field.name, option.value);
 				fieldProps.styles = {
