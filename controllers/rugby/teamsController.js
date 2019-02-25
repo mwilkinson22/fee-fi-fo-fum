@@ -46,7 +46,7 @@ module.exports = {
 		}
 	},
 	async getAll(req, res) {
-		const teams = await Team.find({});
+		const teams = await Team.find({}, { squads: false });
 		res.send(teams);
 	},
 	async getSquadByYear(req, res) {

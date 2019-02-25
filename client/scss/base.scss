@@ -177,6 +177,33 @@ a {
 	box-sizing: border-box;
 	position: relative;
 	padding: 0 1%;
+
+	&.no-padding {
+		padding: 0;
+	}
+	&.no-mobile-padding {
+		@media #{$mobile-only} {
+			padding: 0;
+		}
+	}
+
+	&.no-mobile-tablet-padding {
+		@media #{$mobile-and-tablet} {
+			padding: 0;
+		}
+	}
+
+	&.no-desktop-padding {
+		@media #{$desktop-only} {
+			padding: 0;
+		}
+	}
+
+	&.no-tablet-desktop-padding {
+		@media #{$desktop-and-tablet} {
+			padding: 0;
+		}
+	}
 }
 
 //Text highlighting

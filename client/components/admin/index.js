@@ -4,10 +4,13 @@ import Login from "./Login";
 import { Switch, Route } from "react-router-dom";
 
 //Pages
-import AdminGameList from "../../pages/AdminGameList";
-import Logout from "./Logout";
 import NotFoundPage from "../../pages/NotFoundPage";
+import Logout from "./Logout";
+
+import AdminGameList from "../../pages/AdminGameList";
 import AdminGamePage from "../../pages/AdminGamePage";
+
+import AdminTeamList from "../../pages/AdminTeamList";
 
 class AdminRouter extends Component {
 	render() {
@@ -18,6 +21,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />
 					<Route path="/admin/games/" exact component={AdminGameList} />
+
+					<Route path="/admin/teams/" exact component={AdminTeamList} />
 
 					<Route path="/admin/logout" component={Logout} />
 					<Route path="/admin" component={NotFoundPage} />
