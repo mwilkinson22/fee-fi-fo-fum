@@ -102,28 +102,32 @@ class AdminGamePage extends Component {
 		const { game } = this.state;
 		let content, header;
 		if (game === undefined) {
-			content = <LoadingPage />;
+			return <LoadingPage />;
 		} else if (!game) {
-			content = <NotFoundPage message="Game not found" />;
+			return <NotFoundPage message="Game not found" />;
 		} else {
 			const { slug } = game;
-			header = [<h1 key="header">{this.getPageTitle()}</h1>, this.getSubmenu()];
-			content = this.getContent();
+			const date = new Date(game.date);
+			return (
+				<div className="admin-game-page">
+					<section className="page-header">
+						<div className="container">
+							<Link
+								className="nav-card card"
+								to={`/admin/games/${
+									date > new Date() ? "fixtures" : date.getFullYear()
+								}`}
+							>
+								↩ Return to game list
+							</Link>
+							<h1 key="header">{this.getPageTitle()}</h1>
+							{this.getSubmenu()}
+						</div>
+					</section>
+					{this.getContent()}
+				</div>
+			);
 		}
-
-		return (
-			<div className="admin-game-page">
-				<section className="page-header">
-					<div className="container">
-						<Link className="nav-card card" to="/admin/games">
-							↩ Return to game list
-						</Link>
-						{header}
-					</div>
-				</section>
-				{content}
-			</div>
-		);
 	}
 }
 
