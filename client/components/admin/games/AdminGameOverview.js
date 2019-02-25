@@ -2,50 +2,13 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import AdminStandardForm from "../standardForm/AdminStandardForm";
-import { fetchAllTeamTypes, fetchAllTeams } from "../../../actions/teamsActions";
-import { fetchAllCompetitions } from "../../../actions/competitionActions";
+import { fetchAllTeams, fetchAllTeamTypes } from "../../../actions/teamsActions";
+import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
 import * as Yup from "yup";
 import { localTeam } from "../../../../config/keys";
-
-//Fields
-export const fieldGroups = {
-	Basics: [
-		{ name: "date", type: "date", label: "Date", validation: Yup.date().required() },
-		{ name: "time", type: "time", label: "Time", validation: Yup.string().required() },
-		{
-			name: "team_type",
-			type: "select",
-			label: "Team Type",
-			validation: Yup.string().required()
-		},
-		{
-			name: "competition",
-			type: "select",
-			label: "Competition",
-			validation: Yup.string().required()
-		},
-		{
-			name: "opposition",
-			type: "select",
-			label: "Opposition",
-			validation: Yup.string().required()
-		},
-		{ name: "round", type: "number", label: "Round", validation: Yup.number().min(1) }
-	],
-	Venue: [
-		{
-			name: "venue",
-			type: "radio",
-			label: "Venue",
-			options: [
-				{ value: "home", label: "Home" },
-				{ value: "away", label: "Away" },
-				{ value: "neutral", label: "Neutral" }
-			],
-			validation: Yup.string().required()
-		}
-	]
-};
+import fieldGroups from "./overviewFields";
+import "datejs";
+import LoadingPage from "../../LoadingPage";
 
 class Form extends Component {
 	constructor(props) {
@@ -53,10 +16,10 @@ class Form extends Component {
 		const {
 			teamTypes,
 			teamList,
-			competitionList,
+			competitionSegmentList,
 			fetchAllTeamTypes,
 			fetchAllTeams,
-			fetchAllCompetitions
+			fetchAllCompetitionSegments
 		} = props;
 		if (!teamTypes) {
 			fetchAllTeamTypes();
@@ -64,25 +27,25 @@ class Form extends Component {
 		if (!teamList) {
 			fetchAllTeams();
 		}
-		if (!competitionList) {
-			fetchAllCompetitions();
+		if (!competitionSegmentList) {
+			fetchAllCompetitionSegments();
 		}
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { game, teamTypes, teamList, fieldGroups, competitionList } = nextProps;
+		const { game, teamTypes, teamList, fieldGroups, competitionSegmentList } = nextProps;
 		return {
 			game,
 			teamTypes,
 			teamList,
 			fieldGroups: _.cloneDeep(fieldGroups),
-			competitionList
+			competitionSegmentList
 		};
 	}
 
 	addReduxOptions() {
-		const { teamTypes, teamList, competitionList, fieldGroups } = this.state;
+		const { teamTypes, teamList, competitionSegmentList, fieldGroups } = this.state;
 		_.each(fieldGroups, fields => {
 			_.each(fields, field => {
 				if (field.name === "team_type") {
@@ -102,7 +65,7 @@ class Form extends Component {
 						.value();
 				}
 				if (field.name === "competition") {
-					field.options = _.chain(competitionList)
+					field.options = _.chain(competitionSegmentList)
 						.map(competition => ({
 							label: competition.name,
 							value: competition._id
@@ -114,8 +77,45 @@ class Form extends Component {
 		});
 	}
 
-	render() {
+	addValues() {
 		const { game, fieldGroups } = this.state;
+		_.each(fieldGroups, fields => {
+			_.each(fields, field => {
+				switch (field.name) {
+					case "venue":
+						field.defaultValue = game.isAway ? "away" : "home";
+						break;
+					case "date":
+						field.defaultValue = new Date(game.date).toString("yyyy-MM-dd");
+						break;
+					case "time":
+						field.defaultValue = new Date(game.date).toString("HH:mm:ss");
+						break;
+					case "opposition":
+						field.defaultValue = _.filter(
+							field.options,
+							option => option.value === game._opposition._id
+						);
+						break;
+					case "team_type":
+						field.defaultValue = _.filter(
+							field.options,
+							option => option.value === game._teamType
+						);
+						break;
+					default:
+						field.defaultValue = game[field.name];
+				}
+			});
+		});
+	}
+
+	render() {
+		const { game, teamTypes, teamList, fieldGroups, competitionSegmentList } = this.state;
+		if (!teamTypes || !teamList || !competitionSegmentList) {
+			return <LoadingPage />;
+		}
+
 		if (game.status > 0) {
 			_.each(fieldGroups.Basics, field => {
 				//Disable core attributes for games with team data
@@ -137,7 +137,13 @@ class Form extends Component {
 
 		this.addReduxOptions();
 
-		return <AdminStandardForm fieldGroups={fieldGroups} onSubmit={v => console.log(v)} />;
+		this.addValues();
+
+		return (
+			<div className="container">
+				<AdminStandardForm fieldGroups={fieldGroups} onSubmit={v => console.log(v)} />
+			</div>
+		);
 	}
 }
 
@@ -146,11 +152,11 @@ function mapStateToProps({ games, teams, competitions }, ownProps) {
 	const { slug } = ownProps.match.params;
 	const game = games.fullGames[slug];
 	const { teamTypes, teamList } = teams;
-	const { competitionList } = competitions;
-	return { fieldGroups, game, teamTypes, teamList, competitionList, ...ownProps };
+	const { competitionSegmentList } = competitions;
+	return { fieldGroups, game, teamTypes, teamList, competitionSegmentList, ...ownProps };
 }
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeamTypes, fetchAllTeams, fetchAllCompetitions }
+	{ fetchAllTeamTypes, fetchAllTeams, fetchAllCompetitionSegments }
 )(Form);
