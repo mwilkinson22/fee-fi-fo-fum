@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
 	FETCH_ALL_TEAM_TYPES,
 	FETCH_SQUAD,
@@ -16,7 +17,7 @@ export const fetchYearsWithSquads = (team = "local") => async (dispatch, getStat
 
 export const fetchAllTeams = () => async (dispatch, getState, api) => {
 	const res = await api.get("/teams");
-	dispatch({ type: FETCH_ALL_TEAMS, payload: res.data });
+	dispatch({ type: FETCH_ALL_TEAMS, payload: _.keyBy(res.data, "slug") });
 };
 
 export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
