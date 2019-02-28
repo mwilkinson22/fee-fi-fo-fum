@@ -11,6 +11,7 @@ import { imagePath } from "../extPaths";
 import HelmetBuilder from "../components/HelmetBuilder";
 import { Redirect } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
+import TeamBanner from "../components/teams/TeamBanner";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -73,26 +74,12 @@ class GamePage extends Component {
 		for (const ha in teams) {
 			const team = teams[ha];
 			elements.push(
-				<div
+				<TeamBanner
 					key={ha}
-					className={`team-banner ${ha}`}
-					style={{
-						backgroundColor: colourHelper.toRgb(team.colours.main),
-						color: colourHelper.toRgb(team.colours.text)
-					}}
-				>
-					<div className={`trim ${ha}`}>
-						<span style={{ backgroundColor: colourHelper.toRgb(team.colours.trim1) }} />
-						<span style={{ backgroundColor: colourHelper.toRgb(team.colours.trim2) }} />
-					</div>
-					<div className="container">
-						<h4>
-							<TeamImage team={team} />
-							<span className="teamname">{team.name.short}</span>
-							{scores ? <span className="score">{scores[team._id]}</span> : null}
-						</h4>
-					</div>
-				</div>
+					className={ha}
+					team={team}
+					score={scores ? scores[team._id] : null}
+				/>
 			);
 		}
 		return elements;
