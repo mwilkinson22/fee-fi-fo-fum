@@ -7,8 +7,8 @@ export default class Boolean extends Component {
 			<div className="boolean">
 				<input
 					{...field}
-					type="checkbox"
 					defaultChecked={field.value}
+					type="checkbox"
 					className="boolean-checkbox"
 					id={field.name}
 				/>

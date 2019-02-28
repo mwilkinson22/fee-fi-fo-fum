@@ -4,6 +4,7 @@ const Team = mongoose.model("teams");
 const { ObjectId } = require("mongodb");
 const { localTeam } = require("../../config/keys");
 const getPositions = require("../../utils/getPositions");
+const Colour = require("color");
 
 function validateTeam(team) {
 	if (team === "local") {
@@ -139,6 +140,42 @@ module.exports = {
 			res.send({ year, players });
 		} else {
 			res.status(404).send("Invalid team Id");
+		}
+	},
+	async update(req, res) {
+		const { _id } = req.params;
+		const team = await Team.findById(_id);
+		if (!team) {
+			res.status(500).send(`No team with id ${_id} was found`);
+		} else {
+			//Handle Plain Text Fields
+			const values = _.mapValues(req.body, (val, key) => {
+				switch (key) {
+					case "_ground":
+						return val.value;
+					case "colours":
+						if (!val.customPitchColour) {
+							val.pitchColour = null;
+						}
+						if (!val.customStatBarColour) {
+							val.statBarColour = null;
+						}
+						return _.mapValues(val, colour => {
+							if (typeof colour === "string") {
+								return Colour(colour)
+									.rgb()
+									.array();
+							} else {
+								return colour;
+							}
+						});
+					default:
+						return val;
+				}
+			});
+			await Team.updateOne({ _id }, values);
+			const updatedTeam = await Team.findById(_id);
+			res.send(updatedTeam);
 		}
 	}
 };

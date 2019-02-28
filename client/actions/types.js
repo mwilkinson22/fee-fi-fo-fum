@@ -13,6 +13,7 @@ export const FETCH_SQUAD = "fetch_squad";
 export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
 export const FETCH_ALL_TEAMS = "fetch_all_teams";
 export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
+export const UPDATE_TEAM = "update_team";
 
 //News
 export const FETCH_NEWS_POST = "fetch_news_post";
@@ -26,6 +27,9 @@ export const FETCH_POST_PAGINATION = "fetch_post_pagination";
 export const FETCH_PERSON = "fetch_person";
 export const FETCH_PLAYER_STAT_YEARS = "fetch_player_stat_years";
 export const FETCH_PLAYER_STATS = "fetch_player_stats";
+
+//Grounds
+export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 
 //Seasons
 export const FETCH_LEAGUE_TABLE = "fetch_league_table";

@@ -3,7 +3,8 @@ import {
 	FETCH_ALL_TEAM_TYPES,
 	FETCH_SQUAD,
 	FETCH_YEARS_WITH_SQUADS,
-	FETCH_ALL_TEAMS
+	FETCH_ALL_TEAMS,
+	UPDATE_TEAM
 } from "./types";
 
 export const fetchSquad = (year, team = "local") => async (dispatch, getState, api) => {
@@ -23,4 +24,9 @@ export const fetchAllTeams = () => async (dispatch, getState, api) => {
 export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
 	const res = await api.get("/teamTypes");
 	dispatch({ type: FETCH_ALL_TEAM_TYPES, payload: res.data });
+};
+
+export const updateTeam = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/teams/${id}`, values);
+	dispatch({ type: UPDATE_TEAM, payload: res.data });
 };

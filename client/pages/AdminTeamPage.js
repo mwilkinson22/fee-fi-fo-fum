@@ -7,6 +7,9 @@ import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
 import { NavLink, Link, Switch, Route } from "react-router-dom";
 
+//Pages
+import AdminTeamOverview from "../components/admin/teams/AdminTeamOverview";
+
 class AdminTeamPage extends Component {
 	constructor(props) {
 		super(props);
@@ -48,11 +51,16 @@ class AdminTeamPage extends Component {
 	}
 
 	getContent() {
+		const { team } = this.state;
 		return (
 			<div>
 				<HelmetBuilder key="helmet" title={this.state.team.name.long} />
 				<Switch>
-					<Route path="/admin/teams/:slug" exact component={LoadingPage} />
+					<Route
+						path="/admin/teams/:slug"
+						exact
+						render={() => <AdminTeamOverview team={team} />}
+					/>
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</div>

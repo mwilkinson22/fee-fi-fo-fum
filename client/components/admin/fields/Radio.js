@@ -9,7 +9,14 @@ export default class Radio extends Component {
 				{_.map(options, option => {
 					const id = `${field.name}-${option.value}`;
 					return [
-						<input key="input" type="radio" id={id} {...field} value={option.value} />,
+						<input
+							key="input"
+							type="radio"
+							id={id}
+							{...field}
+							value={option.value}
+							defaultChecked={field.value === option.value}
+						/>,
 						<label key="label" htmlFor={id}>
 							{option.label}
 						</label>

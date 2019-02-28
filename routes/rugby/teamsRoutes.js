@@ -20,4 +20,6 @@ module.exports = app => {
 	app.get("/api/teams/:id", GenericController.getItemById);
 	app.get("/api/teams/squads/years/:team", TeamController.getYearsWithSquads);
 	app.get("/api/teams/squads/:team/:year", TeamController.getSquadByYear);
+
+	app.put("/api/teams/:_id", TeamController.update);
 };

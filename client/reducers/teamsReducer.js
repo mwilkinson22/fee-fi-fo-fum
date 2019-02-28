@@ -2,12 +2,21 @@ import {
 	FETCH_ALL_TEAM_TYPES,
 	FETCH_SQUAD,
 	FETCH_YEARS_WITH_SQUADS,
-	FETCH_ALL_TEAMS
+	FETCH_ALL_TEAMS,
+	UPDATE_TEAM
 } from "../actions/types";
 import _ from "lodash";
 
 export default function(state = {}, action) {
 	switch (action.type) {
+		case UPDATE_TEAM:
+			return {
+				...state,
+				teamList: {
+					...state.teamList,
+					[action.payload.slug]: action.payload
+				}
+			};
 		case FETCH_SQUAD:
 			return {
 				...state,

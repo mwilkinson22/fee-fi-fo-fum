@@ -4,6 +4,7 @@ import authReducer from "./authReducer";
 import competitionReducer from "./competitionReducer";
 import configReducer from "./configReducer";
 import gamesReducer from "./gamesReducer";
+import groundReducer from "./groundReducer";
 import teamsReducer from "./teamsReducer";
 import newsReducer from "./newsReducer";
 import peopleReducer from "./peopleReducer";
@@ -15,6 +16,7 @@ export default combineReducers({
 	config: configReducer,
 	form: reduxForm,
 	games: gamesReducer,
+	grounds: groundReducer,
 	news: newsReducer,
 	people: peopleReducer,
 	seasons: seasonReducer,

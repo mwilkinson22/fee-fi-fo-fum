@@ -14,3 +14,16 @@ export function toRgba(colour, a) {
 			return `rgb(${colour.join(",")}, ${a})`;
 	}
 }
+
+export function toHex(colour, withHash = true) {
+	const fullHex = colour.map(num => {
+		let hex = num.toString(16);
+		if (hex.length === 1) {
+			return "0" + hex;
+		} else {
+			return hex;
+		}
+	});
+
+	return (withHash ? "#" : "") + fullHex.join("");
+}

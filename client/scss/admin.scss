@@ -36,6 +36,10 @@
 		outline: none;
 		border: none;
 		border-bottom: solid thin #222;
+
+		&[type="color"] {
+			padding: 0 1pt;
+		}
 	}
 
 	label {
@@ -48,6 +52,13 @@
 			font-weight: bold;
 			margin: 0 2pt;
 			display: inline-block;
+		}
+	}
+
+	.controlling-field-wrapper {
+		display: flex;
+		& > * {
+			margin-right: 8pt;
 		}
 	}
 
