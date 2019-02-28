@@ -7,7 +7,18 @@ import Form from "../games/AdminGameOverview";
 
 export default class FormField extends Component {
 	render() {
-		const { form, field, type, options, label, required, withLabel, controls } = this.props;
+		const {
+			form,
+			field,
+			type,
+			options,
+			label,
+			required,
+			withLabel,
+			controls,
+			min,
+			max
+		} = this.props;
 		//Get Component
 		let component;
 		switch (type) {
@@ -30,7 +41,7 @@ export default class FormField extends Component {
 				);
 				break;
 			default:
-				component = <input key="field" {...field} type={type} />;
+				component = <input key="field" {...field} type={type} min={min} max={max} />;
 				break;
 		}
 

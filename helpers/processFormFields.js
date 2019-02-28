@@ -19,6 +19,16 @@ export default function(fields, validationSchema) {
 			field.label = validationRule.label;
 			field.required =
 				typeof _.find(validationRule.tests, test => test.name === "required") === "object";
+
+			//Min Max
+			const min = _.filter(validationRule.tests, test => test.name === "min");
+			const max = _.filter(validationRule.tests, test => test.name === "max");
+			if (min.length) {
+				field.min = min[0].params.min;
+			}
+			if (max.length) {
+				field.max = max[0].params.max;
+			}
 		}
 		return <Field key={field.name} component={FormField} {...field} withLabel={true} />;
 	});
