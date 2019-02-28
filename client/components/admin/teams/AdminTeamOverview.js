@@ -101,6 +101,7 @@ class AdminTeamOverview extends Component {
 				return defaultValue;
 			}
 		});
+		const ground = _.filter(groundList, ground => ground.value === team._ground);
 		return {
 			name: {
 				long: team.name ? team.name.long : "",
@@ -108,7 +109,7 @@ class AdminTeamOverview extends Component {
 			},
 			nickname: team.nickname || "",
 			hashtagPrefix: team.hashtagPrefix || "",
-			_ground: _.filter(groundList, ground => ground.value === team._ground),
+			_ground: ground[0] ? ground[0] : "",
 			colours: {
 				...colours,
 				customPitchColour: team && team.colours.pitchColour !== null,
