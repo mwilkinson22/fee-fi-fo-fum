@@ -9,6 +9,7 @@ import { NavLink, Link, Switch, Route } from "react-router-dom";
 
 //Pages
 import AdminTeamOverview from "../components/admin/teams/AdminTeamOverview";
+import TeamBanner from "../components/teams/TeamBanner";
 
 class AdminTeamPage extends Component {
 	constructor(props) {
@@ -82,9 +83,9 @@ class AdminTeamPage extends Component {
 							<Link className="nav-card card" to="/admin/teams/">
 								↩ Return to team list
 							</Link>
-							<h1>{name.long}</h1>
-							{this.getSubmenu()}
 						</div>
+						<TeamBanner team={team} />
+						<div className="container">{this.getSubmenu()}</div>
 					</section>
 					{this.getContent()}
 				</div>

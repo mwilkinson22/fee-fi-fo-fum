@@ -213,51 +213,6 @@
 		.team-banners {
 			@include noTextSelect;
 			box-shadow: 0 4pt 4pt rgba(0, 0, 0, 0.3);
-
-			.team-banner {
-				position: relative;
-
-				.trim {
-					@include desktopOnly;
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-					position: absolute;
-					height: 100%;
-					top: 0;
-					z-index: 1;
-					width: 100%;
-
-					span {
-						height: 20%;
-						width: 100%;
-						display: block;
-					}
-				}
-
-				.container {
-					background: inherit;
-					z-index: 2;
-				}
-
-				.team-image {
-					height: 40pt;
-					width: 50pt;
-					margin: 4pt 12pt 4pt 4pt;
-					object-fit: contain;
-					@include desktopOnly;
-				}
-
-				h4 {
-					display: flex;
-					align-items: center;
-					font-size: 24pt;
-					color: inherit;
-					.teamname {
-						flex-grow: 1;
-					}
-				}
-			}
 		}
 
 		@media #{$mobile-and-tablet} {
@@ -276,14 +231,6 @@
 						&:not(:last-child) {
 							border-bottom: solid 1pt $gold;
 						}
-					}
-				}
-			}
-			.team-banners {
-				.team-banner {
-					h4 {
-						font-size: 20pt;
-						padding-left: 4pt;
 					}
 				}
 			}
@@ -326,35 +273,6 @@
 								border-right: solid 1pt $gold;
 							}
 						}
-					}
-				}
-			}
-
-			.team-banner {
-				.container {
-					&::after,
-					&::before {
-						content: "";
-						position: absolute;
-						right: 100%;
-						top: 0;
-						background: inherit;
-						height: 100%;
-						width: 14pt;
-						-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-						clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-					}
-
-					&::before {
-						right: 100%;
-						transform: translateX(1px);
-						-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-						clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-					}
-					&::after {
-						left: 100%;
-						-webkit-clip-path: polygon(100% 0, 0% 100%, 0 0);
-						clip-path: polygon(100% 0, 0% 100%, 0 0);
 					}
 				}
 			}

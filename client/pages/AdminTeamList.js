@@ -6,6 +6,7 @@ import LoadingPage from "../components/LoadingPage";
 import { Link } from "react-router-dom";
 import { toRgb } from "../utils/colourHelper";
 import TeamImage from "../components/teams/TeamImage";
+import TeamBanner from "../components/teams/TeamBanner";
 
 class AdminTeamList extends Component {
 	constructor(props) {
@@ -29,21 +30,10 @@ class AdminTeamList extends Component {
 		return _.chain(teamList)
 			.sortBy("name.long")
 			.map(team => {
-				const { slug, name, colours } = team;
+				const { slug } = team;
 				return (
-					<Link
-						key={team._id}
-						to={`/admin/teams/${slug}`}
-						className="admin-team-card"
-						style={{
-							backgroundColor: toRgb(colours.main),
-							borderColor: toRgb(colours.trim1)
-						}}
-					>
-						<div className="image">
-							<TeamImage team={team} />
-						</div>
-						<h6 style={{ color: toRgb(colours.text) }}>{name.long}</h6>
+					<Link key={team._id} to={`/admin/teams/${slug}`}>
+						<TeamBanner team={team} />
 					</Link>
 				);
 			})
@@ -60,7 +50,7 @@ class AdminTeamList extends Component {
 					<section className="page-header">
 						<h1>Teams</h1>
 					</section>
-					<div className="container no-mobile-padding">{this.renderList()}</div>
+					{this.renderList()}
 				</div>
 			);
 		}
