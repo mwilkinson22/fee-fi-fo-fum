@@ -1,14 +1,18 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import Colour from "color";
+
+//Actions
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { updateTeam } from "../../../actions/teamsActions";
-import fieldGroups from "./overviewFields";
+
+//Components
 import LoadingPage from "../../LoadingPage";
-import { toHex } from "../../../utils/colourHelper";
 import processFormFields from "../../../../helpers/processFormFields";
-import * as Yup from "yup";
 
 class AdminTeamOverview extends Component {
 	constructor(props) {
@@ -96,7 +100,7 @@ class AdminTeamOverview extends Component {
 		const { colourTypes } = this;
 		const colours = _.mapValues(colourTypes, (defaultValue, type) => {
 			if (team && team.colours[type]) {
-				return toHex(team.colours[type]);
+				return Colour(team.colours[type]).hex();
 			} else {
 				return defaultValue;
 			}
@@ -190,7 +194,7 @@ class AdminTeamOverview extends Component {
 //Add Redux Support
 function mapStateToProps({ grounds }, ownProps) {
 	const { groundList } = grounds;
-	return { groundList, fieldGroups, ...ownProps };
+	return { groundList, ...ownProps };
 }
 // export default form;
 export default connect(
