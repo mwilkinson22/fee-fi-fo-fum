@@ -9,6 +9,7 @@ projections.basic = {
 	date: 1,
 	slug: 1,
 	title: 1,
+	customTitle: 1,
 	_competition: 1,
 	"_opposition._id": 1,
 	"_opposition.colours": 1,
@@ -167,6 +168,7 @@ const getBasicGameData = _.concat(
 		},
 		{
 			$addFields: {
+				customTitle: "$title",
 				title: {
 					$cond: {
 						if: {

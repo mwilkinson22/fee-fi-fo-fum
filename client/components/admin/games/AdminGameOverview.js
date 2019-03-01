@@ -93,7 +93,9 @@ class AdminGameOverview extends Component {
 				.label("Round"),
 			venue: Yup.string()
 				.required()
-				.label("Venue")
+				.label("Venue"),
+			title: Yup.string().label("Title"),
+			hashtags: Yup.string().label("Hashtags")
 		});
 	}
 
@@ -111,8 +113,10 @@ class AdminGameOverview extends Component {
 			_teamType: _teamType ? _teamType[0] : "",
 			_competition: _competition ? _competition[0] : "",
 			_opposition: _opposition ? _opposition[0] : "",
-			round: game.round,
-			venue: game.isAway ? "away" : "home"
+			round: game.round || "",
+			venue: game.isAway ? "away" : "home",
+			title: game.customTitle || "",
+			hashtags: game.hashtags ? game.hashtags.join(" ") : ""
 		};
 	}
 
@@ -188,7 +192,9 @@ class AdminGameOverview extends Component {
 			{ name: "_competition", type: "Select", options: competition },
 			{ name: "_opposition", type: "Select", options: opposition },
 			{ name: "round", type: "number" },
-			{ name: "venue", type: "Radio", options: venueOptions }
+			{ name: "venue", type: "Radio", options: venueOptions },
+			{ name: "title", type: "text", placeholder: "Auto-generated if left blank" },
+			{ name: "hashtags", type: "text", placeholder: "Auto-generated if left blank" }
 		];
 		return (
 			<Form>
