@@ -17,7 +17,8 @@ export default class FormField extends Component {
 			withLabel,
 			controls,
 			min,
-			max
+			max,
+			placeholder
 		} = this.props;
 		//Get Component
 		let component;
@@ -41,10 +42,18 @@ export default class FormField extends Component {
 				);
 				break;
 			default:
-				component = <input key="field" {...field} type={type} min={min} max={max} />;
+				component = (
+					<input
+						key="field"
+						{...field}
+						type={type}
+						min={min}
+						max={max}
+						placeholder={placeholder}
+					/>
+				);
 				break;
 		}
-
 		//Handle "contains"
 		if (controls && field.value) {
 			component = (
