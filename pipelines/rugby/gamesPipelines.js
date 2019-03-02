@@ -21,7 +21,9 @@ projections.basic = {
 	playerStats: 1,
 	images: 1,
 	tv: 1,
-	pregameSquads: 1
+	pregameSquads: 1,
+	_referee: 1,
+	_video_referee: 1
 };
 
 const getCompetitionInfo = [
@@ -141,6 +143,36 @@ const getBasicGameData = _.concat(
 		},
 		{
 			$unwind: "$_opposition"
+		},
+
+		//Get Refs
+		{
+			$lookup: {
+				from: "people",
+				localField: "_referee",
+				foreignField: "_id",
+				as: "_referee"
+			}
+		},
+		{
+			$unwind: {
+				path: "$_referee",
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$lookup: {
+				from: "people",
+				localField: "_video_referee",
+				foreignField: "_id",
+				as: "_video_referee"
+			}
+		},
+		{
+			$unwind: {
+				path: "$_video_referee",
+				preserveNullAndEmptyArrays: true
+			}
 		},
 
 		//Get Ground Info

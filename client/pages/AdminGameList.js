@@ -145,7 +145,7 @@ class AdminGameList extends Component {
 			return <LoadingPage />;
 		} else {
 			return (
-				<div>
+				<div className="admin-page">
 					<HelmetBuilder title="4Fs Admin - Games" />
 					<section className="page-header">
 						<div className="container">

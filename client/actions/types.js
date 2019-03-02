@@ -7,6 +7,7 @@ export const FETCH_GAME = "fetch_game";
 export const FETCH_GAMES = "fetch_games";
 export const FETCH_GAME_LISTS = "fetch_game_lists";
 export const FETCH_HOMEPAGE_GAMES = "fetch_homepage_games";
+export const UPDATE_GAME_BASICS = "update_game_basics";
 
 //Teams
 export const FETCH_SQUAD = "fetch_squad";
@@ -27,6 +28,7 @@ export const FETCH_POST_PAGINATION = "fetch_post_pagination";
 export const FETCH_PERSON = "fetch_person";
 export const FETCH_PLAYER_STAT_YEARS = "fetch_player_stat_years";
 export const FETCH_PLAYER_STATS = "fetch_player_stats";
+export const FETCH_ALL_REFEREES = "fetch_all_referees";
 
 //Grounds
 export const FETCH_ALL_GROUNDS = "fetch_all_grounds";

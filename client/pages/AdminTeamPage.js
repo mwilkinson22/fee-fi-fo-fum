@@ -77,7 +77,7 @@ class AdminTeamPage extends Component {
 		} else {
 			const { name } = team;
 			return (
-				<div className="admin-team-page">
+				<div className="admin-team-page admin-page">
 					<section className="page-header">
 						<div className="container">
 							<Link className="nav-card card" to="/admin/teams/">

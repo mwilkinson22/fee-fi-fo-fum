@@ -15,6 +15,10 @@ const getPositions = require("../../utils/getPositions");
 
 module.exports = app => {
 	//Get
+	app.get("/api/people/referees", async (req, res) => {
+		const people = await Person.find({ isReferee: true }, "name");
+		res.send(people);
+	});
 	app.get("/api/people/:id", GenericController.getItemById);
 	app.get("/api/people/slug/:slug", async (req, res) => {
 		const { slug } = req.params;

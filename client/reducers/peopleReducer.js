@@ -1,5 +1,10 @@
 import _ from "lodash";
-import { FETCH_PERSON, FETCH_PLAYER_STAT_YEARS, FETCH_PLAYER_STATS } from "../actions/types";
+import {
+	FETCH_ALL_REFEREES,
+	FETCH_PERSON,
+	FETCH_PLAYER_STAT_YEARS,
+	FETCH_PLAYER_STATS
+} from "../actions/types";
 
 export default function(state = { squads: {} }, action) {
 	switch (action.type) {
@@ -17,6 +22,11 @@ export default function(state = { squads: {} }, action) {
 					...state[action.payload.slug],
 					playerStats
 				}
+			};
+		case FETCH_ALL_REFEREES:
+			return {
+				...state,
+				referees: action.payload
 			};
 
 		case FETCH_PLAYER_STATS:

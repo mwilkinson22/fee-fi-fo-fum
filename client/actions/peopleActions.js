@@ -1,4 +1,9 @@
-import { FETCH_PERSON, FETCH_PLAYER_STAT_YEARS, FETCH_PLAYER_STATS } from "./types";
+import {
+	FETCH_ALL_REFEREES,
+	FETCH_PERSON,
+	FETCH_PLAYER_STAT_YEARS,
+	FETCH_PLAYER_STATS
+} from "./types";
 import PlayerStatsHelper from "../helperClasses/PlayerStatsHelper";
 
 export const fetchPersonBySlug = slug => async (dispatch, getState, api) => {
@@ -26,6 +31,11 @@ export const fetchPersonBySlug = slug => async (dispatch, getState, api) => {
 export const fetchPlayerStatYears = id => async (dispatch, getState, api) => {
 	const res = await api.get(`/people/playerStatsYears/${id}`);
 	dispatch({ type: FETCH_PLAYER_STAT_YEARS, payload: res.data });
+};
+
+export const fetchAllReferees = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/people/referees`);
+	dispatch({ type: FETCH_ALL_REFEREES, payload: res.data });
 };
 
 export const fetchPlayerStats = (id, year) => async (dispatch, getState, api) => {

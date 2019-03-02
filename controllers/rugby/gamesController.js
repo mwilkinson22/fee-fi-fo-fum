@@ -1,3 +1,5 @@
+import HomePage from "../../client/pages/HomePage";
+
 const _ = require("lodash");
 const mongoose = require("mongoose");
 const collectionName = "games";
@@ -9,12 +11,50 @@ const {
 	projections
 } = require("../../pipelines/rugby/gamesPipelines");
 const { ObjectId } = require("mongodb");
+const { localTeam } = require("../../config/keys");
 
 async function aggregateForList(initialPipelines) {
 	const games = await Game.aggregate(
 		_.concat(initialPipelines, getBasicGameData, { $project: projections.basic })
 	);
 	return _.map(games, game => getVirtuals(game));
+}
+
+async function processBasics(values) {
+	//Combine datetime
+	values.date += ` ${values.time}`;
+	delete values.time;
+
+	//Pull select values
+	const selectable = [
+		"_teamType",
+		"_competition",
+		"_opposition",
+		"_ground",
+		"_referee",
+		"_video_referee"
+	];
+	_.each(selectable, prop => (values[prop] ? (values[prop] = values[prop].value) : null));
+
+	//Get Null values
+	const nullable = ["hashtags", "round", "title", "tv", "_referee", "_video_referee"];
+	_.each(nullable, prop => (values[prop] === "" ? (values[prop] = null) : null));
+
+	//Split Hashtags
+	if (values.hashtags) {
+		values.hashtags = values.hashtags.match(/[A-Za-z0-9]+/gi);
+	}
+
+	//Sort ground
+	if (values._ground === "auto") {
+		const Team = mongoose.model("teams");
+		const homeTeam = await Team.findById(
+			values.isAway === "true" ? values._opposition : localTeam
+		);
+		values._ground = homeTeam._ground;
+	}
+
+	return values;
 }
 
 function getVirtuals(game) {
@@ -46,25 +86,26 @@ function getVirtuals(game) {
 	return game;
 }
 
+async function getItemBySlug(req, res) {
+	const { slug } = req.params;
+	let game = await Game.aggregate(_.concat([{ $match: { slug } }], getFullGame));
+	if (game.length) {
+		res.send(getVirtuals(game[0]));
+	} else {
+		//Check for a redirect
+		const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
+		if (slugRedirect) {
+			game = await Game.findById(slugRedirect.itemId, { slug: 1 });
+			res.status(308).send(game);
+		} else {
+			res.status(404).send({});
+		}
+	}
+}
+
 module.exports = {
 	getVirtuals,
-	async getItemBySlug(req, res) {
-		const { slug } = req.params;
-		let game = await Game.aggregate(_.concat([{ $match: { slug } }], getFullGame));
-
-		if (game.length) {
-			res.send(getVirtuals(game[0]));
-		} else {
-			//Check for a redirect
-			const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
-			if (slugRedirect) {
-				game = await Game.findById(slugRedirect.itemId, { slug: 1 });
-				res.status(308).send(game);
-			} else {
-				res.status(404).send({});
-			}
-		}
-	},
+	getItemBySlug,
 	async getGames(req, res) {
 		const { year, teamType } = req.params;
 		const query = {};
@@ -232,5 +273,19 @@ module.exports = {
 		]);
 
 		res.send(results);
+	},
+	async updateGameBasics(req, res) {
+		const { _id } = req.params;
+		const game = await Game.findById(_id);
+		if (!game) {
+			res.status(500).send(`No game with id ${_id} was found`);
+		} else {
+			const values = await processBasics(req.body);
+
+			await Game.updateOne({ _id }, values);
+
+			//Reload Game
+			getItemBySlug({ params: { slug: game.slug } }, res);
+		}
 	}
 };

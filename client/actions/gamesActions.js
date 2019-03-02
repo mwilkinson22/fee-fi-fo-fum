@@ -1,4 +1,10 @@
-import { FETCH_GAME, FETCH_GAMES, FETCH_GAME_LISTS, FETCH_HOMEPAGE_GAMES } from "./types";
+import {
+	FETCH_GAME,
+	FETCH_GAMES,
+	FETCH_GAME_LISTS,
+	FETCH_HOMEPAGE_GAMES,
+	UPDATE_GAME_BASICS
+} from "./types";
 
 export const fetchGame = slug => async (dispatch, getState, api) => {
 	let payload;
@@ -35,4 +41,9 @@ export const fetchGameLists = () => async (dispatch, getState, api) => {
 export const fetchHomepageGames = () => async (dispatch, getState, api) => {
 	const res = await api.get("/games/homepage/");
 	dispatch({ type: FETCH_HOMEPAGE_GAMES, payload: res.data });
+};
+
+export const updateGameBasics = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/games/${id}/basics/`, values);
+	dispatch({ type: UPDATE_GAME_BASICS, payload: res.data, slug: res.data.slug });
 };

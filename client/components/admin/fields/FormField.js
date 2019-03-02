@@ -18,7 +18,8 @@ export default class FormField extends Component {
 			controls,
 			min,
 			max,
-			placeholder
+			placeholder,
+			isClearable
 		} = this.props;
 		//Get Component
 		let component;
@@ -38,6 +39,7 @@ export default class FormField extends Component {
 						onChange={option => {
 							form.setFieldValue(field.name, option);
 						}}
+						isClearable={isClearable}
 					/>
 				);
 				break;

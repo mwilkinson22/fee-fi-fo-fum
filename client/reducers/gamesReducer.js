@@ -1,8 +1,15 @@
-import { FETCH_GAME, FETCH_HOMEPAGE_GAMES, FETCH_GAMES, FETCH_GAME_LISTS } from "../actions/types";
+import {
+	FETCH_GAME,
+	FETCH_HOMEPAGE_GAMES,
+	FETCH_GAMES,
+	FETCH_GAME_LISTS,
+	UPDATE_GAME_BASICS
+} from "../actions/types";
 
 export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
 		case FETCH_GAME:
+		case UPDATE_GAME_BASICS:
 			return {
 				...state,
 				fullGames: {

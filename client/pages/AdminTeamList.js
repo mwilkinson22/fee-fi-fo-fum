@@ -46,7 +46,7 @@ class AdminTeamList extends Component {
 			return <LoadingPage />;
 		} else {
 			return (
-				<div className="admin-team-list">
+				<div className="admin-page admin-team-list">
 					<section className="page-header">
 						<h1>Teams</h1>
 					</section>

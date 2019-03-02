@@ -26,6 +26,8 @@ module.exports = app => {
 	app.get("/api/games/homepage", GameController.getFrontpageGames);
 	app.get("/api/games/:id", GenericController.getItemById);
 
+	app.put("/api/games/:_id/basics", GameController.updateGameBasics);
+
 	app.post("/api/games", requireAdmin, async (req, res) => {
 		const { data } = req.body;
 

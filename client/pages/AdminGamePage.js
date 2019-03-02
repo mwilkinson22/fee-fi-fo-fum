@@ -109,7 +109,7 @@ class AdminGamePage extends Component {
 			const { slug } = game;
 			const date = new Date(game.date);
 			return (
-				<div className="admin-game-page">
+				<div className="admin-game-page admin-page">
 					<section className="page-header">
 						<div className="container">
 							<Link

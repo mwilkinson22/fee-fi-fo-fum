@@ -10,6 +10,9 @@ import "datejs";
 //Actions
 import { fetchAllTeams, fetchAllTeamTypes } from "../../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
+import { fetchAllGrounds } from "../../../actions/groundActions";
+import { fetchAllReferees } from "../../../actions/peopleActions";
+import { updateGameBasics } from "../../../actions/gamesActions";
 
 //Components
 import { localTeam } from "../../../../config/keys";
@@ -26,7 +29,11 @@ class AdminGameOverview extends Component {
 			competitionSegmentList,
 			fetchAllTeamTypes,
 			fetchAllTeams,
-			fetchAllCompetitionSegments
+			fetchAllCompetitionSegments,
+			groundList,
+			fetchAllGrounds,
+			referees,
+			fetchAllReferees
 		} = props;
 		if (!teamTypes) {
 			fetchAllTeamTypes();
@@ -37,10 +44,18 @@ class AdminGameOverview extends Component {
 		if (!competitionSegmentList) {
 			fetchAllCompetitionSegments();
 		}
+		if (!groundList) {
+			fetchAllGrounds();
+		}
+		if (!referees) {
+			fetchAllReferees();
+		}
 		this.state = {
 			game,
 			teamTypes,
 			teamList,
+			groundList,
+			referees,
 			competitionSegmentList
 		};
 	}
@@ -50,12 +65,21 @@ class AdminGameOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { game, teamTypes, teamList, competitionSegmentList } = nextProps;
+		const {
+			game,
+			teamTypes,
+			teamList,
+			competitionSegmentList,
+			groundList,
+			referees
+		} = nextProps;
 		return {
 			game,
 			teamTypes,
 			teamList,
-			competitionSegmentList
+			competitionSegmentList,
+			groundList,
+			referees
 		};
 	}
 
@@ -91,21 +115,48 @@ class AdminGameOverview extends Component {
 			round: Yup.number()
 				.min(1)
 				.label("Round"),
-			venue: Yup.string()
-				.required()
-				.label("Venue"),
 			title: Yup.string().label("Title"),
-			hashtags: Yup.string().label("Hashtags")
+			hashtags: Yup.string().label("Hashtags"),
+			isAway: Yup.boolean()
+				.required()
+				.label("Home/Away"),
+			_ground: Yup.string()
+				.required()
+				.label("Ground"),
+			tv: Yup.string().label("TV"),
+			_referee: Yup.string()
+				.label("Referee")
+				.nullable(),
+			_video_referee: Yup.string()
+				.label("Video Referee")
+				.nullable()
 		});
 	}
 
 	getDefaults() {
 		const { game } = this.state;
-		const { teamTypes, competition, opposition } = this.getOptions();
+		const {
+			teamTypes,
+			competitionSegmentList,
+			teamList,
+			groundList,
+			referees
+		} = this.getOptions();
 
+		//Get Select Values
 		const _teamType = _.filter(teamTypes, type => type.value === game._teamType);
-		const _competition = _.filter(competition, comp => comp.value === game._competition._id);
-		const _opposition = _.filter(opposition, team => team.value === game._opposition._id);
+		const _competition = _.filter(
+			competitionSegmentList,
+			comp => comp.value === game._competition._id
+		);
+		const _opposition = _.filter(teamList, team => team.value === game._opposition._id);
+		const _ground = _.filter(groundList, ground => ground.value === game._ground._id);
+		const _referee = game._referee
+			? _.filter(referees, ref => ref.value === game._referee._id)
+			: "";
+		const _video_referee = game._video_referee
+			? _.filter(referees, ref => ref.value === game._video_referee._id)
+			: "";
 
 		return {
 			date: new Date(game.date).toString("yyyy-MM-dd"),
@@ -114,37 +165,71 @@ class AdminGameOverview extends Component {
 			_competition: _competition ? _competition[0] : "",
 			_opposition: _opposition ? _opposition[0] : "",
 			round: game.round || "",
-			venue: game.isAway ? "away" : "home",
 			title: game.customTitle || "",
-			hashtags: game.hashtags ? game.hashtags.join(" ") : ""
+			hashtags: game.hashtags ? game.hashtags.join(" ") : "",
+			isAway: game.isAway,
+			_ground: _ground ? _ground[0] : "",
+			tv: game.tv || "",
+			_referee,
+			_video_referee
 		};
 	}
 
 	onSubmit(values) {
-		console.log(values);
+		const { updateGameBasics, game } = this.props;
+		updateGameBasics(game._id, values);
 	}
 
 	getOptions(formikProps) {
 		const options = {};
-		let { teamTypes, teamList, competitionSegmentList } = this.state;
+		let { teamTypes, teamList, competitionSegmentList, groundList, referees } = this.state;
 		const { game } = this.state;
 		//Filter
 		if (formikProps || game) {
 			const values = formikProps ? formikProps.values : null;
 
-			//Filter Competitions
+			//Filter Competitions on Team Type and Year
 			const filterDate = values ? values.date : game.date;
-			const filterYear = new Date(filterDate).getFullYear();
 			const filterTeamType = values ? values._teamType.value : game._teamType;
-			competitionSegmentList = _.filter(competitionSegmentList, comp => {
-				return (
-					comp._teamType === filterTeamType &&
-					_.filter(
-						comp.instances,
-						instance => instance.year === filterYear || instance.year === null
-					).length > 0
+			const filterYear = filterDate ? new Date(filterDate).getFullYear() : null;
+
+			//If the date and team types aren't set, return an empty list
+			if (!filterDate || !filterTeamType || !competitionSegmentList) {
+				competitionSegmentList = [];
+			} else {
+				competitionSegmentList = _.filter(competitionSegmentList, comp => {
+					return (
+						comp._teamType === filterTeamType &&
+						_.filter(
+							comp.instances,
+							instance => instance.year === filterYear || instance.year === null
+						).length > 0
+					);
+				});
+			}
+			//Filter Team on Competition and Year
+			let competitionSegment = values ? values._competition : game._competition;
+			if (!filterYear || !competitionSegment || !competitionSegmentList.length) {
+				teamList = [];
+			} else {
+				//Get Full Segment Object
+				competitionSegment = _.filter(
+					competitionSegmentList,
+					comp => comp.id === competitionSegment.value
 				);
-			});
+
+				//Get Instance
+				const competitionInstance = _.filter(
+					competitionSegment.instances,
+					instance => instance.year === filterYear || instance.year === null
+				);
+				// if (competitionInstance.teams) {
+				// 	teamList = _.filter(
+				// 		teamList,
+				// 		team => competitionInstance.teams.indexOf(team._id) > -1
+				// 	);
+				// }
+			}
 		}
 
 		//Team Types
@@ -154,7 +239,7 @@ class AdminGameOverview extends Component {
 		}));
 
 		//Competition
-		options.competition = _.chain(competitionSegmentList)
+		options.competitionSegmentList = _.chain(competitionSegmentList)
 			.map(competition => ({
 				value: competition._id,
 				label: `${competition._parentCompetition.name}${
@@ -165,10 +250,32 @@ class AdminGameOverview extends Component {
 			.value();
 
 		//Opposition
-		options.opposition = _.chain(teamList)
+		options.teamList = _.chain(teamList)
 			.map(team => ({
 				value: team._id,
 				label: team.name.long
+			}))
+			.sortBy("label")
+			.value();
+
+		//Grounds
+		const filteredGroundList = _.chain(groundList)
+			.map(ground => ({
+				value: ground._id,
+				label: `${ground.name}, ${ground.address._city.name}`
+			}))
+			.sortBy("label")
+			.value();
+		options.groundList = [
+			{ value: "auto", label: "Home Team's Ground" },
+			...filteredGroundList
+		];
+
+		//Refs
+		options.referees = _.chain(referees)
+			.map(ref => ({
+				value: ref._id,
+				label: `${ref.name.first} ${ref.name.last}`
 			}))
 			.sortBy("label")
 			.value();
@@ -179,27 +286,55 @@ class AdminGameOverview extends Component {
 	renderFields(formikProps) {
 		const validationSchema = this.getValidationSchema();
 
-		const { teamTypes, competition, opposition } = this.getOptions(formikProps);
-		const venueOptions = [
-			{ value: "home", label: "Home" },
-			{ value: "away", label: "Away" },
-			{ value: "neutral", label: "Neutral" }
+		//Options
+		const {
+			teamTypes,
+			competitionSegmentList,
+			teamList,
+			groundList,
+			referees
+		} = this.getOptions(formikProps);
+		const awayOptions = [{ value: false, label: "Home" }, { value: true, label: "Away" }];
+		const tvOptions = [
+			{ value: "", label: "None" },
+			{ value: "sky", label: "Sky" },
+			{ value: "bbc", label: "BBC" }
 		];
-		const fields = [
+
+		//Fields
+		const mainFields = [
 			{ name: "date", type: "date" },
 			{ name: "time", type: "time" },
 			{ name: "_teamType", type: "Select", options: teamTypes },
-			{ name: "_competition", type: "Select", options: competition },
-			{ name: "_opposition", type: "Select", options: opposition },
-			{ name: "round", type: "number" },
-			{ name: "venue", type: "Radio", options: venueOptions },
+			{ name: "_competition", type: "Select", options: competitionSegmentList },
+			{ name: "_opposition", type: "Select", options: teamList },
+			{ name: "round", type: "number" }
+		];
+		const venueFields = [
+			{ name: "isAway", type: "Radio", options: awayOptions },
+			{ name: "_ground", type: "Select", options: groundList }
+		];
+		const mediaFields = [
 			{ name: "title", type: "text", placeholder: "Auto-generated if left blank" },
-			{ name: "hashtags", type: "text", placeholder: "Auto-generated if left blank" }
+			{ name: "hashtags", type: "text", placeholder: "Auto-generated if left blank" },
+			{ name: "tv", type: "Radio", options: tvOptions }
+		];
+		const refereeFields = [
+			{ name: "_referee", type: "Select", options: referees, isClearable: true },
+			{ name: "_video_referee", type: "Select", options: referees, isClearable: true }
 		];
 		return (
 			<Form>
 				<div className="form-card">
-					{processFormFields(fields, validationSchema)}
+					<h6>Basics</h6>
+					{processFormFields(mainFields, validationSchema)}
+					<h6>Venue</h6>
+					{processFormFields(venueFields, validationSchema)}
+					<h6>Media</h6>
+					{processFormFields(mediaFields, validationSchema)}
+					<h6>Referees</h6>
+					{processFormFields(refereeFields, validationSchema)}
+
 					<div className="buttons">
 						<button type="clear">Clear</button>
 						<button type="submit">Submit</button>
@@ -210,8 +345,22 @@ class AdminGameOverview extends Component {
 	}
 
 	render() {
-		const { teamTypes, teamList, competitionSegmentList } = this.state;
-		if (!teamTypes || !teamList || !competitionSegmentList) {
+		const requireToRender = [
+			"teamTypes",
+			"teamList",
+			"competitionSegmentList",
+			"groundList",
+			"referees"
+		];
+		let stopRender = false;
+		for (const prop of requireToRender) {
+			if (!this.state[prop]) {
+				stopRender = true;
+				break;
+			}
+		}
+
+		if (stopRender) {
 			return <LoadingPage />;
 		}
 
@@ -229,15 +378,24 @@ class AdminGameOverview extends Component {
 }
 
 //Add Redux Support
-function mapStateToProps({ games, teams, competitions }, ownProps) {
+function mapStateToProps({ games, teams, competitions, grounds, people }, ownProps) {
 	const { slug } = ownProps.match.params;
 	const game = games.fullGames[slug];
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
-	return { game, teamTypes, teamList, competitionSegmentList, ...ownProps };
+	const { groundList } = grounds;
+	const { referees } = people;
+	return { game, teamTypes, teamList, competitionSegmentList, groundList, referees, ...ownProps };
 }
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeamTypes, fetchAllTeams, fetchAllCompetitionSegments }
+	{
+		fetchAllTeamTypes,
+		fetchAllTeams,
+		fetchAllCompetitionSegments,
+		fetchAllGrounds,
+		fetchAllReferees,
+		updateGameBasics
+	}
 )(AdminGameOverview);
