@@ -2,7 +2,6 @@
 	background: #fff;
 	display: grid;
 	align-items: center;
-	grid-template-columns: minmax(min-content, 1fr) minmax(250px, 10fr);
 	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
 	padding: 20pt;
 
@@ -46,6 +45,7 @@
 		@include noTextSelect;
 		white-space: nowrap;
 		padding-right: 8pt;
+		font-weight: bold;
 		&.required::after {
 			content: "*";
 			color: $claret;
@@ -81,6 +81,8 @@
 
 	// Field Types
 	.radio-fields {
+		display: flex;
+		flex-wrap: wrap;
 		input {
 			display: none;
 		}
@@ -88,7 +90,7 @@
 		label {
 			@include noTextSelect;
 			cursor: pointer;
-			padding: 2pt 8pt;
+			padding: 4pt 8pt;
 			border-radius: 4pt;
 			background: rgba(black, 0.05);
 			margin-right: 4pt;
@@ -136,6 +138,10 @@
 			background: $claret;
 			left: 12pt;
 		}
+	}
+
+	@media #{$desktop-only} {
+		grid-template-columns: minmax(min-content, 1fr) minmax(250px, 10fr);
 	}
 }
 
