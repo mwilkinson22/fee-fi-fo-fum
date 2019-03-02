@@ -7,13 +7,13 @@ import {
 	UPDATE_TEAM
 } from "./types";
 
-export const fetchSquad = (year, team = "local") => async (dispatch, getState, api) => {
+export const fetchSquad = (year, team) => async (dispatch, getState, api) => {
 	const res = await api.get(`/teams/squads/${team}/${year}`);
-	dispatch({ type: FETCH_SQUAD, payload: res.data });
+	dispatch({ type: FETCH_SQUAD, payload: res.data, team });
 };
-export const fetchYearsWithSquads = (team = "local") => async (dispatch, getState, api) => {
+export const fetchYearsWithSquads = team => async (dispatch, getState, api) => {
 	const res = await api.get(`/teams/squads/years/${team}`);
-	dispatch({ type: FETCH_YEARS_WITH_SQUADS, payload: res.data });
+	dispatch({ type: FETCH_YEARS_WITH_SQUADS, payload: res.data, team });
 };
 
 export const fetchAllTeams = () => async (dispatch, getState, api) => {

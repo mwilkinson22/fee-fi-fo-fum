@@ -2,14 +2,11 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const Team = mongoose.model("teams");
 const { ObjectId } = require("mongodb");
-const { localTeam } = require("../../config/keys");
 const getPositions = require("../../utils/getPositions");
 const Colour = require("color");
 
 function validateTeam(team) {
-	if (team === "local") {
-		return ObjectId(localTeam);
-	} else if (ObjectId.isValid(team)) {
+	if (ObjectId.isValid(team)) {
 		return ObjectId(team);
 	} else {
 		return false;
@@ -53,6 +50,7 @@ module.exports = {
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
 		const { year } = req.params;
+		console.log(year);
 
 		if (team) {
 			let { includeFriendlyOnly } = req.query;

@@ -7,7 +7,7 @@ import {
 } from "../actions/types";
 import _ from "lodash";
 
-export default function(state = {}, action) {
+export default function(state = { squads: {} }, action) {
 	switch (action.type) {
 		case UPDATE_TEAM:
 			return {
@@ -20,15 +20,24 @@ export default function(state = {}, action) {
 		case FETCH_SQUAD:
 			return {
 				...state,
-				squads: { ...state.squads, [action.payload.year]: action.payload.players }
+				squads: {
+					...state.squads,
+					[action.team]: {
+						...state.squads[action.team],
+						[action.payload.year]: action.payload.players
+					}
+				}
 			};
 		case FETCH_YEARS_WITH_SQUADS:
 			return {
 				...state,
-				squads: _.chain(action.payload)
-					.map(year => [year, null])
-					.fromPairs()
-					.value()
+				squads: {
+					...state.squads,
+					[action.team]: _.chain(action.payload)
+						.map(year => [year, null])
+						.fromPairs()
+						.value()
+				}
 			};
 
 		case FETCH_ALL_TEAMS:
