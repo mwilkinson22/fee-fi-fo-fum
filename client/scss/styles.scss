@@ -80,6 +80,50 @@ body {
 	}
 }
 
+.table {
+	@include noTextSelect;
+	box-shadow: 2pt 2pt 2pt rgba(black, 0.4);
+	th,
+	td {
+		padding: 4pt 8pt;
+		text-align: left;
+	}
+	thead {
+		background: $claret;
+		color: white;
+		th.sortable {
+			cursor: pointer;
+			.sort-arrow {
+				width: 11pt;
+				display: inline-block;
+				text-align: center;
+				opacity: 0;
+			}
+
+			&:hover,
+			&.sorted {
+				color: $gold;
+				.sort-arrow {
+					opacity: 1;
+				}
+			}
+		}
+	}
+	tbody {
+		background: white;
+		tr {
+			border-bottom: solid thin #ddd;
+			&:hover {
+				background: rgba(#888, 0.05);
+			}
+		}
+	}
+	tfoot {
+		background: #333;
+		color: white;
+	}
+}
+
 .list-filters {
 	display: flex;
 	justify-content: center;
