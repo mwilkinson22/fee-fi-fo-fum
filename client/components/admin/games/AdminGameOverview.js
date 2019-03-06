@@ -379,13 +379,11 @@ class AdminGameOverview extends Component {
 
 //Add Redux Support
 function mapStateToProps({ games, teams, competitions, grounds, people }, ownProps) {
-	const { slug } = ownProps.match.params;
-	const game = games.fullGames[slug];
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { groundList } = grounds;
 	const { referees } = people;
-	return { game, teamTypes, teamList, competitionSegmentList, groundList, referees, ...ownProps };
+	return { teamTypes, teamList, competitionSegmentList, groundList, referees, ...ownProps };
 }
 // export default form;
 export default connect(

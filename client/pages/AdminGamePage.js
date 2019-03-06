@@ -8,6 +8,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import { localTeam } from "../../config/keys";
 import { NavLink, Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
+import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -87,11 +88,21 @@ class AdminGamePage extends Component {
 	}
 
 	getContent() {
+		const { game } = this.state;
 		return (
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
 				<Switch>
-					<Route path="/admin/game/:slug" exact component={AdminGameOverview} />
+					<Route
+						path="/admin/game/:slug/pregame"
+						exact
+						render={() => <AdminGamePregameSquads game={game} />}
+					/>
+					<Route
+						path="/admin/game/:slug"
+						exact
+						render={() => <AdminGameOverview game={game} />}
+					/>
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</div>
@@ -100,13 +111,11 @@ class AdminGamePage extends Component {
 
 	render() {
 		const { game } = this.state;
-		let content, header;
 		if (game === undefined) {
 			return <LoadingPage />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
 		} else {
-			const { slug } = game;
 			const date = new Date(game.date);
 			return (
 				<div className="admin-game-page admin-page">
