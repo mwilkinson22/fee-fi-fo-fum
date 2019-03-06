@@ -294,7 +294,23 @@ module.exports = {
 		if (!game) {
 			res.status(500).send(`No game with id ${_id} was found`);
 		} else {
-			res.send(req.body);
+			game.pregameSquads = _.chain(req.body)
+				.map((squad, _team) => {
+					if (squad.length) {
+						return {
+							_team,
+							squad
+						};
+					} else {
+						return null;
+					}
+				})
+				.filter(_.identity)
+				.value();
+
+			await game.save();
+
+			getItemBySlug({ params: { slug: game.slug } }, res);
 		}
 	}
 };
