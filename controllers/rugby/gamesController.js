@@ -60,7 +60,7 @@ async function processBasics(values) {
 function getVirtuals(game) {
 	//Get status
 	const { pregameSquads, playerStats } = game;
-	if (Object.keys(_.pickBy(pregameSquads)).length < 2) {
+	if (pregameSquads.length < 2) {
 		game.status = 0;
 	} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2) {
 		game.status = 1;
@@ -286,6 +286,15 @@ module.exports = {
 
 			//Reload Game
 			getItemBySlug({ params: { slug: game.slug } }, res);
+		}
+	},
+	async setPregameSquads(req, res) {
+		const { _id } = req.params;
+		const game = await Game.findById(_id);
+		if (!game) {
+			res.status(500).send(`No game with id ${_id} was found`);
+		} else {
+			res.send(req.body);
 		}
 	}
 };

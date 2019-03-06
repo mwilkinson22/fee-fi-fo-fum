@@ -4,6 +4,7 @@
 	align-items: center;
 	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
 	padding: 20pt;
+	margin-bottom: 10pt;
 
 	h6,
 	.error,
@@ -68,11 +69,7 @@
 
 	button {
 		background: #eee;
-		font-size: 12pt;
-		padding: 2pt 4pt;
-		outline: none;
-		cursor: pointer;
-		border-radius: 2pt;
+		color: black;
 
 		&:hover {
 			background: #ddd;
@@ -197,18 +194,34 @@
 }
 
 .admin-pregame-squad-page {
-	.container {
+	.pregame-wrapper {
 		display: grid;
 		grid-gap: 10pt;
 
+		.buttons {
+			margin-bottom: 4pt;
+			button {
+				margin-right: 8pt;
+			}
+		}
+
 		table {
 			width: 100%;
+			margin-bottom: 20pt;
 			td:last-child {
 				width: 100%;
+			}
+			tbody {
+				tr {
+					cursor: pointer;
+				}
 			}
 			tfoot {
 				td {
 					text-align: right;
+					&:first-child {
+						color: #222;
+					}
 				}
 			}
 		}

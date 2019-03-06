@@ -3,13 +3,15 @@ import {
 	FETCH_HOMEPAGE_GAMES,
 	FETCH_GAMES,
 	FETCH_GAME_LISTS,
-	UPDATE_GAME_BASICS
+	UPDATE_GAME_BASICS,
+	SET_PREGAME_SQUADS
 } from "../actions/types";
 
 export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
 		case FETCH_GAME:
 		case UPDATE_GAME_BASICS:
+		case SET_PREGAME_SQUADS:
 			return {
 				...state,
 				fullGames: {

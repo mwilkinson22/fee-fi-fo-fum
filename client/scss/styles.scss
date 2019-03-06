@@ -275,6 +275,24 @@ a.card:hover {
 	}
 }
 
+button {
+	background: #333;
+	color: white;
+	font-size: 12pt;
+	padding: 4pt 8pt;
+	outline: none;
+	cursor: pointer;
+	border-radius: 2pt;
+
+	&:hover {
+		background: #444;
+	}
+
+	&:active {
+		background: #666;
+	}
+}
+
 .stat-tables {
 	padding-bottom: 20pt;
 	@include noTextSelect;

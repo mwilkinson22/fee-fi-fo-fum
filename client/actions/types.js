@@ -8,6 +8,7 @@ export const FETCH_GAMES = "fetch_games";
 export const FETCH_GAME_LISTS = "fetch_game_lists";
 export const FETCH_HOMEPAGE_GAMES = "fetch_homepage_games";
 export const UPDATE_GAME_BASICS = "update_game_basics";
+export const SET_PREGAME_SQUADS = "set_pregame_squads";
 
 //Teams
 export const FETCH_SQUAD = "fetch_squad";

@@ -8,10 +8,12 @@ const gameSchema = new Schema(
 		_opposition: { type: Schema.Types.ObjectId, ref: "teams", required: true },
 		isAway: { type: Boolean, required: true },
 		date: { type: Date, required: true },
-		pregameSquads: {
-			home: [{ type: Schema.Types.ObjectId, ref: "people" }],
-			away: [{ type: Schema.Types.ObjectId, ref: "people" }]
-		},
+		pregameSquads: [
+			{
+				_team: { type: Schema.Types.ObjectId, ref: "people" },
+				squad: [{ type: Schema.Types.ObjectId, ref: "people" }]
+			}
+		],
 		playerStats: [
 			{
 				_player: { type: Schema.Types.ObjectId, ref: "people" },

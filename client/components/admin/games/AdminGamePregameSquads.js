@@ -4,8 +4,10 @@ import { connect } from "react-redux";
 import LoadingPage from "../../LoadingPage";
 import { fetchYearsWithSquads } from "../../../actions/teamsActions";
 import { fetchSquad } from "../../../actions/teamsActions";
+import { setPregameSquads } from "../../../actions/gamesActions";
 import Table from "../../Table";
 import { Formik, Form, Field } from "formik";
+import { localTeam } from "../../../../config/keys";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
@@ -36,64 +38,80 @@ class AdminGamePregameSquads extends Component {
 		return newState;
 	}
 
-	renderRows(ha, values) {
+	renderRows(ha, formikProps) {
 		const { game, squads } = this.state;
+		const { setFieldValue, values } = formikProps;
 		const team = game.teams[ha];
 		const squad = squads[team._id];
-		return squad.map(player => ({
-			key: player._id,
-			data: {
-				checkbox: {
-					content: (
-						<Field
-							component="input"
-							type="checkbox"
-							name={`${team._id}.${player._id}]`}
-							defaultChecked={values[team._id][player._id]}
-						/>
-					)
+		return squad.map(player => {
+			const currentValue = values[team._id][player._id];
+			return {
+				key: player._id,
+				data: {
+					checkbox: {
+						content: currentValue ? "✔" : " "
+					},
+					number: {
+						content: player.number || " ",
+						sortValue: player.number || 999999999
+					},
+					first: {
+						content: player.name.first
+					},
+					last: {
+						content: player.name.last
+					}
 				},
-				number: {
-					content: player.number || " ",
-					sortValue: player.number || 999999999
-				},
-				first: {
-					content: player.name.first
-				},
-				last: {
-					content: player.name.last
-				}
-			}
-		}));
+				onClick: () => setFieldValue(`${team._id}[${player._id}]`, !currentValue)
+			};
+		});
 	}
 
 	getDefaults() {
 		const { game, squads } = this.state;
 
 		return _.mapValues(squads, (squad, teamId) => {
-			const ha = game.teams.home._id === teamId ? "home" : "away";
+			const currentPregameSquad = _.filter(game.pregameSquads, obj => obj._team === teamId);
 			return _.chain(squad)
 				.map(player => {
 					const id = player._id;
-					return [id, game.pregameSquads[ha].indexOf(id) > -1];
+					return [
+						id,
+						currentPregameSquad.length && currentPregameSquad[0].squad.indexOf(id) > -1
+					];
 				})
 				.fromPairs()
 				.value();
 		});
 	}
 
-	handleRowClick(elem) {
-		while (elem.tagName !== "TR") {
-			elem = elem.parentElement;
-		}
-
-		console.log(elem);
-	}
-
 	renderFoot(values) {
 		return {
+			checkbox: "✔", //This keeps the width consistent
 			last: `Total: ${_.filter(values, value => value).length}`
 		};
+	}
+
+	clearList(formikProps, teamId) {
+		const { setValues, values } = formikProps;
+		setValues({
+			...values,
+			[teamId]: _.mapValues(values[teamId], () => false)
+		});
+	}
+
+	onSubmit(values) {
+		const { game } = this.state;
+		const { setPregameSquads } = this.props;
+
+		values = _.mapValues(values, teamList =>
+			_.chain(teamList)
+				.pickBy()
+				.map((val, key) => key)
+				.value()
+		);
+
+		setPregameSquads(game._id, values);
 	}
 
 	render() {
@@ -132,27 +150,56 @@ class AdminGamePregameSquads extends Component {
 		return (
 			<div className="admin-pregame-squad-page">
 				<Formik
-					onSubmit={values => console.log(values)}
+					onSubmit={values => this.onSubmit(values)}
 					initialValues={this.getDefaults()}
 					render={formikProps => {
 						return (
 							<Form>
 								<div className="container">
-									{["home", "away"].map(ha => {
-										return (
-											<div key={ha} className="pregame-squad-wrapper">
-												<h2>{game.teams[ha].name.short}</h2>
-												<Table
-													{...tableProps}
-													rows={this.renderRows(ha, formikProps.values)}
-													foot={this.renderFoot(
-														formikProps.values[game.teams[ha]._id]
-													)}
-													stickyFoot={true}
-												/>
-											</div>
-										);
-									})}
+									<div className="pregame-wrapper">
+										{["home", "away"].map(ha => {
+											const team = game.teams[ha];
+											const buttons = [
+												<button
+													type="button"
+													key="clear"
+													onClick={() =>
+														this.clearList(formikProps, team._id)
+													}
+												>
+													Clear
+												</button>
+											];
+											if (team._id === localTeam) {
+												buttons.push(
+													<button type="button" key="last19">
+														Load Last 19
+													</button>
+												);
+											}
+											return (
+												<div key={ha} className="pregame-squad-wrapper">
+													<h2>{team.name.short}</h2>
+													<div className="buttons">{buttons}</div>
+													<Table
+														{...tableProps}
+														rows={this.renderRows(ha, formikProps)}
+														foot={this.renderFoot(
+															formikProps.values[game.teams[ha]._id]
+														)}
+														stickyFoot={true}
+													/>
+												</div>
+											);
+										})}
+									</div>
+
+									<div className="form-card">
+										<div className="buttons">
+											<button type="reset">Reset</button>
+											<button type="submit">Submit</button>
+										</div>
+									</div>
 								</div>
 							</Form>
 						);
@@ -170,5 +217,5 @@ function mapStateToProps({ teams }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchYearsWithSquads, fetchSquad }
+	{ fetchYearsWithSquads, fetchSquad, setPregameSquads }
 )(AdminGamePregameSquads);
