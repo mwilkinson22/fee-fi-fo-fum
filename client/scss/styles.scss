@@ -89,8 +89,14 @@ body {
 		text-align: left;
 	}
 	thead {
-		background: $claret;
-		color: white;
+		&.sticky {
+			position: relative;
+			th {
+				top: 0;
+				position: sticky;
+				z-index: 2;
+			}
+		}
 		th.sortable {
 			cursor: pointer;
 			.sort-arrow {
@@ -108,19 +114,42 @@ body {
 				}
 			}
 		}
+		th {
+			background: $claret;
+			color: white;
+			white-space: nowrap;
+		}
 	}
 	tbody {
-		background: white;
 		tr {
 			border-bottom: solid thin #ddd;
-			&:hover {
-				background: rgba(#888, 0.05);
+			td,
+			th {
+				background: white;
+			}
+		}
+		tr:hover {
+			td,
+			th {
+				background: #f8f8f8;
 			}
 		}
 	}
 	tfoot {
-		background: #333;
 		color: white;
+		th,
+		td {
+			background: #222;
+		}
+		&.sticky {
+			position: relative;
+			th,
+			td {
+				bottom: 0;
+				position: sticky;
+				z-index: 2;
+			}
+		}
 	}
 }
 
@@ -247,11 +276,6 @@ a.card:hover {
 }
 
 .stat-tables {
-	$table-bg: #fdfdfd;
-	$table-col: black;
-	$table-header-bg: darken($claret, 5%);
-	$table-header-col: white;
-	$table-border: solid thin #ddd;
 	padding-bottom: 20pt;
 	@include noTextSelect;
 	.stat-table-tabs {
@@ -260,18 +284,17 @@ a.card:hover {
 			display: inline-block;
 			padding: 10pt;
 			font-weight: 600;
-			background-color: $table-bg;
-			color: $table-col;
+			background-color: white;
 			&:hover {
-				background-color: darken($table-bg, 5%);
+				background-color: #f8f8f8;
 			}
 			&.active {
-				background: $table-header-bg;
-				color: $table-header-col;
+				background: $claret;
+				color: white;
 				pointer-events: none;
 			}
 			&:not(.active):not(:last-child) {
-				border-right: $table-border;
+				border-right: #999;
 			}
 		}
 	}
@@ -281,75 +304,48 @@ a.card:hover {
 		max-width: 100%;
 		overflow: auto;
 		box-shadow: 2pt 2pt 4pt rgba(black, 0.3);
-		.stat-table {
+		table {
 			width: 100%;
-			background-color: $table-bg;
-			color: $table-col;
-			text-align: center;
-
-			thead {
-				th {
-					background: $table-header-bg;
-					color: $table-header-col;
-					position: sticky;
-					padding: 10pt 4pt;
-					z-index: 2;
-					top: 0;
-					cursor: pointer;
-					&:hover {
-						background: darken($table-header-bg, 3%);
-					}
-					&.active {
-						color: $gold;
-					}
-				}
+			th.sortable {
+				padding-left: 11pt;
+			}
+			th,
+			td {
+				text-align: center;
+			}
+			th:first-child {
+				left: 0;
+				z-index: 3;
+				position: sticky;
 			}
 			tfoot {
 				th,
 				td {
-					background: #222;
-					color: $table-header-col;
-					position: sticky;
-					z-index: 20;
-					bottom: 0;
 					.total {
 						display: block;
 					}
 				}
 			}
 			tbody {
-				tr {
-					td,
-					th {
-						background: $table-bg;
-					}
-					&:hover th,
-					&:hover td {
-						background: darken($table-bg, 5%);
-					}
-					th {
-						padding: 0;
-						position: sticky;
-						left: 0;
-						a {
-							padding: 4pt;
-							display: block;
-							&:hover {
-								color: inherit;
-							}
-							img {
-								max-height: 30pt;
-							}
-							.title {
-								font-weight: normal;
-								@media #{$mobile-only} {
-									display: none;
-								}
+				th {
+					padding: 0;
+					width: 100%;
+					a {
+						padding: 4pt;
+						display: block;
+						white-space: nowrap;
+						&:hover {
+							color: lighten($claret, 5%);
+						}
+						img {
+							max-height: 30pt;
+						}
+						.title {
+							font-weight: normal;
+							@media #{$mobile-only} {
+								display: none;
 							}
 						}
-					}
-					&:not(:last-child) {
-						border-bottom: $table-border;
 					}
 				}
 			}

@@ -32,12 +32,11 @@ export default class PlayerStatsHelper {
 
 	static sumStats(stats) {
 		const summedStats = {};
-
 		_.chain(stats)
 			.map(statGroup => _.keys(statGroup))
 			.flatten()
 			.uniq()
-			.filter(key => key !== "_id")
+			.filter(key => playerStatTypes[key] !== undefined)
 			.forEach(key => {
 				const total = _.sumBy(stats, key);
 				const statType = playerStatTypes[key];
@@ -65,5 +64,12 @@ export default class PlayerStatsHelper {
 		const processedStats = this.processNestedStats(summedStats);
 
 		return processedStats;
+	}
+
+	static toString(key, value, maxDecimals = 2) {
+		const unit = playerStatTypes[key].unit || "";
+		const decimalMultiplier = Math.pow(10, maxDecimals);
+
+		return `${Math.round(value * decimalMultiplier) / decimalMultiplier}${unit}`;
 	}
 }

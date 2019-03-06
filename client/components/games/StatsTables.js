@@ -5,6 +5,7 @@ import "datejs";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import TeamImage from "../teams/TeamImage";
 import playerStatTypes from "../../../constants/playerStatTypes";
+import Table from "../Table";
 
 export default class StatsTables extends Component {
 	constructor(props) {
@@ -25,6 +26,8 @@ export default class StatsTables extends Component {
 			throw new Error("Only one out of games and players can be passed into StatsTables");
 		}
 
+		const tableType = games ? "games" : "players";
+
 		//Get Rows
 		let rows;
 		if (games) {
@@ -35,10 +38,10 @@ export default class StatsTables extends Component {
 		}
 
 		const statTypes = _.chain(rows)
-			.map(row => _.keys(row.stats))
+			.map(row => _.keys(row.data))
 			.flatten()
-			.filter(key => key !== "_id")
 			.uniq()
+			.filter(key => playerStatTypes[key] !== undefined)
 			.groupBy(key => playerStatTypes[key].type)
 			.reverse()
 			.value();
@@ -49,23 +52,43 @@ export default class StatsTables extends Component {
 			activeTab = tabs[0];
 		}
 
-		return { statTypes, rows, activeTab };
+		return { statTypes, rows, activeTab, tableType };
 	}
 
 	static processGameList(games) {
 		const rows = _.map(games, game => {
 			const { slug, _opposition, date, title } = game;
-			const firstColumn = (
-				<Link to={`/games/${slug}`} className="fixture-box">
-					<TeamImage team={_opposition} />
-					<div className="date">{new Date(date).toString("dS MMMM yyyy")}</div>
-					<div className="title">{title}</div>
-				</Link>
-			);
-			const { stats } = game.playerStats[0];
-			return { firstColumn, stats, slug, date, sortBy: { asc: true } };
+			const stats = _.chain(game.playerStats[0].stats)
+				.mapValues((val, key) => {
+					if (!playerStatTypes[key]) {
+						return null;
+					}
+					return {
+						content: PlayerStatsHelper.toString(key, val),
+						sortValue: val,
+						title: `${playerStatTypes[key].plural} against ${
+							game._opposition.name.short
+						}`
+					};
+				})
+				.pickBy(_.identity)
+				.value();
+			const data = {
+				first: {
+					content: (
+						<Link to={`/games/${slug}`} className="fixture-box">
+							<TeamImage team={_opposition} />
+							<div className="date">{new Date(date).toString("dS MMMM yyyy")}</div>
+							<div className="title">{title}</div>
+						</Link>
+					),
+					sortValue: date,
+					title
+				},
+				...stats
+			};
+			return { key: slug, data };
 		});
-
 		return rows;
 	}
 
@@ -91,122 +114,100 @@ export default class StatsTables extends Component {
 		this.setState({ activeTab: tab });
 	}
 
-	generateTable() {
-		const { activeTab, sortBy } = this.state;
-		let { rows } = this.state;
-
-		if (sortBy.key) {
-			rows = _.orderBy(rows, row => row.stats[sortBy.key]);
-		}
-		if (sortBy.asc) {
-			rows = _.reverse(rows);
-		}
-
-		const statTypes = this.state.statTypes[activeTab];
-		const summedStats = PlayerStatsHelper.sumStats(rows.map(row => row.stats));
+	renderTabs() {
+		const { statTypes, activeTab } = this.state;
 		return (
-			<table className="stat-table">
-				<thead>
-					<tr>
-						<th onClick={() => this.handleTableHeaderClick()} />
-						{statTypes.map(key => (
-							<th
-								onClick={() => this.handleTableHeaderClick(key)}
-								key={key}
-								className={sortBy.key === key ? "active" : ""}
-							>
-								{playerStatTypes[key].plural}
-							</th>
-						))}
-					</tr>
-				</thead>
-				<tbody>
-					{rows.map(row => {
-						const { firstColumn, slug, stats } = row;
-						if (_.sumBy(statTypes, key => stats[key] !== undefined) === 0) {
-							return null;
-						} else {
-							return (
-								<tr key={slug}>
-									<th>{firstColumn}</th>
-									{statTypes.map(key => {
-										const value = stats[key];
-										if (value !== undefined) {
-											return (
-												<td value={value} key={`${slug} ${key}`}>
-													{value}
-													{playerStatTypes[key].unit}
-												</td>
-											);
-										} else {
-											return (
-												<td value={null} key={`${slug} ${key}`}>
-													-
-												</td>
-											);
-										}
-									})}
-								</tr>
-							);
-						}
-					})}
-				</tbody>
-				<tfoot>
-					<tr>
-						<th>
-							<span className="total">Total</span>
-							<span className="average">Average</span>
-						</th>
-						{statTypes.map(key => {
-							const unit = playerStatTypes[key].unit || "";
-							let { total, average } = summedStats[key];
-							const content = [];
-
-							//Fix string to max 2 decimal places
-							total = Math.round(total * 100) / 100;
-							average = Math.round(average * 100) / 100;
-
-							content.push(
-								<span className="total" key="total">
-									{total}
-									{unit}
-								</span>
-							);
-							if (["TS", "KS"].indexOf(key) === -1) {
-								content.push(
-									<span className="average" key="average">
-										{average}
-										{unit}
-									</span>
-								);
-							}
-
-							return <td key={`${key}`}>{content}</td>;
-						})}
-					</tr>
-				</tfoot>
-			</table>
+			<div className="stat-table-tabs">
+				{_.map(statTypes, (keys, statType) => (
+					<div
+						className={`stat-table-tab ${statType === activeTab ? "active" : ""}`}
+						onClick={() => this.handleTabClick(statType)}
+						key={statType}
+					>
+						{statType}
+					</div>
+				))}
+			</div>
 		);
 	}
 
-	render() {
-		const { statTypes, activeTab } = this.state;
+	renderColumns() {
+		const { statTypes, activeTab, tableType } = this.state;
+		const columnsFromStatType = statTypes[activeTab].map(key => {
+			const stat = playerStatTypes[key];
+			return {
+				key,
+				label: stat.plural,
+				defaultAscSort: !stat.moreIsBetter
+			};
+		});
 
+		return [
+			{
+				key: "first",
+				label: tableType === "games" ? "Game" : "Player",
+				defaultAscSort: true,
+				dataUsesTh: true
+			},
+			...columnsFromStatType
+		];
+	}
+
+	renderFoot() {
+		const { statTypes, activeTab, rows } = this.state;
+		const data = rows.map(row => {
+			return _.mapValues(row.data, stat => stat.sortValue);
+		});
+		const summedStats = PlayerStatsHelper.sumStats(data);
+		const foot = _.chain(statTypes[activeTab])
+			.map(key => {
+				const stat = playerStatTypes[key];
+				const { total, average } = summedStats[key];
+				const content = [];
+
+				content.push(
+					<span className="total" key="total" title={`Total ${stat.plural}`}>
+						{PlayerStatsHelper.toString(key, total)}
+					</span>
+				);
+				if (["TS", "KS"].indexOf(key) === -1) {
+					content.push(
+						<span className="average" key="average" title={`Average ${stat.plural}`}>
+							{PlayerStatsHelper.toString(key, average)}
+						</span>
+					);
+				}
+
+				return [key, content];
+			})
+			.fromPairs()
+			.value();
+		return {
+			first: [
+				<span className="total" key="total">
+					Total
+				</span>,
+				<span className="average" key="average">
+					Average
+				</span>
+			],
+			...foot
+		};
+	}
+
+	render() {
 		return (
 			<div className="stat-tables">
 				<h2>Games</h2>
-				<div className="stat-table-tabs">
-					{_.map(statTypes, (keys, statType) => (
-						<div
-							className={`stat-table-tab ${statType === activeTab ? "active" : ""}`}
-							onClick={() => this.handleTabClick(statType)}
-							key={statType}
-						>
-							{statType}
-						</div>
-					))}
+				{this.renderTabs()}
+				<div className="stat-table-wrapper">
+					<Table
+						columns={this.renderColumns()}
+						rows={this.state.rows}
+						sortBy={{ key: "first", asc: true }}
+						foot={this.renderFoot()}
+					/>
 				</div>
-				<div className="stat-table-wrapper">{this.generateTable()}</div>
 			</div>
 		);
 	}

@@ -8,8 +8,12 @@ class Table extends Component {
 		this.state = { ...props };
 	}
 
-	static getDerivedStateFromProps(props) {
-		return { ...props };
+	static getDerivedStateFromProps(props, prevState) {
+		if (props.columns !== prevState.columns && props.rows !== prevState.rows) {
+			return { ...props };
+		} else {
+			return {};
+		}
 	}
 
 	handleSort(key) {
@@ -75,10 +79,16 @@ class Table extends Component {
 
 		//Reorder rows
 		if (sortBy && sortBy.key) {
-			rows = _.sortBy(
-				rows,
-				row => row.data[sortBy.key].sortValue || row.data[sortBy.key].content
-			);
+			rows = _.sortBy(rows, row => {
+				const data = row.data[sortBy.key];
+				if (data === undefined) {
+					return 0;
+				} else if (data.sortValue !== undefined) {
+					return data.sortValue;
+				} else {
+					return data.content;
+				}
+			});
 		}
 		if (sortBy && !sortBy.asc) {
 			rows = _.reverse(rows);
@@ -90,11 +100,16 @@ class Table extends Component {
 						<tr key={row.key}>
 							{columns.map(column => {
 								const data = row.data[column.key];
-								const cellProps = {
-									key: `${row.key}-${column.key}`,
-									children: data.content,
-									title: data.title || column.title || column.label
-								};
+								const cellProps = { key: `${row.key}-${column.key}` };
+
+								//Handle missing values
+								if (data === undefined) {
+									cellProps.children = "-";
+									cellProps.title = column.title || column.label;
+								} else {
+									cellProps.children = data.content;
+									cellProps.title = data.title || column.title || column.label;
+								}
 								return column.dataUsesTh ? (
 									<th {...cellProps} />
 								) : (
@@ -109,16 +124,24 @@ class Table extends Component {
 	}
 
 	processFoot() {
-		const { foot, columns } = this.state;
+		const { foot, columns, stickyFoot } = this.state;
 		if (!foot) {
 			return null;
 		}
 
 		return (
-			<tfoot>
+			<tfoot className={stickyFoot ? "sticky" : ""}>
 				<tr>
 					{columns.map(column => {
-						return <th key={column.key}>{foot[column.key]}</th>;
+						const cellProps = {
+							key: column.key,
+							children: foot[column.key]
+						};
+						if (column.dataUsesTh) {
+							return <th {...cellProps} />;
+						} else {
+							return <td {...cellProps} />;
+						}
 					})}
 				</tr>
 			</tfoot>
@@ -159,9 +182,15 @@ Table.propTypes = {
 			)
 		})
 	).isRequired,
-	foot: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+	foot: PropTypes.objectOf(
+		PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.node])
+	),
 	defaultSortable: PropTypes.bool,
 	defaultAscSort: PropTypes.bool,
+	sortBy: PropTypes.shape({
+		key: PropTypes.string.isRequired,
+		asc: PropTypes.bool.isRequired
+	}),
 	stickyHead: PropTypes.bool,
 	stickyFoot: PropTypes.bool
 };
