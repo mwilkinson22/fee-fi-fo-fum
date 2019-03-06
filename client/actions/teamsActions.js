@@ -9,7 +9,7 @@ import {
 
 export const fetchSquad = (year, team) => async (dispatch, getState, api) => {
 	const res = await api.get(`/teams/squads/${team}/${year}`);
-	dispatch({ type: FETCH_SQUAD, payload: res.data, team });
+	dispatch({ type: FETCH_SQUAD, payload: res.data, team, year });
 };
 export const fetchYearsWithSquads = team => async (dispatch, getState, api) => {
 	const res = await api.get(`/teams/squads/years/${team}`);

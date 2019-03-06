@@ -50,7 +50,6 @@ module.exports = {
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
 		const { year } = req.params;
-		console.log(year);
 
 		if (team) {
 			let { includeFriendlyOnly } = req.query;
@@ -128,14 +127,19 @@ module.exports = {
 					}
 				}
 			]);
-			const results = _.sortBy(aggregation[0].players, player => player.number || 1000); //If number === null, we push it to the end
-			const players = _.mapValues(results, wrapper => {
-				const { number } = wrapper;
-				const player = wrapper._player[0];
-				player.playerDetails = getPositions(player.playerDetails);
-				return { number, ...player };
-			});
-			res.send({ year, players });
+
+			if (aggregation.length) {
+				const results = _.sortBy(aggregation[0].players, player => player.number || 1000); //If number === null, we push it to the end
+				const players = _.map(results, wrapper => {
+					const { number } = wrapper;
+					const player = wrapper._player[0];
+					player.playerDetails = getPositions(player.playerDetails);
+					return { number, ...player };
+				});
+				res.send(players);
+			} else {
+				res.send([]);
+			}
 		} else {
 			res.status(404).send("Invalid team Id");
 		}

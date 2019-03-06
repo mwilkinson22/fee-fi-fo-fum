@@ -24,7 +24,7 @@ export default function(state = { squads: {} }, action) {
 					...state.squads,
 					[action.team]: {
 						...state.squads[action.team],
-						[action.payload.year]: action.payload.players
+						[action.year]: action.payload
 					}
 				}
 			};
