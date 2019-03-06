@@ -195,3 +195,26 @@
 .admin-page {
 	padding-bottom: 20pt;
 }
+
+.admin-pregame-squad-page {
+	.container {
+		display: grid;
+		grid-gap: 10pt;
+
+		table {
+			width: 100%;
+			td:last-child {
+				width: 100%;
+			}
+			tfoot {
+				td {
+					text-align: right;
+				}
+			}
+		}
+
+		@media #{$desktop-and-tablet} {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+}

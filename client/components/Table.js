@@ -11,6 +11,8 @@ class Table extends Component {
 	static getDerivedStateFromProps(props, prevState) {
 		if (props.columns !== prevState.columns && props.rows !== prevState.rows) {
 			return { ...props };
+		} else if (props.foot !== prevState.foot) {
+			return { foot: props.foot };
 		} else {
 			return {};
 		}
@@ -75,7 +77,7 @@ class Table extends Component {
 	}
 
 	processBody() {
-		let { columns, rows, sortBy } = this.state;
+		let { columns, rows, sortBy, onBodyRowClick } = this.state;
 
 		//Reorder rows
 		if (sortBy && sortBy.key) {
@@ -97,7 +99,7 @@ class Table extends Component {
 			<tbody>
 				{rows.map(row => {
 					return (
-						<tr key={row.key}>
+						<tr key={row.key} onClick={onBodyRowClick}>
 							{columns.map(column => {
 								const data = row.data[column.key];
 								const cellProps = { key: `${row.key}-${column.key}` };
@@ -192,14 +194,15 @@ Table.propTypes = {
 		asc: PropTypes.bool.isRequired
 	}),
 	stickyHead: PropTypes.bool,
-	stickyFoot: PropTypes.bool
+	stickyFoot: PropTypes.bool,
+	onBodyRowClick: PropTypes.func
 };
 
 Table.defaultProps = {
 	defaultSortable: true,
 	defaultAscSort: false,
-	stickyHead: true,
-	stickyFoot: true
+	stickyHead: false,
+	stickyFoot: false
 };
 
 export default Table;

@@ -206,6 +206,8 @@ export default class StatsTables extends Component {
 						rows={this.state.rows}
 						sortBy={{ key: "first", asc: true }}
 						foot={this.renderFoot()}
+						stickyHead={true}
+						stickyFoot={true}
 					/>
 				</div>
 			</div>
