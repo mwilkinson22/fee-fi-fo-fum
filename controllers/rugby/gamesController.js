@@ -60,7 +60,7 @@ async function processBasics(values) {
 function getVirtuals(game) {
 	//Get status
 	const { pregameSquads, playerStats } = game;
-	if (pregameSquads.length < 2) {
+	if (!pregameSquads || pregameSquads.length < 2) {
 		game.status = 0;
 	} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2) {
 		game.status = 1;
