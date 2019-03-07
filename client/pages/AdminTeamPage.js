@@ -9,6 +9,7 @@ import { NavLink, Link, Switch, Route } from "react-router-dom";
 
 //Pages
 import AdminTeamOverview from "../components/admin/teams/AdminTeamOverview";
+import AdminTeamSquads from "../components/admin/teams/AdminTeamSquads";
 import TeamBanner from "../components/teams/TeamBanner";
 
 class AdminTeamPage extends Component {
@@ -36,7 +37,7 @@ class AdminTeamPage extends Component {
 			return (
 				<NavLink
 					key={url}
-					exact
+					exact={url.length === 0}
 					to={`/admin/teams/${slug}/${url}`}
 					activeClassName="active"
 				>
@@ -58,10 +59,12 @@ class AdminTeamPage extends Component {
 				<HelmetBuilder key="helmet" title={this.state.team.name.long} />
 				<Switch>
 					<Route
-						path="/admin/teams/:slug"
 						exact
-						render={() => <AdminTeamOverview team={team} />}
+						path="/admin/teams/:slug/squads/:year"
+						component={AdminTeamSquads}
 					/>
+					<Route exact path="/admin/teams/:slug/squads" component={AdminTeamSquads} />
+					<Route path="/admin/teams/:slug" exact component={AdminTeamOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</div>

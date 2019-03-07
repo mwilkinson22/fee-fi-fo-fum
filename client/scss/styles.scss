@@ -31,40 +31,6 @@ body {
 			}
 		}
 	}
-	.sub-menu {
-		text-align: center;
-		padding-bottom: 10pt;
-		a {
-			padding: 0 8pt;
-			display: inline-block;
-			color: #aaa;
-			font-weight: bold;
-			font-size: 14pt;
-			transition: color 100ms;
-
-			&.hidden {
-				display: none;
-			}
-
-			/* active links */
-			&.active,
-			/* links next to hidden active links*/
-			&.active.hidden + a,
-			/* first visible link after a hidden active link */
-			&.active.hidden ~ .hidden + a {
-				color: $claret !important;
-				pointer-events: none;
-			}
-
-			&:hover {
-				color: #666;
-			}
-
-			&:not(:last-child) {
-				border-right: solid 1pt #ccc;
-			}
-		}
-	}
 
 	&::after {
 		content: " ";
@@ -77,6 +43,40 @@ body {
 		transform: translateY(90%);
 		display: block;
 		margin-bottom: 40pt;
+	}
+}
+
+.sub-menu {
+	text-align: center;
+	a {
+		padding: 0 8pt;
+		display: inline-block;
+		color: #aaa;
+		font-weight: bold;
+		font-size: 14pt;
+		transition: color 100ms;
+
+		&.hidden {
+			display: none;
+		}
+
+		/* active links */
+		&.active,
+			/* links next to hidden active links*/
+		&.active.hidden + a,
+			/* first visible link after a hidden active link */
+		&.active.hidden ~ .hidden + a {
+			color: $claret !important;
+			pointer-events: none;
+		}
+
+		&:hover {
+			color: #666;
+		}
+
+		&:not(:last-child) {
+			border-right: solid 1pt #ccc;
+		}
 	}
 }
 

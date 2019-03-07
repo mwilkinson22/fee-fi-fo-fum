@@ -192,9 +192,11 @@ class AdminTeamOverview extends Component {
 }
 
 //Add Redux Support
-function mapStateToProps({ grounds }, ownProps) {
+function mapStateToProps({ grounds, teams }, ownProps) {
+	const { slug } = ownProps.match.params;
+	const team = teams.teamList[slug];
 	const { groundList } = grounds;
-	return { groundList, ...ownProps };
+	return { team, groundList, ...ownProps };
 }
 // export default form;
 export default connect(
