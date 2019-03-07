@@ -7,7 +7,7 @@ import { fetchSquad } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
 import Table from "../../Table";
 import { Formik, Form, Field } from "formik";
-import { localTeam } from "../../../../config/keys";
+import { localTeam } from "~/config/keys";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {

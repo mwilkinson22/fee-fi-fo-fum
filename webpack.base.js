@@ -1,4 +1,5 @@
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const path = require("path");
 
 module.exports = {
 	module: {
@@ -36,6 +37,11 @@ module.exports = {
 				})
 			}
 		]
+	},
+	resolve: {
+		alias: {
+			"~": path.resolve(".")
+		}
 	},
 	plugins: [new ExtractTextPlugin("styles.css")]
 };
