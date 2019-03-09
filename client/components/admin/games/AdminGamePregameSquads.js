@@ -8,6 +8,7 @@ import { setPregameSquads } from "../../../actions/gamesActions";
 import Table from "../../Table";
 import { Formik, Form, Field } from "formik";
 import { localTeam } from "~/config/keys";
+const firstTeam = "5c34e00a0838a5b090f8c1a7";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
@@ -28,10 +29,10 @@ class AdminGamePregameSquads extends Component {
 		for (const ha of [home, away]) {
 			if (!squads[ha]) {
 				fetchYearsWithSquads(ha);
-			} else if (!squads[ha][year]) {
-				fetchSquad(year, ha);
+			} else if (!squads[ha][year] || !squads[ha][year][game._teamType]) {
+				fetchSquad(year, ha, game._teamType);
 			} else {
-				newState.squads[ha] = squads[ha][year];
+				newState.squads[ha] = squads[ha][year][game._teamType];
 			}
 		}
 

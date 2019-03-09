@@ -9,3 +9,5 @@ routes/dataImport
 
 build
 public
+
+/client/reducers/reducerDocumentation.js

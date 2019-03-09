@@ -6,6 +6,7 @@ import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
 import _ from "lodash";
 import HelmetBuilder from "../components/HelmetBuilder";
+const firstTeam = "5c34e00a0838a5b090f8c1a7";
 
 class SquadListPage extends Component {
 	constructor(props) {
@@ -20,8 +21,8 @@ class SquadListPage extends Component {
 
 		if (squads) {
 			const year = prevState.year || _.max(years);
-			if (!squads[year]) {
-				fetchSquad(year, localTeam);
+			if (!squads[year][firstTeam]) {
+				fetchSquad(year, localTeam, firstTeam);
 			} else {
 				newState.squad = squads[year];
 			}
@@ -50,10 +51,11 @@ class SquadListPage extends Component {
 			return [
 				<select
 					key="year-selector"
-					children={options}
 					onChange={ev => this.setState({ year: ev.target.value })}
 					value={this.state.year}
-				/>,
+				>
+					{options}
+				</select>,
 				<span key="results-header"> Squad</span>
 			];
 		} else {
@@ -66,7 +68,7 @@ class SquadListPage extends Component {
 		if (!squad) {
 			return <LoadingPage />;
 		} else {
-			const players = _.map(squad, player => {
+			const players = _.map(squad[firstTeam], player => {
 				return <PersonCard person={player} personType="player" key={player._id} />;
 			});
 			return <div className="squad-list">{players}</div>;

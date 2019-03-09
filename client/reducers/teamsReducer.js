@@ -24,7 +24,10 @@ export default function(state = { squads: {} }, action) {
 					...state.squads,
 					[action.team]: {
 						...state.squads[action.team],
-						[action.year]: action.payload
+						[action.year]: {
+							...state.squads[action.team][action.year],
+							[action.teamType]: action.payload
+						}
 					}
 				}
 			};
@@ -34,8 +37,12 @@ export default function(state = { squads: {} }, action) {
 				squads: {
 					...state.squads,
 					[action.team]: _.chain(action.payload)
-						.map(year => [year, null])
-						.fromPairs()
+						.mapValues(teamTypes => {
+							return _.chain(teamTypes)
+								.map(teamType => [teamType, null])
+								.fromPairs()
+								.value();
+						})
 						.value()
 				}
 			};

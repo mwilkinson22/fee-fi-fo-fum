@@ -27,9 +27,21 @@ module.exports = {
 					$unwind: "$squads"
 				},
 				{
-					$group: {
-						_id: "$squads.year"
+					$lookup: {
+						from: "teamtypes",
+						localField: "squads._teamType",
+						foreignField: "_id",
+						as: "squads._teamType"
 					}
+				},
+				{
+					$group: {
+						_id: "$squads.year",
+						teamTypes: { $push: "$squads._teamType" }
+					}
+				},
+				{
+					$unwind: "$teamTypes"
 				},
 				{
 					$sort: {
@@ -37,8 +49,11 @@ module.exports = {
 					}
 				}
 			]);
-
-			res.send(years.map(year => year._id));
+			const result = _.chain(years)
+				.map(val => [val._id, val.teamTypes.map(t => t.slug)])
+				.fromPairs()
+				.value();
+			res.send(result);
 		} else {
 			res.status(404).send("Invalid team Id");
 		}
@@ -49,7 +64,7 @@ module.exports = {
 	},
 	async getSquadByYear(req, res) {
 		const team = validateTeam(req.params.team);
-		const { year } = req.params;
+		const { year, teamType } = req.params;
 
 		if (team) {
 			let { includeFriendlyOnly } = req.query;
@@ -66,7 +81,17 @@ module.exports = {
 							$filter: {
 								input: "$squads",
 								as: "squad",
-								cond: { $eq: [{ $toLower: "$$squad.year" }, year] }
+								cond: {
+									$and: [
+										{ $eq: [{ $toLower: "$$squad.year" }, year] },
+										{
+											$eq: [
+												"$$squad._teamType",
+												ObjectId("5c34e00a0838a5b090f8c1a7")
+											]
+										}
+									]
+								}
 							}
 						}
 					}
