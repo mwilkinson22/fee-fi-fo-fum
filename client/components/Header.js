@@ -64,7 +64,7 @@ class Header extends Component {
 					.value()
 			}
 		];
-		if (this.props.auth) {
+		if (this.props.authUser) {
 			navMenu.push(
 				{
 					header: "Admin",
@@ -170,8 +170,9 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ auth }) {
-	return { auth };
+function mapStateToProps({ config }) {
+	const { authUser } = config;
+	return { authUser };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));

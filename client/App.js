@@ -51,8 +51,8 @@ class App extends Component {
 	}
 }
 
-function mapStateToProps({ auth }) {
-	return { auth };
+function mapStateToProps(state, ownProps) {
+	return ownProps;
 }
 
 export default {

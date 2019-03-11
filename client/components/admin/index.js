@@ -15,7 +15,7 @@ import AdminTeamPage from "../../pages/AdminTeamPage";
 
 class AdminRouter extends Component {
 	render() {
-		if (this.props.auth) {
+		if (this.props.authUser) {
 			return (
 				<Switch>
 					<Route path="/admin/game/:slug" component={AdminGamePage} />
@@ -35,8 +35,9 @@ class AdminRouter extends Component {
 		}
 	}
 }
-function mapStateToProps({ auth }) {
-	return { auth };
+function mapStateToProps({ config }) {
+	const { authUser } = config;
+	return { authUser };
 }
 
 export default { component: connect(mapStateToProps)(AdminRouter) };
