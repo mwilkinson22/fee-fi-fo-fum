@@ -6,7 +6,7 @@ const Person = mongoose.model(collectionName);
 const SlugRedirect = mongoose.model("slugRedirect");
 
 //Controllers
-const GenericController = require("../../controllers/genericController")(collectionName);
+const GenericController = require("../../controllers/genericControllerLegacy")(collectionName);
 const PeopleController = require("../../controllers/rugby/peopleController");
 
 //Middleware & Utils

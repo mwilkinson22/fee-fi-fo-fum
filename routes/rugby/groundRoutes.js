@@ -1,10 +1,11 @@
-const _ = require("lodash");
 const mongoose = require("mongoose");
 const collectionName = "grounds";
 
 //Models
 const Grounds = mongoose.model(collectionName);
-const SlugRedirect = mongoose.model("slugRedirect");
+
+//Helper
+import { getListsAndSlugs } from "../../controllers/genericController";
 
 module.exports = app => {
 	app.get("/api/grounds", async (req, res) => {
@@ -15,16 +16,8 @@ module.exports = app => {
 			}
 		});
 
-		const slugRedirects = await SlugRedirect.find({ collectionName });
-		const oldSlugs = _.chain(slugRedirects)
-			.keyBy("oldSlug")
-			.mapValues(slug => slug.itemId)
-			.value();
-		const activeSlugs = _.chain(grounds)
-			.keyBy("slug")
-			.mapValues(ground => ground._id)
-			.value();
+		const { list, slugMap } = await getListsAndSlugs(grounds, collectionName);
 
-		res.send({ groundList: _.keyBy(grounds, "_id"), slugMap: { ...oldSlugs, ...activeSlugs } });
+		res.send({ groundList: list, slugMap });
 	});
 };

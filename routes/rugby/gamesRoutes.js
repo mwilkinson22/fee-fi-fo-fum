@@ -7,7 +7,7 @@ const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
 
 //Controllers
-const GenericController = require("../../controllers/genericController")(
+const GenericController = require("../../controllers/genericControllerLegacy")(
 	collectionName,
 	pipelines.getFullGame
 );

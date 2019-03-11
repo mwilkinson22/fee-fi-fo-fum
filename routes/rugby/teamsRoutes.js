@@ -5,7 +5,7 @@ const collectionName = "teams";
 const TeamTypes = mongoose.model("teamTypes");
 
 //Controllers
-const GenericController = require("../../controllers/genericController")(collectionName);
+const GenericController = require("../../controllers/genericControllerLegacy")(collectionName);
 const TeamController = require("../../controllers/rugby/teamsController");
 
 //Middleware
