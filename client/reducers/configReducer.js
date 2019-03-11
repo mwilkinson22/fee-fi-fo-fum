@@ -10,6 +10,7 @@ export default function(state = {}, action) {
 
 		case GET_CORE_CONFIG:
 			return { ...state, ...action.payload };
+
 		default:
 			return state;
 	}
