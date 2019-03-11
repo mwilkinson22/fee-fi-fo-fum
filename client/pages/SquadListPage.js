@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { localTeam } from "../../config/keys";
 import { fetchYearsWithSquads, fetchSquad } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
@@ -16,7 +15,7 @@ class SquadListPage extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { squads, fetchSquad, fetchYearsWithSquads } = nextProps;
+		const { squads, fetchSquad, fetchYearsWithSquads, localTeam } = nextProps;
 		const years = _.keys(squads);
 
 		if (squads) {
@@ -94,15 +93,17 @@ class SquadListPage extends Component {
 }
 
 async function loadData(store) {
+	const { localTeam } = store.getState().config;
 	await store.dispatch(fetchYearsWithSquads(localTeam));
 	const years = _.keys(store.getState().teams.squads[localTeam]);
 	const firstYear = _.max(years);
-	return store.dispatch(fetchSquad(firstYear, localTeam));
+	return store.dispatch(fetchSquad(firstYear, localTeam, firstTeam));
 }
 
-function mapStateToProps({ teams }) {
+function mapStateToProps({ config, teams }) {
 	const { squads } = teams;
-	return { squads: squads[localTeam] };
+	const { localTeam } = config;
+	return { localTeam, squads: squads[localTeam] };
 }
 
 export default {

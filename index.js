@@ -64,7 +64,6 @@ app.get("*", async (req, res) => {
 	const store = createStore(req);
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(fetchUser());
-
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
 			const promise = route.loadData ? route.loadData(store, req.path) : null;

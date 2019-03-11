@@ -15,7 +15,6 @@ import { fetchAllReferees } from "../../../actions/peopleActions";
 import { updateGameBasics } from "../../../actions/gamesActions";
 
 //Components
-import { localTeam } from "../../../../config/keys";
 import LoadingPage from "../../LoadingPage";
 import processFormFields from "../../../../helpers/processFormFields";
 

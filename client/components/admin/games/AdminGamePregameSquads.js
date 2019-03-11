@@ -7,18 +7,17 @@ import { fetchSquad } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
 import Table from "../../Table";
 import { Formik, Form, Field } from "formik";
-import { localTeam } from "~/config/keys";
 const firstTeam = "5c34e00a0838a5b090f8c1a7";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
 		super(props);
-		const { game, squads } = props;
+		const { game } = props;
 
 		this.state = { game };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { game, fetchYearsWithSquads, fetchSquad, squads } = nextProps;
 		const home = game.teams.home._id;
 		const away = game.teams.away._id;
@@ -117,7 +116,7 @@ class AdminGamePregameSquads extends Component {
 
 	render() {
 		const { game, squads } = this.state;
-
+		const { localTeam } = this.props;
 		if (Object.keys(squads).length < 2) {
 			return <LoadingPage />;
 		}
@@ -211,9 +210,10 @@ class AdminGamePregameSquads extends Component {
 	}
 }
 
-function mapStateToProps({ teams }, ownProps) {
+function mapStateToProps({ config, teams }, ownProps) {
 	const { squads } = teams;
-	return { squads, ...ownProps };
+	const { localTeam } = config;
+	return { squads, localTeam, ...ownProps };
 }
 
 export default connect(

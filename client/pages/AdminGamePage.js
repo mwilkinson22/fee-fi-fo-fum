@@ -5,7 +5,6 @@ import { fetchGame } from "../actions/gamesActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
-import { localTeam } from "../../config/keys";
 import { NavLink, Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
@@ -20,12 +19,13 @@ class AdminGamePage extends Component {
 		this.state = { game };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		return { game: nextProps.game };
 	}
 
 	getPageTitle() {
 		const { game } = this.state;
+		const { localTeam } = this.props;
 		const { isAway, scores, _opposition, date } = game;
 		let strings;
 		if (scores) {
@@ -140,10 +140,11 @@ class AdminGamePage extends Component {
 	}
 }
 
-function mapStateToProps({ games }, ownProps) {
+function mapStateToProps({ config, games }, ownProps) {
 	const { slug } = ownProps.match.params;
 	const { fullGames } = games;
-	return { game: fullGames[slug] };
+	const { localTeam } = config;
+	return { localTeam, game: fullGames[slug] };
 }
 export default connect(
 	mapStateToProps,

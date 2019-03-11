@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { fetchLeagueTable } from "../../actions/seasonActions";
 import LoadingPage from "../../components/LoadingPage";
 import { teamImagePath } from "../../extPaths";
-import { localTeam } from "../../../config/keys";
 
 class LeagueTable extends Component {
 	constructor(props) {
@@ -18,7 +17,7 @@ class LeagueTable extends Component {
 		this.state = { leagueTable };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { competition, year, fetchLeagueTable, leagueTables, fromDate, toDate } = nextProps;
 		const key = [competition, year, fromDate, toDate].join("-");
 		const leagueTable = leagueTables[key];
@@ -61,7 +60,7 @@ class LeagueTable extends Component {
 					<tbody>
 						{_.map(leagueTable.teams, team => {
 							const { _id, name, position, classNames, image } = team;
-							if (_id === localTeam) {
+							if (_id === this.props.localTeam) {
 								classNames.push("local");
 							}
 							return (
@@ -92,9 +91,10 @@ class LeagueTable extends Component {
 	}
 }
 
-function mapStateToProps({ seasons }, ownProps) {
+function mapStateToProps({ config, seasons }, ownProps) {
 	const { leagueTables } = seasons;
-	return { leagueTables, ...ownProps };
+	const { localTeam } = config;
+	return { leagueTables, localTeam, ...ownProps };
 }
 
 export default connect(
