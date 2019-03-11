@@ -5,7 +5,7 @@ export default function(state = {}, action) {
 		case FETCH_ALL_GROUNDS:
 			return {
 				...state,
-				groundList: action.payload
+				...action.payload
 			};
 		default:
 			return state;
