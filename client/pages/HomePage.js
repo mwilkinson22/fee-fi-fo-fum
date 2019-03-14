@@ -1,9 +1,10 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import NewsPostCard from "../components/news/NewsPostCard";
 import GameCard from "../components/games/GameCard";
-import { fetchHomepagePosts } from "../actions/newsActions";
+import { fetchPostList } from "../actions/newsActions";
 import { fetchHomepageGames } from "../actions/gamesActions";
 import { fetchLeagueTable } from "../actions/seasonActions";
 import LeagueTable from "../components/seasons/LeagueTable";
@@ -14,22 +15,31 @@ const superLeagueId = "5c05342af22062c1fc3fe3c5";
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
-		const { homepagePosts, homepageGames } = props;
+		const { postList, fetchPostList, homepageGames } = props;
+		if (!postList) {
+			fetchPostList();
+		}
 		this.state = {
-			homepagePosts,
+			postList,
 			homepageGames
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { homepagePosts, homepageGames, fetchHomepagePosts, fetchHomepageGames } = nextProps;
+		const { postList, homepageGames, fetchPostList, fetchHomepageGames } = nextProps;
 		const newState = {};
-		// console.log(homepagePosts);
-		if (!homepagePosts) {
-			fetchHomepagePosts();
+
+		if (!postList) {
+			fetchPostList();
 		} else {
-			newState.homepagePosts = homepagePosts;
+			newState.postList = _.chain(postList)
+				.values()
+				.sortBy("datePublished")
+				.reverse()
+				.chunk(3)
+				.value()[0];
 		}
+
 		if (!homepageGames) {
 			fetchHomepageGames();
 		} else {
@@ -40,11 +50,11 @@ class HomePage extends Component {
 	}
 
 	generateNewsPosts() {
-		const { homepagePosts } = this.state;
-		if (!homepagePosts) {
+		const { postList } = this.state;
+		if (!postList) {
 			return <LoadingPage />;
 		} else {
-			const postCards = homepagePosts.map(post => {
+			const postCards = postList.map(post => {
 				return <NewsPostCard post={post} key={post.slug} />;
 			});
 			return (
@@ -100,23 +110,22 @@ class HomePage extends Component {
 function loadData(store) {
 	const promises = [
 		store.dispatch(fetchHomepageGames()),
-		store.dispatch(fetchHomepagePosts()),
+		store.dispatch(fetchPostList()),
 		store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
 	];
 	return Promise.all(promises);
 }
 
-function mapStateToProps(state) {
-	const { news, games } = state;
-	const { homepagePosts } = news;
+function mapStateToProps({ news, games }) {
+	const { postList } = news;
 	const { homepageGames } = games;
-	return { homepagePosts, homepageGames };
+	return { postList, homepageGames };
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchHomepagePosts, fetchHomepageGames }
+		{ fetchPostList, fetchHomepageGames }
 	)(HomePage),
 	loadData
 };

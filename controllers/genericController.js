@@ -8,12 +8,12 @@ export async function getListsAndSlugs(data, collectionName) {
 
 	const oldSlugs = _.chain(slugRedirects)
 		.keyBy("oldSlug")
-		.mapValues(slug => slug.itemId)
+		.mapValues(slug => ({ redirect: true, slug: slug.itemId }))
 		.value();
 
 	const activeSlugs = _.chain(data)
 		.keyBy("slug")
-		.mapValues(item => item._id)
+		.mapValues(item => ({ redirect: false, id: item._id }))
 		.value();
 
 	return { list: _.keyBy(data, "_id"), slugMap: { ...oldSlugs, ...activeSlugs } };

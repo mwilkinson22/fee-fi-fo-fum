@@ -20,10 +20,7 @@ export const UPDATE_TEAM = "update_team";
 //News
 export const FETCH_NEWS_POST = "fetch_news_post";
 export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
-export const FETCH_SIDEBAR_POSTS = "fetch_sidebar_posts";
-export const FETCH_HOMEPAGE_POSTS = "fetch_homepage_posts";
 export const FETCH_POST_LIST = "fetch_post_list";
-export const FETCH_POST_PAGINATION = "fetch_post_pagination";
 
 //People
 export const FETCH_PERSON = "fetch_person";

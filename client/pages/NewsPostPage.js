@@ -1,7 +1,8 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import Parser from "html-react-parser";
 import LoadingPage from "../components/LoadingPage";
-import { fetchNewsPostBySlug, fetchSidebarPosts } from "../actions/newsActions";
+import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 import "datejs";
 import { connect } from "react-redux";
 import NewsPostPreview from "../components/news/NewsPostCard";
@@ -25,43 +26,43 @@ import {
 class NewsPostPage extends Component {
 	constructor(props) {
 		super(props);
-		const { post, recentPosts } = props;
+		const { post, postList, fetchPostList } = props;
+
+		if (!postList) {
+			fetchPostList();
+		}
 
 		this.state = {
 			post,
-			recentPosts
+			postList
 		};
 	}
 
-	componentDidMount() {
-		const { post, fetchNewsPostBySlug, recentPosts, fetchSidebarPosts, match } = this.props;
+	static getDerivedStateFromProps(nextProps) {
+		const { postList, fullPosts, match, slugMap, fetchNewsPost } = nextProps;
 		const { slug } = match.params;
 
-		//Handle Post
-		if (!post) {
-			fetchNewsPostBySlug(slug);
+		if (slugMap[slug].redirect) {
+			//TODO
+			return {};
+		} else {
+			const id = slugMap[slug].id;
+			const post = fullPosts[id];
+			if (!post) {
+				fetchNewsPost(id);
+			}
+
+			return {
+				post,
+				recentPosts: _.chain(postList)
+					.values()
+					.sortBy("datePublished")
+					.reverse()
+					.filter(post => post.id !== id)
+					.chunk(5)
+					.value()[0]
+			};
 		}
-
-		//Handle Sidebar
-		if (!recentPosts) {
-			fetchSidebarPosts();
-		}
-	}
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = {};
-
-		//Handle Post
-		if (nextProps.post && !prevState.post) {
-			newState.post = nextProps.post;
-		}
-
-		//Handle Sidebar
-		if (nextProps.recentPosts && !prevState.recentPosts) {
-			newState.recentPosts = nextProps.recentPosts;
-		}
-
-		return newState;
 	}
 
 	getUrl() {
@@ -210,27 +211,28 @@ class NewsPostPage extends Component {
 	}
 }
 
-function mapStateToProps({ news, config }, ownProps) {
-	const { slug } = ownProps.match.params;
-	const { posts, recentPosts } = news;
-	const { deviceType } = config;
+function mapStateToProps({ news }, ownProps) {
+	const { fullPosts, postList, slugMap } = news;
 
-	return { post: posts[slug], recentPosts, deviceType };
+	return { fullPosts, postList, slugMap, ...ownProps };
 }
 
-function loadData(store, path) {
+async function loadData(store, path) {
 	const slug = path.split("/")[3];
-	const promises = [
-		store.dispatch(fetchNewsPostBySlug(slug)),
-		store.dispatch(fetchSidebarPosts())
-	];
-	return Promise.all(promises);
+	await store.dispatch(fetchPostList());
+	const slugMap = store.getState().news.slugMap[slug];
+
+	if (slugMap.redirect) {
+		//TODO
+	} else {
+		return store.dispatch(fetchNewsPost(slugMap.id));
+	}
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchNewsPostBySlug, fetchSidebarPosts }
+		{ fetchNewsPost, fetchPostList }
 	)(NewsPostPage),
 	loadData
 };

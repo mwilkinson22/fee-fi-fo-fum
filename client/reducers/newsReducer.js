@@ -1,46 +1,21 @@
-import {
-	FETCH_HOMEPAGE_POSTS,
-	FETCH_NEWS_POST,
-	FETCH_NEWS_POST_LEGACY,
-	FETCH_POST_LIST,
-	FETCH_POST_PAGINATION,
-	FETCH_SIDEBAR_POSTS
-} from "../actions/types";
+import { FETCH_NEWS_POST, FETCH_NEWS_POST_LEGACY, FETCH_POST_LIST } from "../actions/types";
 
-export default function(state = { posts: {}, postList: {}, pages: {}, redirects: {} }, action) {
+export default function(state = { fullPosts: {} }, action) {
 	switch (action.type) {
-		case FETCH_HOMEPAGE_POSTS:
-			return {
-				...state,
-				homepagePosts: action.payload
-			};
-
 		case FETCH_POST_LIST:
-			const { category, page, posts } = action.payload;
 			return {
 				...state,
-				postList: {
-					...state.postList,
-					[category]: {
-						...state.postList[category],
-						[page]: posts
-					}
-				}
+				...action.payload
 			};
-		case FETCH_POST_PAGINATION:
-			return { ...state, pages: { ...state.pages, ...action.payload } };
 
 		case FETCH_NEWS_POST:
 			return {
 				...state,
-				posts: {
-					...state.posts,
-					[action.slug]: action.payload
+				fullPosts: {
+					...state.fullPosts,
+					[action.payload._id]: action.payload
 				}
 			};
-
-		case FETCH_SIDEBAR_POSTS:
-			return { ...state, recentPosts: action.payload };
 
 		case FETCH_NEWS_POST_LEGACY:
 			return { ...state, redirects: { ...state.redirects, [action.id]: action.payload } };

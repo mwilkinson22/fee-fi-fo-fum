@@ -23,7 +23,6 @@ class NewsPostLegacyRedirect extends Component {
 	}
 	render() {
 		const { redirect } = this.state;
-
 		if (redirect === undefined) {
 			return <LoadingPage />;
 		} else if (!redirect) {

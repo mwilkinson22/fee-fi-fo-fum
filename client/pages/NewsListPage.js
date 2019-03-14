@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchPostPagination, fetchPostList } from "../actions/newsActions";
+import { fetchPostList } from "../actions/newsActions";
 import LoadingPage from "../components/LoadingPage";
 import NewsPostPreview from "../components/news/NewsPostCard";
 import _ from "lodash";
@@ -13,49 +13,35 @@ class NewsListPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { postList, pages } = props;
+		const { postList } = props;
 		const { category } = props.match.params;
 		const page = props.match.params.page || 1;
 
 		this.state = {
 			postList,
-			pages,
 			page,
-			category
+			category,
+			postsPerPage: 12
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = {};
-		const { fetchPostPagination, fetchPostList, match, pages, postList } = nextProps;
+	static getDerivedStateFromProps(nextProps) {
+		const { match, postList } = nextProps;
 
-		//Detect new category
-		const newCategory = match.params.category;
-		if (newCategory != prevState.category) {
-			newState.category = newCategory;
-		}
+		const category = match.params.category;
+		const page = match.params.page || 1;
+		const posts = _.chain(postList)
+			.values()
+			.sortBy("datePublished")
+			.reverse()
+			.filter(post => category === "all" || post.category === category)
+			.value();
 
-		//Detect new page
-		const newPage = match.params.page || 1;
-		if (newPage != prevState.page) {
-			newState.page = newPage;
-		}
-
-		//Get pagination for new category
-		if (!pages[newCategory]) {
-			fetchPostPagination(newCategory);
-		}
-
-		//Get pages
-		if (!postList[newCategory] || !postList[newCategory][newPage]) {
-			fetchPostList(newCategory, newPage);
-		}
-
-		//Update with new data
-		newState.postList = nextProps.postList;
-		newState.pages = nextProps.pages;
-
-		return newState;
+		return {
+			category,
+			page,
+			postList: posts
+		};
 	}
 
 	generateHeader() {
@@ -82,11 +68,11 @@ class NewsListPage extends Component {
 	}
 
 	generateList() {
-		const { postList, page, category } = this.state;
-		if (!postList[category] || !postList[category][page]) {
+		const { postList, postsPerPage, page } = this.state;
+		if (!postList) {
 			return <LoadingPage fullscreen={true} />;
 		} else {
-			const posts = this.props.postList[category][page];
+			const posts = _.chunk(postList, postsPerPage)[page - 1];
 
 			const postPreviews = _.map(posts, post => {
 				return <NewsPostPreview post={post} includeContent={false} key={post.slug} />;
@@ -96,12 +82,13 @@ class NewsListPage extends Component {
 	}
 
 	generatePagination() {
-		const { pages, category } = this.state;
-		if (pages[category] === 1) {
+		const { postList, postsPerPage, category } = this.state;
+		const pages = _.chunk(postList, postsPerPage).length;
+		if (pages === 1) {
 			return null;
 		} else {
 			let links = [];
-			for (let i = 1; i <= pages[category]; i++) {
+			for (let i = 1; i <= pages; i++) {
 				let url = `/news/category/${category}`;
 				if (i > 1) url += `/${i}`;
 				links.push(
@@ -142,26 +129,18 @@ class NewsListPage extends Component {
 }
 
 function mapStateToProps({ news }, ownProps) {
-	const { postList, pages } = news;
-	return { postList, pages };
+	const { postList } = news;
+	return { postList, ...ownProps };
 }
 
-async function loadData(store, path) {
-	const splitPath = path.split("/");
-	const category = splitPath.length > 3 ? path.split("/")[3] : "all";
-	const page = splitPath.length > 4 ? path.split("/")[4] : 1;
-	const promises = [
-		store.dispatch(fetchPostPagination(category)),
-		store.dispatch(fetchPostList(category, page))
-	];
-
-	return Promise.all(promises);
+async function loadData(store) {
+	return store.dispatch(fetchPostList());
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchPostPagination, fetchPostList }
+		{ fetchPostList }
 	)(NewsListPage),
 	loadData
 };
