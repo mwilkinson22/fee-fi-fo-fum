@@ -3,10 +3,8 @@ export const FETCH_USER = "fetch_user";
 export const LOGOUT = "logout";
 
 //Games
-export const FETCH_GAME = "fetch_game";
 export const FETCH_GAMES = "fetch_games";
-export const FETCH_GAME_LISTS = "fetch_game_lists";
-export const FETCH_HOMEPAGE_GAMES = "fetch_homepage_games";
+export const FETCH_GAME_LIST = "fetch_game_list";
 export const UPDATE_GAME_BASICS = "update_game_basics";
 export const SET_PREGAME_SQUADS = "set_pregame_squads";
 

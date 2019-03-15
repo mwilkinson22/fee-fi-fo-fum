@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+import _ from "lodash";
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const PlayerStatsCollectionSchema = require("./PlayerStatsCollection");
 
@@ -47,10 +48,10 @@ const gameSchema = new Schema(
 		}
 	},
 	{
-		toObject: {
+		toJSON: {
 			virtuals: true
 		},
-		toJSON: {
+		toObject: {
 			virtuals: true
 		}
 	}
@@ -92,4 +93,35 @@ gameSchema.query.getFixtures = function(fixtures) {
 		return this.where({ date: { $lte: now } });
 	}
 };
+
+gameSchema.virtual("score").get(function() {
+	if (!this.playerStats || !this.playerStats.length) {
+		return undefined;
+	} else {
+		return _.chain(this.playerStats)
+			.groupBy("_team")
+			.mapValues(statSet => {
+				const tries = _.sumBy(statSet, "stats.T");
+				const conversions = _.sumBy(statSet, "stats.CN");
+				const pens = _.sumBy(statSet, "stats.PK");
+				const dropgoals = _.sumBy(statSet, "stats.DG");
+				return tries * 4 + conversions * 2 + pens * 2 + dropgoals;
+			})
+			.value();
+	}
+});
+
+gameSchema.virtual("status").get(function() {
+	const { pregameSquads, playerStats } = this;
+	if (!pregameSquads || pregameSquads.length < 2) {
+		return 0;
+	} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2) {
+		return 1;
+	} else if (!_.sumBy(playerStats, "stats.TK")) {
+		return 2;
+	} else {
+		return 3;
+	}
+});
+
 mongoose.model("games", gameSchema);

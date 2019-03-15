@@ -5,33 +5,35 @@ import LoadingPage from "../components/LoadingPage";
 import NewsPostCard from "../components/news/NewsPostCard";
 import GameCard from "../components/games/GameCard";
 import { fetchPostList } from "../actions/newsActions";
-import { fetchHomepageGames } from "../actions/gamesActions";
+import { fetchGameList, fetchGames } from "../actions/gamesActions";
 import { fetchLeagueTable } from "../actions/seasonActions";
 import LeagueTable from "../components/seasons/LeagueTable";
 const superLeagueId = "5c05342af22062c1fc3fe3c5";
+const firstTeam = "5c34e00a0838a5b090f8c1a7";
 
 //TODO automatically add correct year + competition
 
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
-		const { postList, fetchPostList, homepageGames } = props;
+		const { postList, fetchPostList, gameList, fetchGameList } = props;
 		if (!postList) {
 			fetchPostList();
 		}
+		if (!gameList) {
+			fetchGameList();
+		}
 		this.state = {
-			postList,
-			homepageGames
+			postList
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
-		const { postList, homepageGames, fetchPostList, fetchHomepageGames } = nextProps;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { postList, gameList, fullGames, fetchGames } = nextProps;
 		const newState = {};
 
-		if (!postList) {
-			fetchPostList();
-		} else {
+		//Posts
+		if (postList) {
 			newState.postList = _.chain(postList)
 				.values()
 				.sortBy("datePublished")
@@ -40,10 +42,47 @@ class HomePage extends Component {
 				.value()[0];
 		}
 
-		if (!homepageGames) {
-			fetchHomepageGames();
-		} else {
-			newState.homepageGames = homepageGames;
+		//Games
+		if (gameList && !prevState.games) {
+			const now = new Date();
+			const games = [];
+			//Last Game
+			games.push(
+				_.chain(gameList)
+					.filter(game => game.date <= now)
+					.filter(game => game._teamType === firstTeam)
+					.sortBy("date")
+					.reverse()
+					.value()[0]
+			);
+
+			//Next Games
+			const fixtures = _.chain(gameList)
+				.filter(game => game.date > now)
+				.filter(game => game._teamType === firstTeam)
+				.sortBy("date")
+				.value();
+			const homeFixtures = _.reject(fixtures, game => game.isAway);
+
+			if (fixtures.length) {
+				games.push(fixtures[0]);
+
+				//Next Home Game
+				if (games[1].isAway && homeFixtures.length) {
+					games.push(homeFixtures[0]);
+				}
+			}
+
+			const gamesToLoad = _.chain(games)
+				.map(g => g._id)
+				.reject(id => fullGames[id])
+				.value();
+
+			if (gamesToLoad.length === 0) {
+				newState.games = _.map(games, game => fullGames[game._id]);
+			} else {
+				fetchGames(gamesToLoad);
+			}
 		}
 
 		return newState;
@@ -67,21 +106,20 @@ class HomePage extends Component {
 	}
 
 	generateGames() {
-		const { homepageGames } = this.state;
-		if (!homepageGames) {
+		const { games } = this.state;
+		if (!games) {
 			return <LoadingPage />;
 		} else {
 			const titles = ["Last Game", "Next Game", "Next Home Game"];
-			let i = 0;
-			const games = homepageGames.map(game => {
+			const gameCards = _.map(games, (game, i) => {
 				return (
 					<div className="game-box-wrapper" key={game._id}>
-						<h2>{titles[i++]}</h2>
+						<h2>{titles[i]}</h2>
 						<GameCard game={game} includeCountdown={true} />
 					</div>
 				);
 			});
-			return <div className="homepage-game-list">{games}</div>;
+			return <div className="homepage-game-list">{gameCards}</div>;
 		}
 	}
 
@@ -94,10 +132,12 @@ class HomePage extends Component {
 						{this.generateGames()}
 						<div>
 							<h2>League Table</h2>
+							{/*
 							<LeagueTable
 								competition={superLeagueId}
 								year={new Date().getFullYear()}
 							/>
+							*/}
 						</div>
 					</div>
 				</section>
@@ -109,23 +149,23 @@ class HomePage extends Component {
 
 function loadData(store) {
 	const promises = [
-		store.dispatch(fetchHomepageGames()),
 		store.dispatch(fetchPostList()),
-		store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
+		store.dispatch(fetchGameList())
+		// store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
 	];
 	return Promise.all(promises);
 }
 
 function mapStateToProps({ news, games }) {
 	const { postList } = news;
-	const { homepageGames } = games;
-	return { postList, homepageGames };
+	const { gameList, fullGames } = games;
+	return { postList, gameList, fullGames };
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchPostList, fetchHomepageGames }
+		{ fetchPostList, fetchGameList, fetchGames }
 	)(HomePage),
 	loadData
 };

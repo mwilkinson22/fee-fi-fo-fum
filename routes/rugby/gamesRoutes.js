@@ -19,12 +19,13 @@ const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
 	//Getters
-	app.get("/api/games/slug/:slug", GameController.getItemBySlug);
-	app.get("/api/games/:year/:teamType", GameController.getGames);
+	// app.get("/api/games/slug/:slug", GameController.getItemBySlug);
+	// app.get("/api/games/:year/:teamType", GameController.getGames);
 
-	app.get("/api/games/lists", GameController.getLists);
-	app.get("/api/games/homepage", GameController.getFrontpageGames);
-	app.get("/api/games/:id", GenericController.getItemById);
+	// app.get("/api/games/lists", GameController.getLists);
+	// app.get("/api/games/homepage", GameController.getFrontpageGames);
+	app.get("/api/games/:ids", GameController.getGames);
+	app.get("/api/games", GameController.getList);
 
 	//Putters
 	app.put("/api/games/:_id/basics", requireAdmin, GameController.updateGameBasics);
