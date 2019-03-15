@@ -46,7 +46,7 @@ export async function getFullPost(req, res) {
 	}
 }
 
-//Get Legacy Post. Possibly unneccesary
+//Get Legacy Post
 export async function getLegacyPost(req, res) {
 	const { id } = req.params;
 	const redir = await SlugRedirect.findOne({ collectionName, oldSlug: id });
