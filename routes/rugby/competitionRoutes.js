@@ -1,16 +1,6 @@
-const mongoose = require("mongoose");
-
-//Models
-const Competition = mongoose.model("competitions");
-const CompetitionSegment = mongoose.model("competitionSegments");
+const competitionController = require("../../controllers/rugby/competitionController");
 
 module.exports = app => {
-	app.get("/api/competitions/segments", async (req, res) => {
-		const competitions = await CompetitionSegment.find({}).populate("_parentCompetition");
-		res.send(competitions);
-	});
-	app.get("/api/competitions", async (req, res) => {
-		const competitions = await Competition.find({});
-		res.send(competitions);
-	});
+	app.get("/api/competitions/segments", competitionController.getSegments);
+	app.get("/api/competitions", competitionController.getCompetitions);
 };
