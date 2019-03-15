@@ -20,7 +20,10 @@ function generateQuery(user, obj = {}) {
 export async function getPostList(req, res) {
 	const query = generateQuery(req.user);
 
-	const posts = await NewsPost.find(query, "title category slug image isPublished dateCreated");
+	const posts = await NewsPost.find(
+		query,
+		"title category slug image isPublished dateCreated"
+	).lean();
 
 	const { list, slugMap } = await getListsAndSlugs(posts, collectionName);
 
@@ -49,7 +52,7 @@ export async function getFullPost(req, res) {
 //Get Legacy Post
 export async function getLegacyPost(req, res) {
 	const { id } = req.params;
-	const redir = await SlugRedirect.findOne({ collectionName, oldSlug: id });
+	const redir = await SlugRedirect.findOne({ collectionName, oldSlug: id }).lean();
 	if (redir) {
 		const post = await NewsPost.findById(redir.itemId, "slug");
 		res.send(post);

@@ -13,12 +13,13 @@ class NewsListPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { postList } = props;
+		const { postList, fetchPostList } = props;
 		const { category } = props.match.params;
 		const page = props.match.params.page || 1;
-
+		if (!postList) {
+			fetchPostList();
+		}
 		this.state = {
-			postList,
 			page,
 			category,
 			postsPerPage: 12
@@ -104,11 +105,14 @@ class NewsListPage extends Component {
 	}
 
 	render() {
-		const { category } = this.state;
+		const { category, postList } = this.state;
 		let pageTitle = "News";
 		if (category !== "all" && !_.keyBy(newsCategories, "slug")[category]) {
 			return <NotFoundPage message="Category not found" />;
+		} else if (!postList || !postList.length) {
+			return <LoadingPage />;
 		} else {
+			console.log(postList);
 			if (category !== "all") {
 				pageTitle += " - " + _.keyBy(newsCategories, "slug")[category].name;
 			}
