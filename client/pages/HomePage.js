@@ -44,48 +44,53 @@ class HomePage extends Component {
 
 		//Games
 		if (gameList && !prevState.games) {
-			const now = new Date();
-			const games = [];
-			//Last Game
-			games.push(
-				_.chain(gameList)
-					.filter(game => game.date <= now)
-					.filter(game => game._teamType === firstTeam)
-					.sortBy("date")
-					.reverse()
-					.value()[0]
-			);
-
-			//Next Games
-			const fixtures = _.chain(gameList)
-				.filter(game => game.date > now)
-				.filter(game => game._teamType === firstTeam)
-				.sortBy("date")
-				.value();
-			const homeFixtures = _.reject(fixtures, game => game.isAway);
-
-			if (fixtures.length) {
-				games.push(fixtures[0]);
-
-				//Next Home Game
-				if (games[1].isAway && homeFixtures.length) {
-					games.push(homeFixtures[0]);
-				}
-			}
+			const games = HomePage.getGameIds(gameList);
 
 			const gamesToLoad = _.chain(games)
-				.map(g => g._id)
 				.reject(id => fullGames[id])
 				.value();
 
 			if (gamesToLoad.length === 0) {
-				newState.games = _.map(games, game => fullGames[game._id]);
+				newState.games = _.map(games, game => fullGames[game]);
 			} else {
 				fetchGames(gamesToLoad);
 			}
 		}
 
 		return newState;
+	}
+
+	static getGameIds(gameList) {
+		const now = new Date();
+		const games = [];
+		//Last Game
+		games.push(
+			_.chain(gameList)
+				.filter(game => game.date <= now)
+				.filter(game => game._teamType === firstTeam)
+				.sortBy("date")
+				.reverse()
+				.value()[0]
+		);
+
+		//Next Games
+		const fixtures = _.chain(gameList)
+			.filter(game => game.date > now)
+			.filter(game => game._teamType === firstTeam)
+			.sortBy("date")
+			.value();
+		const homeFixtures = _.reject(fixtures, game => game.isAway);
+
+		if (fixtures.length) {
+			games.push(fixtures[0]);
+
+			//Next Home Game
+			if (games[1].isAway && homeFixtures.length) {
+				games.push(homeFixtures[0]);
+			}
+		}
+
+		return _.map(games, g => g._id);
 	}
 
 	generateNewsPosts() {
@@ -147,12 +152,15 @@ class HomePage extends Component {
 	}
 }
 
-function loadData(store) {
-	const promises = [
+async function loadData(store) {
+	await Promise.all([
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchGameList())
 		// store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
-	];
+	]);
+	const { gameList } = store.getState().games;
+	await store.dispatch(fetchGames(HomePage.getGameIds(gameList)));
+	const promises = [];
 	return Promise.all(promises);
 }
 
