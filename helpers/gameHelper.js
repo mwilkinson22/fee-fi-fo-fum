@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
 
@@ -6,4 +8,11 @@ export function validateGameDate(game, listType, year = null) {
 	} else {
 		return game.date > now;
 	}
+}
+
+export function fixDates(games) {
+	return _.mapValues(games, game => {
+		game.date = new Date(game.date);
+		return game;
+	});
 }
