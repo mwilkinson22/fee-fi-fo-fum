@@ -35,14 +35,6 @@ export async function getGames(req, res) {
 			populate: {
 				path: "address._city"
 			}
-		})
-		.populate({
-			path: "_competition",
-			select: "name _parentCompetition appendCompetitionName",
-			populate: {
-				path: "_parentCompetition",
-				select: "name"
-			}
 		});
 
 	res.send(_.keyBy(games, "_id"));

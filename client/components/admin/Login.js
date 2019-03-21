@@ -1,72 +1,55 @@
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { reduxForm, Field } from "redux-form";
+import { Formik, Form } from "formik";
 import { login } from "../../actions/userActions";
-
-const fields = [
-	{
-		name: "username",
-		type: "text",
-		label: "Username"
-	},
-	{
-		name: "password",
-		type: "password",
-		label: "Password"
-	}
-];
+import * as Yup from "yup";
+import processFormFields from "../../../helpers/processFormFields";
 
 class Login extends Component {
-	renderField(field) {
-		const { touched, error } = field.meta;
-		return (
-			<div className="field-group">
-				<label>{field.label}</label>
-				<input type={field.type} {...field.input} />
-				<span className="error">{touched ? error : ""}</span>
-			</div>
-		);
+	getValidationSchema() {
+		return Yup.object().shape({
+			username: Yup.string()
+				.required()
+				.label("Username"),
+			password: Yup.string()
+				.required()
+				.label("Password")
+		});
 	}
 
-	onSubmit(values) {
-		this.props.login(values);
+	renderFields() {
+		const fields = [{ name: "username", type: "text" }, { name: "password", type: "password" }];
+
+		return (
+			<Form>
+				<div className="form-card login-card">
+					{processFormFields(fields, this.getValidationSchema())}
+					<div className="buttons">
+						<button type="submit">Log In</button>
+					</div>
+				</div>
+			</Form>
+		);
 	}
 
 	render() {
-		const { handleSubmit } = this.props;
 		return (
 			<div className="container">
 				<h1>Login</h1>
-				<div className="form-card login-card">
-					<form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-						{_.map(fields, field => (
-							<Field key={field.name} component={this.renderField} {...field} />
-						))}
-						<button type="submit">Login</button>
-					</form>
-				</div>
+				<Formik
+					onSubmit={values => this.props.login(values)}
+					initialValues={{
+						username: "",
+						password: ""
+					}}
+					validationSchema={this.getValidationSchema()}
+					render={formikProps => this.renderFields(formikProps)}
+				/>
 			</div>
 		);
 	}
 }
-
-function validate(values) {
-	const errors = {};
-
-	_.map(fields, field => {
-		const { name, label } = field;
-		if (!values[name]) {
-			errors[name] = `Please enter a ${label}`;
-		}
-	});
-
-	return errors;
-}
-
-export default reduxForm({ form: "loginForm", validate })(
-	connect(
-		null,
-		{ login }
-	)(Login)
-);
+export default connect(
+	null,
+	{ login }
+)(Login);

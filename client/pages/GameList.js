@@ -3,133 +3,112 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
-import { fetchAllTeamTypes } from "../actions/teamsActions";
+import { fetchGames, fetchGameLists } from "../actions/gamesActions";
 import GameCard from "../components/games/GameCard";
 import { NavLink } from "react-router-dom";
-import { validateGameDate } from "../../helpers/gameHelper";
 import HelmetBuilder from "../components/HelmetBuilder";
 
 class GameList extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, match, fetchGameList, teamTypes, fetchAllTeamTypes } = props;
+		const { lists, match, fetchGameLists } = props;
 
-		if (!gameList) {
-			fetchGameList();
+		const listType = match.path.split("/")[2];
+
+		if (!lists) {
+			fetchGameLists();
 		}
-
-		if (!teamTypes) {
-			fetchAllTeamTypes();
-		}
-
-		const listType = match.path.split("/")[2]; //Fixtures or Results
 
 		this.state = { listType };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { gameList, fullGames, teamTypes, match, fetchGames } = nextProps;
-		const path = match.path.split("/");
+		const { lists, match, fetchGames } = nextProps;
+
 		//Fixtures or Results?
-		newState.listType = path[2];
+		const listType = match.path.split("/")[2];
+		if (prevState.listType !== listType) newState.listType = listType;
 
-		if (!teamTypes || !gameList) {
-			return {};
-		}
-
-		//Team Type
-		if (match.params.teamType) {
-			const filteredTeamTypes = _.filter(teamTypes, t => t.slug === match.params.teamType);
-			if (filteredTeamTypes.length) {
-				newState.teamType = filteredTeamTypes[0]._id;
+		if (lists) {
+			//Get Year
+			let year;
+			if (listType === "fixtures") {
+				year = "fixtures";
+			} else if (lists[match.params.year]) {
+				year = match.params.year;
+			} else {
+				year = getMostRecentYear(lists);
 			}
-		}
+			if (year !== prevState.year) {
+				newState.year = year;
+				newState.activeFilters = {};
+			}
 
-		if (!newState.teamType) {
-			newState.teamType = _.chain(teamTypes)
-				.values()
-				.sortBy("sortOrder")
-				.value()[0]._id;
-		}
+			//Get Team Type
+			let teamType;
+			if (lists[year][match.params.teamType]) {
+				teamType = match.params.teamType;
+			} else {
+				teamType = _.sortBy(lists[year], "sortOrder")[0].slug;
+			}
+			if (teamType !== prevState.teamType) {
+				newState.teamType = teamType;
+				newState.activeFilters = {};
+			}
 
-		//Years
-		const now = new Date();
-		if (newState.listType === "results") {
-			//Get Years
-			newState.years = _.chain(gameList)
-				.reject(game => game.date > now)
-				.map(game => game.date.getFullYear())
-				.uniq()
-				.sort()
-				.reverse()
-				.value();
-
-			//Get Active Year
-			newState.year = match.params.year || newState.years[0];
-		}
-
-		//Games
-		const gameIds = _.chain(gameList)
-			.filter(game => game._teamType === newState.teamType)
-			.filter(game => validateGameDate(game, newState.listType, newState.year))
-			.orderBy(["date"], [newState.listType === "results" ? "desc" : "asc"])
-			.map(game => game._id)
-			.value();
-		const gamesToLoad = _.reject(gameIds, game => fullGames[game]);
-
-		if (gamesToLoad.length) {
-			fetchGames(gamesToLoad);
-		} else {
-			newState.games = _.map(gameIds, id => fullGames[id]);
-		}
-
-		//Reset Filters
-		if (newState.year !== prevState.year || newState.teamType !== prevState.teamType) {
-			newState.activeFilters = {};
+			//Get Games
+			const { games } = lists[year][teamType];
+			if (!games) {
+				fetchGames(year, teamType);
+				newState.games = null;
+			} else {
+				newState.games = games;
+			}
 		}
 
 		return newState;
 	}
 
 	generatePageHeader() {
-		const { listType, years } = this.state;
+		const { listType } = this.state;
 		if (listType === "fixtures") {
 			return "Fixtures";
 		} else {
-			const options = _.map(years, year => {
-				return (
-					<option key={year} value={year}>
-						{year}
-					</option>
-				);
-			});
+			const options = _.chain(this.props.lists)
+				.keys()
+				.filter(year => !isNaN(Number(year)))
+				.map(year => {
+					return (
+						<option key={year} value={year}>
+							{year}
+						</option>
+					);
+				})
+				.sort()
+				.reverse()
+				.value();
 			return [
 				<select
 					key="year-selector"
+					children={options}
 					onChange={ev => this.props.history.push(`/games/results/${ev.target.value}`)}
 					value={this.state.year}
-				>
-					{options}
-				</select>,
+				/>,
 				<span key="results-header"> Results</span>
 			];
 		}
 	}
 
-	generateTeamTypeMenu() {
-		const { listType, year } = this.state;
-		const teamTypes = _.keyBy(this.props.teamTypes, "_id");
-		const coreUrl = listType === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
-		const submenu = _.chain(this.props.gameList)
-			.filter(game => validateGameDate(game, listType, year))
-			.map(game => game._teamType)
-			.uniq()
-			.map(id => teamTypes[id])
+	generateTeamMenu() {
+		const { year } = this.state;
+		const { lists } = this.props;
+		const { listType } = this.state;
+		const coreUrl = year === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
+		const submenu = _.chain(lists[year])
 			.sortBy("sortOrder")
-			.map(teamType => {
-				const { name, slug } = teamType;
+			.map(team => {
+				const { name, slug } = team;
 				return (
 					<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
 						{name}
@@ -137,7 +116,6 @@ class GameList extends Component {
 				);
 			})
 			.value();
-
 		const dummyLinkUrls = [coreUrl];
 		if (listType === "results") {
 			dummyLinkUrls.push("/games/results");
@@ -185,15 +163,14 @@ class GameList extends Component {
 	}
 
 	render() {
-		const { listType, games, year, teamType } = this.state;
-		const { gameList } = this.props;
-		if (!teamType || !gameList) {
+		const { year, teamType } = this.state;
+		if (!year || !teamType) {
 			return <LoadingPage />;
 		} else {
 			const canonical =
-				listType === "fixtures" ? `fixtures/${teamType}` : `results/${year}/${teamType}`;
+				year === "fixtures" ? `fixtures/${teamType}` : `results/${year}/${teamType}`;
 			const pageTitle =
-				listType === "fixtures"
+				year === "fixtures"
 					? "Huddersfield Giants Fixtures"
 					: `Huddersfield Giants ${year} Results`;
 			return (
@@ -202,9 +179,9 @@ class GameList extends Component {
 					<section className="page-header">
 						<div className="container">
 							<h1>{this.generatePageHeader()}</h1>
-							{this.generateTeamTypeMenu()}
+							{this.generateTeamMenu()}
 							<GameFilters
-								games={games}
+								games={this.state.games}
 								onFilterChange={activeFilters => this.setState({ activeFilters })}
 								activeFilters={this.state.activeFilters}
 							/>
@@ -217,81 +194,63 @@ class GameList extends Component {
 	}
 }
 
-function mapStateToProps({ games, teams }, ownProps) {
-	const { gameList, fullGames } = games;
-	const { teamTypes } = teams;
+function mapStateToProps({ games }, ownProps) {
+	const { lists } = games;
 	return {
-		gameList,
-		fullGames,
-		teamTypes
+		lists,
+		...ownProps
 	};
 }
 
-export async function loadData(store, path) {
+function getMostRecentYear(lists) {
+	return _.chain(lists)
+		.keys()
+		.filter(year => !isNaN(Number(year)))
+		.max()
+		.value();
+}
+
+async function loadData(store, path) {
+	await store.dispatch(fetchGameLists());
+	const { lists } = store.getState().games;
 	const splitPath = path.split("/");
-
-	//Get List Type
 	const listType = splitPath[2];
+	let list, teamType, year;
 
-	//Get Game List
-	await store.dispatch(fetchGameList());
-	const { gameList } = store.getState().games;
+	if (listType === "fixtures") {
+		//No year for fixtures
+		year = listType;
 
-	//Get Year
-	let year;
-	if (listType === "results") {
-		if (splitPath.length > 3) {
+		//Add team type
+		if (splitPath.length > 3 && lists[year][splitPath[3]]) {
+			teamType = splitPath[3];
+		}
+	} else {
+		//Get Year
+		if (splitPath.length > 3 && lists[splitPath[3]]) {
 			year = splitPath[3];
 		} else {
-			year = _.chain(gameList)
-				.reject(game => game.date > new Date())
-				.map(game => game.date.getFullYear())
-				.max()
-				.value();
+			year = getMostRecentYear(lists);
+		}
+
+		//Add team type
+		if (splitPath.length > 4 && lists[year][splitPath[4]]) {
+			teamType = splitPath[4];
 		}
 	}
 
-	//Get Team Type
-	await store.dispatch(fetchAllTeamTypes());
-	const teamTypes = _.keyBy(store.getState().teams.teamTypes, "_id");
-	const teamTypeIndex = listType === "fixtures" ? 3 : 4;
-	let teamType;
-	if (splitPath.length > teamTypeIndex) {
-		const teamTypeFromSlug = _.filter(
-			teamTypes,
-			teamType => teamType.slug === splitPath[teamTypeIndex]
-		);
-		if (teamTypeFromSlug.length) {
-			teamType = teamTypeFromSlug[0]._id;
-		}
-	}
-
+	//Get TeamType, if not already defined
 	if (!teamType) {
-		teamType = _.chain(gameList)
-			.filter(game => validateGameDate(game, listType, year))
-			.map(game => game._teamType)
-			.uniq()
-			.map(id => teamTypes[id])
-			.minBy("sortOrder")
-			.value()._id;
+		teamType = _.sortBy(lists[year], "sortOrder")[0].slug;
 	}
 
-	console.log(teamType);
-
-	//Games To Load
-	const games = _.chain(gameList)
-		.filter(game => game._teamType === teamType)
-		.filter(game => validateGameDate(game, listType, year))
-		.map(game => game._id)
-		.value();
-
-	return store.dispatch(fetchGames(games));
+	return store.dispatch(fetchGames(year, teamType));
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGames, fetchGameList, fetchAllTeamTypes }
+		{ fetchGames, fetchGameLists }
 	)(GameList),
 	loadData
 };

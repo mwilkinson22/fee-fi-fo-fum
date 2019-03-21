@@ -151,7 +151,7 @@
 	right: 0;
 	margin: auto;
 	width: auto;
-	display: block;
+	grid-template-columns: 1fr;
 	max-width: 400px;
 	padding: 5%;
 
