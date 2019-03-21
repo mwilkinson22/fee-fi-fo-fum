@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
-import { fetchGames, fetchGameLists } from "../actions/gamesActions";
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import AdminGameCard from "../components/games/AdminGameCard";
 import HelmetBuilder from "../components/HelmetBuilder";
 import { NavLink } from "react-router-dom";
@@ -11,10 +11,10 @@ import { NavLink } from "react-router-dom";
 class AdminGameList extends Component {
 	constructor(props) {
 		super(props);
-		const { lists, match, fetchGameLists } = props;
+		const { gameList, fetchGameList } = props;
 
-		if (!lists) {
-			fetchGameLists();
+		if (!gameList) {
+			fetchGameList();
 		}
 
 		this.state = {};
@@ -22,13 +22,13 @@ class AdminGameList extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { lists, match, fetchGames } = nextProps;
-		if (lists) {
+		const { gameList, match, fetchGames } = nextProps;
+		if (gameList) {
 			//Get Year
 			const year =
 				match.params.year ||
-				_.chain(lists)
-					.keys()
+				_.chain(gameList)
+					.map(game => game.date.getFullYear())
 					.max()
 					.value();
 
@@ -166,14 +166,14 @@ class AdminGameList extends Component {
 }
 
 function mapStateToProps({ games }, ownProps) {
-	const { lists } = games;
+	const { gameList } = games;
 	return {
-		lists,
+		gameList,
 		...ownProps
 	};
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchGames, fetchGameLists }
+	{ fetchGames, fetchGameList }
 )(AdminGameList);

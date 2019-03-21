@@ -156,12 +156,15 @@
 	@media #{$desktop-only} {
 		grid-gap: 20pt;
 		grid-template-columns: 1fr 1fr;
+		.game-card:first-child,
+		.game-card:nth-child(even):last-child {
+			grid-column: 1 / -1;
+		}
 		.game-card:first-child {
 			.team-badge {
 				padding: 4%;
 			}
 			padding-top: 20%;
-			grid-column: 1 / -1;
 		}
 	}
 }

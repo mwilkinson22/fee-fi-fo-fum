@@ -60,7 +60,7 @@ export default class GameFilters extends Component {
 			if (filter === "isAway") {
 				value = activeFilters.isAway !== null ? activeFilters.isAway : "";
 			} else {
-				value = activeFilters[filter] ? activeFilters[filter]._id : "";
+				value = activeFilters && activeFilters[filter] ? activeFilters[filter]._id : "";
 			}
 
 			//Return JSX
