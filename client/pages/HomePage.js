@@ -159,9 +159,8 @@ async function loadData(store) {
 		// store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
 	]);
 	const { gameList } = store.getState().games;
-	await store.dispatch(fetchGames(HomePage.getGameIds(gameList)));
-	const promises = [];
-	return Promise.all(promises);
+
+	return store.dispatch(fetchGames(HomePage.getGameIds(gameList)));
 }
 
 function mapStateToProps({ news, games }) {
