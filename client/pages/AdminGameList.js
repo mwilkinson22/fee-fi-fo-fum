@@ -4,96 +4,125 @@ import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchAllTeamTypes } from "../actions/teamsActions";
 import AdminGameCard from "../components/games/AdminGameCard";
-import HelmetBuilder from "../components/HelmetBuilder";
 import { NavLink } from "react-router-dom";
+import { validateGameDate } from "../../helpers/gameHelper";
+import HelmetBuilder from "../components/HelmetBuilder";
 
 class AdminGameList extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, fetchGameList } = props;
+		const { gameList, match, fetchGameList, teamTypes, fetchAllTeamTypes } = props;
 
 		if (!gameList) {
 			fetchGameList();
 		}
 
-		this.state = {};
+		if (!teamTypes) {
+			fetchAllTeamTypes();
+		}
+
+		this.state = { listType: match.params.year === "fixtures" ? "fixtures" : "results" };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { gameList, match, fetchGames } = nextProps;
-		if (gameList) {
-			//Get Year
-			const year =
-				match.params.year ||
-				_.chain(gameList)
-					.map(game => game.date.getFullYear())
-					.max()
-					.value();
+		const { gameList, fullGames, teamTypes, match, fetchGames } = nextProps;
+		newState.listType =
+			!match.params.year || match.params.year === "fixtures" ? "fixtures" : "results";
 
-			if (year !== prevState.year) {
-				newState.year = year;
-				newState.activeFilters = {};
-			}
+		if (!teamTypes || !gameList) {
+			return {};
+		}
 
-			//Get Team Type
-			let teamType;
-			if (lists[year][match.params.teamType]) {
-				teamType = match.params.teamType;
-			} else {
-				teamType = _.sortBy(lists[year], "sortOrder")[0].slug;
+		//Team Type
+		if (match.params.teamType) {
+			const filteredTeamTypes = _.filter(teamTypes, t => t.slug === match.params.teamType);
+			if (filteredTeamTypes.length) {
+				newState.teamType = filteredTeamTypes[0]._id;
 			}
-			if (teamType !== prevState.teamType) {
-				newState.teamType = teamType;
-				newState.activeFilters = {};
-			}
+		}
 
-			//Get Games
-			const { games } = lists[year][teamType];
-			if (!games) {
-				fetchGames(year, teamType);
-				newState.games = null;
-			} else {
-				newState.games = games;
-			}
+		if (!newState.teamType) {
+			newState.teamType = _.chain(teamTypes)
+				.values()
+				.sortBy("sortOrder")
+				.value()[0]._id;
+		}
+
+		//Years
+		const now = new Date();
+		//Get Years
+		const years = _.chain(gameList)
+			.reject(game => game.date > now)
+			.map(game => game.date.getFullYear())
+			.uniq()
+			.sort()
+			.reverse()
+			.value();
+		newState.years = ["fixtures", ...years];
+
+		//Get Active Year
+		newState.year = match.params.year || newState.years[0];
+
+		//Games
+		const gameIds = _.chain(gameList)
+			.filter(game => game._teamType === newState.teamType)
+			.filter(game => validateGameDate(game, newState.listType, newState.year))
+			.orderBy(["date"], [newState.listType === "results" ? "desc" : "asc"])
+			.map(game => game._id)
+			.value();
+
+		const gamesToLoad = _.reject(gameIds, game => fullGames[game]);
+
+		if (gamesToLoad.length) {
+			fetchGames(gamesToLoad);
+			newState.games = undefined;
+		} else {
+			newState.games = _.map(gameIds, id => fullGames[id]);
+		}
+
+		//Reset Filters
+		if (newState.year !== prevState.year || newState.teamType !== prevState.teamType) {
+			newState.activeFilters = {};
 		}
 
 		return newState;
 	}
 
 	generatePageHeader() {
-		const options = _.chain(this.props.lists)
-			.keys()
-			.map(year => {
-				return (
-					<option key={year} value={year}>
-						{year === "fixtures" ? "Fixtures" : year}
-					</option>
-				);
-			})
-			.sort()
-			.reverse()
-			.value();
+		const { years } = this.state;
+		const options = _.map(years, year => {
+			return (
+				<option key={year} value={year}>
+					{year === "fixtures" ? "All Fixtures" : `${year} Results`}
+				</option>
+			);
+		});
 		return [
 			<select
 				key="year-selector"
-				children={options}
 				onChange={ev => this.props.history.push(`/admin/games/${ev.target.value}`)}
-				className="with-border"
 				value={this.state.year}
-			/>
+			>
+				{options}
+			</select>
 		];
 	}
 
-	generateTeamMenu() {
-		const { year } = this.state;
-		const { lists } = this.props;
+	generateTeamTypeMenu() {
+		const { listType, year } = this.state;
+		const teamTypes = _.keyBy(this.props.teamTypes, "_id");
 		const coreUrl = `/admin/games/${year}`;
-		const submenu = _.chain(lists[year])
+		const submenu = _.chain(this.props.gameList)
+			.filter(game => validateGameDate(game, listType, year))
+			.map(game => game._teamType)
+			.uniq()
+			.map(id => teamTypes[id])
 			.sortBy("sortOrder")
-			.map(team => {
-				const { name, slug } = team;
+			.map(teamType => {
+				const { name, slug } = teamType;
 				return (
 					<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
 						{name}
@@ -101,7 +130,8 @@ class AdminGameList extends Component {
 				);
 			})
 			.value();
-		const dummyLinkUrls = [coreUrl, "/admin/games"];
+
+		const dummyLinkUrls = ["/admin/games", coreUrl];
 		const dummyLinks = dummyLinkUrls.map(url => {
 			return (
 				<NavLink
@@ -127,32 +157,38 @@ class AdminGameList extends Component {
 		if (!games) {
 			return <LoadingPage />;
 		} else {
+			let isFirst = true;
 			const renderedGames = _.chain(games)
 				.filter(activeFilters)
-				.map(game => {
-					return <AdminGameCard key={game._id} game={game} />;
-				})
+				.map(game => <AdminGameCard key={game._id} game={game} />)
 				.value();
 
 			const result = renderedGames.length ? renderedGames : <h3>No games found</h3>;
-			return <div className="container admin-game-list">{result}</div>;
+			return <div className="container game-list">{result}</div>;
 		}
 	}
 
 	render() {
-		const { year, teamType } = this.state;
-		if (!year || !teamType) {
+		const { listType, games, year, teamType } = this.state;
+		const { gameList } = this.props;
+		if (!teamType || !gameList) {
 			return <LoadingPage />;
 		} else {
+			const canonical =
+				listType === "fixtures" ? `fixtures/${teamType}` : `results/${year}/${teamType}`;
+			const pageTitle =
+				listType === "fixtures"
+					? "Huddersfield Giants Fixtures"
+					: `Huddersfield Giants ${year} Results`;
 			return (
-				<div className="admin-page">
-					<HelmetBuilder title="4Fs Admin - Games" />
+				<div>
+					<HelmetBuilder title={pageTitle} canonical={canonical} />
 					<section className="page-header">
 						<div className="container">
 							<h1>{this.generatePageHeader()}</h1>
-							{this.generateTeamMenu()}
+							{this.generateTeamTypeMenu()}
 							<GameFilters
-								games={this.state.games}
+								games={games}
 								onFilterChange={activeFilters => this.setState({ activeFilters })}
 								activeFilters={this.state.activeFilters}
 							/>
@@ -165,15 +201,17 @@ class AdminGameList extends Component {
 	}
 }
 
-function mapStateToProps({ games }, ownProps) {
-	const { gameList } = games;
+function mapStateToProps({ games, teams }, ownProps) {
+	const { gameList, fullGames } = games;
+	const { teamTypes } = teams;
 	return {
 		gameList,
-		...ownProps
+		fullGames,
+		teamTypes
 	};
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchGames, fetchGameList }
+	{ fetchGames, fetchGameList, fetchAllTeamTypes }
 )(AdminGameList);
