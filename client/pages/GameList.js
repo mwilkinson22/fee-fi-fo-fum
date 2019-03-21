@@ -81,6 +81,7 @@ class GameList extends Component {
 
 		if (gamesToLoad.length) {
 			fetchGames(gamesToLoad);
+			newState.games = undefined;
 		} else {
 			newState.games = _.map(gameIds, id => fullGames[id]);
 		}
