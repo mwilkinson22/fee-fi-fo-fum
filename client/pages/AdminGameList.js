@@ -164,7 +164,7 @@ class AdminGameList extends Component {
 				.value();
 
 			const result = renderedGames.length ? renderedGames : <h3>No games found</h3>;
-			return <div className="container game-list">{result}</div>;
+			return <div className="container admin-game-list">{result}</div>;
 		}
 	}
 

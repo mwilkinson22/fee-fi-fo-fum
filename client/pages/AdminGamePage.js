@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGame } from "../actions/gamesActions";
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -12,15 +12,30 @@ import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSq
 class AdminGamePage extends Component {
 	constructor(props) {
 		super(props);
-		const { game, match, fetchGame } = props;
-		if (!game) {
-			fetchGame(match.params.slug);
+		const { slugMap, fetchGameList } = props;
+		if (!slugMap) {
+			fetchGameList();
 		}
-		this.state = { game };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		return { game: nextProps.game };
+		const { match, slugMap, fullGames, fetchGames } = nextProps;
+		const { slug } = match.params;
+		if (!slugMap) {
+			return {};
+		}
+		if (!slugMap[slug]) {
+			return { game: false };
+		}
+
+		const id = slugMap[slug].id;
+		if (!fullGames[id]) {
+			fetchGames([id]);
+			return { game: undefined };
+		} else {
+			return { game: fullGames[id] };
+		}
 	}
 
 	getPageTitle() {
@@ -141,12 +156,11 @@ class AdminGamePage extends Component {
 }
 
 function mapStateToProps({ config, games }, ownProps) {
-	const { slug } = ownProps.match.params;
-	const { fullGames } = games;
+	const { fullGames, slugMap } = games;
 	const { localTeam } = config;
-	return { localTeam, game: fullGames[slug] };
+	return { localTeam, fullGames, slugMap, ...ownProps };
 }
 export default connect(
 	mapStateToProps,
-	{ fetchGame }
+	{ fetchGames }
 )(AdminGamePage);
