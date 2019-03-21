@@ -1,17 +1,10 @@
-import _ from "lodash";
 import {
 	FETCH_GAMES,
 	UPDATE_GAME_BASICS,
 	SET_PREGAME_SQUADS,
 	FETCH_GAME_LIST
 } from "../actions/types";
-
-function fixDates(games) {
-	return _.mapValues(games, game => {
-		game.date = new Date(game.date);
-		return game;
-	});
-}
+import { fixDates } from "../../helpers/gameHelper";
 
 export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
