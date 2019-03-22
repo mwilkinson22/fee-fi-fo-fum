@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchAllTeams } from "../actions/teamsActions";
+import { fetchTeamList } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import { Link } from "react-router-dom";
 import { toRgb } from "../utils/colourHelper";
@@ -64,5 +64,5 @@ function mapStateToProps({ teams }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeams }
+	{ fetchAllTeams: fetchTeamList }
 )(AdminTeamList);

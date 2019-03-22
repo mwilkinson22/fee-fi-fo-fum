@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PersonImage from "./PersonImage";
+import playerPositions from "~/constants/playerPositions";
 
 export default class PersonCard extends Component {
 	constructor(props) {
@@ -23,11 +24,13 @@ export default class PersonCard extends Component {
 		} else {
 			switch (personType) {
 				case "player":
-					this.additionalData = (
-						<div className="additional-data positions">
-							{person.playerDetails.mainPosition}
-						</div>
-					);
+					if (person.playerDetails.mainPosition) {
+						this.additionalData = (
+							<div className="additional-data positions">
+								{playerPositions[person.playerDetails.mainPosition].name}
+							</div>
+						);
+					}
 					break;
 				default:
 					this.additionalData = null;
@@ -37,8 +40,8 @@ export default class PersonCard extends Component {
 	}
 
 	render() {
-		const { person } = this.props;
-		const { number, slug, name } = person;
+		const { person, number } = this.props;
+		const { slug, name } = person;
 		return (
 			<Link className="person-card-wrapper" to={`/players/${slug}`}>
 				<div className="person-card">

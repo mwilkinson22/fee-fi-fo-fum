@@ -2,7 +2,8 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
-const { positionKeys } = _.concat(require("../../constants/playerPositions"), [null]);
+const playerPositions = require("../../constants/playerPositions");
+const positionEnums = [null, ...Object.keys(playerPositions)];
 
 const personSchema = new Schema({
 	name: {
@@ -22,8 +23,8 @@ const personSchema = new Schema({
 	isReferee: Boolean,
 	playerDetails: {
 		contractEnds: Number,
-		mainPosition: { type: String, enum: positionKeys },
-		otherPositions: [{ type: String, enum: positionKeys }]
+		mainPosition: { type: String, enum: positionEnums },
+		otherPositions: [{ type: String, enum: positionEnums }]
 	},
 	coachDetails: [
 		{

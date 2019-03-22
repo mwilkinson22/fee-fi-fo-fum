@@ -19,6 +19,7 @@ import HelmetBuilder from "../components/HelmetBuilder";
 import playerStatTypes from "../../constants/playerStatTypes";
 import NotFoundPage from "./NotFoundPage";
 import { Redirect } from "react-router-dom";
+import playerPositions from "~/constants/playerPositions";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -96,13 +97,17 @@ class PersonPage extends Component {
 		const { person } = this.state;
 		if (person.isPlayer) {
 			const { mainPosition, otherPositions } = person.playerDetails;
-			const allPositions = _.concat(mainPosition, otherPositions).map(position => {
-				return (
-					<div key={position} className="position">
-						{position}
-					</div>
-				);
-			});
+			const allPositions = _.chain(mainPosition)
+				.concat(otherPositions)
+				.filter(_.identity)
+				.map(position => {
+					return (
+						<div key={position} className="position">
+							{playerPositions[position].name}
+						</div>
+					);
+				})
+				.value();
 			return <div className="positions">{allPositions}</div>;
 		} else {
 			return null;

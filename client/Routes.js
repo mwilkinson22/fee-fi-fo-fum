@@ -64,6 +64,14 @@ const personRoutes = [
 const squadRoutes = [
 	{
 		...SquadListPage,
+		path: "/squads/:year/:teamType"
+	},
+	{
+		...SquadListPage,
+		path: "/squads/:year"
+	},
+	{
+		...SquadListPage,
 		path: "/squads"
 	}
 ];

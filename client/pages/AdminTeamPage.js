@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchAllTeams } from "../actions/teamsActions";
+import { fetchTeamList } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -105,5 +105,5 @@ function mapStateToProps({ teams }, ownProps) {
 }
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeams }
+	{ fetchAllTeams: fetchTeamList }
 )(AdminTeamPage);

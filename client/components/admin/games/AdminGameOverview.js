@@ -8,7 +8,7 @@ import Colour from "color";
 import "datejs";
 
 //Actions
-import { fetchAllTeams, fetchAllTeamTypes } from "../../../actions/teamsActions";
+import { fetchTeamList, fetchAllTeamTypes } from "../../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchAllReferees } from "../../../actions/peopleActions";
@@ -389,7 +389,7 @@ export default connect(
 	mapStateToProps,
 	{
 		fetchAllTeamTypes,
-		fetchAllTeams,
+		fetchAllTeams: fetchTeamList,
 		fetchAllCompetitionSegments,
 		fetchAllGrounds,
 		fetchAllReferees,

@@ -11,7 +11,6 @@ const PeopleController = require("../../controllers/rugby/peopleController");
 
 //Middleware & Utils
 const requireAdmin = require("../../middlewares/requireAdmin");
-const getPositions = require("../../utils/getPositions");
 
 module.exports = app => {
 	//Get
@@ -26,9 +25,6 @@ module.exports = app => {
 			.populate("_represents")
 			.populate({ path: "_hometown", populate: { path: "_country" } });
 		if (person) {
-			if (person.isPlayer) {
-				person.playerDetails = getPositions(person.playerDetails);
-			}
 			res.send(person);
 		} else {
 			//Check for a redirect

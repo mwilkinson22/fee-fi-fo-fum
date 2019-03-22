@@ -9,10 +9,9 @@ export const UPDATE_GAME_BASICS = "update_game_basics";
 export const SET_PREGAME_SQUADS = "set_pregame_squads";
 
 //Teams
-export const FETCH_SQUAD = "fetch_squad";
-export const FETCH_YEARS_WITH_SQUADS = "fetch_years_with_squads";
 export const FETCH_ALL_TEAMS = "fetch_all_teams";
 export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
+export const FETCH_TEAM = "fetch_team";
 export const UPDATE_TEAM = "update_team";
 
 //News

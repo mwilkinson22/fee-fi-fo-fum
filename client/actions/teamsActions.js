@@ -1,24 +1,13 @@
-import _ from "lodash";
-import {
-	FETCH_ALL_TEAM_TYPES,
-	FETCH_SQUAD,
-	FETCH_YEARS_WITH_SQUADS,
-	FETCH_ALL_TEAMS,
-	UPDATE_TEAM
-} from "./types";
+import { FETCH_ALL_TEAM_TYPES, FETCH_ALL_TEAMS, UPDATE_TEAM, FETCH_TEAM } from "./types";
 
-export const fetchSquad = (year, team, teamType) => async (dispatch, getState, api) => {
-	const res = await api.get(`/teams/squads/${team}/${year}/${teamType}`);
-	dispatch({ type: FETCH_SQUAD, payload: res.data, team, year, teamType });
-};
-export const fetchYearsWithSquads = team => async (dispatch, getState, api) => {
-	const res = await api.get(`/teams/squads/years/${team}`);
-	dispatch({ type: FETCH_YEARS_WITH_SQUADS, payload: res.data, team });
-};
-
-export const fetchAllTeams = () => async (dispatch, getState, api) => {
+export const fetchTeamList = () => async (dispatch, getState, api) => {
 	const res = await api.get("/teams");
-	dispatch({ type: FETCH_ALL_TEAMS, payload: _.keyBy(res.data, "slug") });
+	dispatch({ type: FETCH_ALL_TEAMS, payload: res.data });
+};
+
+export const fetchTeam = id => async (dispatch, getState, api) => {
+	const res = await api.get(`/team/${id}`);
+	dispatch({ type: FETCH_TEAM, payload: res.data });
 };
 
 export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
