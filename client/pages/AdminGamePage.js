@@ -162,5 +162,5 @@ function mapStateToProps({ config, games }, ownProps) {
 }
 export default connect(
 	mapStateToProps,
-	{ fetchGames }
+	{ fetchGames, fetchGameList }
 )(AdminGamePage);

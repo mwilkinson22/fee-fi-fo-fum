@@ -18,9 +18,9 @@ class AdminGamePregameSquads extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { game, fetchYearsWithSquads, fetchSquad, squads } = nextProps;
-		const home = game.teams.home._id;
-		const away = game.teams.away._id;
+		const { game, fetchYearsWithSquads, fetchSquad, squads, localTeam } = nextProps;
+		const home = game.isAway ? game._opposition.id : localTeam;
+		const away = game.isAway ? localTeam : game._opposition.id;
 		const year = new Date(game.date).getFullYear();
 
 		const newState = { game, squads: {} };
