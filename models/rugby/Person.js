@@ -12,6 +12,7 @@ const personSchema = new Schema({
 	},
 	nickname: { type: String, default: null },
 	dateOfBirth: Date,
+	gender: { type: String, enum: ["M", "F"] },
 	_hometown: { type: Schema.Types.ObjectId, ref: "cities" },
 	_represents: { type: Schema.Types.ObjectId, ref: "countries", default: null },
 	twitter: String,
