@@ -142,8 +142,34 @@ class SquadListPage extends Component {
 		return <div className="squad-list">{players}</div>;
 	}
 
+	generateHelmet() {
+		const { year, teamType, years } = this.state;
+		const { teamTypes } = this.props;
+		const teamTypeObject = _.filter(teamTypes, t => t._id === teamType)[0];
+		const specifyTeamTypeInMeta = teamTypes[0]._id !== teamType;
+		//Title
+		let title = `${year} Huddersfield Giants`;
+		if (specifyTeamTypeInMeta) {
+			title += teamTypeObject.name;
+		}
+		title += " Squad";
+
+		//Canonical
+		let canonical = "squads";
+		if (years[0] != year) {
+			canonical += `/${year}`;
+
+			if (specifyTeamTypeInMeta) {
+				canonical += `/${teamTypeObject.slug}`;
+			}
+		}
+
+		//Render
+		return <HelmetBuilder title={title} canonical={canonical} />;
+	}
+
 	render() {
-		const { years, players } = this.state;
+		const { years } = this.state;
 
 		if (!years) {
 			return <LoadingPage />;
@@ -151,10 +177,8 @@ class SquadListPage extends Component {
 
 		return (
 			<div className="team-page">
-				<HelmetBuilder
-					title={`${this.state.year} Huddersfield Giants Squad`}
-					canonical={`squads`}
-				/>
+				{this.generateHelmet()}
+
 				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
@@ -169,10 +193,7 @@ class SquadListPage extends Component {
 
 async function loadData(store) {
 	const { localTeam } = store.getState().config;
-	await store.dispatch(fetchYearsWithSquads(localTeam));
-	const years = _.keys(store.getState().teams.squads[localTeam]);
-	const firstYear = _.max(years);
-	return store.dispatch(fetchSquad(firstYear, localTeam, firstTeam));
+	return Promise.all([store.dispatch(fetchTeam(localTeam)), store.dispatch(fetchAllTeamTypes())]);
 }
 
 function mapStateToProps({ config, teams }) {
