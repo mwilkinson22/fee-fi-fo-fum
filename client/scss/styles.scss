@@ -345,6 +345,10 @@ button {
 					}
 				}
 			}
+			thead th:first-child,
+			tfoot th:first-child {
+				z-index: 5;
+			}
 			tbody {
 				th {
 					padding: 0;
@@ -364,6 +368,16 @@ button {
 							@media #{$mobile-only} {
 								display: none;
 							}
+						}
+					}
+					@media #{$mobile-only} {
+						.date.desktop {
+							display: none;
+						}
+					}
+					@media #{$desktop-and-tablet} {
+						.date.mobile {
+							display: none;
 						}
 					}
 				}

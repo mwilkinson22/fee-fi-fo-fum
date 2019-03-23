@@ -120,8 +120,25 @@
 			}
 		}
 
+		.background {
+			position: absolute;
+			height: 100%;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			margin: auto;
+			z-index: -1;
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-image: url("#{$googleBucket}images/layout/john-smiths.jpg");
+			filter: blur(2px);
+		}
+
 		@media #{$mobile-and-tablet} {
-			background: darken($claret, 5%);
+			.background {
+				width: 100%;
+				background-position: center;
+			}
 			.container {
 				display: flex;
 				flex-direction: column;
@@ -166,22 +183,12 @@
 				}
 			}
 		}
+
 		@media #{$desktop-only} {
 			height: 40vh;
 			.background {
-				position: absolute;
-				height: 100%;
-				top: 0;
-				bottom: 0;
-				margin: auto;
-				z-index: -1;
-				background-size: cover;
 				background-position: 100% 50%;
-				background-repeat: no-repeat;
-				background-image: url("#{$googleBucket}images/layout/john-smiths.jpg");
-				left: 0;
 				width: 60%;
-				filter: blur(2px);
 			}
 			.container {
 				display: flex;

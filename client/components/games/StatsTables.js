@@ -78,7 +78,10 @@ export default class StatsTables extends Component {
 					content: (
 						<Link to={`/games/${slug}`} className="fixture-box">
 							<TeamImage team={_opposition} />
-							<div className="date">{new Date(date).toString("dS MMMM yyyy")}</div>
+							<div className="date mobile">{new Date(date).toString("dS MMM")}</div>
+							<div className="date desktop">
+								{new Date(date).toString("ddd dS MMMM")}
+							</div>
 							<div className="title">{title}</div>
 						</Link>
 					),
