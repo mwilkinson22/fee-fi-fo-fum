@@ -1,17 +1,11 @@
 const mongoose = require("mongoose");
 const collectionName = "games";
-const pipelines = require("../../pipelines/rugby/gamesPipelines");
 
 //Models
 const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
 
 //Controllers
-const GenericController = require("../../controllers/genericControllerLegacy")(
-	collectionName,
-	pipelines.getFullGame
-);
-
 const GameController = require("../../controllers/rugby/gamesController");
 
 //Middleware
@@ -19,11 +13,6 @@ const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
 	//Getters
-	// app.get("/api/games/slug/:slug", GameController.getItemBySlug);
-	// app.get("/api/games/:year/:teamType", GameController.getGames);
-
-	// app.get("/api/games/lists", GameController.getLists);
-	// app.get("/api/games/homepage", GameController.getFrontpageGames);
 	app.get("/api/games/:ids", GameController.getGames);
 	app.get("/api/games", GameController.getList);
 

@@ -25,7 +25,7 @@ const gameSchema = new Schema(
 		],
 		round: { type: Number, default: null },
 		_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
-		title: { type: String, default: null },
+		customTitle: { type: String, default: null },
 		hashtags: [String],
 		_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
 		_fan_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
@@ -49,7 +49,11 @@ const gameSchema = new Schema(
 	},
 	{
 		toJSON: {
-			virtuals: true
+			virtuals: true,
+			transform: function(doc, ret) {
+				delete ret._competition.instances;
+				return ret;
+			}
 		},
 		toObject: {
 			virtuals: true
@@ -121,6 +125,48 @@ gameSchema.virtual("status").get(function() {
 		return 2;
 	} else {
 		return 3;
+	}
+});
+
+function getInstance(doc) {
+	const { date, _competition } = doc;
+	const year = new Date(date).getFullYear();
+	const instance = _competition.instances.filter(
+		instance => instance.year === null || instance.year == year
+	)[0];
+	return _.pick(instance, ["image", "specialRounds", "specialRounds", "sponsor"]);
+}
+
+gameSchema.virtual("_competition.instance").get(function() {
+	return getInstance(this);
+});
+
+gameSchema.virtual("title").get(function() {
+	const { round, customTitle, _competition } = this;
+	if (customTitle) {
+		return customTitle;
+	} else {
+		const { _parentCompetition, appendCompetitionName, name } = _competition;
+		const { specialRounds, sponsor } = getInstance(this);
+		let roundString;
+		if (specialRounds) {
+			const filteredRound = _.filter(specialRounds, sr => sr.round == round);
+			if (filteredRound.length) {
+				roundString = filteredRound[0].name;
+			}
+		}
+		if (!roundString && round) {
+			roundString = `Round ${round}`;
+		}
+
+		const titleArr = [
+			sponsor, //Sponsor
+			_parentCompetition.name, //Parent comp i.e. Super League
+			appendCompetitionName ? name : null, //Segment name i.e. Super 8s
+			roundString //Special round string, or Round #
+		];
+
+		return _.filter(titleArr, _.identity).join(" ");
 	}
 });
 

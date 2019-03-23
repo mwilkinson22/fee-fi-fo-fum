@@ -2,7 +2,6 @@
 import mongoose from "mongoose";
 const collectionName = "games";
 const Game = mongoose.model(collectionName);
-const SlugRedirect = mongoose.model("slugRedirect");
 
 //Modules
 import _ from "lodash";
@@ -38,12 +37,21 @@ export async function getGames(req, res) {
 		})
 		.populate({
 			path: "_competition",
-			select: "name _parentCompetition appendCompetitionName",
+			select: "name _parentCompetition appendCompetitionName instances instance",
 			populate: {
 				path: "_parentCompetition",
 				select: "name"
 			}
 		});
+
+	//Purge instances, use instance key instead
+
+	games.map(game => {
+		const year = new Date(game.date).getFullYear();
+		game.instance = game._competition.instances.filter(
+			instance => instance.year === null || instance.year == year
+		)[0];
+	});
 
 	res.send(_.keyBy(games, "_id"));
 }
