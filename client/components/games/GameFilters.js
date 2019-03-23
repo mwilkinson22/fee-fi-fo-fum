@@ -30,7 +30,10 @@ export default class GameFilters extends Component {
 
 		if (games) {
 			filters._competition.options = _.chain(games)
-				.map(game => ({ name: game._competition.name, value: game._competition._id }))
+				.map(game => ({
+					name: game._competition.instance.title,
+					value: game._competition._id
+				}))
 				.uniqBy("value")
 				.sortBy("name")
 				.value();

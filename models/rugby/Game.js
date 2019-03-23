@@ -131,10 +131,23 @@ gameSchema.virtual("status").get(function() {
 function getInstance(doc) {
 	const { date, _competition } = doc;
 	const year = new Date(date).getFullYear();
-	const instance = _competition.instances.filter(
-		instance => instance.year === null || instance.year == year
-	)[0];
-	return _.pick(instance, ["image", "specialRounds", "specialRounds", "sponsor"]);
+	const instance = _.chain(_competition.instances)
+		.find(instance => instance.year === null || instance.year == year)
+		.pick(["image", "specialRounds", "specialRounds", "sponsor"])
+		.value();
+
+	//Custom Title
+	const { sponsor } = instance;
+	const { _parentCompetition, appendCompetitionName } = _competition;
+	const titleArr = [
+		sponsor, //Sponsor
+		_parentCompetition.name, //Parent comp i.e. Super League
+		appendCompetitionName ? name : null //Segment name i.e. Super 8s
+	];
+	return {
+		...instance,
+		title: _.filter(titleArr, _.identity).join(" ")
+	};
 }
 
 gameSchema.virtual("_competition.instance").get(function() {
@@ -146,27 +159,20 @@ gameSchema.virtual("title").get(function() {
 	if (customTitle) {
 		return customTitle;
 	} else {
-		const { _parentCompetition, appendCompetitionName, name } = _competition;
-		const { specialRounds, sponsor } = getInstance(this);
+		const { specialRounds, title } = getInstance(this);
+
 		let roundString;
 		if (specialRounds) {
-			const filteredRound = _.filter(specialRounds, sr => sr.round == round);
-			if (filteredRound.length) {
-				roundString = filteredRound[0].name;
+			const filteredRound = _.find(specialRounds, sr => sr.round == round);
+			if (filteredRound) {
+				roundString = " " + filteredRound.name;
 			}
 		}
 		if (!roundString && round) {
-			roundString = `Round ${round}`;
+			roundString = ` Round ${round}`;
 		}
 
-		const titleArr = [
-			sponsor, //Sponsor
-			_parentCompetition.name, //Parent comp i.e. Super League
-			appendCompetitionName ? name : null, //Segment name i.e. Super 8s
-			roundString //Special round string, or Round #
-		];
-
-		return _.filter(titleArr, _.identity).join(" ");
+		return title + roundString;
 	}
 });
 
