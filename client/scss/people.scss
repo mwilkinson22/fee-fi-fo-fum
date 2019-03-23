@@ -36,20 +36,26 @@
 			background: white;
 			font-family: "Montserrat";
 			font-weight: bold;
-			font-size: 14pt;
+			font-size: 1.2em;
 			color: $claret;
 			min-width: 30%;
 			padding: 10pt;
+			min-height: 92pt;
 		}
 		.main {
 			background: $claret;
 			flex-grow: 1;
-			justify-content: flex-end;
+			justify-content: center;
 			padding: 20pt 10pt 20pt 23%;
+			font-size: 12pt;
 			color: white;
 			.name {
 				color: inherit;
-				font-size: 16pt;
+				text-shadow: 1px 1px 1px black;
+				font-size: 1.3em;
+				&.long {
+					font-size: 1.1em;
+				}
 				span {
 					color: $gold;
 					display: block;
@@ -57,6 +63,9 @@
 			}
 			.positions {
 				color: #ddd;
+			}
+			@media #{$mobile-only} {
+				font-size: 10pt;
 			}
 		}
 	}

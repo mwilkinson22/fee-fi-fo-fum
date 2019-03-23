@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PersonImage from "./PersonImage";
@@ -42,12 +43,33 @@ export default class PersonCard extends Component {
 	render() {
 		const { person, number } = this.props;
 		const { slug, name } = person;
+
+		//Shrink Long Names
+		let longName = false;
+		_.each(name, n => {
+			let width = 0;
+			for (let i = 0; i < n.length; i++) {
+				switch (n[i].toLowerCase()) {
+					case "i":
+					case "-":
+					case " ":
+						width += 1;
+						break;
+					default:
+						width += 2;
+						break;
+				}
+			}
+			if (width > 20) {
+				longName = true;
+			}
+		});
 		return (
 			<Link className="person-card-wrapper" to={`/players/${slug}`}>
 				<div className="person-card">
 					<div className="trim">{number}</div>
 					<div className="main">
-						<h4 className="name">
+						<h4 className={`name ${longName ? "long" : ""}`}>
 							{name.first}
 							<span>{name.last}</span>
 						</h4>
