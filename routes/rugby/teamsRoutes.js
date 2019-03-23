@@ -1,23 +1,15 @@
-const mongoose = require("mongoose");
-const collectionName = "teams";
-
-//Models
-const TeamTypes = mongoose.model("teamTypes");
-
 //Controllers
-const GenericController = require("../../controllers/genericControllerLegacy")(collectionName);
-const TeamController = require("../../controllers/rugby/teamsController");
+const teamsController = require("../../controllers/rugby/teamsController");
 
 //Middleware
 const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
-	app.get("/api/teamTypes", async (req, res) => {
-		const teamTypes = await TeamTypes.find({}).sort({ sortOrder: 1 });
-		res.send(teamTypes);
-	});
-	app.get("/api/teams/", TeamController.getList);
-	app.get("/api/team/:id", TeamController.getTeam);
+	//Getters
+	app.get("/api/teamTypes", teamsController.getTeamTypes);
+	app.get("/api/teams/", teamsController.getList);
+	app.get("/api/team/:id", teamsController.getTeam);
 
-	app.put("/api/teams/:_id", requireAdmin, TeamController.update);
+	//Putters
+	app.put("/api/teams/:_id", requireAdmin, teamsController.update);
 };

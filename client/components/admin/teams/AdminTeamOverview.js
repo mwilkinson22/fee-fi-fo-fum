@@ -12,7 +12,7 @@ import { updateTeam } from "../../../actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import processFormFields from "../../../../helpers/processFormFields";
+import { processFormFields } from "~/helpers/adminHelper";
 
 class AdminTeamOverview extends Component {
 	constructor(props) {

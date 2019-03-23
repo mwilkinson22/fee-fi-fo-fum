@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const collectionName = "games";
 
 //Models
@@ -6,19 +6,19 @@ const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
 
 //Controllers
-const GameController = require("../../controllers/rugby/gamesController");
+import * as gamesController from "../../controllers/rugby/gamesController";
 
 //Middleware
-const requireAdmin = require("../../middlewares/requireAdmin");
+import requireAdmin from "../../middlewares/requireAdmin";
 
 module.exports = app => {
 	//Getters
-	app.get("/api/games/:ids", GameController.getGames);
-	app.get("/api/games", GameController.getList);
+	app.get("/api/games/:ids", gamesController.getGames);
+	app.get("/api/games", gamesController.getList);
 
 	//Putters
-	app.put("/api/games/:_id/basics", requireAdmin, GameController.updateGameBasics);
-	app.put("/api/games/:_id/pregame", requireAdmin, GameController.setPregameSquads);
+	app.put("/api/games/:_id/basics", requireAdmin, gamesController.updateGameBasics);
+	app.put("/api/games/:_id/pregame", requireAdmin, gamesController.setPregameSquads);
 
 	//Post
 	app.post("/api/games", requireAdmin, async (req, res) => {

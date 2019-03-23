@@ -1,4 +1,4 @@
-const competitionController = require("../../controllers/rugby/competitionController");
+import * as competitionController from "../../controllers/rugby/competitionController";
 
 module.exports = app => {
 	app.get("/api/competitions/segments", competitionController.getSegments);

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import { login } from "../../actions/userActions";
 import * as Yup from "yup";
-import processFormFields from "../../../helpers/processFormFields";
+import { processFormFields } from "~/helpers/adminHelper";
 
 class Login extends Component {
 	getValidationSchema() {

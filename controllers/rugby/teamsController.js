@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { getListsAndSlugs } from "../genericController";
 const collectionName = "teams";
 const Team = mongoose.model(collectionName);
-const SlugRedirect = mongoose.model("slugRedirect");
+const TeamTypes = mongoose.model("teamTypes");
 
 //Modules
 const _ = require("lodash");
@@ -33,6 +33,11 @@ export async function getTeam(req, res) {
 		select: "name position playerDetails slug isPlayer isCoach image"
 	});
 	res.send({ [team._id]: team });
+}
+
+export async function getTeamTypes(req, res) {
+	const teamTypes = await TeamTypes.find({}).sort({ sortOrder: 1 });
+	res.send(teamTypes);
 }
 
 export async function update(req, res) {

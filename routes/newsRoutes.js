@@ -1,14 +1,7 @@
-const NewsPostController = require("../controllers/newsPostController");
+import * as NewsPostController from "../controllers/newsPostController";
 
 module.exports = app => {
-	app.get(
-		"/api/news/legacyPost/:id",
-		(req, res, done) => {
-			console.log("HI");
-			done();
-		},
-		NewsPostController.getLegacyPost
-	);
+	app.get("/api/news/legacyPost/:id", NewsPostController.getLegacyPost);
 
 	app.get("/api/news/post/:id", NewsPostController.getFullPost);
 

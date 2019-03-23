@@ -12,7 +12,7 @@ import { fetchYearsWithSquads, fetchSquad, fetchAllTeamTypes } from "../../../ac
 import LoadingPage from "~/client/components/LoadingPage";
 
 //Helpers
-import processFormFields from "~/helpers/processFormFields";
+import processFormFields from "~/helpers/adminHelper";
 
 class AdminTeamSquads extends Component {
 	constructor(props) {

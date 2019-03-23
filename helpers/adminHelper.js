@@ -3,7 +3,7 @@ import React from "react";
 import { Field } from "formik";
 import FormField from "../client/components/admin/fields/FormField";
 
-export default function(fields, validationSchema) {
+export function processFormFields(fields, validationSchema) {
 	function resolve(path, obj) {
 		return path
 			.split(".")

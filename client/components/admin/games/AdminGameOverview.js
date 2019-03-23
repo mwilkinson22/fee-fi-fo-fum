@@ -16,7 +16,7 @@ import { updateGameBasics } from "../../../actions/gamesActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import processFormFields from "../../../../helpers/processFormFields";
+import { processFormFields } from "~/helpers/adminHelper";
 
 class AdminGameOverview extends Component {
 	constructor(props) {

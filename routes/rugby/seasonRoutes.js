@@ -12,6 +12,8 @@ const NeutralGame = mongoose.model("neutralGames");
 
 //Helper functions
 import { getVirtuals } from "../../controllers/rugby/gamesController";
+
+//Setters
 async function updateLeagueTable(_competition, date, teams, adjustments = []) {
 	//Get main games
 	let games = await Game.find({ _competition, date }, "_opposition isAway playerStats date");
