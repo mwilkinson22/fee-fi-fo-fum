@@ -56,33 +56,33 @@
 			padding-left: 4pt;
 		}
 	}
-}
 
-@media #{$desktop-only} {
-	.container {
-		&::after,
-		&::before {
-			content: "";
-			position: absolute;
-			right: 100%;
-			top: 0;
-			background: inherit;
-			height: 100%;
-			width: 14pt;
-			-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-			clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-		}
+	@media #{$desktop-only} {
+		.container {
+			&::after,
+			&::before {
+				content: "";
+				position: absolute;
+				right: 100%;
+				top: 0;
+				background: inherit;
+				height: 100%;
+				width: 14pt;
+				-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+				clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+			}
 
-		&::before {
-			right: 100%;
-			transform: translateX(1px);
-			-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-			clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-		}
-		&::after {
-			left: 100%;
-			-webkit-clip-path: polygon(100% 0, 0% 100%, 0 0);
-			clip-path: polygon(100% 0, 0% 100%, 0 0);
+			&::before {
+				right: 100%;
+				transform: translateX(1px);
+				-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+				clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+			}
+			&::after {
+				left: 100%;
+				-webkit-clip-path: polygon(100% 0, 0% 100%, 0 0);
+				clip-path: polygon(100% 0, 0% 100%, 0 0);
+			}
 		}
 	}
 }
