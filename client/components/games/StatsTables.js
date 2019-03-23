@@ -85,7 +85,7 @@ export default class StatsTables extends Component {
 							<div className="title">{title}</div>
 						</Link>
 					),
-					sortValue: date,
+					sortValue: date.toString("yyyyMMdd"),
 					title
 				},
 				...stats

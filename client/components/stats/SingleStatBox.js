@@ -3,7 +3,7 @@ import playerStatTypes from "../../../constants/playerStatTypes";
 
 export default class SingleStatBox extends Component {
 	render() {
-		const { statKey, statValues } = this.props;
+		const { statKey, statValues, includeSummed } = this.props;
 		const { total, average, best } = statValues;
 		const { singular, plural, unit } = playerStatTypes[statKey];
 		const rootClassName = "single-stat-box card";
@@ -41,10 +41,19 @@ export default class SingleStatBox extends Component {
 				);
 			default:
 				let averageDiv;
-				if (statKey !== "AG") {
+				if (includeSummed && statKey !== "AG") {
 					averageDiv = (
 						<div className="average">
 							Average: {average.toFixed(2)}
+							{unit}
+						</div>
+					);
+				}
+				let bestDiv;
+				if (includeSummed) {
+					bestDiv = (
+						<div className="best">
+							Best game: {best}
 							{unit}
 						</div>
 					);
@@ -57,10 +66,7 @@ export default class SingleStatBox extends Component {
 						</div>
 						<div className="name">{total === 1 ? singular : plural}</div>
 						{averageDiv}
-						<div className="best">
-							Best game: {best}
-							{unit}
-						</div>
+						{bestDiv}
 					</div>
 				);
 		}

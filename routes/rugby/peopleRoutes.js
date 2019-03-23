@@ -13,39 +13,41 @@ const PeopleController = require("../../controllers/rugby/peopleController");
 const requireAdmin = require("../../middlewares/requireAdmin");
 
 module.exports = app => {
-	//Get
-	app.get("/api/people/referees", async (req, res) => {
-		const people = await Person.find({ isReferee: true }, "name");
-		res.send(people);
-	});
-	app.get("/api/people/:id", GenericController.getItemById);
-	app.get("/api/people/slug/:slug", async (req, res) => {
-		const { slug } = req.params;
-		let person = await Person.findOne({ slug })
-			.populate("_represents")
-			.populate({ path: "_hometown", populate: { path: "_country" } });
-		if (person) {
-			res.send(person);
-		} else {
-			//Check for a redirect
-			const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
-			if (slugRedirect) {
-				person = await Person.findById(slugRedirect.itemId, { slug: 1 });
-				res.status(308).send(person);
-			} else {
-				res.status(404).send({});
-			}
-		}
-	});
+	//Getters
+	// app.get("/api/people/referees", async (req, res) => {
+	// 	const people = await Person.find({ isReferee: true }, "name");
+	// 	res.send(people);
+	// });
+	// app.get("/api/people/slug/:slug", async (req, res) => {
+	// 	const { slug } = req.params;
+	// 	let person = await Person.findOne({ slug })
+	// 		.populate("_represents")
+	// 		.populate({ path: "_hometown", populate: { path: "_country" } });
+	// 	if (person) {
+	// 		res.send(person);
+	// 	} else {
+	// 		//Check for a redirect
+	// 		const slugRedirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug });
+	// 		if (slugRedirect) {
+	// 			person = await Person.findById(slugRedirect.itemId, { slug: 1 });
+	// 			res.status(308).send(person);
+	// 		} else {
+	// 			res.status(404).send({});
+	// 		}
+	// 	}
+	// });
 
-	app.get("/api/people/playerStatsYears/:id/", PeopleController.getPlayerStatsYears);
-	app.get("/api/people/playerStats/:id/:year", PeopleController.getPlayerStatsByYear);
+	// app.get("/api/people/playerStatsYears/:id/", PeopleController.getPlayerStatsYears);
+	// app.get("/api/people/playerStats/:id/:year", PeopleController.getPlayerStatsByYear);
 
 	app.get("/api/people/search/:name", async (req, res) => {
 		const { name } = req.params;
 		const results = await Person.searchByName(decodeURI(name));
 		res.send(results);
 	});
+
+	app.get("/api/people/:id", PeopleController.getPerson);
+	app.get("/api/people", PeopleController.getList);
 
 	app.post("/api/people", requireAdmin, async (req, res) => {
 		const { data } = req.body;

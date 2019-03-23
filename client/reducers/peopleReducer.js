@@ -1,15 +1,22 @@
 import _ from "lodash";
 import {
 	FETCH_ALL_REFEREES,
+	FETCH_PEOPLE_LIST,
 	FETCH_PERSON,
 	FETCH_PLAYER_STAT_YEARS,
 	FETCH_PLAYER_STATS
 } from "../actions/types";
 
-export default function(state = { squads: {} }, action) {
+export default function(state = { fullPeople: {} }, action) {
 	switch (action.type) {
 		case FETCH_PERSON:
-			return { ...state, [action.slug]: action.payload };
+			return {
+				...state,
+				fullPeople: { ...state.fullPeople, [action.payload.id]: action.payload }
+			};
+
+		case FETCH_PEOPLE_LIST:
+			return { ...state, ...action.payload };
 
 		case FETCH_PLAYER_STAT_YEARS:
 			const playerStats = _.chain(action.payload.years)

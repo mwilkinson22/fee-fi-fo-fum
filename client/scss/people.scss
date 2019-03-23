@@ -276,7 +276,7 @@
 			display: grid;
 			grid-gap: 20pt;
 			& > div {
-				padding: 4%;
+				padding: 16pt;
 				background: #f4f4f4;
 				box-shadow: 2pt 2pt 4pt rgba(black, 0.5);
 				&.info-table {
@@ -285,6 +285,12 @@
 						th,
 						td {
 							padding: 10pt;
+						}
+						th {
+							white-space: nowrap;
+						}
+						td {
+							width: 100%;
 						}
 						tr {
 							text-align: left;
@@ -295,14 +301,17 @@
 					}
 				}
 				&.description {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
 					p {
-						margin-bottom: 8pt;
+						padding: 8pt;
 					}
 				}
 			}
 
 			@media #{$desktop-only} {
-				grid-template-columns: 1fr 1fr;
+				grid-template-columns: repeat(auto-fit, minmax(40%, 1fr));
 			}
 		}
 	}
@@ -338,6 +347,7 @@
 		.single-stat-boxes {
 			margin-bottom: 10pt;
 			&.positions {
+				margin-top: 10pt;
 				table {
 					width: 100%;
 					text-align: left;

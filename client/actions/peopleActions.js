@@ -1,14 +1,20 @@
 import {
 	FETCH_ALL_REFEREES,
+	FETCH_PEOPLE_LIST,
 	FETCH_PERSON,
 	FETCH_PLAYER_STAT_YEARS,
 	FETCH_PLAYER_STATS
 } from "./types";
 import PlayerStatsHelper from "../helperClasses/PlayerStatsHelper";
 
-export const fetchPersonBySlug = slug => async (dispatch, getState, api) => {
+export const fetchPeopleList = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/people`);
+	dispatch({ type: FETCH_PEOPLE_LIST, payload: res.data });
+};
+
+export const fetchPerson = id => async (dispatch, getState, api) => {
 	let payload;
-	const res = await api.get(`/people/slug/${slug}`).catch(e => {
+	const res = await api.get(`/people/${id}`).catch(e => {
 		switch (e.response.status) {
 			case 307:
 			case 308:
@@ -25,7 +31,7 @@ export const fetchPersonBySlug = slug => async (dispatch, getState, api) => {
 		payload = res.data;
 	}
 
-	dispatch({ type: FETCH_PERSON, payload, slug });
+	dispatch({ type: FETCH_PERSON, payload });
 };
 
 export const fetchPlayerStatYears = id => async (dispatch, getState, api) => {

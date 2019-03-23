@@ -131,6 +131,7 @@ gameSchema.virtual("status").get(function() {
 function getInstance(doc) {
 	const { date, _competition } = doc;
 	const year = new Date(date).getFullYear();
+
 	const instance = _.chain(_competition.instances)
 		.find(instance => instance.year === null || instance.year == year)
 		.pick(["image", "specialRounds", "specialRounds", "sponsor"])
@@ -138,7 +139,7 @@ function getInstance(doc) {
 
 	//Custom Title
 	const { sponsor } = instance;
-	const { _parentCompetition, appendCompetitionName } = _competition;
+	const { _parentCompetition, appendCompetitionName, name } = _competition;
 	const titleArr = [
 		sponsor, //Sponsor
 		_parentCompetition.name, //Parent comp i.e. Super League

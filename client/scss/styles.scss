@@ -48,7 +48,9 @@ body {
 
 .sub-menu {
 	text-align: center;
-	a {
+	a,
+	.pseudo-link {
+		cursor: pointer;
 		padding: 0 8pt;
 		display: inline-block;
 		color: #aaa;
@@ -76,6 +78,23 @@ body {
 
 		&:not(:last-child) {
 			border-right: solid 1pt #ccc;
+		}
+	}
+	/* override for dark backgrounds */
+	&.light {
+		a,
+		.pseudo-link {
+			color: #eee;
+			border-color: #eee;
+			&:hover {
+				color: #fff;
+			}
+
+			&.active,
+			&.active.hidden + a,
+			&.active.hidden ~ .hidden + a {
+				color: $gold !important;
+			}
 		}
 	}
 }
