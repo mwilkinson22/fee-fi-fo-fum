@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGame } from "../actions/gamesActions";
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchTeam } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import "datejs";
-import * as colourHelper from "../utils/colourHelper";
 import Countdown from "../components/games/Countdown";
 import GameHeaderImage from "../components/games/GameHeaderImage";
-import TeamImage from "../components/teams/TeamImage";
 import { imagePath } from "../extPaths";
 import HelmetBuilder from "../components/HelmetBuilder";
 import { Redirect } from "react-router-dom";
@@ -16,43 +15,53 @@ import TeamBanner from "../components/teams/TeamBanner";
 class GamePage extends Component {
 	constructor(props) {
 		super(props);
+
+		const { slugMap, fetchGameList, fullTeams, localTeam, fetchTeam } = props;
+
+		if (!slugMap) {
+			fetchGameList();
+		}
+
+		if (!fullTeams[localTeam]) {
+			fetchTeam(localTeam);
+		}
+
 		this.state = {};
 	}
 
-	componentDidMount() {
-		const { game } = this.props;
-		if (game) {
-			this.setStateFromGame(game);
-		} else {
-			this.props.fetchGame(this.props.match.params.slug);
-		}
-	}
+	static getDerivedStateFromProps(nextProps) {
+		const newState = {};
 
-	setStateFromGame(game) {
-		if (game) {
-			const date = Date.parse(new Date(game.date));
-			this.setState({ date, isFixture: date > new Date() });
-		}
-	}
+		const { match, slugMap, fullGames, fetchGames, fullTeams, localTeam } = nextProps;
 
-	componentWillReceiveProps(nextProps, nextContext) {
-		const { game } = nextProps;
-		this.setStateFromGame(game);
+		if (slugMap && fullTeams[localTeam]) {
+			const { id } = slugMap[match.params.slug];
+			if (!fullGames[id]) {
+				fetchGames([id]);
+				newState.game = undefined;
+			} else {
+				newState.game = fullGames[id];
+				newState.isFixture = newState.game.date >= new Date();
+			}
+		}
+
+		return newState;
 	}
 
 	generateHeaderInfoBar() {
-		const { game } = this.props;
+		const { game } = this.state;
 		const fields = [
-			<span>
+			<span key="ground">
 				{game._ground.name}, {game._ground.address._city.name}
 			</span>,
-			<span>{new Date(this.props.game.date).toString("dddd dS MMM yyyy H:mm")}</span>,
-			<span>{game.title}</span>
+			<span key="date">{game.date.toString("dddd dS MMM yyyy H:mm")}</span>,
+			<span key="title">{game.title}</span>
 		];
 
 		if (game.tv)
 			fields.push(
 				<img
+					key="tv"
 					src={`${imagePath}layout/icons/${game.tv}.svg`}
 					className="tv-logo"
 					alt={`${game.tv} Logo`}
@@ -69,34 +78,28 @@ class GamePage extends Component {
 	}
 
 	generateTeamBanners() {
-		const { teams, scores } = this.props.game;
-		const elements = [];
-		for (const ha in teams) {
-			const team = teams[ha];
-			elements.push(
-				<TeamBanner
-					key={ha}
-					className={ha}
-					team={team}
-					score={scores ? scores[team._id] : null}
-				/>
-			);
+		const { isAway, scores, _opposition } = this.state.game;
+		const { localTeam, fullTeams } = this.props;
+		let teams = [fullTeams[localTeam], _opposition];
+		if (isAway) {
+			teams = teams.reverse();
 		}
-		return elements;
+
+		return teams.map(team => (
+			<TeamBanner key={team._id} team={team} score={scores ? scores[team._id] : null} />
+		));
 	}
 
 	generateCountdown() {
-		if (this.state.isFixture) {
+		const { isFixture, game } = this.state;
+		if (isFixture) {
 			return (
 				<section className="countdown">
 					<div className="container">
 						<h3>Countdown to Kickoff</h3>
 						<Countdown
-							date={this.state.date}
-							onFinish={() => {
-								const section = document.querySelector(".game-page .countdown");
-								section.className = section.className + " completed";
-							}}
+							date={game.date}
+							onFinish={() => this.setState({ isFixture: false })}
 						/>
 					</div>
 				</section>
@@ -119,8 +122,7 @@ class GamePage extends Component {
 	}
 
 	getPageTitle() {
-		const { game } = this.props;
-		const { isAway, scores, _opposition, date } = game;
+		const { isAway, scores, _opposition, date } = this.state.game;
 		let strings;
 		if (scores) {
 			strings = [
@@ -143,7 +145,7 @@ class GamePage extends Component {
 	}
 
 	render() {
-		const { game } = this.props;
+		const { game } = this.state;
 		if (game === undefined) {
 			return <LoadingPage />;
 		} else if (game.redirect) {
@@ -169,21 +171,25 @@ class GamePage extends Component {
 	}
 }
 
-function mapStateToProps({ games }, ownProps) {
-	const { slug } = ownProps.match.params;
-	const { fullGames } = games;
-	return { game: fullGames[slug] };
+function mapStateToProps({ games, config, teams }, ownProps) {
+	const { fullGames, slugMap } = games;
+	const { localTeam } = config;
+	const { fullTeams } = teams;
+	return { fullGames, slugMap, localTeam, fullTeams, ...ownProps };
 }
 
-function loadData(store, path) {
+async function loadData(store, path) {
 	const slug = path.split("/")[2];
-	return store.dispatch(fetchGame(slug));
+	const { localTeam } = store.getState().config;
+	await Promise.all([store.dispatch(fetchGameList()), store.dispatch(fetchTeam(localTeam))]);
+	const { id } = store.getState().games.slugMap[slug];
+	return store.dispatch(fetchGames([id]));
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGame }
+		{ fetchGames, fetchGameList, fetchTeam }
 	)(GamePage),
 	loadData
 };
