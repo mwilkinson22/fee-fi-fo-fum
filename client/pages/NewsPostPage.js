@@ -67,7 +67,7 @@ class NewsPostPage extends Component {
 
 	getUrl() {
 		const { post } = this.state;
-		return `https://www.giantsfanzine.co.uk/news/post/${post.slug}`;
+		return `https://www.feefifofum.co.uk/news/post/${post.slug}`;
 	}
 
 	formatSidebar() {

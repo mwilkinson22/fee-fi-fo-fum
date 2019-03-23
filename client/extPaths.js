@@ -1,4 +1,4 @@
-export const googleBucket = "https://storage.googleapis.com/giantsfanzine.co.uk/";
+export const googleBucket = "https://storage.googleapis.com/feefifofum/";
 export const imagePath = googleBucket + "images/";
 let localUrl;
 if (typeof window !== "undefined") {

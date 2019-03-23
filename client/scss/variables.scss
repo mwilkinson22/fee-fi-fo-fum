@@ -1,5 +1,6 @@
 //Sources
-$googleBucket: "https://storage.googleapis.com/giantsfanzine.co.uk/";
+$googleBucket: "https://storage.googleapis.com/feefifofum/";
+$fonts: "#{$googleBucket}fonts/";
 
 //Colours
 $claret: #751432;
@@ -9,17 +10,11 @@ $twitterBlue: #549ad6;
 //Fonts
 @font-face {
 	font-family: "Monstro Solid";
-	src: url("https://www.giantsfanzine.co.uk/resources/fonts/Monstro Solid.eot"); /* IE9 Compat Modes */
-	src: url("https://www.giantsfanzine.co.uk/resources/fonts/Monstro Solid.eot?#iefix")
-			format("embedded-opentype"),
-		/* IE6-IE8 */ url("https://www.giantsfanzine.co.uk/resources/fonts/Monstro Solid.woff")
-			format("woff"),
-		/* Pretty Modern Browsers */
-			url("https://www.giantsfanzine.co.uk/resources/fonts/Monstro Solid.ttf")
-			format("truetype"),
-		/* Safari, Android, iOS */
-			url("https://www.giantsfanzine.co.uk/resources/fonts/Monstro Solid.svg#svgFontName")
-			format("svg"); /* Legacy iOS */
+	src: url("#{$fonts}MonstroSolid.eot"); /* IE9 Compat Modes */
+	src: url("#{$fonts}MonstroSolid.eot?#iefix") format("embedded-opentype"),
+		/* IE6-IE8 */ url("#{$fonts}MonstroSolid.woff") format("woff"),
+		/* Pretty Modern Browsers */ url("#{$fonts}MonstroSolid.ttf") format("truetype"),
+		/* Safari, Android, iOS */ url("#{$fonts}MonstroSolid.svg#svgFontName") format("svg"); /* Legacy iOS */
 }
 
 //Media queries
