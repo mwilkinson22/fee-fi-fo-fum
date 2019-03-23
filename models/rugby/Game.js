@@ -161,7 +161,7 @@ gameSchema.virtual("title").get(function() {
 	} else {
 		const { specialRounds, title } = getInstance(this);
 
-		let roundString;
+		let roundString = "";
 		if (specialRounds) {
 			const filteredRound = _.find(specialRounds, sr => sr.round == round);
 			if (filteredRound) {
