@@ -112,7 +112,6 @@ class NewsListPage extends Component {
 		} else if (!postList || !postList.length) {
 			return <LoadingPage />;
 		} else {
-			console.log(postList);
 			if (category !== "all") {
 				pageTitle += " - " + _.keyBy(newsCategories, "slug")[category].name;
 			}

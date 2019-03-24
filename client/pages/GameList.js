@@ -277,8 +277,6 @@ export async function loadData(store, path) {
 			.value()._id;
 	}
 
-	console.log(teamType);
-
 	//Games To Load
 	const games = _.chain(gameList)
 		.filter(game => game._teamType === teamType)
