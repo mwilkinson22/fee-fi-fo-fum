@@ -12,7 +12,7 @@ const { localTeam } = require("../../config/keys");
 
 //Getters
 export async function getList(req, res) {
-	const games = await Game.find({}, "date _teamType slug _opposition").lean();
+	const games = await Game.find({}, "date _teamType slug").lean();
 
 	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
 	res.send({ gameList: list, slugMap });
