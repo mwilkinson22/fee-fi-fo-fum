@@ -98,6 +98,27 @@ gameSchema.query.getFixtures = function(fixtures) {
 	}
 };
 
+gameSchema.query.fullGame = function() {
+	return this.populate({
+		path: "_opposition",
+		select: "name colours hashtagPrefix image"
+	})
+		.populate({
+			path: "_ground",
+			populate: {
+				path: "address._city"
+			}
+		})
+		.populate({
+			path: "_competition",
+			select: "name _parentCompetition appendCompetitionName instances instance",
+			populate: {
+				path: "_parentCompetition",
+				select: "name"
+			}
+		});
+};
+
 gameSchema.virtual("score").get(function() {
 	if (!this.playerStats || !this.playerStats.length) {
 		return undefined;

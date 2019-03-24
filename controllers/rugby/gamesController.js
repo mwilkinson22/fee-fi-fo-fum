@@ -24,36 +24,15 @@ export async function getGames(req, res) {
 		_id: {
 			$in: ids.split(",")
 		}
-	})
-		.populate({
-			path: "_opposition",
-			select: "name colours hashtagPrefix image"
-		})
-		.populate({
-			path: "_ground",
-			populate: {
-				path: "address._city"
-			}
-		})
-		.populate({
-			path: "_competition",
-			select: "name _parentCompetition appendCompetitionName instances instance",
-			populate: {
-				path: "_parentCompetition",
-				select: "name"
-			}
-		});
-
-	//Purge instances, use instance key instead
-
-	games.map(game => {
-		const year = new Date(game.date).getFullYear();
-		game.instance = game._competition.instances.filter(
-			instance => instance.year === null || instance.year == year
-		)[0];
-	});
+	}).fullGame();
 
 	res.send(_.keyBy(games, "_id"));
+}
+
+async function getUpdatedGame(id, res) {
+	//To be called after post/put methods
+	const game = await Game.findById([id]).fullGame();
+	res.send({ [id]: game });
 }
 
 async function processBasics(values) {
@@ -104,7 +83,7 @@ export async function updateGameBasics(req, res) {
 
 		await Game.updateOne({ _id }, values);
 
-		res.send(game);
+		await getUpdatedGame(_id, res);
 	}
 }
 export async function setPregameSquads(req, res) {
@@ -129,6 +108,6 @@ export async function setPregameSquads(req, res) {
 
 		await game.save();
 
-		res.send(game);
+		await getUpdatedGame(_id, res);
 	}
 }

@@ -4,14 +4,13 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import Colour from "color";
 import "datejs";
 
 //Actions
 import { fetchTeamList, fetchAllTeamTypes } from "../../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
-import { fetchAllReferees } from "../../../actions/peopleActions";
+import { fetchPeopleList } from "../../../actions/peopleActions";
 import { updateGameBasics } from "../../../actions/gamesActions";
 
 //Components
@@ -31,8 +30,8 @@ class AdminGameOverview extends Component {
 			fetchAllCompetitionSegments,
 			groundList,
 			fetchAllGrounds,
-			referees,
-			fetchAllReferees
+			peopleList,
+			fetchPeopleList
 		} = props;
 		if (!teamTypes) {
 			fetchAllTeamTypes();
@@ -46,15 +45,15 @@ class AdminGameOverview extends Component {
 		if (!groundList) {
 			fetchAllGrounds();
 		}
-		if (!referees) {
-			fetchAllReferees();
+		if (!peopleList) {
+			fetchPeopleList();
 		}
 		this.state = {
 			game,
 			teamTypes,
 			teamList,
 			groundList,
-			referees,
+			peopleList,
 			competitionSegmentList
 		};
 	}
@@ -70,7 +69,7 @@ class AdminGameOverview extends Component {
 			teamList,
 			competitionSegmentList,
 			groundList,
-			referees
+			peopleList
 		} = nextProps;
 		return {
 			game,
@@ -78,7 +77,7 @@ class AdminGameOverview extends Component {
 			teamList,
 			competitionSegmentList,
 			groundList,
-			referees
+			peopleList
 		};
 	}
 
@@ -181,7 +180,7 @@ class AdminGameOverview extends Component {
 
 	getOptions(formikProps) {
 		const options = {};
-		let { teamTypes, teamList, competitionSegmentList, groundList, referees } = this.state;
+		let { teamTypes, teamList, competitionSegmentList, groundList, peopleList } = this.state;
 		const { game } = this.state;
 		//Filter
 		if (formikProps || game) {
@@ -271,7 +270,8 @@ class AdminGameOverview extends Component {
 		];
 
 		//Refs
-		options.referees = _.chain(referees)
+		options.referees = _.chain(peopleList)
+			.filter(person => person.isReferee)
 			.map(ref => ({
 				value: ref._id,
 				label: `${ref.name.first} ${ref.name.last}`
@@ -349,7 +349,7 @@ class AdminGameOverview extends Component {
 			"teamList",
 			"competitionSegmentList",
 			"groundList",
-			"referees"
+			"peopleList"
 		];
 		let stopRender = false;
 		for (const prop of requireToRender) {
@@ -381,8 +381,9 @@ function mapStateToProps({ games, teams, competitions, grounds, people }, ownPro
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { groundList } = grounds;
-	const { referees } = people;
-	return { teamTypes, teamList, competitionSegmentList, groundList, referees, ...ownProps };
+	const { peopleList } = people;
+
+	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList, ...ownProps };
 }
 // export default form;
 export default connect(
@@ -392,7 +393,7 @@ export default connect(
 		fetchAllTeams: fetchTeamList,
 		fetchAllCompetitionSegments,
 		fetchAllGrounds,
-		fetchAllReferees,
+		fetchPeopleList,
 		updateGameBasics
 	}
 )(AdminGameOverview);
