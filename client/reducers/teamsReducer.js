@@ -1,5 +1,4 @@
 import { FETCH_ALL_TEAM_TYPES, FETCH_ALL_TEAMS, UPDATE_TEAM, FETCH_TEAM } from "../actions/types";
-import _ from "lodash";
 
 export default function(state = { fullTeams: {} }, action) {
 	switch (action.type) {
