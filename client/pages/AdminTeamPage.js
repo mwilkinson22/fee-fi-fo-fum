@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeamList } from "../actions/teamsActions";
+import { fetchTeam, fetchTeamList } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -15,15 +15,37 @@ import TeamBanner from "../components/teams/TeamBanner";
 class AdminTeamPage extends Component {
 	constructor(props) {
 		super(props);
-		const { team, fetchAllTeams } = props;
-		if (!team) {
-			fetchAllTeams();
+		const { fetchTeamList, slugMap } = props;
+
+		if (!slugMap) {
+			fetchTeamList();
 		}
-		this.state = { team };
+
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		return { team: nextProps.team };
+		const newState = {};
+
+		const { match, slugMap, fullTeams, fetchTeam } = nextProps;
+
+		if (!slugMap) {
+			return newState;
+		}
+
+		if (slugMap[match.params.slug]) {
+			const { id } = slugMap[match.params.slug];
+			if (!fullTeams[id]) {
+				fetchTeam(id);
+				newState.team = undefined;
+			} else {
+				newState.team = fullTeams[id];
+			}
+		} else {
+			newState.team = false;
+		}
+
+		return newState;
 	}
 
 	getSubmenu() {
@@ -98,12 +120,10 @@ class AdminTeamPage extends Component {
 }
 
 function mapStateToProps({ teams }, ownProps) {
-	const { slug } = ownProps.match.params;
-	const { teamList } = teams;
-	const team = teamList ? teamList[slug] : undefined;
-	return { team };
+	const { fullTeams, slugMap } = teams;
+	return { fullTeams, slugMap, ...ownProps };
 }
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeams: fetchTeamList }
+	{ fetchTeam, fetchTeamList }
 )(AdminTeamPage);

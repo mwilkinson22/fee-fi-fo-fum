@@ -54,4 +54,11 @@ const teamSchema = new Schema({
 	slug: String
 });
 
+teamSchema.query.fullTeam = function() {
+	return this.populate({
+		path: "squads.players._player",
+		select: "name position playerDetails slug isPlayer isCoach image"
+	});
+};
+
 mongoose.model("teams", teamSchema);

@@ -10,12 +10,11 @@ const _ = require("lodash");
 const { ObjectId } = require("mongodb");
 const Colour = require("color");
 
-function validateTeam(team) {
-	if (ObjectId.isValid(team)) {
-		return ObjectId(team);
-	} else {
-		return false;
-	}
+//Helpers
+async function getUpdatedTeam(id, res) {
+	//To be called after post/put methods
+	const team = await Team.findById([id]).fullTeam();
+	res.send({ [id]: team });
 }
 
 //Getters
@@ -28,10 +27,7 @@ export async function getList(req, res) {
 
 export async function getTeam(req, res) {
 	const { id } = req.params;
-	const team = await Team.findById(id).populate({
-		path: "squads.players._player",
-		select: "name position playerDetails slug isPlayer isCoach image"
-	});
+	const team = await Team.findById(id).fullTeam();
 	res.send({ [team._id]: team });
 }
 
@@ -72,7 +68,6 @@ export async function update(req, res) {
 			}
 		});
 		await Team.updateOne({ _id }, values);
-		const updatedTeam = await Team.findById(_id);
-		res.send(updatedTeam);
+		await getUpdatedTeam(_id, res);
 	}
 }

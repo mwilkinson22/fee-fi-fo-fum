@@ -35,12 +35,12 @@ class AdminTeamOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { team, groundList } = nextProps;
+		const { fullTeams, slugMap, match, groundList } = nextProps;
 		const newState = {};
 
-		if (team) {
-			newState.team = team;
-		}
+		const { slug } = match.params;
+		const { id } = slugMap[slug];
+		newState.team = fullTeams[id];
 
 		if (groundList) {
 			newState.groundList = _.chain(groundList)
@@ -173,8 +173,8 @@ class AdminTeamOverview extends Component {
 	}
 
 	render() {
-		const { team, groundList } = this.state;
-		if (!team || !groundList) {
+		const { groundList } = this.state;
+		if (!groundList) {
 			return <LoadingPage />;
 		}
 
@@ -193,10 +193,9 @@ class AdminTeamOverview extends Component {
 
 //Add Redux Support
 function mapStateToProps({ grounds, teams }, ownProps) {
-	const { slug } = ownProps.match.params;
-	const team = teams.teamList[slug];
 	const { groundList } = grounds;
-	return { team, groundList, ...ownProps };
+	const { fullTeams, slugMap } = teams;
+	return { fullTeams, slugMap, groundList, ...ownProps };
 }
 // export default form;
 export default connect(
