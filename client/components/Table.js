@@ -13,14 +13,6 @@ class Table extends Component {
 			...props,
 			sortBy: prevState.sortBy || props.sortBy
 		};
-
-		if (props.columns !== prevState.columns || props.rows !== prevState.rows) {
-			return { ...props };
-		} else if (props.foot !== prevState.foot) {
-			return { foot: props.foot };
-		} else {
-			return {};
-		}
 	}
 
 	handleSort(key) {
@@ -67,7 +59,7 @@ class Table extends Component {
 								key={column.key}
 								onClick={isSortable ? () => this.handleSort(column.key) : null}
 								className={classNames.filter(Boolean).join(" ")}
-								title={column.title || column.label}
+								title={column.title || null}
 							>
 								{column.label}
 								{isSortable ? (
@@ -82,7 +74,7 @@ class Table extends Component {
 	}
 
 	processBody() {
-		let { columns, rows, sortBy, onBodyRowClick } = this.state;
+		let { columns, rows, sortBy, labelAsDefaultTitle } = this.state;
 		//Reorder rows
 		if (sortBy && sortBy.key) {
 			rows = _.sortBy(rows, row => {
@@ -114,7 +106,10 @@ class Table extends Component {
 									cellProps.title = column.title || column.label;
 								} else {
 									cellProps.children = data.content;
-									cellProps.title = data.title || column.title || column.label;
+									cellProps.title =
+										data.title || column.title || labelAsDefaultTitle
+											? column.label
+											: null;
 								}
 								return column.dataUsesTh ? (
 									<th {...cellProps} />
@@ -206,6 +201,7 @@ Table.propTypes = {
 Table.defaultProps = {
 	defaultSortable: true,
 	defaultAscSort: false,
+	labelAsDefaultTitle: false,
 	stickyHead: false,
 	stickyFoot: false
 };
