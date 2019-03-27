@@ -82,7 +82,7 @@ class AdminTeamPage extends Component {
 				<Switch>
 					<Route
 						exact
-						path="/admin/teams/:slug/squads/:year"
+						path="/admin/teams/:slug/squads/:squad"
 						component={AdminTeamSquads}
 					/>
 					<Route exact path="/admin/teams/:slug/squads" component={AdminTeamSquads} />

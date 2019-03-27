@@ -7,13 +7,14 @@
 }
 
 .form-card {
-	display: grid;
-	align-items: center;
-
-	h6,
-	.error,
-	.buttons {
-		grid-column: 1 / -1;
+	&.grid {
+		display: grid;
+		align-items: center;
+		h6,
+		.error,
+		.buttons {
+			grid-column: 1 / -1;
+		}
 	}
 
 	h6 {
@@ -232,6 +233,28 @@
 
 		@media #{$desktop-and-tablet} {
 			grid-template-columns: 1fr 1fr;
+		}
+	}
+}
+
+.admin-team-squad-page {
+	h4 {
+		font-size: 1.4em;
+	}
+	table {
+		width: 100%;
+		margin-bottom: 10pt;
+		th {
+			white-space: nowrap;
+		}
+	}
+	@media #{$desktop-and-tablet} {
+		.sub-menu {
+			text-align: left;
+			margin-bottom: 10pt;
+			a:first-child {
+				padding-left: 0 !important;
+			}
 		}
 	}
 }
