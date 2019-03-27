@@ -324,7 +324,7 @@ class AdminGameOverview extends Component {
 		];
 		return (
 			<Form>
-				<div className="form-card">
+				<div className="form-card grid">
 					<h6>Basics</h6>
 					{processFormFields(mainFields, validationSchema)}
 					<h6>Venue</h6>

@@ -158,7 +158,7 @@ class AdminTeamOverview extends Component {
 
 		return (
 			<Form>
-				<div className="form-card">
+				<div className="form-card grid">
 					<h6>Team</h6>
 					{processFormFields(teamFields, validationSchema)}
 					<h6>Colours</h6>
