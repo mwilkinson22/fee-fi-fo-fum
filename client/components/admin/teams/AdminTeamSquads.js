@@ -8,10 +8,9 @@ import "datejs";
 import Select from "../fields/Select";
 
 //Actions
-import { fetchAllTeamTypes } from "../../../actions/teamsActions";
+import { fetchAllTeamTypes, updateTeamSquad } from "../../../actions/teamsActions";
 
 //Components
-import LoadingPage from "~/client/components/LoadingPage";
 import Table from "../../Table";
 
 //Helpers
@@ -42,8 +41,10 @@ class AdminTeamSquads extends Component {
 		return Yup.object().shape({});
 	}
 
-	onSubmit(values) {
-		console.log(values);
+	updateSquad(players) {
+		const { team } = this.state;
+		const { updateTeamSquad, match } = this.props;
+		updateTeamSquad(team._id, match.params.squad, players);
 	}
 
 	renderSquadSelector() {
@@ -95,7 +96,7 @@ class AdminTeamSquads extends Component {
 		return (
 			<Formik
 				validationSchema={() => this.getValidationSchema()}
-				onSubmit={values => this.onSubmit(values)}
+				onSubmit={values => this.updateSquad(values)}
 				initialValues={initialValues}
 				enableReinitialize={true}
 				render={formikProps => {
@@ -201,5 +202,5 @@ function mapStateToProps({ teams }, ownProps) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeamTypes }
+	{ fetchAllTeamTypes, updateTeamSquad }
 )(AdminTeamSquads);

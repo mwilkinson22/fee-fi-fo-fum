@@ -40,7 +40,7 @@ export async function update(req, res) {
 	const { _id } = req.params;
 	const team = await Team.findById(_id);
 	if (!team) {
-		res.status(500).send(`No team with id ${_id} was found`);
+		res.status(404).send(`No team with id ${_id} was found`);
 	} else {
 		//Handle Plain Text Fields
 		const values = _.mapValues(req.body, (val, key) => {
@@ -69,5 +69,35 @@ export async function update(req, res) {
 		});
 		await Team.updateOne({ _id }, values);
 		await getUpdatedTeam(_id, res);
+	}
+}
+
+export async function updateSquad(req, res) {
+	const { _id, squadId } = req.params;
+	const team = await Team.findById(_id);
+	if (!team) {
+		res.status(404).send(`No team with id ${_id} was found`);
+	} else {
+		const squad = _.find(team.squads, squad => squad._id == squadId);
+		if (!squad) {
+			res.status(404).send({
+				error: `No squad with id ${squadId} found for ${team.name.long}`
+			});
+		} else {
+			_.find(squad.players, player => player.number == 21).number = 21;
+			squad.players = _.map(req.body, (data, _player) => {
+				const { number, onLoan, from, to } = data;
+				return {
+					number: number === "" ? null : number,
+					onLoan,
+					from: from === "" ? null : new Date(from),
+					to: to === "" ? null : new Date(to),
+					_player
+				};
+			});
+
+			await team.save();
+			await getUpdatedTeam(_id, res);
+		}
 	}
 }
