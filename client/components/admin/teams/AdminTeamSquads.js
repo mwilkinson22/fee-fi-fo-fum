@@ -49,6 +49,8 @@ class AdminTeamSquads extends Component {
 
 	renderSquadSelector() {
 		const { team, teamTypes } = this.state;
+		const { match } = this.props;
+
 		const options = _.chain(team.squads)
 			.map(squad => {
 				const _teamType = _.keyBy(teamTypes, "_id")[squad._teamType];
@@ -66,10 +68,10 @@ class AdminTeamSquads extends Component {
 		return (
 			<Select
 				options={[{ value: "new", label: "Add New Squad" }, ...options]}
-				isClearable={true}
 				onChange={opt =>
 					this.props.history.push(`/admin/teams/${team.slug}/squads/${opt.value}`)
 				}
+				defaultValue={_.find(options, option => option.value === match.params.squad)}
 			/>
 		);
 	}
@@ -182,14 +184,13 @@ class AdminTeamSquads extends Component {
 			content = null;
 		} else if (squad) {
 			content = this.renderCurrentSquad();
+		} else {
+			content = (
+				<div className="block-card team-squad-list">{this.renderSquadSelector()}</div>
+			);
 		}
 
-		return (
-			<div className="container admin-team-squad-page">
-				<div className="block-card team-squad-list">{this.renderSquadSelector()}</div>
-				{content}
-			</div>
-		);
+		return <div className="container admin-team-squad-page">{content}</div>;
 	}
 }
 
