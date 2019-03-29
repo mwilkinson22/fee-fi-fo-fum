@@ -4,10 +4,10 @@ import { getListsAndSlugs } from "../genericController";
 const collectionName = "teams";
 const Team = mongoose.model(collectionName);
 const TeamTypes = mongoose.model("teamTypes");
+const Person = mongoose.model("people");
 
 //Modules
 const _ = require("lodash");
-const { ObjectId } = require("mongodb");
 const Colour = require("color");
 
 //Helpers
@@ -72,6 +72,57 @@ export async function update(req, res) {
 	}
 }
 
+async function processBulkSquadAdd(data) {
+	const results = [];
+	for (const row of _.values(data)) {
+		const { number, onLoan, from, to, nameSelect, nameString } = row;
+		let person;
+
+		//Create New Player
+		if (nameSelect.value === "skip") {
+			continue;
+		} else if (nameSelect.value === "new") {
+			person = new Person({
+				name: nameString,
+				isPlayer: true
+			});
+			await person.save();
+		} else {
+			person = await Person.findById(nameSelect.value);
+		}
+
+		results.push({
+			_player: person._id,
+			onLoan,
+			from: from.length ? from : null,
+			to: to.length ? to : null,
+			number: number.length ? number : null
+		});
+	}
+
+	return results;
+}
+
+export async function appendSquad(req, res) {
+	const { _id, squadId } = req.params;
+	const team = await Team.findById(_id);
+	if (!team) {
+		res.status(404).send(`No team with id ${_id} was found`);
+	} else {
+		const squad = _.find(team.squads, squad => squad._id == squadId);
+		if (!squad) {
+			res.status(404).send({
+				error: `No squad with id ${squadId} found for ${team.name.long}`
+			});
+		} else {
+			const newSquad = await processBulkSquadAdd(req.body);
+			squad.players.push(...newSquad);
+			await team.save();
+			await getUpdatedTeam(_id, res);
+		}
+	}
+}
+
 export async function updateSquad(req, res) {
 	const { _id, squadId } = req.params;
 	const team = await Team.findById(_id);
@@ -84,17 +135,22 @@ export async function updateSquad(req, res) {
 				error: `No squad with id ${squadId} found for ${team.name.long}`
 			});
 		} else {
-			_.find(squad.players, player => player.number == 21).number = 21;
-			squad.players = _.map(req.body, (data, _player) => {
-				const { number, onLoan, from, to } = data;
-				return {
-					number: number === "" ? null : number,
-					onLoan,
-					from: from === "" ? null : new Date(from),
-					to: to === "" ? null : new Date(to),
-					_player
-				};
-			});
+			squad.players = _.chain(req.body)
+				.map((data, _player) => {
+					const { number, onLoan, from, to, deletePlayer } = data;
+					if (deletePlayer) {
+						return null;
+					}
+					return {
+						number: number === "" ? null : number,
+						onLoan,
+						from: from === "" ? null : new Date(from),
+						to: to === "" ? null : new Date(to),
+						_player
+					};
+				})
+				.filter(_.identity)
+				.value();
 
 			await team.save();
 			await getUpdatedTeam(_id, res);

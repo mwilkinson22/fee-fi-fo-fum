@@ -3,7 +3,6 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
 import "datejs";
 import Select from "../fields/Select";
 
@@ -11,10 +10,9 @@ import Select from "../fields/Select";
 import { fetchAllTeamTypes, updateTeamSquad } from "../../../actions/teamsActions";
 
 //Components
+import LoadingPage from "../../LoadingPage";
 import Table from "../../Table";
-
-//Helpers
-import { processFormFields } from "~/helpers/adminHelper";
+import AdminTeamSquadBulkAdder from "./AdminTeamSquadBulkAdder";
 
 class AdminTeamSquads extends Component {
 	constructor(props) {
@@ -34,11 +32,10 @@ class AdminTeamSquads extends Component {
 		const { slug } = match.params;
 		const { id } = slugMap[slug];
 		const team = fullTeams[id];
-		return { team, teamTypes };
-	}
-
-	getValidationSchema() {
-		return Yup.object().shape({});
+		return {
+			team,
+			teamTypes
+		};
 	}
 
 	updateSquad(players) {
@@ -89,7 +86,7 @@ class AdminTeamSquads extends Component {
 					onLoan: squadMember.onLoan,
 					from: squadMember.from ? new Date(squadMember.from).toString("yyyy-MM-dd") : "",
 					to: squadMember.to ? new Date(squadMember.to).toString("yyyy-MM-dd") : "",
-					delete: false
+					deletePlayer: false
 				};
 				return [squadMember._player._id, values];
 			})
@@ -109,7 +106,7 @@ class AdminTeamSquads extends Component {
 						{ key: "onLoan", label: "On Loan" },
 						{ key: "from", label: "From" },
 						{ key: "to", label: "To" },
-						{ key: "delete", label: "Delete" }
+						{ key: "deletePlayer", label: "Delete" }
 					];
 
 					const rows = _.chain(activeSquad.players)
@@ -144,7 +141,9 @@ class AdminTeamSquads extends Component {
 									checked={values ? values.onLoan : false}
 								/>
 							);
-							data.delete = <Field type="checkbox" name={`${player._id}.delete`} />;
+							data.deletePlayer = (
+								<Field type="checkbox" name={`${player._id}.deletePlayer`} />
+							);
 
 							return {
 								key: squadMember._id || Math.random(),
@@ -174,23 +173,30 @@ class AdminTeamSquads extends Component {
 	}
 
 	render() {
-		const { teamTypes } = this.state;
+		const { teamTypes, team } = this.state;
 		const { squad } = this.props.match.params;
 		if (!teamTypes) {
-			return null;
+			return <LoadingPage />;
 		}
 		let content;
 		if (squad === "new") {
 			content = null;
 		} else if (squad) {
 			content = this.renderCurrentSquad();
-		} else {
-			content = (
-				<div className="block-card team-squad-list">{this.renderSquadSelector()}</div>
-			);
 		}
 
-		return <div className="container admin-team-squad-page">{content}</div>;
+		return (
+			<div className="container admin-team-squad-page">
+				<div className="block-card team-squad-list">{this.renderSquadSelector()}</div>
+				{content}
+				{squad && (
+					<AdminTeamSquadBulkAdder
+						squad={squad === "new" ? undefined : squad}
+						teamId={team._id}
+					/>
+				)}
+			</div>
+		);
 	}
 }
 

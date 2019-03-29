@@ -11,6 +11,7 @@ module.exports = app => {
 	app.get("/api/team/:id", teamsController.getTeam);
 
 	//Putters
+	app.put("/api/teams/:_id/squad/:squadId/append", requireAdmin, teamsController.appendSquad);
 	app.put("/api/teams/:_id/squad/:squadId", requireAdmin, teamsController.updateSquad);
 	app.put("/api/teams/:_id", requireAdmin, teamsController.update);
 };

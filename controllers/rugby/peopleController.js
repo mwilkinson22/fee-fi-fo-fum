@@ -74,3 +74,22 @@ export async function getPerson(req, res) {
 
 	res.send(person);
 }
+
+export async function searchNames(req, res) {
+	const names = decodeURI(req.params.names).split(",");
+	const processedNames = {};
+	for (const name of names) {
+		//Exact results
+		const exact = await Person.searchByName(name, true);
+
+		//Near results
+		const idsToSkip = _.map(exact, person => person._id);
+		const near = await Person.searchByName(name.split(" ").pop(), false, {
+			_id: { $nin: idsToSkip }
+		});
+
+		processedNames[name] = { exact, near };
+	}
+
+	res.send(processedNames);
+}

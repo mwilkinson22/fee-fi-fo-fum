@@ -24,3 +24,8 @@ export const updateTeamSquad = (team_id, squad_id, data) => async (dispatch, get
 	const res = await api.put(`/teams/${team_id}/squad/${squad_id}`, data);
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
 };
+
+export const appendTeamSquad = (team_id, squad_id, data) => async (dispatch, getState, api) => {
+	const res = await api.put(`/teams/${team_id}/squad/${squad_id}/append`, data);
+	dispatch({ type: UPDATE_TEAM, payload: res.data });
+};

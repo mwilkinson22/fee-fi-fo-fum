@@ -242,11 +242,43 @@
 		font-size: 1.4em;
 	}
 	table {
-		width: 100%;
-		margin-bottom: 10pt;
 		th {
 			white-space: nowrap;
 		}
+		th,
+		td {
+			vertical-align: middle;
+		}
+
+		tr.exact td:first-child {
+			background: darkgreen;
+		}
+		tr.approx td:first-child {
+			background: orange;
+		}
+		tr.no-match td:first-child {
+			background: darkred;
+		}
+	}
+	.buttons {
+		padding: 8pt 0;
+	}
+	.react-select {
+		margin-top: 1pt;
+	}
+	input {
+		margin-top: 2pt;
+		&.hidden {
+			height: 1px;
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
+	textarea,
+	table {
+		width: 100%;
+		grid-column: 1 / -1;
+		margin-bottom: 6pt;
 	}
 	@media #{$desktop-and-tablet} {
 		.sub-menu {

@@ -33,6 +33,7 @@ export default class Select extends Component {
 				styles={styles}
 				onChange={onChange}
 				isClearable={isClearable}
+				className="react-select"
 			/>
 		);
 	}

@@ -82,14 +82,19 @@ const personSchema = new Schema(
 	}
 );
 
-personSchema.statics.searchByName = async function(str, extraParams = {}, limit = 20) {
-	const regex = new RegExp(str, "ig");
+personSchema.statics.searchByName = async function(
+	str,
+	exact = false,
+	extraParams = {},
+	limit = 20
+) {
+	const match = { $match: { fullname: exact ? str : new RegExp(str, "ig") } };
 
 	const results = await this.aggregate([
 		// Project the concatenated full name along with the original doc
 		{ $match: extraParams },
-		{ $project: { fullname: { $concat: ["$name.first", " ", "$name.last"] }, doc: "$$ROOT" } },
-		{ $match: { fullname: regex } },
+		{ $project: { fullname: { $concat: ["$name.first", " ", "$name.last"] } } },
+		match,
 		{ $sort: { fullname: 1 } },
 		{ $limit: limit }
 	]);
