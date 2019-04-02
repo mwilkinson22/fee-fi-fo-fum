@@ -6,7 +6,6 @@ import LoadingPage from "../components/LoadingPage";
 import Parser from "html-react-parser";
 import { layoutImagePath } from "../extPaths";
 import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
-import { fetchAllTeamTypes } from "../actions/teamsActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
 import "datejs";
 import PersonImage from "../components/people/PersonImage";
@@ -14,7 +13,6 @@ import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
 import { Redirect } from "react-router-dom";
 import playerPositions from "~/constants/playerPositions";
-import { validateGameDate } from "../../helpers/gameHelper";
 import PlayerStatSection from "../components/people/PlayerStatSection";
 
 class PersonPage extends Component {
@@ -29,7 +27,7 @@ class PersonPage extends Component {
 		this.state = { activeFilters: {} };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { slugMap, fullPeople, fetchPerson, match } = nextProps;
 		const newState = {};
 
@@ -228,7 +226,7 @@ async function loadData(store, path) {
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchPerson, fetchPeopleList, fetchAllTeamTypes, fetchGameList, fetchGames }
+		{ fetchPerson, fetchPeopleList, fetchGameList, fetchGames }
 	)(PersonPage),
 	loadData
 };

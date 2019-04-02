@@ -4,7 +4,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 //Actions
-import { fetchAllTeamTypes } from "../../actions/teamsActions";
 import { fetchGameList, fetchGames } from "../../actions/gamesActions";
 
 //Helpers
@@ -21,11 +20,7 @@ import GameFilters from "../games/GameFilters";
 class PlayerStatSection extends Component {
 	constructor(props) {
 		super(props);
-		const { teamTypes, fetchAllTeamTypes, gameList, fetchGameList } = props;
-
-		if (!teamTypes) {
-			fetchAllTeamTypes();
-		}
+		const { gameList, fetchGameList } = props;
 
 		if (!gameList) {
 			fetchGameList();
@@ -38,7 +33,7 @@ class PlayerStatSection extends Component {
 		const { gameList, fullGames, teamTypes, fetchGames, person } = nextProps;
 		const { playerStatYears } = person;
 		const newState = {};
-		if (gameList && teamTypes) {
+		if (gameList) {
 			//Years for selector
 			newState.years = _.chain(playerStatYears)
 				.keys()
@@ -51,7 +46,7 @@ class PlayerStatSection extends Component {
 
 			//Team Types for active year
 			newState.teamTypes = _.chain(playerStatYears[newState.year])
-				.map(id => _.keyBy(teamTypes, "_id")[id])
+				.map(id => teamTypes[id])
 				.sortBy("sortOrder")
 				.value();
 
@@ -258,8 +253,8 @@ class PlayerStatSection extends Component {
 	}
 
 	render() {
-		const { teamTypes, years, games, activeFilters } = this.state;
-		if (!teamTypes || !years) {
+		const { years, games, activeFilters } = this.state;
+		if (!years) {
 			return <LoadingPage />;
 		}
 
@@ -301,5 +296,5 @@ function mapStateToProps({ games, teams }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeamTypes, fetchGameList, fetchGames }
+	{ fetchGameList, fetchGames }
 )(PlayerStatSection);

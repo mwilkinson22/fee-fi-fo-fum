@@ -33,7 +33,7 @@ export async function getTeam(req, res) {
 
 export async function getTeamTypes(req, res) {
 	const teamTypes = await TeamTypes.find({}).sort({ sortOrder: 1 });
-	res.send(teamTypes);
+	res.send(_.keyBy(teamTypes, "_id"));
 }
 
 export async function update(req, res) {

@@ -7,6 +7,7 @@ import createStore from "./helpers/server/createStore";
 
 import { getCoreConfig } from "./client/actions/configActions";
 import { fetchUser } from "./client/actions/userActions";
+import { fetchAllTeamTypes } from "./client/actions/teamsActions";
 
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";
@@ -64,6 +65,8 @@ app.get("*", async (req, res) => {
 	const store = createStore(req);
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(fetchUser());
+	await store.dispatch(fetchAllTeamTypes());
+
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
 			const promise = route.loadData ? route.loadData(store, req.path) : null;

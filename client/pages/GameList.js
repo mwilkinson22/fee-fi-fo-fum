@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
-import { fetchAllTeamTypes } from "../actions/teamsActions";
 import GameCard from "../components/games/GameCard";
 import { NavLink } from "react-router-dom";
 import { validateGameDate } from "../../helpers/gameHelper";
@@ -13,14 +12,10 @@ import HelmetBuilder from "../components/HelmetBuilder";
 class GameList extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, match, fetchGameList, teamTypes, fetchAllTeamTypes } = props;
+		const { gameList, match, fetchGameList } = props;
 
 		if (!gameList) {
 			fetchGameList();
-		}
-
-		if (!teamTypes) {
-			fetchAllTeamTypes();
 		}
 
 		const listType = match.path.split("/")[2]; //Fixtures or Results
@@ -35,23 +30,23 @@ class GameList extends Component {
 		//Fixtures or Results?
 		newState.listType = path[2];
 
-		if (!teamTypes || !gameList) {
+		if (!gameList) {
 			return {};
 		}
 
 		//Team Type
 		if (match.params.teamType) {
-			const filteredTeamTypes = _.filter(teamTypes, t => t.slug === match.params.teamType);
-			if (filteredTeamTypes.length) {
-				newState.teamType = filteredTeamTypes[0]._id;
+			const filteredTeamType = _.find(teamTypes, t => t.slug === match.params.teamType);
+			if (filteredTeamType) {
+				newState.teamType = filteredTeamType._id;
 			}
 		}
 
 		if (!newState.teamType) {
 			newState.teamType = _.chain(teamTypes)
 				.values()
-				.sortBy("sortOrder")
-				.value()[0]._id;
+				.minBy("sortOrder")
+				.value()._id;
 		}
 
 		//Years
@@ -121,7 +116,7 @@ class GameList extends Component {
 
 	generateTeamTypeMenu() {
 		const { listType, year } = this.state;
-		const teamTypes = _.keyBy(this.props.teamTypes, "_id");
+		const { teamTypes } = this.props;
 		const coreUrl = listType === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
 		const submenu = _.chain(this.props.gameList)
 			.filter(game => validateGameDate(game, listType, year))
@@ -253,8 +248,7 @@ export async function loadData(store, path) {
 	}
 
 	//Get Team Type
-	await store.dispatch(fetchAllTeamTypes());
-	const teamTypes = _.keyBy(store.getState().teams.teamTypes, "_id");
+	const { teamTypes } = store.getState().teams;
 	const teamTypeIndex = listType === "fixtures" ? 3 : 4;
 	let teamType;
 	if (splitPath.length > teamTypeIndex) {
@@ -290,7 +284,7 @@ export async function loadData(store, path) {
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGames, fetchGameList, fetchAllTeamTypes }
+		{ fetchGames, fetchGameList }
 	)(GameList),
 	loadData
 };

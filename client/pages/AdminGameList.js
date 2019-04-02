@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
-import { fetchAllTeamTypes } from "../actions/teamsActions";
 import AdminGameCard from "../components/games/AdminGameCard";
 import { NavLink } from "react-router-dom";
 import { validateGameDate } from "../../helpers/gameHelper";
@@ -13,14 +12,10 @@ import HelmetBuilder from "../components/HelmetBuilder";
 class AdminGameList extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, match, fetchGameList, teamTypes, fetchAllTeamTypes } = props;
+		const { gameList, match, fetchGameList } = props;
 
 		if (!gameList) {
 			fetchGameList();
-		}
-
-		if (!teamTypes) {
-			fetchAllTeamTypes();
 		}
 
 		this.state = { listType: match.params.year === "fixtures" ? "fixtures" : "results" };
@@ -32,23 +27,23 @@ class AdminGameList extends Component {
 		newState.listType =
 			!match.params.year || match.params.year === "fixtures" ? "fixtures" : "results";
 
-		if (!teamTypes || !gameList) {
+		if (!gameList) {
 			return {};
 		}
 
 		//Team Type
 		if (match.params.teamType) {
-			const filteredTeamTypes = _.filter(teamTypes, t => t.slug === match.params.teamType);
-			if (filteredTeamTypes.length) {
-				newState.teamType = filteredTeamTypes[0]._id;
+			const filteredTeamType = _.find(teamTypes, t => t.slug === match.params.teamType);
+			if (filteredTeamType) {
+				newState.teamType = filteredTeamType._id;
 			}
 		}
 
 		if (!newState.teamType) {
 			newState.teamType = _.chain(teamTypes)
 				.values()
-				.sortBy("sortOrder")
-				.value()[0]._id;
+				.minBy("sortOrder")
+				.value()._id;
 		}
 
 		//Years
@@ -113,7 +108,7 @@ class AdminGameList extends Component {
 
 	generateTeamTypeMenu() {
 		const { listType, year } = this.state;
-		const teamTypes = _.keyBy(this.props.teamTypes, "_id");
+		const { teamTypes } = this.props;
 		const coreUrl = `/admin/games/${year}`;
 		const submenu = _.chain(this.props.gameList)
 			.filter(game => validateGameDate(game, listType, year))
@@ -157,7 +152,6 @@ class AdminGameList extends Component {
 		if (!games) {
 			return <LoadingPage />;
 		} else {
-			let isFirst = true;
 			const renderedGames = _.chain(games)
 				.filter(activeFilters)
 				.map(game => <AdminGameCard key={game._id} game={game} />)
@@ -213,5 +207,5 @@ function mapStateToProps({ games, teams }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchGames, fetchGameList, fetchAllTeamTypes }
+	{ fetchGames, fetchGameList }
 )(AdminGameList);

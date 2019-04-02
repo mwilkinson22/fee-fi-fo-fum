@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import "datejs";
 
 //Actions
-import { fetchTeamList, fetchAllTeamTypes } from "../../../actions/teamsActions";
+import { fetchTeamList } from "../../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
@@ -21,23 +21,18 @@ class AdminGameOverview extends Component {
 	constructor(props) {
 		super(props);
 		const {
-			game,
-			teamTypes,
 			teamList,
 			competitionSegmentList,
-			fetchAllTeamTypes,
-			fetchAllTeams,
+			fetchTeamList,
 			fetchAllCompetitionSegments,
 			groundList,
 			fetchAllGrounds,
 			peopleList,
 			fetchPeopleList
 		} = props;
-		if (!teamTypes) {
-			fetchAllTeamTypes();
-		}
+
 		if (!teamList) {
-			fetchAllTeams();
+			fetchTeamList();
 		}
 		if (!competitionSegmentList) {
 			fetchAllCompetitionSegments();
@@ -48,14 +43,7 @@ class AdminGameOverview extends Component {
 		if (!peopleList) {
 			fetchPeopleList();
 		}
-		this.state = {
-			game,
-			teamTypes,
-			teamList,
-			groundList,
-			peopleList,
-			competitionSegmentList
-		};
+		this.state = {};
 	}
 
 	componentDidMount() {
@@ -63,22 +51,14 @@ class AdminGameOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const {
-			game,
-			teamTypes,
-			teamList,
-			competitionSegmentList,
-			groundList,
-			peopleList
-		} = nextProps;
-		return {
-			game,
-			teamTypes,
-			teamList,
-			competitionSegmentList,
-			groundList,
-			peopleList
-		};
+		return _.pick(nextProps, [
+			"game",
+			"teamList",
+			"teamTypes",
+			"competitionSegmentList",
+			"groundList",
+			"peopleList"
+		]);
 	}
 
 	getValidationSchema() {
@@ -344,13 +324,7 @@ class AdminGameOverview extends Component {
 	}
 
 	render() {
-		const requireToRender = [
-			"teamTypes",
-			"teamList",
-			"competitionSegmentList",
-			"groundList",
-			"peopleList"
-		];
+		const requireToRender = ["teamList", "competitionSegmentList", "groundList", "peopleList"];
 		let stopRender = false;
 		for (const prop of requireToRender) {
 			if (!this.state[prop]) {
@@ -389,8 +363,7 @@ function mapStateToProps({ games, teams, competitions, grounds, people }, ownPro
 export default connect(
 	mapStateToProps,
 	{
-		fetchAllTeamTypes,
-		fetchAllTeams: fetchTeamList,
+		fetchTeamList,
 		fetchAllCompetitionSegments,
 		fetchAllGrounds,
 		fetchPeopleList,

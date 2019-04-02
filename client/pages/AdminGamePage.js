@@ -2,7 +2,6 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
-import { fetchAllTeamTypes } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -13,21 +12,18 @@ import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSq
 class AdminGamePage extends Component {
 	constructor(props) {
 		super(props);
-		const { slugMap, fetchGameList, teamTypes, fetchAllTeamTypes } = props;
+		const { slugMap, fetchGameList } = props;
 		if (!slugMap) {
 			fetchGameList();
 		}
 
-		if (!teamTypes) {
-			fetchAllTeamTypes();
-		}
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, slugMap, fullGames, fetchGames, teamTypes } = nextProps;
+		const { match, slugMap, fullGames, fetchGames } = nextProps;
 		const { slug } = match.params;
-		const newState = { teamTypes };
+		const newState = {};
 		if (!slugMap) {
 			return newState;
 		}
@@ -133,8 +129,9 @@ class AdminGamePage extends Component {
 	}
 
 	render() {
-		const { game, teamTypes } = this.state;
-		if (game === undefined || !teamTypes) {
+		const { game } = this.state;
+		const { teamTypes } = this.props;
+		if (game === undefined) {
 			return <LoadingPage />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
@@ -170,5 +167,5 @@ function mapStateToProps({ config, games, teams }, ownProps) {
 }
 export default connect(
 	mapStateToProps,
-	{ fetchGames, fetchGameList, fetchAllTeamTypes }
+	{ fetchGames, fetchGameList }
 )(AdminGamePage);

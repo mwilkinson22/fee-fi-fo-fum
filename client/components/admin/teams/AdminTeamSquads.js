@@ -7,7 +7,7 @@ import "datejs";
 import Select from "../fields/Select";
 
 //Actions
-import { fetchAllTeamTypes, updateTeamSquad } from "../../../actions/teamsActions";
+import { updateTeamSquad } from "../../../actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -17,13 +17,6 @@ import AdminTeamSquadBulkAdder from "./AdminTeamSquadBulkAdder";
 class AdminTeamSquads extends Component {
 	constructor(props) {
 		super(props);
-
-		const { teamTypes, fetchAllTeamTypes } = props;
-
-		if (!teamTypes) {
-			fetchAllTeamTypes();
-		}
-
 		this.state = {};
 	}
 
@@ -50,7 +43,7 @@ class AdminTeamSquads extends Component {
 
 		const options = _.chain(team.squads)
 			.map(squad => {
-				const _teamType = _.keyBy(teamTypes, "_id")[squad._teamType];
+				const _teamType = teamTypes[squad._teamType];
 				return { ...squad, _teamType };
 			})
 			.orderBy(["year", "sortOrder"], ["desc", "asc"])
@@ -156,8 +149,7 @@ class AdminTeamSquads extends Component {
 						<Form>
 							<div className="form-card">
 								<h6>
-									{activeSquad.year} -{" "}
-									{_.keyBy(teamTypes, "_id")[activeSquad._teamType].name}
+									{activeSquad.year} - {teamTypes[activeSquad._teamType].name}
 								</h6>
 								<Table rows={rows} columns={columns} defaultSortable={false} />
 								<div className="buttons">
@@ -173,11 +165,9 @@ class AdminTeamSquads extends Component {
 	}
 
 	render() {
-		const { teamTypes, team } = this.state;
+		const { team } = this.state;
 		const { squad } = this.props.match.params;
-		if (!teamTypes) {
-			return <LoadingPage />;
-		}
+
 		let content;
 		if (squad === "new") {
 			content = null;
@@ -209,5 +199,5 @@ function mapStateToProps({ teams }, ownProps) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchAllTeamTypes, updateTeamSquad }
+	{ updateTeamSquad }
 )(AdminTeamSquads);

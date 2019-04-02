@@ -1,23 +1,18 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeam, fetchAllTeamTypes } from "../actions/teamsActions";
+import { fetchTeam } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
 import _ from "lodash";
 import HelmetBuilder from "../components/HelmetBuilder";
 import { NavLink } from "react-router-dom";
-const firstTeam = "5c34e00a0838a5b090f8c1a7";
 
 class SquadListPage extends Component {
 	constructor(props) {
 		super(props);
-		const { localTeam, fullTeams, fetchTeam, teamTypes, fetchAllTeamTypes } = props;
+		const { localTeam, fullTeams, fetchTeam } = props;
 		if (!fullTeams[localTeam]) {
 			fetchTeam(localTeam);
-		}
-
-		if (!teamTypes) {
-			fetchAllTeamTypes();
 		}
 
 		this.state = {};
@@ -28,7 +23,7 @@ class SquadListPage extends Component {
 		const { localTeam, fullTeams, match, teamTypes } = nextProps;
 		const team = fullTeams[localTeam];
 
-		if (!team || !teamTypes) {
+		if (!team) {
 			return newState;
 		}
 
@@ -46,19 +41,13 @@ class SquadListPage extends Component {
 		//Get TeamTypes
 		newState.teamTypes = _.chain(team.squads)
 			.filter(squad => squad.year == newState.year)
-			.map(squad => _.keyBy(teamTypes, "_id")[squad._teamType])
+			.map(squad => teamTypes[squad._teamType])
 			.sortBy("sortOrder")
 			.value();
 
 		//Get Active TeamType
-		const filteredTeamType = _.chain(newState.teamTypes)
-			.filter(teamType => teamType.slug === match.params.teamType)
-			.value();
-		if (filteredTeamType.length) {
-			newState.teamType = filteredTeamType[0]._id;
-		} else {
-			newState.teamType = newState.teamTypes[0]._id;
-		}
+		const filteredTeamType = _.find(teamType => teamType.slug === match.params.teamType);
+		newState.teamType = filteredTeamType ? filteredTeamType._id : newState.teamTypes[0]._id;
 
 		//Get Players
 		newState.squad = _.chain(team.squads)
@@ -145,8 +134,8 @@ class SquadListPage extends Component {
 	generateHelmet() {
 		const { year, teamType, years } = this.state;
 		const { teamTypes } = this.props;
-		const teamTypeObject = _.filter(teamTypes, t => t._id === teamType)[0];
-		const specifyTeamTypeInMeta = teamTypes[0]._id !== teamType;
+		const teamTypeObject = _.find(teamTypes, t => t._id === teamType);
+		const specifyTeamTypeInMeta = _.minBy(_.values(teamTypes), "sortOrder")._id !== teamType;
 		//Title
 		let title = `${year} Huddersfield Giants`;
 		if (specifyTeamTypeInMeta) {
@@ -193,7 +182,7 @@ class SquadListPage extends Component {
 
 async function loadData(store) {
 	const { localTeam } = store.getState().config;
-	return Promise.all([store.dispatch(fetchTeam(localTeam)), store.dispatch(fetchAllTeamTypes())]);
+	return store.dispatch(fetchTeam(localTeam));
 }
 
 function mapStateToProps({ config, teams }) {
@@ -205,7 +194,7 @@ function mapStateToProps({ config, teams }) {
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchTeam, fetchAllTeamTypes }
+		{ fetchTeam }
 	)(SquadListPage),
 	loadData
 };
