@@ -103,6 +103,7 @@ class AdminTeamSquadBulkAdder extends Component {
 						.map(p => {
 							return { label: p.name, value: p.id };
 						})
+						.sortBy("label")
 						.value();
 
 					//Get Approx matches
@@ -122,9 +123,14 @@ class AdminTeamSquadBulkAdder extends Component {
 										.toLowerCase()
 										.split(" ")
 										.map(str => {
-											if (p.name.toLowerCase().includes(str)) {
-												match = true;
-											}
+											p.name
+												.toLowerCase()
+												.split(" ")
+												.map(name => {
+													if (name === str) {
+														match = true;
+													}
+												});
 										});
 								}
 
@@ -133,13 +139,14 @@ class AdminTeamSquadBulkAdder extends Component {
 							.map(p => {
 								return { label: p.name, value: p.id };
 							})
+							.sortBy("label")
 							.value();
 					}
 
 					return result;
 				})
 				.filter(_.identity)
-				.sortBy(p => p.number || 9999)
+				.sortBy(p => Number(p.number) || 9999)
 				.value();
 
 			this.setState({ parsedList: parsedList });
