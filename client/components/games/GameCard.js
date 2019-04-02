@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import * as colour from "../../utils/colourHelper";
 import "datejs";
@@ -8,7 +9,7 @@ import TeamImage from "../teams/TeamImage";
 import GameLogo from "./GameLogo";
 import { imagePath } from "../../extPaths";
 
-export default class GameCard extends Component {
+class GameCard extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -16,8 +17,8 @@ export default class GameCard extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { game } = nextProps;
-		const { _opposition, isAway, scores } = game;
+		const { game, localTeam } = nextProps;
+		const { _opposition, isAway, score } = game;
 
 		//Get date
 		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));
@@ -30,9 +31,9 @@ export default class GameCard extends Component {
 		newState.isFixture = isFixture;
 
 		//Score
-		if (scores) {
-			const localScore = scores["5c041478e2b66153542b3742"];
-			const oppositionScore = scores[_opposition._id];
+		if (score) {
+			const localScore = score[localTeam];
+			const oppositionScore = score[_opposition._id];
 			if (localScore && oppositionScore) {
 				const oppositionName = _opposition.name.short;
 				if (isAway) {
@@ -111,3 +112,10 @@ export default class GameCard extends Component {
 		);
 	}
 }
+
+function mapStateToProps({ config }, ownProps) {
+	const { localTeam } = config;
+	return { localTeam, ...ownProps };
+}
+
+export default connect(mapStateToProps)(GameCard);

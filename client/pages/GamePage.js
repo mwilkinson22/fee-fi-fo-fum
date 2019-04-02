@@ -78,7 +78,7 @@ class GamePage extends Component {
 	}
 
 	generateTeamBanners() {
-		const { isAway, scores, _opposition } = this.state.game;
+		const { isAway, score, _opposition } = this.state.game;
 		const { localTeam, fullTeams } = this.props;
 		let teams = [fullTeams[localTeam], _opposition];
 		if (isAway) {
@@ -86,7 +86,7 @@ class GamePage extends Component {
 		}
 
 		return teams.map(team => (
-			<TeamBanner key={team._id} team={team} score={scores ? scores[team._id] : null} />
+			<TeamBanner key={team._id} team={team} score={score ? score[team._id] : null} />
 		));
 	}
 
