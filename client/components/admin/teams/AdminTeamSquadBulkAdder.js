@@ -3,10 +3,11 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
+import { Redirect } from "react-router-dom";
 
 //Actions
 import { fetchPeopleList } from "../../../actions/peopleActions";
-import { appendTeamSquad } from "../../../actions/teamsActions";
+import { appendTeamSquad, createTeamSquad } from "../../../actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -35,8 +36,8 @@ class AdminTeamSquadBulkAdder extends Component {
 		return {
 			peopleList: _.chain(peopleList)
 				.filter(p => p.gender === gender)
-				.map((p, id) => ({
-					id,
+				.map(p => ({
+					id: p._id,
 					name: `${p.name.first} ${p.name.last}`
 				}))
 				.value()
@@ -44,19 +45,27 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	handleSubmit(players) {
-		const { appendTeamSquad, teamId, squad } = this.props;
+		const {
+			appendTeamSquad,
+			createTeamSquad,
+			resetSquadData,
+			teamId,
+			squad,
+			year,
+			teamType
+		} = this.props;
 
 		if (squad) {
 			appendTeamSquad(teamId, squad, players);
+			this.setState({
+				textList: "",
+				delimiter: "",
+				parsedList: undefined
+			});
 		} else {
-			//
+			createTeamSquad(teamId, { year, _teamType: teamType._id, players });
+			resetSquadData();
 		}
-
-		this.setState({
-			textList: "",
-			delimiter: "",
-			parsedList: undefined
-		});
 	}
 
 	async parseList() {
@@ -289,9 +298,20 @@ class AdminTeamSquadBulkAdder extends Component {
 		);
 	}
 
+	addNewSquadHeader() {
+		const { resetSquadData } = this.props;
+		return (
+			<div>
+				<div className="buttons">
+					<button onClick={() => resetSquadData()}>Reset Squad Data</button>
+				</div>
+			</div>
+		);
+	}
+
 	render() {
 		const { peopleList, parsedList } = this.state;
-		const { squad } = this.props;
+		const { squad, teamType, year } = this.props;
 		if (!peopleList) {
 			return <LoadingPage />;
 		} else {
@@ -299,7 +319,12 @@ class AdminTeamSquadBulkAdder extends Component {
 			return (
 				<div>
 					<div className="form-card grid">
-						<h6>{squad ? "Add Extra Players" : "Add Players"}</h6>
+						<h6>
+							{squad
+								? "Add Extra Players"
+								: `Add Players to ${year} ${teamType.name}`}
+						</h6>
+						{!squad && this.addNewSquadHeader()}
 						<textarea
 							id=""
 							rows="20"
@@ -326,12 +351,13 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 }
 
-function mapStateToProps({ people }, ownProps) {
+function mapStateToProps({ people, teams }, ownProps) {
 	const { peopleList } = people;
-	return { peopleList, ...ownProps };
+	const { fullTeams } = teams;
+	return { peopleList, fullTeams, ...ownProps };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, appendTeamSquad }
+	{ fetchPeopleList, appendTeamSquad, createTeamSquad }
 )(AdminTeamSquadBulkAdder);

@@ -5,15 +5,18 @@ import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import "datejs";
 import Select from "../fields/Select";
+import * as Yup from "yup";
+import { Link, Redirect } from "react-router-dom";
 
 //Actions
 import { updateTeamSquad } from "../../../actions/teamsActions";
 
 //Components
-import LoadingPage from "../../LoadingPage";
 import Table from "../../Table";
 import AdminTeamSquadBulkAdder from "./AdminTeamSquadBulkAdder";
-import NotFoundPage from "../../../pages/NotFoundPage";
+
+//Helpers
+import { processFormFields } from "~/helpers/adminHelper";
 
 class AdminTeamSquads extends Component {
 	constructor(props) {
@@ -42,7 +45,7 @@ class AdminTeamSquads extends Component {
 		const { team, teamTypes } = this.state;
 		const { match } = this.props;
 
-		const options = _.chain(team.squads)
+		const teamTypeOptions = _.chain(team.squads)
 			.map(squad => {
 				const _teamType = teamTypes[squad._teamType];
 				return { ...squad, _teamType };
@@ -56,15 +59,109 @@ class AdminTeamSquads extends Component {
 			})
 			.value();
 
+		const options = [{ value: "new", label: "Add New Squad" }, ...teamTypeOptions];
+
 		return (
 			<Select
-				options={[{ value: "new", label: "Add New Squad" }, ...options]}
-				onChange={opt =>
-					this.props.history.push(`/admin/teams/${team.slug}/squads/${opt.value}`)
-				}
+				options={options}
+				onChange={opt => {
+					this.props.history.push(`/admin/teams/${team.slug}/squads/${opt.value}`);
+					this.setState({ newSquadData: undefined });
+				}}
 				defaultValue={_.find(options, option => option.value === match.params.squad)}
 			/>
 		);
+	}
+
+	renderNewSquadFields() {
+		const { teamTypes } = this.props;
+		const { newSquadData, newSquadError, team } = this.state;
+		if (!newSquadData) {
+			const currentYear = new Date().getFullYear();
+			const validationSchema = Yup.object().shape({
+				year: Yup.number()
+					.required()
+					.min(1895)
+					.max(currentYear + 1)
+					.label("Year"),
+				teamType: Yup.string()
+					.required()
+					.label("Team Type")
+			});
+			const initialValues = {
+				year: currentYear,
+				teamType: ""
+			};
+			const options = _.chain(teamTypes)
+				.values()
+				.sortBy("sortOrder")
+				.map(t => ({ label: t.name, value: t._id }))
+				.value();
+
+			const fields = [
+				{ name: "year", type: "number" },
+				{ name: "teamType", type: "Select", options }
+			];
+			return (
+				<Formik
+					validationSchema={validationSchema}
+					initialValues={initialValues}
+					onSubmit={values => this.handleNewSquadFields(values)}
+					render={() => (
+						<Form>
+							<div className="form-card grid">
+								<h6>New Squad</h6>
+								{processFormFields(fields, validationSchema)}
+								<div className="buttons">
+									<button type="submit">Add Players</button>
+								</div>
+								{newSquadError}
+							</div>
+						</Form>
+					)}
+				/>
+			);
+		} else {
+			const { teamType, year } = newSquadData;
+			const teamTypeObject = teamTypes[teamType.value];
+			return (
+				<AdminTeamSquadBulkAdder
+					teamId={team._id}
+					gender={teamTypeObject.gender}
+					year={year}
+					teamType={teamTypeObject}
+					resetSquadData={() => this.setState({ newSquadData: undefined })}
+				/>
+			);
+		}
+	}
+
+	handleNewSquadFields(values) {
+		const { year, teamType } = values;
+		const { team } = this.state;
+		const teamExists = _.find(
+			team.squads,
+			s => s.year == year && s._teamType == teamType.value
+		);
+
+		if (teamExists) {
+			this.setState({
+				newSquadError: (
+					<div className="error">
+						This squad already exists.{" "}
+						<Link
+							to={`/admin/teams/${team.slug}/squads/${teamExists._id}`}
+							onClick={() => this.setState({ newSquadError: undefined })}
+						>
+							Click here
+						</Link>{" "}
+						to edit it or add new players
+					</div>
+				)
+			});
+		} else {
+			this.setState({ newSquadData: values, newSquadError: undefined });
+		}
 	}
 
 	renderCurrentSquad() {
@@ -89,7 +186,6 @@ class AdminTeamSquads extends Component {
 		return (
 			<Formik
 				key="currentSquad"
-				validationSchema={() => this.getValidationSchema()}
 				onSubmit={values => this.updateSquad(values)}
 				initialValues={initialValues}
 				enableReinitialize={true}
@@ -183,7 +279,7 @@ class AdminTeamSquads extends Component {
 				break;
 			default:
 				if (!squads[squad]) {
-					return <NotFoundPage />;
+					return <Redirect to={`/admin/teams/${team.slug}/squads`} />;
 				} else {
 					pageType = "edit";
 				}
@@ -193,14 +289,14 @@ class AdminTeamSquads extends Component {
 		//Determine Content
 		let content;
 		if (pageType === "new") {
-			content = null;
+			content = this.renderNewSquadFields();
 		} else if (pageType === "edit") {
 			const { _teamType } = squads[squad] || {};
 			content = [
 				this.renderCurrentSquad(),
 				<AdminTeamSquadBulkAdder
 					key="bulk"
-					squad={squad === "new" ? undefined : squad}
+					squad={squad}
 					teamId={team._id}
 					gender={teamTypes[_teamType].gender}
 				/>

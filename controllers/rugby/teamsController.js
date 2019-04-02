@@ -72,7 +72,7 @@ export async function update(req, res) {
 	}
 }
 
-async function processBulkSquadAdd(data) {
+async function processBulkSquadAdd(data, teamTypeId) {
 	const results = [];
 	for (const row of _.values(data)) {
 		const { number, onLoan, from, to, nameSelect, nameString } = row;
@@ -82,10 +82,20 @@ async function processBulkSquadAdd(data) {
 		if (nameSelect.value === "skip") {
 			continue;
 		} else if (nameSelect.value === "new") {
+			//Generate Slug
+			const slug = await Person.generateSlug(nameString.first, nameString.last);
+
+			//Get Gender
+			const teamType = await TeamTypes.findById(teamTypeId);
+			const { gender } = teamType;
+
 			person = new Person({
 				name: nameString,
-				isPlayer: true
+				isPlayer: true,
+				slug,
+				gender
 			});
+
 			await person.save();
 		} else {
 			person = await Person.findById(nameSelect.value);
@@ -103,6 +113,26 @@ async function processBulkSquadAdd(data) {
 	return results;
 }
 
+export async function createSquad(req, res) {
+	const { _id } = req.params;
+	const team = await Team.findById(_id);
+	if (!team) {
+		res.status(404).send(`No team with id ${_id} was found`);
+	} else {
+		const { players, _teamType, year } = req.body;
+		const processedPlayers = await processBulkSquadAdd(players, _teamType);
+		const newSquad = {
+			year,
+			_teamType,
+			players: processedPlayers
+		};
+
+		team.squads.push(newSquad);
+		await team.save();
+		await getUpdatedTeam(_id, res);
+	}
+}
+
 export async function appendSquad(req, res) {
 	const { _id, squadId } = req.params;
 	const team = await Team.findById(_id);
@@ -115,7 +145,7 @@ export async function appendSquad(req, res) {
 				error: `No squad with id ${squadId} found for ${team.name.long}`
 			});
 		} else {
-			const newSquad = await processBulkSquadAdd(req.body);
+			const newSquad = await processBulkSquadAdd(req.body, squad._teamType);
 			squad.players.push(...newSquad);
 			await team.save();
 			await getUpdatedTeam(_id, res);
@@ -151,6 +181,11 @@ export async function updateSquad(req, res) {
 				})
 				.filter(_.identity)
 				.value();
+
+			//Remove Empty Squad
+			if (!squad.players.length) {
+				team.squads = _.reject(team.squads, s => s._id == squadId);
+			}
 
 			await team.save();
 			await getUpdatedTeam(_id, res);

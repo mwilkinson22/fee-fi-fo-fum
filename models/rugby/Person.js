@@ -13,7 +13,7 @@ const personSchema = new Schema(
 		},
 		nickname: { type: String, default: null },
 		dateOfBirth: Date,
-		gender: { type: String, enum: ["M", "F"] },
+		gender: { required: true, type: String, enum: ["M", "F"] },
 		_hometown: { type: Schema.Types.ObjectId, ref: "cities" },
 		_represents: { type: Schema.Types.ObjectId, ref: "countries", default: null },
 		twitter: String,
@@ -68,7 +68,7 @@ const personSchema = new Schema(
 			}
 		],
 
-		slug: { type: String, unique: true },
+		slug: { type: String, unique: true, required: true },
 		image: String,
 		description: String
 	},
