@@ -30,21 +30,21 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { peopleList, squad, teamId } = nextProps;
+		const { peopleList, gender } = nextProps;
 
 		return {
-			peopleList: _.mapValues(peopleList, (p, id) => ({
-				id,
-				name: `${p.name.first} ${p.name.last}`
-			})),
-			squad,
-			teamId
+			peopleList: _.chain(peopleList)
+				.filter(p => p.gender === gender)
+				.map((p, id) => ({
+					id,
+					name: `${p.name.first} ${p.name.last}`
+				}))
+				.value()
 		};
 	}
 
 	handleSubmit(players) {
-		const { appendTeamSquad } = this.props;
-		const { teamId, squad } = this.state;
+		const { appendTeamSquad, teamId, squad } = this.props;
 
 		if (squad) {
 			appendTeamSquad(teamId, squad, players);
@@ -290,7 +290,8 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	render() {
-		const { peopleList, parsedList, squad } = this.state;
+		const { peopleList, parsedList } = this.state;
+		const { squad } = this.props;
 		if (!peopleList) {
 			return <LoadingPage />;
 		} else {

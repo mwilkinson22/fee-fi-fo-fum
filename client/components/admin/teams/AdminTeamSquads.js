@@ -13,6 +13,7 @@ import { updateTeamSquad } from "../../../actions/teamsActions";
 import LoadingPage from "../../LoadingPage";
 import Table from "../../Table";
 import AdminTeamSquadBulkAdder from "./AdminTeamSquadBulkAdder";
+import NotFoundPage from "../../../pages/NotFoundPage";
 
 class AdminTeamSquads extends Component {
 	constructor(props) {
@@ -87,6 +88,7 @@ class AdminTeamSquads extends Component {
 			.value();
 		return (
 			<Formik
+				key="currentSquad"
 				validationSchema={() => this.getValidationSchema()}
 				onSubmit={values => this.updateSquad(values)}
 				initialValues={initialValues}
@@ -166,25 +168,50 @@ class AdminTeamSquads extends Component {
 
 	render() {
 		const { team } = this.state;
-		const { squad } = this.props.match.params;
+		const { teamTypes, match } = this.props;
+		const squads = _.keyBy(team.squads, "_id");
+		const { squad } = match.params;
 
-		let content;
-		if (squad === "new") {
-			content = null;
-		} else if (squad) {
-			content = this.renderCurrentSquad();
+		//Determine page type
+		let pageType;
+		switch (squad) {
+			case "new":
+				pageType = "new";
+				break;
+			case undefined:
+				pageType = "root";
+				break;
+			default:
+				if (!squads[squad]) {
+					return <NotFoundPage />;
+				} else {
+					pageType = "edit";
+				}
+				break;
 		}
 
+		//Determine Content
+		let content;
+		if (pageType === "new") {
+			content = null;
+		} else if (pageType === "edit") {
+			const { _teamType } = squads[squad] || {};
+			content = [
+				this.renderCurrentSquad(),
+				<AdminTeamSquadBulkAdder
+					key="bulk"
+					squad={squad === "new" ? undefined : squad}
+					teamId={team._id}
+					gender={teamTypes[_teamType].gender}
+				/>
+			];
+		}
+
+		//Render
 		return (
 			<div className="container admin-team-squad-page">
 				<div className="block-card team-squad-list">{this.renderSquadSelector()}</div>
 				{content}
-				{squad && (
-					<AdminTeamSquadBulkAdder
-						squad={squad === "new" ? undefined : squad}
-						teamId={team._id}
-					/>
-				)}
 			</div>
 		);
 	}
