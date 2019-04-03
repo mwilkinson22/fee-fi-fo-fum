@@ -3,7 +3,9 @@ import {
 	FETCH_GAME_LIST,
 	UPDATE_GAME_BASICS,
 	SET_PREGAME_SQUADS,
-	FETCH_NEUTRAL_GAMES
+	FETCH_NEUTRAL_GAMES,
+	CRAWL_LOCAL_GAMES,
+	CRAWL_NEUTRAL_GAMES
 } from "./types";
 import { toast } from "react-toastify";
 
@@ -32,4 +34,14 @@ export const setPregameSquads = (id, values) => async (dispatch, getState, api) 
 	const res = await api.put(`/games/${id}/pregame/`, values);
 	toast.success("Squads saved");
 	dispatch({ type: SET_PREGAME_SQUADS, payload: res.data, slug: res.data.slug });
+};
+
+export const crawlLocalGames = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/crawl/local`);
+	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
+};
+
+export const crawlNeutralGames = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/crawl/local`);
+	dispatch({ type: CRAWL_NEUTRAL_GAMES, payload: res.data });
 };
