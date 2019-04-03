@@ -13,6 +13,8 @@ import requireAdmin from "../../middlewares/requireAdmin";
 
 module.exports = app => {
 	//Getters
+	app.get("/api/games/crawl/local", gamesController.crawlLocalGames);
+	app.get("/api/games/crawl/neutral", gamesController.crawlNeutralGames);
 	app.get("/api/games/neutral", gamesController.getNeutralGames);
 	app.get("/api/games/:ids", gamesController.getGames);
 	app.get("/api/games", gamesController.getList);

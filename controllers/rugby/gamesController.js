@@ -3,13 +3,15 @@ import mongoose from "mongoose";
 const collectionName = "games";
 const Game = mongoose.model(collectionName);
 const NeutralGame = mongoose.model("neutralGames");
+const Team = mongoose.model("teams");
 
 //Modules
 import _ from "lodash";
 import { getListsAndSlugs } from "../genericController";
+import { parse } from "node-html-parser";
 
 //Config
-const { localTeam } = require("../../config/keys");
+const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 
 //Getters
 export async function getList(req, res) {
@@ -36,7 +38,7 @@ export async function getNeutralGames(req, res) {
 }
 
 async function getUpdatedGame(id, res) {
-	//To be called after post/put methods
+	//To be called after post/put methodsl
 	const game = await Game.findById([id]).fullGame();
 	res.send({ [id]: game });
 }
@@ -116,4 +118,107 @@ export async function setPregameSquads(req, res) {
 
 		await getUpdatedGame(_id, res);
 	}
+}
+
+//External Getters
+async function crawlFixtures() {
+	const axios = require("axios");
+
+	const url = fixtureCrawlUrl;
+	const { data } = await axios.get(url);
+
+	const html = parse(data);
+	const list = html.querySelector(".row.matches").childNodes[1].childNodes;
+	const games = [];
+	let date;
+	for (const row of list) {
+		if (!row.tagName) {
+			continue;
+		}
+
+		if (row.tagName === "h3") {
+			const [dayText, day, month, year] = row.text.split(" ");
+			const dayNum = day.replace(/\D/g, "");
+			date = new Date(`${dayNum} ${month} ${year}`);
+		} else if (row.classNames.indexOf("fixture-card") > -1) {
+			const anchor = row.querySelector("a");
+			const externalId = anchor.rawAttributes.href.split("/").pop();
+			const [firstRow, secondRow, thirdRow] = _.reject(
+				anchor.childNodes,
+				n => n.tagName === undefined
+			);
+
+			//Date and time
+			let timeStringClass;
+			if (firstRow.querySelector(".uk-time")) {
+				timeStringClass = "uk-time";
+			} else {
+				timeStringClass = "middle";
+			}
+			const [hours, minutes] = firstRow
+				.querySelector(`.${timeStringClass}`)
+				.text.match(/\d+/g);
+			date.setHours(hours, minutes);
+
+			//Teams
+			const home = firstRow.querySelector(".left").text.trim();
+			const away = firstRow.querySelector(".right").text.trim();
+
+			//Round
+			const [ignore, roundStr] = secondRow.text.split("Round");
+			const round = roundStr && roundStr.replace(/\D/g, "");
+
+			//TV
+			let tv = null;
+			if (thirdRow && thirdRow.querySelector("img")) {
+				const tvImageName = thirdRow
+					.querySelector("img")
+					.rawAttributes.src.split("/")
+					.pop();
+				if (tvImageName.includes("sky-sports")) {
+					tv = "sky";
+				} else if (tvImageName.includes("bbc")) {
+					tv = "bbc";
+				}
+			}
+
+			//Core Game Object
+			games.push({
+				externalId,
+				date,
+				round,
+				home,
+				away,
+				tv
+			});
+		}
+	}
+	return games;
+}
+
+export async function crawlLocalGames(req, res) {
+	const games = await crawlFixtures();
+	const localTeamObject = await Team.findById(localTeam, "name.short");
+	const localTeamName = localTeamObject.name.short;
+	const filteredGames = _.chain(games)
+		.filter(g => [g.home, g.away].indexOf(localTeamName) > -1)
+		.map(g => ({
+			...g,
+			isAway: g.away === localTeamName,
+			_opposition: g.home === localTeamName ? g.away : g.home,
+			home: undefined,
+			away: undefined
+		}))
+		.value();
+	res.send(filteredGames);
+}
+
+export async function crawlNeutralGames(req, res) {
+	const games = await crawlFixtures();
+	const localTeamObject = await Team.findById(localTeam, "name.short");
+	const filteredGames = _.chain(games)
+		.reject(g => [g.home, g.away].indexOf(localTeamObject.name.short) > -1)
+		.map(g => ({ ...g, tv: undefined }))
+		.value();
+	res.send(filteredGames);
 }
