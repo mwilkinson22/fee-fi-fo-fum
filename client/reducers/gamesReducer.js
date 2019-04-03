@@ -2,7 +2,8 @@ import {
 	FETCH_GAMES,
 	UPDATE_GAME_BASICS,
 	SET_PREGAME_SQUADS,
-	FETCH_GAME_LIST
+	FETCH_GAME_LIST,
+	FETCH_NEUTRAL_GAMES
 } from "../actions/types";
 import { fixDates } from "../../helpers/gameHelper";
 
@@ -25,6 +26,12 @@ export default function(state = { fullGames: {} }, action) {
 			return {
 				...state,
 				...action.payload
+			};
+
+		case FETCH_NEUTRAL_GAMES:
+			return {
+				...state,
+				neutral: action.payload
 			};
 
 		default:

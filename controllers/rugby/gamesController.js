@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 const collectionName = "games";
 const Game = mongoose.model(collectionName);
+const NeutralGame = mongoose.model("neutralGames");
 
 //Modules
 import _ from "lodash";
@@ -27,6 +28,11 @@ export async function getGames(req, res) {
 	}).fullGame();
 
 	res.send(_.keyBy(games, "_id"));
+}
+
+export async function getNeutralGames(req, res) {
+	const games = await NeutralGame.find({});
+	res.send(games);
 }
 
 async function getUpdatedGame(id, res) {
