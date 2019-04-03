@@ -23,13 +23,10 @@ import "./models/SlugRedirect";
 import "./models/rugby";
 import "./models/NewsPost";
 
-mongoose.connect(
-	keys.mongoURI,
-	{
-		useNewUrlParser: true,
-		useCreateIndex: true
-	}
-);
+mongoose.connect(keys.mongoURI, {
+	useNewUrlParser: true,
+	useCreateIndex: true
+});
 
 const app = express();
 

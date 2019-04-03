@@ -1,4 +1,5 @@
 import { FETCH_ALL_TEAM_TYPES, FETCH_ALL_TEAMS, UPDATE_TEAM, FETCH_TEAM } from "./types";
+import { toast } from "react-toastify";
 
 export const fetchTeamList = () => async (dispatch, getState, api) => {
 	const res = await api.get("/teams");
@@ -22,15 +23,18 @@ export const updateTeam = (id, values) => async (dispatch, getState, api) => {
 
 export const updateTeamSquad = (team_id, squad_id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/teams/${team_id}/squad/${squad_id}`, data);
+	toast.success("Squad updated");
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
 };
 
 export const appendTeamSquad = (team_id, squad_id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/teams/${team_id}/squad/${squad_id}/append`, data);
+	toast.success("Squad updated");
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
 };
 
 export const createTeamSquad = (team_id, data) => async (dispatch, getState, api) => {
 	const res = await api.post(`/teams/${team_id}/squad`, data);
+	toast.success("Squad created");
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
 };

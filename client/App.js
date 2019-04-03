@@ -7,6 +7,7 @@ import { renderRoutes } from "react-router-config";
 import { fetchUser } from "./actions/userActions";
 
 //Components
+import { ToastContainer, toast } from "react-toastify";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -45,6 +46,7 @@ class App extends Component {
 				<ScrollToTop>
 					<Header />
 					{renderRoutes(route.routes)}
+					<ToastContainer position="bottom-right" />
 				</ScrollToTop>
 			</div>
 		);
