@@ -31,7 +31,7 @@ export default function(state = { fullGames: {} }, action) {
 		case FETCH_NEUTRAL_GAMES:
 			return {
 				...state,
-				neutral: action.payload
+				neutralGames: action.payload
 			};
 
 		default:

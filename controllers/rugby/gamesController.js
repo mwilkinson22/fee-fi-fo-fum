@@ -31,7 +31,10 @@ export async function getGames(req, res) {
 }
 
 export async function getNeutralGames(req, res) {
-	const games = await NeutralGame.find({});
+	const games = await NeutralGame.find({})
+		.populate({ path: "home", select: "name image" })
+		.populate({ path: "away", select: "name image" })
+		.populate({ path: "_competition", select: "name" });
 	res.send(games);
 }
 

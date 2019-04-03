@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const neutralGameSchema = new Schema({
-	_competition: { type: Schema.Types.ObjectId, ref: "competition.segments" },
+	_competition: { type: Schema.Types.ObjectId, ref: "competitionSegments" },
 	date: Date,
 	_homeTeam: { type: Schema.Types.ObjectId, ref: "teams" },
 	_awayTeam: { type: Schema.Types.ObjectId, ref: "teams" },
