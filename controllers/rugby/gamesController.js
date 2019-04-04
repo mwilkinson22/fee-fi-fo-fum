@@ -15,7 +15,7 @@ const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 
 //Getters
 export async function getList(req, res) {
-	const games = await Game.find({}, "date _teamType slug").lean();
+	const games = await Game.find({}, "date _teamType slug _competition").lean();
 
 	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
 	res.send({ gameList: list, slugMap });
@@ -38,7 +38,7 @@ export async function getNeutralGames(req, res) {
 }
 
 async function getUpdatedGame(id, res) {
-	//To be called after post/put methodsl
+	//To be called after post/put methods
 	const game = await Game.findById([id]).fullGame();
 	res.send({ [id]: game });
 }
