@@ -137,12 +137,10 @@ class HomePage extends Component {
 						{this.generateGames()}
 						<div>
 							<h2>League Table</h2>
-							{/*
 							<LeagueTable
 								competition={superLeagueId}
 								year={new Date().getFullYear()}
 							/>
-							*/}
 						</div>
 					</div>
 				</section>
@@ -153,11 +151,7 @@ class HomePage extends Component {
 }
 
 async function loadData(store) {
-	await Promise.all([
-		store.dispatch(fetchPostList()),
-		store.dispatch(fetchGameList())
-		// store.dispatch(fetchLeagueTable(superLeagueId, new Date().getFullYear()))
-	]);
+	await Promise.all([store.dispatch(fetchPostList()), store.dispatch(fetchGameList())]);
 	const { gameList } = store.getState().games;
 
 	return store.dispatch(fetchGames(HomePage.getGameIds(gameList)));

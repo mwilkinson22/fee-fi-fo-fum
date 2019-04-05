@@ -1,21 +1,29 @@
 .league-table {
-	@include noTextSelect;
 	width: 100%;
-	max-width: 100%;
 	th,
 	td {
-		padding: 8pt;
-		text-align: center;
 		vertical-align: middle;
 	}
-	thead {
-		tr {
-			background: #29426e;
-			color: white;
-		}
+	thead th {
+		position: relative;
+		text-align: center;
 	}
 	tbody {
 		tr {
+			border-color: rgba(black, 0.05);
+			th,
+			td {
+				background: transparent;
+				color: inherit;
+				padding-top: 8pt;
+				padding-bottom: 8pt;
+			}
+			&:hover {
+				th,
+				td {
+					background: rgba(black, 0.05);
+				}
+			}
 			background: white;
 			&.champions {
 				background: #518c56;
@@ -52,11 +60,30 @@
 			}
 		}
 	}
+	@media #{$desktop-and-tablet} {
+		thead th {
+			padding-top: 16pt;
+			padding-bottom: 16pt;
+			.competition-logo {
+				position: absolute;
+				padding: 6pt;
+				z-index: 2;
+				max-height: 100%;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				margin: auto;
+			}
+		}
+	}
 	@media #{$mobile-only} {
 		.team-name,
 		.Pld,
 		.F,
 		.A {
+			display: none;
+		}
+		.competition-logo {
 			display: none;
 		}
 	}
