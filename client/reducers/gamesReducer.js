@@ -31,6 +31,7 @@ export default function(state = { fullGames: {} }, action) {
 			};
 
 		case FETCH_NEUTRAL_GAMES:
+			fixDates(action.payload);
 			return {
 				...state,
 				neutralGames: action.payload
