@@ -33,15 +33,28 @@ class Table extends Component {
 	}
 
 	processHead() {
-		const { columns, stickyHead, defaultSortable, sortBy, defaultAscSort } = this.state;
+		const {
+			columns,
+			stickyHead,
+			defaultSortable,
+			sortBy,
+			defaultAscSort,
+			keyAsClassName,
+			headerStyling,
+			initialHeaderSpan
+		} = this.state;
 		return (
 			<thead className={stickyHead ? "sticky" : ""}>
 				<tr>
-					{columns.map(column => {
+					{columns.map((column, i) => {
 						const isSortable =
 							column.sortable === undefined ? defaultSortable : column.sortable;
 
-						const classNames = [isSortable ? "sortable" : "", column.className || ""];
+						const classNames = [
+							isSortable ? "sortable" : "",
+							keyAsClassName ? column.key : "",
+							column.className || ""
+						];
 
 						let useAscArrow;
 						if (sortBy && sortBy.key === column.key) {
@@ -54,12 +67,19 @@ class Table extends Component {
 									: defaultAscSort;
 						}
 
+						//Skip in case of column span
+						if (i !== 0 && i < initialHeaderSpan) {
+							return null;
+						}
+
 						return (
 							<th
 								key={column.key}
 								onClick={isSortable ? () => this.handleSort(column.key) : null}
 								className={classNames.filter(Boolean).join(" ")}
 								title={column.title || null}
+								style={headerStyling}
+								colSpan={i === 0 ? initialHeaderSpan : 1}
 							>
 								{column.label}
 								{isSortable ? (
@@ -74,7 +94,7 @@ class Table extends Component {
 	}
 
 	processBody() {
-		let { columns, rows, sortBy, labelAsDefaultTitle } = this.state;
+		let { columns, rows, sortBy, labelAsDefaultTitle, keyAsClassName } = this.state;
 		//Reorder rows
 		if (sortBy && sortBy.key) {
 			rows = _.sortBy(rows, row => {
@@ -99,6 +119,10 @@ class Table extends Component {
 							{columns.map(column => {
 								const data = row.data[column.key];
 								const cellProps = { key: `${row.key}-${column.key}` };
+
+								if (keyAsClassName) {
+									cellProps.className = column.key;
+								}
 
 								//Handle missing values
 								if (data === undefined) {
@@ -165,7 +189,8 @@ Table.propTypes = {
 	columns: PropTypes.arrayOf(
 		PropTypes.shape({
 			key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-			label: PropTypes.string.isRequired,
+			label: PropTypes.node.isRequired,
+			title: PropTypes.string,
 			sortable: PropTypes.bool,
 			defaultAscSort: PropTypes.bool,
 			dataUsesTh: PropTypes.bool
@@ -195,7 +220,13 @@ Table.propTypes = {
 		asc: PropTypes.bool.isRequired
 	}),
 	stickyHead: PropTypes.bool,
-	stickyFoot: PropTypes.bool
+	stickyFoot: PropTypes.bool,
+	keyAsClassName: PropTypes.bool,
+	headerStyling: PropTypes.shape({
+		background: PropTypes.string,
+		text: PropTypes.string
+	}),
+	initialHeaderSpan: PropTypes.number
 };
 
 Table.defaultProps = {
@@ -203,7 +234,10 @@ Table.defaultProps = {
 	defaultAscSort: false,
 	labelAsDefaultTitle: false,
 	stickyHead: false,
-	stickyFoot: false
+	stickyFoot: false,
+	keyAsClassName: false,
+	headerStyling: {},
+	initialHeaderSpan: 1
 };
 
 export default Table;

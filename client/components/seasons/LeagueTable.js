@@ -1,103 +1,310 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchLeagueTable } from "../../actions/seasonActions";
+import { fetchGames, fetchNeutralGames, fetchGameList } from "../../actions/gamesActions";
+import { fetchTeamList } from "../../actions/teamsActions";
+import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import LoadingPage from "../../components/LoadingPage";
-import { teamImagePath } from "../../extPaths";
+import { competitionImagePath, teamImagePath } from "../../extPaths";
+import { validateGameDate } from "~/helpers/gameHelper";
+import Table from "../Table";
 
 class LeagueTable extends Component {
 	constructor(props) {
 		super(props);
-		const { competition, year, fetchLeagueTable, leagueTables, fromDate, toDate } = props;
-		const key = [competition, year, fromDate, toDate].join("-");
-		const leagueTable = leagueTables[key];
-		if (!leagueTable) {
-			fetchLeagueTable(competition, year, fromDate, toDate);
+		const {
+			gameList,
+			fetchGameList,
+			neutralGames,
+			fetchNeutralGames,
+			teamList,
+			fetchTeamList,
+			competitionSegmentList,
+			fetchAllCompetitionSegments
+		} = props;
+
+		if (!gameList) {
+			fetchGameList();
 		}
-		this.state = { leagueTable };
+
+		if (!neutralGames) {
+			fetchNeutralGames();
+		}
+
+		if (!teamList) {
+			fetchTeamList();
+		}
+
+		if (!competitionSegmentList) {
+			fetchAllCompetitionSegments();
+		}
+
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { competition, year, fetchLeagueTable, leagueTables, fromDate, toDate } = nextProps;
-		const key = [competition, year, fromDate, toDate].join("-");
-		const leagueTable = leagueTables[key];
-		if (!leagueTable) {
-			fetchLeagueTable(competition, year, fromDate, toDate);
+		const {
+			gameList,
+			neutralGames,
+			teamList,
+			competitionSegmentList,
+			fullGames,
+			fetchGames,
+			competition,
+			year,
+			localTeam
+		} = nextProps;
+		const newState = {};
+
+		if (!gameList || !neutralGames || !teamList || !competitionSegmentList) {
+			return newState;
 		}
-		return { leagueTable };
+		//Get Competition Info
+		newState.segment = _.find(competitionSegmentList, c => c._id === competition);
+		newState.instance = _.find(
+			newState.segment.instances,
+			instance => instance.year == year || instance.year === null
+		);
+
+		//Set Columns
+		const logo = newState.instance.image ? (
+			<img
+				src={competitionImagePath + newState.instance.image}
+				className="competition-logo"
+			/>
+		) : (
+			""
+		);
+		newState.columns = [
+			{ key: "position", label: logo, dataUsesTh: true },
+			{ key: "team-badge", label: "", dataUsesTh: true },
+			{ key: "team-name", label: "", dataUsesTh: true },
+			{ key: "Pld", label: "Pld", title: "Games Played" },
+			{ key: "W", label: "W", title: "Wins" },
+			{ key: "D", label: "D", title: "Draws" },
+			{ key: "L", label: "L", title: "Losses" },
+			{ key: "F", label: "F", title: "Points Difference" },
+			{ key: "A", label: "A", title: "Points Against" },
+			{ key: "Diff", label: "Diff", title: "Points For" },
+			{ key: "Pts", label: "Pts", title: "Points" }
+		];
+
+		//Set segment as variable, to enable for point inheritance
+		let activeCompetitionSegment = competition;
+		let localGameIds = [];
+		let filteredNeutralGames = [];
+
+		while (activeCompetitionSegment) {
+			const l = _.chain(gameList)
+				.filter(
+					game =>
+						game._competition === activeCompetitionSegment &&
+						validateGameDate(game, "results", year)
+				)
+				.map(game => game._id)
+				.value();
+
+			const n = _.chain(neutralGames)
+				.filter(
+					game =>
+						game._competition === activeCompetitionSegment &&
+						validateGameDate(game, "results", year)
+				)
+				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints"]))
+				.value();
+
+			localGameIds.push(...l);
+			filteredNeutralGames.push(...n);
+			activeCompetitionSegment = activeCompetitionSegment._pointsCarriedFrom;
+		}
+
+		const gamesToLoad = _.reject(_.flatten(localGameIds), id => fullGames[id]);
+
+		if (gamesToLoad.length) {
+			fetchGames(gamesToLoad);
+		} else {
+			const filteredLocalGames = _.chain(localGameIds)
+				.map(id => {
+					const { isAway, _opposition, score } = fullGames[id];
+					if (!score) {
+						return null;
+					}
+
+					//Return in the same format as a neutral game, for ease of parsing
+					const _homeTeam = isAway ? _opposition._id : localTeam;
+					const _awayTeam = isAway ? localTeam : _opposition._id;
+					const homePoints = score[_homeTeam];
+					const awayPoints = score[_awayTeam];
+
+					return {
+						_homeTeam,
+						_awayTeam,
+						homePoints,
+						awayPoints
+					};
+				})
+				.filter(_.identity)
+				.value();
+
+			newState.games = [...filteredNeutralGames, ...filteredLocalGames];
+		}
+
+		return newState;
+	}
+
+	createRowForTeam(id) {
+		const { teamList } = this.props;
+		const { columns, instance } = this.state;
+		const teamHasAdjustment = _.find(instance.adjustments, a => a._team === id);
+		const row = _.chain(columns)
+			.map(column => {
+				const { key } = column;
+				const team = teamList[id];
+				let value;
+				switch (key) {
+					case "team-name":
+						value = team.name.short;
+						break;
+					case "team-badge":
+						value = (
+							<img src={`${teamImagePath}${team.image}`} className="team-badge" />
+						);
+						break;
+					case "Pts":
+						value = teamHasAdjustment ? teamHasAdjustment.adjustment : 0;
+						break;
+					default:
+						value = 0;
+				}
+				return [key, value];
+			})
+			.fromPairs()
+			.value();
+
+		return row;
+	}
+
+	addGamesToRows(rows) {
+		//Add basic details
+		_.each(this.state.games, game => {
+			const { _homeTeam, _awayTeam, homePoints, awayPoints } = game;
+			//Ensure rows exist
+			if (!rows[_homeTeam]) {
+				rows[_homeTeam] = this.createRowForTeam(_homeTeam);
+			}
+			if (!rows[_awayTeam]) {
+				rows[_awayTeam] = this.createRowForTeam(_awayTeam);
+			}
+
+			const home = rows[_homeTeam];
+			const away = rows[_awayTeam];
+
+			//Set Points
+			home.F += homePoints;
+			home.A += awayPoints;
+			away.F += awayPoints;
+			away.A += homePoints;
+
+			//Set result
+			if (homePoints > awayPoints) {
+				home.W++;
+				away.L++;
+			} else if (awayPoints > homePoints) {
+				home.L++;
+				away.W++;
+			} else {
+				home.D++;
+				away.D++;
+			}
+		});
+
+		//Calculate Totals
+		_.each(rows, row => {
+			row.Pld = row.W + row.D + row.L;
+			row.Pts += row.W * 2 + row.D; //Increment here to allow for adjustments
+			row.Diff = row.F - row.A;
+		});
+	}
+
+	formatRowsForTable(rows) {
+		const { instance } = this.state;
+		const { localTeam } = this.props;
+		return _.chain(rows)
+			.map((values, key) => {
+				return {
+					key,
+					data: _.mapValues(values, v => ({ content: v }))
+				};
+			})
+			.orderBy(
+				["data.Pts.content", "data.PD.content", "data.PF.content"],
+				["desc", "desc", "asc"]
+			)
+			.map((row, pos) => {
+				row.data.position.content = pos + 1;
+				const rowClass = _.find(
+					instance.leagueTableColours,
+					p => p.position.indexOf(pos + 1) > -1
+				);
+				if (row.key === localTeam) {
+					row.className = "local";
+				} else if (rowClass) {
+					row.className = rowClass.className;
+				}
+				return row;
+			})
+			.value();
 	}
 
 	render() {
-		const { leagueTable } = this.state;
-		if (!leagueTable) {
-			return <LoadingPage />;
-		} else {
-			const columns = {
-				Pld: "Games Played",
-				W: "Wins",
-				D: "Draws",
-				L: "Losses",
-				F: "Points Scored",
-				A: "Points Conceded",
-				Diff: "Points Difference",
-				Pts: "Points"
-			};
+		const { games, instance, columns } = this.state;
 
-			return (
-				<table className="league-table card">
-					<thead>
-						<tr>
-							<th className="position" />
-							<th className="team-badge" />
-							<th className="team-name" />
-							{_.map(columns, (title, header) => (
-								<th title={title} key={header} className={header}>
-									{header}
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{_.map(leagueTable.teams, team => {
-							const { _id, name, position, classNames, image } = team;
-							if (_id === this.props.localTeam) {
-								classNames.push("local");
-							}
-							return (
-								<tr key={position} className={classNames.join(" ")}>
-									<th className="position">{position}</th>
-									<th className="team-badge">
-										<img src={`${teamImagePath}${image}`} />
-									</th>
-									<th className="team-name">{name}</th>
-									{_.map(columns, (title, key) => {
-										return (
-											<td
-												key={name + key}
-												title={`${name} ${title}`}
-												className={key}
-											>
-												{team[key]}
-											</td>
-										);
-									})}
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			);
+		if (!games) {
+			return <LoadingPage />;
 		}
+
+		//Get initial rows
+		const rows = {};
+		if (instance.teams) {
+			_.each(instance.teams, id => {
+				rows[id] = this.createRowForTeam(id);
+			});
+		}
+
+		//Process
+		this.addGamesToRows(rows);
+
+		//Return Table
+		return (
+			<Table
+				className="league-table"
+				columns={columns}
+				rows={this.formatRowsForTable(rows)}
+				defaultSortable={false}
+				keyAsClassName={true}
+				headerStyling={instance.customStyling}
+			/>
+		);
 	}
 }
 
-function mapStateToProps({ config, seasons }, ownProps) {
-	const { leagueTables } = seasons;
+function mapStateToProps({ config, games, teams, competitions }, ownProps) {
+	const { teamList } = teams;
+	const { competitionSegmentList } = competitions;
+	const { neutralGames, gameList, fullGames } = games;
 	const { localTeam } = config;
-	return { leagueTables, localTeam, ...ownProps };
+	return {
+		teamList,
+		neutralGames,
+		gameList,
+		fullGames,
+		localTeam,
+		competitionSegmentList,
+		...ownProps
+	};
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchLeagueTable }
+	{ fetchNeutralGames, fetchTeamList, fetchGames, fetchGameList, fetchAllCompetitionSegments }
 )(LeagueTable);
