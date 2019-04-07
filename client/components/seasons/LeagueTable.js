@@ -90,40 +90,14 @@ class LeagueTable extends Component {
 		];
 
 		//Set segment as variable, to enable for point inheritance
-		let activeCompetitionSegment = competition;
-		let localGameIds = [];
-		let filteredNeutralGames = [];
+		const competitionSegment = _.find(competitionSegmentList, c => c._id == competition);
+		const games = LeagueTable.getGames(competitionSegment, year, gameList, neutralGames);
 
-		while (activeCompetitionSegment) {
-			const l = _.chain(gameList)
-				.filter(
-					game =>
-						game._competition === activeCompetitionSegment &&
-						validateGameDate(game, "results", year)
-				)
-				.map(game => game._id)
-				.value();
-
-			const n = _.chain(neutralGames)
-				.filter(
-					game =>
-						game._competition === activeCompetitionSegment &&
-						validateGameDate(game, "results", year)
-				)
-				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints"]))
-				.value();
-
-			localGameIds.push(...l);
-			filteredNeutralGames.push(...n);
-			activeCompetitionSegment = activeCompetitionSegment._pointsCarriedFrom;
-		}
-
-		const gamesToLoad = _.reject(_.flatten(localGameIds), id => fullGames[id]);
-
+		const gamesToLoad = _.reject(games.local, id => fullGames[id]);
 		if (gamesToLoad.length) {
 			fetchGames(gamesToLoad);
 		} else {
-			const filteredLocalGames = _.chain(localGameIds)
+			games.local = _.chain(games.local)
 				.map(id => {
 					const { isAway, _opposition, score } = fullGames[id];
 					if (!score) {
@@ -145,11 +119,41 @@ class LeagueTable extends Component {
 				})
 				.filter(_.identity)
 				.value();
-
-			newState.games = [...filteredNeutralGames, ...filteredLocalGames];
+			newState.games = [...games.local, ...games.neutral];
 		}
 
 		return newState;
+	}
+
+	static getGames(competitionSegment, year, gameList, neutralGames) {
+		const games = {
+			local: [],
+			neutral: []
+		};
+		while (competitionSegment) {
+			const l = _.chain(gameList)
+				.filter(
+					game =>
+						game._competition === competitionSegment._id &&
+						validateGameDate(game, "results", year)
+				)
+				.map(game => game._id)
+				.value();
+
+			const n = _.chain(neutralGames)
+				.filter(
+					game =>
+						game._competition === competitionSegment._id &&
+						validateGameDate(game, "results", year)
+				)
+				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints"]))
+				.value();
+
+			games.local.push(...l);
+			games.neutral.push(...n);
+			competitionSegment = competitionSegment._pointsCarriedFrom;
+		}
+		return games;
 	}
 
 	createRowForTeam(id) {
