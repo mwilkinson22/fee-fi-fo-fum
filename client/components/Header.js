@@ -72,6 +72,7 @@ class Header extends Component {
 					subMenuRootLink: "/admin/",
 					subMenu: {
 						Games: "games",
+						"Neutral Games": "neutralGames",
 						Teams: "teams"
 					}
 				},
