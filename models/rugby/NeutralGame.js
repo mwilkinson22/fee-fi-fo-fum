@@ -9,6 +9,7 @@ const neutralGameSchema = new Schema({
 	homePoints: { type: Number, default: null },
 	awayPoints: { type: Number, default: null },
 	neutralGround: { type: Boolean, default: false },
+	_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes" },
 	rflFixtureId: Number
 });
 

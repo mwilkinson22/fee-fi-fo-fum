@@ -102,6 +102,7 @@ body {
 .table {
 	@include noTextSelect;
 	box-shadow: 2pt 2pt 2pt rgba(black, 0.4);
+	width: 100%;
 	th,
 	td {
 		padding: 4pt 8pt;
@@ -298,7 +299,8 @@ a.card:hover {
 	}
 }
 
-button {
+button,
+.button {
 	background: #333;
 	color: white;
 	font-size: 12pt;
