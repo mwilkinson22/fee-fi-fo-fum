@@ -7,6 +7,7 @@ import { Switch, Route } from "react-router-dom";
 import NotFoundPage from "../../pages/NotFoundPage";
 import Logout from "./Logout";
 
+import AdminNeutralGameList from "../../pages/AdminNeutralGameList";
 import AdminNeutralGamePage from "../../pages/AdminNeutralGamePage";
 
 import AdminGameList from "../../pages/AdminGameList";
@@ -20,12 +21,13 @@ class AdminRouter extends Component {
 		if (this.props.authUser) {
 			return (
 				<Switch>
+					<Route path="/admin/neutralGame/:id" component={AdminNeutralGamePage} />
 					<Route
 						path="/admin/neutralGames/:year/:teamType"
-						component={AdminNeutralGamePage}
+						component={AdminNeutralGameList}
 					/>
-					<Route path="/admin/neutralGames/:year" component={AdminNeutralGamePage} />
-					<Route path="/admin/neutralGames/" component={AdminNeutralGamePage} />
+					<Route path="/admin/neutralGames/:year" component={AdminNeutralGameList} />
+					<Route path="/admin/neutralGames/" component={AdminNeutralGameList} />
 
 					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />

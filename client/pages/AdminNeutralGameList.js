@@ -9,7 +9,7 @@ import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions
 import NeutralGameList from "../components/admin/neutralGames/NeutralGameList";
 import HelmetBuilder from "../components/HelmetBuilder";
 
-class AdminNeutralGamePage extends Component {
+class AdminNeutralGameList extends Component {
 	constructor(props) {
 		super(props);
 		const {
@@ -187,4 +187,4 @@ function mapStateToProps({ games, teams, competitions }) {
 export default connect(
 	mapStateToProps,
 	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames }
-)(AdminNeutralGamePage);
+)(AdminNeutralGameList);
