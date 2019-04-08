@@ -293,3 +293,21 @@
 		}
 	}
 }
+
+.neutral-game-table {
+	th,
+	td,
+	.team-badge {
+		text-align: center;
+		img {
+			max-height: 30pt;
+		}
+	}
+
+	input {
+		border: solid thin #333;
+		border-radius: 4pt;
+		padding: 2pt 4pt;
+		font-size: 1.1em;
+	}
+}

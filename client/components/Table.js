@@ -120,9 +120,16 @@ class Table extends Component {
 								const data = row.data[column.key];
 								const cellProps = { key: `${row.key}-${column.key}` };
 
+								//Classes
+								const classNames = [];
 								if (keyAsClassName) {
-									cellProps.className = column.key;
+									classNames.push(column.key);
 								}
+								if (column.className) {
+									classNames.push(column.className);
+								}
+
+								cellProps.className = classNames.join(" ");
 
 								//Handle missing values
 								if (data === undefined) {
