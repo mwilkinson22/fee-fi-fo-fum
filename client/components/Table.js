@@ -193,7 +193,8 @@ Table.propTypes = {
 			title: PropTypes.string,
 			sortable: PropTypes.bool,
 			defaultAscSort: PropTypes.bool,
-			dataUsesTh: PropTypes.bool
+			dataUsesTh: PropTypes.bool,
+			className: PropTypes.string
 		})
 	).isRequired,
 	rows: PropTypes.arrayOf(
