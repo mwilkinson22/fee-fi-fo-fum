@@ -3,7 +3,6 @@ import { Field, ErrorMessage } from "formik";
 import Boolean from "./Boolean";
 import Radio from "./Radio";
 import Select from "./Select";
-import Form from "../games/AdminGameOverview";
 
 export default class FormField extends Component {
 	render() {
