@@ -25,6 +25,7 @@ module.exports = app => {
 	app.put("/api/games/:_id/pregame", requireAdmin, gamesController.setPregameSquads);
 
 	//Post
+	app.post("/api/games/neutral", requireAdmin, gamesController.createNeutralGames);
 	app.post("/api/games", requireAdmin, async (req, res) => {
 		const { data } = req.body;
 

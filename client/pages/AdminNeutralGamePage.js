@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
-import { fetchNeutralGames, updateNeutralGames } from "../actions/gamesActions";
+import { fetchNeutralGames, updateNeutralGames, createNeutralGames } from "../actions/gamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import { Formik, Form } from "formik";
@@ -46,19 +46,25 @@ class AdminNeutralGameList extends Component {
 			return {};
 		}
 
-		let game = _.find(neutralGames, g => g._id === match.params.id) || false;
-		if (game) {
-			game = _.cloneDeep(game);
-			game._homeTeam = teamList[game._homeTeam];
-			game._awayTeam = teamList[game._awayTeam];
+		const newState = {};
+
+		newState.isNew = match.params.id === "new";
+
+		if (!newState.isNew) {
+			const game = _.find(neutralGames, g => g._id === match.params.id) || false;
+			if (game) {
+				newState.game = _.cloneDeep(game);
+				newState.game._homeTeam = teamList[game._homeTeam];
+				newState.game._awayTeam = teamList[game._awayTeam];
+			}
 		}
 
-		return { game };
+		return newState;
 	}
 
 	handleSubmit(values) {
 		const { game } = this.state;
-		const { updateNeutralGames } = this.props;
+		const { createNeutralGames, updateNeutralGames } = this.props;
 
 		//Fix Date
 		values.date = `${values.date} ${values.time}`;
@@ -73,28 +79,40 @@ class AdminNeutralGameList extends Component {
 				return v;
 			}
 		});
-		updateNeutralGames({ [game._id]: values });
+
+		if (game) {
+			updateNeutralGames({ [game._id]: values });
+		} else {
+			createNeutralGames([values]);
+		}
 	}
 
 	generatePageTitle() {
-		const { _homeTeam, _awayTeam, date } = this.state.game;
-		return `${_homeTeam.name.short} vs ${_awayTeam.name.short} - ${date.toString(
-			"ddd dS MMM yyyy"
-		)}`;
+		const { game } = this.state;
+		if (game) {
+			const { _homeTeam, _awayTeam, date } = this.state.game;
+			return `${_homeTeam.name.short} vs ${_awayTeam.name.short} - ${date.toString(
+				"ddd dS MMM yyyy"
+			)}`;
+		} else {
+			return "New Neutral Game";
+		}
 	}
 
 	generatePageHeader() {
-		const { date, _teamType } = this.state.game;
-		const { teamTypes } = this.props;
-		const urlYear = date.getFullYear();
-		const urlSlug = teamTypes[_teamType].slug;
+		const { game } = this.state;
+		let url = `/admin/neutralGames`;
+		if (game) {
+			const { date, _teamType } = game;
+			const { teamTypes } = this.props;
+			const urlYear = date.getFullYear();
+			const urlSlug = teamTypes[_teamType].slug;
+			url += `/${urlYear}/${urlSlug}`;
+		}
 		return (
 			<section className="page-header">
 				<div className="container">
-					<Link
-						className="nav-card card"
-						to={`/admin/neutralGames/${urlYear}/${urlSlug}`}
-					>
+					<Link className="nav-card card" to={url}>
 						↩ Return to game list
 					</Link>
 					<h1>{this.generatePageTitle()}</h1>
@@ -115,11 +133,19 @@ class AdminNeutralGameList extends Component {
 			_competition: Yup.string()
 				.required()
 				.label("Competition"),
-			_homeTeam: Yup.string()
+			_homeTeam: Yup.mixed()
 				.required()
+				.test("isUnique", "Home Team and Away Team cannot match", function(_homeTeam) {
+					const { _awayTeam } = this.parent;
+					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
+				})
 				.label("Home Team"),
-			_awayTeam: Yup.string()
+			_awayTeam: Yup.mixed()
 				.required()
+				.test("isUnique", "Home Team and Away Team cannot match", function(_awayTeam) {
+					const { _homeTeam } = this.parent;
+					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
+				})
 				.label("Away Team"),
 			homePoints: Yup.number()
 				.min(0)
@@ -173,6 +199,17 @@ class AdminNeutralGameList extends Component {
 				homePoints: game.homePoints,
 				awayPoints: game.awayPoints
 			};
+		} else {
+			return {
+				date: "",
+				time: "",
+				_teamType: "",
+				_competition: "",
+				_homeTeam: "",
+				_awayTeam: "",
+				homePoints: "",
+				awayPoints: ""
+			};
 		}
 	}
 
@@ -221,13 +258,13 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { game } = this.state;
+		const { game, isNew } = this.state;
 
-		if (game === undefined) {
+		if (game === undefined && !isNew) {
 			return <LoadingPage />;
 		}
 
-		if (!game) {
+		if (!game && !isNew) {
 			return <NotFoundPage error={"Game not found"} />;
 		}
 
@@ -303,5 +340,11 @@ function mapStateToProps({ config, games, teams, competitions }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames, updateNeutralGames }
+	{
+		fetchAllCompetitionSegments,
+		fetchTeamList,
+		fetchNeutralGames,
+		createNeutralGames,
+		updateNeutralGames
+	}
 )(AdminNeutralGameList);

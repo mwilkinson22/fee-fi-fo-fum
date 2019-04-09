@@ -25,6 +25,12 @@ export const fetchNeutralGames = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_NEUTRAL_GAMES, payload: res.data });
 };
 
+export const createNeutralGames = data => async (dispatch, getState, api) => {
+	const res = await api.post("/games/neutral", data);
+	toast.success("Game Created");
+	dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
+};
+
 export const updateNeutralGames = data => async (dispatch, getState, api) => {
 	const res = await api.put("/games/neutral", data);
 	toast.success("Games Updated");

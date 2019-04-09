@@ -40,6 +40,7 @@ export default class FormField extends Component {
 						field={field}
 						options={options}
 						onChange={option => {
+							form.setFieldTouched(field.name, true);
 							form.setFieldValue(field.name, option);
 						}}
 						disabled={disabled}

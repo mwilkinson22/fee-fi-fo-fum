@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
 import { fetchNeutralGames } from "../actions/gamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
@@ -162,6 +162,9 @@ class AdminNeutralGameList extends Component {
 				</section>
 				<section className="neutral-game-list">
 					<div className="container">
+						<Link className="nav-card card" to={`/admin/neutralGame/new`}>
+							Manually add a new game
+						</Link>
 						{gamesToEditSection}
 						<h3>All Games</h3>
 						<NeutralGameList games={games} />

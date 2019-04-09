@@ -126,8 +126,17 @@ async function getUpdatedNeutralGames(ids, res) {
 	res.send(_.keyBy(games, "_id"));
 }
 
+export async function createNeutralGames(req, res) {
+	const bulkOperation = _.map(req.body, (document, id) => {
+		return {
+			insertOne: { document }
+		};
+	});
+	const newGames = await NeutralGame.bulkWrite(bulkOperation);
+	await getUpdatedNeutralGames(_.values(newGames.insertedIds), res);
+}
+
 export async function updateNeutralGames(req, res) {
-	console.log(req.body);
 	const bulkOperation = _.map(req.body, (data, id) => {
 		return {
 			updateOne: {
