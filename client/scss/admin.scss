@@ -82,6 +82,14 @@
 		&:hover {
 			background: #ddd;
 		}
+
+		&.delete {
+			color: white;
+			background: #900;
+			&:hover {
+				background: #700;
+			}
+		}
 	}
 
 	// Field Types
