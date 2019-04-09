@@ -90,6 +90,9 @@ class AdminNeutralGameList extends Component {
 			updateNeutralGames({ [game._id]: values });
 		} else {
 			createNeutralGames([values]);
+			this.setState({
+				redirect: `${new Date(values.date).getFullYear()}/${values._teamType}`
+			});
 		}
 	}
 
@@ -97,7 +100,7 @@ class AdminNeutralGameList extends Component {
 		const { game } = this.state;
 		const { deleteNeutralGame } = this.props;
 		deleteNeutralGame(game._id);
-		this.setState({ redirect: true });
+		this.setState({ redirect: `${game.date.getFullYear()}/${game._teamType}` });
 	}
 
 	generatePageTitle() {
@@ -274,7 +277,7 @@ class AdminNeutralGameList extends Component {
 		const { game, isNew, redirect } = this.state;
 
 		if (redirect) {
-			return <Redirect to="/admin/neutralGames" />;
+			return <Redirect to={`/admin/neutralGames/${redirect}`} />;
 		}
 
 		if (game === undefined && !isNew) {
