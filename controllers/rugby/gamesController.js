@@ -34,7 +34,7 @@ export async function getGames(req, res) {
 
 export async function getNeutralGames(req, res) {
 	const games = await NeutralGame.find({});
-	res.send(games);
+	res.send(_.keyBy(games, "_id"));
 }
 
 async function getUpdatedGame(id, res) {
@@ -118,6 +118,26 @@ export async function setPregameSquads(req, res) {
 
 		await getUpdatedGame(_id, res);
 	}
+}
+
+async function getUpdatedNeutralGames(ids, res) {
+	//To be called after post/put methods
+	const games = await NeutralGame.find({ _id: { $in: ids } }).lean();
+	res.send(_.keyBy(games, "_id"));
+}
+
+export async function updateNeutralGames(req, res) {
+	console.log(req.body);
+	const bulkOperation = _.map(req.body, (data, id) => {
+		return {
+			updateOne: {
+				filter: { _id: id },
+				update: data
+			}
+		};
+	});
+	await NeutralGame.bulkWrite(bulkOperation);
+	await getUpdatedNeutralGames(Object.keys(req.body), res);
 }
 
 //External Getters

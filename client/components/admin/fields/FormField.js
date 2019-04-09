@@ -19,16 +19,20 @@ export default class FormField extends Component {
 			min,
 			max,
 			placeholder,
+			disabled,
 			isClearable
 		} = this.props;
+
 		//Get Component
 		let component;
 		switch (type) {
 			case "Boolean":
-				component = <Boolean key="field" field={field} />;
+				component = <Boolean key="field" field={field} disabled={disabled} />;
 				break;
 			case "Radio":
-				component = <Radio key="field" field={field} options={options} />;
+				component = (
+					<Radio key="field" field={field} options={options} disabled={disabled} />
+				);
 				break;
 			case "Select":
 				component = (
@@ -39,6 +43,7 @@ export default class FormField extends Component {
 						onChange={option => {
 							form.setFieldValue(field.name, option);
 						}}
+						disabled={disabled}
 						isClearable={isClearable}
 					/>
 				);
@@ -51,6 +56,7 @@ export default class FormField extends Component {
 						type={type}
 						min={min}
 						max={max}
+						disabled={disabled}
 						placeholder={placeholder}
 					/>
 				);

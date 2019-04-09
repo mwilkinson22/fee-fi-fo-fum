@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import Table from "../../Table";
 import { Link } from "react-router-dom";
+import { updateNeutralGames } from "~/client/actions/gamesActions";
 import TeamImage from "../../teams/TeamImage";
 import "datejs";
 
@@ -23,6 +24,11 @@ class NeutralGameList extends Component {
 			.value();
 	}
 
+	handleSubmit(values) {
+		const { updateNeutralGames } = this.props;
+		updateNeutralGames(values);
+	}
+
 	render() {
 		const { games, competitionSegmentList, teamList } = this.props;
 
@@ -37,7 +43,7 @@ class NeutralGameList extends Component {
 		];
 		return (
 			<Formik
-				onSubmit={values => console.log(values)}
+				onSubmit={values => this.handleSubmit(values)}
 				initialValues={this.getInitialValues()}
 				enableReinitialize={true}
 				render={() => {
@@ -127,4 +133,7 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionSegmentList, teamList };
 }
 
-export default connect(mapStateToProps)(NeutralGameList);
+export default connect(
+	mapStateToProps,
+	{ updateNeutralGames }
+)(NeutralGameList);

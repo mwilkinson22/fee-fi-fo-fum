@@ -5,7 +5,8 @@ import {
 	FETCH_GAME_LIST,
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_LOCAL_GAMES,
-	CRAWL_NEUTRAL_GAMES
+	CRAWL_NEUTRAL_GAMES,
+	UPDATE_NEUTRAL_GAMES
 } from "../actions/types";
 import { fixDates } from "../../helpers/gameHelper";
 
@@ -35,6 +36,16 @@ export default function(state = { fullGames: {} }, action) {
 			return {
 				...state,
 				neutralGames: action.payload
+			};
+
+		case UPDATE_NEUTRAL_GAMES:
+			fixDates(action.payload);
+			return {
+				...state,
+				neutralGames: {
+					...state.neutralGames,
+					...action.payload
+				}
 			};
 
 		case CRAWL_LOCAL_GAMES:

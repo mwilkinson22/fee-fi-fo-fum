@@ -3,7 +3,7 @@ import ReactSelect from "react-select";
 
 export default class Select extends Component {
 	render() {
-		const { field, options, onChange, isClearable, defaultValue } = this.props;
+		const { field, options, onChange, isClearable, defaultValue, disabled } = this.props;
 		const styles = {
 			option: (provided, state) => ({
 				...provided,
@@ -32,6 +32,7 @@ export default class Select extends Component {
 				options={options}
 				styles={styles}
 				onChange={onChange}
+				isDisabled={disabled}
 				isClearable={isClearable}
 				className="react-select"
 			/>

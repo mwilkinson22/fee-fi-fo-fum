@@ -3,11 +3,15 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
-import { fetchNeutralGames } from "../actions/gamesActions";
+import { fetchNeutralGames, updateNeutralGames } from "../actions/gamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
+import { Formik, Form } from "formik";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
+import * as Yup from "yup";
+
+import { processFormFields } from "~/helpers/adminHelper";
 
 class AdminNeutralGameList extends Component {
 	constructor(props) {
@@ -52,6 +56,26 @@ class AdminNeutralGameList extends Component {
 		return { game };
 	}
 
+	handleSubmit(values) {
+		const { game } = this.state;
+		const { updateNeutralGames } = this.props;
+
+		//Fix Date
+		values.date = `${values.date} ${values.time}`;
+		delete values.time;
+
+		values = _.mapValues(values, v => {
+			if (typeof v === "object") {
+				return v.value;
+			} else if (v === "") {
+				return null;
+			} else {
+				return v;
+			}
+		});
+		updateNeutralGames({ [game._id]: values });
+	}
+
 	generatePageTitle() {
 		const { _homeTeam, _awayTeam, date } = this.state.game;
 		return `${_homeTeam.name.short} vs ${_awayTeam.name.short} - ${date.toString(
@@ -79,6 +103,123 @@ class AdminNeutralGameList extends Component {
 		);
 	}
 
+	getValidationSchema() {
+		const { game } = this.state;
+		const schema = {
+			time: Yup.string()
+				.required()
+				.label("Time"),
+			_teamType: Yup.string()
+				.required()
+				.label("Team Type"),
+			_competition: Yup.string()
+				.required()
+				.label("Competition"),
+			_homeTeam: Yup.string()
+				.required()
+				.label("Home Team"),
+			_awayTeam: Yup.string()
+				.required()
+				.label("Away Team"),
+			homePoints: Yup.number()
+				.min(0)
+				.label("Home Points"),
+			awayPoints: Yup.number()
+				.min(0)
+				.label("Away Points")
+		};
+
+		//Set Date
+		if (game) {
+			const year = new Date(game.date).getFullYear();
+			schema.date = Yup.date()
+				.required()
+				.label("Date")
+				.min(`${year}-01-01`)
+				.max(`${year}-12-31`);
+		} else {
+			schema.date = Yup.date()
+				.required()
+				.label("Date");
+		}
+
+		return Yup.object().shape(schema);
+	}
+
+	getDefaults() {
+		const { game } = this.state;
+		const { teamTypes, competitionSegmentList } = this.props;
+
+		if (game) {
+			return {
+				date: game.date.toString("yyyy-MM-dd"),
+				time: game.date.toString("HH:mm:ss"),
+				_teamType: {
+					value: game._teamType,
+					label: teamTypes[game._teamType].name
+				},
+				_competition: {
+					value: game._competition,
+					label: _.find(competitionSegmentList, c => c._id === game._competition).name
+				},
+				_homeTeam: {
+					value: game._homeTeam._id,
+					label: game._homeTeam.name.long
+				},
+				_awayTeam: {
+					value: game._awayTeam._id,
+					label: game._awayTeam.name.long
+				},
+				homePoints: game.homePoints,
+				awayPoints: game.awayPoints
+			};
+		}
+	}
+
+	getOptions(values) {
+		const { competitionSegmentList, teamTypes, teamList, localTeam } = this.props;
+		const options = {};
+		options.teamTypes = _.map(teamTypes, t => ({ label: t.name, value: t._id }));
+		if (values.date && values._teamType) {
+			const year = new Date(values.date).getFullYear();
+			options.competitions = _.chain(competitionSegmentList)
+				.filter(c => c._teamType == values._teamType.value)
+				.filter(c => _.find(c.instances, i => i.year == year || i.year == null))
+				.map(c => ({ label: c.name, value: c._id }))
+				.value();
+
+			if (values._competition) {
+				const competition = _.find(
+					competitionSegmentList,
+					c => c._id === values._competition.value
+				);
+				const instance = _.find(
+					competition.instances,
+					i => i.year == year || i.year == null
+				);
+				if (instance.teams) {
+					options.teams = _.chain(instance.teams)
+						.map(id => {
+							const team = teamList[id];
+							return { label: team.name.long, value: id };
+						})
+						.sortBy("label")
+						.value();
+				}
+			} else {
+				options.teams = [];
+			}
+		} else {
+			options.competitions = [];
+			options.teams = [];
+		}
+
+		//Remove Local Team
+		options.teams = _.reject(options.teams, t => t.value === localTeam);
+
+		return options;
+	}
+
 	render() {
 		const { game } = this.state;
 
@@ -90,20 +231,69 @@ class AdminNeutralGameList extends Component {
 			return <NotFoundPage error={"Game not found"} />;
 		}
 
+		const validationSchema = this.getValidationSchema();
+
 		return (
 			<div>
 				<HelmetBuilder title={this.generatePageTitle()} />
 				{this.generatePageHeader()}
+				<section>
+					<div className="container">
+						<Formik
+							initialValues={this.getDefaults()}
+							validationSchema={validationSchema}
+							onSubmit={values => this.handleSubmit(values)}
+							render={formikProps => {
+								const options = this.getOptions(formikProps.values);
+								const fields = [
+									{ name: "date", type: "date" },
+									{ name: "time", type: "time" },
+									{
+										name: "_teamType",
+										type: "Select",
+										disabled: !Boolean(game),
+										options: options.teamTypes,
+										clearOnChange: ["_competition"]
+									},
+									{
+										name: "_competition",
+										type: "Select",
+										disabled: !Boolean(game),
+										options: options.competitions
+									},
+									{ name: "_homeTeam", type: "Select", options: options.teams },
+									{ name: "_awayTeam", type: "Select", options: options.teams },
+									{ name: "homePoints", type: "number" },
+									{ name: "awayPoints", type: "number" }
+								];
+
+								return (
+									<Form>
+										<div className="form-card grid">
+											{processFormFields(fields, validationSchema)}
+											<div className="buttons">
+												<button type="reset">Reset</button>
+												<button type="submit">Save</button>
+											</div>
+										</div>
+									</Form>
+								);
+							}}
+						/>
+					</div>
+				</section>
 			</div>
 		);
 	}
 }
 
-function mapStateToProps({ games, teams, competitions }) {
+function mapStateToProps({ config, games, teams, competitions }) {
+	const { localTeam } = config;
 	const { neutralGames } = games;
 	const { teamList, teamTypes } = teams;
 	const { competitionSegmentList } = competitions;
 	return {
+		localTeam,
 		neutralGames,
 		teamList,
 		competitionSegmentList,
@@ -113,5 +303,5 @@ function mapStateToProps({ games, teams, competitions }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames }
+	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames, updateNeutralGames }
 )(AdminNeutralGameList);

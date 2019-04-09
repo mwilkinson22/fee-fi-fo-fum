@@ -20,6 +20,7 @@ module.exports = app => {
 	app.get("/api/games", gamesController.getList);
 
 	//Putters
+	app.put("/api/games/neutral", requireAdmin, gamesController.updateNeutralGames);
 	app.put("/api/games/:_id/basics", requireAdmin, gamesController.updateGameBasics);
 	app.put("/api/games/:_id/pregame", requireAdmin, gamesController.setPregameSquads);
 
