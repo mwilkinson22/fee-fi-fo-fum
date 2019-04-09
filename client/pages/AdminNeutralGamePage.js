@@ -250,15 +250,13 @@ class AdminNeutralGameList extends Component {
 					competition.instances,
 					i => i.year == year || i.year == null
 				);
-				if (instance.teams) {
-					options.teams = _.chain(instance.teams)
-						.map(id => {
-							const team = teamList[id];
-							return { label: team.name.long, value: id };
-						})
-						.sortBy("label")
-						.value();
-				}
+				options.teams = _.chain(teamList)
+					.filter(team => !instance.teams || instance.teams.indexOf(team._id) > -1)
+					.map(team => {
+						return { label: team.name.long, value: team._id };
+					})
+					.sortBy("label")
+					.value();
 			} else {
 				options.teams = [];
 			}
