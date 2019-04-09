@@ -9,6 +9,7 @@ export const UPDATE_GAME_BASICS = "update_game_basics";
 export const SET_PREGAME_SQUADS = "set_pregame_squads";
 export const FETCH_NEUTRAL_GAMES = "fetch_neutral_games";
 export const UPDATE_NEUTRAL_GAMES = "update_neutral_games";
+export const DELETE_NEUTRAL_GAME = "delete_neutral_game";
 export const CRAWL_LOCAL_GAMES = "crawl_local_games";
 export const CRAWL_NEUTRAL_GAMES = "crawl_neutral_games";
 

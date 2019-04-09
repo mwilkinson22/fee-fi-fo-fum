@@ -49,4 +49,7 @@ module.exports = app => {
 
 		res.send(game);
 	});
+
+	//Delete
+	app.delete("/api/games/neutral/:_id", requireAdmin, gamesController.deleteNeutralGame);
 };

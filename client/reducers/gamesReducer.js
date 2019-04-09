@@ -6,7 +6,8 @@ import {
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_LOCAL_GAMES,
 	CRAWL_NEUTRAL_GAMES,
-	UPDATE_NEUTRAL_GAMES
+	UPDATE_NEUTRAL_GAMES,
+	DELETE_NEUTRAL_GAME
 } from "../actions/types";
 import { fixDates } from "../../helpers/gameHelper";
 
@@ -46,6 +47,13 @@ export default function(state = { fullGames: {} }, action) {
 					...state.neutralGames,
 					...action.payload
 				}
+			};
+
+		case DELETE_NEUTRAL_GAME:
+			const { [action.payload]: removed, ...neutralGames } = state.neutralGames;
+			return {
+				...state,
+				neutralGames
 			};
 
 		case CRAWL_LOCAL_GAMES:

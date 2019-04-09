@@ -1,9 +1,14 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
-import { fetchNeutralGames, updateNeutralGames, createNeutralGames } from "../actions/gamesActions";
+import {
+	fetchNeutralGames,
+	updateNeutralGames,
+	createNeutralGames,
+	deleteNeutralGame
+} from "../actions/gamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import { Formik, Form } from "formik";
@@ -12,6 +17,7 @@ import NotFoundPage from "~/client/pages/NotFoundPage";
 import * as Yup from "yup";
 
 import { processFormFields } from "~/helpers/adminHelper";
+import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 
 class AdminNeutralGameList extends Component {
 	constructor(props) {
@@ -85,6 +91,13 @@ class AdminNeutralGameList extends Component {
 		} else {
 			createNeutralGames([values]);
 		}
+	}
+
+	handleDelete() {
+		const { game } = this.state;
+		const { deleteNeutralGame } = this.props;
+		deleteNeutralGame(game._id);
+		this.setState({ redirect: true });
 	}
 
 	generatePageTitle() {
@@ -258,7 +271,11 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { game, isNew } = this.state;
+		const { game, isNew, redirect } = this.state;
+
+		if (redirect) {
+			return <Redirect to="/admin/neutralGames" />;
+		}
 
 		if (game === undefined && !isNew) {
 			return <LoadingPage />;
@@ -313,6 +330,9 @@ class AdminNeutralGameList extends Component {
 												<button type="submit">Save</button>
 											</div>
 										</div>
+										{game && (
+											<DeleteButtons onDelete={() => this.handleDelete()} />
+										)}
 									</Form>
 								);
 							}}
@@ -345,6 +365,7 @@ export default connect(
 		fetchTeamList,
 		fetchNeutralGames,
 		createNeutralGames,
-		updateNeutralGames
+		updateNeutralGames,
+		deleteNeutralGame
 	}
 )(AdminNeutralGameList);

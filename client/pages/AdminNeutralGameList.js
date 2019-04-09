@@ -177,6 +177,7 @@ class AdminNeutralGameList extends Component {
 
 function mapStateToProps({ games, teams, competitions }) {
 	const { neutralGames } = games;
+	console.log(neutralGames);
 	const { teamList, teamTypes } = teams;
 	const { competitionSegmentList } = competitions;
 	return {

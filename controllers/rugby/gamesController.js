@@ -149,6 +149,12 @@ export async function updateNeutralGames(req, res) {
 	await getUpdatedNeutralGames(Object.keys(req.body), res);
 }
 
+export async function deleteNeutralGame(req, res) {
+	const { _id } = req.params;
+	await NeutralGame.deleteOne({ _id: req.params });
+	res.send(_id);
+}
+
 //External Getters
 async function crawlFixtures() {
 	const axios = require("axios");
