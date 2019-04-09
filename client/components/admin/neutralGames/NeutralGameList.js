@@ -18,7 +18,13 @@ class NeutralGameList extends Component {
 		const { games } = this.props;
 		return _.chain(games)
 			.map(game => {
-				return [game._id, _.pick(game, ["homePoints", "awayPoints"])];
+				return [
+					game._id,
+					{
+						homePoints: game.homePoints || "",
+						awayPoints: game.awayPoints || ""
+					}
+				];
 			})
 			.fromPairs()
 			.value();
