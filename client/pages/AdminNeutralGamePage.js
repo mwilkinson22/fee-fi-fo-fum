@@ -251,14 +251,14 @@ class AdminNeutralGameList extends Component {
 									{
 										name: "_teamType",
 										type: "Select",
-										disabled: !Boolean(game),
+										disabled: Boolean(game),
 										options: options.teamTypes,
 										clearOnChange: ["_competition"]
 									},
 									{
 										name: "_competition",
 										type: "Select",
-										disabled: !Boolean(game),
+										disabled: Boolean(game),
 										options: options.competitions
 									},
 									{ name: "_homeTeam", type: "Select", options: options.teams },
