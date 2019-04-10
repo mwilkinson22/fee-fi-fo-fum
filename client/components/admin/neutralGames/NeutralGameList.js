@@ -36,6 +36,7 @@ class NeutralGameList extends Component {
 	}
 
 	render() {
+		l;
 		const { games, competitionSegmentList, teamList } = this.props;
 
 		const columns = [

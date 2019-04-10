@@ -241,7 +241,7 @@ class LeagueTable extends Component {
 				};
 			})
 			.orderBy(
-				["data.Pts.content", "data.PD.content", "data.PF.content"],
+				["data.Pts.content", "data.Diff.content", "data.F.content"],
 				["desc", "desc", "asc"]
 			)
 			.map((row, pos) => {
