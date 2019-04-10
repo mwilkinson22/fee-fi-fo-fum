@@ -196,8 +196,8 @@ async function crawlFixtures() {
 			date.setHours(hours, minutes);
 
 			//Teams
-			const home = firstRow.querySelector(".left").text.trim();
-			const away = firstRow.querySelector(".right").text.trim();
+			const _homeTeam = firstRow.querySelector(".left").text.trim();
+			const _awayTeam = firstRow.querySelector(".right").text.trim();
 
 			//Round
 			const [ignore, roundStr] = secondRow.text.split("Round");
@@ -222,8 +222,8 @@ async function crawlFixtures() {
 				externalId,
 				date,
 				round,
-				home,
-				away,
+				_homeTeam,
+				_awayTeam,
 				tv
 			});
 		}
@@ -253,7 +253,7 @@ export async function crawlNeutralGames(req, res) {
 	const localTeamObject = await Team.findById(localTeam, "name.short");
 	const filteredGames = _.chain(games)
 		.reject(g => [g.home, g.away].indexOf(localTeamObject.name.short) > -1)
-		.map(g => ({ ...g, tv: undefined, round: undefined }))
+		.map(g => ({ ...g, externalSite: "SL", tv: undefined, round: undefined }))
 		.value();
 	res.send(filteredGames);
 }
