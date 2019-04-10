@@ -10,7 +10,8 @@ const neutralGameSchema = new Schema({
 	awayPoints: { type: Number, default: null },
 	neutralGround: { type: Boolean, default: false },
 	_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes" },
-	rflFixtureId: Number
+	externalId: Number,
+	externalSite: { type: String, enum: ["RFL", "SL", null] }
 });
 
 mongoose.model("neutralGames", neutralGameSchema);
