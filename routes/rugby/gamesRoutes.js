@@ -15,6 +15,11 @@ module.exports = app => {
 	//Getters
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
 	app.get("/api/games/crawl/neutral", requireAdmin, gamesController.crawlNeutralGames);
+	app.get(
+		"/api/games/crawlAndUpdate/neutral",
+		requireAdmin,
+		gamesController.crawlAndUpdateNeutralGames
+	);
 	app.get("/api/games/neutral", gamesController.getNeutralGames);
 	app.get("/api/games/:ids", gamesController.getGames);
 	app.get("/api/games", gamesController.getList);

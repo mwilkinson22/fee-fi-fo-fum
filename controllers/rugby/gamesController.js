@@ -9,6 +9,7 @@ const Team = mongoose.model("teams");
 import _ from "lodash";
 import { getListsAndSlugs } from "../genericController";
 import { parse } from "node-html-parser";
+import axios from "axios";
 
 //Config
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
@@ -157,8 +158,6 @@ export async function deleteNeutralGame(req, res) {
 
 //External Getters
 async function crawlFixtures() {
-	const axios = require("axios");
-
 	const url = fixtureCrawlUrl;
 	const { data } = await axios.get(url);
 
@@ -256,4 +255,55 @@ export async function crawlNeutralGames(req, res) {
 		.map(g => ({ ...g, externalSite: "SL", tv: undefined, round: undefined }))
 		.value();
 	res.send(filteredGames);
+}
+
+export async function crawlAndUpdateNeutralGames(req, res) {
+	const games = await NeutralGame.find(
+		{
+			externalId: { $ne: null },
+			externalSite: { $ne: null },
+			date: {
+				$gt: new Date().addDays(-2),
+				$lte: new Date().addHours(-2)
+			}
+		},
+		"_id externalId externalSite"
+	).lean();
+
+	const values = {};
+
+	for (const game of games) {
+		const { _id, externalId, externalSite } = game;
+		let url;
+		switch (externalSite) {
+			case "RFL":
+				url = `https://www.rugby-league.com/challengecup/match_report/${externalId}`;
+				break;
+			case "SL":
+				url = `https://www.superleague.co.uk/match-centre/report/${externalId}`;
+				break;
+			default:
+				continue;
+		}
+
+		const { data } = await axios.get(url);
+		const html = parse(data);
+
+		if (externalSite === "SL") {
+			const [homePoints, awayPoints] = html.querySelectorAll(".matchreportheader .col-2 h2");
+			values[_id] = {
+				homePoints: homePoints.text.trim(),
+				awayPoints: awayPoints.text.trim()
+			};
+		}
+
+		if (externalSite === "RFL") {
+			const [homePoints, awayPoints] = html.querySelector(".overview h3").text.match(/\d+/gi);
+			values[_id] = {
+				homePoints,
+				awayPoints
+			};
+		}
+	}
+	await updateNeutralGames({ body: values }, res);
 }
