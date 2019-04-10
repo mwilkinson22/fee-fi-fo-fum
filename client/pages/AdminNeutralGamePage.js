@@ -78,8 +78,9 @@ class AdminNeutralGameList extends Component {
 
 		values = _.mapValues(values, v => {
 			if (typeof v === "object") {
-				return v.value;
-			} else if (v === "") {
+				v = v.value;
+			}
+			if (v === "") {
 				return null;
 			} else {
 				return v;
@@ -140,6 +141,10 @@ class AdminNeutralGameList extends Component {
 	getValidationSchema() {
 		const { game } = this.state;
 		const schema = {
+			externalId: Yup.number()
+				.label("External Id"),
+			externalSite: Yup.mixed()
+				.label("External Site"),
 			time: Yup.string()
 				.required()
 				.label("Time"),
@@ -191,9 +196,24 @@ class AdminNeutralGameList extends Component {
 	getDefaults() {
 		const { game } = this.state;
 		const { teamTypes, competitionSegmentList } = this.props;
-
 		if (game) {
+			const externalSite = {};
+			externalSite.value = game.externalSite;
+			switch(game.externalSite){
+				case "RFL":
+					externalSite.label = "rugby-league.com";
+					break;
+				case "SL":
+					externalSite.label = "superleague.co.uk";
+					break;
+				default:
+					externalSite.label = "None";
+					externalSite.value = "";
+					break;
+			}
 			return {
+				externalId: game.externalId || "",
+				externalSite, 
 				date: game.date.toString("yyyy-MM-dd"),
 				time: game.date.toString("HH:mm:ss"),
 				_teamType: {
@@ -232,6 +252,11 @@ class AdminNeutralGameList extends Component {
 	getOptions(values) {
 		const { competitionSegmentList, teamTypes, teamList, localTeam } = this.props;
 		const options = {};
+		options.externalSites = [
+			{ label: "None", value: "" },
+			{ label: "rugby-league.com", value: "RFL" },
+			{ label: "superleague.co.uk", value: "SL" }
+		];
 		options.teamTypes = _.map(teamTypes, t => ({ label: t.name, value: t._id }));
 		if (values.date && values._teamType) {
 			const year = new Date(values.date).getFullYear();
@@ -301,6 +326,12 @@ class AdminNeutralGameList extends Component {
 							render={formikProps => {
 								const options = this.getOptions(formikProps.values);
 								const fields = [
+									{ name: "externalId", type: "number" },
+									{
+										name: "externalSite",
+										type: "Select",
+										options: options.externalSites
+									},
 									{ name: "date", type: "date" },
 									{ name: "time", type: "time" },
 									{
