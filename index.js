@@ -91,5 +91,10 @@ app.get("*", async (req, res) => {
 		res.send(content);
 	});
 });
+
+if (process.env.NODE_ENV === "production") {
+	require("./scheduledTasks");
+}
+
 export const PORT = process.env.PORT || 3000;
 app.listen(PORT);
