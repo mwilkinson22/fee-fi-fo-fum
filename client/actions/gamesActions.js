@@ -65,3 +65,14 @@ export const crawlNeutralGames = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/crawl/local`);
 	dispatch({ type: CRAWL_NEUTRAL_GAMES, payload: res.data });
 };
+
+export const crawlAndUpdateNeutralGames = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/crawlAndUpdate/neutral`);
+	const gameCount = Object.keys(res.data).length;
+	if (gameCount === 0) {
+		toast.error("No games to update");
+	} else {
+		toast.success(`Updated ${gameCount} ${gameCount.length === 1 ? "game" : "games"}`);
+	}
+	dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
+};

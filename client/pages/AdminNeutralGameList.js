@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
-import { fetchNeutralGames } from "../actions/gamesActions";
+import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../actions/gamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import NeutralGameList from "../components/admin/neutralGames/NeutralGameList";
@@ -165,6 +165,12 @@ class AdminNeutralGameList extends Component {
 						<Link className="nav-card card" to={`/admin/neutralGame/new`}>
 							Manually add a new game
 						</Link>
+						<div
+							className="nav-card card"
+							onClick={() => this.props.crawlAndUpdateNeutralGames()}
+						>
+							Force a sync
+						</div>
 						{gamesToEditSection}
 						<h3>All Games</h3>
 						<NeutralGameList games={games} />
@@ -189,5 +195,5 @@ function mapStateToProps({ games, teams, competitions }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames }
+	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames, crawlAndUpdateNeutralGames }
 )(AdminNeutralGameList);
