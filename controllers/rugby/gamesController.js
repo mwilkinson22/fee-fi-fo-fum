@@ -253,7 +253,7 @@ export async function crawlNeutralGames(req, res) {
 	const localTeamObject = await Team.findById(localTeam, "name.short");
 	const filteredGames = _.chain(games)
 		.reject(g => [g.home, g.away].indexOf(localTeamObject.name.short) > -1)
-		.map(g => ({ ...g, tv: undefined }))
+		.map(g => ({ ...g, tv: undefined, round: undefined }))
 		.value();
 	res.send(filteredGames);
 }
