@@ -21,8 +21,8 @@ class NeutralGameList extends Component {
 				return [
 					game._id,
 					{
-						homePoints: game.homePoints || "",
-						awayPoints: game.awayPoints || ""
+						homePoints: game.homePoints === null ? "" : game.homePoints,
+						awayPoints: game.awayPoints === null ? "" : game.awayPoints
 					}
 				];
 			})

@@ -212,8 +212,8 @@ class AdminNeutralGameList extends Component {
 					value: game._awayTeam._id,
 					label: game._awayTeam.name.long
 				},
-				homePoints: game.homePoints || "",
-				awayPoints: game.awayPoints || ""
+				homePoints: game.homePoints === null ? "" : game.homePoints,
+				awayPoints: game.awayPoints === null ? "" : game.awayPoints
 			};
 		} else {
 			return {
