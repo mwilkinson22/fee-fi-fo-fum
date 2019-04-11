@@ -1,12 +1,16 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Formik, Form } from "formik";
+
+//Components
 import LoadingPage from "../../LoadingPage";
+import Table from "../../Table";
+
+//Actions
 import { fetchTeam } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
-import Table from "../../Table";
-import { Formik, Form, Field } from "formik";
-const firstTeam = "5c34e00a0838a5b090f8c1a7";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
