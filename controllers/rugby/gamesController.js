@@ -146,8 +146,12 @@ export async function updateNeutralGames(req, res) {
 			}
 		};
 	});
-	await NeutralGame.bulkWrite(bulkOperation);
-	await getUpdatedNeutralGames(Object.keys(req.body), res);
+	if (bulkOperation.length > 0) {
+		await NeutralGame.bulkWrite(bulkOperation);
+		await getUpdatedNeutralGames(Object.keys(req.body), res);
+	} else {
+		res.send({});
+	}
 }
 
 export async function deleteNeutralGame(req, res) {
