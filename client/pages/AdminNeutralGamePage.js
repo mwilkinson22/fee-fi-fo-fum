@@ -91,10 +91,10 @@ class AdminNeutralGameList extends Component {
 			updateNeutralGames({ [game._id]: values });
 		} else {
 			createNeutralGames([values]);
-			this.setState({
-				redirect: `${new Date(values.date).getFullYear()}/${values._teamType}`
-			});
 		}
+		this.setState({
+			redirect: `${new Date(values.date).getFullYear()}/${values._teamType}`
+		});
 	}
 
 	handleDelete() {
