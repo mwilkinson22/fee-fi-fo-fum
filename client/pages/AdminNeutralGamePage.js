@@ -141,10 +141,15 @@ class AdminNeutralGameList extends Component {
 	getValidationSchema() {
 		const { game } = this.state;
 		const schema = {
+			externalSync: Yup.boolean().label("External Sync"),
 			externalId: Yup.number()
+				.when("externalSync", (externalSync, schema) => {
+					return externalSync
+						? schema.required("An ID is required for External Sync")
+						: null;
+				})
 				.label("External Id"),
-			externalSite: Yup.mixed()
-				.label("External Site"),
+			externalSite: Yup.mixed().label("External Site"),
 			time: Yup.string()
 				.required()
 				.label("Time"),
@@ -199,7 +204,7 @@ class AdminNeutralGameList extends Component {
 		if (game) {
 			const externalSite = {};
 			externalSite.value = game.externalSite;
-			switch(game.externalSite){
+			switch (game.externalSite) {
 				case "RFL":
 					externalSite.label = "rugby-league.com";
 					break;
@@ -212,8 +217,9 @@ class AdminNeutralGameList extends Component {
 					break;
 			}
 			return {
+				externalSync: game.externalSync,
 				externalId: game.externalId || "",
-				externalSite, 
+				externalSite,
 				date: game.date.toString("yyyy-MM-dd"),
 				time: game.date.toString("HH:mm:ss"),
 				_teamType: {
@@ -237,6 +243,9 @@ class AdminNeutralGameList extends Component {
 			};
 		} else {
 			return {
+				externalSync: false,
+				externalId: "",
+				externalSite: { label: "None", value: "" },
 				date: "",
 				time: "",
 				_teamType: "",
@@ -326,6 +335,7 @@ class AdminNeutralGameList extends Component {
 							render={formikProps => {
 								const options = this.getOptions(formikProps.values);
 								const fields = [
+									{ name: "externalSync", type: "Boolean" },
 									{ name: "externalId", type: "number" },
 									{
 										name: "externalSite",

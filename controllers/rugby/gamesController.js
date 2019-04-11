@@ -260,6 +260,7 @@ export async function crawlNeutralGames(req, res) {
 export async function crawlAndUpdateNeutralGames(req, res) {
 	const games = await NeutralGame.find(
 		{
+			externalSync: true,
 			externalId: { $ne: null },
 			externalSite: { $ne: null },
 			date: {
