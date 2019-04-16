@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import SquadSelectorCard from "./SquadSelectorCard";
 import Colour from "color";
 import playerPositions from "~/constants/playerPositions";
+import { setSquad } from "~/client/actions/gamesActions";
 
-export default class SquadSelector extends Component {
+class SquadSelector extends Component {
 	constructor(props) {
 		super(props);
 		const teamColours = {};
@@ -39,7 +41,11 @@ export default class SquadSelector extends Component {
 	}
 
 	handleSubmit(values) {
-		console.log(values);
+		const { game, team, setSquad } = this.props;
+		setSquad(game, {
+			team,
+			squad: values.currentSquad
+		});
 	}
 
 	renderNextPosition(currentSquad) {
@@ -168,7 +174,12 @@ export default class SquadSelector extends Component {
 									</select>
 								</div>
 								<div className="buttons">
-									<button type="reset">Reset</button>
+									<button
+										type="button"
+										onClick={() => formikProps.setValues({ currentSquad: [] })}
+									>
+										Clear
+									</button>
 									<button type="submit">Submit</button>
 								</div>
 							</div>
@@ -179,3 +190,8 @@ export default class SquadSelector extends Component {
 		);
 	}
 }
+
+export default connect(
+	null,
+	{ setSquad }
+)(SquadSelector);

@@ -121,7 +121,12 @@ class AdminGameSquads extends Component {
 			return (
 				<div className="form-card squad-selector-wrapper" key={id}>
 					<TeamImage team={fullTeams[id]} />
-					<SquadSelector squad={squads[id]} teamColours={colours} />
+					<SquadSelector
+						squad={squads[id]}
+						teamColours={colours}
+						team={id}
+						game={game._id}
+					/>
 				</div>
 			);
 		});

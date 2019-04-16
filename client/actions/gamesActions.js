@@ -46,13 +46,19 @@ export const deleteNeutralGame = id => async (dispatch, getState, api) => {
 export const updateGameBasics = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/basics/`, values);
 	toast.success("Game updated");
-	dispatch({ type: UPDATE_GAME, payload: res.data, slug: res.data.slug });
+	dispatch({ type: UPDATE_GAME, payload: res.data });
 };
 
 export const setPregameSquads = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/pregame/`, values);
 	toast.success("Squads saved");
-	dispatch({ type: UPDATE_GAME, payload: res.data, slug: res.data.slug });
+	dispatch({ type: UPDATE_GAME, payload: res.data });
+};
+
+export const setSquad = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/games/${id}/squad/`, values);
+	toast.success("Squad saved");
+	dispatch({ type: UPDATE_GAME, payload: res.data });
 };
 
 export const crawlLocalGames = () => async (dispatch, getState, api) => {

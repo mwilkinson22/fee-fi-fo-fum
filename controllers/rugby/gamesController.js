@@ -120,6 +120,78 @@ export async function setPregameSquads(req, res) {
 		await getUpdatedGame(_id, res);
 	}
 }
+export async function setSquads(req, res) {
+	const { _id } = req.params;
+	const game = await Game.findById(_id);
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		const { team, squad } = req.body;
+		const PlayerStatsCollection = require("../../models/rugby/PlayerStatsCollection");
+
+		//Rather than simply apply the values
+		//We loop through and update the position, where possible
+		//That way, we preserve the stats
+		const bulkOperation = _.chain(game.playerStats)
+			.filter(s => s._team == team)
+			.map(s => {
+				const index = _.findIndex(squad, p => p == s._player);
+				if (index === -1) {
+					return {
+						updateOne: {
+							filter: { _id },
+							update: {
+								$pull: {
+									playerStats: {
+										_player: s._player
+									}
+								}
+							}
+						}
+					};
+				} else {
+					return {
+						updateOne: {
+							filter: { _id },
+							update: {
+								$set: {
+									"playerStats.$[elem].position": index + 1
+								}
+							},
+							arrayFilters: [{ "elem._player": { $eq: s._player } }]
+						}
+					};
+				}
+			})
+			.filter(_.identity)
+			.value();
+
+		//Then, add the new players
+		_.chain(squad)
+			.reject(id => _.find(game.playerStats, s => s._player == id))
+			.each(id => {
+				bulkOperation.push({
+					updateOne: {
+						filter: { _id },
+						update: {
+							$addToSet: {
+								playerStats: {
+									_player: id,
+									_team: team,
+									position: squad.indexOf(id) + 1,
+									stats: PlayerStatsCollection
+								}
+							}
+						}
+					}
+				});
+			})
+			.value();
+
+		await Game.bulkWrite(bulkOperation);
+		await getUpdatedGame(_id, res);
+	}
+}
 
 async function getUpdatedNeutralGames(ids, res) {
 	//To be called after post/put methods

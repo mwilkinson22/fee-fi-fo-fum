@@ -28,6 +28,7 @@ module.exports = app => {
 	app.put("/api/games/neutral", requireAdmin, gamesController.updateNeutralGames);
 	app.put("/api/games/:_id/basics", requireAdmin, gamesController.updateGameBasics);
 	app.put("/api/games/:_id/pregame", requireAdmin, gamesController.setPregameSquads);
+	app.put("/api/games/:_id/squad", requireAdmin, gamesController.setSquads);
 
 	//Post
 	app.post("/api/games/neutral", requireAdmin, gamesController.createNeutralGames);
