@@ -372,11 +372,12 @@
 				display: flex;
 				justify-content: space-around;
 				background: rgba(100, 100, 100, 0.05);
+				margin-top: 5pt;
 				.action {
 					width: 100%;
 					text-align: center;
 					height: 100%;
-					padding: 10pt 0;
+					padding: 5pt 0;
 					cursor: pointer;
 					&:not(:last-child) {
 						border-right: rgba(100, 100, 100, 0.1);

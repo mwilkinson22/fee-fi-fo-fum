@@ -52,7 +52,7 @@ class SquadSelectorCard extends Component {
 	}
 
 	renderBottomBar() {
-		const { squadMember, position } = this.props;
+		const { squadMember, position, teamColours } = this.props;
 		const { showMoveMenu } = this.state;
 
 		if (position === undefined) {
@@ -70,7 +70,13 @@ class SquadSelectorCard extends Component {
 			}
 		} else if (showMoveMenu) {
 			return (
-				<div className="action-bar">
+				<div
+					className="action-bar"
+					style={{
+						backgroundColor: teamColours.borderColor,
+						color: teamColours.backgroundColor
+					}}
+				>
 					<div
 						className="action move-up"
 						onClick={ev => this.handleAction("move-up", ev)}
