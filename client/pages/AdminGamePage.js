@@ -8,6 +8,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import { NavLink, Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
+import AdminGameSquads from "../components/admin/games/AdminGameSquads";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -112,6 +113,11 @@ class AdminGamePage extends Component {
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
 				<Switch>
+					<Route
+						path="/admin/game/:slug/squads"
+						exact
+						render={() => <AdminGameSquads game={game} />}
+					/>
 					<Route
 						path="/admin/game/:slug/pregame"
 						exact
