@@ -84,7 +84,7 @@ class SquadSelectorCard extends Component {
 						▼
 					</div>
 					<div className="action delete" onClick={ev => this.handleAction("delete", ev)}>
-						🗙
+						✖
 					</div>
 				</div>
 			);
