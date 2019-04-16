@@ -38,6 +38,10 @@ export default class SquadSelector extends Component {
 		};
 	}
 
+	handleSubmit(values) {
+		console.log(values);
+	}
+
 	renderNextPosition(currentSquad) {
 		let i;
 		for (i = 0; i < currentSquad.length; i++) {
@@ -62,6 +66,7 @@ export default class SquadSelector extends Component {
 		return (
 			<Formik
 				initialValues={this.getInitialValues()}
+				onSubmit={values => this.handleSubmit(values)}
 				render={formikProps => {
 					const { currentSquad } = formikProps.values;
 
@@ -161,6 +166,10 @@ export default class SquadSelector extends Component {
 										</option>
 										{dropdownOptions}
 									</select>
+								</div>
+								<div className="buttons">
+									<button type="reset">Reset</button>
+									<button type="submit">Submit</button>
 								</div>
 							</div>
 						</Form>

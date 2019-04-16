@@ -1,7 +1,6 @@
 import {
 	FETCH_GAMES,
-	UPDATE_GAME_BASICS,
-	SET_PREGAME_SQUADS,
+	UPDATE_GAME,
 	FETCH_GAME_LIST,
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_LOCAL_GAMES,
@@ -14,8 +13,7 @@ import { fixDates } from "../../helpers/gameHelper";
 export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
 		case FETCH_GAMES:
-		case UPDATE_GAME_BASICS:
-		case SET_PREGAME_SQUADS:
+		case UPDATE_GAME:
 			fixDates(action.payload);
 			return {
 				...state,

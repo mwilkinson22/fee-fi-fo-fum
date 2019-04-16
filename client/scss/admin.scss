@@ -413,6 +413,10 @@
 			}
 		}
 
+		.buttons {
+			margin-top: 10pt;
+		}
+
 		@media #{$desktop-and-tablet} {
 			grid-template-columns: 1fr 1fr;
 
