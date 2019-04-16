@@ -151,6 +151,9 @@ gameSchema.virtual("status").get(function() {
 
 function getInstance(doc) {
 	const { date, _competition } = doc;
+	if (!_competition._parentCompetition) {
+		return null; //Competition not populated
+	}
 	const year = new Date(date).getFullYear();
 
 	const instance = _.chain(_competition.instances)
@@ -181,7 +184,12 @@ gameSchema.virtual("title").get(function() {
 	if (customTitle) {
 		return customTitle;
 	} else {
-		const { specialRounds, title } = getInstance(this);
+		const instance = getInstance(this);
+		if (!instance) {
+			return null;
+		}
+
+		const { specialRounds, title } = instance;
 
 		let roundString = "";
 		if (specialRounds) {
