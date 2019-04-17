@@ -3,6 +3,7 @@ import { Field, ErrorMessage } from "formik";
 import Boolean from "./Boolean";
 import Radio from "./Radio";
 import Select from "./Select";
+import TweetComposer from "../../TweetComposer";
 
 export default class FormField extends Component {
 	render() {
@@ -19,7 +20,8 @@ export default class FormField extends Component {
 			max,
 			placeholder,
 			disabled,
-			isClearable
+			isClearable,
+			customProps
 		} = this.props;
 
 		//Get Component
@@ -45,6 +47,20 @@ export default class FormField extends Component {
 						}}
 						disabled={disabled}
 						isClearable={isClearable}
+					/>
+				);
+				break;
+			case "Tweet":
+				component = (
+					<TweetComposer
+						key="field"
+						onChange={value => {
+							form.setFieldTouched(field.name, true);
+							form.setFieldValue(field.name, value);
+						}}
+						content={field.value}
+						includeButton={false}
+						{...customProps}
 					/>
 				);
 				break;
