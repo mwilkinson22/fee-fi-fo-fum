@@ -57,12 +57,14 @@ class TweetComposer extends React.Component {
 	}
 
 	componentDidMount() {
-		const { caretPoint } = this.props;
+		const { caretPoint, autoFocus } = this.props;
 		const textArea = this.textArea.current;
 		if (typeof caretPoint === "number") {
 			textArea.setSelectionRange(caretPoint, caretPoint);
 		}
-		textArea.focus();
+		if (autoFocus) {
+			textArea.focus();
+		}
 	}
 
 	componentDidUpdate() {
@@ -184,14 +186,16 @@ TweetComposer.propTypes = {
 	),
 	variableInstruction: PropTypes.string,
 	includeButton: PropTypes.bool,
-	onChange: PropTypes.func
+	onChange: PropTypes.func,
+	autoFocus: PropTypes.bool
 };
 
 TweetComposer.defaultProps = {
 	content: "",
 	variables: [],
 	variableInstruction: "Add Variable",
-	includeButton: true
+	includeButton: true,
+	autoFocus: false
 };
 
 export default TweetComposer;
