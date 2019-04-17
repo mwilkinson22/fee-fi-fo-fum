@@ -78,13 +78,13 @@ class AdminGamePage extends Component {
 			{ label: "Photos", value: "photos" }
 		];
 
-		if (status > 1) {
+		if (status >= 1) {
 			submenuItems.push(
 				{ label: "Pregame Squad Image", value: "pregame-image" },
 				{ label: "Match Squads", value: "squads" }
 			);
 		}
-		if (status > 2) {
+		if (status >= 2) {
 			submenuItems.push(
 				{ label: "Add In-Game Event", value: "event" },
 				{ label: "Stats", value: "stats" }
