@@ -10,7 +10,6 @@ import { fetchTeamList } from "~/client/actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import TweetComposer from "../../TweetComposer";
 
 //Helpers
 import { processFormFields } from "~/helpers/adminHelper";
@@ -25,6 +24,7 @@ class AdminGameEvent extends Component {
 		if (!teamList) {
 			fetchTeamList();
 		}
+		this.playerEvents = ["T", "CN", "PK", "DG", "YC", "RC", "motm", "fan_motm"];
 		this.state = {};
 	}
 
@@ -33,6 +33,7 @@ class AdminGameEvent extends Component {
 	}
 
 	getValidationSchema() {
+		const { playerEvents } = this;
 		const shape = {
 			event: Yup.mixed()
 				.required()
@@ -40,11 +41,13 @@ class AdminGameEvent extends Component {
 			player: Yup.mixed()
 				.test("getPlayer", "Please select a player", function(player) {
 					const { event } = this.parent;
-					return !event.getPlayer || (player && player.value);
+					const getPlayer = playerEvents.indexOf(event.value) > -1;
+					return !getPlayer || (player && player.value);
 				})
 				.label("Player"),
 			postTweet: Yup.boolean().label("Post Tweet?"),
-			tweet: Yup.string().label("Tweet")
+			tweet: Yup.string().label("Tweet"),
+			replyTweet: Yup.number().label("Reply To Tweet")
 		};
 		return Yup.object().shape(shape);
 	}
@@ -57,38 +60,46 @@ class AdminGameEvent extends Component {
 			},
 			player: "",
 			postTweet: true,
-			tweet: "\n\n#HuddersfieldBorn"
+			tweet: "\n\n#HuddersfieldBorn",
+			replyTweet: ""
 		};
 	}
 
-	onSubmit(values) {
+	onSubmit(values, formikActions) {
 		console.log(values);
+		formikActions.resetForm();
+
+		if (values.event.value === "T") {
+			formikActions.setFieldValue("event", {
+				label: "Conversion",
+				value: "CN"
+			});
+		}
 	}
 
 	getEventTypes() {
 		return [
-			{ label: "None", value: "none", getPlayer: false },
+			{ label: "None", value: "none" },
 			{
 				label: "Player Events",
 				options: [
-					{ label: "Try", value: "T", getPlayer: true },
-					{ label: "Conversion", value: "CN", getPlayer: true },
-					{ label: "Penalty Goal", value: "PK", getPlayer: true },
-					{ label: "Drop Goal", value: "DG", getPlayer: true },
-					{ label: "Yellow Card", value: "YC", getPlayer: true },
-					{ label: "Red Card", value: "RC", getPlayer: true },
-					{ label: "Man of the Match", value: "motm", getPlayer: true },
-					{ label: "Fans' Man of the Match", value: "fan_motm", getPlayer: true }
+					{ label: "Try", value: "T" },
+					{ label: "Conversion", value: "CN" },
+					{ label: "Penalty Goal", value: "PK" },
+					{ label: "Drop Goal", value: "DG" },
+					{ label: "Yellow Card", value: "YC" },
+					{ label: "Red Card", value: "RC" },
+					{ label: "Man of the Match", value: "motm" },
+					{ label: "Fans' Man of the Match", value: "fan_motm" }
 				]
 			},
 			{
 				label: "Game Events",
-				getPlayer: false,
 				options: [
-					{ label: "Kick Off", value: "kickOff", getPlayer: false },
-					{ label: "Half Time", value: "halfTime", getPlayer: false },
-					{ label: "Full Time", value: "fullTime", getPlayer: false },
-					{ label: "Attendance", value: "attendance", getPlayer: false }
+					{ label: "Kick Off", value: "kickOff" },
+					{ label: "Half Time", value: "halfTime" },
+					{ label: "Full Time", value: "fullTime" },
+					{ label: "Attendance", value: "attendance" }
 				]
 			}
 		];
@@ -102,7 +113,7 @@ class AdminGameEvent extends Component {
 		const eventTypes = this.getEventTypes();
 		const fields = [{ name: "event", type: "Select", options: eventTypes }];
 
-		if (event.getPlayer) {
+		if (this.playerEvents.indexOf(event.value) > -1) {
 			const players = _.chain(game.playerStats)
 				.groupBy("_team")
 				.map((squad, team) => {
@@ -132,15 +143,18 @@ class AdminGameEvent extends Component {
 					value: `@${twitter}`
 				}))
 				.value();
-			fields.push({
-				name: "tweet",
-				type: "Tweet",
-				customProps: {
-					variables,
-					caretPoint: 0,
-					variableInstruction: "@ Player"
-				}
-			});
+			fields.push(
+				{
+					name: "tweet",
+					type: "Tweet",
+					customProps: {
+						variables,
+						caretPoint: 0,
+						variableInstruction: "@ Player"
+					}
+				},
+				{ name: "replyTweet", type: "number" }
+			);
 		}
 
 		return (
@@ -149,7 +163,9 @@ class AdminGameEvent extends Component {
 					<h6>Add Game Event</h6>
 					{processFormFields(fields, validationSchema)}
 					<div className="buttons">
-						<button type="clear">Clear</button>
+						<button type="button" onClick={() => formikProps.resetForm()}>
+							Clear
+						</button>
 						<button type="submit">Submit</button>
 					</div>
 				</div>
@@ -166,7 +182,7 @@ class AdminGameEvent extends Component {
 			<div className="container">
 				<Formik
 					validationSchema={() => this.getValidationSchema()}
-					onSubmit={values => this.onSubmit(values)}
+					onSubmit={(values, formikActions) => this.onSubmit(values, formikActions)}
 					initialValues={this.getDefaults()}
 					render={formikProps => this.renderFields(formikProps)}
 				/>
