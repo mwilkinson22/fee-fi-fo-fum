@@ -10,6 +10,7 @@ import { fetchTeamList } from "~/client/actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
+import TweetComposer from "../../TweetComposer";
 
 //Helpers
 import { processFormFields } from "~/helpers/adminHelper";
@@ -31,7 +32,7 @@ class AdminGameEvent extends Component {
 		return nextProps;
 	}
 
-	getValidationSchema(getPlayer) {
+	getValidationSchema() {
 		const shape = {
 			event: Yup.mixed()
 				.required()
@@ -41,7 +42,9 @@ class AdminGameEvent extends Component {
 					const { event } = this.parent;
 					return !event.getPlayer || (player && player.value);
 				})
-				.label("Player")
+				.label("Player"),
+			postTweet: Yup.boolean().label("Post Tweet?"),
+			tweet: Yup.string().label("Tweet")
 		};
 		return Yup.object().shape(shape);
 	}
@@ -52,7 +55,9 @@ class AdminGameEvent extends Component {
 				label: "None",
 				value: "none"
 			},
-			player: ""
+			player: "",
+			postTweet: true,
+			tweet: "\n\n#HuddersfieldBorn"
 		};
 	}
 
@@ -90,13 +95,14 @@ class AdminGameEvent extends Component {
 	}
 
 	renderFields(formikProps) {
+		const { localTeam } = this.props;
 		const { game, peopleList, teamList } = this.state;
+		const { event, postTweet } = formikProps.values;
+		const validationSchema = this.getValidationSchema();
 		const eventTypes = this.getEventTypes();
 		const fields = [{ name: "event", type: "Select", options: eventTypes }];
 
-		const { getPlayer } = formikProps.values.event;
-		const validationSchema = this.getValidationSchema(getPlayer);
-		if (getPlayer) {
+		if (event.getPlayer) {
 			const players = _.chain(game.playerStats)
 				.groupBy("_team")
 				.map((squad, team) => {
@@ -113,9 +119,33 @@ class AdminGameEvent extends Component {
 			fields.push({ name: "player", type: "Select", options: players });
 		}
 
+		fields.push({ name: "postTweet", type: "Boolean" });
+
+		if (postTweet) {
+			const variables = _.chain(game.playerStats)
+				.filter(p => p._team == localTeam)
+				.sortBy("position")
+				.map(({ _player }) => peopleList[_player])
+				.filter(p => p.twitter)
+				.map(({ name, twitter }) => ({
+					name: `${name.first} ${name.last}`,
+					value: `@${twitter}`
+				}))
+				.value();
+			fields.push({
+				name: "tweet",
+				type: "Tweet",
+				customProps: {
+					variables,
+					caretPoint: 0,
+					variableInstruction: "@ Player"
+				}
+			});
+		}
+
 		return (
 			<Form>
-				<div className="form-card">
+				<div className="form-card grid">
 					<h6>Add Game Event</h6>
 					{processFormFields(fields, validationSchema)}
 					<div className="buttons">
@@ -146,10 +176,11 @@ class AdminGameEvent extends Component {
 }
 
 //Add Redux Support
-function mapStateToProps({ people, teams }) {
+function mapStateToProps({ config, people, teams }) {
+	const { localTeam } = config;
 	const { peopleList } = people;
 	const { teamList } = teams;
-	return { peopleList, teamList };
+	return { localTeam, peopleList, teamList };
 }
 
 // export default form;
