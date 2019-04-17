@@ -91,7 +91,8 @@ class AdminGamePage extends Component {
 			);
 		}
 
-		const currentOption = _.find(submenuItems, i => i.value === pathname.split(slug + "/")[1]);
+		const currentPath = pathname.split(slug)[1].replace(/^\//, "");
+		const currentOption = _.find(submenuItems, i => i.value === currentPath);
 		return (
 			<Select
 				options={submenuItems}
