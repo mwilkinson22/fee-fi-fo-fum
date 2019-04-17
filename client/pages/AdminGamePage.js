@@ -9,6 +9,7 @@ import { NavLink, Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
 import AdminGameSquads from "../components/admin/games/AdminGameSquads";
+import AdminGameEvent from "../components/admin/games/AdminGameEvent";
 import Select from "../components/admin/fields/Select";
 
 class AdminGamePage extends Component {
@@ -108,6 +109,11 @@ class AdminGamePage extends Component {
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
 				<Switch>
+					<Route
+						path="/admin/game/:slug/event"
+						exact
+						render={() => <AdminGameEvent game={game} />}
+					/>
 					<Route
 						path="/admin/game/:slug/squads"
 						exact
