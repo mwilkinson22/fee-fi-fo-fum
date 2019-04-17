@@ -9,6 +9,7 @@ import { NavLink, Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
 import AdminGameSquads from "../components/admin/games/AdminGameSquads";
+import Select from "../components/admin/fields/Select";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -69,41 +70,34 @@ class AdminGamePage extends Component {
 	}
 
 	getSubmenu() {
+		const { pathname } = this.props.location;
 		const { status, slug } = this.state.game;
-		const submenuItems = {
-			0: {
-				Overview: "",
-				"Pregame Squads": "pregame",
-				Images: "images"
-			},
-			1: {
-				"Match Squads": "squads"
-			},
-			2: {
-				"In-Game Events": "events",
-				"Set Stats": "stats"
-			}
-		};
-		const submenu = _.map(submenuItems, (items, reqStatus) => {
-			if (status >= reqStatus) {
-				return _.map(items, (url, title) => {
-					return (
-						<NavLink
-							key={url}
-							exact
-							to={`/admin/game/${slug}/${url}`}
-							activeClassName="active"
-						>
-							{title}
-						</NavLink>
-					);
-				});
-			} else return null;
-		});
+		const submenuItems = [
+			{ label: "Overview", value: "" },
+			{ label: "Pregame Squad", value: "pregame" },
+			{ label: "Photos", value: "photos" }
+		];
+
+		if (status > 1) {
+			submenuItems.push(
+				{ label: "Pregame Squad Image", value: "pregame-image" },
+				{ label: "Match Squads", value: "squads" }
+			);
+		}
+		if (status > 2) {
+			submenuItems.push(
+				{ label: "Add In-Game Event", value: "event" },
+				{ label: "Stats", value: "stats" }
+			);
+		}
+
+		const currentOption = _.find(submenuItems, i => i.value === pathname.split(slug + "/")[1]);
 		return (
-			<div className="sub-menu" key="menu">
-				{submenu}
-			</div>
+			<Select
+				options={submenuItems}
+				defaultValue={currentOption}
+				onChange={option => this.props.history.push(`/admin/game/${slug}/${option.value}`)}
+			/>
 		);
 	}
 
