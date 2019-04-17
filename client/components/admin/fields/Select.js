@@ -3,15 +3,23 @@ import ReactSelect from "react-select";
 
 export default class Select extends Component {
 	render() {
-		const { field, options, onChange, isClearable, defaultValue, disabled } = this.props;
+		const {
+			field,
+			options,
+			onChange,
+			isClearable,
+			isSearchable,
+			defaultValue,
+			disabled
+		} = this.props;
 		const styles = {
 			option: (provided, state) => ({
 				...provided,
 				background: state.isSelected
 					? "#751432"
 					: state.isFocused
-					? "#7514324d"
-					: "transparent",
+						? "#7514324d"
+						: "transparent",
 				":active": {
 					backgroundColor: "#7514324d"
 				}
@@ -33,6 +41,7 @@ export default class Select extends Component {
 				styles={styles}
 				onChange={onChange}
 				isDisabled={disabled}
+				isSearchable={isSearchable}
 				isClearable={isClearable}
 				className="react-select"
 			/>

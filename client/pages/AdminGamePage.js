@@ -98,6 +98,7 @@ class AdminGamePage extends Component {
 			<Select
 				options={submenuItems}
 				defaultValue={currentOption}
+				isSearchable={false}
 				onChange={option => this.props.history.push(`/admin/game/${slug}/${option.value}`)}
 			/>
 		);

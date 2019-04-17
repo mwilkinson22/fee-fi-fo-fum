@@ -21,6 +21,7 @@ export default class FormField extends Component {
 			placeholder,
 			disabled,
 			isClearable,
+			isSearchable,
 			customProps
 		} = this.props;
 
@@ -47,6 +48,7 @@ export default class FormField extends Component {
 						}}
 						disabled={disabled}
 						isClearable={isClearable}
+						isSearchable={isSearchable}
 					/>
 				);
 				break;

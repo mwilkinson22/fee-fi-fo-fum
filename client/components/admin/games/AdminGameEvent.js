@@ -111,7 +111,9 @@ class AdminGameEvent extends Component {
 		const { event, postTweet } = formikProps.values;
 		const validationSchema = this.getValidationSchema();
 		const eventTypes = this.getEventTypes();
-		const fields = [{ name: "event", type: "Select", options: eventTypes }];
+		const fields = [
+			{ name: "event", type: "Select", options: eventTypes, isSearchable: false }
+		];
 
 		if (this.playerEvents.indexOf(event.value) > -1) {
 			const players = _.chain(game.playerStats)
@@ -127,7 +129,7 @@ class AdminGameEvent extends Component {
 					return { label: teamList[team].name.short, options };
 				})
 				.value();
-			fields.push({ name: "player", type: "Select", options: players });
+			fields.push({ name: "player", type: "Select", options: players, isSearchable: false });
 		}
 
 		fields.push({ name: "postTweet", type: "Boolean" });
