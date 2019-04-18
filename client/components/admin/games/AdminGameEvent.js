@@ -64,7 +64,7 @@ class AdminGameEvent extends Component {
 			player: "",
 			postTweet: true,
 			tweet: "\n\n#HuddersfieldBorn",
-			replyTweet: "1118957440790335489"
+			replyTweet: ""
 		};
 	}
 
