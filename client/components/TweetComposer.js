@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-class TweetComposer extends React.Component {
+class TweetComposer extends Component {
 	constructor(props) {
 		super(props);
 
@@ -10,7 +10,7 @@ class TweetComposer extends React.Component {
 		this.formattedText = React.createRef();
 
 		//Set Content
-		const textContent = props.content.replace(/\\n/gi, "\n");
+		const textContent = props.initialContent.replace(/\\n/gi, "\n");
 
 		this.state = {
 			textContent
@@ -20,6 +20,12 @@ class TweetComposer extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 
+		if (nextProps.textContent) {
+			newState.textContent = nextProps.textContent;
+		}
+
+		const textContent = newState.textContent || prevState.textContent;
+
 		//Format Text
 		const urlRegex = /(?:http:\/\/)?(?:https:\/\/)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b(?:[-a-zA-Z0-9@:%_+.~#?&//=]*)/gi;
 		const twitterRegex = /[#@](?=[A-Za-z0-9])[A-Za-z0-9_]*/gi;
@@ -27,7 +33,7 @@ class TweetComposer extends React.Component {
 
 		newState.calculatedLength = 0;
 
-		newState.formattedContent = prevState.textContent.split(highlightRegex).map((str, key) => {
+		newState.formattedContent = textContent.split(highlightRegex).map((str, key) => {
 			let className = "";
 			if (str.match(urlRegex)) {
 				newState.calculatedLength += 23;
@@ -179,7 +185,8 @@ class TweetComposer extends React.Component {
 }
 
 TweetComposer.propTypes = {
-	content: PropTypes.string,
+	initialContent: PropTypes.string,
+	textContent: PropTypes.string,
 	caretPoint: PropTypes.number,
 	variables: PropTypes.arrayOf(
 		PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
@@ -191,7 +198,7 @@ TweetComposer.propTypes = {
 };
 
 TweetComposer.defaultProps = {
-	content: "",
+	initialContent: "",
 	variables: [],
 	variableInstruction: "Add Variable",
 	includeButton: true,

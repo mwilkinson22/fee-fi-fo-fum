@@ -60,7 +60,8 @@ export default class FormField extends Component {
 							form.setFieldTouched(field.name, true);
 							form.setFieldValue(field.name, value);
 						}}
-						content={field.value}
+						initialContent={field.value}
+						textContent={field.value}
 						includeButton={false}
 						{...customProps}
 					/>
