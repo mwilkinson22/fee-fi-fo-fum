@@ -1,7 +1,8 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGames, fetchNeutralGames, fetchGameList } from "../../actions/gamesActions";
+import { fetchNeutralGames } from "../../actions/neutralGamesActions";
+import { fetchGames, fetchGameList } from "../../actions/gamesActions";
 import { fetchTeamList } from "../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import LoadingPage from "../../components/LoadingPage";

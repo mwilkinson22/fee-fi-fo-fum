@@ -14,25 +14,16 @@ import requireAdmin from "../../middlewares/requireAdmin";
 module.exports = app => {
 	//Getters
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
-	app.get("/api/games/crawl/neutral", requireAdmin, gamesController.crawlNeutralGames);
-	app.get(
-		"/api/games/crawlAndUpdate/neutral",
-		requireAdmin,
-		gamesController.crawlAndUpdateNeutralGames
-	);
-	app.get("/api/games/neutral", gamesController.getNeutralGames);
 	app.get("/api/games/:ids", gamesController.getGames);
 	app.get("/api/games", gamesController.getList);
 
 	//Putters
-	app.put("/api/games/neutral", requireAdmin, gamesController.updateNeutralGames);
 	app.put("/api/games/:_id/event", requireAdmin, gamesController.handleEvent);
 	app.put("/api/games/:_id/basics", requireAdmin, gamesController.updateGameBasics);
 	app.put("/api/games/:_id/pregame", requireAdmin, gamesController.setPregameSquads);
 	app.put("/api/games/:_id/squad", requireAdmin, gamesController.setSquads);
 
 	//Post
-	app.post("/api/games/neutral", requireAdmin, gamesController.createNeutralGames);
 	app.post("/api/games", requireAdmin, async (req, res) => {
 		const { data } = req.body;
 
@@ -56,7 +47,4 @@ module.exports = app => {
 
 		res.send(game);
 	});
-
-	//Delete
-	app.delete("/api/games/neutral/:_id", requireAdmin, gamesController.deleteNeutralGame);
 };

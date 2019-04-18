@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import Table from "../../Table";
 import { Link } from "react-router-dom";
-import { updateNeutralGames } from "~/client/actions/gamesActions";
+import { updateNeutralGames } from "~/client/actions/neutralGamesActions";
 import TeamImage from "../../teams/TeamImage";
 import "datejs";
 

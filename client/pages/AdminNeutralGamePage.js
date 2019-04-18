@@ -8,7 +8,7 @@ import {
 	updateNeutralGames,
 	createNeutralGames,
 	deleteNeutralGame
-} from "../actions/gamesActions";
+} from "../actions/neutralGamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import { Formik, Form } from "formik";

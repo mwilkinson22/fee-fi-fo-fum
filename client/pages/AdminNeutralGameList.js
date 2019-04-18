@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
-import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../actions/gamesActions";
+import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../actions/neutralGamesActions";
 import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import NeutralGameList from "../components/admin/neutralGames/NeutralGameList";

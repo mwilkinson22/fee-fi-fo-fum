@@ -6,5 +6,5 @@ import axios from "axios";
  */
 //Sync Neutral Games every 10 minutes
 schedule.scheduleJob("* /10 * * * *", function() {
-	axios.get("/api/games/crawlAndUpdate/neutral");
+	axios.get("/api/neutralGames/crawlAndUpdate");
 });
