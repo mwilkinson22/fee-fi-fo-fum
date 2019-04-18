@@ -93,7 +93,7 @@ class AdminGameOverview extends Component {
 			round: Yup.number()
 				.min(1)
 				.label("Round"),
-			title: Yup.string().label("Title"),
+			customTitle: Yup.string().label("Title"),
 			hashtags: Yup.string().label("Hashtags"),
 			isAway: Yup.boolean()
 				.required()
@@ -143,7 +143,7 @@ class AdminGameOverview extends Component {
 			_competition: _competition ? _competition[0] : "",
 			_opposition: _opposition ? _opposition[0] : "",
 			round: game.round || "",
-			title: game.customTitle || "",
+			customTitle: game.customTitle || "",
 			hashtags: game.hashtags ? game.hashtags.join(" ") : "",
 			isAway: game.isAway,
 			_ground: _ground ? _ground[0] : "",
@@ -294,7 +294,7 @@ class AdminGameOverview extends Component {
 			{ name: "_ground", type: "Select", options: groundList }
 		];
 		const mediaFields = [
-			{ name: "title", type: "text", placeholder: "Auto-generated if left blank" },
+			{ name: "customTitle", type: "text", placeholder: "Auto-generated if left blank" },
 			{ name: "hashtags", type: "text", placeholder: "Auto-generated if left blank" },
 			{ name: "tv", type: "Radio", options: tvOptions }
 		];
