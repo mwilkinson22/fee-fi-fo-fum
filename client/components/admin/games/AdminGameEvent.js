@@ -1,15 +1,20 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
+import { postGameEvent } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import { fetchTeamList } from "~/client/actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
+
+//Constants
+import gameEvents from "~/constants/gameEvents";
 
 //Helpers
 import { processFormFields } from "~/helpers/adminHelper";
@@ -24,7 +29,6 @@ class AdminGameEvent extends Component {
 		if (!teamList) {
 			fetchTeamList();
 		}
-		this.playerEvents = ["T", "CN", "PK", "DG", "YC", "RC", "motm", "fan_motm"];
 		this.state = {};
 	}
 
@@ -33,7 +37,6 @@ class AdminGameEvent extends Component {
 	}
 
 	getValidationSchema() {
-		const { playerEvents } = this;
 		const shape = {
 			event: Yup.mixed()
 				.required()
@@ -41,13 +44,13 @@ class AdminGameEvent extends Component {
 			player: Yup.mixed()
 				.test("getPlayer", "Please select a player", function(player) {
 					const { event } = this.parent;
-					const getPlayer = playerEvents.indexOf(event.value) > -1;
-					return !getPlayer || (player && player.value);
+					const { isPlayerEvent } = gameEvents[event.value];
+					return !isPlayerEvent || (player && player.value);
 				})
 				.label("Player"),
 			postTweet: Yup.boolean().label("Post Tweet?"),
 			tweet: Yup.string().label("Tweet"),
-			replyTweet: Yup.number().label("Reply To Tweet")
+			replyTweet: Yup.string().label("Reply To Tweet")
 		};
 		return Yup.object().shape(shape);
 	}
@@ -61,15 +64,20 @@ class AdminGameEvent extends Component {
 			player: "",
 			postTweet: true,
 			tweet: "\n\n#HuddersfieldBorn",
-			replyTweet: ""
+			replyTweet: "1118957440790335489"
 		};
 	}
 
 	onSubmit(values, formikActions) {
-		console.log(values);
+		const { postGameEvent, game } = this.props;
+		values.event = values.event.value;
+		values.player = values.player.value || null;
+
 		formikActions.resetForm();
 
-		if (values.event.value === "T") {
+		postGameEvent(game._id, values);
+
+		if (values.event === "T") {
 			formikActions.setFieldValue("event", {
 				label: "Conversion",
 				value: "CN"
@@ -115,7 +123,7 @@ class AdminGameEvent extends Component {
 			{ name: "event", type: "Select", options: eventTypes, isSearchable: false }
 		];
 
-		if (this.playerEvents.indexOf(event.value) > -1) {
+		if (event.value && gameEvents[event.value].isPlayerEvent) {
 			const players = _.chain(game.playerStats)
 				.groupBy("_team")
 				.map((squad, team) => {
@@ -155,7 +163,7 @@ class AdminGameEvent extends Component {
 						variableInstruction: "@ Player"
 					}
 				},
-				{ name: "replyTweet", type: "number" }
+				{ name: "replyTweet", type: "text" }
 			);
 		}
 
@@ -204,5 +212,5 @@ function mapStateToProps({ config, people, teams }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, fetchTeamList }
+	{ fetchPeopleList, fetchTeamList, postGameEvent }
 )(AdminGameEvent);
