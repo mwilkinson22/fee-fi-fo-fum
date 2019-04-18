@@ -115,11 +115,14 @@ export async function crawlAndUpdate(req, res) {
 		}
 
 		if (externalSite === "RFL") {
-			const [homePoints, awayPoints] = html.querySelector(".overview h3").text.match(/\d+/gi);
-			values[_id] = {
-				homePoints,
-				awayPoints
-			};
+			const header = html.querySelector(".overview h3");
+			if (header) {
+				const [homePoints, awayPoints] = header.text.match(/\d+/gi);
+				values[_id] = {
+					homePoints,
+					awayPoints
+				};
+			}
 		}
 	}
 	await updateGames({ body: values }, res);

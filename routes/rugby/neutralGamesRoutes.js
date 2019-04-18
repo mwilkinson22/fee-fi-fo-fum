@@ -8,7 +8,7 @@ module.exports = app => {
 	//Getters
 	app.get("/api/neutralGames/crawl", requireAdmin, neutralGamesController.crawl);
 	app.get(
-		"/api/neturalGames/crawlAndUpdate",
+		"/api/neutralGames/crawlAndUpdate",
 		requireAdmin,
 		neutralGamesController.crawlAndUpdate
 	);
