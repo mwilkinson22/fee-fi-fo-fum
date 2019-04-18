@@ -48,15 +48,16 @@ class AdminGamePage extends Component {
 	getPageTitle() {
 		const { game } = this.state;
 		const { localTeam } = this.props;
-		const { isAway, scores, _opposition, date } = game;
+		const { isAway, score, _opposition, date } = game;
+		console.log(game);
 		let strings;
-		if (scores) {
+		if (score) {
 			strings = [
 				"Giants",
 				" ",
-				scores[localTeam],
+				score[localTeam],
 				"-",
-				scores[_opposition._id],
+				score[_opposition._id],
 				" ",
 				_opposition.name.short
 			];
