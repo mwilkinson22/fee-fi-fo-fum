@@ -18,8 +18,8 @@ export default class Select extends Component {
 				background: state.isSelected
 					? "#751432"
 					: state.isFocused
-						? "#7514324d"
-						: "transparent",
+					? "#7514324d"
+					: "transparent",
 				":active": {
 					backgroundColor: "#7514324d"
 				}
