@@ -20,6 +20,7 @@
 	h6 {
 		@include noTextSelect;
 		font-size: 1.4em;
+		margin-bottom: 10pt;
 		&:not(:first-child) {
 			margin-top: 10pt;
 		}
