@@ -284,7 +284,7 @@ export async function setSquads(req, res) {
 export async function handleEvent(req, res) {
 	const { _id } = req.params;
 	const { event } = req.body;
-	const game = await Game.findById(_id);
+	let game = await Game.findById(_id);
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else if (!gameEvents[event]) {
@@ -295,16 +295,18 @@ export async function handleEvent(req, res) {
 		//Update Player Event
 		if (gameEvents[event].isPlayerEvent) {
 			const { player } = req.body;
-			await Game.findOneAndUpdate(
+			game = await Game.findOneAndUpdate(
 				{ _id },
 				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
 				{
-					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
+					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }],
+					new: true
 				}
-			);
+			).fullGame();
 		}
 
 		if (postTweet) {
+			const scores = _.values(game.score);
 			await twitter.post("statuses/update", {
 				status: tweet,
 				in_reply_to_status_id: replyTweet,
