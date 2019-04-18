@@ -11,8 +11,12 @@ import { getListsAndSlugs } from "../genericController";
 import { parse } from "node-html-parser";
 import axios from "axios";
 
-//Config
+//Constants
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
+import gameEvents from "~/constants/gameEvents";
+
+//Helpers
+import twitter from "~/services/twitter";
 
 //Getters
 export async function getList(req, res) {
@@ -189,6 +193,41 @@ export async function setSquads(req, res) {
 			.value();
 
 		await Game.bulkWrite(bulkOperation);
+		await getUpdatedGame(_id, res);
+	}
+}
+
+export async function handleEvent(req, res) {
+	const { _id } = req.params;
+	const { event } = req.body;
+	const game = await Game.findById(_id);
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else if (!gameEvents[event]) {
+		res.status(500).send({ error: `Invalid event type '${event}'` });
+	} else {
+		const { postTweet, tweet, replyTweet } = req.body;
+
+		//Update Player Event
+		if (gameEvents[event].isPlayerEvent) {
+			const { player } = req.body;
+			await Game.findOneAndUpdate(
+				{ _id },
+				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
+				{
+					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
+				}
+			);
+		}
+
+		if (postTweet) {
+			await twitter.post("statuses/update", {
+				status: tweet,
+				in_reply_to_status_id: replyTweet,
+				auto_populate_reply_metadata: true
+			});
+		}
+
 		await getUpdatedGame(_id, res);
 	}
 }
