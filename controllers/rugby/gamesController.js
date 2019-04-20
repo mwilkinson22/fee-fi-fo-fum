@@ -325,7 +325,7 @@ export async function generatePregameImage(req, res) {
 
 	const game = await Game.findById(
 		_id,
-		"hashtags pregameSquads isAway date _ground _opposition _competition"
+		"hashtags pregameSquads isAway date _ground _opposition _competition _teamType"
 	)
 		.populate({ path: "pregameSquads.squad", select: "name" })
 		.populate({
@@ -335,7 +335,7 @@ export async function generatePregameImage(req, res) {
 		})
 		.populate({
 			path: "_competition",
-			select: "name _parentCompetition instances instance",
+			select: "name _parentCompetition instances instance hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
 				select: "name"
