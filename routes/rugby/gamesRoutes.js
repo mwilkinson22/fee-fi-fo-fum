@@ -12,6 +12,9 @@ import * as gamesController from "../../controllers/rugby/gamesController";
 import requireAdmin from "../../middlewares/requireAdmin";
 
 module.exports = app => {
+	//Image Generators
+	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.generatePregameImage);
+
 	//Getters
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
 	app.get("/api/games/:ids", gamesController.getGames);

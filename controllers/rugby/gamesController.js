@@ -317,3 +317,48 @@ export async function handleEvent(req, res) {
 		await getUpdatedGame(_id, res);
 	}
 }
+
+//Image Generators
+export async function generatePregameImage(req, res) {
+	const { _id } = req.params;
+	const { localTeam } = require("../../config/keys");
+
+	const game = await Game.findById(
+		_id,
+		"hashtags pregameSquads isAway date _ground _opposition _competition"
+	)
+		.populate({ path: "pregameSquads.squad", select: "name" })
+		.populate({
+			path: "_ground",
+			select: "name address._city",
+			populate: { path: "address._city", select: "name" }
+		})
+		.populate({
+			path: "_competition",
+			select: "name _parentCompetition instances instance",
+			populate: {
+				path: "_parentCompetition",
+				select: "name"
+			}
+		});
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		const imageGenerator = await require("~/images/pregame");
+		const teams = await Team.find(
+			{ _id: { $in: [localTeam, game._opposition] } },
+			"name colours hashtagPrefix squads image"
+		);
+
+		const options = {
+			highlightNew: "1",
+			highlightOverride: null, //Comma separated player IDs
+			playerImage: null, //Random if null
+			bothTeams: "1", //Remains false if only one squad available
+			...req.query
+		};
+		const gameJSON = JSON.parse(JSON.stringify(game));
+		const image = await imageGenerator({ ...gameJSON, teams: _.keyBy(teams, "_id") }, options);
+		res.send(image);
+	}
+}

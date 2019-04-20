@@ -1,4 +1,10 @@
-import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES } from "./types";
+import {
+	FETCH_GAMES,
+	FETCH_GAME_LIST,
+	UPDATE_GAME,
+	CRAWL_LOCAL_GAMES,
+	FETCH_PREGAME_IMAGE
+} from "./types";
 import { toast } from "react-toastify";
 
 export const fetchGames = ids => async (dispatch, getState, api) => {
@@ -37,4 +43,9 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 export const crawlLocalGames = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/crawl/local`);
 	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
+};
+
+export const getPregameImage = id => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/${id}/images/pregame`);
+	dispatch({ type: FETCH_PREGAME_IMAGE, payload: res.data, id });
 };
