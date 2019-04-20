@@ -113,7 +113,8 @@ module.exports = async function(game, options) {
 				//Number
 				ctx.fillStyle = colours.number;
 				ctx.textAlign = numAlign;
-				ctx.fillText(number, numX, y);
+				ctx.fillText(number || "", numX, y);
+
 				//Name
 				ctx.fillStyle = colours.name;
 				ctx.textAlign = nameAlign;
@@ -123,6 +124,15 @@ module.exports = async function(game, options) {
 			.value();
 	});
 
+	// const client = require("~/services/twitter");
+	// const upload = await client.post("media/upload", {
+	// 	media_data: canvas.toDataURL().replace("data:image/png;base64,", "")
+	// });
+	// const { media_id_string } = upload.data;
+	// const a = await client.post("statuses/update", {
+	// 	status: "Test",
+	// 	media_ids: [media_id_string]
+	// });
 	//Return image
 	return canvas.toDataURL();
 };
