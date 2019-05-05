@@ -26,8 +26,19 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 		blockHeight: Math.round(canvas.height * 0.71),
 		badgeWidth: Math.round(canvas.width * 0.2),
 		badgeHeight: Math.round(canvas.height * 0.4),
-		badgeCutoff: 0.15
+		badgeCutoff: 0.15,
+		headerLeftIconOffset: Math.round(canvas.width * 0.03),
+		headerIconWidth: Math.round(canvas.width * 0.1),
+		headerIconHeight: Math.round(canvas.height * 0.15),
+		headerIconPadding: 0.1
 	};
+	positions.headerIconTop = Math.round(
+		positions.bannerTop + positions.bannerHeight / 2 - positions.headerIconHeight / 2
+	);
+	positions.headerRightIconOffset = Math.round(
+		canvas.width - positions.headerLeftIconOffset - positions.headerIconWidth
+	);
+
 	const fonts = {
 		header: `${Math.round(canvas.height * 0.07)}px Montserrat`,
 		banner: `${Math.round(canvas.height * 0.025)}px Titillium`,
@@ -64,6 +75,40 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	ctx.font = fonts.header;
 	ctx.textAlign = "center";
 	ctx.fillText(header, canvas.width * 0.5, positions.bannerTop);
+
+	//Set Game Logo
+	ctx.fillStyle = "#EEE";
+	ctx.fillRect(
+		positions.headerLeftIconOffset,
+		positions.headerIconTop,
+		positions.headerIconWidth,
+		positions.headerIconHeight
+	);
+
+	//Set 4Fs Logo
+	const rightIcon = await googleToCanvas("images/layout/branding/square-logo-with-shadow.png");
+	if (rightIcon) {
+		ctx.fillRect(
+			positions.headerRightIconOffset,
+			positions.headerIconTop,
+			positions.headerIconWidth,
+			positions.headerIconHeight
+		);
+		const { width, height } = contain(
+			positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
+			positions.headerIconHeight * (1 - positions.headerIconPadding * 2),
+			rightIcon.width,
+			rightIcon.height
+		);
+		ctx.drawImage(
+			rightIcon,
+			positions.headerRightIconOffset +
+				positions.headerIconWidth * positions.headerIconPadding,
+			positions.headerIconTop + positions.headerIconHeight * positions.headerIconPadding,
+			width,
+			height
+		);
+	}
 
 	//Set Header Banner Text
 	const ground = `${game._ground.name}, ${game._ground.address._city.name}`;
@@ -111,7 +156,7 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 			const sWidth = team.badge.width * (1 - positions.badgeCutoff);
 			const sHeight = team.badge.height;
 
-			const { width, height, offsetX } = contain(
+			const { width, height } = contain(
 				positions.badgeWidth,
 				positions.badgeHeight,
 				sWidth,
