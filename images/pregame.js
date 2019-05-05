@@ -122,8 +122,8 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	}
 	ctx.font = fonts.banner;
 	ctx.fillStyle = "#FFF";
-	ctx.fillText(ground, canvas.width * 0.25, positions.bannerText);
-	ctx.fillText(date, canvas.width * 0.5, positions.bannerText);
+	ctx.fillText(date, canvas.width * 0.25, positions.bannerText);
+	ctx.fillText(ground, canvas.width * 0.5, positions.bannerText);
 	ctx.fillText(hashtag, canvas.width * 0.75, positions.bannerText);
 
 	//Team Block Shadow
