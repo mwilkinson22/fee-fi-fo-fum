@@ -31,7 +31,7 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	const fonts = {
 		header: `${Math.round(canvas.height * 0.07)}px Montserrat`,
 		banner: `${Math.round(canvas.height * 0.025)}px Titillium`,
-		players: `${Math.round(canvas.height * 0.035)}px Montserrat`
+		players: `${Math.round(canvas.height * 0.03)}px Montserrat`
 	};
 	let teams = [game.teams[localTeam], game.teams[game._opposition]];
 	if (game.isAway) {
@@ -81,7 +81,11 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	ctx.fillText(date, canvas.width * 0.5, positions.bannerText);
 	ctx.fillText(hashtag, canvas.width * 0.75, positions.bannerText);
 
-	//Get Team Images
+	//Team Block Shadow
+	ctx.shadowBlur = 10;
+	ctx.shadowColor = "black";
+	ctx.fillRect(0, positions.blockTop, canvas.width, positions.blockHeight);
+	ctx.shadowBlur = 0;
 
 	//Team Blocks
 	ctx.font = fonts.players;
