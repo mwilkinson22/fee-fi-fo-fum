@@ -23,6 +23,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@google-cloud/storage": "^2.5.0",
 		"axios": "^0.18.0",
 		"babel-cli": "^6.26.0",
 		"babel-core": "^6.26.3",

@@ -327,7 +327,7 @@ export async function generatePregameImage(req, res) {
 		_id,
 		"hashtags pregameSquads isAway date _ground _opposition _competition _teamType"
 	)
-		.populate({ path: "pregameSquads.squad", select: "name" })
+		.populate({ path: "pregameSquads.squad", select: "name image" })
 		.populate({
 			path: "_ground",
 			select: "name address._city",
@@ -353,7 +353,7 @@ export async function generatePregameImage(req, res) {
 		const options = {
 			highlightNew: "1",
 			highlightOverride: null, //Comma separated player IDs
-			playerImage: null, //Random if null
+			playerForImage: "5c058c907415ed27aced0b55", //Random if null
 			bothTeams: "1", //Remains false if only one squad available
 			...req.query
 		};

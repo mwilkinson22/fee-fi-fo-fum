@@ -50,7 +50,6 @@ class AdminGamePage extends Component {
 		const { game } = this.state;
 		const { localTeam } = this.props;
 		const { isAway, score, _opposition, date } = game;
-		console.log(game);
 		let strings;
 		if (score) {
 			strings = [
