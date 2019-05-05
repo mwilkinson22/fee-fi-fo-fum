@@ -8,7 +8,7 @@ const colours = {
 	gold: "#FFCC00"
 };
 
-module.exports = async function(game, { playerForImage } = {}) {
+module.exports = async function(game, { playerForImage, playersForHighlight } = {}) {
 	//Register Fonts
 	registerFont("./assets/fonts/Montserrat-Bold.ttf", { family: "Montserrat" });
 	registerFont("./assets/fonts/TitilliumWeb-Bold.ttf", { family: "Titillium" });
@@ -157,14 +157,15 @@ module.exports = async function(game, { playerForImage } = {}) {
 				};
 			})
 			.sortBy(p => p.number || 999)
-			.each(({ name, number }) => {
+			.each(({ name, number, _id }) => {
 				//Number
 				ctx.fillStyle = colours.number;
 				ctx.textAlign = numAlign;
 				ctx.fillText(number || "", numX, y);
 
 				//Name
-				ctx.fillStyle = colours.name;
+				ctx.fillStyle =
+					playersForHighlight.indexOf(_id) > -1 ? colours.number : colours.name;
 				ctx.textAlign = nameAlign;
 				ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
 				y += Math.round(canvas.height * 0.034);

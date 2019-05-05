@@ -351,10 +351,8 @@ export async function generatePregameImage(req, res) {
 		);
 
 		const options = {
-			highlightNew: "1",
-			highlightOverride: null, //Comma separated player IDs
-			playerForImage: "5c058c907415ed27aced0b55", //Random if null
-			bothTeams: "1", //Remains false if only one squad available
+			playersForHighlight: [],
+			playerForImage: null, //Random if null
 			...req.query
 		};
 		const gameJSON = JSON.parse(JSON.stringify(game));
