@@ -44,10 +44,13 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 		banner: `${Math.round(canvas.height * 0.025)}px Titillium`,
 		players: `${Math.round(canvas.height * 0.03)}px Montserrat`
 	};
+
+	//Set Teams
 	let teams = [game.teams[localTeam], game.teams[game._opposition]];
 	if (game.isAway) {
 		teams = teams.reverse();
 	}
+	const twoTeams = _.reject(game.pregameSquads, s => s._team == localTeam).length;
 
 	//Get Badges
 	for (const i in teams) {
@@ -171,91 +174,120 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	//Team Blocks
 	ctx.font = fonts.players;
 	_.each(teams, (team, i) => {
+		if (!twoTeams && team._id != localTeam) {
+			return true;
+		}
 		//Background
 		colours.main = Colour(team.colours.main).hex();
 		colours.name = Colour(team.colours.text).hex();
 		colours.number = Colour(team.colours.trim1).hex();
 		ctx.fillStyle = colours.main;
-		ctx.fillRect(
-			i === 0 ? 0 : canvas.width / 2,
-			positions.blockTop,
-			canvas.width * 0.5,
-			positions.blockHeight
-		);
+		if (twoTeams) {
+			ctx.fillRect(
+				i === 0 ? 0 : canvas.width / 2,
+				positions.blockTop,
+				canvas.width * 0.5,
+				positions.blockHeight
+			);
+		} else {
+			ctx.fillRect(0, positions.blockTop, canvas.width, positions.blockHeight);
+		}
 
 		//Badges
 		if (team.badge) {
 			ctx.globalAlpha = 0.5;
+			if (twoTeams) {
+				const sx = i === 0 ? 0 : team.badge.width * positions.badgeCutoff;
+				const sy = 0;
+				const sWidth = team.badge.width * (1 - positions.badgeCutoff);
+				const sHeight = team.badge.height;
 
-			const sx = i === 0 ? 0 : team.badge.width * positions.badgeCutoff;
-			const sy = 0;
-			const sWidth = team.badge.width * (1 - positions.badgeCutoff);
-			const sHeight = team.badge.height;
+				const { width, height } = contain(
+					positions.badgeWidth,
+					positions.badgeHeight,
+					sWidth,
+					sHeight
+				);
 
-			const { width, height } = contain(
-				positions.badgeWidth,
-				positions.badgeHeight,
-				sWidth,
-				sHeight
-			);
-
-			const dx = i === 0 ? canvasWidth * 0.5 - width : canvas.width * 0.5;
-			const dy = canvas.height * 0.25;
-			const dWidth = width;
-			const dHeight = height;
-
-			ctx.drawImage(team.badge, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+				const dx = i === 0 ? canvasWidth * 0.5 - width : canvas.width * 0.5;
+				const dy = canvas.height * 0.25;
+				const dWidth = width;
+				const dHeight = height;
+				ctx.drawImage(team.badge, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+			} else {
+				const { width, height } = contain(
+					positions.badgeWidth * 2,
+					positions.blockHeight * 0.8,
+					team.badge.width,
+					team.badge.height
+				);
+				ctx.drawImage(
+					team.badge,
+					canvas.width - width * 0.7,
+					positions.blockTop + positions.blockHeight * 0.1,
+					width,
+					height
+				);
+			}
 			ctx.globalAlpha = 1;
 		}
 
-		//Players
-		let nameX, numX, nameAlign, numAlign;
-		let y = Math.round(canvas.height * 0.28);
-		if (i === 0) {
-			numAlign = "left";
-			numX = Math.round(canvas.width * 0.29);
-			nameAlign = "right";
-			nameX = Math.round(canvas.width * 0.28);
-		} else {
-			numAlign = "right";
-			numX = Math.round(canvas.width * 0.71);
-			nameAlign = "left";
-			nameX = Math.round(canvas.width * 0.72);
+		const pregameSquad = _.find(game.pregameSquads, s => s._team == team._id);
+		if (pregameSquad) {
+			const { squad } = pregameSquad;
+			//Players
+			let nameX, numX, nameAlign, numAlign;
+			let y = Math.round(canvas.height * 0.28);
+			if (!twoTeams) {
+				numAlign = "right";
+				numX = Math.round(canvas.width * 0.4);
+				nameX = Math.round(canvas.width * 0.41);
+				nameAlign = "left";
+			} else if (i === 0) {
+				numAlign = "left";
+				numX = Math.round(canvas.width * 0.29);
+				nameAlign = "right";
+				nameX = Math.round(canvas.width * 0.28);
+			} else {
+				numAlign = "right";
+				numX = Math.round(canvas.width * 0.71);
+				nameAlign = "left";
+				nameX = Math.round(canvas.width * 0.72);
+			}
+			ctx.fillStyle = ctx.fillStyle = Colour(team.colours.text).hex();
+			const numbers = _.find(
+				team.squads,
+				s => s.year == new Date(game.date).getFullYear() && s._teamType == game._teamType
+			).players;
+
+			_.chain(squad)
+				.map(player => {
+					let number;
+					const squadEntry = _.find(numbers, p => p._player == player._id);
+					if (squadEntry) {
+						number = squadEntry.number;
+					}
+					return {
+						...player,
+						number
+					};
+				})
+				.sortBy(p => p.number || 999)
+				.each(({ name, number, _id }) => {
+					//Number
+					ctx.fillStyle = colours.number;
+					ctx.textAlign = numAlign;
+					ctx.fillText(number || "", numX, y);
+
+					//Name
+					ctx.fillStyle =
+						playersForHighlight.indexOf(_id) > -1 ? colours.number : colours.name;
+					ctx.textAlign = nameAlign;
+					ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
+					y += Math.round(canvas.height * 0.034);
+				})
+				.value();
 		}
-		ctx.fillStyle = ctx.fillStyle = Colour(team.colours.text).hex();
-		const { squad } = _.find(game.pregameSquads, s => s._team == team._id);
-		const numbers = _.find(
-			team.squads,
-			s => s.year == new Date(game.date).getFullYear() && s._teamType == game._teamType
-		).players;
-
-		_.chain(squad)
-			.map(player => {
-				let number;
-				const squadEntry = _.find(numbers, p => p._player == player._id);
-				if (squadEntry) {
-					number = squadEntry.number;
-				}
-				return {
-					...player,
-					number
-				};
-			})
-			.sortBy(p => p.number || 999)
-			.each(({ name, number, _id }) => {
-				//Number
-				ctx.fillStyle = colours.number;
-				ctx.textAlign = numAlign;
-				ctx.fillText(number || "", numX, y);
-
-				//Name
-				ctx.fillStyle =
-					playersForHighlight.indexOf(_id) > -1 ? colours.number : colours.name;
-				ctx.textAlign = nameAlign;
-				ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
-				y += Math.round(canvas.height * 0.034);
-			})
-			.value();
 
 		//Get Player Image
 		if (team._id == localTeam) {
@@ -277,7 +309,7 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 		);
 		ctx.drawImage(
 			playerImage,
-			canvas.width * 0.5 - width * 0.5,
+			(twoTeams ? canvas.width * 0.5 : 0) - width * 0.1,
 			canvas.height - height,
 			width,
 			height
