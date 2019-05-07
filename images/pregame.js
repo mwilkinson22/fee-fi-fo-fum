@@ -13,8 +13,6 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	registerFont("./assets/fonts/Montserrat-Bold.ttf", { family: "Montserrat" });
 	registerFont("./assets/fonts/TitilliumWeb-Bold.ttf", { family: "Titillium" });
 
-	console.log(game);
-
 	//Create Canvas
 	const canvasWidth = 1400;
 	const canvas = createCanvas(canvasWidth, canvasWidth * 0.5);
