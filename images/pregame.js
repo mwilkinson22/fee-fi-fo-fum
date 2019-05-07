@@ -13,6 +13,8 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 	registerFont("./assets/fonts/Montserrat-Bold.ttf", { family: "Montserrat" });
 	registerFont("./assets/fonts/TitilliumWeb-Bold.ttf", { family: "Titillium" });
 
+	console.log(game);
+
 	//Create Canvas
 	const canvasWidth = 1400;
 	const canvas = createCanvas(canvasWidth, canvasWidth * 0.5);
@@ -84,6 +86,42 @@ module.exports = async function(game, { playerForImage, playersForHighlight } = 
 		positions.headerIconWidth,
 		positions.headerIconHeight
 	);
+
+	//Set Game Logo
+	let leftIcon;
+	if (game.images.logo) {
+		leftIcon = await googleToCanvas(`images/games/logo/${game.images.logo}`);
+	} else if (game._competition.instance.image) {
+		leftIcon = await googleToCanvas(`images/competitions/${game._competition.instance.image}`);
+	} else if (game.teams[localTeam].image) {
+		leftIcon = await googleToCanvas(`images/teams/${game.teams[localTeam].image}`);
+	}
+
+	if (leftIcon) {
+		ctx.fillRect(
+			positions.headerLeftIconOffset,
+			positions.headerIconTop,
+			positions.headerIconWidth,
+			positions.headerIconHeight
+		);
+		const { width, height, offsetX, offsetY } = contain(
+			positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
+			positions.headerIconHeight * (1 - positions.headerIconPadding * 2),
+			leftIcon.width,
+			leftIcon.height
+		);
+		ctx.drawImage(
+			leftIcon,
+			positions.headerLeftIconOffset +
+				positions.headerIconWidth * positions.headerIconPadding +
+				offsetX,
+			positions.headerIconTop +
+				positions.headerIconHeight * positions.headerIconPadding +
+				offsetY,
+			width,
+			height
+		);
+	}
 
 	//Set 4Fs Logo
 	const rightIcon = await googleToCanvas("images/layout/branding/square-logo-with-shadow.png");
