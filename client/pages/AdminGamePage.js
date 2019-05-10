@@ -5,7 +5,7 @@ import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
-import { NavLink, Link, Switch, Route } from "react-router-dom";
+import { Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGameTestImage from "../components/admin/games/AdminGameTestImage";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
@@ -24,9 +24,10 @@ class AdminGamePage extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
-		const { match, slugMap, fullGames, fetchGames } = nextProps;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { match, slugMap, gameList, fullGames, fetchGames } = nextProps;
 		const { slug } = match.params;
+		let { lastGameId } = prevState;
 		const newState = {};
 		if (!slugMap) {
 			return newState;
@@ -35,12 +36,35 @@ class AdminGamePage extends Component {
 			newState.game = false;
 		}
 
+		//Get Game Id
 		const id = slugMap[slug].id;
-		if (!fullGames[id]) {
-			fetchGames([id]);
+
+		//Get Previous Game Id
+		if (lastGameId === undefined) {
+			const { _teamType, date } = gameList[id];
+			const lastGameList = _.chain(gameList)
+				.filter(g => g._teamType == _teamType)
+				.filter(g => g.date < date)
+				.orderBy(["date"], ["desc"])
+				.map(g => g._id)
+				.value();
+			lastGameId = newState.lastGameId = lastGameList.length ? lastGameList[0] : false;
+		}
+
+		//Get Games To Load
+		const gamesRequired = [id];
+		if (lastGameId) {
+			gamesRequired.push(lastGameId);
+		}
+		const gamesToLoad = _.reject(gamesRequired, id => fullGames[id]);
+
+		if (gamesToLoad.length) {
+			fetchGames(gamesToLoad);
 			newState.game = undefined;
+			newState.lastGame = undefined;
 		} else {
 			newState.game = fullGames[id];
+			newState.lastGame = lastGameId ? fullGames[lastGameId] : false;
 		}
 
 		return newState;
@@ -108,7 +132,7 @@ class AdminGamePage extends Component {
 	}
 
 	getContent() {
-		const { game } = this.state;
+		const { game, lastGame } = this.state;
 		return (
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
@@ -131,7 +155,7 @@ class AdminGamePage extends Component {
 					<Route
 						path="/admin/game/:slug/pregame"
 						exact
-						render={() => <AdminGamePregameSquads game={game} />}
+						render={() => <AdminGamePregameSquads game={game} lastGame={lastGame} />}
 					/>
 					<Route
 						path="/admin/game/:slug"
@@ -176,10 +200,10 @@ class AdminGamePage extends Component {
 }
 
 function mapStateToProps({ config, games, teams }, ownProps) {
-	const { fullGames, slugMap } = games;
+	const { fullGames, slugMap, gameList } = games;
 	const { teamTypes } = teams;
 	const { localTeam } = config;
-	return { localTeam, fullGames, teams, slugMap, teamTypes, ...ownProps };
+	return { localTeam, fullGames, teams, slugMap, gameList, teamTypes, ...ownProps };
 }
 export default connect(
 	mapStateToProps,
