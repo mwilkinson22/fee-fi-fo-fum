@@ -7,7 +7,6 @@ import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
 import { Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
-import AdminGameTestImage from "../components/admin/games/AdminGameTestImage";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
 import AdminGamePregameImage from "../components/admin/games/AdminGamePregameImage";
 import AdminGameSquads from "../components/admin/games/AdminGameSquads";
@@ -100,7 +99,6 @@ class AdminGamePage extends Component {
 		const { pathname } = this.props.location;
 		const { status, slug, pregameSquads } = this.state.game;
 		const submenuItems = [
-			{ label: "TEST - Fixture Image", value: "test-image" },
 			{ label: "Overview", value: "" },
 			{ label: "Pregame Squad", value: "pregame" },
 			{ label: "Photos", value: "photos" }
@@ -138,11 +136,6 @@ class AdminGamePage extends Component {
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
 				<Switch>
-					<Route
-						path="/admin/game/:slug/test-image"
-						exact
-						render={() => <AdminGameTestImage game={game} />}
-					/>
 					<Route
 						path="/admin/game/:slug/event"
 						exact
