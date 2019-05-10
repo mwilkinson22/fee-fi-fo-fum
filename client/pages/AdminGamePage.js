@@ -73,7 +73,7 @@ class AdminGamePage extends Component {
 
 	getSubmenu() {
 		const { pathname } = this.props.location;
-		const { status, slug } = this.state.game;
+		const { status, slug, pregameSquads } = this.state.game;
 		const submenuItems = [
 			{ label: "TEST - Fixture Image", value: "test-image" },
 			{ label: "Overview", value: "" },
@@ -81,11 +81,12 @@ class AdminGamePage extends Component {
 			{ label: "Photos", value: "photos" }
 		];
 
+		if (pregameSquads.length) {
+			submenuItems.push({ label: "Pregame Squad Image", value: "pregame-image" });
+		}
+
 		if (status >= 1) {
-			submenuItems.push(
-				{ label: "Pregame Squad Image", value: "pregame-image" },
-				{ label: "Match Squads", value: "squads" }
-			);
+			submenuItems.push({ label: "Match Squads", value: "squads" });
 		}
 		if (status >= 2) {
 			submenuItems.push(
