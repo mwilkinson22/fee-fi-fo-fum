@@ -28,8 +28,8 @@ class AdminGamePregameSquads extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { game, fetchTeam, fullTeams, localTeam } = nextProps;
-		const newState = { game };
+		const { game, fullTeams, localTeam } = nextProps;
+		const newState = {};
 
 		let teams = [localTeam, game._opposition._id];
 
@@ -122,6 +122,20 @@ class AdminGamePregameSquads extends Component {
 		});
 	}
 
+	loadPreviousSquad(formikProps) {
+		const { setValues, values } = formikProps;
+		const { localTeam, lastGame } = this.props;
+		const lastSquad = _.find(lastGame.pregameSquads, s => s._team == localTeam);
+		const squadIds = lastSquad ? lastSquad.squad : [];
+
+		setValues({
+			...values,
+			[localTeam]: _.mapValues(values[localTeam], (val, id) =>
+				Boolean(_.find(squadIds, s => s == id))
+			)
+		});
+	}
+
 	onSubmit(values) {
 		const { game } = this.state;
 		const { setPregameSquads } = this.props;
@@ -137,7 +151,8 @@ class AdminGamePregameSquads extends Component {
 	}
 
 	render() {
-		const { game, squads, teams } = this.state;
+		const { squads, teams } = this.state;
+		const { game, lastGame } = this.props;
 		const { localTeam } = this.props;
 		if (Object.keys(squads).length < 2) {
 			return <LoadingPage />;
@@ -200,9 +215,15 @@ class AdminGamePregameSquads extends Component {
 														Clear
 													</button>
 												];
-												if (id === localTeam) {
+												if (id === localTeam && lastGame) {
 													buttons.push(
-														<button type="button" key="last19">
+														<button
+															type="button"
+															key="last19"
+															onClick={() =>
+																this.loadPreviousSquad(formikProps)
+															}
+														>
 															Load Last 19
 														</button>
 													);
