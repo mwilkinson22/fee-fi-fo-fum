@@ -13,6 +13,7 @@ import axios from "axios";
 //Constants
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
+import PregameImage from "~/images/PregameImage";
 
 //Helpers
 import twitter from "~/services/twitter";
@@ -321,7 +322,6 @@ export async function handleEvent(req, res) {
 //Image Generators
 export async function generatePregameImage(req, res) {
 	const { _id } = req.params;
-	const { localTeam } = require("../../config/keys");
 
 	const game = await Game.findById(
 		_id,
@@ -344,19 +344,9 @@ export async function generatePregameImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const imageGenerator = await require("~/images/pregame");
-		const teams = await Team.find(
-			{ _id: { $in: [localTeam, game._opposition] } },
-			"name colours hashtagPrefix squads image"
-		);
-
-		const options = {
-			playersForHighlight: [],
-			playerForImage: null, //Random if null
-			...req.query
-		};
 		const gameJSON = JSON.parse(JSON.stringify(game));
-		const image = await imageGenerator({ ...gameJSON, teams: _.keyBy(teams, "_id") }, options);
+		const imageClass = new PregameImage(gameJSON);
+		const image = await imageClass.render(false);
 		res.send(image);
 	}
 }
