@@ -12,8 +12,10 @@
 		align-items: center;
 		h6,
 		.error,
-		.buttons {
+		.buttons,
+		.full-span {
 			grid-column: 1 / -1;
+			max-width: 100%;
 		}
 	}
 
@@ -278,6 +280,7 @@
 	}
 	.react-select {
 		margin-top: 1pt;
+		margin-bottom: 1pt;
 	}
 	input {
 		margin-top: 2pt;

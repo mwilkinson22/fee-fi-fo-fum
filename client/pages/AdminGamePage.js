@@ -9,6 +9,7 @@ import { Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGameTestImage from "../components/admin/games/AdminGameTestImage";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
+import AdminGamePregameImage from "../components/admin/games/AdminGamePregameImage";
 import AdminGameSquads from "../components/admin/games/AdminGameSquads";
 import AdminGameEvent from "../components/admin/games/AdminGameEvent";
 import Select from "../components/admin/fields/Select";
@@ -151,6 +152,11 @@ class AdminGamePage extends Component {
 						path="/admin/game/:slug/squads"
 						exact
 						render={() => <AdminGameSquads game={game} />}
+					/>
+					<Route
+						path="/admin/game/:slug/pregame-image"
+						exact
+						render={() => <AdminGamePregameImage game={game} lastGame={lastGame} />}
 					/>
 					<Route
 						path="/admin/game/:slug/pregame"

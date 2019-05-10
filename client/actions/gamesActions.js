@@ -45,7 +45,15 @@ export const crawlLocalGames = () => async (dispatch, getState, api) => {
 	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
 };
 
-export const getPregameImage = id => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/${id}/images/pregame`);
+export const getPregameImage = (id, options) => async (dispatch, getState, api) => {
+	let query = `?playerForImage=${
+		options.playerForImage
+	}&playersToHighlight=${options.playersToHighlight.join(",")}`;
+
+	if (options.team) {
+		query += `&singleTeam=${options.team}`;
+	}
+
+	const res = await api.get(`/games/${id}/images/pregame${query}`);
 	dispatch({ type: FETCH_PREGAME_IMAGE, payload: res.data, id });
 };

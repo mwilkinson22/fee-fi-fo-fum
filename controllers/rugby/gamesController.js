@@ -345,7 +345,7 @@ export async function generatePregameImage(req, res) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
 		const gameJSON = JSON.parse(JSON.stringify(game));
-		const imageClass = new PregameImage(gameJSON);
+		const imageClass = new PregameImage(gameJSON, req.query);
 		const image = await imageClass.render(false);
 		res.send(image);
 	}

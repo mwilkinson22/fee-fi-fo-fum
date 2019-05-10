@@ -6,6 +6,7 @@ const Colour = require("color");
 
 export default class PregameImage extends Canvas {
 	constructor(game, options = {}) {
+		console.log(options);
 		//Set Dimensions
 		const cWidth = 1400;
 		const cHeight = cWidth / 2;
@@ -65,10 +66,9 @@ export default class PregameImage extends Canvas {
 		//Variables
 		this.game = game;
 		this.options = {
-			singleTeam: false, //False, or a team id
-			playerForImage: null, //If undefined, unavailable or has no image, we choose randomly
-			playersToHighlight: [],
-			...options
+			singleTeam: options.singleTeam, //False, or a team id
+			playerForImage: options.playerForImage !== "false" && options.playerForImage, //If undefined, unavailable or has no image, we choose randomly
+			playersToHighlight: options.playersToHighlight.split(",")
 		};
 		const teamIds = [localTeam, game._opposition];
 		this.teamIds = game.isAway ? teamIds.reverse() : teamIds;
@@ -291,9 +291,9 @@ export default class PregameImage extends Canvas {
 		ctx.textAlign = "left";
 
 		//Set Positioning
-		let numX = Math.round(cWidth * 0.3);
+		let numX = options.playerForImage ? Math.round(cWidth * 0.3) : Math.round(cWidth * 0.2);
 		let nameX = numX + Math.round(textStyles.singleList.size * 1.7);
-		const initialY = Math.round(cHeight * 0.38);
+		const initialY = Math.round(cHeight * 0.34);
 		let y = initialY;
 		let widest = 0;
 
@@ -306,7 +306,7 @@ export default class PregameImage extends Canvas {
 			const isHighlighted = options.playersToHighlight.indexOf(id) > -1;
 			ctx.fillStyle = Colour(isHighlighted ? team.colours.trim1 : team.colours.text).hex();
 			ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
-			y += Math.round(textStyles.singleList.size * 1.1);
+			y += Math.round(textStyles.singleList.size * 1.3);
 
 			//Update widest point
 			const { width } = ctx.measureText(`${name.first} ${name.last}`);
@@ -370,7 +370,6 @@ export default class PregameImage extends Canvas {
 			"name colours hashtagPrefix squads image"
 		);
 		this.teams = _.map(teamIds, id => _.find(teams, t => t._id == id));
-		console.log(teams);
 
 		//BG
 		this.drawBackground();
