@@ -14,6 +14,7 @@ import requireAdmin from "../../middlewares/requireAdmin";
 module.exports = app => {
 	//Image Generators
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.generatePregameImage);
+	app.post("/api/games/:_id/images/pregame", requireAdmin, gamesController.postPregameImage);
 
 	//Getters
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);

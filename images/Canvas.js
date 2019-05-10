@@ -88,7 +88,7 @@ export default class Canvas {
 			case "base64":
 				return canvas.toDataURL();
 			case "twitter":
-				return canvas.toDataUrl().split("base64,")[1];
+				return canvas.toDataURL().split("base64,")[1];
 			default:
 				console.error(`Invalid render type: '${type}'`);
 				return null;

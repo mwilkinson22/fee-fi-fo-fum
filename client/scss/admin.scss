@@ -9,6 +9,7 @@
 .form-card {
 	&.grid {
 		display: grid;
+		grid-row-gap: 10pt;
 		align-items: center;
 		h6,
 		.error,
@@ -81,6 +82,7 @@
 	button {
 		background: #eee;
 		color: black;
+		margin: 4pt 0;
 
 		&:hover {
 			background: #ddd;
@@ -429,5 +431,12 @@
 				font-size: 1.2em;
 			}
 		}
+	}
+}
+
+.pregame-image-loader {
+	.preview-image {
+		margin: 4pt 0;
+		max-width: 100%;
 	}
 }

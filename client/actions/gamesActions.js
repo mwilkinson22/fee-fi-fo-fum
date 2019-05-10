@@ -45,15 +45,12 @@ export const crawlLocalGames = () => async (dispatch, getState, api) => {
 	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
 };
 
-export const getPregameImage = (id, options) => async (dispatch, getState, api) => {
-	let query = `?playerForImage=${
-		options.playerForImage
-	}&playersToHighlight=${options.playersToHighlight.join(",")}`;
-
-	if (options.team) {
-		query += `&singleTeam=${options.team}`;
-	}
-
+export const getPregameImage = (id, query) => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/${id}/images/pregame${query}`);
 	dispatch({ type: FETCH_PREGAME_IMAGE, payload: res.data, id });
+};
+
+export const tweetPregameImage = (id, query, tweetData) => async (dispatch, getState, api) => {
+	const res = await api.post(`/games/${id}/images/pregame${query}`, tweetData);
+	toast.success("Tweet Sent!");
 };

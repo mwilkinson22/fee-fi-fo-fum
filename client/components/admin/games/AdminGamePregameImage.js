@@ -2,16 +2,15 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import Table from "../../Table";
 import Select from "../fields/Select";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import { getPregameImage } from "../../../actions/gamesActions";
+import { getPregameImage, tweetPregameImage } from "../../../actions/gamesActions";
+import TweetComposer from "~/client/components/TweetComposer";
 
 class AdminGamePregameImage extends Component {
 	constructor(props) {
@@ -28,7 +27,10 @@ class AdminGamePregameImage extends Component {
 		this.state = {
 			game,
 			team: game.pregameSquads.length > 1 ? "both" : _.values(game.pregameSquads)[0]._team,
-			playerForImage: false
+			playerForImage: false,
+			tweet: `Here are your teams for this ${game.date.toString("dddd")}'s game against ${
+				game._opposition.name.short
+			}!\n\n`
 		};
 	}
 
@@ -93,10 +95,11 @@ class AdminGamePregameImage extends Component {
 							({ _player }) => _player._id == id
 						);
 
+						const highlight = _.find(newState.playersToHighlight, p => p == id);
 						const number = squadMember.number;
-						const name = `${number ? number + " " : ""}${
+						const name = `${number ? number + ". " : ""}${
 							squadMember._player.name.full
-						}`;
+						} ${highlight ? "    *" : ""}`;
 						const image = squadMember._player.image;
 
 						return {
@@ -157,21 +160,71 @@ class AdminGamePregameImage extends Component {
 
 	generatePreview() {
 		const { game, getPregameImage } = this.props;
-		const options = _.pick(this.state, ["playerForImage", "playersToHighlight", "team"]);
-		getPregameImage(game._id, options);
+		getPregameImage(game._id, this.optionsToQuery());
+	}
+
+	postTweet() {
+		this.setState({ tweetSent: true });
+		const { game, tweetPregameImage } = this.props;
+		tweetPregameImage(
+			game._id,
+			this.optionsToQuery(),
+			_.pick(this.state, ["tweet", "replyTweet"])
+		);
 	}
 
 	renderPreview() {
 		const { previewImage } = this.state;
 		if (previewImage) {
-			return <img src={previewImage} className="full-span" />;
+			return <img src={previewImage} className="full-span preview-image" />;
 		} else {
 			return null;
 		}
 	}
 
+	optionsToQuery() {
+		const { playerForImage, playersToHighlight, team } = this.state;
+		let query = `?playerForImage=${playerForImage}&playersToHighlight=${playersToHighlight.join(
+			","
+		)}`;
+
+		if (team !== "both") {
+			query += `&singleTeam=${team}`;
+		}
+
+		return query;
+	}
+
+	renderTweetComposer() {
+		const { teams, tweet } = this.state;
+		const { game, localTeam } = this.props;
+		const localSquad = _.find(
+			teams[localTeam].squads,
+			({ year }) => year == game.date.getFullYear()
+		);
+
+		let variables = [];
+		if (localSquad) {
+			variables = _.chain(localSquad.players)
+				.filter(({ _player }) => _player.twitter)
+				.sortBy(p => p.number || 999)
+				.map(({ _player }) => ({ name: _player.name.full, value: `@${_player.twitter}` }))
+				.value();
+		}
+
+		return (
+			<TweetComposer
+				initialContent={tweet}
+				variables={variables}
+				variableInstruction="@ Player"
+				includeButton={false}
+				onChange={tweet => this.setState({ tweet })}
+			/>
+		);
+	}
+
 	render() {
-		const { teams, previewImage } = this.state;
+		const { teams } = this.state;
 		const { game, lastGame } = this.props;
 
 		if (game === undefined || lastGame === undefined || teams === undefined) {
@@ -179,18 +232,33 @@ class AdminGamePregameImage extends Component {
 		}
 
 		return (
-			<div className="container">
+			<div className="container pregame-image-loader">
 				<div className="form-card grid">
 					<label>Team</label>
 					{this.renderTeamSelect()}
 					<label>Player For Image</label>
 					{this.renderPlayerImageSelect()}
-					{this.renderPreview()}
+					<label>Tweet</label>
+					{this.renderTweetComposer()}
+					<label>In Reply To</label>
+					<input
+						type="text"
+						value={this.state.replyTweet}
+						onChange={ev => this.setState({ replyTweet: ev.target.value })}
+					/>
 					<div className="buttons">
 						<button type="button" onClick={() => this.generatePreview()}>
 							Preview
 						</button>
+						<button
+							type="button"
+							onClick={() => this.postTweet()}
+							disabled={this.state.tweetSent}
+						>
+							Post
+						</button>
 					</div>
+					{this.renderPreview()}
 				</div>
 			</div>
 		);
@@ -206,5 +274,5 @@ function mapStateToProps({ config, teams, games }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, getPregameImage }
+	{ fetchTeam, getPregameImage, tweetPregameImage }
 )(AdminGamePregameImage);

@@ -323,24 +323,8 @@ export async function handleEvent(req, res) {
 export async function generatePregameImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await Game.findById(
-		_id,
-		"hashtags pregameSquads isAway date _ground _opposition _competition _teamType images"
-	)
-		.populate({ path: "pregameSquads.squad", select: "name image" })
-		.populate({
-			path: "_ground",
-			select: "name address._city",
-			populate: { path: "address._city", select: "name" }
-		})
-		.populate({
-			path: "_competition",
-			select: "name _parentCompetition instances instance hashtagPrefix",
-			populate: {
-				path: "_parentCompetition",
-				select: "name"
-			}
-		});
+	const game = await Game.findById(_id).pregameImage();
+
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
@@ -348,5 +332,31 @@ export async function generatePregameImage(req, res) {
 		const imageClass = new PregameImage(gameJSON, req.query);
 		const image = await imageClass.render(false);
 		res.send(image);
+	}
+}
+
+export async function postPregameImage(req, res) {
+	const { _id } = req.params;
+
+	const game = await Game.findById(_id).pregameImage();
+
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		const gameJSON = JSON.parse(JSON.stringify(game));
+		const imageClass = new PregameImage(gameJSON, req.query);
+		const image = await imageClass.render(true);
+		const upload = await twitter.post("media/upload", {
+			media_data: image
+		});
+		const { media_id_string } = upload.data;
+		const tweet = await twitter.post("statuses/update", {
+			status: req.body.tweet,
+			in_reply_to_status_id: req.body.replyTweet,
+			auto_populate_reply_metadata: true,
+			media_ids: [media_id_string]
+		});
+
+		res.send(tweet);
 	}
 }

@@ -6,7 +6,6 @@ const Colour = require("color");
 
 export default class PregameImage extends Canvas {
 	constructor(game, options = {}) {
-		console.log(options);
 		//Set Dimensions
 		const cWidth = 1400;
 		const cHeight = cWidth / 2;
@@ -233,7 +232,7 @@ export default class PregameImage extends Canvas {
 	}
 
 	async drawPlayer(singleTeam) {
-		const { ctx, game, options, cWidth, cHeight } = this;
+		const { ctx, game, options, cWidth, cHeight, colours } = this;
 		const { squad } = _.find(game.pregameSquads, s => s._team == localTeam);
 		const squadWithImages = _.filter(squad, s => s.image);
 		const playerForImage =
@@ -247,6 +246,8 @@ export default class PregameImage extends Canvas {
 			playerImage.width,
 			playerImage.height
 		);
+		ctx.shadowBlur = 10;
+		ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
 		ctx.drawImage(
 			playerImage,
 			singleTeam ? 0 - width * 0.1 : (cWidth - width) / 2,
@@ -254,6 +255,7 @@ export default class PregameImage extends Canvas {
 			width,
 			height
 		);
+		ctx.shadowBlur = 0;
 	}
 
 	getTeamList(team) {
@@ -282,6 +284,12 @@ export default class PregameImage extends Canvas {
 		}
 	}
 
+	setTeamShadow(team) {
+		const { ctx } = this;
+		ctx.shadowBlur = 4;
+		ctx.shadowColor = Colour(team.colours.main).hex();
+	}
+
 	drawList(team) {
 		const { ctx, cHeight, cWidth, options, textStyles } = this;
 		const squad = this.getTeamList(team);
@@ -289,6 +297,7 @@ export default class PregameImage extends Canvas {
 		//Set Text
 		ctx.font = textStyles.singleList.string;
 		ctx.textAlign = "left";
+		this.setTeamShadow(team);
 
 		//Set Positioning
 		let numX = options.playerForImage ? Math.round(cWidth * 0.3) : Math.round(cWidth * 0.2);
@@ -327,6 +336,8 @@ export default class PregameImage extends Canvas {
 		const { teams, ctx, cHeight, cWidth, options, textStyles } = this;
 		ctx.font = textStyles.doubleList.string;
 		_.each(teams, (team, i) => {
+			this.setTeamShadow(team);
+
 			let nameX, numX, nameAlign, numAlign;
 			let y = Math.round(cHeight * 0.28);
 			if (i === 0) {
