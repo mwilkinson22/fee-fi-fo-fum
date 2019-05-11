@@ -77,6 +77,8 @@ class AdminGameEvent extends Component {
 
 		postGameEvent(game._id, values);
 
+		formikActions.setFieldValue("postTweet", values.postTweet);
+
 		if (values.event === "T") {
 			formikActions.setFieldValue("event", {
 				label: "Conversion",
@@ -166,7 +168,7 @@ class AdminGameEvent extends Component {
 				{ name: "replyTweet", type: "text" }
 			);
 		}
-
+		console.log(formikProps.values);
 		return (
 			<Form>
 				<div className="form-card grid">
