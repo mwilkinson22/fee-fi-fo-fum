@@ -399,8 +399,8 @@ export default class PregameImage extends Canvas {
 		if (singleTeam) {
 			await this.drawTeamBlock(singleTeam, "full");
 		} else {
-			await this.drawTeamBlock(teams[0], "left");
-			await this.drawTeamBlock(teams[1], "right");
+			await this.drawTeamBlock(this.teams[0], "left");
+			await this.drawTeamBlock(this.teams[1], "right");
 		}
 
 		//Player
