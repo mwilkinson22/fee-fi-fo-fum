@@ -9,7 +9,7 @@
 .form-card {
 	&.grid {
 		display: grid;
-		grid-row-gap: 10pt;
+		grid-row-gap: 8pt;
 		align-items: center;
 		h6,
 		.error,
@@ -30,7 +30,6 @@
 	}
 
 	.error {
-		margin: 4pt 0 10pt;
 		display: block;
 	}
 
@@ -436,7 +435,6 @@
 
 .pregame-image-loader {
 	.preview-image {
-		margin: 4pt 0;
 		max-width: 100%;
 	}
 }
