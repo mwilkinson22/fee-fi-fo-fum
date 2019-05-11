@@ -1,10 +1,4 @@
-import {
-	FETCH_GAMES,
-	FETCH_GAME_LIST,
-	UPDATE_GAME,
-	CRAWL_LOCAL_GAMES,
-	FETCH_PREGAME_IMAGE
-} from "./types";
+import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchGames = ids => async (dispatch, getState, api) => {
@@ -47,10 +41,10 @@ export const crawlLocalGames = () => async (dispatch, getState, api) => {
 
 export const getPregameImage = (id, query) => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/${id}/images/pregame${query}`);
-	dispatch({ type: FETCH_PREGAME_IMAGE, payload: res.data, id });
+	return res.data;
 };
 
 export const tweetPregameImage = (id, query, tweetData) => async (dispatch, getState, api) => {
-	const res = await api.post(`/games/${id}/images/pregame${query}`, tweetData);
+	await api.post(`/games/${id}/images/pregame${query}`, tweetData);
 	toast.success("Tweet Sent!");
 };

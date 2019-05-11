@@ -35,7 +35,7 @@ class AdminGamePregameImage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, lastGame, fullTeams, localTeam, pregameImages } = nextProps;
+		const { game, lastGame, fullTeams, localTeam } = nextProps;
 		const newState = {};
 
 		let teams = [localTeam, game._opposition._id];
@@ -116,8 +116,6 @@ class AdminGamePregameImage extends Component {
 			}
 		}
 
-		newState.previewImage = pregameImages[game._id];
-
 		return newState;
 	}
 
@@ -158,9 +156,11 @@ class AdminGamePregameImage extends Component {
 		);
 	}
 
-	generatePreview() {
+	async generatePreview() {
+		this.setState({ previewImage: false });
 		const { game, getPregameImage } = this.props;
-		getPregameImage(game._id, this.optionsToQuery());
+		const image = await getPregameImage(game._id, this.optionsToQuery());
+		this.setState({ previewImage: image });
 	}
 
 	postTweet() {
@@ -177,6 +177,8 @@ class AdminGamePregameImage extends Component {
 		const { previewImage } = this.state;
 		if (previewImage) {
 			return <img src={previewImage} className="full-span preview-image" />;
+		} else if (previewImage === false) {
+			return <LoadingPage className="full-span" />;
 		} else {
 			return null;
 		}
@@ -265,11 +267,10 @@ class AdminGamePregameImage extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams, games }, ownProps) {
+function mapStateToProps({ config, teams }, ownProps) {
 	const { fullTeams } = teams;
 	const { localTeam } = config;
-	const { pregame } = games.images;
-	return { fullTeams, localTeam, pregameImages: pregame, ...ownProps };
+	return { fullTeams, localTeam, ...ownProps };
 }
 
 export default connect(

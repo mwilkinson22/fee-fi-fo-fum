@@ -6,12 +6,11 @@ import {
 	CRAWL_LOCAL_GAMES,
 	CRAWL_NEUTRAL_GAMES,
 	UPDATE_NEUTRAL_GAMES,
-	DELETE_NEUTRAL_GAME,
-	FETCH_PREGAME_IMAGE
+	DELETE_NEUTRAL_GAME
 } from "../actions/types";
 import { fixDates } from "../../helpers/gameHelper";
 
-export default function(state = { fullGames: {}, images: { pregame: {} } }, action) {
+export default function(state = { fullGames: {} }, action) {
 	switch (action.type) {
 		case FETCH_GAMES:
 		case UPDATE_GAME:
@@ -65,18 +64,6 @@ export default function(state = { fullGames: {}, images: { pregame: {} } }, acti
 			return {
 				...state,
 				crawledNeutralGames: action.payload
-			};
-
-		case FETCH_PREGAME_IMAGE:
-			return {
-				...state,
-				images: {
-					...state.images,
-					pregame: {
-						...state.images.pregame,
-						[action.id]: action.payload
-					}
-				}
 			};
 
 		default:
