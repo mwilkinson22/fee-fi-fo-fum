@@ -12,6 +12,7 @@ export default class Select extends Component {
 			defaultValue,
 			disabled
 		} = this.props;
+
 		const styles = {
 			option: (provided, state) => ({
 				...provided,

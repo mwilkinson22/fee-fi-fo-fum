@@ -2,12 +2,10 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 
 //Components
 import SquadSelector from "./SquadSelector";
 import LoadingPage from "../../LoadingPage";
-import Table from "../../Table";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
@@ -96,12 +94,6 @@ class AdminGameSquads extends Component {
 		}
 
 		return newState;
-	}
-
-	getDefaults() {}
-
-	onSubmit(values) {
-		console.log(values);
 	}
 
 	render() {
