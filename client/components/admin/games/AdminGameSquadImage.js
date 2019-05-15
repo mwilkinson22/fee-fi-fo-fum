@@ -23,11 +23,14 @@ class AdminGamePregameImage extends Component {
 			fetchTeam(game._opposition._id);
 		}
 
+		const { hashtags } = game;
 		this.state = {
 			game,
 			tweet: `Here is your Giants squad for ${
 				Number(game.date.toString("H")) < 6 ? "today" : "tonight"
-			}'s game against ${game._opposition.name.short}!\n\n`
+			}'s game against ${game._opposition.name.short}!\n\n${
+				hashtags ? hashtags.map(t => `#${t}`).join(" ") : ""
+			}`
 		};
 	}
 
