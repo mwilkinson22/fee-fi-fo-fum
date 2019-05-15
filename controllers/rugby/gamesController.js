@@ -38,12 +38,12 @@ async function processBasics(values) {
 	_.each(selectable, prop => (values[prop] ? (values[prop] = values[prop].value) : null));
 
 	//Get Null values
-	const nullable = ["hashtags", "round", "title", "tv", "_referee", "_video_referee"];
+	const nullable = ["customHashtags", "round", "title", "tv", "_referee", "_video_referee"];
 	_.each(nullable, prop => (values[prop] === "" ? (values[prop] = null) : null));
 
 	//Split Hashtags
-	if (values.hashtags) {
-		values.hashtags = values.hashtags.match(/[A-Za-z0-9]+/gi);
+	if (values.customHashtags) {
+		values.customHashtags = values.customHashtags.match(/[A-Za-z0-9]+/gi);
 	}
 
 	//Sort ground

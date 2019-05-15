@@ -26,7 +26,7 @@ const gameSchema = new Schema(
 		round: { type: Number, default: null },
 		_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
 		customTitle: { type: String, default: null },
-		hashtags: [String],
+		customHashtags: [String],
 		_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
 		_fan_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
 		fan_motm_link: { type: String, default: null },

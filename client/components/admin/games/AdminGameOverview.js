@@ -94,7 +94,7 @@ class AdminGameOverview extends Component {
 				.min(1)
 				.label("Round"),
 			customTitle: Yup.string().label("Title"),
-			hashtags: Yup.string().label("Hashtags"),
+			customHashtags: Yup.string().label("Hashtags"),
 			isAway: Yup.boolean()
 				.required()
 				.label("Home/Away"),
@@ -144,7 +144,7 @@ class AdminGameOverview extends Component {
 			_opposition: _opposition ? _opposition[0] : "",
 			round: game.round || "",
 			customTitle: game.customTitle || "",
-			hashtags: game.hashtags ? game.hashtags.join(" ") : "",
+			customHashtags: game.customHashtags ? game.customHashtags.join(" ") : "",
 			isAway: game.isAway,
 			_ground: _ground ? _ground[0] : "",
 			tv: game.tv || "",
@@ -295,7 +295,7 @@ class AdminGameOverview extends Component {
 		];
 		const mediaFields = [
 			{ name: "customTitle", type: "text", placeholder: "Auto-generated if left blank" },
-			{ name: "hashtags", type: "text", placeholder: "Auto-generated if left blank" },
+			{ name: "customHashtags", type: "text", placeholder: "Auto-generated if left blank" },
 			{ name: "tv", type: "Radio", options: tvOptions }
 		];
 		const refereeFields = [
