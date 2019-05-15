@@ -114,12 +114,8 @@ export default class PregameImage extends Canvas {
 		ctx.fillStyle = "#EEE";
 		let leftIcon;
 		if (game.images.logo) {
-			leftIcon = await this.googleToCanvas(`images/games/logo/${game.images.logo}`);
-		} else if (game._competition.instance.image) {
-			leftIcon = await this.googleToCanvas(
-				`images/competitions/${game._competition.instance.image}`
-			);
-		} else if (game.teams[localTeam].image) {
+			leftIcon = await this.googleToCanvas(game.images.logo);
+		} else {
 			leftIcon = await this.googleToCanvas(`images/teams/${game.teams[localTeam].image}`);
 		}
 

@@ -7,7 +7,7 @@ import Countdown from "./Countdown";
 import GameHeaderImage from "./GameHeaderImage";
 import TeamImage from "../teams/TeamImage";
 import GameLogo from "./GameLogo";
-import { imagePath } from "../../extPaths";
+import { googleBucket } from "../../extPaths";
 
 class GameCard extends Component {
 	constructor(props) {
@@ -74,7 +74,10 @@ class GameCard extends Component {
 		const url = game.slug;
 		const title = game.title;
 		const tvLogo = game.tv ? (
-			<img src={`${imagePath}layout/icons/${game.tv}.svg`} alt={game.tv + " logo"} />
+			<img
+				src={`${googleBucket}images/layout/icons/${game.tv}.svg`}
+				alt={game.tv + " logo"}
+			/>
 		) : null;
 		return (
 			<Link to={"/games/" + url} className="game-card card">

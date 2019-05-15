@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { gameImagePath, competitionImagePath } from "../../extPaths";
+import { googleBucket } from "../../extPaths";
 
 class GameLogo extends Component {
 	render() {
@@ -10,11 +10,8 @@ class GameLogo extends Component {
 		let alt;
 
 		if (game.images.logo) {
-			image = gameImagePath + "logo/" + game.images.logo;
+			image = googleBucket + game.images.logo;
 			alt = game.title;
-		} else if (game._competition.image) {
-			image = competitionImagePath + game._competition.image;
-			alt = game._competition.name + " Logo";
 		}
 
 		if (image) {

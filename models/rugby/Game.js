@@ -44,7 +44,7 @@ const gameSchema = new Schema(
 		images: {
 			header: String,
 			midpage: String,
-			logo: String
+			customLogo: String
 		}
 	},
 	{
@@ -219,6 +219,20 @@ gameSchema.virtual("hashtags").get(function() {
 
 gameSchema.virtual("_competition.instance").get(function() {
 	return getInstance(this);
+});
+
+gameSchema.virtual("images.logo").get(function() {
+	const { images } = this;
+	if (images.customLogo) {
+		return `images/games/logo/${images.customLogo}`;
+	}
+
+	const instance = getInstance(this);
+	if (instance && instance.image) {
+		return `images/competitions/${instance.image}`;
+	}
+
+	return null;
 });
 
 gameSchema.virtual("title").get(function() {
