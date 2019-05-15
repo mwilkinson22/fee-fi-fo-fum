@@ -122,7 +122,7 @@ gameSchema.query.fullGame = function() {
 
 gameSchema.query.pregameImage = function() {
 	return this.select(
-		"hashtags pregameSquads isAway date _ground _opposition _competition _teamType images"
+		"hashtags customHashtags pregameSquads isAway date _ground _opposition _competition _teamType images"
 	)
 		.populate({ path: "pregameSquads.squad", select: "name image" })
 		.populate({
@@ -137,6 +137,10 @@ gameSchema.query.pregameImage = function() {
 				path: "_parentCompetition",
 				select: "name"
 			}
+		})
+		.populate({
+			path: "_opposition",
+			select: "hashtagPrefix"
 		});
 };
 

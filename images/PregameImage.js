@@ -69,7 +69,7 @@ export default class PregameImage extends Canvas {
 			playerForImage: options.playerForImage !== "false" && options.playerForImage, //If undefined, unavailable or has no image, we choose randomly
 			playersToHighlight: options.playersToHighlight.split(",")
 		};
-		const teamIds = [localTeam, game._opposition];
+		const teamIds = [localTeam, game._opposition._id];
 		this.teamIds = game.isAway ? teamIds.reverse() : teamIds;
 	}
 
@@ -106,8 +106,7 @@ export default class PregameImage extends Canvas {
 		if (game.hashtags && game.hashtags.length) {
 			hashtag += game.hashtags[0];
 		} else {
-			hashtag +=
-				game._competition.hashtagPrefix + teams[0].hashtagPrefix + teams[1].hashtagPrefix;
+			hashtag += "CowbellArmy";
 		}
 		ctx.fillText(hashtag, cWidth * 0.75, positions.bannerText);
 
