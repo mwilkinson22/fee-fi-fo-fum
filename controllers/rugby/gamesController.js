@@ -373,8 +373,34 @@ export async function generateSquadImage(req, res) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
 		const gameJSON = JSON.parse(JSON.stringify(game));
-		const imageClass = new SquadImage(gameJSON, req.query);
+		const imageClass = new SquadImage(gameJSON);
 		const image = await imageClass.render(false);
 		res.send(image);
+	}
+}
+
+export async function postSquadImage(req, res) {
+	const { _id } = req.params;
+
+	const game = await Game.findById(_id).pregameImage();
+
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		const gameJSON = JSON.parse(JSON.stringify(game));
+		const imageClass = new SquadImage(gameJSON);
+		const image = await imageClass.render(true);
+		const upload = await twitter.post("media/upload", {
+			media_data: image
+		});
+		const { media_id_string } = upload.data;
+		const tweet = await twitter.post("statuses/update", {
+			status: req.body.tweet,
+			in_reply_to_status_id: req.body.replyTweet,
+			auto_populate_reply_metadata: true,
+			media_ids: [media_id_string]
+		});
+
+		res.send(tweet);
 	}
 }

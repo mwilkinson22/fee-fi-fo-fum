@@ -8,7 +8,7 @@ import LoadingPage from "../../LoadingPage";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import { getSquadImage } from "../../../actions/gamesActions";
+import { getSquadImage, tweetSquadImage } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
 class AdminGamePregameImage extends Component {
@@ -95,7 +95,11 @@ class AdminGamePregameImage extends Component {
 		await this.setState({ previewImage: image });
 	}
 
-	async postTweet() {}
+	async postTweet() {
+		this.setState({ tweetSent: true });
+		const { game, tweetSquadImage } = this.props;
+		tweetSquadImage(game._id, _.pick(this.state, ["tweet", "replyTweet"]));
+	}
 
 	render() {
 		const { teams } = this.state;
@@ -143,5 +147,5 @@ function mapStateToProps({ config, teams }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, getSquadImage }
+	{ fetchTeam, getSquadImage, tweetSquadImage }
 )(AdminGamePregameImage);

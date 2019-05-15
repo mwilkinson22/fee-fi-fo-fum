@@ -44,12 +44,17 @@ export const getPregameImage = (id, query = "") => async (dispatch, getState, ap
 	return res.data;
 };
 
-export const getSquadImage = (id, query = "") => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/${id}/images/squad${query}`);
+export const tweetPregameImage = (id, query, tweetData) => async (dispatch, getState, api) => {
+	await api.post(`/games/${id}/images/pregame${query}`, tweetData);
+	toast.success("Tweet Sent!");
+};
+
+export const getSquadImage = id => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/${id}/images/squad`);
 	return res.data;
 };
 
-export const tweetPregameImage = (id, query, tweetData) => async (dispatch, getState, api) => {
-	await api.post(`/games/${id}/images/pregame${query}`, tweetData);
+export const tweetSquadImage = (id, tweetData) => async (dispatch, getState, api) => {
+	await api.post(`/games/${id}/images/squad`, tweetData);
 	toast.success("Tweet Sent!");
 };
