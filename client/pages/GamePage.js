@@ -58,6 +58,14 @@ class GamePage extends Component {
 			<span key="title">{game.title}</span>
 		];
 
+		if (game.hashtags && game.hashtags.length) {
+			fields.push(
+				<span key="hashtag" className="hashtag">
+					#{game.hashtags[0]}
+				</span>
+			);
+		}
+
 		if (game.tv)
 			fields.push(
 				<img
@@ -67,11 +75,11 @@ class GamePage extends Component {
 					alt={`${game.tv} Logo`}
 				/>
 			);
-		let i = 0;
+
 		return (
 			<ul>
-				{fields.map(field => (
-					<li key={i++}>{field}</li>
+				{fields.map((field, i) => (
+					<li key={i}>{field}</li>
 				))}
 			</ul>
 		);
