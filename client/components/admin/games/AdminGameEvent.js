@@ -56,6 +56,7 @@ class AdminGameEvent extends Component {
 	}
 
 	getDefaults() {
+		const { hashtags } = this.props.game;
 		return {
 			event: {
 				label: "None",
@@ -63,7 +64,7 @@ class AdminGameEvent extends Component {
 			},
 			player: "",
 			postTweet: true,
-			tweet: "\n\n#HuddersfieldBorn",
+			tweet: hashtags ? `\n\n${hashtags.map(t => `#${t}`).join(" ")}` : "",
 			replyTweet: ""
 		};
 	}
