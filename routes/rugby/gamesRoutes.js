@@ -15,6 +15,7 @@ module.exports = app => {
 	//Image Generators
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.generatePregameImage);
 	app.post("/api/games/:_id/images/pregame", requireAdmin, gamesController.postPregameImage);
+	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.generateSquadImage);
 
 	//Getters
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);

@@ -10,6 +10,7 @@ import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
 import AdminGamePregameImage from "../components/admin/games/AdminGamePregameImage";
 import AdminGameSquads from "../components/admin/games/AdminGameSquads";
+import AdminGameSquadImage from "../components/admin/games/AdminGameSquadImage";
 import AdminGameEvent from "../components/admin/games/AdminGameEvent";
 import Select from "../components/admin/fields/Select";
 
@@ -97,7 +98,7 @@ class AdminGamePage extends Component {
 
 	getSubmenu() {
 		const { pathname } = this.props.location;
-		const { status, slug, pregameSquads } = this.state.game;
+		const { status, slug, pregameSquads, playerStats } = this.state.game;
 		const submenuItems = [
 			{ label: "Overview", value: "" },
 			{ label: "Pregame Squad", value: "pregame" },
@@ -111,6 +112,11 @@ class AdminGamePage extends Component {
 		if (status >= 1) {
 			submenuItems.push({ label: "Match Squads", value: "squads" });
 		}
+
+		if (_.keys(_.groupBy(playerStats, "_team")).length >= 1) {
+			submenuItems.push({ label: "Match Squad Images", value: "squad-images" });
+		}
+
 		if (status >= 2) {
 			submenuItems.push(
 				{ label: "Add In-Game Event", value: "event" },
@@ -140,6 +146,11 @@ class AdminGamePage extends Component {
 						path="/admin/game/:slug/event"
 						exact
 						render={() => <AdminGameEvent game={game} />}
+					/>
+					<Route
+						path="/admin/game/:slug/squad-images"
+						exact
+						render={() => <AdminGameSquadImage game={game} />}
 					/>
 					<Route
 						path="/admin/game/:slug/squads"

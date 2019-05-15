@@ -39,8 +39,13 @@ export const crawlLocalGames = () => async (dispatch, getState, api) => {
 	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
 };
 
-export const getPregameImage = (id, query) => async (dispatch, getState, api) => {
+export const getPregameImage = (id, query = "") => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/${id}/images/pregame${query}`);
+	return res.data;
+};
+
+export const getSquadImage = (id, query = "") => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/${id}/images/squad${query}`);
 	return res.data;
 };
 

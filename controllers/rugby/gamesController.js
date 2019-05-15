@@ -13,7 +13,10 @@ import axios from "axios";
 //Constants
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
+
+//Images
 import PregameImage from "~/images/PregameImage";
+import SquadImage from "~/images/SquadImage";
 
 //Helpers
 import twitter from "~/services/twitter";
@@ -358,5 +361,20 @@ export async function postPregameImage(req, res) {
 		});
 
 		res.send(tweet);
+	}
+}
+
+export async function generateSquadImage(req, res) {
+	const { _id } = req.params;
+
+	const game = await Game.findById(_id);
+
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		const gameJSON = JSON.parse(JSON.stringify(game));
+		const imageClass = new SquadImage(gameJSON, req.query);
+		const image = await imageClass.render(false);
+		res.send(image);
 	}
 }
