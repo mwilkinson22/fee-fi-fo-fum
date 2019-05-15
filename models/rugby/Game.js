@@ -111,7 +111,8 @@ gameSchema.query.fullGame = function() {
 		})
 		.populate({
 			path: "_competition",
-			select: "name _parentCompetition appendCompetitionName instances instance",
+			select:
+				"name _parentCompetition appendCompetitionName instances instance hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
 				select: "name"
@@ -194,6 +195,23 @@ function getInstance(doc) {
 		title: _.filter(titleArr, _.identity).join(" ")
 	};
 }
+
+function getHashtags(doc) {
+	const { _competition, customHashtags, _opposition, isAway } = doc;
+	const hashtags = customHashtags || [];
+	if (_opposition && _opposition.hashtagPrefix && _competition && _competition.hashtagPrefix) {
+		let teamPrefixes = ["Hud", _opposition.hashtagPrefix];
+		if (isAway) {
+			teamPrefixes = teamPrefixes.reverse();
+		}
+		hashtags.push(_competition.hashtagPrefix + teamPrefixes.join(""));
+	}
+	return hashtags;
+}
+
+gameSchema.virtual("hashtags").get(function() {
+	return getHashtags(this);
+});
 
 gameSchema.virtual("_competition.instance").get(function() {
 	return getInstance(this);
