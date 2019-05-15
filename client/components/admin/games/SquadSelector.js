@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import SquadSelectorCard from "./SquadSelectorCard";
-import Colour from "color";
 import playerPositions from "~/constants/playerPositions";
 import { setSquad } from "~/client/actions/gamesActions";
 
@@ -11,9 +10,9 @@ class SquadSelector extends Component {
 		super(props);
 		const teamColours = {};
 		if (props.teamColours) {
-			teamColours.color = Colour(props.teamColours.text).hex();
-			teamColours.backgroundColor = Colour(props.teamColours.main).hex();
-			teamColours.borderColor = Colour(props.teamColours.trim1).hex();
+			teamColours.color = props.teamColours.text;
+			teamColours.backgroundColor = props.teamColours.main;
+			teamColours.borderColor = props.teamColours.trim1;
 		}
 
 		this.state = {

@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Colour from "color";
 import TeamImage from "../../components/teams/TeamImage";
 
 export default class TeamBanner extends Component {
@@ -18,13 +17,13 @@ export default class TeamBanner extends Component {
 			<div
 				className={`team-banner ${className || ""}`}
 				style={{
-					backgroundColor: Colour(team.colours.main).hex(),
-					color: Colour(team.colours.text).hex()
+					backgroundColor: team.colours.main,
+					color: team.colours.text
 				}}
 			>
 				<div className={`trim ${className || ""}`}>
-					<span style={{ backgroundColor: Colour(team.colours.trim1).hex() }} />
-					<span style={{ backgroundColor: Colour(team.colours.trim2).hex() }} />
+					<span style={{ backgroundColor: team.colours.trim1 }} />
+					<span style={{ backgroundColor: team.colours.trim2 }} />
 				</div>
 				<div className="container">
 					<h4>

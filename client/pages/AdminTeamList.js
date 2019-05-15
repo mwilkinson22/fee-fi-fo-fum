@@ -4,8 +4,6 @@ import { connect } from "react-redux";
 import { fetchTeamList } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import { Link } from "react-router-dom";
-import { toRgb } from "../utils/colourHelper";
-import TeamImage from "../components/teams/TeamImage";
 import TeamBanner from "../components/teams/TeamBanner";
 
 class AdminTeamList extends Component {

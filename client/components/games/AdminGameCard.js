@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import * as colour from "../../utils/colourHelper";
 import "datejs";
 import TeamImage from "../teams/TeamImage";
-import _ from "lodash";
 
 export default class AdminGameCard extends Component {
 	constructor(props) {
@@ -11,7 +9,7 @@ export default class AdminGameCard extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
 		const { game } = nextProps;
 		const { _opposition, isAway, scores } = game;
@@ -48,8 +46,8 @@ export default class AdminGameCard extends Component {
 				<div
 					className="game-card-content"
 					style={{
-						backgroundColor: colour.toRgb(opposition.colours.main),
-						color: colour.toRgb(opposition.colours.text)
+						backgroundColor: opposition.colours.main,
+						color: opposition.colours.text
 					}}
 				>
 					<TeamImage team={opposition} />
@@ -64,7 +62,7 @@ export default class AdminGameCard extends Component {
 								<li>{title}</li>
 							</ul>
 						</div>
-						<div className="game-status" children={statusDots} />
+						<div className="game-status">{statusDots}</div>
 					</div>
 				</div>
 			</Link>

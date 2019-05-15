@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import * as colour from "../../utils/colourHelper";
+import { toRgba } from "~/helpers/colourHelper";
 import "datejs";
 import Countdown from "./Countdown";
 import GameHeaderImage from "./GameHeaderImage";
@@ -57,8 +57,8 @@ class GameCard extends Component {
 			return (
 				<Countdown
 					date={this.state.gameDate}
-					background={colour.toRgb(opposition.colours.text)}
-					colour={colour.toRgb(opposition.colours.main)}
+					background={opposition.colours.text}
+					colour={opposition.colours.main}
 				/>
 			);
 		} else {
@@ -87,9 +87,9 @@ class GameCard extends Component {
 				<div
 					className="game-card-content"
 					style={{
-						backgroundColor: colour.toRgba(opposition.colours.main, 0.9),
-						color: colour.toRgb(opposition.colours.text),
-						borderColor: colour.toRgb(opposition.colours.trim1)
+						backgroundColor: toRgba(opposition.colours.main, 0.9),
+						color: opposition.colours.text,
+						borderColor: opposition.colours.trim1
 					}}
 				>
 					<TeamImage team={opposition} />

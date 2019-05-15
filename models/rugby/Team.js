@@ -10,12 +10,12 @@ const teamSchema = new Schema({
 	_ground: { type: Schema.Types.ObjectId, ref: "grounds" },
 	hashtagPrefix: String,
 	colours: {
-		main: [Number],
-		trim1: [Number],
-		trim2: [Number],
-		text: [Number],
-		pitchColour: [Number],
-		statBarColour: [Number]
+		main: String,
+		trim1: String,
+		trim2: String,
+		text: String,
+		pitchColour: String,
+		statBarColour: String
 	},
 	squads: [
 		{

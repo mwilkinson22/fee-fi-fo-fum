@@ -2,7 +2,6 @@ import Canvas from "./Canvas";
 import _ from "lodash";
 import mongoose from "mongoose";
 const { localTeam } = require("../config/keys");
-const Colour = require("color");
 
 export default class PregameImage extends Canvas {
 	constructor(game, options = {}) {
@@ -177,7 +176,7 @@ export default class PregameImage extends Canvas {
 		const { ctx, cWidth, cHeight, positions } = this;
 
 		//Block
-		ctx.fillStyle = Colour(team.colours.main).hex();
+		ctx.fillStyle = team.colours.main;
 		ctx.fillRect(
 			align === "right" ? cWidth * 0.5 : 0,
 			positions.teamBlockTop,
@@ -282,7 +281,7 @@ export default class PregameImage extends Canvas {
 	setTeamShadow(team) {
 		const { ctx } = this;
 		ctx.shadowBlur = 4;
-		ctx.shadowColor = Colour(team.colours.main).hex();
+		ctx.shadowColor = team.colours.main;
 	}
 
 	drawList(team) {
@@ -303,12 +302,12 @@ export default class PregameImage extends Canvas {
 
 		_.each(squad, ({ name, number, id }, i) => {
 			//Number
-			ctx.fillStyle = ctx.fillStyle = Colour(team.colours.trim1).hex();
+			ctx.fillStyle = ctx.fillStyle = team.colours.trim1;
 			ctx.fillText(number || "", numX, y);
 
 			//Name
 			const isHighlighted = options.playersToHighlight.indexOf(id) > -1;
-			ctx.fillStyle = Colour(isHighlighted ? team.colours.trim1 : team.colours.text).hex();
+			ctx.fillStyle = isHighlighted ? team.colours.trim1 : team.colours.text;
 			ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
 			y += Math.round(textStyles.singleList.size * 1.3);
 
@@ -350,15 +349,13 @@ export default class PregameImage extends Canvas {
 			const squad = this.getTeamList(team);
 			_.each(squad, ({ name, number, id }) => {
 				//Number
-				ctx.fillStyle = ctx.fillStyle = Colour(team.colours.trim1).hex();
+				ctx.fillStyle = ctx.fillStyle = team.colours.trim1;
 				ctx.textAlign = numAlign;
 				ctx.fillText(number || "", numX, y);
 
 				//Name
 				const isHighlighted = options.playersToHighlight.indexOf(id) > -1;
-				ctx.fillStyle = Colour(
-					isHighlighted ? team.colours.trim1 : team.colours.text
-				).hex();
+				ctx.fillStyle = isHighlighted ? team.colours.trim1 : team.colours.text;
 				ctx.textAlign = nameAlign;
 				ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
 				y += Math.round(cHeight * 0.034);

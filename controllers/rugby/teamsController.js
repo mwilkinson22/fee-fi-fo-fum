@@ -54,15 +54,7 @@ export async function update(req, res) {
 					if (!val.customStatBarColour) {
 						val.statBarColour = null;
 					}
-					return _.mapValues(val, colour => {
-						if (typeof colour === "string") {
-							return Colour(colour)
-								.rgb()
-								.array();
-						} else {
-							return colour;
-						}
-					});
+					return val;
 				default:
 					return val;
 			}

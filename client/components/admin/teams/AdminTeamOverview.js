@@ -4,7 +4,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import Colour from "color";
 
 //Actions
 import { fetchAllGrounds } from "../../../actions/groundActions";
@@ -100,7 +99,7 @@ class AdminTeamOverview extends Component {
 		const { colourTypes } = this;
 		const colours = _.mapValues(colourTypes, (defaultValue, type) => {
 			if (team && team.colours[type]) {
-				return Colour(team.colours[type]).hex();
+				return team.colours[type];
 			} else {
 				return defaultValue;
 			}
