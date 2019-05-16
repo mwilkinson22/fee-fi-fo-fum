@@ -367,7 +367,7 @@ export async function postPregameImage(req, res) {
 export async function generateSquadImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await Game.findById(_id);
+	const game = await Game.findById(_id).squadImage();
 
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);

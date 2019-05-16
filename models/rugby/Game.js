@@ -144,6 +144,28 @@ gameSchema.query.pregameImage = function() {
 		});
 };
 
+gameSchema.query.squadImage = function() {
+	return this.select(
+		"hashtags customHashtags isAway date _ground _opposition _competition _teamType images"
+	)
+		.populate({
+			path: "_ground",
+			select: "name"
+		})
+		.populate({
+			path: "_competition",
+			select: "name _parentCompetition instances instance hashtagPrefix",
+			populate: {
+				path: "_parentCompetition",
+				select: "name"
+			}
+		})
+		.populate({
+			path: "_opposition",
+			select: "image hashtagPrefix"
+		});
+};
+
 gameSchema.virtual("score").get(function() {
 	if (!this.playerStats || !this.playerStats.length) {
 		return undefined;
