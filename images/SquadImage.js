@@ -55,7 +55,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const { ctx, game, textStyles } = this;
+		const { ctx, game, textStyles, cWidth } = this;
 		const {
 			bannerY,
 			sideBarWidth,
@@ -66,11 +66,31 @@ export default class SquadImage extends Canvas {
 		} = this.positions;
 
 		//Add Game Logo
+		const siteIcon = await this.googleToCanvas(
+			"images/layout/branding/square-logo-with-shadow.png"
+		);
 		let gameIcon;
 		if (game.images.logo) {
 			gameIcon = await this.googleToCanvas(game.images.logo);
+
+			//We have a gameIcon so we place the siteIcon on the right
+			if (siteIcon) {
+				const { width, height, offsetX, offsetY } = this.contain(
+					sideBarIconWidth / 2,
+					sideBarGameIconHeight * 0.6,
+					siteIcon.width,
+					siteIcon.height
+				);
+				ctx.drawImage(
+					siteIcon,
+					cWidth - width - offsetX - sideBarIconX / 2,
+					sideBarGameIconY / 0.6 + offsetY,
+					width,
+					height
+				);
+			}
 		} else {
-			gameIcon = await this.googleToCanvas(`images/teams/${game.teams[localTeam].image}`);
+			gameIcon = siteIcon;
 		}
 
 		if (gameIcon) {
