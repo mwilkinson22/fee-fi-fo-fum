@@ -1,4 +1,5 @@
 import Canvas from "./Canvas";
+import { localTeam } from "~/config/keys";
 
 export default class SquadImage extends Canvas {
 	constructor(game, options = {}) {
@@ -25,10 +26,15 @@ export default class SquadImage extends Canvas {
 		this.setTextStyles(textStyles);
 
 		const sideBarWidth = Math.round(cWidth * 0.28);
+		const sideBarIconX = Math.round(sideBarWidth * 0.1);
 		const dividerWidth = Math.round(cWidth * 0.06);
 		const mainPanelOffset = sideBarWidth + dividerWidth;
 		this.positions = {
 			sideBarWidth,
+			sideBarIconX,
+			sideBarIconWidth: sideBarWidth - sideBarIconX * 2,
+			sideBarGameIconY: Math.round(cHeight * 0.03),
+			sideBarGameIconHeight: Math.round(cHeight * 0.15),
 			dividerWidth,
 			mainPanelOffset,
 			mainPanelWidth: cWidth - mainPanelOffset,
@@ -50,7 +56,38 @@ export default class SquadImage extends Canvas {
 
 	async drawSidebar() {
 		const { ctx, game, textStyles } = this;
-		const { bannerY, sideBarWidth } = this.positions;
+		const {
+			bannerY,
+			sideBarWidth,
+			sideBarIconX,
+			sideBarIconWidth,
+			sideBarGameIconY,
+			sideBarGameIconHeight
+		} = this.positions;
+
+		//Add Game Logo
+		let gameIcon;
+		if (game.images.logo) {
+			gameIcon = await this.googleToCanvas(game.images.logo);
+		} else {
+			gameIcon = await this.googleToCanvas(`images/teams/${game.teams[localTeam].image}`);
+		}
+
+		if (gameIcon) {
+			const { width, height, offsetX, offsetY } = this.contain(
+				sideBarIconWidth,
+				sideBarGameIconHeight,
+				gameIcon.width,
+				gameIcon.height
+			);
+			ctx.drawImage(
+				gameIcon,
+				sideBarIconX + offsetX,
+				sideBarGameIconY + offsetY,
+				width,
+				height
+			);
+		}
 
 		//Text Banners
 		ctx.textAlign = "center";
@@ -82,6 +119,7 @@ export default class SquadImage extends Canvas {
 			lineHeight: 2.7
 		});
 	}
+
 	async render(forTwitter = false) {
 		await this.drawBackground();
 		await this.drawSidebar();
