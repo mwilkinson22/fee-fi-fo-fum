@@ -1,5 +1,6 @@
 import Canvas from "./Canvas";
 import { localTeam } from "~/config/keys";
+import mongoose from "mongoose";
 
 export default class SquadImage extends Canvas {
 	constructor(game, options = {}) {
@@ -35,6 +36,7 @@ export default class SquadImage extends Canvas {
 			sideBarIconWidth: sideBarWidth - sideBarIconX * 2,
 			sideBarGameIconY: Math.round(cHeight * 0.03),
 			sideBarGameIconHeight: Math.round(cHeight * 0.15),
+			teamIconHeight: Math.round(cHeight * 0.15),
 			dividerWidth,
 			mainPanelOffset,
 			mainPanelWidth: cWidth - mainPanelOffset,
@@ -55,14 +57,15 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const { ctx, game, textStyles, cWidth } = this;
+		const { ctx, game, textStyles, cWidth, cHeight, localTeamObject } = this;
 		const {
 			bannerY,
 			sideBarWidth,
 			sideBarIconX,
 			sideBarIconWidth,
 			sideBarGameIconY,
-			sideBarGameIconHeight
+			sideBarGameIconHeight,
+			teamIconHeight
 		} = this.positions;
 
 		//Add Game Logo
@@ -138,9 +141,34 @@ export default class SquadImage extends Canvas {
 		this.textBuilder(bannerText, sideBarWidth * 0.5, bannerY, {
 			lineHeight: 2.7
 		});
+
+		//Team Badges
+		const oppositionBadge = await this.googleToCanvas("images/teams/" + game._opposition.image);
+		const localBadge = await this.googleToCanvas("images/teams/" + localTeamObject.image);
+		let badges = [localBadge, oppositionBadge];
+		if (game.isAway) {
+			badges = badges.reverse();
+		}
+		badges.map((badge, i) => {
+			const { width, height, offsetX, offsetY } = this.contain(
+				sideBarIconWidth / 2,
+				teamIconHeight,
+				badge.width,
+				badge.height
+			);
+			ctx.drawImage(
+				badge,
+				(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX + offsetX,
+				cHeight - teamIconHeight - sideBarGameIconY + offsetY,
+				width,
+				height
+			);
+		});
 	}
 
 	async render(forTwitter = false) {
+		const Team = mongoose.model("teams");
+		this.localTeamObject = await Team.findById(localTeam, "image squads").lean();
 		await this.drawBackground();
 		await this.drawSidebar();
 
