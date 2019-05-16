@@ -32,8 +32,7 @@ export default class SquadImage extends Canvas {
 			dividerWidth,
 			mainPanelOffset,
 			mainPanelWidth: cWidth - mainPanelOffset,
-			bannerTop: Math.round(cHeight * 0.2),
-			bannerHeight: Math.round(cHeight * 0.06)
+			bannerY: Math.round(cHeight * 0.32)
 		};
 
 		//Variables
@@ -50,54 +49,39 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const { ctx, textStyles } = this;
-		const { bannerHeight, bannerTop } = this.positions;
+		const { ctx, game, textStyles } = this;
+		const { bannerY, sideBarWidth } = this.positions;
 
 		//Text Banners
-		let bannerY = bannerTop + bannerHeight * 0.5 + textStyles.banner.size * 0.4;
 		ctx.textAlign = "center";
 		ctx.font = textStyles.banner.string;
 		ctx.fillStyle = "#FFF";
-		["title", "date", "ground", "hashtag"].map(textType => {
-			this.drawBannerText(textType, bannerY);
-			bannerY += bannerHeight;
+		const bannerText = [];
+
+		//Title
+		bannerText.push([{ text: game.title }]);
+
+		//Date/Time
+		const date = new Date(this.game.date);
+		bannerText.push([
+			{ text: date.toString("HH:mm "), colour: "#FC0" },
+			{ text: date.toString("dS MMMM yyyy"), colour: "#FFF" }
+		]);
+
+		//Ground
+		bannerText.push([{ text: game._ground.name }]);
+
+		//Hashtag
+		const { hashtags } = game;
+		bannerText.push([
+			{ text: "#", colour: "#FC0" },
+			{ text: hashtags ? hashtags[0] : "CowbellArmy", colour: "#FFF" }
+		]);
+
+		this.textBuilder(bannerText, sideBarWidth * 0.5, bannerY, {
+			lineHeight: 2.7
 		});
 	}
-
-	drawBannerText(textType, bannerY) {
-		const { ctx, game } = this;
-		const { sideBarWidth } = this.positions;
-		let text;
-		switch (textType) {
-			case "title":
-				text = "Quarter Final";
-				ctx.fillText(text, sideBarWidth * 0.5, bannerY);
-				break;
-			case "date":
-				const date = new Date(game.date);
-
-				const timeString = date.toString("HH:mm ");
-				const dateString = date.toString("ddS MMMM yyyy");
-
-				const timeWidth = ctx.measureText(timeString).width;
-				const dateWidth = ctx.measureText(dateString).width;
-
-				ctx.fillStyle = "#FC0";
-				ctx.fillText(timeString, sideBarWidth * 0.5 - dateWidth / 2, bannerY);
-				ctx.fillStyle = "#FFF";
-				ctx.fillText(dateString, sideBarWidth * 0.5 + timeWidth / 2, bannerY);
-				break;
-			case "ground":
-				text = game._ground.name;
-				ctx.fillText(text, sideBarWidth * 0.5, bannerY);
-				break;
-			case "hashtag":
-				text = game.hashtags ? "#" + game.hashtags[0] : "#CowbellArmy";
-				ctx.fillText(text, sideBarWidth * 0.5, bannerY);
-				break;
-		}
-	}
-
 	async render(forTwitter = false) {
 		await this.drawBackground();
 		await this.drawSidebar();

@@ -146,7 +146,7 @@ gameSchema.query.pregameImage = function() {
 
 gameSchema.query.squadImage = function() {
 	return this.select(
-		"hashtags customHashtags isAway date _ground _opposition _competition _teamType images"
+		"hashtags customHashtags isAway date _ground _opposition _competition _teamType images round customTitle"
 	)
 		.populate({
 			path: "_ground",
