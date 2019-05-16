@@ -83,7 +83,7 @@ export default class Canvas {
 	}
 
 	textBuilder(rows, x, y, options = {}) {
-		let { xAlign, yAlign, lineHeight } = options;
+		let { xAlign, yAlign, lineHeight, padding } = options;
 
 		//Set xAlign
 		if (xAlign !== "left" && xAlign !== "right") {
@@ -95,16 +95,19 @@ export default class Canvas {
 			yAlign = "center";
 		}
 
-		console.log(xAlign);
-
 		//Set lineHeight
 		if (!lineHeight || isNaN(lineHeight)) {
 			lineHeight = 1.2;
 		}
 
+		//Set Padding
+		if (!padding) {
+			padding = 0.1; //Avoid setting to 0 to account for tails on letters like g
+		}
+
 		//Set total width and height
-		let totalWidth = 0;
-		let totalHeight = 0;
+		let drawableWidth = 0;
+		let drawableHeight = 0;
 		const processedRows = rows.map((row, i) => {
 			let rowWidth = 0;
 			let rowHeight = 0;
@@ -118,23 +121,27 @@ export default class Canvas {
 			});
 
 			//Update Totals
-			totalWidth = Math.max(totalWidth, rowWidth);
+			drawableWidth = Math.max(drawableWidth, rowWidth);
 			if (i > 0) {
-				totalHeight += Math.round(rowHeight * lineHeight);
+				drawableHeight += Math.round(rowHeight * lineHeight);
 			} else {
-				totalHeight += rowHeight;
+				drawableHeight += rowHeight;
 			}
 
 			return { row, rowWidth, rowHeight };
 		});
 
 		//Create Temporary Canvas
+		const xPadding = drawableWidth * padding;
+		const yPadding = drawableHeight * padding;
+		const totalWidth = drawableWidth + xPadding * 2;
+		const totalHeight = drawableHeight + yPadding * 2;
 		const canvas = createCanvas(totalWidth, totalHeight);
 		const ctx = canvas.getContext("2d");
 		ctx.fillStyle = this.ctx.fillStyle;
 		ctx.font = this.ctx.font;
 
-		let rowY = 0;
+		let rowY = 0 + yPadding;
 
 		//Draw Text
 		ctx.textAlign = "left";
@@ -143,13 +150,13 @@ export default class Canvas {
 			let rowX;
 			switch (xAlign) {
 				case "left":
-					rowX = 0;
+					rowX = xPadding;
 					break;
 				case "center":
-					rowX = (totalWidth - rowWidth) / 2;
+					rowX = (drawableWidth - rowWidth) / 2 + xPadding;
 					break;
 				case "right":
-					rowX = totalWidth - rowWidth;
+					rowX = drawableWidth - rowWidth - xPadding;
 					break;
 			}
 
@@ -180,29 +187,31 @@ export default class Canvas {
 		switch (xAlign) {
 			//case "left": use initial x value
 			case "center":
-				x = x - totalWidth / 2;
+				x = x - drawableWidth / 2;
 				break;
 			case "right":
-				x = x - totalWidth;
+				x = x - drawableWidth;
 				break;
 		}
+		x = x - xPadding;
 
 		//Calculate destination y
 		switch (yAlign) {
 			//case "top": use initial y value
 			case "center":
-				y = y - totalHeight / 2;
+				y = y - drawableHeight / 2;
 				break;
 			case "bottom":
-				y = y - totalHeight;
+				y = y - drawableHeight;
 				break;
 		}
+		y = y - yPadding;
 
 		//Add to main canvas
 		this.ctx.drawImage(canvas, x, y);
 
 		//Return Key Positioning Values
-		return { totalHeight, totalWidth, x, y };
+		return { drawableHeight, drawableWidth, totalHeight, totalWidth, x, y, padding };
 	}
 
 	outputFile(type = "base64") {
