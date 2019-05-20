@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Canvas from "./Canvas";
 import { localTeam } from "~/config/keys";
 import mongoose from "mongoose";
@@ -166,11 +167,55 @@ export default class SquadImage extends Canvas {
 		});
 	}
 
+	async drawSquad() {
+		const { playerStats, date, _teamType } = this.game;
+		const { squads } = this.localTeamObject;
+
+		//Get Squad Numbers
+		const year = new Date(date).getFullYear();
+		const squad = _.find(squads, s => s.year == year && s._teamType == _teamType);
+		const squadNumbers = _.chain(squad.players)
+			.keyBy("_player")
+			.mapValues("number")
+			.value();
+
+		//Create Squad Object
+		this.squad = _.chain(playerStats)
+			.filter(s => s._team == localTeam)
+			.sortBy("position")
+			.map(({ _player }) => {
+				const { name, nickname, displayNicknameInCanvases, _id } = _player;
+				return {
+					displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
+					number: squadNumbers[_id],
+					..._player
+				};
+			})
+			.value();
+
+		//Fix duplicate names
+		const duplicates = _.chain(this.squad)
+			.groupBy("displayName")
+			.filter(a => a.length > 1)
+			.flatten()
+			.map("_id")
+			.value();
+
+		_.each(this.squad, p => {
+			if (_.find(duplicates, id => id == p._id)) {
+				const { squadNameWhenDuplicate, name } = p;
+				p.displayName =
+					squadNameWhenDuplicate || `${name.first.substr(0, 1)}. ${name.last}`;
+			}
+		});
+	}
+
 	async render(forTwitter = false) {
 		const Team = mongoose.model("teams");
 		this.localTeamObject = await Team.findById(localTeam, "image squads").lean();
 		await this.drawBackground();
 		await this.drawSidebar();
+		await this.drawSquad();
 
 		return this.outputFile(forTwitter ? "twitter" : "base64");
 	}

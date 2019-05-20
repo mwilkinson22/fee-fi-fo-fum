@@ -12,6 +12,8 @@ const personSchema = new Schema(
 			last: String
 		},
 		nickname: { type: String, default: null },
+		displayNicknameInCanvases: { type: Boolean, default: false },
+		squadNameWhenDuplicate: { type: String, default: null },
 		dateOfBirth: Date,
 		gender: { required: true, type: String, enum: ["M", "F"] },
 		_hometown: { type: Schema.Types.ObjectId, ref: "cities" },

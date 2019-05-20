@@ -145,9 +145,26 @@ gameSchema.query.pregameImage = function() {
 };
 
 gameSchema.query.squadImage = function() {
-	return this.select(
-		"hashtags customHashtags isAway date _ground _opposition _competition _teamType images round customTitle"
-	)
+	return this.select({
+		hashtags: 1,
+		customHashtags: 1,
+		isAway: 1,
+		date: 1,
+		_ground: 1,
+		_opposition: 1,
+		_competition: 1,
+		_teamType: 1,
+		images: 1,
+		round: 1,
+		customTitle: 1,
+		"playerStats._player": 1,
+		"playerStats._team": 1,
+		"playerStats.position": 1
+	})
+		.populate({
+			path: "playerStats._player",
+			select: "name nickname displayNicknameInCanvases squadNameWhenDuplicate image"
+		})
 		.populate({
 			path: "_ground",
 			select: "name"
