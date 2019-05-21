@@ -81,6 +81,7 @@ export default class SquadImage extends Canvas {
 		//Variables
 		this.game = game;
 		this.options = options;
+		this.extraInterchanges = _.filter(game.playerStats, s => s._team == localTeam).length > 17;
 	}
 
 	processPlayerPositions([x, y]) {
@@ -99,7 +100,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const { ctx, game, textStyles, cWidth, cHeight, localTeamObject } = this;
+		const { ctx, game, textStyles, cWidth, cHeight, localTeamObject, extraInterchanges } = this;
 		const {
 			bannerY,
 			sideBarWidth,
@@ -185,28 +186,32 @@ export default class SquadImage extends Canvas {
 			lineHeight: 2.7
 		});
 
-		//Team Badges
-		const oppositionBadge = await this.googleToCanvas("images/teams/" + game._opposition.image);
-		const localBadge = await this.googleToCanvas("images/teams/" + localTeamObject.image);
-		let badges = [localBadge, oppositionBadge];
-		if (game.isAway) {
-			badges = badges.reverse();
+		//Team Badges (limit to 17-man squads)
+		if (!extraInterchanges) {
+			const oppositionBadge = await this.googleToCanvas(
+				"images/teams/" + game._opposition.image
+			);
+			const localBadge = await this.googleToCanvas("images/teams/" + localTeamObject.image);
+			let badges = [localBadge, oppositionBadge];
+			if (game.isAway) {
+				badges = badges.reverse();
+			}
+			badges.map((badge, i) => {
+				const { width, height, offsetX, offsetY } = this.contain(
+					sideBarIconWidth / 2,
+					teamIconHeight,
+					badge.width,
+					badge.height
+				);
+				ctx.drawImage(
+					badge,
+					(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX + offsetX,
+					cHeight - teamIconHeight - sideBarGameIconY + offsetY,
+					width,
+					height
+				);
+			});
 		}
-		badges.map((badge, i) => {
-			const { width, height, offsetX, offsetY } = this.contain(
-				sideBarIconWidth / 2,
-				teamIconHeight,
-				badge.width,
-				badge.height
-			);
-			ctx.drawImage(
-				badge,
-				(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX + offsetX,
-				cHeight - teamIconHeight - sideBarGameIconY + offsetY,
-				width,
-				height
-			);
-		});
 
 		//Interchanges Header
 		ctx.fillStyle = this.colours.claret;
