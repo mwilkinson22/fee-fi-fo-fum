@@ -23,6 +23,10 @@ export default class SquadImage extends Canvas {
 			banner: {
 				size: cHeight * 0.03,
 				family: "Titillium"
+			},
+			playerNameBar: {
+				size: cHeight * 0.025,
+				family: "Montserrat"
 			}
 		};
 		this.setTextStyles(textStyles);
@@ -43,7 +47,10 @@ export default class SquadImage extends Canvas {
 			mainPanelWidth: cWidth - mainPanelOffset,
 			bannerY: Math.round(cHeight * 0.32),
 			playerHeight: Math.round(cHeight * 0.17),
-			playerWidth: Math.round(cWidth * 0.07)
+			playerWidth: Math.round(cWidth * 0.07),
+			playerNameBarHeight: Math.round(cHeight * 0.04),
+			playerNameBarRadius: Math.round(cHeight * 0.01),
+			playerNameBarNumberWidth: Math.round(cWidth * 0.025)
 		};
 		this.positions.players = [
 			[0.5, 0.1], //FB
@@ -53,11 +60,11 @@ export default class SquadImage extends Canvas {
 			[0.815, 0.26], //LW
 			[0.36, 0.46], //SO
 			[0.64, 0.46], //SH
-			[0.22, 0.9], //P
+			[0.16, 0.9], //P
 			[0.5, 0.9], //HK
-			[0.78, 0.9], //P
-			[0.36, 0.75], //RSR
-			[0.64, 0.75], //LSR
+			[0.84, 0.9], //P
+			[0.33, 0.75], //RSR
+			[0.67, 0.75], //LSR
 			[0.5, 0.63] //LF
 		].map(p => this.processPlayerPositions(p));
 
@@ -231,6 +238,8 @@ export default class SquadImage extends Canvas {
 				p.displayName =
 					squadNameWhenDuplicate || `${name.first.substr(0, 1)}. ${name.last}`;
 			}
+
+			p.displayName = p.displayName.toUpperCase();
 		});
 
 		//Draw Players
@@ -243,8 +252,15 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawStartingSquadMember(player, position) {
-		const { ctx, positions } = this;
-		const { playerHeight, playerWidth, players } = positions;
+		const { ctx, positions, textStyles, colours } = this;
+		const {
+			playerHeight,
+			playerWidth,
+			players,
+			playerNameBarHeight,
+			playerNameBarRadius,
+			playerNameBarNumberWidth
+		} = positions;
 		const [x, y] = players[position];
 		const { image, displayName, number } = player;
 
@@ -256,7 +272,73 @@ export default class SquadImage extends Canvas {
 		const sh = playerImage.width / (playerWidth / playerHeight);
 		const dx = x - playerWidth / 2;
 		const dy = y - playerHeight / 2;
+		ctx.shadowBlur = 15;
+		ctx.shadowColor = "black";
 		ctx.drawImage(playerImage, sx, sy, sw, sh, dx, dy, playerWidth, playerHeight);
+
+		//Get Box Sizes
+		ctx.font = textStyles.playerNameBar.string;
+		const { width: nameWidth, actualBoundingBoxAscent: nameHeight } = ctx.measureText(
+			displayName
+		);
+		const nameBoxWidth = Math.max(nameWidth, playerWidth) + playerNameBarNumberWidth / 2;
+		const totalBoxWidth = nameBoxWidth + playerNameBarNumberWidth;
+		const numberBoxX = x - totalBoxWidth / 2;
+		const nameBoxX = numberBoxX + playerNameBarNumberWidth;
+		const boxY = y + playerHeight / 2 - playerNameBarHeight;
+		const textY = boxY + playerNameBarHeight / 2 + nameHeight / 2;
+
+		//Draw Box Shadow
+		ctx.fillStyle = "red";
+		ctx.shadowBlur = 10;
+		ctx.shadowColor = "#000000AA";
+		ctx.shadowOffsetY = 10;
+		this.fillRoundedRect(
+			numberBoxX,
+			boxY,
+			totalBoxWidth,
+			playerNameBarHeight,
+			playerNameBarRadius
+		);
+
+		this.resetShadow();
+
+		//Draw Number Box
+		ctx.fillStyle = colours.claret;
+		this.fillRoundedRect(
+			numberBoxX,
+			boxY,
+			playerNameBarNumberWidth,
+			playerNameBarHeight,
+			playerNameBarRadius,
+			{
+				topRight: 0,
+				bottomRight: 0
+			}
+		);
+
+		//Draw Name box
+		ctx.fillStyle = "#F4F4F4";
+		this.fillRoundedRect(
+			nameBoxX,
+			boxY,
+			nameBoxWidth,
+			playerNameBarHeight,
+			playerNameBarRadius,
+			{
+				topLeft: 0,
+				bottomLeft: 0
+			}
+		);
+
+		//Add Number
+		ctx.textAlign = "center";
+		ctx.fillStyle = colours.gold;
+		ctx.fillText(number, numberBoxX + playerNameBarNumberWidth / 2, textY);
+
+		//Add Name
+		ctx.fillStyle = colours.claret;
+		ctx.fillText(displayName, nameBoxX + nameBoxWidth / 2, textY);
 	}
 
 	async render(forTwitter = false) {
