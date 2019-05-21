@@ -32,6 +32,10 @@ export default class SquadImage extends Canvas {
 				size: cHeight * 0.03,
 				family: "Montserrat"
 			},
+			extraInterchange: {
+				size: cHeight * 0.035,
+				family: "Montserrat"
+			},
 			playerNameBar: {
 				size: cHeight * 0.025,
 				family: "Montserrat"
@@ -220,6 +224,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSquad() {
+		const { textStyles, cHeight, positions } = this;
 		const { playerStats, date, _teamType } = this.game;
 		const { squads } = this.localTeamObject;
 
@@ -264,15 +269,41 @@ export default class SquadImage extends Canvas {
 		});
 
 		//Draw Players
-		let interchangeY = Math.round(this.cHeight * 0.565);
+		let interchangeY = Math.round(cHeight * 0.565);
 		for (const i in this.squad) {
 			const player = this.squad[i];
 			if (i < 13) {
 				await this.drawStartingSquadMember(player, i);
-			} else {
+			} else if (!this.extraInterchanges) {
 				this.drawInterchange(player, interchangeY);
-				interchangeY += Math.round(this.cHeight * 0.065);
+				interchangeY += Math.round(cHeight * 0.065);
 			}
+		}
+
+		//Longer interchange list
+		if (this.extraInterchanges) {
+			const interchangeList = _.chain(this.squad)
+				.map(({ number, name }, i) => {
+					if (i < 13) {
+						return null;
+					} else {
+						return [
+							{
+								text: `${number ? `${number}. ` : ""}${name.full.toUpperCase()}`,
+								font: this.textStyles.extraInterchange
+							}
+						];
+					}
+				})
+				.filter(_.identity)
+				.value();
+
+			this.textBuilder(
+				interchangeList,
+				positions.sideBarWidth * 0.5,
+				Math.round(cHeight * 0.74),
+				{ lineHeight: 1.8 }
+			);
 		}
 	}
 
