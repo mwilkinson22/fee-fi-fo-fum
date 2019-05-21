@@ -38,6 +38,13 @@ export default class Canvas {
 		});
 	}
 
+	resetShadow(ctx = this.ctx) {
+		ctx.shadowColor = "transparent";
+		ctx.shadowBlur = 0;
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+	}
+
 	fillRoundedRect(x, y, w, h, defaultRadius, options = {}) {
 		const defaultOptions = {
 			topLeft: defaultRadius,
