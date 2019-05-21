@@ -38,6 +38,41 @@ export default class Canvas {
 		});
 	}
 
+	fillRoundedRect(x, y, w, h, defaultRadius, options = {}) {
+		const defaultOptions = {
+			topLeft: defaultRadius,
+			topRight: defaultRadius,
+			bottomLeft: defaultRadius,
+			bottomRight: defaultRadius,
+			fill: true,
+			stroke: false,
+			ctx: this.ctx
+		};
+		const { topLeft, topRight, bottomLeft, bottomRight, ctx, fill, stroke } = {
+			...defaultOptions,
+			...options
+		};
+
+		ctx.beginPath();
+		ctx.moveTo(x + topLeft, y);
+		ctx.lineTo(x + w - topRight, y);
+		ctx.quadraticCurveTo(x + w, y, x + w, y + topRight);
+		ctx.lineTo(x + w, y + h - bottomRight);
+		ctx.quadraticCurveTo(x + w, y + h, x + w - bottomRight, y + h);
+		ctx.lineTo(x + bottomLeft, y + h);
+		ctx.quadraticCurveTo(x, y + h, x, y + h - bottomLeft);
+		ctx.lineTo(x, y + topLeft);
+		ctx.quadraticCurveTo(x, y, x + topLeft, y);
+		ctx.closePath();
+
+		if (fill) {
+			ctx.fill();
+		}
+		if (stroke) {
+			ctx.stroke();
+		}
+	}
+
 	async googleToCanvas(file) {
 		const [buffer] = await googleBucket.file(file).download();
 		const image = await loadImage(buffer);
