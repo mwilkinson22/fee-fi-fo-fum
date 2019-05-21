@@ -41,12 +41,36 @@ export default class SquadImage extends Canvas {
 			dividerWidth,
 			mainPanelOffset,
 			mainPanelWidth: cWidth - mainPanelOffset,
-			bannerY: Math.round(cHeight * 0.32)
+			bannerY: Math.round(cHeight * 0.32),
+			playerHeight: Math.round(cHeight * 0.17),
+			playerWidth: Math.round(cWidth * 0.07)
 		};
+		this.positions.players = [
+			[0.5, 0.1], //FB
+			[0.185, 0.26], //RW
+			[0.395, 0.26], //RC
+			[0.605, 0.26], //LC
+			[0.815, 0.26], //LW
+			[0.36, 0.46], //SO
+			[0.64, 0.46], //SH
+			[0.22, 0.9], //P
+			[0.5, 0.9], //HK
+			[0.78, 0.9], //P
+			[0.36, 0.75], //RSR
+			[0.64, 0.75], //LSR
+			[0.5, 0.63] //LF
+		].map(p => this.processPlayerPositions(p));
 
 		//Variables
 		this.game = game;
 		this.options = options;
+	}
+
+	processPlayerPositions([x, y]) {
+		const { sideBarWidth, dividerWidth, mainPanelWidth } = this.positions;
+		const newX = sideBarWidth + dividerWidth * 0.75 + Math.round(mainPanelWidth * x);
+		const newY = Math.round(this.cHeight * y);
+		return [newX, newY];
 	}
 
 	async drawBackground() {
@@ -208,6 +232,31 @@ export default class SquadImage extends Canvas {
 					squadNameWhenDuplicate || `${name.first.substr(0, 1)}. ${name.last}`;
 			}
 		});
+
+		//Draw Players
+		for (const i in this.squad) {
+			const player = this.squad[i];
+			if (i < 13) {
+				await this.drawStartingSquadMember(player, i);
+			}
+		}
+	}
+
+	async drawStartingSquadMember(player, position) {
+		const { ctx, positions } = this;
+		const { playerHeight, playerWidth, players } = positions;
+		const [x, y] = players[position];
+		const { image, displayName, number } = player;
+
+		//Player Image
+		const playerImage = await this.googleToCanvas(`images/people/full/${image || "blank.png"}`);
+		const sx = 0;
+		const sy = 0;
+		const sw = playerImage.width;
+		const sh = playerImage.width / (playerWidth / playerHeight);
+		const dx = x - playerWidth / 2;
+		const dy = y - playerHeight / 2;
+		ctx.drawImage(playerImage, sx, sy, sw, sh, dx, dy, playerWidth, playerHeight);
 	}
 
 	async render(forTwitter = false) {
