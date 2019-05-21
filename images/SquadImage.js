@@ -239,7 +239,7 @@ export default class SquadImage extends Canvas {
 				const { name, nickname, displayNicknameInCanvases, _id } = _player;
 				return {
 					displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
-					number: squadNumbers[_id],
+					number: squadNumbers[_id] || "",
 					..._player
 				};
 			})
