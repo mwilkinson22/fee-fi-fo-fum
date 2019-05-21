@@ -249,7 +249,7 @@ export default class PregameImage extends Canvas {
 			width,
 			height
 		);
-		ctx.shadowBlur = 0;
+		this.resetShadow();
 	}
 
 	getTeamList(team) {
@@ -384,7 +384,7 @@ export default class PregameImage extends Canvas {
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "black";
 		ctx.fillRect(0, positions.teamBlockTop, cWidth, positions.teamBlockHeight);
-		ctx.shadowBlur = 0;
+		this.resetShadow();
 
 		//Team Block(s)
 		const singleTeam = _.find(teams, t => t._id == options.singleTeam);
