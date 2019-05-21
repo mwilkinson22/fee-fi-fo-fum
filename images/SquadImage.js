@@ -24,6 +24,14 @@ export default class SquadImage extends Canvas {
 				size: cHeight * 0.03,
 				family: "Titillium"
 			},
+			interchangeHeader: {
+				size: cHeight * 0.035,
+				family: "Titillium"
+			},
+			interchange: {
+				size: cHeight * 0.03,
+				family: "Montserrat"
+			},
 			playerNameBar: {
 				size: cHeight * 0.025,
 				family: "Montserrat"
@@ -50,7 +58,9 @@ export default class SquadImage extends Canvas {
 			playerWidth: Math.round(cWidth * 0.07),
 			playerNameBarHeight: Math.round(cHeight * 0.04),
 			playerNameBarRadius: Math.round(cHeight * 0.01),
-			playerNameBarNumberWidth: Math.round(cWidth * 0.025)
+			playerNameBarNumberWidth: Math.round(cWidth * 0.025),
+			interchangeHeaderY: Math.round(cHeight * 0.5),
+			interchangeHeader: Math.round(cHeight * 0.05)
 		};
 		this.positions.players = [
 			[0.5, 0.1], //FB
@@ -97,7 +107,8 @@ export default class SquadImage extends Canvas {
 			sideBarIconWidth,
 			sideBarGameIconY,
 			sideBarGameIconHeight,
-			teamIconHeight
+			teamIconHeight,
+			interchangeHeaderY
 		} = this.positions;
 
 		//Add Game Logo
@@ -196,6 +207,11 @@ export default class SquadImage extends Canvas {
 				height
 			);
 		});
+
+		//Interchanges Header
+		ctx.fillStyle = this.colours.claret;
+		ctx.font = textStyles.interchangeHeader.string;
+		ctx.fillText("INTERCHANGES", sideBarWidth / 2, interchangeHeaderY);
 	}
 
 	async drawSquad() {
@@ -243,10 +259,14 @@ export default class SquadImage extends Canvas {
 		});
 
 		//Draw Players
+		let interchangeY = Math.round(this.cHeight * 0.565);
 		for (const i in this.squad) {
 			const player = this.squad[i];
 			if (i < 13) {
 				await this.drawStartingSquadMember(player, i);
+			} else {
+				this.drawInterchange(player, interchangeY);
+				interchangeY += Math.round(this.cHeight * 0.065);
 			}
 		}
 	}
@@ -339,6 +359,36 @@ export default class SquadImage extends Canvas {
 		//Add Name
 		ctx.fillStyle = colours.claret;
 		ctx.fillText(displayName, nameBoxX + nameBoxWidth / 2, textY);
+	}
+
+	drawInterchange({ number, displayName }, y) {
+		const { ctx, positions, colours, textStyles } = this;
+		const { sideBarWidth } = positions;
+
+		const numberBoxXCentre = sideBarWidth * 0.27;
+		const numberBoxSize = textStyles.interchange.size * 1.75;
+
+		//Add Box
+		ctx.fillStyle = colours.claret;
+		ctx.fillRect(
+			numberBoxXCentre - numberBoxSize / 2,
+			y - numberBoxSize / 2 - textStyles.interchange.size * 0.3,
+			numberBoxSize,
+			numberBoxSize
+		);
+
+		//Set Font
+		ctx.font = textStyles.interchange.string;
+
+		//Add Number
+		ctx.textAlign = "center";
+		ctx.fillStyle = colours.gold;
+		ctx.fillText(number, numberBoxXCentre, y);
+
+		//Add Name
+		ctx.textAlign = "left";
+		ctx.fillStyle = colours.claret;
+		ctx.fillText(displayName, sideBarWidth * 0.34, y);
 	}
 
 	async render(forTwitter = false) {
