@@ -8,55 +8,38 @@ import SquadSelector from "./SquadSelector";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { fetchTeam } from "../../../actions/teamsActions";
+import { fetchTeamList } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
-import { fetchPeopleList } from "~/client/actions/peopleActions";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 class AdminGameSquads extends Component {
 	constructor(props) {
 		super(props);
-		const { game, fullTeams, fetchTeam, localTeam, peopleList, fetchPeopleList } = props;
+		const { teamList, fetchTeamList } = props;
 
-		if (!fullTeams[localTeam]) {
-			fetchTeam(localTeam);
-		}
-		if (!fullTeams[game._opposition._id]) {
-			fetchTeam(game._opposition._id);
-		}
-		if (!peopleList) {
-			fetchPeopleList();
+		if (!teamList) {
+			fetchTeamList();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, fullTeams, localTeam, peopleList } = nextProps;
+		const { game, teamList, localTeam } = nextProps;
 		const newState = {};
 
 		const teams = [localTeam, game._opposition._id];
 
-		//Ensure people list is loaded
-		if (!peopleList) {
-			return newState;
-		}
-
 		//Ensure both teams have loaded
-		if (_.reject(teams, team => fullTeams[team]).length) {
+		if (!teamList) {
 			return newState;
 		}
 
 		//Get Squads
 		if (!prevState.squads) {
-			const year = new Date(game.date).getFullYear();
-			const { _teamType } = game;
 			newState.squads = _.chain(teams)
 				.map(id => {
-					const fullSquad = _.find(
-						fullTeams[id].squads,
-						s => s.year === year && s._teamType === _teamType
-					).players;
+					const fullSquad = game.eligiblePlayers[id];
 					const pregameSquad = _.find(game.pregameSquads, s => s._team === id).squad;
 
 					const filteredSquad = _.map(fullSquad, squadMember => {
@@ -98,7 +81,7 @@ class AdminGameSquads extends Component {
 
 	render() {
 		const { squads } = this.state;
-		const { game, localTeam, fullTeams } = this.props;
+		const { game, localTeam, teamList } = this.props;
 		if (!squads) {
 			return <LoadingPage />;
 		}
@@ -109,10 +92,10 @@ class AdminGameSquads extends Component {
 		}
 
 		const content = teams.map(id => {
-			const { colours } = fullTeams[id];
+			const { colours } = teamList[id];
 			return (
 				<div className="form-card squad-selector-wrapper" key={id}>
-					<TeamImage team={fullTeams[id]} />
+					<TeamImage team={teamList[id]} />
 					<SquadSelector
 						squad={squads[id]}
 						teamColours={colours}
@@ -131,14 +114,13 @@ class AdminGameSquads extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams, people }, ownProps) {
-	const { fullTeams } = teams;
+function mapStateToProps({ config, teams }) {
+	const { teamList } = teams;
 	const { localTeam } = config;
-	const { peopleList } = people;
-	return { fullTeams, localTeam, peopleList, ...ownProps };
+	return { teamList, localTeam };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, setPregameSquads, fetchPeopleList }
+	{ fetchTeamList, setPregameSquads }
 )(AdminGameSquads);

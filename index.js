@@ -63,6 +63,7 @@ app.get("*", async (req, res) => {
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(fetchUser());
 	await store.dispatch(fetchAllTeamTypes());
+	await store.dispatch(fetchTeamList());
 
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
