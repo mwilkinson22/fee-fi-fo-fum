@@ -114,7 +114,7 @@ class AdminGamePage extends Component {
 		}
 
 		if (_.keys(_.groupBy(playerStats, "_team")).length >= 1) {
-			submenuItems.push({ label: "Match Squad Images", value: "squad-images" });
+			submenuItems.push({ label: "Squad Image", value: "squad-images" });
 		}
 
 		if (status >= 2) {
