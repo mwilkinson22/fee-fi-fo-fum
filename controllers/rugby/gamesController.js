@@ -139,20 +139,54 @@ export async function getList(req, res) {
 	res.send({ gameList: list, slugMap });
 }
 
+export async function addEligiblePlayers(games) {
+	//Get All Full Teams
+	const teamIds = [localTeam, ...games.filter(g => g.playerStats).map(g => g._opposition._id)];
+	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
+		path: "squads.players._player",
+		select: "name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate"
+	});
+	teams = _.keyBy(teams, "_id");
+
+	//Loop each game
+	_.each(games, game => {
+		const year = new Date(game.date).getFullYear();
+		//Loop local and opposition teams
+		game._doc.eligiblePlayers = _.chain([localTeam, game._opposition._id])
+			.map(id => {
+				const team = teams[id];
+				const squad = _.find(
+					team.squads,
+					squad =>
+						squad.year == year &&
+						squad._teamType.toString() == game._teamType.toString()
+				);
+				return [id, squad ? squad.players : []];
+			})
+			.fromPairs()
+			.value();
+	});
+
+	return games;
+}
+
 export async function getGames(req, res) {
 	const { ids } = req.params;
-	const games = await Game.find({
+	let games = await Game.find({
 		_id: {
 			$in: ids.split(",")
 		}
 	}).fullGame();
+
+	games = await addEligiblePlayers(games);
 
 	res.send(_.keyBy(games, "_id"));
 }
 
 async function getUpdatedGame(id, res) {
 	//To be called after post/put methods
-	const game = await Game.findById([id]).fullGame();
+	let game = await Game.findById([id]).fullGame();
+	game = await addEligiblePlayers([game]);
 	res.send({ [id]: game });
 }
 

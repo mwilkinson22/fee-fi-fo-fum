@@ -8,7 +8,7 @@ import * as Yup from "yup";
 //Actions
 import { postGameEvent } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
-import { fetchTeamList } from "~/client/actions/teamsActions";
+import { fetchTeamList, fetchTeam } from "~/client/actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -22,17 +22,40 @@ import { processFormFields } from "~/helpers/adminHelper";
 class AdminGameEvent extends Component {
 	constructor(props) {
 		super(props);
-		const { peopleList, fetchPeopleList, teamList, fetchTeamList } = props;
+		const {
+			game,
+			peopleList,
+			fetchPeopleList,
+			teamList,
+			fetchTeamList,
+			fullTeams,
+			localTeam,
+			fetchTeam
+		} = props;
 		if (!peopleList) {
 			fetchPeopleList();
 		}
 		if (!teamList) {
 			fetchTeamList();
 		}
+		if (!fullTeams[localTeam]) {
+			fetchTeam(localTeam);
+		}
+		if (!fullTeams[game._opposition._id]) {
+			fetchTeam(game._opposition._id);
+		}
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
+		const { fullTeams, localTeam, game } = nextProps;
+		if (!fullTeams[localTeam] || !fullTeams[game._opposition._id]) {
+			return {};
+		}
+
+		//Get Squad
+		const { date, _teamType } = game;
+
 		return nextProps;
 	}
 
@@ -118,7 +141,7 @@ class AdminGameEvent extends Component {
 
 	renderFields(formikProps) {
 		const { localTeam } = this.props;
-		const { game, peopleList, teamList } = this.state;
+		const { game, peopleList, teamList } = this.props;
 		const { event, postTweet } = formikProps.values;
 		const validationSchema = this.getValidationSchema();
 		const eventTypes = this.getEventTypes();
@@ -207,12 +230,12 @@ class AdminGameEvent extends Component {
 function mapStateToProps({ config, people, teams }) {
 	const { localTeam } = config;
 	const { peopleList } = people;
-	const { teamList } = teams;
-	return { localTeam, peopleList, teamList };
+	const { teamList, fullTeams } = teams;
+	return { localTeam, peopleList, teamList, fullTeams };
 }
 
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, fetchTeamList, postGameEvent }
+	{ fetchPeopleList, fetchTeamList, postGameEvent, fetchTeam }
 )(AdminGameEvent);
