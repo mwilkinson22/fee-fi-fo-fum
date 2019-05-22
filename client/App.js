@@ -10,6 +10,7 @@ import { fetchUser } from "./actions/userActions";
 import { ToastContainer, toast } from "react-toastify";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
+import HelmetBuilder from "./components/HelmetBuilder";
 
 //Action Type Sanity Check
 import * as actionTypes from "./actions/types";
@@ -45,6 +46,7 @@ class App extends Component {
 			<div>
 				<ScrollToTop>
 					<Header />
+					<HelmetBuilder />
 					{renderRoutes(route.routes)}
 					<ToastContainer position="bottom-right" />
 				</ScrollToTop>
