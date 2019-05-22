@@ -6,7 +6,6 @@ import Table from "../../Table";
 import { Link } from "react-router-dom";
 import { updateNeutralGames } from "~/client/actions/neutralGamesActions";
 import TeamImage from "../../teams/TeamImage";
-import "datejs";
 
 class NeutralGameList extends Component {
 	constructor(props) {

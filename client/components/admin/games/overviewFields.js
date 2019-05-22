@@ -1,6 +1,5 @@
 //Fields
 import * as Yup from "yup";
-import "datejs";
 
 export default {
 	Basics: [

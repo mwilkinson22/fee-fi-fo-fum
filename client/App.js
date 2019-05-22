@@ -1,3 +1,5 @@
+//Modules
+import "datejs";
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
@@ -7,7 +9,7 @@ import { renderRoutes } from "react-router-config";
 import { fetchUser } from "./actions/userActions";
 
 //Components
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import HelmetBuilder from "./components/HelmetBuilder";

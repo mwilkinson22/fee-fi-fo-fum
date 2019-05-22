@@ -3,7 +3,6 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
-import { Redirect } from "react-router-dom";
 
 //Actions
 import { fetchPeopleList } from "../../../actions/peopleActions";

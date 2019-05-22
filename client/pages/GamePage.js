@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
-import "datejs";
 import Countdown from "../components/games/Countdown";
 import GameHeaderImage from "../components/games/GameHeaderImage";
 import { imagePath } from "../extPaths";

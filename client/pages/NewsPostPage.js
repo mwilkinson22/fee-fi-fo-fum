@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import Parser from "html-react-parser";
 import LoadingPage from "../components/LoadingPage";
 import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
-import "datejs";
 import { connect } from "react-redux";
 import NewsPostPreview from "../components/news/NewsPostCard";
 import { FacebookProvider, Comments } from "react-facebook";

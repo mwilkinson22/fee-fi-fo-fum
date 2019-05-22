@@ -1,13 +1,11 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import PlayerStatsHelper from "../helperClasses/PlayerStatsHelper";
 import LoadingPage from "../components/LoadingPage";
 import Parser from "html-react-parser";
 import { layoutImagePath } from "../extPaths";
 import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
-import "datejs";
 import PersonImage from "../components/people/PersonImage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";

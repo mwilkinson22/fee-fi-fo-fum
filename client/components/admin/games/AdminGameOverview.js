@@ -4,7 +4,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import "datejs";
 
 //Actions
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";

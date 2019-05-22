@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import _ from "lodash";
-import "datejs";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import TeamImage from "../teams/TeamImage";
 import playerStatTypes from "../../../constants/playerStatTypes";

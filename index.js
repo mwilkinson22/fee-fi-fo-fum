@@ -4,6 +4,7 @@ import { matchRoutes } from "react-router-config";
 import Routes from "./client/Routes";
 import renderer from "./helpers/server/renderer";
 import createStore from "./helpers/server/createStore";
+import "datejs";
 
 import { getCoreConfig } from "./client/actions/configActions";
 import { fetchUser } from "./client/actions/userActions";

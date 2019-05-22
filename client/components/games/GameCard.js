@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { toRgba } from "~/helpers/colourHelper";
-import "datejs";
 import Countdown from "./Countdown";
 import GameHeaderImage from "./GameHeaderImage";
 import TeamImage from "../teams/TeamImage";
