@@ -169,7 +169,6 @@ class AdminGameEvent extends Component {
 				{ name: "replyTweet", type: "text" }
 			);
 		}
-		console.log(formikProps.values);
 		return (
 			<Form>
 				<div className="form-card grid">
