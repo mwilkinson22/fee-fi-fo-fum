@@ -357,7 +357,14 @@ export async function handleEvent(req, res) {
 }
 
 //Image Generators
-export async function generatePregameImage(req, res) {
+async function generatePregameImage(game, forTwitter, options = {}) {
+	const [gameWithSquads] = await addEligiblePlayers([game]);
+	const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
+	const imageClass = new PregameImage(gameJSON, options);
+	const image = await imageClass.render(forTwitter);
+	return image;
+}
+export async function fetchPregameImage(req, res) {
 	const { _id } = req.params;
 
 	const game = await Game.findById(_id).pregameImage();
@@ -365,10 +372,7 @@ export async function generatePregameImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const [gameWithSquads] = await addEligiblePlayers([game]);
-		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
-		const imageClass = new PregameImage(gameJSON, req.query);
-		const image = await imageClass.render(false);
+		const image = await generatePregameImage(game, false, req.query);
 		res.send(image);
 	}
 }
@@ -381,10 +385,7 @@ export async function postPregameImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const [gameWithSquads] = await addEligiblePlayers([game]);
-		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
-		const imageClass = new PregameImage(gameJSON, req.query);
-		const image = await imageClass.render(true);
+		const image = await generatePregameImage(game, true, req.query);
 		const upload = await twitter.post("media/upload", {
 			media_data: image
 		});
@@ -400,7 +401,15 @@ export async function postPregameImage(req, res) {
 	}
 }
 
-export async function generateSquadImage(req, res) {
+async function generateSquadImage(game, forTwitter) {
+	const [gameWithSquads] = await addEligiblePlayers([game]);
+	const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
+	const imageClass = new SquadImage(gameJSON);
+	const image = await imageClass.render(forTwitter);
+	return image;
+}
+
+export async function fetchSquadImage(req, res) {
 	const { _id } = req.params;
 
 	const game = await Game.findById(_id).squadImage();
@@ -408,10 +417,7 @@ export async function generateSquadImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const [gameWithSquads] = await addEligiblePlayers([game]);
-		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
-		const imageClass = new SquadImage(gameJSON);
-		const image = await imageClass.render(false);
+		const image = await generateSquadImage(game, false);
 		res.send(image);
 	}
 }
@@ -424,10 +430,7 @@ export async function postSquadImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const [gameWithSquads] = await addEligiblePlayers([game]);
-		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
-		const imageClass = new SquadImage(gameJSON);
-		const image = await imageClass.render(true);
+		const image = await generateSquadImage(game, true);
 		const upload = await twitter.post("media/upload", {
 			media_data: image
 		});
