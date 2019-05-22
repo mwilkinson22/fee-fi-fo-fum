@@ -99,36 +99,44 @@ class AdminGamePage extends Component {
 	getSubmenu() {
 		const { pathname } = this.props.location;
 		const { status, slug, pregameSquads, playerStats } = this.state.game;
+		const groups = ["Pre-game", "Match Day", "Post-game"];
 		const submenuItems = [
-			{ label: "Overview", value: "" },
-			{ label: "Pregame Squad", value: "pregame" },
-			{ label: "Photos", value: "photos" }
+			{ label: "Overview", value: "", group: 0 },
+			{ label: "Pregame Squad", value: "pregame", group: 0 },
+			{ label: "Photos", value: "photos", group: 0 }
 		];
 
 		if (pregameSquads.length) {
-			submenuItems.push({ label: "Pregame Squad Image", value: "pregame-image" });
+			submenuItems.push({ label: "Pregame Squad Image", value: "pregame-image", group: 0 });
 		}
 
 		if (status >= 1) {
-			submenuItems.push({ label: "Match Squads", value: "squads" });
+			submenuItems.push({ label: "Squads", value: "squads", group: 1 });
 		}
 
 		if (_.keys(_.groupBy(playerStats, "_team")).length >= 1) {
-			submenuItems.push({ label: "Squad Image", value: "squad-images" });
+			submenuItems.push({ label: "Squad Image", value: "squad-images", group: 1 });
 		}
 
 		if (status >= 2) {
 			submenuItems.push(
-				{ label: "Add In-Game Event", value: "event" },
-				{ label: "Stats", value: "stats" }
+				{ label: "Add In-Game Event", value: "event", group: 1 },
+				{ label: "Stats", value: "stats", group: 2 }
 			);
 		}
 
 		const currentPath = pathname.split(slug)[1].replace(/^\//, "");
 		const currentOption = _.find(submenuItems, i => i.value === currentPath);
+		const options = _.chain(submenuItems)
+			.groupBy(({ group }) => groups[group])
+			.map((options, label) => ({
+				label,
+				options
+			}))
+			.value();
 		return (
 			<Select
-				options={submenuItems}
+				options={options}
 				defaultValue={currentOption}
 				isSearchable={false}
 				onChange={option => this.props.history.push(`/admin/game/${slug}/${option.value}`)}
