@@ -224,17 +224,8 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSquad() {
-		const { textStyles, cHeight, positions } = this;
-		const { playerStats, date, _teamType } = this.game;
-		const { squads } = this.localTeamObject;
-
-		//Get Squad Numbers
-		const year = new Date(date).getFullYear();
-		const squad = _.find(squads, s => s.year == year && s._teamType == _teamType);
-		const squadNumbers = _.chain(squad.players)
-			.keyBy("_player")
-			.mapValues("number")
-			.value();
+		const { cHeight, positions } = this;
+		const { eligiblePlayers, playerStats } = this.game;
 
 		//Create Squad Object
 		this.squad = _.chain(playerStats)
@@ -242,9 +233,10 @@ export default class SquadImage extends Canvas {
 			.sortBy("position")
 			.map(({ _player }) => {
 				const { name, nickname, displayNicknameInCanvases, _id } = _player;
+				const squadEntry = _.find(eligiblePlayers[localTeam], m => m._player._id == _id);
 				return {
 					displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
-					number: squadNumbers[_id] || "",
+					number: squadEntry && squadEntry.number ? squadEntry.number : "",
 					..._player
 				};
 			})
@@ -429,7 +421,7 @@ export default class SquadImage extends Canvas {
 
 	async render(forTwitter = false) {
 		const Team = mongoose.model("teams");
-		this.localTeamObject = await Team.findById(localTeam, "image squads").lean();
+		this.localTeamObject = await Team.findById(localTeam, "image").lean();
 		await this.drawBackground();
 		await this.drawSidebar();
 		await this.drawSquad();

@@ -115,7 +115,9 @@ export default class PregameImage extends Canvas {
 		if (game.images.logo) {
 			leftIcon = await this.googleToCanvas(game.images.logo);
 		} else {
-			leftIcon = await this.googleToCanvas(`images/teams/${game.teams[localTeam].image}`);
+			leftIcon = await this.googleToCanvas(
+				`images/teams/${_.find(this.teams, t => t._id == localTeam).image}`
+			);
 		}
 
 		if (leftIcon) {
@@ -253,24 +255,19 @@ export default class PregameImage extends Canvas {
 	}
 
 	getTeamList(team) {
-		const { game } = this;
-		const result = _.find(game.pregameSquads, s => s._team == team._id);
+		const { pregameSquads, eligiblePlayers } = this.game;
+		const result = _.find(pregameSquads, s => s._team == team._id);
 		if (result) {
 			const { squad } = result;
-			const numbers = _.find(
-				team.squads,
-				s => s.year == new Date(game.date).getFullYear() && s._teamType == game._teamType
-			).players;
 			return _.chain(squad)
 				.map(player => {
-					let number;
-					const squadEntry = _.find(numbers, p => p._player == player._id);
-					if (squadEntry) {
-						number = squadEntry.number;
-					}
+					const squadEntry = _.find(
+						eligiblePlayers[team._id],
+						m => m._player._id == player._id
+					);
 					return {
 						...player,
-						number
+						number: squadEntry ? squadEntry.number : null
 					};
 				})
 				.sortBy(p => p.number || 999)
@@ -368,10 +365,7 @@ export default class PregameImage extends Canvas {
 
 		//Populate Teams
 		const Team = mongoose.model("teams");
-		const teams = await Team.find(
-			{ _id: { $in: teamIds } },
-			"name colours hashtagPrefix squads image"
-		);
+		const teams = await Team.find({ _id: { $in: teamIds } }, "name colours image").lean();
 		this.teams = _.map(teamIds, id => _.find(teams, t => t._id == id));
 
 		//BG

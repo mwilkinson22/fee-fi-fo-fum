@@ -141,7 +141,7 @@ export async function getList(req, res) {
 
 export async function addEligiblePlayers(games) {
 	//Get All Full Teams
-	const teamIds = [localTeam, ...games.filter(g => g.playerStats).map(g => g._opposition._id)];
+	const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
 	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
 		path: "squads.players._player",
 		select: "name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate"
@@ -186,7 +186,7 @@ export async function getGames(req, res) {
 async function getUpdatedGame(id, res) {
 	//To be called after post/put methods
 	let game = await Game.findById([id]).fullGame();
-	game = await addEligiblePlayers([game]);
+	game = await addEligiblePlayers([game])[0];
 	res.send({ [id]: game });
 }
 
@@ -365,7 +365,8 @@ export async function generatePregameImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const gameJSON = JSON.parse(JSON.stringify(game));
+		const [gameWithSquads] = await addEligiblePlayers([game]);
+		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
 		const imageClass = new PregameImage(gameJSON, req.query);
 		const image = await imageClass.render(false);
 		res.send(image);
@@ -380,7 +381,8 @@ export async function postPregameImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const gameJSON = JSON.parse(JSON.stringify(game));
+		const [gameWithSquads] = await addEligiblePlayers([game]);
+		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
 		const imageClass = new PregameImage(gameJSON, req.query);
 		const image = await imageClass.render(true);
 		const upload = await twitter.post("media/upload", {
@@ -406,7 +408,8 @@ export async function generateSquadImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const gameJSON = JSON.parse(JSON.stringify(game));
+		const [gameWithSquads] = await addEligiblePlayers([game]);
+		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
 		const imageClass = new SquadImage(gameJSON);
 		const image = await imageClass.render(false);
 		res.send(image);
@@ -421,7 +424,8 @@ export async function postSquadImage(req, res) {
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else {
-		const gameJSON = JSON.parse(JSON.stringify(game));
+		const [gameWithSquads] = await addEligiblePlayers([game]);
+		const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
 		const imageClass = new SquadImage(gameJSON);
 		const image = await imageClass.render(true);
 		const upload = await twitter.post("media/upload", {
