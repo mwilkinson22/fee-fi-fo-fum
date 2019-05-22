@@ -5,22 +5,14 @@ import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 
 //Components
-import LoadingPage from "../../LoadingPage";
 import Table from "../../Table";
 
 //Actions
-import { fetchTeamList } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
 		super(props);
-
-		const { teamList, fetchTeamList } = props;
-		if (!teamList) {
-			fetchTeamList();
-		}
-
 		this.state = {};
 	}
 
@@ -129,9 +121,6 @@ class AdminGamePregameSquads extends Component {
 	render() {
 		const { game, lastGame, localTeam } = this.props;
 		const { teamList } = this.state;
-		if (!teamList) {
-			return <LoadingPage />;
-		}
 
 		const columns = [
 			{
@@ -251,5 +240,5 @@ function mapStateToProps({ config, teams }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ setPregameSquads, fetchTeamList }
+	{ setPregameSquads }
 )(AdminGamePregameSquads);

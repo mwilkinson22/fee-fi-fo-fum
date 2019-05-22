@@ -5,7 +5,6 @@ import LoadingPage from "../components/LoadingPage";
 import NewsPostCard from "../components/news/NewsPostCard";
 import GameCard from "../components/games/GameCard";
 import { fetchPostList } from "../actions/newsActions";
-import { fetchTeamList } from "../actions/teamsActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
 import { fetchNeutralGames } from "../actions/neutralGamesActions";
 import { fetchAllCompetitionSegments } from "../actions/competitionActions";
@@ -27,9 +26,7 @@ class HomePage extends Component {
 			competitionSegments,
 			fetchAllCompetitionSegments,
 			neutralGames,
-			fetchNeutralGames,
-			teamList,
-			fetchTeamList
+			fetchNeutralGames
 		} = props;
 		if (!postList) {
 			fetchPostList();
@@ -43,10 +40,6 @@ class HomePage extends Component {
 		if (!neutralGames) {
 			fetchNeutralGames();
 		}
-		if (!teamList) {
-			fetchTeamList;
-		}
-
 		this.state = {
 			postList
 		};
@@ -199,7 +192,6 @@ async function loadData(store) {
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchAllCompetitionSegments()),
 		store.dispatch(fetchGameList()),
-		store.dispatch(fetchTeamList()),
 		store.dispatch(fetchNeutralGames())
 	]);
 	const { gameList, neutralGames } = store.getState().games;
@@ -210,12 +202,11 @@ async function loadData(store) {
 	return store.dispatch(fetchGames(_.flatten(gamesToLoad)));
 }
 
-function mapStateToProps({ news, games, competitions, teams }) {
+function mapStateToProps({ news, games, competitions }) {
 	const { postList } = news;
 	const { competitionSegmentList } = competitions;
 	const { gameList, fullGames, neutralGames } = games;
-	const { teamList } = teams;
-	return { postList, gameList, fullGames, neutralGames, competitionSegmentList, teamList };
+	return { postList, gameList, fullGames, neutralGames, competitionSegmentList };
 }
 
 export default {
@@ -226,7 +217,6 @@ export default {
 			fetchGameList,
 			fetchGames,
 			fetchAllCompetitionSegments,
-			fetchTeamList,
 			fetchNeutralGames
 		}
 	)(HomePage),

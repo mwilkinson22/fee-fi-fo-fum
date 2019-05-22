@@ -9,7 +9,6 @@ import {
 	createNeutralGames,
 	deleteNeutralGame
 } from "../actions/neutralGamesActions";
-import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import { Formik, Form } from "formik";
 import HelmetBuilder from "../components/HelmetBuilder";
@@ -26,9 +25,7 @@ class AdminNeutralGameList extends Component {
 			competitionSegmentList,
 			fetchAllCompetitionSegments,
 			neutralGames,
-			fetchNeutralGames,
-			teamList,
-			fetchTeamList
+			fetchNeutralGames
 		} = props;
 
 		if (!competitionSegmentList) {
@@ -39,16 +36,12 @@ class AdminNeutralGameList extends Component {
 			fetchNeutralGames();
 		}
 
-		if (!teamList) {
-			fetchTeamList();
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
 		const { competitionSegmentList, neutralGames, teamList, match } = nextProps;
-		if (!competitionSegmentList || !neutralGames || !teamList) {
+		if (!competitionSegmentList || !neutralGames) {
 			return {};
 		}
 
@@ -404,7 +397,6 @@ export default connect(
 	mapStateToProps,
 	{
 		fetchAllCompetitionSegments,
-		fetchTeamList,
 		fetchNeutralGames,
 		createNeutralGames,
 		updateNeutralGames,

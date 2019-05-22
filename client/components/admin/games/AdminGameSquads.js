@@ -8,32 +8,20 @@ import SquadSelector from "./SquadSelector";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { fetchTeamList } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 class AdminGameSquads extends Component {
 	constructor(props) {
 		super(props);
-		const { teamList, fetchTeamList } = props;
-
-		if (!teamList) {
-			fetchTeamList();
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, teamList, localTeam } = nextProps;
+		const { game, localTeam } = nextProps;
 		const newState = {};
 
 		const teams = [localTeam, game._opposition._id];
-
-		//Ensure both teams have loaded
-		if (!teamList) {
-			return newState;
-		}
 
 		//Get Squads
 		if (!prevState.squads) {
@@ -122,5 +110,5 @@ function mapStateToProps({ config, teams }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeamList, setPregameSquads }
+	{ setPregameSquads }
 )(AdminGameSquads);

@@ -15,12 +15,6 @@ import TeamBanner from "../components/teams/TeamBanner";
 class AdminTeamPage extends Component {
 	constructor(props) {
 		super(props);
-		const { fetchTeamList, slugMap } = props;
-
-		if (!slugMap) {
-			fetchTeamList();
-		}
-
 		this.state = {};
 	}
 
@@ -28,10 +22,6 @@ class AdminTeamPage extends Component {
 		const newState = {};
 
 		const { match, slugMap, fullTeams, fetchTeam } = nextProps;
-
-		if (!slugMap) {
-			return newState;
-		}
 
 		if (slugMap[match.params.slug]) {
 			const { id } = slugMap[match.params.slug];
@@ -75,7 +65,6 @@ class AdminTeamPage extends Component {
 	}
 
 	getContent() {
-		const { team } = this.state;
 		return (
 			<div>
 				<HelmetBuilder key="helmet" title={this.state.team.name.long} />
@@ -100,7 +89,6 @@ class AdminTeamPage extends Component {
 		} else if (!team) {
 			return <NotFoundPage message="Team not found" />;
 		} else {
-			const { name } = team;
 			return (
 				<div className="admin-team-page admin-page">
 					<section className="page-header">
@@ -125,5 +113,5 @@ function mapStateToProps({ teams }, ownProps) {
 }
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, fetchTeamList }
+	{ fetchTeam }
 )(AdminTeamPage);

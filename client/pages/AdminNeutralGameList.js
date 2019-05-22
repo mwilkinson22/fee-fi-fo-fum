@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
 import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../actions/neutralGamesActions";
-import { fetchTeamList } from "../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import NeutralGameList from "../components/admin/neutralGames/NeutralGameList";
 import HelmetBuilder from "../components/HelmetBuilder";
@@ -16,9 +15,7 @@ class AdminNeutralGameList extends Component {
 			competitionSegmentList,
 			fetchAllCompetitionSegments,
 			neutralGames,
-			fetchNeutralGames,
-			teamList,
-			fetchTeamList
+			fetchNeutralGames
 		} = props;
 
 		if (!competitionSegmentList) {
@@ -27,10 +24,6 @@ class AdminNeutralGameList extends Component {
 
 		if (!neutralGames) {
 			fetchNeutralGames();
-		}
-
-		if (!teamList) {
-			fetchTeamList();
 		}
 
 		this.state = {};
@@ -195,5 +188,5 @@ function mapStateToProps({ games, teams, competitions }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllCompetitionSegments, fetchTeamList, fetchNeutralGames, crawlAndUpdateNeutralGames }
+	{ fetchAllCompetitionSegments, fetchNeutralGames, crawlAndUpdateNeutralGames }
 )(AdminNeutralGameList);

@@ -7,7 +7,7 @@ import createStore from "./helpers/server/createStore";
 
 import { getCoreConfig } from "./client/actions/configActions";
 import { fetchUser } from "./client/actions/userActions";
-import { fetchAllTeamTypes } from "./client/actions/teamsActions";
+import { fetchAllTeamTypes, fetchTeamList } from "./client/actions/teamsActions";
 
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";

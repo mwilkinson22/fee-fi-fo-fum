@@ -7,7 +7,6 @@ import * as Yup from "yup";
 import "datejs";
 
 //Actions
-import { fetchTeamList } from "../../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
@@ -21,9 +20,7 @@ class AdminGameOverview extends Component {
 	constructor(props) {
 		super(props);
 		const {
-			teamList,
 			competitionSegmentList,
-			fetchTeamList,
 			fetchAllCompetitionSegments,
 			groundList,
 			fetchAllGrounds,
@@ -31,9 +28,6 @@ class AdminGameOverview extends Component {
 			fetchPeopleList
 		} = props;
 
-		if (!teamList) {
-			fetchTeamList();
-		}
 		if (!competitionSegmentList) {
 			fetchAllCompetitionSegments();
 		}
@@ -324,7 +318,7 @@ class AdminGameOverview extends Component {
 	}
 
 	render() {
-		const requireToRender = ["teamList", "competitionSegmentList", "groundList", "peopleList"];
+		const requireToRender = ["competitionSegmentList", "groundList", "peopleList"];
 		let stopRender = false;
 		for (const prop of requireToRender) {
 			if (!this.state[prop]) {
@@ -363,7 +357,6 @@ function mapStateToProps({ games, teams, competitions, grounds, people }, ownPro
 export default connect(
 	mapStateToProps,
 	{
-		fetchTeamList,
 		fetchAllCompetitionSegments,
 		fetchAllGrounds,
 		fetchPeopleList,

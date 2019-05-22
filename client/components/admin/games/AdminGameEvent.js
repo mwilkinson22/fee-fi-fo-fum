@@ -8,7 +8,7 @@ import * as Yup from "yup";
 //Actions
 import { postGameEvent } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
-import { fetchTeamList, fetchTeam } from "~/client/actions/teamsActions";
+import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -22,21 +22,9 @@ import { processFormFields } from "~/helpers/adminHelper";
 class AdminGameEvent extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			game,
-			peopleList,
-			fetchPeopleList,
-			teamList,
-			fetchTeamList,
-			fullTeams,
-			localTeam,
-			fetchTeam
-		} = props;
+		const { game, peopleList, fetchPeopleList, fullTeams, localTeam, fetchTeam } = props;
 		if (!peopleList) {
 			fetchPeopleList();
-		}
-		if (!teamList) {
-			fetchTeamList();
 		}
 		if (!fullTeams[localTeam]) {
 			fetchTeam(localTeam);
@@ -52,9 +40,6 @@ class AdminGameEvent extends Component {
 		if (!fullTeams[localTeam] || !fullTeams[game._opposition._id]) {
 			return {};
 		}
-
-		//Get Squad
-		const { date, _teamType } = game;
 
 		return nextProps;
 	}
@@ -209,8 +194,8 @@ class AdminGameEvent extends Component {
 	}
 
 	render() {
-		const { peopleList, teamList } = this.state;
-		if (!peopleList || !teamList) {
+		const { peopleList } = this.state;
+		if (!peopleList) {
 			return <LoadingPage />;
 		}
 		return (
@@ -237,5 +222,5 @@ function mapStateToProps({ config, people, teams }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, fetchTeamList, postGameEvent, fetchTeam }
+	{ fetchPeopleList, postGameEvent, fetchTeam }
 )(AdminGameEvent);

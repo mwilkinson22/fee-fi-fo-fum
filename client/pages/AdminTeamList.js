@@ -1,31 +1,12 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeamList } from "../actions/teamsActions";
-import LoadingPage from "../components/LoadingPage";
 import { Link } from "react-router-dom";
 import TeamBanner from "../components/teams/TeamBanner";
 
 class AdminTeamList extends Component {
-	constructor(props) {
-		super(props);
-		const { teamList, fetchAllTeams } = props;
-
-		if (!teamList) {
-			fetchAllTeams();
-		}
-
-		this.state = { teamList };
-	}
-
-	static getDerivedStateFromProps(nextProps) {
-		const { teamList } = nextProps;
-		return { teamList };
-	}
-
 	renderList() {
-		const { teamList } = this.state;
-		return _.chain(teamList)
+		return _.chain(this.props.teamList)
 			.sortBy("name.long")
 			.map(team => {
 				const { slug } = team;
@@ -39,19 +20,14 @@ class AdminTeamList extends Component {
 	}
 
 	render() {
-		const { teamList } = this.state;
-		if (!teamList) {
-			return <LoadingPage />;
-		} else {
-			return (
-				<div className="admin-page admin-team-list">
-					<section className="page-header">
-						<h1>Teams</h1>
-					</section>
-					{this.renderList()}
-				</div>
-			);
-		}
+		return (
+			<div className="admin-page admin-team-list">
+				<section className="page-header">
+					<h1>Teams</h1>
+				</section>
+				{this.renderList()}
+			</div>
+		);
 	}
 }
 
@@ -60,7 +36,4 @@ function mapStateToProps({ teams }, ownProps) {
 	return { teamList, ...ownProps };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchAllTeams: fetchTeamList }
-)(AdminTeamList);
+export default connect(mapStateToProps)(AdminTeamList);

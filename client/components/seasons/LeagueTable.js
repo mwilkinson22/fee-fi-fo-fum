@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchNeutralGames } from "../../actions/neutralGamesActions";
 import { fetchGames, fetchGameList } from "../../actions/gamesActions";
-import { fetchTeamList } from "../../actions/teamsActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import LoadingPage from "../../components/LoadingPage";
 import { competitionImagePath, teamImagePath } from "../../extPaths";
@@ -18,8 +17,6 @@ class LeagueTable extends Component {
 			fetchGameList,
 			neutralGames,
 			fetchNeutralGames,
-			teamList,
-			fetchTeamList,
 			competitionSegmentList,
 			fetchAllCompetitionSegments
 		} = props;
@@ -30,10 +27,6 @@ class LeagueTable extends Component {
 
 		if (!neutralGames) {
 			fetchNeutralGames();
-		}
-
-		if (!teamList) {
-			fetchTeamList();
 		}
 
 		if (!competitionSegmentList) {
@@ -47,7 +40,6 @@ class LeagueTable extends Component {
 		const {
 			gameList,
 			neutralGames,
-			teamList,
 			competitionSegmentList,
 			fullGames,
 			fetchGames,
@@ -57,7 +49,7 @@ class LeagueTable extends Component {
 		} = nextProps;
 		const newState = {};
 
-		if (!gameList || !neutralGames || !teamList || !competitionSegmentList) {
+		if (!gameList || !neutralGames || !competitionSegmentList) {
 			return newState;
 		}
 		//Get Competition Info
@@ -316,5 +308,5 @@ function mapStateToProps({ config, games, teams, competitions }, ownProps) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchNeutralGames, fetchTeamList, fetchGames, fetchGameList, fetchAllCompetitionSegments }
+	{ fetchNeutralGames, fetchGames, fetchGameList, fetchAllCompetitionSegments }
 )(LeagueTable);
