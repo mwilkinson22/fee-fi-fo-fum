@@ -80,9 +80,10 @@ export async function crawlAndUpdate(req, res) {
 			externalId: { $ne: null },
 			externalSite: { $ne: null },
 			date: {
-				$gt: new Date().addDays(-2),
+				$gt: new Date().addDays(-30),
 				$lte: new Date().addHours(-2)
-			}
+			},
+			$or: [{ homePoints: null }, { awayPoints: null }]
 		},
 		"_id externalId externalSite"
 	).lean();
