@@ -9,6 +9,8 @@ const Game = mongoose.model("games");
 
 //Helpers
 import { getListsAndSlugs } from "../genericController";
+import PregameImage from "~/images/PregameImage";
+import { addEligiblePlayers } from "~/controllers/rugby/gamesController";
 const { earliestGiantsData } = require("../../config/keys");
 
 //To Delete

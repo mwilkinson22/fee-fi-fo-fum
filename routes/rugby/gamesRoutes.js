@@ -23,6 +23,11 @@ module.exports = app => {
 	app.get("/api/games", gamesController.getList);
 
 	//Putters
+	app.put(
+		"/api/games/:_id/event/imagePreview",
+		requireAdmin,
+		gamesController.fetchPlayerEventImage
+	);
 	app.put("/api/games/:_id/event", requireAdmin, gamesController.handleEvent);
 	app.put("/api/games/:_id/basics", requireAdmin, gamesController.updateGameBasics);
 	app.put("/api/games/:_id/pregame", requireAdmin, gamesController.setPregameSquads);

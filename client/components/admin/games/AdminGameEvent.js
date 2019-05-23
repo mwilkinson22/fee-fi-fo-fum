@@ -6,7 +6,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
-import { postGameEvent } from "~/client/actions/gamesActions";
+import { postGameEvent, previewPlayerEventImage } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
@@ -183,14 +183,44 @@ class AdminGameEvent extends Component {
 					<h6>Add Game Event</h6>
 					{processFormFields(fields, validationSchema)}
 					<div className="buttons">
+						<button
+							type="button"
+							onClick={() => this.generatePreview(formikProps.values)}
+						>
+							Preview Image
+						</button>
 						<button type="button" onClick={() => formikProps.resetForm()}>
 							Clear
 						</button>
 						<button type="submit">Submit</button>
 					</div>
+
+					{this.renderPreview()}
 				</div>
 			</Form>
 		);
+	}
+
+	renderPreview() {
+		const { previewImage } = this.state;
+		if (previewImage) {
+			return <img src={previewImage} className="full-span preview-image" />;
+		} else if (previewImage === false) {
+			return <LoadingPage className="full-span" />;
+		} else {
+			return null;
+		}
+	}
+
+	async generatePreview(fValues) {
+		const values = _.cloneDeep(fValues);
+		await this.setState({ previewImage: false });
+		const { previewPlayerEventImage, game } = this.props;
+		values.event = values.event.value;
+		values.player = values.player.value || null;
+
+		const image = await previewPlayerEventImage(game._id, values);
+		await this.setState({ previewImage: image });
 	}
 
 	render() {
@@ -222,5 +252,5 @@ function mapStateToProps({ config, people, teams }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, postGameEvent, fetchTeam }
+	{ fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage }
 )(AdminGameEvent);
