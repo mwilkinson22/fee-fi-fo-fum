@@ -157,9 +157,7 @@ gameSchema.query.squadImage = function() {
 		images: 1,
 		round: 1,
 		customTitle: 1,
-		"playerStats._player": 1,
-		"playerStats._team": 1,
-		"playerStats.position": 1
+		playerStats: 1
 	})
 		.populate({
 			path: "playerStats._player",

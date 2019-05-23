@@ -145,15 +145,18 @@ export async function addEligiblePlayers(games) {
 	const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
 	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
 		path: "squads.players._player",
-		select: "name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate"
+		select: "name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate image"
 	});
 	teams = _.keyBy(teams, "_id");
 
 	//Loop each game
-	_.each(games, game => {
+	games = games.map(g => {
+		const game = JSON.parse(JSON.stringify(g));
+
 		const year = new Date(game.date).getFullYear();
+
 		//Loop local and opposition teams
-		game._doc.eligiblePlayers = _.chain([localTeam, game._opposition._id])
+		game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
 			.map(id => {
 				const team = teams[id];
 				const squad = _.find(
@@ -166,6 +169,8 @@ export async function addEligiblePlayers(games) {
 			})
 			.fromPairs()
 			.value();
+
+		return game;
 	});
 
 	return games;
@@ -357,11 +362,22 @@ export async function handleEvent(req, res) {
 	}
 }
 
+//TEMPORARY - just while we get the format for the image sorted
+export async function fetchPlayerEventImage(req, res) {
+	const { _id } = req.params;
+	const { event, player } = req.body;
+	const basicGame = await Game.findById(_id).squadImage();
+	const [game] = await addEligiblePlayers([basicGame]);
+
+	const image = new PlayerEventImage(player, { game });
+	const output = await image.render(false);
+	res.send(output);
+}
+
 //Image Generators
 async function generatePregameImage(game, forTwitter, options = {}) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
-	const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
-	const imageClass = new PregameImage(gameJSON, options);
+	const imageClass = new PregameImage(gameWithSquads, options);
 	const image = await imageClass.render(forTwitter);
 	return image;
 }
@@ -404,8 +420,7 @@ export async function postPregameImage(req, res) {
 
 async function generateSquadImage(game, forTwitter) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
-	const gameJSON = JSON.parse(JSON.stringify(gameWithSquads));
-	const imageClass = new SquadImage(gameJSON);
+	const imageClass = new SquadImage(gameWithSquads);
 	const image = await imageClass.render(forTwitter);
 	return image;
 }
@@ -445,11 +460,4 @@ export async function postSquadImage(req, res) {
 
 		res.send(tweet);
 	}
-}
-
-//TEMPORARY - just while we get the format for the image sorted
-export async function fetchPlayerEventImage(req, res) {
-	const image = new PlayerEventImage(null);
-	const output = await image.render(false);
-	res.send(output);
 }

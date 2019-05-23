@@ -153,12 +153,12 @@ export default class Canvas {
 		const processedRows = rows.map((row, i) => {
 			let rowWidth = 0;
 			let rowHeight = 0;
-			row.map(({ text, font }) => {
+			row.map(({ text, font, maxWidth }) => {
 				if (font) {
 					this.ctx.font = font;
 				}
 				const dimensions = this.ctx.measureText(text);
-				rowWidth += dimensions.width;
+				rowWidth += Math.min(dimensions.width, maxWidth || dimensions.width);
 				rowHeight = Math.max(rowHeight, dimensions.actualBoundingBoxAscent);
 			});
 
@@ -210,7 +210,7 @@ export default class Canvas {
 			}
 
 			//Print Text
-			row.map(({ text, font, colour }) => {
+			row.map(({ text, font, colour, maxWidth }) => {
 				if (font) {
 					ctx.font = font;
 				}
@@ -218,7 +218,7 @@ export default class Canvas {
 					ctx.fillStyle = colour;
 				}
 				const { width } = ctx.measureText(text);
-				ctx.fillText(text, rowX, rowY);
+				ctx.fillText(text, rowX, rowY, maxWidth || width);
 
 				//Update x
 				rowX += width;
