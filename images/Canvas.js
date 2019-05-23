@@ -155,7 +155,7 @@ export default class Canvas {
 			let rowHeight = 0;
 			row.map(({ text, font }) => {
 				if (font) {
-					this.ctx.fontStyle = font;
+					this.ctx.font = font;
 				}
 				const dimensions = this.ctx.measureText(text);
 				rowWidth += dimensions.width;
