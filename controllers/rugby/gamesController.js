@@ -17,7 +17,7 @@ import gameEvents from "~/constants/gameEvents";
 //Images
 import PregameImage from "~/images/PregameImage";
 import SquadImage from "~/images/SquadImage";
-import PlayerEventImage from "~/images/PlayerEvent";
+import PlayerEventImage from "~/images/PlayerEventImage";
 
 //Helpers
 import twitter from "~/services/twitter";

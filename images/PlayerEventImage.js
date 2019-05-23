@@ -5,7 +5,7 @@ import { localTeam } from "~/config/keys";
 const Person = mongoose.model("people");
 const Team = mongoose.model("teams");
 
-export default class PlayerEvent extends Canvas {
+export default class PlayerEventImage extends Canvas {
 	constructor(player, options = {}) {
 		//Set Dimensions
 		const cWidth = 1400;
