@@ -120,7 +120,7 @@ export default class PlayerEventImage extends Canvas {
 			);
 		} else {
 			const { width, height, offsetY } = this.contain(
-				Math.round(cWidth * 0.4),
+				Math.round(cWidth * 0.3),
 				Math.round(cHeight * 0.6),
 				image.width,
 				image.height
@@ -128,7 +128,7 @@ export default class PlayerEventImage extends Canvas {
 			ctx.drawImage(
 				image,
 				Math.round(cWidth * 0.22) - width / 2,
-				Math.round(cHeight * 0.5) - height / 2 + offsetY,
+				Math.round(cHeight * 0.5) - height / 2,
 				width,
 				height
 			);
