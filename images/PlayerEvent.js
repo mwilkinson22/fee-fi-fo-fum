@@ -1,7 +1,7 @@
 import Canvas from "./Canvas";
 
 export default class PlayerEvent extends Canvas {
-	constructor(game, options = {}) {
+	constructor(player, options = {}) {
 		//Set Dimensions
 		const cWidth = 1400;
 		const cHeight = cWidth / 2;
