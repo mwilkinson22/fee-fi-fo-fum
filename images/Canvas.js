@@ -85,43 +85,102 @@ export default class Canvas {
 		const image = await loadImage(buffer);
 		return image;
 	}
+	fit(contain, src, dx, dy, dw, dh, options) {
+		let { xAlign, yAlign, ctx } = options;
 
-	fit(contains) {
-		return (
-			parentWidth,
-			parentHeight,
-			childWidth,
-			childHeight,
-			scale = 1,
-			offsetX = 0.5,
-			offsetY = 0.5
-		) => {
-			const childRatio = childWidth / childHeight;
-			const parentRatio = parentWidth / parentHeight;
-			let width = parentWidth * scale;
-			let height = parentHeight * scale;
+		//Allow square values
+		if (dh === null) {
+			dh = dw;
+		}
 
-			if (contains ? childRatio > parentRatio : childRatio < parentRatio) {
-				height = width / childRatio;
+		//Set Canvas
+		if (!ctx) {
+			ctx = this.ctx;
+		}
+
+		//Set xAlign
+		if (xAlign !== "left" && xAlign !== "right") {
+			xAlign = "center";
+		}
+
+		//Set yAlign
+		if (yAlign !== "top" && yAlign !== "bottom") {
+			yAlign = "center";
+		}
+
+		//Get Aspect Ratios
+		const srcRatio = src.width / src.height;
+		const destRatio = dw / dh;
+
+		//Set Default Values
+		let sw = src.width;
+		let sh = src.height;
+		let sx = 0;
+		let sy = 0;
+
+		//Override based on aspect ratio
+		if (srcRatio > destRatio) {
+			//Source image wider
+			if (contain) {
+				let initialDh = dh;
+				dh = dh / (srcRatio / destRatio);
+				switch (yAlign) {
+					case "center":
+						dy += (initialDh - dh) / 2;
+						break;
+					case "bottom":
+						dy += initialDh - dh;
+						break;
+				}
 			} else {
-				width = height * childRatio;
+				let initialSw = sw;
+				sw = sw / (srcRatio / destRatio);
+				switch (xAlign) {
+					case "center":
+						sx += (initialSw - sw) / 2;
+						break;
+					case "right":
+						sx += initialSw - sw;
+						break;
+				}
 			}
+		} else if (destRatio > srcRatio) {
+			//Source image taller
+			if (contain) {
+				let initialDw = dw;
+				dw = dw / (destRatio / srcRatio);
+				switch (xAlign) {
+					case "center":
+						dx += (initialDw - dw) / 2;
+						break;
+					case "right":
+						dx += initialDw - dw;
+						break;
+				}
+			} else {
+				let initialSh = sh;
+				sh = sh / (destRatio / srcRatio);
+				switch (yAlign) {
+					case "center":
+						sy += (initialSh - sh) / 2;
+						break;
+					case "bottom":
+						sy += initialSh - sh;
+						break;
+				}
+			}
+		}
 
-			return {
-				width,
-				height,
-				offsetX: (parentWidth - width) * offsetX,
-				offsetY: (parentHeight - height) * offsetY
-			};
-		};
+		//Draw on canvas
+		ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 
-	contain() {
-		return this.fit(true)(...arguments);
+	contain(src, dx, dy, dw, dh = null, options = {}) {
+		this.fit(true, src, dx, dy, dw, dh, options);
 	}
 
-	cover() {
-		return this.fit(false)(...arguments);
+	cover(src, dx, dy, dw, dh = null, options = {}) {
+		this.fit(false, src, dx, dy, dw, dh, options);
 	}
 
 	textBuilder(rows, x, y, options = {}) {

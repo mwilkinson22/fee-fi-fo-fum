@@ -27,7 +27,6 @@ export default class PregameImage extends Canvas {
 			teamBlockHeight: Math.round(cHeight * 0.71),
 			badgeWidth: Math.round(cWidth * 0.2),
 			badgeHeight: Math.round(cHeight * 0.4),
-			badgeCutoff: 0.15,
 			headerLeftIconOffset: Math.round(cWidth * 0.03),
 			headerIconWidth: Math.round(cWidth * 0.1),
 			headerIconHeight: Math.round(cHeight * 0.15),
@@ -127,22 +126,13 @@ export default class PregameImage extends Canvas {
 				positions.headerIconWidth,
 				positions.headerIconHeight
 			);
-			const { width, height, offsetX, offsetY } = this.contain(
-				positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
-				positions.headerIconHeight * (1 - positions.headerIconPadding * 2),
-				leftIcon.width,
-				leftIcon.height
-			);
-			ctx.drawImage(
+			this.contain(
 				leftIcon,
 				positions.headerLeftIconOffset +
-					positions.headerIconWidth * positions.headerIconPadding +
-					offsetX,
-				positions.headerIconTop +
-					positions.headerIconHeight * positions.headerIconPadding +
-					offsetY,
-				width,
-				height
+					positions.headerIconWidth * positions.headerIconPadding,
+				positions.headerIconTop + positions.headerIconHeight * positions.headerIconPadding,
+				positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
+				positions.headerIconHeight * (1 - positions.headerIconPadding * 2)
 			);
 		}
 
@@ -157,25 +147,20 @@ export default class PregameImage extends Canvas {
 				positions.headerIconWidth,
 				positions.headerIconHeight
 			);
-			const { width, height } = this.contain(
-				positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
-				positions.headerIconHeight * (1 - positions.headerIconPadding * 2),
-				rightIcon.width,
-				rightIcon.height
-			);
-			ctx.drawImage(
+			this.contain(
 				rightIcon,
 				positions.headerRightIconOffset +
 					positions.headerIconWidth * positions.headerIconPadding,
 				positions.headerIconTop + positions.headerIconHeight * positions.headerIconPadding,
-				width,
-				height
+
+				positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
+				positions.headerIconHeight * (1 - positions.headerIconPadding * 2)
 			);
 		}
 	}
 
 	async drawTeamBlock(team, align) {
-		const { ctx, cWidth, cHeight, positions } = this;
+		const { ctx, cWidth, positions } = this;
 
 		//Block
 		ctx.fillStyle = team.colours.main;
@@ -189,46 +174,30 @@ export default class PregameImage extends Canvas {
 		//Badge
 		if (team.image) {
 			const badge = await this.googleToCanvas("images/teams/" + team.image);
+			const y = positions.teamBlockTop + positions.teamBlockHeight * 0.1;
 			ctx.globalAlpha = 0.5;
 			if (align === "full") {
-				const { width, height } = this.contain(
+				this.contain(
+					badge,
+					cWidth - positions.badgeWidth,
+					y,
 					positions.badgeWidth * 2,
 					positions.teamBlockHeight * 0.8,
-					badge.width,
-					badge.height
-				);
-				ctx.drawImage(
-					badge,
-					cWidth - width * 0.5,
-					positions.teamBlockTop + positions.teamBlockHeight * 0.1,
-					width,
-					height
+					{ xAlign: "left" }
 				);
 			} else {
-				const sx = align === "left" ? 0 : badge.width * positions.badgeCutoff;
-				const sy = 0;
-				const sWidth = badge.width * (1 - positions.badgeCutoff);
-				const sHeight = badge.height;
+				const x = align === "left" ? cWidth * 0.5 - positions.badgeWidth : cWidth * 0.5;
 
-				const { width, height } = this.contain(
-					positions.badgeWidth,
-					positions.badgeHeight,
-					sWidth,
-					sHeight
-				);
-
-				const dx = align === "left" ? cWidth * 0.5 - width : cWidth * 0.5;
-				const dy = cHeight * 0.25;
-				const dWidth = width;
-				const dHeight = height;
-				ctx.drawImage(badge, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+				this.cover(badge, x, y, positions.badgeWidth, positions.badgeHeight, {
+					xAlign: align
+				});
 			}
 			ctx.globalAlpha = 1;
 		}
 	}
 
 	async drawPlayer(singleTeam) {
-		const { ctx, game, options, cWidth, cHeight, colours } = this;
+		const { ctx, game, options, cWidth, cHeight } = this;
 		const { squad } = _.find(game.pregameSquads, s => s._team == localTeam);
 		const squadWithImages = _.filter(squad, s => s.image);
 		const playerForImage =
@@ -236,21 +205,19 @@ export default class PregameImage extends Canvas {
 			_.sample(squadWithImages);
 
 		const playerImage = await this.googleToCanvas("images/people/full/" + playerForImage.image);
-		const { width, height } = this.contain(
-			cWidth * 0.4,
-			cHeight * 0.82,
-			playerImage.width,
-			playerImage.height
-		);
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-		ctx.drawImage(
-			playerImage,
-			singleTeam ? 0 - width * 0.1 : (cWidth - width) / 2,
-			cHeight - height,
-			width,
-			height
-		);
+		if (singleTeam) {
+			this.contain(
+				playerImage,
+				0 - cWidth * 0.05,
+				cHeight * 0.18,
+				cWidth * 0.4,
+				cHeight * 0.82
+			);
+		} else {
+			this.contain(playerImage, cWidth * 0.3, cHeight * 0.18, cWidth * 0.4, cHeight * 0.82);
+		}
 		this.resetShadow();
 	}
 

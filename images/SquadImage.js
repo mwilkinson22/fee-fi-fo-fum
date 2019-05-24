@@ -126,18 +126,12 @@ export default class SquadImage extends Canvas {
 
 			//We have a gameIcon so we place the siteIcon on the right
 			if (siteIcon) {
-				const { width, height, offsetX, offsetY } = this.contain(
-					sideBarIconWidth / 2,
-					sideBarGameIconHeight * 0.6,
-					siteIcon.width,
-					siteIcon.height
-				);
-				ctx.drawImage(
+				this.contain(
 					siteIcon,
-					cWidth - width - offsetX - sideBarIconX / 2,
-					sideBarGameIconY / 0.6 + offsetY,
-					width,
-					height
+					cWidth - sideBarIconX / 2,
+					sideBarGameIconY / 0.6,
+					sideBarIconWidth / 2,
+					sideBarGameIconHeight * 0.6
 				);
 			}
 		} else {
@@ -145,18 +139,12 @@ export default class SquadImage extends Canvas {
 		}
 
 		if (gameIcon) {
-			const { width, height, offsetX, offsetY } = this.contain(
-				sideBarIconWidth,
-				sideBarGameIconHeight,
-				gameIcon.width,
-				gameIcon.height
-			);
-			ctx.drawImage(
+			this.contain(
 				gameIcon,
-				sideBarIconX + offsetX,
-				sideBarGameIconY + offsetY,
-				width,
-				height
+				sideBarIconX,
+				sideBarGameIconY,
+				sideBarIconWidth,
+				sideBarGameIconHeight
 			);
 		}
 
@@ -201,18 +189,12 @@ export default class SquadImage extends Canvas {
 				badges = badges.reverse();
 			}
 			badges.map((badge, i) => {
-				const { width, height, offsetX, offsetY } = this.contain(
-					sideBarIconWidth / 2,
-					teamIconHeight,
-					badge.width,
-					badge.height
-				);
-				ctx.drawImage(
+				this.contain(
 					badge,
-					(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX + offsetX,
-					cHeight - teamIconHeight - sideBarGameIconY + offsetY,
-					width,
-					height
+					(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX,
+					cHeight - teamIconHeight - sideBarGameIconY,
+					sideBarIconWidth / 2,
+					teamIconHeight
 				);
 			});
 		}
