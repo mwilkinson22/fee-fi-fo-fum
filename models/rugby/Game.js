@@ -53,6 +53,7 @@ const gameSchema = new Schema(
 				_player: { type: Schema.Types.ObjectId, ref: "people", default: null },
 				date: { type: Date, default: Date.now },
 				tweet_id: { type: String, default: null },
+				tweet_text: { type: String, default: null },
 				tweet_image: { type: String, default: null }
 			}
 		]

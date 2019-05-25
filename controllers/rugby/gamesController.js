@@ -409,6 +409,7 @@ export async function handleEvent(req, res) {
 				media_ids
 			});
 
+			eventObject.tweet_text = tweet;
 			eventObject.tweet_id = postedTweet.data.id_str;
 			const tweetMediaObject = postedTweet.data.entities.media;
 			if (tweetMediaObject) {
