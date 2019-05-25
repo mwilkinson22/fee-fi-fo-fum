@@ -406,6 +406,7 @@ export async function handleEvent(req, res) {
 				status: tweet,
 				in_reply_to_status_id: replyTweet,
 				auto_populate_reply_metadata: true,
+				tweet_mode: "extended",
 				media_ids
 			});
 
