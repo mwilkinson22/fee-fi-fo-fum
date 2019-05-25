@@ -370,6 +370,7 @@ export async function fetchPlayerEventImage(req, res) {
 	const [game] = await addEligiblePlayers([basicGame]);
 
 	const image = new PlayerEventImage(player, { game });
+	await image.drawGameData();
 	const output = await image.render(false);
 	res.send(output);
 }

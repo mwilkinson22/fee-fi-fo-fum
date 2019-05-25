@@ -34,22 +34,52 @@ export default class PlayerEventImage extends Canvas {
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#c11560";
 
-		this.positions = {};
+		this.positions = {
+			leftPanelWidth: Math.round(cWidth * 0.44),
+			rightPanelUpperWidth: Math.round(cWidth * 0.47),
+			rightPanelLowerWidth: Math.round(cWidth * 0.56)
+		};
 
 		//Variables
 		this.player = player;
+		this.backgroundRendered = false;
 		this.playerDataRendered = false;
 		this.game = options.game;
+	}
+
+	async loadTeamBadges() {
+		if (!this.teamBadges) {
+			const teams = await Team.find(
+				{ _id: { $in: [localTeam, this.game._opposition._id] } },
+				"image"
+			);
+			this.teamBadges = {};
+			for (const team of teams) {
+				const { _id, image } = team;
+				this.teamBadges[_id] = await this.googleToCanvas(`images/teams/${image}`);
+			}
+		}
 	}
 
 	async drawBackground() {
 		const { ctx, cWidth, cHeight } = this;
 		const backgroundImage = await this.googleToCanvas("images/layout/canvas/player-event.jpg");
 		ctx.drawImage(backgroundImage, 0, 0, cWidth, cHeight);
+		this.backgroundRendered = true;
+	}
+
+	async drawGameData() {
+		if (!this.backgroundRendered) {
+			await this.drawBackground();
+		}
+		await this.loadTeamBadges();
 	}
 
 	async drawPlayerData() {
-		const { ctx, cWidth, cHeight, player, game, textStyles } = this;
+		if (!this.backgroundRendered) {
+			await this.drawBackground();
+		}
+		const { ctx, cWidth, cHeight, player, game, textStyles, positions } = this;
 		let squadNumber, firstName, lastName, image, isPlayerImage;
 		//Save time by pulling data from game, if possible
 		if (this.game) {
@@ -64,9 +94,8 @@ export default class PlayerEventImage extends Canvas {
 			if (_player.image && _team == localTeam) {
 				image = await this.googleToCanvas(`images/people/full/${_player.image}`);
 				isPlayerImage = true;
-			} else {
-				const team = await Team.findById(_team, "image").lean();
-				image = await this.googleToCanvas(`images/teams/${team.image}`);
+			} else if (this.teamBadges) {
+				image = this.teamBadges[_team];
 				isPlayerImage = false;
 			}
 		} else {
@@ -99,38 +128,37 @@ export default class PlayerEventImage extends Canvas {
 		//Output text
 		ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.003);
 		ctx.shadowColor = "black";
-		this.textBuilder([firstRow, secondRow], cWidth * 0.72, cHeight * 0.85, {
-			lineHeight: 1.1
-		});
+		this.textBuilder(
+			[firstRow, secondRow],
+			cWidth - positions.rightPanelLowerWidth / 2,
+			cHeight * 0.85,
+			{
+				lineHeight: 1.1
+			}
+		);
 		this.resetShadow();
 
 		if (isPlayerImage) {
-			const { width, height, offsetY } = this.contain(
+			ctx.shadowColor = "black";
+			ctx.shadowBlur = 20;
+			this.cover(
+				image,
+				0,
+				Math.round(cHeight * 0.05),
 				Math.round(cWidth * 0.5),
-				cHeight,
-				image.width,
-				image.height
+				Math.round(cHeight * 0.95),
+				{ yAlign: "top" }
 			);
-			ctx.drawImage(
-				image,
-				Math.round(cWidth * 0.25) - width / 2,
-				Math.round(cHeight * 0.55) - height / 2 + offsetY,
-				width,
-				height
-			);
+			this.resetShadow();
 		} else {
-			const { width, height, offsetY } = this.contain(
-				Math.round(cWidth * 0.3),
-				Math.round(cHeight * 0.6),
-				image.width,
-				image.height
-			);
-			ctx.drawImage(
+			const badgeWidth = Math.round(cWidth * 0.3);
+			const badgeHeight = Math.round(cHeight * 0.6);
+			this.contain(
 				image,
-				Math.round(cWidth * 0.22) - width / 2,
-				Math.round(cHeight * 0.5) - height / 2,
-				width,
-				height
+				(positions.leftPanelWidth - badgeWidth) / 2,
+				(cHeight - badgeHeight) / 2,
+				badgeWidth,
+				badgeHeight
 			);
 		}
 
@@ -138,8 +166,6 @@ export default class PlayerEventImage extends Canvas {
 	}
 
 	async render(forTwitter = false) {
-		await this.drawBackground();
-
 		if (!this.playerDataRendered) {
 			await this.drawPlayerData();
 		}
