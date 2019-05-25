@@ -158,7 +158,9 @@
 	}
 
 	@media #{$desktop-only} {
-		grid-template-columns: minmax(min-content, 1fr) minmax(250px, 10fr);
+		&.grid {
+			grid-template-columns: minmax(min-content, 1fr) minmax(250px, 10fr);
+		}
 	}
 }
 
@@ -436,5 +438,71 @@
 .pregame-image-loader {
 	.preview-image {
 		max-width: 100%;
+	}
+}
+
+.event-list {
+	display: grid;
+
+	.event-type {
+		font-weight: 600;
+	}
+
+	.tweet-text {
+		font-style: italic;
+	}
+
+	.action:hover {
+		background: #eee;
+		cursor: pointer;
+	}
+
+	.image {
+		grid-column: 1 / -1;
+		img {
+			max-width: 100%;
+		}
+		&:not(.visible) {
+			display: none;
+		}
+	}
+
+	& > * {
+		padding: 2pt 4pt;
+	}
+
+	@media #{$mobile-only} {
+		grid-template-columns: 1fr 1fr;
+		text-align: center;
+
+		& > * {
+			background: #f4f4f4;
+			box-shadow: 2pt 2pt 2pt #777;
+		}
+		.action {
+			border-style: dashed;
+			border-color: #bbb;
+			border-bottom-width: thin;
+			margin-top: 10pt;
+			padding: 8pt 0;
+			&:not(.reply) {
+				border-left-width: thin;
+			}
+		}
+		:not(.action) {
+			grid-column: 1 / -1;
+		}
+	}
+	@media #{$desktop-and-tablet} {
+		grid-template-columns: repeat(4, max-content) auto;
+		.image {
+			text-align: center;
+			img {
+				max-height: 200pt;
+			}
+		}
+		& > * {
+			border-bottom: solid thin #bbb;
+		}
 	}
 }

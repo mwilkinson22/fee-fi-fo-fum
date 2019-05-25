@@ -214,17 +214,86 @@ class AdminGameEvent extends Component {
 
 					{this.renderPreview()}
 				</div>
+				{this.renderEventList(formikProps)}
 			</Form>
 		);
 	}
 
-	renderEventList() {
-		const { game } = this.props;
-		if (game.events && game.events.length) {
-			const events = game.events.map(({ _id, event }) => {
-				return <div key={_id}>{event}</div>;
-			});
-			return <div className="form-card event-list">{events}</div>;
+	renderEventList(formikProps) {
+		const { events, eligiblePlayers } = this.props.game;
+		const playerList = _.chain(eligiblePlayers)
+			.map((players, team) => {
+				return _.map(players, p => ({ team, ...p }));
+			})
+			.flatten()
+			.value();
+
+		if (events && events.length) {
+			const renderedList = _.chain(events)
+				.sortBy("date")
+				.reverse()
+				.map(e => {
+					const { _id, event, _player, tweet_text, tweet_image, tweet_id, date } = e;
+
+					//Get Player
+					let player;
+					if (_player) {
+						player = _.find(playerList, p => p._player._id == _player)._player.name
+							.full;
+					}
+
+					//Get Tweet Image
+					let image;
+					if (tweet_image) {
+						image = (
+							<div
+								key="image"
+								className={`image ${
+									this.state.visibleEventImage === _id ? "visible" : ""
+								}`}
+							>
+								<img src={tweet_image} />
+							</div>
+						);
+					}
+					return [
+						<div
+							key="reply"
+							className="action reply"
+							onClick={() => formikProps.setFieldValue("replyTweet", tweet_id)}
+						>
+							↩️
+						</div>,
+						<div key="delete" className="action delete">
+							🛇
+						</div>,
+						<div
+							key="date"
+							className="date"
+							onClick={() => this.setState({ visibleEventImage: _id })}
+						>
+							{new Date(date).toString("HH:mm:ss")}
+						</div>,
+						<div
+							key="event-type"
+							className="event-type"
+							onClick={() => this.setState({ visibleEventImage: _id })}
+						>
+							{gameEvents[event].label}
+							{player ? ` (${player})` : ""}
+						</div>,
+						<div
+							key="tweet-text"
+							className="tweet-text"
+							onClick={() => this.setState({ visibleEventImage: _id })}
+						>
+							{tweet_text}
+						</div>,
+						image
+					];
+				})
+				.value();
+			return <div className="form-card event-list">{renderedList}</div>;
 		} else {
 			return null;
 		}
@@ -265,7 +334,6 @@ class AdminGameEvent extends Component {
 					initialValues={this.getDefaults()}
 					render={formikProps => this.renderFields(formikProps)}
 				/>
-				{this.renderEventList()}
 			</div>
 		);
 	}
