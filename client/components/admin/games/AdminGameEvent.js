@@ -88,6 +88,8 @@ class AdminGameEvent extends Component {
 
 		formikActions.setFieldValue("postTweet", values.postTweet);
 
+		this.setState({ previewImage: null });
+
 		if (values.event === "T") {
 			formikActions.setFieldValue("event", {
 				label: "Conversion",
@@ -140,8 +142,13 @@ class AdminGameEvent extends Component {
 					const options = _.chain(squad)
 						.sortBy("position")
 						.map(({ _player }) => {
-							const { name } = peopleList[_player];
-							return { label: `${name.first} ${name.last}`, value: _player };
+							const p = _.find(
+								game.eligiblePlayers[team],
+								p => _player == p._player._id
+							);
+							const numberStr = p.number ? `${p.number}. ` : "";
+							const label = numberStr + p._player.name.full;
+							return { label, value: _player };
 						})
 						.value();
 					return { label: teamList[team].name.short, options };
@@ -182,14 +189,14 @@ class AdminGameEvent extends Component {
 					<h6>Add Game Event</h6>
 					{processFormFields(fields, validationSchema)}
 					<div className="buttons">
+						<button type="button" onClick={() => formikProps.resetForm()}>
+							Clear
+						</button>
 						<button
 							type="button"
 							onClick={() => this.generatePreview(formikProps.values)}
 						>
 							Preview Image
-						</button>
-						<button type="button" onClick={() => formikProps.resetForm()}>
-							Clear
 						</button>
 						<button type="submit">Submit</button>
 					</div>
