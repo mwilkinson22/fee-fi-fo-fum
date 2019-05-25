@@ -1,5 +1,6 @@
 import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES } from "./types";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 export const fetchGames = ids => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/${ids.join(",")}`);
@@ -32,6 +33,15 @@ export const setSquad = (id, values) => async (dispatch, getState, api) => {
 export const postGameEvent = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/event/`, values);
 	dispatch({ type: UPDATE_GAME, payload: res.data });
+	if (values.postTweet) {
+		toast.success("Tweet Sent");
+	} else {
+		toast.success("Game Updated");
+	}
+	return _.chain(res.data[id].events)
+		.sortBy("date")
+		.reverse()
+		.value()[0];
 };
 
 export const crawlLocalGames = () => async (dispatch, getState, api) => {

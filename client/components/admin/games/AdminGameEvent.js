@@ -77,18 +77,26 @@ class AdminGameEvent extends Component {
 		};
 	}
 
-	onSubmit(values, formikActions) {
+	async onSubmit(values, formikActions) {
 		const { postGameEvent, game } = this.props;
+
+		//Disable Submit Button
+		this.setState({ isPosting: true });
+
+		//Pull value ids
 		values.event = values.event.value;
 		values.player = values.player.value || null;
 
+		//Post Event
+		const event = await postGameEvent(game._id, values);
+
+		//Reset Form
 		formikActions.resetForm();
-
-		postGameEvent(game._id, values);
-
+		if (values.postTweet) {
+			formikActions.setFieldValue("replyTweet", event.tweet_id);
+		}
 		formikActions.setFieldValue("postTweet", values.postTweet);
-
-		this.setState({ previewImage: null });
+		this.setState({ previewImage: null, isPosting: false });
 
 		if (values.event === "T") {
 			formikActions.setFieldValue("event", {
@@ -127,6 +135,7 @@ class AdminGameEvent extends Component {
 
 	renderFields(formikProps) {
 		const { localTeam } = this.props;
+		const { isPosting } = this.state;
 		const { game, peopleList, teamList } = this.props;
 		const { event, postTweet } = formikProps.values;
 		const validationSchema = this.getValidationSchema();
@@ -198,13 +207,27 @@ class AdminGameEvent extends Component {
 						>
 							Preview Image
 						</button>
-						<button type="submit">Submit</button>
+						<button type="submit" disabled={isPosting}>
+							Submit
+						</button>
 					</div>
 
 					{this.renderPreview()}
 				</div>
 			</Form>
 		);
+	}
+
+	renderEventList() {
+		const { game } = this.props;
+		if (game.events && game.events.length) {
+			const events = game.events.map(({ _id, event }) => {
+				return <div key={_id}>{event}</div>;
+			});
+			return <div className="form-card event-list">{events}</div>;
+		} else {
+			return null;
+		}
 	}
 
 	renderPreview() {
@@ -242,6 +265,7 @@ class AdminGameEvent extends Component {
 					initialValues={this.getDefaults()}
 					render={formikProps => this.renderFields(formikProps)}
 				/>
+				{this.renderEventList()}
 			</div>
 		);
 	}

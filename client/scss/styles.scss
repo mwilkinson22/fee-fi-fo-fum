@@ -317,6 +317,11 @@ button,
 	&:active {
 		background: #666;
 	}
+
+	&:disabled {
+		cursor: default;
+		opacity: 0.2;
+	}
 }
 
 .stat-tables {
