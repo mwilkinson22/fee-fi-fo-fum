@@ -108,6 +108,12 @@ export default class Canvas {
 			yAlign = "center";
 		}
 
+		//Add Background Box (usually for testing)
+		if (options.background) {
+			ctx.fillStyle = options.background;
+			ctx.fillRect(dx, dy, dw, dh);
+		}
+
 		//Get Aspect Ratios
 		const srcRatio = src.width / src.height;
 		const destRatio = dw / dh;
