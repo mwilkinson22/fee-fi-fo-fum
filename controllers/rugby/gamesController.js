@@ -17,6 +17,7 @@ import gameEvents from "~/constants/gameEvents";
 //Images
 import PregameImage from "~/images/PregameImage";
 import SquadImage from "~/images/SquadImage";
+import GameEventImage from "~/images/GameEventImage";
 import PlayerEventImage from "~/images/PlayerEventImage";
 
 //Helpers
@@ -328,7 +329,7 @@ export async function setSquads(req, res) {
 export async function handleEvent(req, res) {
 	const { _id } = req.params;
 	const { event, player } = req.body;
-	let game = await Game.findById(_id);
+	let game = await Game.findById(_id).squadImage();
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else if (!gameEvents[event]) {
@@ -355,6 +356,9 @@ export async function handleEvent(req, res) {
 				if (gameEvents[event].isPlayerEvent) {
 					const gameForImage = await Game.findById(_id).squadImage();
 					const imageModel = await generatePlayerEventImage(player, event, gameForImage);
+					image = await imageModel.render(true);
+				} else {
+					const imageModel = await new GameEventImage(game, event);
 					image = await imageModel.render(true);
 				}
 				const upload = await twitter.post("media/upload", {
@@ -386,13 +390,23 @@ async function generatePlayerEventImage(player, event, basicGame) {
 	return image;
 }
 
-export async function fetchPlayerEventImage(req, res) {
+export async function fetchEventImagePreview(req, res) {
 	const { _id } = req.params;
 	const { event, player } = req.body;
-	const game = await Game.findById(_id).squadImage();
-	const image = await generatePlayerEventImage(player, event, game);
-	const output = await image.render(false);
-	res.send(output);
+	if (!gameEvents[event]) {
+		res.send({});
+	} else {
+		const game = await Game.findById(_id).squadImage();
+		if (gameEvents[event].isPlayerEvent) {
+			const image = await generatePlayerEventImage(player, event, game);
+			const output = await image.render(false);
+			res.send(output);
+		} else {
+			const image = await new GameEventImage(game, event);
+			const output = await image.render(false);
+			res.send(output);
+		}
+	}
 }
 
 //Image Generators

@@ -26,7 +26,7 @@ module.exports = app => {
 	app.put(
 		"/api/games/:_id/event/imagePreview",
 		requireAdmin,
-		gamesController.fetchPlayerEventImage
+		gamesController.fetchEventImagePreview
 	);
 	app.put("/api/games/:_id/event", requireAdmin, gamesController.handleEvent);
 	app.put("/api/games/:_id/basics", requireAdmin, gamesController.updateGameBasics);
