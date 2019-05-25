@@ -242,6 +242,151 @@ export default class PlayerEventImage extends Canvas {
 		this.playerDataRendered = true;
 	}
 
+	async drawGameEvent(event) {
+		const { ctx, cWidth, cHeight, positions } = this;
+		let rows = [];
+		let size = Math.round(cHeight * 0.18);
+		ctx.fillStyle = this.colours.gold;
+		ctx.shadowColor = "black";
+		ctx.shadowOffsetX = 5;
+		ctx.shadowOffsetY = 5;
+		switch (event) {
+			case "T":
+				rows.push([
+					{
+						text: "TRY",
+						size: Math.round(cHeight * 0.3)
+					}
+				]);
+				break;
+			case "HT":
+				rows.push([
+					{
+						text: "HAT",
+						size
+					},
+					{
+						text: " TRICK",
+						size,
+						colour: "#FFF"
+					}
+				]);
+				break;
+			case "PK":
+				rows.push(
+					[
+						{
+							text: "PENALTY",
+							colour: "#FFF",
+							size
+						}
+					],
+					[
+						{
+							text: "GOAL",
+							colour: this.colours.gold,
+							size
+						}
+					]
+				);
+				break;
+			case "CN":
+				rows.push([
+					{
+						text: "CONVERSION",
+						size: Math.round(cHeight * 0.16)
+					}
+				]);
+				break;
+			case "DG":
+				rows.push(
+					[
+						{
+							text: "DROP",
+							colour: "#FFF",
+							size
+						}
+					],
+					[
+						{
+							text: "GOAL",
+							colour: this.colours.gold,
+							size
+						}
+					]
+				);
+				break;
+			case "YC":
+				rows.push([
+					{
+						text: "SIN",
+						colour: "#FFF",
+						size
+					},
+					{
+						text: " BIN",
+						colour: this.colours.gold,
+						size
+					}
+				]);
+				break;
+			case "RC":
+				rows.push([
+					{
+						text: "RED CARD",
+						colour: "#F33",
+						size
+					}
+				]);
+				break;
+			case "motm":
+			case "fan_motm":
+				rows.push(
+					[
+						{
+							text: "MAN",
+							size: size * 0.8
+						}
+					],
+					[
+						{
+							text: "OF THE",
+							size: size * 0.4,
+							colour: "#FFF"
+						}
+					],
+					[
+						{
+							text: "MATCH",
+							colour: this.colours.gold,
+							size: size * 0.8
+						}
+					]
+				);
+				break;
+		}
+
+		rows = rows.map(row => {
+			return row.map(section => {
+				return {
+					font: `${section.size}px Monstro`,
+					...section
+				};
+			});
+		});
+
+		this.textBuilder(rows, cWidth - positions.rightPanelWidth / 2, Math.round(cHeight * 0.35));
+
+		if (event === "fan_motm") {
+			const rotation = -0.2;
+			ctx.rotate(rotation);
+			ctx.font = `${size * 0.5}px Monstro`;
+			ctx.fillStyle = this.colours.lightClaret;
+			ctx.fillText("FANS'", cWidth - positions.rightPanelWidth * 0.85, cHeight * 0.52);
+			ctx.rotate(0 - rotation);
+		}
+	}
+
 	async render(forTwitter = false) {
 		if (!this.playerDataRendered) {
 			await this.drawPlayerData();
