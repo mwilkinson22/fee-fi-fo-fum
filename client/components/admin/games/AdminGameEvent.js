@@ -117,8 +117,7 @@ class AdminGameEvent extends Component {
 				options: [
 					{ label: "Kick Off", value: "kickOff" },
 					{ label: "Half Time", value: "halfTime" },
-					{ label: "Full Time", value: "fullTime" },
-					{ label: "Attendance", value: "attendance" }
+					{ label: "Full Time", value: "fullTime" }
 				]
 			}
 		];
