@@ -29,10 +29,14 @@ export default class PlayerEventImage extends Canvas {
 			playerName: {
 				size: Math.round(cHeight * 0.1),
 				family: "Montserrat"
+			},
+			score: {
+				size: Math.round(cHeight * 0.075),
+				family: "Montserrat"
 			}
 		};
 		this.setTextStyles(textStyles);
-		this.colours.lightClaret = "#c11560";
+		this.colours.lightClaret = "#a53552";
 
 		this.positions = {
 			leftPanelWidth: Math.round(cWidth * 0.44),
@@ -73,6 +77,69 @@ export default class PlayerEventImage extends Canvas {
 			await this.drawBackground();
 		}
 		await this.loadTeamBadges();
+		const { ctx, positions, game, cWidth, cHeight, textStyles } = this;
+
+		//Add Team Objects
+		let teams = [
+			{ id: localTeam, colours: { main: this.colours.lightClaret, text: "#FFFFFF" } },
+			{ id: game._opposition._id, colours: game._opposition.colours }
+		];
+		if (game.isAway) {
+			teams = teams.reverse();
+		}
+
+		//Draw Bar
+		const barTop = Math.round(cHeight * 0.575);
+		const barHeight = Math.round(cHeight * 0.11);
+		const barWidth = Math.round(positions.rightPanelLowerWidth * 0.47);
+		const badgeHeight = Math.round(barHeight * 1.6);
+		const badgeOffset = Math.round(positions.rightPanelLowerWidth * 0.13);
+		const badgeWidth = Math.round(positions.rightPanelLowerWidth * 0.3);
+		const textOffset = Math.round(positions.rightPanelLowerWidth * 0.02);
+		teams.map(({ id, colours }, i) => {
+			//Position Variables
+			let relativeBadgeOffset;
+			let relativeTextOffset;
+			const align = i === 0 ? "right" : "left";
+
+			//Draw Banner
+			ctx.fillStyle = colours.main;
+			if (i === 0) {
+				ctx.beginPath();
+				ctx.moveTo(cWidth - barWidth * 2.007, barTop);
+				ctx.lineTo(cWidth - barWidth, barTop);
+				ctx.lineTo(cWidth - barWidth, barTop + barHeight);
+				ctx.lineTo(cWidth - barWidth * 2.065, barTop + barHeight);
+				ctx.closePath();
+				ctx.fill();
+				relativeBadgeOffset = 0 - badgeOffset - badgeWidth;
+				relativeTextOffset = 0 - textOffset;
+			} else {
+				ctx.fillRect(cWidth - barWidth, barTop, barWidth, barHeight);
+				relativeBadgeOffset = badgeOffset;
+				relativeTextOffset = textOffset;
+			}
+
+			//Draw Badges
+			this.contain(
+				this.teamBadges[id],
+				cWidth - barWidth + relativeBadgeOffset,
+				barTop + (barHeight - badgeHeight) / 2,
+				badgeWidth,
+				badgeHeight,
+				{ xAlign: align }
+			);
+
+			//Add Score
+			ctx.fillStyle = colours.text;
+			ctx.font = textStyles.score.string;
+			ctx.textAlign = align;
+			ctx.fillText(
+				game.score[id],
+				cWidth - barWidth + relativeTextOffset,
+				barTop + barHeight / 2 + textStyles.score.size * 0.36
+			);
+		});
 	}
 
 	async drawPlayerData() {
