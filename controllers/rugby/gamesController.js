@@ -327,7 +327,7 @@ export async function setSquads(req, res) {
 
 export async function handleEvent(req, res) {
 	const { _id } = req.params;
-	const { event } = req.body;
+	const { event, player } = req.body;
 	let game = await Game.findById(_id);
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
@@ -338,23 +338,38 @@ export async function handleEvent(req, res) {
 
 		//Update Player Event
 		if (gameEvents[event].isPlayerEvent) {
-			const { player } = req.body;
-			game = await Game.findOneAndUpdate(
+			await Game.findOneAndUpdate(
 				{ _id },
 				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
 				{
-					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }],
-					new: true
+					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
 				}
-			).fullGame();
+			);
 		}
 
 		if (postTweet) {
-			const scores = _.values(game.score);
+			//Create Image
+			let image;
+			let media_ids = null;
+			if (gameEvents[event]) {
+				if (gameEvents[event].isPlayerEvent) {
+					const gameForImage = await Game.findById(_id).squadImage();
+					const imageModel = await generatePlayerEventImage(player, event, gameForImage);
+					image = await imageModel.render(true);
+				}
+				const upload = await twitter.post("media/upload", {
+					media_data: image
+				});
+				const { media_id_string } = upload.data;
+				media_ids = [media_id_string];
+			}
+
+			//Post Tweet
 			await twitter.post("statuses/update", {
 				status: tweet,
 				in_reply_to_status_id: replyTweet,
-				auto_populate_reply_metadata: true
+				auto_populate_reply_metadata: true,
+				media_ids
 			});
 		}
 
@@ -363,15 +378,19 @@ export async function handleEvent(req, res) {
 }
 
 //TEMPORARY - just while we get the format for the image sorted
-export async function fetchPlayerEventImage(req, res) {
-	const { _id } = req.params;
-	const { event, player } = req.body;
-	const basicGame = await Game.findById(_id).squadImage();
+async function generatePlayerEventImage(player, event, basicGame) {
 	const [game] = await addEligiblePlayers([basicGame]);
-
 	const image = new PlayerEventImage(player, { game });
 	await image.drawGameData();
 	await image.drawGameEvent(event);
+	return image;
+}
+
+export async function fetchPlayerEventImage(req, res) {
+	const { _id } = req.params;
+	const { event, player } = req.body;
+	const game = await Game.findById(_id).squadImage();
+	const image = await generatePlayerEventImage(player, event, game);
 	const output = await image.render(false);
 	res.send(output);
 }
