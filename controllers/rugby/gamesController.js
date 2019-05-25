@@ -200,9 +200,9 @@ export async function getGames(req, res) {
 
 async function getUpdatedGame(id, res) {
 	//To be called after post/put methods
-	let game = await Game.findById([id]).fullGame();
-	game = await addEligiblePlayers([game])[0];
-	res.send({ [id]: game });
+	let game = await Game.findById(id).fullGame();
+	game = await addEligiblePlayers([game]);
+	res.send(_.keyBy(game, "_id"));
 }
 
 export async function crawlLocalGames(req, res) {
@@ -363,7 +363,25 @@ export async function handleEvent(req, res) {
 			if (gameEvents[event]) {
 				if (gameEvents[event].isPlayerEvent) {
 					const gameForImage = await Game.findById(_id).squadImage();
-					const imageModel = await generatePlayerEventImage(player, event, gameForImage);
+
+					//Check for hat-trick
+					let imageEvent = event;
+					if (event === "T") {
+						const { stats } = _.find(
+							gameForImage._doc.playerStats,
+							p => p._player._id == player
+						);
+						const { T } = stats;
+						if (T % 3 === 0) {
+							imageEvent = "HT";
+						}
+					}
+
+					const imageModel = await generatePlayerEventImage(
+						player,
+						imageEvent,
+						gameForImage
+					);
 					image = await imageModel.render(true);
 				} else {
 					const imageModel = await new GameEventImage(game, event);
