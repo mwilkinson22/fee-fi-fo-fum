@@ -40,7 +40,15 @@ async function processBasics(values) {
 	_.each(selectable, prop => (values[prop] ? (values[prop] = values[prop].value) : null));
 
 	//Get Null values
-	const nullable = ["customHashtags", "round", "title", "tv", "_referee", "_video_referee"];
+	const nullable = [
+		"customHashtags",
+		"round",
+		"title",
+		"tv",
+		"_referee",
+		"_video_referee",
+		"attendance"
+	];
 	_.each(nullable, prop => (values[prop] === "" ? (values[prop] = null) : null));
 
 	//Split Hashtags

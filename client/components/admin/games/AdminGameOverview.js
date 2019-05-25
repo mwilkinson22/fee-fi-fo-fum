@@ -100,6 +100,9 @@ class AdminGameOverview extends Component {
 				.nullable(),
 			_video_referee: Yup.string()
 				.label("Video Referee")
+				.nullable(),
+			attendance: Yup.number()
+				.label("Attendance")
 				.nullable()
 		});
 	}
@@ -142,7 +145,8 @@ class AdminGameOverview extends Component {
 			_ground: _ground ? _ground[0] : "",
 			tv: game.tv || "",
 			_referee,
-			_video_referee
+			_video_referee,
+			attendance: game.attendance || ""
 		};
 	}
 
@@ -284,7 +288,8 @@ class AdminGameOverview extends Component {
 		];
 		const venueFields = [
 			{ name: "isAway", type: "Radio", options: awayOptions },
-			{ name: "_ground", type: "Select", options: groundList }
+			{ name: "_ground", type: "Select", options: groundList },
+			{ name: "attendance", type: "number" }
 		];
 		const mediaFields = [
 			{ name: "customTitle", type: "text", placeholder: "Auto-generated if left blank" },
