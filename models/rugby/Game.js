@@ -2,6 +2,7 @@ import _ from "lodash";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 const PlayerStatsCollectionSchema = require("./PlayerStatsCollection");
+import gameEvents from "~/constants/gameEvents";
 
 const gameSchema = new Schema(
 	{
@@ -45,7 +46,16 @@ const gameSchema = new Schema(
 			header: String,
 			midpage: String,
 			customLogo: String
-		}
+		},
+		events: [
+			{
+				event: { type: String, required: true, enum: Object.keys(gameEvents) },
+				_player: { type: Schema.Types.ObjectId, ref: "people", default: null },
+				date: { type: Date, default: Date.now },
+				tweet_id: { type: String, default: null },
+				tweet_image: { type: String, default: null }
+			}
+		]
 	},
 	{
 		toJSON: {

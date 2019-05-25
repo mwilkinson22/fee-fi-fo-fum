@@ -337,7 +337,7 @@ export async function setSquads(req, res) {
 export async function handleEvent(req, res) {
 	const { _id } = req.params;
 	const { event, player } = req.body;
-	let game = await Game.findById(_id).squadImage();
+	let game = await Game.findById(_id);
 	if (!game) {
 		res.status(500).send(`No game with id ${_id} was found`);
 	} else if (!gameEvents[event]) {
@@ -345,7 +345,13 @@ export async function handleEvent(req, res) {
 	} else {
 		const { postTweet, tweet, replyTweet } = req.body;
 
-		//Update Player Event
+		//Create Event Object
+		const eventObject = {
+			event,
+			_player: player
+		};
+
+		//Update Database for Player Events
 		if (gameEvents[event].isPlayerEvent) {
 			await Game.findOneAndUpdate(
 				{ _id },
@@ -356,11 +362,12 @@ export async function handleEvent(req, res) {
 			);
 		}
 
+		//Post Tweet
 		if (postTweet) {
 			//Create Image
 			let image;
 			let media_ids = null;
-			if (gameEvents[event]) {
+			if (event !== "none") {
 				if (gameEvents[event].isPlayerEvent) {
 					const gameForImage = await Game.findById(_id).squadImage();
 
@@ -395,14 +402,25 @@ export async function handleEvent(req, res) {
 			}
 
 			//Post Tweet
-			await twitter.post("statuses/update", {
+			const postedTweet = await twitter.post("statuses/update", {
 				status: tweet,
 				in_reply_to_status_id: replyTweet,
 				auto_populate_reply_metadata: true,
 				media_ids
 			});
+
+			eventObject.tweet_id = postedTweet.data.id_str;
+			const tweetMediaObject = postedTweet.data.entities.media;
+			if (tweetMediaObject) {
+				eventObject.tweet_image = tweetMediaObject[0].media_url;
+			}
 		}
 
+		//Add Event
+		await game.events.push(eventObject);
+		await game.save();
+
+		//Return Updated Game
 		await getUpdatedGame(_id, res);
 	}
 }
