@@ -48,6 +48,7 @@ export default class PlayerEventImage extends Canvas {
 		this.player = player;
 		this.backgroundRendered = false;
 		this.playerDataRendered = false;
+		this.gameDataRendered = false;
 		this.game = options.game;
 	}
 
@@ -94,13 +95,12 @@ export default class PlayerEventImage extends Canvas {
 		const barWidth = Math.round(positions.rightPanelLowerWidth * 0.47);
 		const badgeHeight = Math.round(barHeight * 1.6);
 		const badgeOffset = Math.round(positions.rightPanelLowerWidth * 0.13);
-		const badgeWidth = Math.round(positions.rightPanelLowerWidth * 0.3);
+		const badgeWidth = Math.round(positions.rightPanelLowerWidth * 0.25);
 		const textOffset = Math.round(positions.rightPanelLowerWidth * 0.02);
 		teams.map(({ id, colours }, i) => {
 			//Position Variables
 			let relativeBadgeOffset;
 			let relativeTextOffset;
-			const align = i === 0 ? "right" : "left";
 
 			//Draw Banner
 			ctx.fillStyle = colours.main;
@@ -126,20 +126,20 @@ export default class PlayerEventImage extends Canvas {
 				cWidth - barWidth + relativeBadgeOffset,
 				barTop + (barHeight - badgeHeight) / 2,
 				badgeWidth,
-				badgeHeight,
-				{ xAlign: align }
+				badgeHeight
 			);
 
 			//Add Score
 			ctx.fillStyle = colours.text;
 			ctx.font = textStyles.score.string;
-			ctx.textAlign = align;
+			ctx.textAlign = i === 0 ? "right" : "left";
 			ctx.fillText(
 				game.score[id],
 				cWidth - barWidth + relativeTextOffset,
 				barTop + barHeight / 2 + textStyles.score.size * 0.36
 			);
 		});
+		this.gameDataRendered = true;
 	}
 
 	async drawPlayerData() {
@@ -235,6 +235,10 @@ export default class PlayerEventImage extends Canvas {
 	async render(forTwitter = false) {
 		if (!this.playerDataRendered) {
 			await this.drawPlayerData();
+		}
+
+		if (this.game && !this.gameDataRendered) {
+			await this.drawGameData();
 		}
 
 		return this.outputFile(forTwitter ? "twitter" : "base64");
