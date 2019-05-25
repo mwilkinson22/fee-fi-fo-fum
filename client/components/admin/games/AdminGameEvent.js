@@ -6,7 +6,11 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
-import { postGameEvent, previewPlayerEventImage } from "~/client/actions/gamesActions";
+import {
+	postGameEvent,
+	previewPlayerEventImage,
+	deleteGameEvent
+} from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
@@ -264,7 +268,11 @@ class AdminGameEvent extends Component {
 						>
 							↩️
 						</div>,
-						<div key="delete" className="action delete">
+						<div
+							key="delete"
+							className="action delete"
+							onClick={() => this.props.deleteGameEvent(this.props.game._id, _id)}
+						>
 							🛇
 						</div>,
 						<div
@@ -350,5 +358,5 @@ function mapStateToProps({ config, people, teams }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage }
+	{ fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage, deleteGameEvent }
 )(AdminGameEvent);

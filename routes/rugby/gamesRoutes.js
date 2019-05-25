@@ -57,4 +57,7 @@ module.exports = app => {
 
 		res.send(game);
 	});
+
+	//Deleters
+	app.delete("/api/games/:_id/event/:_event", requireAdmin, gamesController.deleteEvent);
 };

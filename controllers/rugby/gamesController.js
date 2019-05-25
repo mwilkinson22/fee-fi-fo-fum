@@ -427,6 +427,44 @@ export async function handleEvent(req, res) {
 	}
 }
 
+export async function deleteEvent(req, res) {
+	const { _id, _event } = req.params;
+	let game = await Game.findById(_id, "events");
+
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		const e = _.find(game._doc.events, e => e._id == _event);
+		if (!e) {
+			res.status(500).send({ error: `Event '${_event}' not found` });
+		} else {
+			const { event, tweet_id, _player } = e;
+			//Delete Tweet
+			if (tweet_id) {
+				await twitter.post(`statuses/destroy/${tweet_id}`);
+			}
+
+			//Undo Player Stat
+			if (_player) {
+				await Game.findOneAndUpdate(
+					{ _id },
+					{ $inc: { [`playerStats.$[elem].stats.${event}`]: -1 } },
+					{
+						arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(_player) }]
+					}
+				);
+			}
+
+			//Remove event from database
+			await game.events.id(_event).remove();
+			await game.save();
+
+			//Return Updated Game
+			await getUpdatedGame(_id, res);
+		}
+	}
+}
+
 //TEMPORARY - just while we get the format for the image sorted
 async function generatePlayerEventImage(player, event, basicGame) {
 	const [game] = await addEligiblePlayers([basicGame]);

@@ -44,6 +44,12 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 		.value()[0];
 };
 
+export const deleteGameEvent = (id, event) => async (dispatch, getState, api) => {
+	const res = await api.delete(`/games/${id}/event/${event}`);
+	dispatch({ type: UPDATE_GAME, payload: res.data });
+	toast.success("Event deleted");
+};
+
 export const crawlLocalGames = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/crawl/local`);
 	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
