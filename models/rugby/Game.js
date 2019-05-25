@@ -177,7 +177,7 @@ gameSchema.query.squadImage = function() {
 		})
 		.populate({
 			path: "_opposition",
-			select: "image hashtagPrefix"
+			select: "image hashtagPrefix colours"
 		});
 };
 
