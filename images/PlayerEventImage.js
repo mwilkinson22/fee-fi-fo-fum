@@ -40,15 +40,13 @@ export default class PlayerEventImage extends Canvas {
 
 		this.positions = {
 			leftPanelWidth: Math.round(cWidth * 0.44),
-			rightPanelUpperWidth: Math.round(cWidth * 0.47),
-			rightPanelLowerWidth: Math.round(cWidth * 0.56)
+			rightPanelWidth: Math.round(cWidth * 0.5)
 		};
 
 		//Variables
 		this.player = player;
 		this.backgroundRendered = false;
 		this.playerDataRendered = false;
-		this.gameDataRendered = false;
 		this.game = options.game;
 	}
 
@@ -73,7 +71,7 @@ export default class PlayerEventImage extends Canvas {
 		this.backgroundRendered = true;
 	}
 
-	async drawGameData() {
+	async drawGameData(withLogo = true) {
 		if (!this.backgroundRendered) {
 			await this.drawBackground();
 		}
@@ -92,11 +90,13 @@ export default class PlayerEventImage extends Canvas {
 		//Draw Bar
 		const barTop = Math.round(cHeight * 0.575);
 		const barHeight = Math.round(cHeight * 0.11);
-		const barWidth = Math.round(positions.rightPanelLowerWidth * 0.47);
+		const barWidth = Math.round(positions.rightPanelWidth * 0.5);
 		const badgeHeight = Math.round(barHeight * 1.6);
-		const badgeOffset = Math.round(positions.rightPanelLowerWidth * 0.13);
-		const badgeWidth = Math.round(positions.rightPanelLowerWidth * 0.25);
-		const textOffset = Math.round(positions.rightPanelLowerWidth * 0.02);
+		const badgeOffset = Math.round(positions.rightPanelWidth * 0.13);
+		const badgeWidth = Math.round(positions.rightPanelWidth * 0.25);
+		const textOffset = Math.round(positions.rightPanelWidth * 0.02);
+		const logoWidth = Math.round(positions.rightPanelWidth * 0.5);
+		const logoHeight = Math.round(cHeight * 0.12);
 		teams.map(({ id, colours }, i) => {
 			//Position Variables
 			let relativeBadgeOffset;
@@ -106,10 +106,10 @@ export default class PlayerEventImage extends Canvas {
 			ctx.fillStyle = colours.main;
 			if (i === 0) {
 				ctx.beginPath();
-				ctx.moveTo(cWidth - barWidth * 2.007, barTop);
+				ctx.moveTo(cWidth - barWidth * 2.092, barTop);
 				ctx.lineTo(cWidth - barWidth, barTop);
 				ctx.lineTo(cWidth - barWidth, barTop + barHeight);
-				ctx.lineTo(cWidth - barWidth * 2.065, barTop + barHeight);
+				ctx.lineTo(cWidth - barWidth * 2.13, barTop + barHeight);
 				ctx.closePath();
 				ctx.fill();
 				relativeBadgeOffset = 0 - badgeOffset - badgeWidth;
@@ -139,7 +139,20 @@ export default class PlayerEventImage extends Canvas {
 				barTop + barHeight / 2 + textStyles.score.size * 0.36
 			);
 		});
-		this.gameDataRendered = true;
+
+		//Add Game Logo
+		if (withLogo) {
+			const gameLogoUrl =
+				game.images.logo || `images/layout/branding/square-logo-with-shadow.png`;
+			const gameLogo = await this.googleToCanvas(gameLogoUrl);
+			this.contain(
+				gameLogo,
+				cWidth - (positions.rightPanelWidth + logoWidth) / 2,
+				Math.round(cHeight * 0.05),
+				logoWidth,
+				logoHeight
+			);
+		}
 	}
 
 	async drawPlayerData() {
@@ -197,7 +210,7 @@ export default class PlayerEventImage extends Canvas {
 		ctx.shadowColor = "black";
 		this.textBuilder(
 			[firstRow, secondRow],
-			cWidth - positions.rightPanelLowerWidth / 2,
+			cWidth - positions.rightPanelWidth / 2,
 			cHeight * 0.85,
 			{
 				lineHeight: 1.1
@@ -206,8 +219,6 @@ export default class PlayerEventImage extends Canvas {
 		this.resetShadow();
 
 		if (isPlayerImage) {
-			ctx.shadowColor = "black";
-			ctx.shadowBlur = 20;
 			this.cover(
 				image,
 				0,
@@ -216,7 +227,6 @@ export default class PlayerEventImage extends Canvas {
 				Math.round(cHeight * 0.95),
 				{ yAlign: "top" }
 			);
-			this.resetShadow();
 		} else {
 			const badgeWidth = Math.round(cWidth * 0.3);
 			const badgeHeight = Math.round(cHeight * 0.6);
@@ -235,10 +245,6 @@ export default class PlayerEventImage extends Canvas {
 	async render(forTwitter = false) {
 		if (!this.playerDataRendered) {
 			await this.drawPlayerData();
-		}
-
-		if (this.game && !this.gameDataRendered) {
-			await this.drawGameData();
 		}
 
 		return this.outputFile(forTwitter ? "twitter" : "base64");
