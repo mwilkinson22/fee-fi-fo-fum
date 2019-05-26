@@ -35,7 +35,8 @@ const gameSchema = new Schema(
 		_video_referee: { type: Schema.Types.ObjectId, ref: "people", default: null },
 		attendance: { type: Number, default: null },
 		tv: { type: String, enum: [false, "bbc", "sky"], default: null },
-		rflFixtureId: { type: Number, default: null },
+		externalId: { type: Number, default: null },
+		externalSync: { type: Boolean, default: false },
 		slug: { type: String, unique: true, required: true },
 		_teamType: {
 			type: Schema.Types.ObjectId,
