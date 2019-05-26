@@ -12,6 +12,7 @@ import AdminGamePregameImage from "../components/admin/games/AdminGamePregameIma
 import AdminGameSquads from "../components/admin/games/AdminGameSquads";
 import AdminGameSquadImage from "../components/admin/games/AdminGameSquadImage";
 import AdminGameEvent from "../components/admin/games/AdminGameEvent";
+import AdminGameStats from "../components/admin/games/AdminGameStats";
 import Select from "../components/admin/fields/Select";
 
 class AdminGamePage extends Component {
@@ -150,6 +151,11 @@ class AdminGamePage extends Component {
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
 				<Switch>
+					<Route
+						path="/admin/game/:slug/stats"
+						exact
+						render={() => <AdminGameStats game={game} />}
+					/>
 					<Route
 						path="/admin/game/:slug/event"
 						exact

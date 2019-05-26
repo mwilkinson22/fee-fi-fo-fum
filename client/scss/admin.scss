@@ -506,3 +506,35 @@
 		}
 	}
 }
+
+.admin-stats-page {
+	.stat-tables {
+		.stat-table-wrapper {
+			margin-bottom: 14pt;
+			thead th {
+				text-align: center;
+			}
+			tbody {
+				th {
+					text-align: left;
+					padding-left: 4pt;
+					padding-right: 8pt;
+				}
+				input {
+					width: 50pt;
+					border-radius: 4pt;
+					text-align: center;
+					border: solid thin #999;
+					&.error {
+						border: solid 1pt red;
+					}
+					padding: 2pt;
+					&[type="number"]::-webkit-inner-spin-button,
+					&[type="number"]::-webkit-outer-spin-button {
+						opacity: 1;
+					}
+				}
+			}
+		}
+	}
+}
