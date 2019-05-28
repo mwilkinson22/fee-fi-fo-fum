@@ -38,6 +38,12 @@ const gameSchema = new Schema(
 		externalId: { type: Number, default: null },
 		externalSync: { type: Boolean, default: false },
 		slug: { type: String, unique: true, required: true },
+		manOfSteel: [
+			{
+				_player: { type: Schema.Types.ObjectId, ref: "people", default: null },
+				points: { type: Number, enum: [1, 2, 3] }
+			}
+		],
 		_teamType: {
 			type: Schema.Types.ObjectId,
 			ref: "teamTypes",
