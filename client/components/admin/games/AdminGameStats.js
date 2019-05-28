@@ -124,7 +124,7 @@ class AdminGameStats extends Component {
 							<FastField
 								type="number"
 								name={`${p._player}.${key}`}
-								title={error || "obj.plural"}
+								title={error || obj.plural}
 								className={error ? "error" : ""}
 							/>
 						)
