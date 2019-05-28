@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { createCanvas, loadImage, registerFont } from "canvas";
-import { convert } from "convert-svg-to-png";
+import svg2img from "svg2img";
 const googleBucket = require("~/constants/googleBucket");
 
 export default class Canvas {
@@ -89,11 +89,19 @@ export default class Canvas {
 		let [buffer] = await googleBucket.file(file).download();
 
 		if (fileType == "svg") {
-			buffer = await convert(buffer);
+			return new Promise((resolve, reject) => {
+				svg2img(buffer, async (err, result) => {
+					if (err) {
+						reject(err);
+					}
+					const image = await loadImage(result);
+					resolve(image);
+				});
+			});
+		} else {
+			const image = await loadImage(buffer);
+			return image;
 		}
-
-		const image = await loadImage(buffer);
-		return image;
 	}
 	fit(contain, src, dx, dy, dw, dh, options) {
 		let { xAlign, yAlign, ctx } = options;
