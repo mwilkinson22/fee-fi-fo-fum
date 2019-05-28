@@ -43,6 +43,11 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 		.reverse()
 		.value()[0];
 };
+export const setManOfSteelPoints = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/games/${id}/manOfSteel`, values);
+	dispatch({ type: UPDATE_GAME, payload: res.data });
+	toast.success("Man of Steel points saved");
+};
 
 export const deleteGameEvent = (id, event) => async (dispatch, getState, api) => {
 	const res = await api.delete(`/games/${id}/event/${event}`);

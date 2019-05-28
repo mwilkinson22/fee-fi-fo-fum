@@ -13,6 +13,7 @@ import AdminGameSquads from "../components/admin/games/AdminGameSquads";
 import AdminGameSquadImage from "../components/admin/games/AdminGameSquadImage";
 import AdminGameEvent from "../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../components/admin/games/AdminGameStats";
+import AdminGameManOfSteel2 from "../components/admin/games/AdminGameManOfSteel";
 import Select from "../components/admin/fields/Select";
 
 class AdminGamePage extends Component {
@@ -99,7 +100,7 @@ class AdminGamePage extends Component {
 
 	getSubmenu() {
 		const { pathname } = this.props.location;
-		const { status, slug, pregameSquads, playerStats } = this.state.game;
+		const { date, status, slug, pregameSquads, playerStats } = this.state.game;
 		const groups = ["Pre-game", "Match Day", "Post-game"];
 		const submenuItems = [
 			{ label: "Overview", value: "", group: 0 },
@@ -124,6 +125,9 @@ class AdminGamePage extends Component {
 				{ label: "Add In-Game Event", value: "event", group: 1 },
 				{ label: "Stats", value: "stats", group: 2 }
 			);
+			if (date.getFullYear() > 2018) {
+				submenuItems.push({ label: "Man of Steel", value: "man-of-steel", group: 2 });
+			}
 		}
 
 		const currentPath = pathname.split(slug)[1].replace(/^\//, "");
@@ -151,6 +155,11 @@ class AdminGamePage extends Component {
 			<div>
 				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
 				<Switch>
+					<Route
+						path="/admin/game/:slug/man-of-steel"
+						exact
+						render={() => <AdminGameManOfSteel2 game={game} />}
+					/>
 					<Route
 						path="/admin/game/:slug/stats"
 						exact

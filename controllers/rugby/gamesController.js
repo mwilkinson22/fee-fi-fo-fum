@@ -465,7 +465,19 @@ export async function deleteEvent(req, res) {
 	}
 }
 
-//TEMPORARY - just while we get the format for the image sorted
+export async function setManOfSteelPoints(req, res) {
+	const { _id } = req.params;
+	let game = await Game.findById(_id, "manOfSteel");
+	if (!game) {
+		res.status(500).send(`No game with id ${_id} was found`);
+	} else {
+		game.manOfSteel = _.map(req.body, (_player, points) => ({ _player, points }));
+		await game.save();
+		await getUpdatedGame(_id, res);
+	}
+}
+
+//Image Generators
 async function generatePlayerEventImage(player, event, basicGame) {
 	const [game] = await addEligiblePlayers([basicGame]);
 	const image = new PlayerEventImage(player, { game });
@@ -493,7 +505,6 @@ export async function fetchEventImagePreview(req, res) {
 	}
 }
 
-//Image Generators
 async function generatePregameImage(game, forTwitter, options = {}) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
 	const imageClass = new PregameImage(gameWithSquads, options);
