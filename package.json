@@ -40,6 +40,7 @@
 		"color": "^3.1.0",
 		"compression": "^1.7.3",
 		"concurrently": "^4.1.0",
+		"convert-svg-to-png": "^0.5.0",
 		"cookie-session": "^2.0.0-beta.3",
 		"css-loader": "^2.1.0",
 		"datejs": "^1.0.0-rc3",

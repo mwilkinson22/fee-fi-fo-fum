@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { createCanvas, loadImage, registerFont } from "canvas";
+import { convert } from "convert-svg-to-png";
 const googleBucket = require("~/constants/googleBucket");
 
 export default class Canvas {
@@ -81,7 +82,16 @@ export default class Canvas {
 	}
 
 	async googleToCanvas(file) {
-		const [buffer] = await googleBucket.file(file).download();
+		const fileType = file
+			.split(".")
+			.pop()
+			.toLowerCase();
+		let [buffer] = await googleBucket.file(file).download();
+
+		if (fileType == "svg") {
+			buffer = await convert(buffer);
+		}
+
 		const image = await loadImage(buffer);
 		return image;
 	}
