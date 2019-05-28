@@ -22,6 +22,7 @@ import gameEvents from "~/constants/gameEvents";
 
 //Helpers
 import { processFormFields } from "~/helpers/adminHelper";
+import { convertTeamToSelect } from "~/helpers/gameHelper";
 
 class AdminGameEvent extends Component {
 	constructor(props) {
@@ -149,24 +150,7 @@ class AdminGameEvent extends Component {
 		];
 
 		if (event.value && gameEvents[event.value].isPlayerEvent) {
-			const players = _.chain(game.playerStats)
-				.groupBy("_team")
-				.map((squad, team) => {
-					const options = _.chain(squad)
-						.sortBy("position")
-						.map(({ _player }) => {
-							const p = _.find(
-								game.eligiblePlayers[team],
-								p => _player == p._player._id
-							);
-							const numberStr = p.number ? `${p.number}. ` : "";
-							const label = numberStr + p._player.name.full;
-							return { label, value: _player };
-						})
-						.value();
-					return { label: teamList[team].name.short, options };
-				})
-				.value();
+			const players = convertTeamToSelect(game, teamList);
 			fields.push({ name: "player", type: "Select", options: players, isSearchable: false });
 		}
 

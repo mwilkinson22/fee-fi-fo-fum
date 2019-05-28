@@ -16,3 +16,21 @@ export function fixDates(games) {
 		return game;
 	});
 }
+
+export function convertTeamToSelect(game, teamList) {
+	return _.chain(game.playerStats)
+		.groupBy("_team")
+		.map((squad, team) => {
+			const options = _.chain(squad)
+				.sortBy("position")
+				.map(({ _player }) => {
+					const p = _.find(game.eligiblePlayers[team], p => _player == p._player._id);
+					const numberStr = p.number ? `${p.number}. ` : "";
+					const label = numberStr + p._player.name.full;
+					return { label, value: _player };
+				})
+				.value();
+			return { label: teamList[team].name.short, options };
+		})
+		.value();
+}
