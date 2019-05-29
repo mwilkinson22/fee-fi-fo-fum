@@ -8,6 +8,9 @@ import * as Yup from "yup";
 //Components
 import Table from "../../Table";
 
+//Actions
+import { setStats } from "../../../actions/gamesActions";
+
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
 
@@ -15,7 +18,7 @@ class AdminGameStats extends Component {
 	constructor(props) {
 		super(props);
 
-		const { game, localTeam, scoreOnly } = props;
+		const { game, localTeam } = props;
 
 		//Set Teams
 		let teams = [localTeam, game._opposition._id];
@@ -24,18 +27,18 @@ class AdminGameStats extends Component {
 		}
 
 		//Set Stat Types
+		this.state = { teams };
+	}
+
+	static getDerivedStateFromProps(nextProps) {
 		const statTypes = _.chain(playerStatTypes)
 			.map((obj, key) => ({ key, ...obj }))
 			.filter("storedInDatabase")
-			.reject(obj => scoreOnly && !obj.scoreOnly)
+			.reject(obj => nextProps.scoreOnly && !obj.scoreOnly)
 			.keyBy("key")
 			.value();
 
-		this.state = { teams, statTypes };
-	}
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		return {};
+		return { statTypes };
 	}
 
 	getDefaults() {
@@ -154,7 +157,8 @@ class AdminGameStats extends Component {
 	}
 
 	onSubmit(values) {
-		console.log(values);
+		const { game, setStats } = this.props;
+		setStats(game._id, values);
 	}
 
 	render() {
@@ -203,4 +207,7 @@ function mapStateToProps({ config, teams }) {
 	return { localTeam, teamList };
 }
 
-export default connect(mapStateToProps)(AdminGameStats);
+export default connect(
+	mapStateToProps,
+	{ setStats }
+)(AdminGameStats);

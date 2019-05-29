@@ -392,6 +392,26 @@ export async function setManOfSteelPoints(req, res) {
 	}
 }
 
+export async function setStats(req, res) {
+	const { _id } = req.params;
+	const game = await validateGame(_id, res);
+	if (game) {
+		for (const _player in req.body) {
+			const stats = _.map(req.body[_player], (val, key) => [
+				`playerStats.$[elem].stats.${key}`,
+				val
+			]);
+			await game.updateOne(
+				{ $set: _.fromPairs(stats) },
+				{
+					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(_player) }]
+				}
+			);
+		}
+		await getUpdatedGame(_id, res);
+	}
+}
+
 //Image Generators
 async function generatePregameImage(game, forTwitter, options = {}) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
