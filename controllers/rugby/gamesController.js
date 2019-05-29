@@ -9,6 +9,7 @@ import _ from "lodash";
 import { getListsAndSlugs } from "../genericController";
 import { parse } from "node-html-parser";
 import axios from "axios";
+import twitter from "~/services/twitter";
 
 //Constants
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
@@ -21,7 +22,16 @@ import GameEventImage from "~/images/GameEventImage";
 import PlayerEventImage from "~/images/PlayerEventImage";
 
 //Helpers
-import twitter from "~/services/twitter";
+async function validateGame(_id, res, promise = null) {
+	//This allows us to populate specific fields if necessary
+	const game = await (promise || Game.findById(_id));
+	if (game) {
+		return game;
+	} else {
+		res.status(404).send(`No game with id ${_id} was found`);
+		return false;
+	}
+}
 
 async function processBasics(values) {
 	//Combine datetime
@@ -68,88 +78,7 @@ async function processBasics(values) {
 	return values;
 }
 
-export async function crawlFixtures() {
-	const url = fixtureCrawlUrl;
-	const { data } = await axios.get(url);
-
-	const html = parse(data);
-	const list = html.querySelector(".row.matches").childNodes[1].childNodes;
-	const games = [];
-	let date;
-	for (const row of list) {
-		if (!row.tagName) {
-			continue;
-		}
-
-		if (row.tagName === "h3") {
-			const [dayText, day, month, year] = row.text.split(" ");
-			const dayNum = day.replace(/\D/g, "");
-			date = new Date(`${dayNum} ${month} ${year}`);
-		} else if (row.classNames.indexOf("fixture-card") > -1) {
-			const anchor = row.querySelector("a");
-			const externalId = anchor.rawAttributes.href.split("/").pop();
-			const [firstRow, secondRow, thirdRow] = _.reject(
-				anchor.childNodes,
-				n => n.tagName === undefined
-			);
-
-			//Date and time
-			let timeStringClass;
-			if (firstRow.querySelector(".uk-time")) {
-				timeStringClass = "uk-time";
-			} else {
-				timeStringClass = "middle";
-			}
-			const [hours, minutes] = firstRow
-				.querySelector(`.${timeStringClass}`)
-				.text.match(/\d+/g);
-			date.setHours(hours, minutes);
-
-			//Teams
-			const _homeTeam = firstRow.querySelector(".left").text.trim();
-			const _awayTeam = firstRow.querySelector(".right").text.trim();
-
-			//Round
-			const [ignore, roundStr] = secondRow.text.split("Round");
-			const round = roundStr && roundStr.replace(/\D/g, "");
-
-			//TV
-			let tv = null;
-			if (thirdRow && thirdRow.querySelector("img")) {
-				const tvImageName = thirdRow
-					.querySelector("img")
-					.rawAttributes.src.split("/")
-					.pop();
-				if (tvImageName.includes("sky-sports")) {
-					tv = "sky";
-				} else if (tvImageName.includes("bbc")) {
-					tv = "bbc";
-				}
-			}
-
-			//Core Game Object
-			games.push({
-				externalId,
-				date,
-				round,
-				_homeTeam,
-				_awayTeam,
-				tv
-			});
-		}
-	}
-	return games;
-}
-
-//Getters
-export async function getList(req, res) {
-	const games = await Game.find({}, "date _teamType slug _competition").lean();
-
-	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
-	res.send({ gameList: list, slugMap });
-}
-
-export async function addEligiblePlayers(games) {
+async function addEligiblePlayers(games) {
 	//Get All Full Teams
 	const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
 	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
@@ -185,6 +114,21 @@ export async function addEligiblePlayers(games) {
 	return games;
 }
 
+async function getUpdatedGame(id, res) {
+	//To be called after post/put methods
+	let game = await Game.findById(id).fullGame();
+	game = await addEligiblePlayers([game]);
+	res.send(_.keyBy(game, "_id"));
+}
+
+//Getters
+export async function getList(req, res) {
+	const games = await Game.find({}, "date _teamType slug _competition").lean();
+
+	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
+	res.send({ gameList: list, slugMap });
+}
+
 export async function getGames(req, res) {
 	const { ids } = req.params;
 	let games = await Game.find({
@@ -198,37 +142,11 @@ export async function getGames(req, res) {
 	res.send(_.keyBy(games, "_id"));
 }
 
-async function getUpdatedGame(id, res) {
-	//To be called after post/put methods
-	let game = await Game.findById(id).fullGame();
-	game = await addEligiblePlayers([game]);
-	res.send(_.keyBy(game, "_id"));
-}
-
-export async function crawlLocalGames(req, res) {
-	const games = await crawlFixtures();
-	const localTeamObject = await Team.findById(localTeam, "name.short");
-	const localTeamName = localTeamObject.name.short;
-	const filteredGames = _.chain(games)
-		.filter(g => [g.home, g.away].indexOf(localTeamName) > -1)
-		.map(g => ({
-			...g,
-			isAway: g.away === localTeamName,
-			_opposition: g.home === localTeamName ? g.away : g.home,
-			home: undefined,
-			away: undefined
-		}))
-		.value();
-	res.send(filteredGames);
-}
-
-//Setters
+//Updaters
 export async function updateGameBasics(req, res) {
 	const { _id } = req.params;
-	const game = await Game.findById(_id);
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	const game = await validateGame(_id, res);
+	if (game) {
 		const values = await processBasics(req.body);
 
 		await Game.updateOne({ _id }, values);
@@ -236,12 +154,11 @@ export async function updateGameBasics(req, res) {
 		await getUpdatedGame(_id, res);
 	}
 }
+
 export async function setPregameSquads(req, res) {
 	const { _id } = req.params;
-	const game = await Game.findById(_id);
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	const game = await validateGame(_id, res);
+	if (game) {
 		game.pregameSquads = _.chain(req.body)
 			.map((squad, _team) => {
 				if (squad.length) {
@@ -261,12 +178,11 @@ export async function setPregameSquads(req, res) {
 		await getUpdatedGame(_id, res);
 	}
 }
+
 export async function setSquads(req, res) {
 	const { _id } = req.params;
-	const game = await Game.findById(_id);
+	const game = await validateGame(_id, res);
 	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
 		const { team, squad } = req.body;
 		const PlayerStatsCollection = require("../../models/rugby/PlayerStatsCollection");
 
@@ -337,12 +253,15 @@ export async function setSquads(req, res) {
 export async function handleEvent(req, res) {
 	const { _id } = req.params;
 	const { event, player } = req.body;
-	let game = await Game.findById(_id);
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else if (!gameEvents[event]) {
+
+	if (!gameEvents[event]) {
 		res.status(500).send({ error: `Invalid event type '${event}'` });
-	} else {
+		return false;
+	}
+
+	//If the event is valid
+	const game = await validateGame(_id, res);
+	if (game) {
 		const { postTweet, tweet, replyTweet } = req.body;
 
 		//Create Event Object
@@ -429,11 +348,9 @@ export async function handleEvent(req, res) {
 
 export async function deleteEvent(req, res) {
 	const { _id, _event } = req.params;
-	let game = await Game.findById(_id, "events");
+	const game = await validateGame(_id, res);
 
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	if (game) {
 		const e = _.find(game._doc.events, e => e._id == _event);
 		if (!e) {
 			res.status(500).send({ error: `Event '${_event}' not found` });
@@ -467,10 +384,8 @@ export async function deleteEvent(req, res) {
 
 export async function setManOfSteelPoints(req, res) {
 	const { _id } = req.params;
-	let game = await Game.findById(_id, "manOfSteel");
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	const game = await validateGame(_id, res);
+	if (game) {
 		game.manOfSteel = _.map(req.body, (_player, points) => ({ _player, points }));
 		await game.save();
 		await getUpdatedGame(_id, res);
@@ -478,47 +393,19 @@ export async function setManOfSteelPoints(req, res) {
 }
 
 //Image Generators
-async function generatePlayerEventImage(player, event, basicGame) {
-	const [game] = await addEligiblePlayers([basicGame]);
-	const image = new PlayerEventImage(player, { game });
-	await image.drawGameData();
-	await image.drawGameEvent(event);
-	return image;
-}
-
-export async function fetchEventImagePreview(req, res) {
-	const { _id } = req.params;
-	const { event, player } = req.body;
-	if (!gameEvents[event]) {
-		res.send({});
-	} else {
-		const game = await Game.findById(_id).squadImage();
-		if (gameEvents[event].isPlayerEvent) {
-			const image = await generatePlayerEventImage(player, event, game);
-			const output = await image.render(false);
-			res.send(output);
-		} else {
-			const image = await new GameEventImage(game, event);
-			const output = await image.render(false);
-			res.send(output);
-		}
-	}
-}
-
 async function generatePregameImage(game, forTwitter, options = {}) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
 	const imageClass = new PregameImage(gameWithSquads, options);
 	const image = await imageClass.render(forTwitter);
 	return image;
 }
+
 export async function fetchPregameImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await Game.findById(_id).pregameImage();
+	const game = await validateGame(_id, res, Game.findById(_id).pregameImage());
 
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	if (game) {
 		const image = await generatePregameImage(game, false, req.query);
 		res.send(image);
 	}
@@ -527,11 +414,9 @@ export async function fetchPregameImage(req, res) {
 export async function postPregameImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await Game.findById(_id).pregameImage();
+	const game = await validateGame(_id, res, Game.findById(_id).pregameImage());
 
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	if (game) {
 		const image = await generatePregameImage(game, true, req.query);
 		const upload = await twitter.post("media/upload", {
 			media_data: image
@@ -558,11 +443,9 @@ async function generateSquadImage(game, forTwitter) {
 export async function fetchSquadImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await Game.findById(_id).squadImage();
+	const game = await validateGame(_id, res, Game.findById(_id).squadImage());
 
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	if (game) {
 		const image = await generateSquadImage(game, false);
 		res.send(image);
 	}
@@ -571,11 +454,9 @@ export async function fetchSquadImage(req, res) {
 export async function postSquadImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await Game.findById(_id).squadImage();
+	const game = await validateGame(_id, res, Game.findById(_id).squadImage());
 
-	if (!game) {
-		res.status(500).send(`No game with id ${_id} was found`);
-	} else {
+	if (game) {
 		const image = await generateSquadImage(game, true);
 		const upload = await twitter.post("media/upload", {
 			media_data: image
@@ -590,4 +471,122 @@ export async function postSquadImage(req, res) {
 
 		res.send(tweet);
 	}
+}
+
+async function generatePlayerEventImage(player, event, basicGame) {
+	const [game] = await addEligiblePlayers([basicGame]);
+	const image = new PlayerEventImage(player, { game });
+	await image.drawGameData();
+	await image.drawGameEvent(event);
+	return image;
+}
+
+export async function fetchEventImage(req, res) {
+	const { _id } = req.params;
+	const { event, player } = req.body;
+	if (!gameEvents[event]) {
+		res.send({});
+	} else {
+		const game = await Game.findById(_id).squadImage();
+		if (gameEvents[event].isPlayerEvent) {
+			const image = await generatePlayerEventImage(player, event, game);
+			const output = await image.render(false);
+			res.send(output);
+		} else {
+			const image = await new GameEventImage(game, event);
+			const output = await image.render(false);
+			res.send(output);
+		}
+	}
+}
+
+//To Be Replaced
+export async function crawlFixtures() {
+	const url = fixtureCrawlUrl;
+	const { data } = await axios.get(url);
+
+	const html = parse(data);
+	const list = html.querySelector(".row.matches").childNodes[1].childNodes;
+	const games = [];
+	let date;
+	for (const row of list) {
+		if (!row.tagName) {
+			continue;
+		}
+
+		if (row.tagName === "h3") {
+			const [dayText, day, month, year] = row.text.split(" ");
+			const dayNum = day.replace(/\D/g, "");
+			date = new Date(`${dayNum} ${month} ${year}`);
+		} else if (row.classNames.indexOf("fixture-card") > -1) {
+			const anchor = row.querySelector("a");
+			const externalId = anchor.rawAttributes.href.split("/").pop();
+			const [firstRow, secondRow, thirdRow] = _.reject(
+				anchor.childNodes,
+				n => n.tagName === undefined
+			);
+
+			//Date and time
+			let timeStringClass;
+			if (firstRow.querySelector(".uk-time")) {
+				timeStringClass = "uk-time";
+			} else {
+				timeStringClass = "middle";
+			}
+			const [hours, minutes] = firstRow
+				.querySelector(`.${timeStringClass}`)
+				.text.match(/\d+/g);
+			date.setHours(hours, minutes);
+
+			//Teams
+			const _homeTeam = firstRow.querySelector(".left").text.trim();
+			const _awayTeam = firstRow.querySelector(".right").text.trim();
+
+			//Round
+			const [ignore, roundStr] = secondRow.text.split("Round");
+			const round = roundStr && roundStr.replace(/\D/g, "");
+
+			//TV
+			let tv = null;
+			if (thirdRow && thirdRow.querySelector("img")) {
+				const tvImageName = thirdRow
+					.querySelector("img")
+					.rawAttributes.src.split("/")
+					.pop();
+				if (tvImageName.includes("sky-sports")) {
+					tv = "sky";
+				} else if (tvImageName.includes("bbc")) {
+					tv = "bbc";
+				}
+			}
+
+			//Core Game Object
+			games.push({
+				externalId,
+				date,
+				round,
+				_homeTeam,
+				_awayTeam,
+				tv
+			});
+		}
+	}
+	return games;
+}
+
+export async function crawlLocalGames(req, res) {
+	const games = await crawlFixtures();
+	const localTeamObject = await Team.findById(localTeam, "name.short");
+	const localTeamName = localTeamObject.name.short;
+	const filteredGames = _.chain(games)
+		.filter(g => [g.home, g.away].indexOf(localTeamName) > -1)
+		.map(g => ({
+			...g,
+			isAway: g.away === localTeamName,
+			_opposition: g.home === localTeamName ? g.away : g.home,
+			home: undefined,
+			away: undefined
+		}))
+		.value();
+	res.send(filteredGames);
 }
