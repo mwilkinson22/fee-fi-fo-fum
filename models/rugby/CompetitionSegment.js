@@ -57,8 +57,8 @@ const competitionSegmentSchema = new Schema(
 				scoreOnly: { type: Boolean, default: true }
 			}
 		],
-		extCompId: { type: Number, default: null },
-		extDivId: { type: Number, default: null }
+		externalCompId: { type: Number, default: null },
+		externalDivId: { type: Number, default: null }
 	},
 	{
 		toObject: { virtuals: true },
