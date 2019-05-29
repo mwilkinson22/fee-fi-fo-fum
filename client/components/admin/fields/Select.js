@@ -32,6 +32,10 @@ export default class Select extends Component {
 				"&:hover": {
 					borderColor: "#751432"
 				}
+			}),
+			menu: provided => ({
+				...provided,
+				zIndex: 20
 			})
 		};
 		return (
