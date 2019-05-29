@@ -52,7 +52,8 @@ const competitionSegmentSchema = new Schema(
 						_team: { type: Schema.Types.ObjectId, ref: "teams" },
 						adjustment: Number
 					}
-				]
+				],
+				manOfSteelPoints: { type: Boolean, default: false }
 			}
 		]
 	},

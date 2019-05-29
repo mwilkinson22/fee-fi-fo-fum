@@ -238,7 +238,7 @@ function getInstance(doc) {
 
 	const instance = _.chain(_competition.instances)
 		.find(instance => instance.year === null || instance.year == year)
-		.pick(["image", "specialRounds", "specialRounds", "sponsor"])
+		.pick(["image", "specialRounds", "specialRounds", "sponsor", "manOfSteelPoints"])
 		.value();
 
 	//Custom Title
