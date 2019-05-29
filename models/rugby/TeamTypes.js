@@ -5,7 +5,8 @@ const teamTypeSchema = new Schema({
 	name: { type: String, unique: true, required: true },
 	slug: { type: String, unique: true, required: true },
 	gender: { type: String, enum: ["M", "F"], required: true },
-	sortOrder: { type: Number, required: true }
+	sortOrder: { type: Number, required: true },
+	localTeamExtId: { type: Number }
 });
 
 mongoose.model("teamTypes", teamTypeSchema);

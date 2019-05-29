@@ -53,9 +53,12 @@ const competitionSegmentSchema = new Schema(
 						adjustment: Number
 					}
 				],
-				manOfSteelPoints: { type: Boolean, default: false }
+				manOfSteelPoints: { type: Boolean, default: false },
+				scoreOnly: { type: Boolean, default: true }
 			}
-		]
+		],
+		extCompId: { type: Number, default: null },
+		extDivId: { type: Number, default: null }
 	},
 	{
 		toObject: { virtuals: true },
