@@ -15,7 +15,7 @@ class AdminGameStats extends Component {
 	constructor(props) {
 		super(props);
 
-		const { game, localTeam } = props;
+		const { game, localTeam, scoreOnly } = props;
 
 		//Set Teams
 		let teams = [localTeam, game._opposition._id];
@@ -27,6 +27,7 @@ class AdminGameStats extends Component {
 		const statTypes = _.chain(playerStatTypes)
 			.map((obj, key) => ({ key, ...obj }))
 			.filter("storedInDatabase")
+			.reject(obj => scoreOnly && !obj.scoreOnly)
 			.keyBy("key")
 			.value();
 

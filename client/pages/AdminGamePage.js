@@ -127,6 +127,7 @@ class AdminGamePage extends Component {
 		if (status >= 2) {
 			submenuItems.push(
 				{ label: "Add In-Game Event", value: "event", group: 1 },
+				{ label: "Scores", value: "scores", group: 1 },
 				{ label: "Stats", value: "stats", group: 2 }
 			);
 			if (manOfSteelPoints) {
@@ -173,7 +174,12 @@ class AdminGamePage extends Component {
 					<Route
 						path="/admin/game/:slug/stats"
 						exact
-						render={() => <AdminGameStats game={game} />}
+						render={() => <AdminGameStats game={game} scoreOnly={false} />}
+					/>
+					<Route
+						path="/admin/game/:slug/scores"
+						exact
+						render={() => <AdminGameStats game={game} scoreOnly={true} />}
 					/>
 					<Route
 						path="/admin/game/:slug/event"
