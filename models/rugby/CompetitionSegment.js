@@ -58,7 +58,8 @@ const competitionSegmentSchema = new Schema(
 			}
 		],
 		externalCompId: { type: Number, default: null },
-		externalDivId: { type: Number, default: null }
+		externalDivId: { type: Number, default: null },
+		externalReportPage: { type: String, default: null }
 	},
 	{
 		toObject: { virtuals: true },
