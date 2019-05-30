@@ -7,7 +7,8 @@ const competitionSchema = new Schema({
 	name: String,
 	playerLimit: { type: Number, default: 17 },
 	useAllSquads: { type: Boolean, default: "false" },
-	webcrawlUrl: { type: String, enum: [null, "SL", "RFL"] }
+	webcrawlFormat: { type: String, enum: [null, "SL", "RFL"] },
+	webcrawlUrl: { type: String, default: null }
 });
 
 mongoose.model("competitions", competitionSchema);
