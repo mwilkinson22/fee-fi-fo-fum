@@ -1,9 +1,9 @@
 import _ from "lodash";
 import React from "react";
-import { Field } from "formik";
+import { Field, FastField } from "formik";
 import FormField from "../client/components/admin/fields/FormField";
 
-export function processFormFields(fields, validationSchema) {
+export function processFormFields(fields, validationSchema, fastFields = false) {
 	function resolve(path, obj) {
 		return path
 			.split(".")
@@ -30,6 +30,11 @@ export function processFormFields(fields, validationSchema) {
 				field.max = max[0].params.max;
 			}
 		}
-		return <Field key={field.name} component={FormField} {...field} withLabel={true} />;
+		const fieldProps = { key: field.name, component: FormField, ...field, withLabel: true };
+		if (fastFields) {
+			return <FastField {...fieldProps} />;
+		} else {
+			return <Field {...fieldProps} />;
+		}
 	});
 }
