@@ -4,7 +4,7 @@
 	"description": "Fee Fi Fo Fum",
 	"main": "index.js",
 	"engines": {
-		"node": "10.16.0",
+		"node": "10.15",
 		"npm": "6.4.1"
 	},
 	"scripts": {
