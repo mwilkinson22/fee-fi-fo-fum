@@ -15,13 +15,16 @@ import twitter from "~/services/twitter";
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
 
+//Helpers
+import { parseExternalGame } from "~/helpers/gameHelper";
+
 //Images
 import PregameImage from "~/images/PregameImage";
 import SquadImage from "~/images/SquadImage";
 import GameEventImage from "~/images/GameEventImage";
 import PlayerEventImage from "~/images/PlayerEventImage";
 
-//Helpers
+//Utility Functions
 async function validateGame(_id, res, promise = null) {
 	//This allows us to populate specific fields if necessary
 	const game = await (promise || Game.findById(_id));
@@ -409,6 +412,18 @@ export async function setStats(req, res) {
 			);
 		}
 		await getUpdatedGame(_id, res);
+	}
+}
+
+//Crawlers
+export async function fetchExternalGame(req, res) {
+	const Person = mongoose.model("people");
+	await Person.updateMany({}, { $unset: { rflSiteId: 1 } }, { multi: true, $multi: true });
+	const { _id } = req.params;
+	const game = await validateGame(_id, res, Game.findById(_id).crawl());
+	if (game) {
+		const result = await parseExternalGame(game);
+		res.send(result);
 	}
 }
 

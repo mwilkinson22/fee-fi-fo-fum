@@ -21,6 +21,7 @@ const personSchema = new Schema(
 		twitter: String,
 		instagram: String,
 		rflSiteName: String,
+		externalName: { type: String, default: null },
 		rflSiteId: Number,
 		isPlayer: Boolean,
 		isCoach: Boolean,

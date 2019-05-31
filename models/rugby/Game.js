@@ -138,6 +138,21 @@ gameSchema.query.fullGame = function() {
 		});
 };
 
+gameSchema.query.crawl = function() {
+	return this.select("externalId _competition playerStats date isAway _opposition")
+		.populate({
+			path: "playerStats._player",
+			select: "name externalName"
+		})
+		.populate({
+			path: "_competition",
+			select: "externalReportPage _parentCompetition instances",
+			populate: {
+				path: "_parentCompetition",
+				select: "webcrawlUrl webcrawlFormat"
+			}
+		});
+};
 gameSchema.query.pregameImage = function() {
 	return this.select(
 		"hashtags customHashtags pregameSquads isAway date _ground _opposition _competition _teamType images"
@@ -238,7 +253,14 @@ function getInstance(doc) {
 
 	const instance = _.chain(_competition.instances)
 		.find(instance => instance.year === null || instance.year == year)
-		.pick(["image", "specialRounds", "specialRounds", "sponsor", "manOfSteelPoints"])
+		.pick([
+			"image",
+			"specialRounds",
+			"specialRounds",
+			"sponsor",
+			"manOfSteelPoints",
+			"scoreOnly"
+		])
 		.value();
 
 	//Custom Title
