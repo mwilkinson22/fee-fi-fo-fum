@@ -84,7 +84,8 @@ class AdminGameStats extends Component {
 	}
 
 	renderTeamTable(formikProps, team) {
-		const { playerStats, eligiblePlayers } = this.props.game;
+		const { teamList, game } = this.props;
+		const { playerStats, eligiblePlayers } = game;
 		const { statTypes } = this.state;
 
 		const statColumns = _.chain(statTypes)
@@ -146,13 +147,18 @@ class AdminGameStats extends Component {
 			.value();
 
 		return (
-			<Table
-				columns={columns}
-				rows={rows}
-				defaultSortable={false}
-				sortBy={{ key: "name", asc: true }}
-				stickyHead={true}
-			/>
+			<div>
+				<h3>{teamList[team].name.short}</h3>
+				<div className="stat-table-wrapper">
+					<Table
+						columns={columns}
+						rows={rows}
+						defaultSortable={false}
+						sortBy={{ key: "name", asc: true }}
+						stickyHead={true}
+					/>
+				</div>
+			</div>
 		);
 	}
 
@@ -163,7 +169,6 @@ class AdminGameStats extends Component {
 
 	render() {
 		const { teams } = this.state;
-		const { teamList } = this.props;
 
 		return (
 			<div className="admin-stats-page">
@@ -182,14 +187,8 @@ class AdminGameStats extends Component {
 										</div>
 									</div>
 									<div className="stat-tables">
-										<h3>{teamList[teams[0]].name.short}</h3>
-										<div className="stat-table-wrapper">
-											{this.renderTeamTable(formikProps, teams[0])}
-										</div>
-										<h3>{teamList[teams[1]].name.short}</h3>
-										<div className="stat-table-wrapper">
-											{this.renderTeamTable(formikProps, teams[1])}
-										</div>
+										{this.renderTeamTable(formikProps, teams[0])}
+										{this.renderTeamTable(formikProps, teams[1])}
 									</div>
 								</Form>
 							</div>
