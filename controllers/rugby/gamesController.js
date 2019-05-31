@@ -182,7 +182,7 @@ export async function setPregameSquads(req, res) {
 export async function setSquads(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res);
-	if (!game) {
+	if (game) {
 		const { team, squad } = req.body;
 		const PlayerStatsCollection = require("../../models/rugby/PlayerStatsCollection");
 
