@@ -63,7 +63,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 			//Remove aggregate stats
 			.filter("storedInDatabase")
 			//If includeScoringStats is false, only include non-scoring stats
-			.filter(s => includeScoringStats || !s.scoreOnly)
+			.filter(s => includeScoringStats || !s.scoreOnly || s.key == "MG")
 			//If the competition instance is defined as score only, only include scoring-stats
 			.filter(s => !instance.scoreOnly || s.scoreOnly)
 			//Return the keys, swap PK and CN for G
@@ -172,13 +172,14 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 				if (result) {
 					result.matched = true;
 					player._player = result._id;
+					player.match = "exact";
 				}
 			});
 		});
 
 		//Close Matches
-		const partialMatches = _.reject(playersToName, "matched");
-		if (partialMatches.length) {
+		const noDirectMatches = _.reject(playersToName, "matched");
+		if (noDirectMatches.length) {
 			_.each(results, (players, _team) => {
 				_.chain(players)
 					.each(player => {
@@ -195,15 +196,13 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 						if (result.length === 1) {
 							result[0].matched = true;
 							player._player = result[0]._id;
+							player.match = "partial";
 						}
 					})
 					.value();
 			});
 		}
 
-		//Unmatchable
-		const unmatched = _.reject(playersToName, "matched");
-
-		return { results, partialMatches, unmatched };
+		return { results, playersToName, url };
 	}
 }

@@ -44,6 +44,11 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 		.value()[0];
 };
 
+export const crawlGame = (id, includeScoringStats) => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/${id}/crawl?includeScoringStats=${includeScoringStats}`);
+	return res.data;
+};
+
 export const setStats = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/stats`, values);
 	dispatch({ type: UPDATE_GAME, payload: res.data });

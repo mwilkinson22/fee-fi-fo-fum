@@ -9,7 +9,6 @@ const Game = mongoose.model("games");
 
 //Helpers
 import { getListsAndSlugs } from "../genericController";
-import PregameImage from "~/images/PregameImage";
 import { addEligiblePlayers } from "~/controllers/rugby/gamesController";
 const { earliestGiantsData } = require("../../config/keys");
 
@@ -94,4 +93,11 @@ export async function searchNames(req, res) {
 	}
 
 	res.send(processedNames);
+}
+
+export async function setExternalNames(req, res) {
+	for (const obj of req.body) {
+		await Person.findByIdAndUpdate(obj._player, { externalName: obj.name });
+	}
+	res.send({});
 }

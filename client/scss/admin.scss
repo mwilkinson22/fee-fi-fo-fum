@@ -78,6 +78,10 @@
 		color: #900;
 	}
 
+	a:not(:hover) {
+		color: $claret;
+	}
+
 	button {
 		background: #eee;
 		color: black;
@@ -92,6 +96,14 @@
 			background: #900;
 			&:hover {
 				background: #700;
+			}
+		}
+
+		&.confirm {
+			color: white;
+			background: #518c56;
+			&:hover {
+				background: #1a6f39;
 			}
 		}
 	}
@@ -532,6 +544,50 @@
 					&[type="number"]::-webkit-inner-spin-button,
 					&[type="number"]::-webkit-outer-spin-button {
 						opacity: 1;
+					}
+				}
+			}
+		}
+	}
+	.admin-game-stat-crawler {
+		.player-rows-wrapper {
+			display: grid;
+
+			grid-template-columns: 1fr;
+			@media #{$desktop-and-tablet} {
+				grid-template-columns: repeat(2, 1fr);
+			}
+
+			.player-rows {
+				display: grid;
+				grid-template-columns: max-content max-content 1fr;
+				.name,
+				.match {
+					padding: 2pt 8pt;
+				}
+				.name {
+					font-weight: 600;
+				}
+				.match-type {
+					width: 10pt;
+					height: 100%;
+					display: block;
+					background: #900;
+					&.exact {
+						background: #518c56;
+					}
+					&.partial {
+						background: #e68d39;
+					}
+				}
+				@media #{$mobile-only} {
+					grid-template-columns: max-content 1fr;
+					text-align: center;
+					.match-type {
+						grid-row-end: span 2;
+					}
+					.match:not(:last-child) {
+						border-bottom: solid thin #ddd;
 					}
 				}
 			}

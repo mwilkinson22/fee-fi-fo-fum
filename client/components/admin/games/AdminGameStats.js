@@ -6,6 +6,7 @@ import { Formik, Form, FastField } from "formik";
 import * as Yup from "yup";
 
 //Components
+import AdminGameCrawler from "./AdminGameCrawler";
 import Table from "../../Table";
 
 //Actions
@@ -45,7 +46,7 @@ class AdminGameStats extends Component {
 		const { game } = this.props;
 		const { statTypes } = this.state;
 
-		return _.chain(game.playerStats)
+		const stats = _.chain(game.playerStats)
 			.map(p => {
 				const { _player, stats } = p;
 				const statValues = _.chain(statTypes)
@@ -59,28 +60,48 @@ class AdminGameStats extends Component {
 			})
 			.fromPairs()
 			.value();
+		return { stats };
 	}
 
 	getValidationSchema() {
 		const { playerStats } = this.props.game;
 		const { statTypes } = this.state;
 
-		const shape = _.chain(playerStats)
+		const stats = _.chain(playerStats)
 			.map(p => {
 				const { _player } = p;
 				const stats = _.mapValues(statTypes, ({ plural }) => {
 					return Yup.number()
 						.min(0)
 						.integer()
+						.nullable()
 						.label(plural);
 				});
 				return [_player, Yup.object().shape(stats)];
 			})
 			.fromPairs()
 			.value();
-		return Yup.object()
-			.shape(shape)
-			.nullable();
+
+		return Yup.object().shape({
+			stats
+		});
+	}
+
+	renderGameCrawler(formikProps) {
+		const { game, scoreOnly } = this.props;
+		//Only Show on the stats page
+		if (scoreOnly) {
+			return null;
+		} else {
+			return (
+				<AdminGameCrawler
+					formikProps={formikProps}
+					game={game}
+					scoreOnly={scoreOnly}
+					teams={this.state.teams}
+				/>
+			);
+		}
 	}
 
 	renderTeamTable(formikProps, team) {
@@ -128,7 +149,7 @@ class AdminGameStats extends Component {
 						content: (
 							<FastField
 								type="number"
-								name={`${p._player}.${key}`}
+								name={`stats.${p._player}.${key}`}
 								title={error || `${player._player.name.full} - ${obj.plural}`}
 								className={error ? "error" : ""}
 							/>
@@ -164,12 +185,11 @@ class AdminGameStats extends Component {
 
 	onSubmit(values) {
 		const { game, setStats } = this.props;
-		setStats(game._id, values);
+		setStats(game._id, values.stats);
 	}
 
 	render() {
 		const { teams } = this.state;
-
 		return (
 			<div className="admin-stats-page">
 				<Formik
@@ -186,6 +206,7 @@ class AdminGameStats extends Component {
 											<button type="submit">Update</button>
 										</div>
 									</div>
+									{this.renderGameCrawler(formikProps)}
 									<div className="stat-tables">
 										{this.renderTeamTable(formikProps, teams[0])}
 										{this.renderTeamTable(formikProps, teams[1])}

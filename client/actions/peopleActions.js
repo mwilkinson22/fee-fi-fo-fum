@@ -1,4 +1,5 @@
 import { FETCH_PEOPLE_LIST, FETCH_PERSON } from "./types";
+import { toast } from "react-toastify";
 
 export const fetchPeopleList = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/people`);
@@ -25,4 +26,10 @@ export const fetchPerson = id => async (dispatch, getState, api) => {
 	}
 
 	dispatch({ type: FETCH_PERSON, payload });
+};
+
+export const setExternalNames = values => async (dispatch, getState, api) => {
+	await api.put(`/people/setExternalNames`, values);
+	toast.success(`External names for ${values.length} people updated`);
+	return true;
 };

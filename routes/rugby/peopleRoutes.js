@@ -45,4 +45,7 @@ module.exports = app => {
 
 		res.send(person);
 	});
+
+	//Putters
+	app.put("/api/people/setExternalNames", peopleController.setExternalNames);
 };

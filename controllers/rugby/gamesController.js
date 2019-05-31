@@ -422,7 +422,11 @@ export async function fetchExternalGame(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res, Game.findById(_id).crawl());
 	if (game) {
-		const result = await parseExternalGame(game);
+		const result = await parseExternalGame(
+			game,
+			false,
+			req.query.includeScoringStats == "true"
+		);
 		res.send(result);
 	}
 }
