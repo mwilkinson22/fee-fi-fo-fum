@@ -194,6 +194,9 @@ class AdminGameCrawler extends Component {
 		if (namesToUpdate.length) {
 			setExternalNames(namesToUpdate);
 		}
+
+		//Clear Data
+		this.setState({ crawlData: null });
 	}
 
 	render() {
