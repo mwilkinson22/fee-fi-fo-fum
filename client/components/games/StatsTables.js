@@ -157,44 +157,52 @@ export default class StatsTables extends Component {
 
 	renderFoot() {
 		const { statTypes, activeTab, rows } = this.state;
-		const data = rows.map(row => {
-			return _.mapValues(row.data, stat => stat.sortValue);
-		});
-		const summedStats = PlayerStatsHelper.sumStats(data);
-		const foot = _.chain(statTypes[activeTab])
-			.map(key => {
-				const stat = playerStatTypes[key];
-				const { total, average } = summedStats[key];
-				const content = [];
+		if (rows.length < 2) {
+			return null;
+		} else {
+			const data = rows.map(row => {
+				return _.mapValues(row.data, stat => stat.sortValue);
+			});
+			const summedStats = PlayerStatsHelper.sumStats(data);
+			const foot = _.chain(statTypes[activeTab])
+				.map(key => {
+					const stat = playerStatTypes[key];
+					const { total, average } = summedStats[key];
+					const content = [];
 
-				content.push(
-					<span className="total" key="total" title={`Total ${stat.plural}`}>
-						{PlayerStatsHelper.toString(key, total)}
-					</span>
-				);
-				if (["TS", "KS"].indexOf(key) === -1) {
 					content.push(
-						<span className="average" key="average" title={`Average ${stat.plural}`}>
-							{PlayerStatsHelper.toString(key, average)}
+						<span className="total" key="total" title={`Total ${stat.plural}`}>
+							{PlayerStatsHelper.toString(key, total)}
 						</span>
 					);
-				}
+					if (["TS", "KS"].indexOf(key) === -1) {
+						content.push(
+							<span
+								className="average"
+								key="average"
+								title={`Average ${stat.plural}`}
+							>
+								{PlayerStatsHelper.toString(key, average)}
+							</span>
+						);
+					}
 
-				return [key, content];
-			})
-			.fromPairs()
-			.value();
-		return {
-			first: [
-				<span className="total" key="total">
-					Total
-				</span>,
-				<span className="average" key="average">
-					Average
-				</span>
-			],
-			...foot
-		};
+					return [key, content];
+				})
+				.fromPairs()
+				.value();
+			return {
+				first: [
+					<span className="total" key="total">
+						Total
+					</span>,
+					<span className="average" key="average">
+						Average
+					</span>
+				],
+				...foot
+			};
+		}
 	}
 
 	render() {
