@@ -24,6 +24,7 @@ const gameSchema = new Schema(
 				stats: PlayerStatsCollectionSchema
 			}
 		],
+		squadsAnnounced: { type: Boolean, default: false },
 		round: { type: Number, default: null },
 		_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
 		customTitle: { type: String, default: null },
@@ -219,7 +220,7 @@ gameSchema.query.squadImage = function() {
 };
 
 gameSchema.virtual("score").get(function() {
-	if (!this.playerStats || !this.playerStats.length) {
+	if (!this.squadsAnnounced || !this.playerStats || !this.playerStats.length) {
 		return undefined;
 	} else {
 		return _.chain(this.playerStats)
@@ -236,10 +237,10 @@ gameSchema.virtual("score").get(function() {
 });
 
 gameSchema.virtual("status").get(function() {
-	const { pregameSquads, playerStats } = this;
+	const { pregameSquads, playerStats, squadsAnnounced } = this;
 	if (!pregameSquads || pregameSquads.length < 2) {
 		return 0;
-	} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2) {
+	} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2 || !squadsAnnounced) {
 		return 1;
 	} else if (!_.sumBy(playerStats, "stats.TK")) {
 		return 2;

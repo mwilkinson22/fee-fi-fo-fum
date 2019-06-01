@@ -8,7 +8,7 @@ import SquadSelector from "./SquadSelector";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { setPregameSquads } from "../../../actions/gamesActions";
+import { setPregameSquads, markSquadAsAnnounced } from "../../../actions/gamesActions";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 class AdminGameSquads extends Component {
@@ -93,10 +93,24 @@ class AdminGameSquads extends Component {
 				</div>
 			);
 		});
-
 		return (
 			<div className="admin-squad-picker-page">
-				<div className="container">{content}</div>
+				<div className="container">
+					<div className="form-card grid">
+						<div className="buttons">
+							<button
+								type="button"
+								className={game.squadsAnnounced ? "delete" : "confirm"}
+								onClick={() =>
+									this.props.markSquadAsAnnounced(game._id, !game.squadsAnnounced)
+								}
+							>
+								Mark squads as {game.squadsAnnounced ? "unannounced" : "announced"}
+							</button>
+						</div>
+					</div>
+					{content}
+				</div>
 			</div>
 		);
 	}
@@ -110,5 +124,5 @@ function mapStateToProps({ config, teams }) {
 
 export default connect(
 	mapStateToProps,
-	{ setPregameSquads }
+	{ setPregameSquads, markSquadAsAnnounced }
 )(AdminGameSquads);

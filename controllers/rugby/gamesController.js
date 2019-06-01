@@ -182,6 +182,16 @@ export async function setPregameSquads(req, res) {
 	}
 }
 
+export async function markSquadsAsAnnounced(req, res) {
+	const { _id } = req.params;
+	const game = await validateGame(_id, res);
+	if (game) {
+		game.squadsAnnounced = req.body.announced;
+		await game.save();
+		await getUpdatedGame(_id, res);
+	}
+}
+
 export async function setSquads(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res);

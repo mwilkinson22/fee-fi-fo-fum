@@ -30,6 +30,11 @@ export const setSquad = (id, values) => async (dispatch, getState, api) => {
 	dispatch({ type: UPDATE_GAME, payload: res.data });
 };
 
+export const markSquadAsAnnounced = (id, announced) => async (dispatch, getState, api) => {
+	const res = await api.put(`/games/${id}/squadsAnnounced`, { announced });
+	dispatch({ type: UPDATE_GAME, payload: res.data });
+};
+
 export const postGameEvent = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/event/`, values);
 	dispatch({ type: UPDATE_GAME, payload: res.data });
