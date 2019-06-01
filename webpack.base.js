@@ -47,5 +47,8 @@ module.exports = {
 			"~": path.resolve(".")
 		}
 	},
-	plugins: [new ExtractTextPlugin("styles.css")]
+	plugins: [new ExtractTextPlugin("styles.css")],
+	performance: {
+		hints: false
+	}
 };
