@@ -55,6 +55,12 @@ export const setStats = (id, values) => async (dispatch, getState, api) => {
 	toast.success("Stats saved");
 };
 
+export const setMotm = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/games/${id}/motm`, values);
+	dispatch({ type: UPDATE_GAME, payload: res.data });
+	toast.success("Man of the Match saved");
+};
+
 export const setManOfSteelPoints = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/manOfSteel`, values);
 	dispatch({ type: UPDATE_GAME, payload: res.data });

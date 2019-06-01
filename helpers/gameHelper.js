@@ -20,22 +20,38 @@ export function fixDates(games) {
 	});
 }
 
-export function convertTeamToSelect(game, teamList) {
-	return _.chain(game.playerStats)
-		.groupBy("_team")
-		.map((squad, team) => {
-			const options = _.chain(squad)
-				.sortBy("position")
-				.map(({ _player }) => {
-					const p = _.find(game.eligiblePlayers[team], p => _player == p._player._id);
-					const numberStr = p.number ? `${p.number}. ` : "";
-					const label = numberStr + p._player.name.full;
-					return { label, value: _player };
-				})
-				.value();
-			return { label: teamList[team].name.short, options };
-		})
-		.value();
+export function convertTeamToSelect(game, teamList, singleTeam = false, includeNone = false) {
+	function listToOptions({ _player }, team) {
+		const p = _.find(game.eligiblePlayers[team], p => _player == p._player._id);
+		const numberStr = p.number ? `${p.number}. ` : "";
+		const label = numberStr + p._player.name.full;
+		return { label, value: _player };
+	}
+
+	let options;
+	if (singleTeam) {
+		options = _.chain(game.playerStats)
+			.filter(p => p._team == singleTeam)
+			.sortBy("position")
+			.map(p => listToOptions(p, singleTeam))
+			.value();
+	} else {
+		options = _.chain(game.playerStats)
+			.groupBy("_team")
+			.map((squad, team) => {
+				const options = _.chain(squad)
+					.sortBy("position")
+					.map(p => listToOptions(p, team))
+					.value();
+				return { label: teamList[team].name.short, options };
+			})
+			.value();
+	}
+	if (includeNone) {
+		return [{ label: "None", value: "" }, ...options];
+	} else {
+		return options;
+	}
 }
 
 export async function parseExternalGame(game, justGetScores = false, includeScoringStats = true) {

@@ -415,6 +415,36 @@ export async function setStats(req, res) {
 	}
 }
 
+export async function setMotm(req, res) {
+	const { _id } = req.params;
+	const game = await validateGame(_id, res);
+	if (game) {
+		const { _motm, _fan_motm, fan_motm_link } = req.body;
+		const originalData = _.pick(game, ["_motm", "_fan_motm", "fan_motm_link"]);
+		console.log(originalData);
+
+		//Update Values
+		game._motm = _motm;
+		game._fan_motm = _fan_motm;
+		game.fan_motm_link = fan_motm_link;
+
+		//Add events on new data
+		if (_motm != originalData._motm) {
+			await game.events.push({ event: "motm", _player: _motm });
+		}
+		if (_fan_motm != originalData._fan_motm) {
+			await game.events.push({ event: "fan_motm", _player: _fan_motm });
+		}
+		if (fan_motm_link != originalData._fan_motm) {
+			await game.events.push({ event: "fan_motm_link", tweet_id: fan_motm_link });
+		}
+
+		//Save
+		await game.save();
+		await getUpdatedGame(_id, res);
+	}
+}
+
 //Crawlers
 export async function fetchExternalGame(req, res) {
 	const Person = mongoose.model("people");

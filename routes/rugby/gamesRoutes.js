@@ -26,6 +26,7 @@ module.exports = app => {
 	app.get("/api/games/:_id/crawl", requireAdmin, gamesController.fetchExternalGame);
 
 	//Putters
+	app.put("/api/games/:_id/motm", requireAdmin, gamesController.setMotm);
 	app.put("/api/games/:_id/stats", requireAdmin, gamesController.setStats);
 	app.put("/api/games/:_id/event/imagePreview", requireAdmin, gamesController.fetchEventImage);
 	app.put("/api/games/:_id/event", requireAdmin, gamesController.handleEvent);

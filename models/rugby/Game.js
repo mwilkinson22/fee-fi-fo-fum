@@ -56,7 +56,11 @@ const gameSchema = new Schema(
 		},
 		events: [
 			{
-				event: { type: String, required: true, enum: Object.keys(gameEvents) },
+				event: {
+					type: String,
+					required: true,
+					enum: Object.keys(gameEvents)
+				},
 				_player: { type: Schema.Types.ObjectId, ref: "people", default: null },
 				date: { type: Date, default: Date.now },
 				tweet_id: { type: String, default: null },

@@ -8,6 +8,7 @@ export default {
 	RC: { label: "Red Card", isPlayerEvent: true },
 	motm: { label: "Man of the Match", isPlayerEvent: true },
 	fan_motm: { label: "Fans' Man of the Match", isPlayerEvent: true },
+	fan_motm_link: { label: "Fans' MotM Link", isPlayerEvent: false },
 	kickOff: { label: "Kick Off", isPlayerEvent: false },
 	halfTime: { label: "Half Time", isPlayerEvent: false },
 	fullTime: { label: "Full Time", isPlayerEvent: false },

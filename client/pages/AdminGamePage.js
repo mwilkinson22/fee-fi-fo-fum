@@ -14,6 +14,7 @@ import AdminGameSquadImage from "../components/admin/games/AdminGameSquadImage";
 import AdminGameEvent from "../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../components/admin/games/AdminGameStats";
 import AdminGameManOfSteel from "../components/admin/games/AdminGameManOfSteel";
+import AdminGameManOfTheMatch from "../components/admin/games/AdminGameManOfTheMatch";
 import Select from "../components/admin/fields/Select";
 
 class AdminGamePage extends Component {
@@ -104,7 +105,7 @@ class AdminGamePage extends Component {
 	getSubmenu() {
 		const { pathname } = this.props.location;
 		const { manOfSteelPoints, game } = this.state;
-		const { date, status, slug, pregameSquads, playerStats } = game;
+		const { status, slug, pregameSquads, playerStats } = game;
 		const groups = ["Pre-game", "Match Day", "Post-game"];
 		const submenuItems = [
 			{ label: "Overview", value: "", group: 0 },
@@ -128,7 +129,8 @@ class AdminGamePage extends Component {
 			submenuItems.push(
 				{ label: "Add In-Game Event", value: "event", group: 1 },
 				{ label: "Scores", value: "scores", group: 1 },
-				{ label: "Stats", value: "stats", group: 2 }
+				{ label: "Stats", value: "stats", group: 2 },
+				{ label: "Man of the Match", value: "motm", group: 2 }
 			);
 			if (manOfSteelPoints) {
 				submenuItems.push({ label: "Man of Steel", value: "man-of-steel", group: 2 });
@@ -170,6 +172,11 @@ class AdminGamePage extends Component {
 								<NotFoundPage />
 							)
 						}
+					/>
+					<Route
+						path="/admin/game/:slug/motm"
+						exact
+						render={() => <AdminGameManOfTheMatch game={game} />}
 					/>
 					<Route
 						path="/admin/game/:slug/stats"
