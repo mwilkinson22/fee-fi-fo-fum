@@ -126,7 +126,7 @@ async function getUpdatedGame(id, res) {
 
 //Getters
 export async function getList(req, res) {
-	const games = await Game.find({}, "date _teamType slug _competition").lean();
+	const games = await Game.find({}, "date _teamType slug _competition _opposition").lean();
 
 	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
 	res.send({ gameList: list, slugMap });

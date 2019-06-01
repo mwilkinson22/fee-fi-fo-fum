@@ -1,16 +1,24 @@
+//Modules
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
-import { fetchTeam } from "../actions/teamsActions";
+
+//Components
+import HelmetBuilder from "../components/HelmetBuilder";
 import LoadingPage from "../components/LoadingPage";
 import Countdown from "../components/games/Countdown";
 import GameHeaderImage from "../components/games/GameHeaderImage";
-import { imagePath } from "../extPaths";
-import HelmetBuilder from "../components/HelmetBuilder";
-import { Redirect } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import TeamBanner from "../components/teams/TeamBanner";
+import TeamForm from "../components/games/TeamForm";
+
+//Actions
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchTeam } from "../actions/teamsActions";
+
+//Constants
+import { imagePath } from "../extPaths";
+import { Redirect } from "react-router-dom";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -133,11 +141,7 @@ class GamePage extends Component {
 
 	generateForm() {
 		if (this.state.isFixture) {
-			return (
-				<section className="form">
-					<div className="container" />
-				</section>
-			);
+			return <TeamForm game={this.state.game} />;
 		} else {
 			return null;
 		}

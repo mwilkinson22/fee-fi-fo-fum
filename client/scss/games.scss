@@ -181,7 +181,7 @@
 	}
 	section.header {
 		@include noTextSelect;
-		$gameInfoBackground: rgba(0, 0, 0, 0.7);
+		$gameInfoBackground: rgba(0, 0, 0, 0.8);
 		display: flex;
 		justify-content: flex-end;
 		flex-direction: column;
@@ -311,6 +311,87 @@
 			}
 			.group {
 				display: block;
+			}
+		}
+	}
+
+	section.form {
+		text-align: center;
+		.head-to-head {
+			.games {
+				padding-bottom: 10pt;
+				display: flex;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				.game {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					grid-template-rows: auto 1fr;
+					background: #f4f4f4;
+					box-shadow: 2pt 2pt 2pt #444;
+					flex-basis: 0;
+					flex-grow: 1;
+					margin: 4pt 8pt;
+					.team-boxes {
+						@include header;
+						font-size: 16pt;
+						padding: 12pt 8pt;
+						display: flex;
+						align-items: center;
+						justify-content: space-around;
+						flex-direction: column;
+						height: 70pt;
+						img {
+							max-height: 30pt;
+							margin: 0 4pt;
+						}
+					}
+					.details {
+						grid-column-end: span 2;
+						font-weight: 600;
+						padding: 4pt 8pt;
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						height: 100%;
+						.date {
+							text-transform: uppercase;
+						}
+						.title {
+							@include header;
+							font-size: 8pt;
+						}
+					}
+				}
+			}
+		}
+		.summary {
+			@include header;
+			font-size: 10pt;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-top: solid thin #ccc;
+			padding: 4pt 0;
+		}
+		@media #{$mobile-and-tablet} {
+			.head-to-head {
+				.games {
+					.game {
+						margin-bottom: 10pt;
+					}
+				}
+			}
+			.summary {
+				flex-direction: column;
+			}
+		}
+		@media #{$desktop-only} {
+			.summary > div {
+				padding: 4pt;
+				&:not(:last-child) {
+					border-right: solid 2pt $claret;
+				}
 			}
 		}
 	}

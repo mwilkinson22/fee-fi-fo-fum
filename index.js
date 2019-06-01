@@ -8,7 +8,7 @@ import "datejs";
 
 import { getCoreConfig } from "./client/actions/configActions";
 import { fetchUser } from "./client/actions/userActions";
-import { fetchAllTeamTypes, fetchTeamList } from "./client/actions/teamsActions";
+import { fetchTeam, fetchAllTeamTypes, fetchTeamList } from "./client/actions/teamsActions";
 
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";
@@ -65,6 +65,7 @@ app.get("*", async (req, res) => {
 	await store.dispatch(fetchUser());
 	await store.dispatch(fetchAllTeamTypes());
 	await store.dispatch(fetchTeamList());
+	await store.dispatch(fetchTeam(keys.localTeam));
 
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
