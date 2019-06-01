@@ -51,7 +51,7 @@ class AdminGameManOfTheMatch extends Component {
 		const newValues = {
 			_motm: _motm.value || null,
 			_fan_motm: _fan_motm.value || null,
-			fan_motm_link: fan_motm_link || null
+			fan_motm_link: fan_motm_link ? fan_motm_link.split("/").pop() : null
 		};
 		await setMotm(game._id, newValues);
 	}
