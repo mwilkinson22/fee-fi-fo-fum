@@ -431,7 +431,6 @@ export async function setMotm(req, res) {
 	if (game) {
 		const { _motm, _fan_motm, fan_motm_link } = req.body;
 		const originalData = _.pick(game, ["_motm", "_fan_motm", "fan_motm_link"]);
-		console.log(originalData);
 
 		//Update Values
 		game._motm = _motm;
