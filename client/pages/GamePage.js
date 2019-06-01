@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
@@ -97,6 +98,20 @@ class GamePage extends Component {
 		));
 	}
 
+	generateEditLink() {
+		const { authUser } = this.props;
+		const { game } = this.state;
+		if (authUser) {
+			return (
+				<Link to={`/admin/game/${game.slug}`} className="nav-card">
+					Edit this game
+				</Link>
+			);
+		} else {
+			return null;
+		}
+	}
+
 	generateCountdown() {
 		const { isFixture, game } = this.state;
 		if (isFixture) {
@@ -169,6 +184,7 @@ class GamePage extends Component {
 							<div className="container">{this.generateHeaderInfoBar()}</div>
 						</div>
 						<div className="team-banners">{this.generateTeamBanners()}</div>
+						{this.generateEditLink()}
 					</section>
 					{this.generateCountdown()}
 					{this.generateForm()}
@@ -180,9 +196,9 @@ class GamePage extends Component {
 
 function mapStateToProps({ games, config, teams }, ownProps) {
 	const { fullGames, slugMap } = games;
-	const { localTeam } = config;
+	const { localTeam, authUser } = config;
 	const { fullTeams } = teams;
-	return { fullGames, slugMap, localTeam, fullTeams, ...ownProps };
+	return { fullGames, slugMap, localTeam, authUser, fullTeams, ...ownProps };
 }
 
 async function loadData(store, path) {

@@ -215,6 +215,11 @@
 				text-transform: none;
 			}
 		}
+		.nav-card {
+			margin: 0;
+			z-index: 2;
+			border-radius: 0;
+		}
 
 		.team-banners {
 			@include noTextSelect;
