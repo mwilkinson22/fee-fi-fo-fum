@@ -239,6 +239,11 @@ class AdminGameStats extends Component {
 					render={formikProps => {
 						return (
 							<Form>
+								{this.renderGameCrawler(formikProps)}
+								<div className="stat-tables">
+									{this.renderTeamTable(formikProps, teams[0])}
+									{this.renderTeamTable(formikProps, teams[1])}
+								</div>
 								<div className="container">
 									<div className="form-card grid">
 										{this.generateErrorList(formikProps)}
@@ -252,11 +257,6 @@ class AdminGameStats extends Component {
 											</button>
 										</div>
 									</div>
-								</div>
-								{this.renderGameCrawler(formikProps)}
-								<div className="stat-tables">
-									{this.renderTeamTable(formikProps, teams[0])}
-									{this.renderTeamTable(formikProps, teams[1])}
 								</div>
 							</Form>
 						);
