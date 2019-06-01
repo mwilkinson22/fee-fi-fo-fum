@@ -198,21 +198,21 @@ class AdminGameStats extends Component {
 					onSubmit={values => this.onSubmit(values)}
 					render={formikProps => {
 						return (
-							<div className="container">
-								<Form>
+							<Form>
+								<div className="container">
 									<div className="form-card grid">
 										<div className="buttons">
 											<button type="reset">Reset</button>
 											<button type="submit">Update</button>
 										</div>
 									</div>
-									{this.renderGameCrawler(formikProps)}
-									<div className="stat-tables">
-										{this.renderTeamTable(formikProps, teams[0])}
-										{this.renderTeamTable(formikProps, teams[1])}
-									</div>
-								</Form>
-							</div>
+								</div>
+								{this.renderGameCrawler(formikProps)}
+								<div className="stat-tables">
+									{this.renderTeamTable(formikProps, teams[0])}
+									{this.renderTeamTable(formikProps, teams[1])}
+								</div>
+							</Form>
 						);
 					}}
 				/>
