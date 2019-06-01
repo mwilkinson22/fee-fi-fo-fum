@@ -28,7 +28,7 @@ class AdminGameStats extends Component {
 		}
 
 		//Set Stat Types
-		this.state = { teams };
+		this.state = { teams, errors: [] };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -70,12 +70,15 @@ class AdminGameStats extends Component {
 		const stats = _.chain(playerStats)
 			.map(p => {
 				const { _player } = p;
-				const stats = _.mapValues(statTypes, ({ plural }) => {
-					return Yup.number()
-						.min(0)
-						.integer()
-						.nullable()
-						.label(plural);
+				const stats = _.mapValues(statTypes, () => {
+					return Yup.mixed()
+						.test("isNumber", "A positive integer must be provided", value => {
+							return value === "" || (Number.isInteger(value) && Number(value) >= 0);
+						})
+						.test("scoreIsProvided", "This field is required", function(value) {
+							const key = this.path.split(".").pop();
+							return !playerStatTypes[key].scoreOnly || value !== "";
+						});
 				});
 				return [_player, Yup.object().shape(stats)];
 			})
@@ -141,7 +144,8 @@ class AdminGameStats extends Component {
 				//Get Stats
 				const statInputs = _.mapValues(playerStatTypes, (obj, key) => {
 					let error;
-					const playerErrors = formikProps.errors[p._player];
+					const playerErrors =
+						formikProps.errors.stats && formikProps.errors.stats[p._player];
 					if (playerErrors) {
 						error = playerErrors[key];
 					}
@@ -183,6 +187,42 @@ class AdminGameStats extends Component {
 		);
 	}
 
+	generateErrorList(formikProps) {
+		if (Object.keys(formikProps.errors).length) {
+			const errorList = [];
+			const { eligiblePlayers } = this.props.game;
+			const playerList = [
+				..._.values(eligiblePlayers)[0],
+				..._.values(eligiblePlayers)[1]
+			].map(p => p._player);
+
+			_.each(formikProps.errors.stats, (errors, player) => {
+				errorList.push(
+					<li>
+						<strong>{_.find(playerList, p => p._id == player).name.full}</strong>
+					</li>
+				);
+				_.each(errors, (error, key) => {
+					errorList.push(
+						<li>
+							{playerStatTypes[key].plural}: {error}
+						</li>
+					);
+				});
+			});
+			return (
+				<ul className="errors full-span">
+					<li>
+						<strong>Errors:</strong>
+					</li>
+					{errorList}
+				</ul>
+			);
+		} else {
+			return null;
+		}
+	}
+
 	onSubmit(values) {
 		const { game, setStats } = this.props;
 		setStats(game._id, values.stats);
@@ -201,9 +241,15 @@ class AdminGameStats extends Component {
 							<Form>
 								<div className="container">
 									<div className="form-card grid">
+										{this.generateErrorList(formikProps)}
 										<div className="buttons">
 											<button type="reset">Reset</button>
-											<button type="submit">Update</button>
+											<button
+												type="submit"
+												disabled={Object.keys(formikProps.errors).length}
+											>
+												Update
+											</button>
 										</div>
 									</div>
 								</div>
