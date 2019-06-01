@@ -167,8 +167,12 @@ export default class StatsTables extends Component {
 			const foot = _.chain(statTypes[activeTab])
 				.map(key => {
 					const stat = playerStatTypes[key];
-					const { total, average } = summedStats[key];
+					let { total, average } = summedStats[key];
 					const content = [];
+
+					if (average == null) {
+						total = null;
+					}
 
 					content.push(
 						<span className="total" key="total" title={`Total ${stat.plural}`}>
