@@ -83,7 +83,7 @@ class AdminGameStats extends Component {
 			.value();
 
 		return Yup.object().shape({
-			stats
+			stats: Yup.object().shape(stats)
 		});
 	}
 
