@@ -31,34 +31,36 @@ export default class PlayerStatsHelper {
 	}
 
 	static sumStats(stats) {
-		const summedStats = {};
-		_.chain(stats)
+		const summedStats = _.chain(stats)
+			.map(PlayerStatsHelper.processStats)
 			.map(statGroup => _.keys(statGroup))
 			.flatten()
 			.uniq()
 			.filter(key => playerStatTypes[key] !== undefined)
-			.forEach(key => {
+			.map(key => {
 				const total = _.sumBy(stats, key);
 				const statType = playerStatTypes[key];
 				const gameCount = _.sumBy(stats, obj => {
-					return obj.hasOwnProperty(key) ? 1 : 0;
+					return obj.hasOwnProperty(key) && obj[key] != null ? 1 : 0;
 				});
-				const average = total / gameCount;
-				let best = {};
-
-				if (statType.moreIsBetter) {
-					best = _.maxBy(stats, key)[key];
-				} else {
-					best = _.minBy(stats, key)[key];
+				let average, best;
+				if (gameCount) {
+					average = total / gameCount;
+					if (statType.moreIsBetter) {
+						best = _.maxBy(stats, key)[key];
+					} else {
+						best = _.minBy(stats, key)[key];
+					}
 				}
-
-				summedStats[key] = {
+				const result = {
 					total,
 					best,
 					gameCount,
 					average
 				};
+				return [key, result];
 			})
+			.fromPairs()
 			.value();
 
 		const processedStats = this.processNestedStats(summedStats);
@@ -67,6 +69,10 @@ export default class PlayerStatsHelper {
 	}
 
 	static toString(key, value, maxDecimals = 2) {
+		if (value == null) {
+			return "-";
+		}
+
 		const unit = playerStatTypes[key].unit || "";
 		const decimalMultiplier = Math.pow(10, maxDecimals);
 
