@@ -396,9 +396,27 @@
 			}
 		}
 		.team-form-wrapper {
-			.teams {
+			.with-table {
 				display: flex;
 				flex-wrap: wrap;
+				& > * {
+					flex-basis: 0;
+					flex-grow: 1;
+				}
+				.teams {
+					flex-direction: column;
+					.team {
+						flex-grow: 0;
+					}
+				}
+			}
+			.teams {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				h2 {
+					width: 100%;
+				}
 				.team {
 					flex-grow: 1;
 					margin: 10pt;

@@ -135,7 +135,7 @@ gameSchema.query.fullGame = function() {
 		.populate({
 			path: "_competition",
 			select:
-				"name _parentCompetition appendCompetitionName instances instance hashtagPrefix",
+				"name _parentCompetition appendCompetitionName instances instance type hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
 				select: "name"

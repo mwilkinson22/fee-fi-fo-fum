@@ -11,7 +11,7 @@ import TeamImage from "../teams/TeamImage";
 //Actions
 import { fetchGames } from "~/client/actions/gamesActions";
 import { fetchNeutralGames } from "~/client/actions/neutralGamesActions";
-import { googleBucket } from "~/client/extPaths";
+import LeagueTable from "../seasons/LeagueTable";
 
 class TeamForm extends Component {
 	constructor(props) {
@@ -311,10 +311,26 @@ class TeamForm extends Component {
 			);
 		});
 
+		let table;
+		if (game._competition.type == "League") {
+			table = (
+				<LeagueTable
+					competition={game._competition._id}
+					year={game.date.getFullYear()}
+					highlightTeams={[localTeam, game._opposition._id]}
+				/>
+			);
+		}
+
 		return (
-			<div className="team-form-wrapper" key="form">
-				<h2>Form</h2>
-				<div className="teams">{content}</div>
+			<div className={`team-form-wrapper`} key="form">
+				<div className={table ? "with-table" : ""}>
+					<div className="teams">
+						<h2>Form</h2>
+						{content}
+					</div>
+					{table}
+				</div>
 			</div>
 		);
 	}

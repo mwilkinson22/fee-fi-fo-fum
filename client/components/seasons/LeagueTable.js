@@ -226,6 +226,10 @@ class LeagueTable extends Component {
 	formatRowsForTable(rows) {
 		const { instance } = this.state;
 		const { localTeam } = this.props;
+		let { highlightTeams } = this.props;
+		if (!highlightTeams) {
+			highlightTeams = [localTeam];
+		}
 		return _.chain(rows)
 			.map((values, key) => {
 				return {
@@ -248,8 +252,8 @@ class LeagueTable extends Component {
 					instance.leagueTableColours,
 					p => p.position.indexOf(pos + 1) > -1
 				);
-				if (row.key === localTeam) {
-					row.className = "local";
+				if (highlightTeams.indexOf(row.key) > -1) {
+					row.className = "highlight";
 				} else if (rowClass) {
 					row.className = rowClass.className;
 				}
