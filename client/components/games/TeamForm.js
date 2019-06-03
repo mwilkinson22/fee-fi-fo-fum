@@ -11,6 +11,7 @@ import TeamImage from "../teams/TeamImage";
 //Actions
 import { fetchGames } from "~/client/actions/gamesActions";
 import { fetchNeutralGames } from "~/client/actions/neutralGamesActions";
+import { googleBucket } from "~/client/extPaths";
 
 class TeamForm extends Component {
 	constructor(props) {
@@ -200,6 +201,124 @@ class TeamForm extends Component {
 		);
 	}
 
+	renderForm() {
+		const { game, fullGames, fullTeams, localTeam, teamList } = this.props;
+		const { gamesRequired, lastFiveNeutral } = this.state;
+		//Format local games the same as neutral
+		const allGames = gamesRequired.map(_id => {
+			const { date, isAway, score, _opposition, slug } = fullGames[_id];
+
+			//Set Teams & Score
+			let points = [
+				{ team: localTeam, points: score ? score[localTeam] : null },
+				{ team: _opposition._id, points: score ? score[_opposition._id] : null }
+			];
+			if (isAway) {
+				points = points.reverse();
+			}
+			const _homeTeam = points[0].team;
+			const homePoints = points[0].points;
+			const _awayTeam = points[1].team;
+			const awayPoints = points[1].points;
+
+			return {
+				_id,
+				date,
+				_homeTeam,
+				homePoints,
+				_awayTeam,
+				awayPoints,
+				slug
+			};
+		});
+
+		const headToHead = allGames.filter(
+			g => g._homeTeam == game._opposition._id || g._awayTeam == game._opposition._id
+		);
+
+		const oppositionGames = _.chain([...headToHead, ...lastFiveNeutral])
+			.sortBy("date")
+			.reverse()
+			.chunk(5)
+			.value()[0];
+
+		const localGames = _.chain(allGames)
+			.sortBy("date")
+			.reverse()
+			.chunk(5)
+			.value()[0];
+
+		let gamesToRender = [
+			{ games: localGames, team: fullTeams[localTeam] },
+			{ games: oppositionGames, team: game._opposition }
+		];
+		if (game.isAway) {
+			gamesToRender = gamesToRender.reverse();
+		}
+
+		const content = gamesToRender.map(({ team, games }) => {
+			if (!games || !games.length) {
+				return null;
+			}
+
+			const renderedGames = games.reverse().map(game => {
+				const { _homeTeam, _awayTeam, homePoints, awayPoints, slug, date } = game;
+				const isAway = _awayTeam == team._id;
+				const oppositionId = isAway ? _homeTeam : _awayTeam;
+				const [localScore, oppositionScore] = isAway
+					? [awayPoints, homePoints]
+					: [homePoints, awayPoints];
+				let result;
+				if (localScore > oppositionScore) {
+					result = "W";
+				} else if (localScore < oppositionScore) {
+					result = "L";
+				} else {
+					result = "D";
+				}
+
+				const innerContent = [
+					<TeamImage team={teamList[oppositionId]} key="badge" />,
+					<div className="date" key="date">
+						{date.toString("dd/MM/yyyy")}
+					</div>,
+					<div className={`score ${result}`} key="score">
+						{homePoints}-{awayPoints}
+					</div>
+				];
+				if (slug) {
+					return (
+						<Link className="game" key={game._id} to={`/games/${slug}`}>
+							{innerContent}
+						</Link>
+					);
+				} else {
+					return (
+						<div className="game" key={game._id}>
+							{innerContent}
+						</div>
+					);
+				}
+			});
+
+			return (
+				<div className="team" key={team._id}>
+					<div style={{ background: team.colours.main }}>
+						<TeamImage team={team} />
+					</div>
+					<div className="games">{renderedGames}</div>
+				</div>
+			);
+		});
+
+		return (
+			<div className="team-form-wrapper" key="form">
+				<h2>Form</h2>
+				<div className="teams">{content}</div>
+			</div>
+		);
+	}
+
 	render() {
 		const { gamesRequired, lastFiveNeutral } = this.state;
 		let content;
@@ -208,7 +327,7 @@ class TeamForm extends Component {
 		} else if (!lastFiveNeutral) {
 			content = <LoadingPage key="lp" />;
 		} else {
-			content = [this.renderHeadToHead()];
+			content = [this.renderHeadToHead(), this.renderForm()];
 		}
 
 		if (content) {
@@ -226,8 +345,8 @@ class TeamForm extends Component {
 function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	const { gameList, fullGames, neutralGames } = games;
-	const { fullTeams } = teams;
-	return { localTeam, gameList, fullGames, neutralGames, fullTeams };
+	const { teamList, fullTeams } = teams;
+	return { localTeam, gameList, fullGames, neutralGames, fullTeams, teamList };
 }
 
 export default connect(

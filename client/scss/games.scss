@@ -328,7 +328,7 @@
 					grid-template-columns: 1fr 1fr;
 					grid-template-rows: auto 1fr;
 					background: #f4f4f4;
-					box-shadow: 2pt 2pt 2pt #444;
+					box-shadow: 2pt 2pt 2pt #555;
 					flex-basis: 0;
 					flex-grow: 1;
 					margin: 4pt 8pt;
@@ -364,33 +364,80 @@
 					}
 				}
 			}
-		}
-		.summary {
-			@include header;
-			font-size: 10pt;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			border-top: solid thin #ccc;
-			padding: 4pt 0;
-		}
-		@media #{$mobile-and-tablet} {
-			.head-to-head {
+			.summary {
+				@include header;
+				font-size: 10pt;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border-top: solid thin #ccc;
+				padding: 4pt 0;
+				&:last-child {
+					margin-bottom: 10pt;
+				}
+			}
+			@media #{$mobile-and-tablet} {
 				.games {
 					.game {
 						margin-bottom: 10pt;
 					}
 				}
+				.summary {
+					flex-direction: column;
+				}
 			}
-			.summary {
-				flex-direction: column;
+			@media #{$desktop-only} {
+				.summary > div {
+					padding: 4pt;
+					&:not(:last-child) {
+						border-right: solid 2pt $claret;
+					}
+				}
 			}
 		}
-		@media #{$desktop-only} {
-			.summary > div {
-				padding: 4pt;
-				&:not(:last-child) {
-					border-right: solid 2pt $claret;
+		.team-form-wrapper {
+			.teams {
+				display: flex;
+				flex-wrap: wrap;
+				.team {
+					flex-grow: 1;
+					margin: 10pt;
+					box-shadow: 2pt 2pt 2pt #555;
+					img {
+						max-height: 60pt;
+						padding: 8pt 4pt;
+					}
+					.games {
+						display: flex;
+						a.game:hover {
+							background: #e4e4e4;
+							color: black;
+						}
+						.game {
+							background: #fafafa;
+							flex-basis: 0;
+							flex-grow: 1;
+							.date {
+								@include header;
+								font-size: 8pt;
+								margin: 4pt 0;
+							}
+							.score {
+								font-weight: 600;
+								color: white;
+								padding: 4pt 0;
+								&.W {
+									background: #518c56;
+								}
+								&.L {
+									background: #900;
+								}
+								&.D {
+									background: #444;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
