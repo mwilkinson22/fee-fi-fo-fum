@@ -20,6 +20,17 @@ export function fixDates(games) {
 	});
 }
 
+export function getLastGame(id, gameList) {
+	const { _teamType, date } = gameList[id];
+	const list = _.chain(gameList)
+		.filter(g => g._teamType == _teamType)
+		.filter(g => g.date < date)
+		.orderBy(["date"], ["desc"])
+		.map(g => g._id)
+		.value();
+	return list.length ? list[0] : false;
+}
+
 export function convertTeamToSelect(game, teamList, singleTeam = false, includeNone = false) {
 	function listToOptions({ _player }, team) {
 		const p = _.find(game.eligiblePlayers[team], p => _player == p._player._id);

@@ -16,6 +16,7 @@ import AdminGameStats from "../components/admin/games/AdminGameStats";
 import AdminGameManOfSteel from "../components/admin/games/AdminGameManOfSteel";
 import AdminGameManOfTheMatch from "../components/admin/games/AdminGameManOfTheMatch";
 import Select from "../components/admin/fields/Select";
+import { getLastGame } from "~/helpers/gameHelper";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -45,14 +46,7 @@ class AdminGamePage extends Component {
 
 		//Get Previous Game Id
 		if (lastGameId === undefined) {
-			const { _teamType, date } = gameList[id];
-			const lastGameList = _.chain(gameList)
-				.filter(g => g._teamType == _teamType)
-				.filter(g => g.date < date)
-				.orderBy(["date"], ["desc"])
-				.map(g => g._id)
-				.value();
-			lastGameId = newState.lastGameId = lastGameList.length ? lastGameList[0] : false;
+			lastGameId = newState.lastGameId = getLastGame(id, gameList);
 		}
 
 		//Get Games To Load
