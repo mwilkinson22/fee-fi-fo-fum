@@ -20,6 +20,9 @@ import { fetchTeam } from "../actions/teamsActions";
 import { imagePath } from "../extPaths";
 import { Redirect } from "react-router-dom";
 
+//Helpers
+import { getLastGame } from "~/helpers/gameHelper";
+
 class GamePage extends Component {
 	constructor(props) {
 		super(props);
@@ -40,15 +43,27 @@ class GamePage extends Component {
 	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
 
-		const { match, slugMap, fullGames, fetchGames, fullTeams, localTeam } = nextProps;
+		const { match, slugMap, gameList, fullGames, fetchGames, fullTeams, localTeam } = nextProps;
 
 		if (slugMap && fullTeams[localTeam]) {
 			const { id } = slugMap[match.params.slug];
-			if (!fullGames[id]) {
-				fetchGames([id]);
+			const previousId = getLastGame(id, gameList);
+
+			//Get Previous Id
+			const gamesRequired = [id];
+			if (previousId) {
+				gamesRequired.push(id);
+			}
+
+			//Check for missing games
+			const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
+
+			if (gamesToLoad.length) {
+				fetchGames(gamesToLoad);
 				newState.game = undefined;
 			} else {
 				newState.game = fullGames[id];
+				newState.previousGame = fullGames[previousId];
 				newState.isFixture = newState.game.date >= new Date();
 			}
 		}
@@ -199,10 +214,10 @@ class GamePage extends Component {
 }
 
 function mapStateToProps({ games, config, teams }, ownProps) {
-	const { fullGames, slugMap } = games;
+	const { fullGames, slugMap, gameList } = games;
 	const { localTeam, authUser } = config;
 	const { fullTeams } = teams;
-	return { fullGames, slugMap, localTeam, authUser, fullTeams, ...ownProps };
+	return { fullGames, slugMap, localTeam, authUser, gameList, fullTeams, ...ownProps };
 }
 
 async function loadData(store, path) {
@@ -210,7 +225,12 @@ async function loadData(store, path) {
 	const { localTeam } = store.getState().config;
 	await Promise.all([store.dispatch(fetchGameList()), store.dispatch(fetchTeam(localTeam))]);
 	const { id } = store.getState().games.slugMap[slug];
-	return store.dispatch(fetchGames([id]));
+	const gamesToLoad = [id];
+	const previousId = getLastGame(id, store.getState().games.gameList);
+	if (previousId) {
+		gamesToLoad.push(previousId);
+	}
+	return store.dispatch(fetchGames(gamesToLoad));
 }
 
 export default {
