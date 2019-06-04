@@ -423,6 +423,7 @@
 					box-shadow: 2pt 2pt 2pt #555;
 					img {
 						max-height: 60pt;
+						max-width: 100%;
 						padding: 8pt 4pt;
 					}
 					.games {
@@ -435,6 +436,14 @@
 							background: #fafafa;
 							flex-basis: 0;
 							flex-grow: 1;
+							display: flex;
+							flex-direction: column;
+							.badge {
+								flex-grow: 1;
+								display: grid;
+								justify-content: center;
+								align-items: center;
+							}
 							.date {
 								@include header;
 								font-size: 8pt;
