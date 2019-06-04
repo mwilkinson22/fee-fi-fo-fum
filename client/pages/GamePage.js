@@ -11,6 +11,7 @@ import GameHeaderImage from "../components/games/GameHeaderImage";
 import NotFoundPage from "./NotFoundPage";
 import TeamBanner from "../components/teams/TeamBanner";
 import TeamForm from "../components/games/TeamForm";
+import PregameSquadList from "../components/games/PregameSquadList";
 
 //Actions
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
@@ -154,6 +155,15 @@ class GamePage extends Component {
 		}
 	}
 
+	generatePregameList() {
+		const { game, previousGame } = this.state;
+		if (game.squadsAnnounced) {
+			return null;
+		} else {
+			return <PregameSquadList game={game} previousGame={previousGame} />;
+		}
+	}
+
 	generateForm() {
 		if (this.state.isFixture) {
 			return <TeamForm game={this.state.game} />;
@@ -206,6 +216,7 @@ class GamePage extends Component {
 						{this.generateEditLink()}
 					</section>
 					{this.generateCountdown()}
+					{this.generatePregameList()}
 					{this.generateForm()}
 				</div>
 			);
