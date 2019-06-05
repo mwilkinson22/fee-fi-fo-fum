@@ -86,7 +86,8 @@ async function addEligiblePlayers(games) {
 	const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
 	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
 		path: "squads.players._player",
-		select: "name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate image"
+		select:
+			"name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate image slug"
 	});
 	teams = _.keyBy(teams, "_id");
 

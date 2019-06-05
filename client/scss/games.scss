@@ -477,8 +477,95 @@
 	}
 
 	section.pregame-squads {
-		h2 {
-			margin: 8pt;
+		.team-blocks {
+			display: flex;
+			flex-wrap: wrap;
+			width: 100%;
+			.team-block {
+				position: relative;
+				flex-grow: 1;
+				flex-basis: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 10pt;
+				.player {
+					@include header;
+					z-index: 2;
+					font-size: 18pt;
+					white-space: nowrap;
+					display: flex;
+					.name,
+					.number {
+						text-shadow: inherit;
+					}
+				}
+			}
+			@media #{$mobile-and-tablet} {
+				flex-direction: column;
+				.team-block {
+					text-shadow: none;
+					.team-image {
+						max-height: 40pt;
+					}
+					.player {
+						.name,
+						.number {
+							text-shadow: none;
+						}
+						.number {
+							&::after {
+								content: ".\00A0";
+							}
+						}
+					}
+				}
+			}
+			@media #{$desktop-only} {
+				.team-block {
+					text-shadow: inherit;
+					overflow: hidden;
+					.team-image {
+						opacity: 0.5;
+						max-height: 70%;
+						position: absolute;
+						top: 0;
+						bottom: 0;
+						margin: auto;
+					}
+					.player {
+						.number {
+							min-width: 36pt;
+							padding: 0 10pt;
+						}
+					}
+					a.player:hover * {
+						color: $gold !important;
+					}
+					&:first-child {
+						align-items: flex-end;
+						.team-image {
+							left: 0;
+							transform: translateX(-30%);
+						}
+						.player {
+							flex-direction: row-reverse;
+						}
+					}
+					&:last-child {
+						align-items: flex-start;
+						.team-image {
+							right: 0;
+							transform: translateX(30%);
+						}
+						.player {
+							.number {
+								text-align: right;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
