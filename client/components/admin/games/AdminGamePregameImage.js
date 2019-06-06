@@ -27,8 +27,8 @@ class AdminGamePregameImage extends Component {
 		const { hashtags } = game;
 		this.state = {
 			game,
+			highlightNewPlayers: true,
 			team: game.pregameSquads.length > 1 ? "both" : _.values(game.pregameSquads)[0]._team,
-			playerForImage: false,
 			tweet: `Here are your teams for this ${game.date.toString("dddd")}'s game against ${
 				game._opposition.name.short
 			}!\n\n${hashtags ? hashtags.map(t => `#${t}`).join(" ") : ""}`
@@ -88,30 +88,52 @@ class AdminGamePregameImage extends Component {
 						s.year == new Date(game.date).getFullYear() && s._teamType == game._teamType
 				).players;
 
-				newState.playerOptions = _.chain(thisLocalSquad.squad)
-					.map(id => {
-						//Get Player Object
-						const squadMember = _.find(
-							squadNumbers,
-							({ _player }) => _player._id == id
-						);
+				const newPlayers = [];
+				const otherPlayers = [];
 
-						const highlight = _.find(newState.playersToHighlight, p => p == id);
-						const number = squadMember.number;
-						const name = `${number ? number + ". " : ""}${
-							squadMember._player.name.full
-						} ${highlight ? "    *" : ""}`;
-						const image = squadMember._player.image;
+				//Add player to corresponding array
+				thisLocalSquad.squad.map(id => {
+					//Get Player Object
+					const squadMember = _.find(squadNumbers, ({ _player }) => _player._id == id);
+					const { image } = squadMember._player;
+					if (!image) {
+						return null;
+					}
 
-						return {
-							label: name,
-							value: id,
-							number,
-							image
-						};
-					})
-					.sortBy(p => p.number || 999)
-					.value();
+					//Get Data
+					const { number } = squadMember;
+					const label = `${number ? number + ". " : ""}${squadMember._player.name.full}`;
+					const option = { label, value: id, number };
+
+					//Push to object
+					const isNew = _.find(newState.playersToHighlight, p => p == id);
+					if (isNew) {
+						newPlayers.push(option);
+					} else {
+						otherPlayers.push(option);
+					}
+				});
+
+				//Create Object
+				newState.playerOptions = [{ label: "None", value: false }];
+
+				if (newPlayers.length) {
+					newState.playerOptions.push({
+						label: "New Players",
+						options: _.sortBy(newPlayers, p => p.number || 999)
+					});
+				}
+
+				if (otherPlayers.length) {
+					newState.playerOptions.push({
+						label: "Other Players",
+						options: _.sortBy(otherPlayers, p => p.number || 999)
+					});
+				}
+
+				newState.playerForImage =
+					newState.playerOptions.length > 1 &&
+					_.sample(newState.playerOptions[1].options);
 			} else {
 				newState.playerOptions = [];
 			}
@@ -144,14 +166,24 @@ class AdminGamePregameImage extends Component {
 
 	renderPlayerImageSelect() {
 		const { playerForImage, playerOptions } = this.state;
-		const playersWithImages = _.filter(playerOptions, "image");
-		const options = [{ value: false, label: "None" }, ...playersWithImages];
 
 		return (
 			<Select
 				onChange={({ value }) => this.setState({ playerForImage: value })}
-				defaultValue={_.find(options, ({ value }) => value == playerForImage)}
-				disabled={options.length === 1}
+				defaultValue={playerForImage}
+				options={playerOptions}
+			/>
+		);
+	}
+
+	renderPlayerHighlightToggle() {
+		const { highlightNewPlayers } = this.state;
+		const options = [{ label: "Yes", value: true }, { label: "No", value: false }];
+
+		return (
+			<Select
+				onChange={({ value }) => this.setState({ highlightNewPlayers: value })}
+				defaultValue={_.find(options, ({ value }) => value == highlightNewPlayers)}
 				options={options}
 			/>
 		);
@@ -186,10 +218,10 @@ class AdminGamePregameImage extends Component {
 	}
 
 	optionsToQuery() {
-		const { playerForImage, playersToHighlight, team } = this.state;
-		let query = `?playerForImage=${playerForImage}&playersToHighlight=${playersToHighlight.join(
-			","
-		)}`;
+		const { highlightNewPlayers, playerForImage, playersToHighlight, team } = this.state;
+		let query = `?playerForImage=${playerForImage &&
+			playerForImage.value}&playersToHighlight=${highlightNewPlayers &&
+			playersToHighlight.join(",")}`;
 
 		if (team !== "both") {
 			query += `&singleTeam=${team}`;
@@ -241,6 +273,8 @@ class AdminGamePregameImage extends Component {
 					{this.renderTeamSelect()}
 					<label>Player For Image</label>
 					{this.renderPlayerImageSelect()}
+					<label>Highlight New Players</label>
+					{this.renderPlayerHighlightToggle()}
 					<label>Tweet</label>
 					{this.renderTweetComposer()}
 					<label>In Reply To</label>
