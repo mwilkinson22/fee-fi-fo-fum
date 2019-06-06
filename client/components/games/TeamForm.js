@@ -34,7 +34,7 @@ class TeamForm extends Component {
 			.chunk(5)
 			.value()[0];
 
-		const lastHeadToHead = _.chain(gameList)
+		let lastHeadToHead = _.chain(gameList)
 			.filter(g => {
 				return (
 					g.date < game.date &&
@@ -47,6 +47,9 @@ class TeamForm extends Component {
 			.map("_id")
 			.chunk(5)
 			.value()[0];
+		if (lastHeadToHead && lastHeadToHead.length) {
+			lastHeadToHead = lastHeadToHead.reverse();
+		}
 
 		const gamesRequired = _.chain([lastHeadToHead, lastLocal])
 			.flatten()
@@ -115,8 +118,7 @@ class TeamForm extends Component {
 		};
 
 		//Theming
-
-		const games = lastHeadToHead.reverse().map(id => {
+		const games = lastHeadToHead.map(id => {
 			const game = fullGames[id];
 
 			//Teams
