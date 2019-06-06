@@ -26,7 +26,7 @@ export default class PregameImage extends Canvas {
 			teamBlockTop: Math.round(cHeight * 0.22),
 			teamBlockHeight: Math.round(cHeight * 0.71),
 			badgeWidth: Math.round(cWidth * 0.2),
-			badgeHeight: Math.round(cHeight * 0.4),
+			badgeHeight: Math.round(cHeight * 0.45),
 			headerLeftIconOffset: Math.round(cWidth * 0.03),
 			headerIconWidth: Math.round(cWidth * 0.1),
 			headerIconHeight: Math.round(cHeight * 0.15),
