@@ -427,6 +427,12 @@
 					flex-grow: 1;
 					margin: 10pt;
 					box-shadow: 2pt 2pt 2pt #555;
+					.header {
+						@include header;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
 					img {
 						max-height: 60pt;
 						max-width: 100%;

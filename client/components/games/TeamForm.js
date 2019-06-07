@@ -336,8 +336,14 @@ class TeamForm extends Component {
 
 			return (
 				<div className="team" key={team._id}>
-					<div style={{ background: team.colours.main }}>
-						<TeamImage team={team} />
+					<div
+						style={{ background: team.colours.main, color: team.colours.text }}
+						className="header"
+					>
+						<div>
+							<TeamImage team={team} />
+						</div>
+						Last {games.length == 1 ? "game" : `${games.length} games`}
 					</div>
 					<div className="games">{renderedGames}</div>
 				</div>
