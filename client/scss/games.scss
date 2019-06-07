@@ -477,6 +477,9 @@
 	}
 
 	section.pregame-squads {
+		&.with-squads {
+			padding: 0;
+		}
 		.team-blocks {
 			display: flex;
 			flex-wrap: wrap;

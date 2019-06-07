@@ -144,26 +144,27 @@ class PregameSquadList extends Component {
 			return null;
 		}
 
-		return (
-			<div>
-				<h2>Pregame Squads</h2>
-				<div className="team-blocks">{content}</div>
-			</div>
-		);
+		return <div className="team-blocks">{content}</div>;
 	}
 
 	render() {
 		const { pregameSquads } = this.state.game;
 		let content;
+		let squadsFound = false;
 		if (pregameSquads.length) {
 			content = this.renderSquads();
+			squadsFound = true;
 		}
 
 		if (!content) {
 			content = this.setDueDate();
 		}
 
-		return <section className="pregame-squads">{content}</section>;
+		return (
+			<section className={`pregame-squads ${squadsFound ? "with-squads" : ""}`}>
+				{content}
+			</section>
+		);
 	}
 }
 
