@@ -16,86 +16,114 @@ import LeagueTable from "../seasons/LeagueTable";
 class TeamForm extends Component {
 	constructor(props) {
 		super(props);
-		const { game, gameList, fullGames, fetchGames, neutralGames, fetchNeutralGames } = props;
+		const { neutralGames, fetchNeutralGames } = props;
 
 		//Load Neutral Games
+		let isLoadingNeutral = false;
 		if (!neutralGames) {
+			isLoadingNeutral = true;
 			fetchNeutralGames();
 		}
 
-		//Calculate Last Five Local Games
-		const lastLocal = _.chain(gameList)
-			.filter(g => {
-				return g.date < game.date && g._teamType == game._teamType;
-			})
-			.sortBy("date")
-			.reverse()
-			.map("_id")
-			.chunk(5)
-			.value()[0];
-
-		let lastHeadToHead = _.chain(gameList)
-			.filter(g => {
-				return (
-					g.date < game.date &&
-					g._teamType == game._teamType &&
-					g._opposition == game._opposition._id
-				);
-			})
-			.sortBy("date")
-			.reverse()
-			.map("_id")
-			.chunk(5)
-			.value()[0];
-		if (lastHeadToHead && lastHeadToHead.length) {
-			lastHeadToHead = lastHeadToHead.reverse();
-		}
-
-		const gamesRequired = _.chain([lastHeadToHead, lastLocal])
-			.flatten()
-			.uniq()
-			.filter(_.identity)
-			.value();
-		const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
-
-		if (gamesToLoad.length) {
-			fetchGames(gamesToLoad);
-		}
-
-		this.state = { lastLocal, lastHeadToHead, gamesRequired };
+		this.state = { isLoadingNeutral };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, neutralGames, fullGames } = nextProps;
-		const { gamesRequired } = prevState;
+		const { game, neutralGames, fullGames, gameList, fetchGames } = nextProps;
+		let { isLoading, gamesRequired } = prevState;
+		let newState = {};
 
 		//Wait on all games
-		if (!neutralGames || gamesRequired.filter(id => !fullGames[id]).length) {
-			return {};
+		if (!neutralGames) {
+			newState.isLoadingNeutral = false;
+			return newState;
 		}
-		//Get Games
-		const oppositionId = game._opposition._id;
-		const lastFiveNeutral =
-			_.chain(neutralGames)
+
+		//Only run on initial load and gamechange
+		if (!prevState.game || prevState.game._id != nextProps.game._id) {
+			//Add Game to state
+			newState.game = game;
+
+			//Get Last 5 Local Games
+			const lastLocal = _.chain(gameList)
+				.filter(g => {
+					return g.date < game.date && g._teamType == game._teamType;
+				})
+				.sortBy("date")
+				.reverse()
+				.map("_id")
+				.chunk(5)
+				.value()[0];
+
+			//Get Last 5 Head To Head
+			let lastHeadToHead = _.chain(gameList)
 				.filter(g => {
 					return (
 						g.date < game.date &&
 						g._teamType == game._teamType &&
-						(g._homeTeam == oppositionId || g._awayTeam == oppositionId)
+						g._opposition == game._opposition._id
 					);
 				})
 				.sortBy("date")
 				.reverse()
-				.map(obj => ({ ...obj, isNeutral: true }))
+				.map("_id")
 				.chunk(5)
-				.value()[0] || [];
+				.value()[0];
+			if (lastHeadToHead && lastHeadToHead.length) {
+				lastHeadToHead = lastHeadToHead.reverse();
+			}
 
-		return { lastFiveNeutral };
+			//From the last 5 local and the last 5 head to head games, we work out what is required
+			gamesRequired = _.chain([lastHeadToHead, lastLocal])
+				.flatten()
+				.uniq()
+				.filter(_.identity)
+				.value();
+
+			//Last 5 neutral games
+			const oppositionId = game._opposition._id;
+			const lastFiveNeutral =
+				_.chain(neutralGames)
+					.filter(g => {
+						return (
+							g.date < game.date &&
+							g._teamType == game._teamType &&
+							(g._homeTeam == oppositionId || g._awayTeam == oppositionId)
+						);
+					})
+					.sortBy("date")
+					.reverse()
+					.map(obj => ({ ...obj, isNeutral: true }))
+					.chunk(5)
+					.value()[0] || [];
+
+			//Update State
+			newState = {
+				...newState,
+				lastHeadToHead,
+				lastFiveNeutral,
+				lastLocal,
+				gamesRequired
+			};
+		}
+
+		//Determine which games we're waiting on
+		const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
+
+		//If "isLoading" hasn't been set to true, and we're missing games
+		if (!isLoading && gamesToLoad.length) {
+			fetchGames(gamesToLoad);
+			newState.isLoading = true;
+		} else if (!gamesToLoad.length) {
+			newState.isLoading = false;
+		}
+
+		return newState;
 	}
 
 	renderHeadToHead() {
-		const { fullGames, localTeam, fullTeams, game } = this.props;
-		const { lastHeadToHead } = this.state;
+		const { fullGames, localTeam, fullTeams } = this.props;
+		const { lastHeadToHead, game } = this.state;
 		if (!lastHeadToHead || !lastHeadToHead.length) {
 			return null;
 		}
@@ -204,8 +232,9 @@ class TeamForm extends Component {
 	}
 
 	renderForm() {
-		const { game, fullGames, fullTeams, localTeam, teamList } = this.props;
-		const { gamesRequired, lastFiveNeutral } = this.state;
+		const { fullGames, fullTeams, localTeam, teamList } = this.props;
+		const { game, gamesRequired, lastFiveNeutral } = this.state;
+
 		//Format local games the same as neutral
 		const allGames = gamesRequired.map(_id => {
 			const { date, isAway, score, _opposition, slug } = fullGames[_id];
@@ -244,6 +273,7 @@ class TeamForm extends Component {
 			.chunk(5)
 			.value()[0];
 
+		console.log(allGames);
 		const localGames = _.chain(allGames)
 			.sortBy("date")
 			.reverse()
@@ -340,12 +370,12 @@ class TeamForm extends Component {
 	}
 
 	render() {
-		const { gamesRequired, lastFiveNeutral } = this.state;
+		const { gamesRequired, isLoading, isLoadingNeutral } = this.state;
 		let content;
-		if (!gamesRequired) {
+		if (isLoading || isLoadingNeutral) {
+			content = <LoadingPage />;
+		} else if (!gamesRequired) {
 			content = null;
-		} else if (!lastFiveNeutral) {
-			content = <LoadingPage key="lp" />;
 		} else {
 			content = [this.renderHeadToHead(), this.renderForm()];
 		}
