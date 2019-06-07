@@ -13,12 +13,13 @@ class PregameSquadList extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		return {};
+	static getDerivedStateFromProps(nextProps) {
+		const { game, previousGame } = nextProps;
+		return { game, previousGame };
 	}
 
 	setDueDate() {
-		const { date } = this.props.game;
+		const { date } = this.state.game;
 		const dueDate = new Date(date).addDays(-2);
 		dueDate.setHours(12, 0, 0, 0);
 		const daysToGo = (dueDate - new Date()) / 1000 / 60 / 60 / 24;
@@ -40,7 +41,8 @@ class PregameSquadList extends Component {
 	}
 
 	renderSquads() {
-		const { localTeam, fullTeams, game, previousGame } = this.props;
+		const { game, previousGame } = this.state;
+		const { localTeam, fullTeams } = this.props;
 		let teams = [fullTeams[localTeam], game._opposition];
 		if (game.isAway) {
 			teams = teams.reverse();
@@ -135,7 +137,13 @@ class PregameSquadList extends Component {
 					</div>
 				);
 			})
+			.filter(_.identity)
 			.value();
+
+		if (content.length == 0) {
+			return null;
+		}
+
 		return (
 			<div>
 				<h2>Pregame Squads</h2>
@@ -145,13 +153,16 @@ class PregameSquadList extends Component {
 	}
 
 	render() {
-		const { pregameSquads } = this.props.game;
+		const { pregameSquads } = this.state.game;
 		let content;
 		if (pregameSquads.length) {
 			content = this.renderSquads();
-		} else {
+		}
+
+		if (!content) {
 			content = this.setDueDate();
 		}
+
 		return <section className="pregame-squads">{content}</section>;
 	}
 }
