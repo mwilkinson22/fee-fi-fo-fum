@@ -273,7 +273,6 @@ class TeamForm extends Component {
 			.chunk(5)
 			.value()[0];
 
-		console.log(allGames);
 		const localGames = _.chain(allGames)
 			.sortBy("date")
 			.reverse()
