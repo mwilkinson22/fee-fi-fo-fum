@@ -53,7 +53,7 @@ class GamePage extends Component {
 			//Get Previous Id
 			const gamesRequired = [id];
 			if (previousId) {
-				gamesRequired.push(id);
+				gamesRequired.push(previousId);
 			}
 
 			//Check for missing games
