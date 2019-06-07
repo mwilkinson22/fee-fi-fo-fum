@@ -4,8 +4,10 @@ import { teamImagePath } from "../../extPaths";
 
 class TeamImage extends Component {
 	render() {
-		const { team, useWebp, className } = this.props;
-		const { name, image } = team;
+		const { team, useWebp, className, variant } = this.props;
+		const { name, images } = team;
+		const image = images[variant] || images.main;
+
 		const isRaster =
 			["png", "jpg", "jpeg"].indexOf(
 				image
@@ -20,6 +22,7 @@ class TeamImage extends Component {
 				webp={teamImagePath + webp}
 				className={`team-image ${className || ""}`}
 				alt={name.long}
+				title={name.long}
 			/>
 		);
 	}

@@ -124,7 +124,7 @@ gameSchema.query.getFixtures = function(fixtures) {
 gameSchema.query.fullGame = function() {
 	return this.populate({
 		path: "_opposition",
-		select: "name colours hashtagPrefix image"
+		select: "name colours hashtagPrefix images"
 	})
 		.populate({
 			path: "_ground",
@@ -216,7 +216,7 @@ gameSchema.query.squadImage = function() {
 		})
 		.populate({
 			path: "_opposition",
-			select: "image hashtagPrefix colours"
+			select: "images hashtagPrefix colours"
 		});
 };
 

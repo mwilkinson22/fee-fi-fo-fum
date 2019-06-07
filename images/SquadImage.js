@@ -180,10 +180,14 @@ export default class SquadImage extends Canvas {
 
 		//Team Badges (limit to 17-man squads)
 		if (!extraInterchanges) {
+			const oppositionImages = game._opposition.images;
+			const localImages = localTeamObject.images;
 			const oppositionBadge = await this.googleToCanvas(
-				"images/teams/" + game._opposition.image
+				"images/teams/" + (oppositionImages.dark || oppositionImages.main)
 			);
-			const localBadge = await this.googleToCanvas("images/teams/" + localTeamObject.image);
+			const localBadge = await this.googleToCanvas(
+				"images/teams/" + (localImages.dark || localImages.main)
+			);
 			let badges = [localBadge, oppositionBadge];
 			if (game.isAway) {
 				badges = badges.reverse();
@@ -403,7 +407,7 @@ export default class SquadImage extends Canvas {
 
 	async render(forTwitter = false) {
 		const Team = mongoose.model("teams");
-		this.localTeamObject = await Team.findById(localTeam, "image").lean();
+		this.localTeamObject = await Team.findById(localTeam, "images").lean();
 		await this.drawBackground();
 		await this.drawSidebar();
 		await this.drawSquad();

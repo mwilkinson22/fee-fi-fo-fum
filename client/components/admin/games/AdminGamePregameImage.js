@@ -167,8 +167,6 @@ class AdminGamePregameImage extends Component {
 	renderPlayerImageSelect() {
 		const { playerForImage, playerOptions } = this.state;
 
-		console.log(playerForImage);
-
 		return (
 			<Select
 				onChange={playerForImage => this.setState({ playerForImage })}

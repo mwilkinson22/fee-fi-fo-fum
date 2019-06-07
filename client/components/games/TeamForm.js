@@ -310,7 +310,7 @@ class TeamForm extends Component {
 
 				const innerContent = [
 					<div className="badge" key="badge">
-						<TeamImage team={teamList[oppositionId]} />
+						<TeamImage team={teamList[oppositionId]} variant="dark" />
 					</div>,
 					<div className="date" key="date">
 						{date.toString("dd/MM/yyyy")}

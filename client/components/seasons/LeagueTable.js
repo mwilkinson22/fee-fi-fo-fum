@@ -5,9 +5,10 @@ import { fetchNeutralGames } from "../../actions/neutralGamesActions";
 import { fetchGames, fetchGameList } from "../../actions/gamesActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 import LoadingPage from "../../components/LoadingPage";
-import { competitionImagePath, teamImagePath } from "../../extPaths";
+import { competitionImagePath } from "../../extPaths";
 import { validateGameDate } from "~/helpers/gameHelper";
 import Table from "../Table";
+import TeamImage from "~/client/components/teams/TeamImage";
 
 class LeagueTable extends Component {
 	constructor(props) {
@@ -163,9 +164,7 @@ class LeagueTable extends Component {
 						value = team.name.short;
 						break;
 					case "team-badge":
-						value = (
-							<img src={`${teamImagePath}${team.image}`} className="team-badge" />
-						);
+						value = <TeamImage team={team} />;
 						break;
 					case "Pts":
 						value = teamHasAdjustment ? teamHasAdjustment.adjustment : 0;

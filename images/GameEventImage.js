@@ -2,7 +2,6 @@ import Canvas from "./Canvas";
 import mongoose from "mongoose";
 import _ from "lodash";
 import { localTeam } from "~/config/keys";
-const Person = mongoose.model("people");
 const Team = mongoose.model("teams");
 
 export default class GameEventImage extends Canvas {
@@ -34,8 +33,6 @@ export default class GameEventImage extends Canvas {
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
 
-		this.positions = {};
-
 		//Variables
 		this.game = game;
 		this.event = event;
@@ -53,10 +50,12 @@ export default class GameEventImage extends Canvas {
 		const { game } = this;
 		const teams = await Team.find(
 			{ _id: { $in: [localTeam, this.game._opposition._id] } },
-			"image colours"
+			"images colours"
 		);
 		for (const team of teams) {
-			team.badge = await this.googleToCanvas(`images/teams/${team.image}`);
+			team.badge = await this.googleToCanvas(
+				`images/teams/${team.images.light || team.images.main}`
+			);
 		}
 		const awayTeam = game.isAway ? localTeam : game._opposition._id;
 		this.teams = _.sortBy(teams, t => t._id == awayTeam);
@@ -69,7 +68,7 @@ export default class GameEventImage extends Canvas {
 		const scoreOffset = Math.round(cHeight * 0.05);
 		const badgeOffset = Math.round(cWidth * 0.15);
 		const badgeWidth = Math.round(cWidth * 0.3);
-		const badgeHeight = Math.round(cHeight * 0.35);
+		const badgeHeight = Math.round(cHeight * 0.4);
 
 		//Draw Shadow Banner
 		ctx.shadowColor = "black";

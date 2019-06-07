@@ -54,12 +54,12 @@ export default class PlayerEventImage extends Canvas {
 		if (!this.teamBadges) {
 			const teams = await Team.find(
 				{ _id: { $in: [localTeam, this.game._opposition._id] } },
-				"image"
+				"images"
 			);
 			this.teamBadges = {};
 			for (const team of teams) {
-				const { _id, image } = team;
-				this.teamBadges[_id] = await this.googleToCanvas(`images/teams/${image}`);
+				const { _id, images } = team;
+				this.teamBadges[_id] = await this.googleToCanvas(`images/teams/${images.main}`);
 			}
 		}
 	}

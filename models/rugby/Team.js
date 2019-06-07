@@ -50,7 +50,11 @@ const teamSchema = new Schema({
 			]
 		}
 	],
-	image: String,
+	images: {
+		main: { type: String, required: true },
+		light: { type: String, default: null },
+		dark: { type: String, default: null }
+	},
 	slug: String
 });
 

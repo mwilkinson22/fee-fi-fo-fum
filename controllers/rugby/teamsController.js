@@ -19,7 +19,7 @@ async function getUpdatedTeam(id, res) {
 
 //Getters
 export async function getList(req, res) {
-	const teams = await Team.find({}, "name colours image slug").lean();
+	const teams = await Team.find({}, "name colours images slug").lean();
 
 	const { list, slugMap } = await getListsAndSlugs(teams, collectionName);
 	res.send({ teamList: list, slugMap });

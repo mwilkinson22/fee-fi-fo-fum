@@ -115,7 +115,7 @@ export default class PregameImage extends Canvas {
 			leftIcon = await this.googleToCanvas(game.images.logo);
 		} else {
 			leftIcon = await this.googleToCanvas(
-				`images/teams/${_.find(this.teams, t => t._id == localTeam).image}`
+				`images/teams/${_.find(this.teams, t => t._id == localTeam).images.main}`
 			);
 		}
 
@@ -172,8 +172,8 @@ export default class PregameImage extends Canvas {
 		);
 
 		//Badge
-		if (team.image) {
-			const badge = await this.googleToCanvas("images/teams/" + team.image);
+		if (team.images && team.images.main) {
+			const badge = await this.googleToCanvas("images/teams/" + team.images.main);
 			const y = positions.teamBlockTop + positions.teamBlockHeight * 0.1;
 			ctx.globalAlpha = 0.5;
 			if (align === "full") {
@@ -332,7 +332,7 @@ export default class PregameImage extends Canvas {
 
 		//Populate Teams
 		const Team = mongoose.model("teams");
-		const teams = await Team.find({ _id: { $in: teamIds } }, "name colours image").lean();
+		const teams = await Team.find({ _id: { $in: teamIds } }, "name colours images").lean();
 		this.teams = _.map(teamIds, id => _.find(teams, t => t._id == id));
 
 		//BG
