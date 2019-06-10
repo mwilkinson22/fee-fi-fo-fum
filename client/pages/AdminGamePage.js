@@ -5,6 +5,7 @@ import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
+import TeamImage from "../components/teams/TeamImage";
 import { Link, Switch, Route } from "react-router-dom";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../components/admin/games/AdminGamePregameSquads";
@@ -16,7 +17,7 @@ import AdminGameStats from "../components/admin/games/AdminGameStats";
 import AdminGameManOfSteel from "../components/admin/games/AdminGameManOfSteel";
 import AdminGameManOfTheMatch from "../components/admin/games/AdminGameManOfTheMatch";
 import Select from "../components/admin/fields/Select";
-import { getLastGame } from "~/helpers/gameHelper";
+import { getLastGame, getNextGame } from "~/helpers/gameHelper";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -150,6 +151,47 @@ class AdminGamePage extends Component {
 		);
 	}
 
+	getNavigation() {
+		const { gameList, teamList, teamTypes } = this.props;
+		const { game } = this.state;
+
+		//Get Next and Last links
+		const gameIds = {
+			last: getLastGame(game._id, gameList),
+			next: getNextGame(game._id, gameList)
+		};
+		const links = _.mapValues(gameIds, (id, type) => {
+			const { slug, date, _opposition } = gameList[id];
+			const team = teamList[_opposition];
+			return (
+				<Link
+					to={`/admin/game/${slug}`}
+					key={type}
+					className={`card nav-card ${type}`}
+					style={{ background: team.colours.main, color: team.colours.text }}
+				>
+					<span>{date.toString("ddd dS MMM")}</span>
+					<TeamImage team={team} />
+					<span>{type == "last" ? "🡸" : "🡺"}</span>
+				</Link>
+			);
+		});
+
+		//Get Main Link Info
+		const urlYear = game.date > new Date() ? "fixtures" : game.date.getFullYear();
+		const urlSlug = _.find(teamTypes, teamType => teamType._id === game._teamType).slug;
+
+		return (
+			<div className="navigation">
+				{links.last}
+				<Link className="nav-card card main" to={`/admin/games/${urlYear}/${urlSlug}`}>
+					Return to {urlYear === "fixtures" ? "Fixtures" : `${urlYear} Results`}
+				</Link>
+				{links.next}
+			</div>
+		);
+	}
+
 	getContent() {
 		const { game, lastGame, manOfSteelPoints } = this.state;
 		return (
@@ -220,25 +262,17 @@ class AdminGamePage extends Component {
 
 	render() {
 		const { game } = this.state;
-		const { teamTypes } = this.props;
 		if (game === undefined) {
 			return <LoadingPage />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
 		} else {
-			const urlYear = game.date > new Date() ? "fixtures" : game.date.getFullYear();
-			const urlSlug = _.find(teamTypes, teamType => teamType._id === game._teamType).slug;
 			return (
 				<div className="admin-game-page admin-page">
 					<section className="page-header">
 						<div className="container">
-							<Link
-								className="nav-card card"
-								to={`/admin/games/${urlYear}/${urlSlug}`}
-							>
-								↩ Return to game list
-							</Link>
 							<h1 key="header">{this.getPageTitle()}</h1>
+							{this.getNavigation()}
 							{this.getSubmenu()}
 						</div>
 					</section>
@@ -251,9 +285,9 @@ class AdminGamePage extends Component {
 
 function mapStateToProps({ config, games, teams }, ownProps) {
 	const { fullGames, slugMap, gameList } = games;
-	const { teamTypes } = teams;
+	const { teamTypes, teamList } = teams;
 	const { localTeam } = config;
-	return { localTeam, fullGames, teams, slugMap, gameList, teamTypes, ...ownProps };
+	return { localTeam, fullGames, teamList, slugMap, gameList, teamTypes, ...ownProps };
 }
 export default connect(
 	mapStateToProps,

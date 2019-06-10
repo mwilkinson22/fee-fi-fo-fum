@@ -20,15 +20,23 @@ export function fixDates(games) {
 	});
 }
 
-export function getLastGame(id, gameList) {
+function getAdjacentGame(id, gameList, next) {
 	const { _teamType, date } = gameList[id];
 	const list = _.chain(gameList)
 		.filter(g => g._teamType == _teamType)
-		.filter(g => g.date < date)
-		.orderBy(["date"], ["desc"])
+		.filter(g => (next ? g.date > date : g.date < date))
+		.orderBy(["date"], [next ? "asc" : "desc"])
 		.map(g => g._id)
 		.value();
 	return list.length ? list[0] : false;
+}
+
+export function getLastGame(id, gameList) {
+	return getAdjacentGame(id, gameList, false);
+}
+
+export function getNextGame(id, gameList) {
+	return getAdjacentGame(id, gameList, true);
 }
 
 export function convertTeamToSelect(game, teamList, singleTeam = false, includeNone = false) {

@@ -518,77 +518,142 @@
 		}
 	}
 }
-
-.admin-stats-page {
-	.stat-tables {
-		margin: 0 10pt;
-		.stat-table-wrapper {
-			margin-bottom: 14pt;
-			thead th {
-				text-align: center;
+.admin-game-page {
+	.navigation {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 10pt;
+		.nav-card {
+			display: flex;
+			align-items: center;
+			padding: 6pt 10pt;
+			justify-content: center;
+			img {
+				max-height: 24pt;
+				margin: 0 4pt;
 			}
-			tbody {
-				th {
-					text-align: left;
-					padding-left: 4pt;
-					padding-right: 8pt;
+			&.next,
+			&.last {
+				white-space: nowrap;
+			}
+			&.next {
+				img {
+					margin-left: 8pt;
 				}
-				input {
-					width: 50pt;
-					border-radius: 4pt;
-					text-align: center;
-					border: solid thin #999;
-					&.error {
-						border: solid 1pt red;
-					}
-					padding: 2pt;
-					&[type="number"]::-webkit-inner-spin-button,
-					&[type="number"]::-webkit-outer-spin-button {
-						opacity: 1;
-					}
+			}
+			&.last {
+				flex-direction: row-reverse;
+				img {
+					margin-right: 8pt;
+				}
+			}
+		}
+		@media #{$desktop-only} {
+			.nav-card {
+				width: auto;
+				margin: 0;
+				flex-grow: 1;
+				&.main {
+					flex-grow: 10;
+					margin: 0 4pt;
+				}
+			}
+		}
+		@media #{$mobile-and-tablet} {
+			flex-direction: column;
+			.nav-card {
+				margin: 4pt 0;
+				&.main {
+					order: 4;
 				}
 			}
 		}
 	}
-	.admin-game-stat-crawler {
-		.player-rows-wrapper {
-			display: grid;
+	.admin-stats-page {
+		.stat-tables {
+			margin: 0 10pt;
 
-			grid-template-columns: 1fr;
-			@media #{$desktop-and-tablet} {
-				grid-template-columns: repeat(2, 1fr);
-			}
+			.stat-table-wrapper {
+				margin-bottom: 14pt;
 
-			.player-rows {
-				display: grid;
-				grid-template-columns: max-content max-content 1fr;
-				.name,
-				.match {
-					padding: 2pt 8pt;
-				}
-				.name {
-					font-weight: 600;
-				}
-				.match-type {
-					width: 10pt;
-					height: 100%;
-					display: block;
-					background: #900;
-					&.exact {
-						background: #518c56;
-					}
-					&.partial {
-						background: #e68d39;
-					}
-				}
-				@media #{$mobile-only} {
-					grid-template-columns: max-content 1fr;
+				thead th {
 					text-align: center;
-					.match-type {
-						grid-row-end: span 2;
+				}
+
+				tbody {
+					th {
+						text-align: left;
+						padding-left: 4pt;
+						padding-right: 8pt;
 					}
-					.match:not(:last-child) {
-						border-bottom: solid thin #ddd;
+
+					input {
+						width: 50pt;
+						border-radius: 4pt;
+						text-align: center;
+						border: solid thin #999;
+
+						&.error {
+							border: solid 1pt red;
+						}
+
+						padding: 2pt;
+
+						&[type="number"]::-webkit-inner-spin-button,
+						&[type="number"]::-webkit-outer-spin-button {
+							opacity: 1;
+						}
+					}
+				}
+			}
+		}
+
+		.admin-game-stat-crawler {
+			.player-rows-wrapper {
+				display: grid;
+
+				grid-template-columns: 1fr;
+				@media #{$desktop-and-tablet} {
+					grid-template-columns: repeat(2, 1fr);
+				}
+
+				.player-rows {
+					display: grid;
+					grid-template-columns: max-content max-content 1fr;
+
+					.name,
+					.match {
+						padding: 2pt 8pt;
+					}
+
+					.name {
+						font-weight: 600;
+					}
+
+					.match-type {
+						width: 10pt;
+						height: 100%;
+						display: block;
+						background: #900;
+
+						&.exact {
+							background: #518c56;
+						}
+
+						&.partial {
+							background: #e68d39;
+						}
+					}
+
+					@media #{$mobile-only} {
+						grid-template-columns: max-content 1fr;
+						text-align: center;
+						.match-type {
+							grid-row-end: span 2;
+						}
+						.match:not(:last-child) {
+							border-bottom: solid thin #ddd;
+						}
 					}
 				}
 			}
