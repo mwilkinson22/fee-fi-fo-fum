@@ -127,7 +127,9 @@ async function getUpdatedGame(id, res) {
 
 //Getters
 export async function getList(req, res) {
-	const games = await Game.find({}, "date _teamType slug _competition _opposition").lean();
+	const games = await Game.find({})
+		.forList()
+		.lean();
 
 	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
 	res.send({ gameList: list, slugMap });
@@ -274,7 +276,7 @@ export async function handleEvent(req, res) {
 	}
 
 	//If the event is valid
-	const game = await validateGame(_id, res, Game.findById(_id).squadImage());
+	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 	if (game) {
 		const { postTweet, tweet, replyTweet } = req.body;
 
@@ -523,7 +525,7 @@ async function generateSquadImage(game, forTwitter) {
 export async function fetchSquadImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await validateGame(_id, res, Game.findById(_id).squadImage());
+	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 
 	if (game) {
 		const image = await generateSquadImage(game, false);
@@ -534,7 +536,7 @@ export async function fetchSquadImage(req, res) {
 export async function postSquadImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await validateGame(_id, res, Game.findById(_id).squadImage());
+	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 
 	if (game) {
 		const image = await generateSquadImage(game, true);
@@ -567,7 +569,7 @@ export async function fetchEventImage(req, res) {
 	if (!gameEvents[event]) {
 		res.send({});
 	} else {
-		const game = await Game.findById(_id).squadImage();
+		const game = await Game.findById(_id).gameDayImage();
 		if (gameEvents[event].isPlayerEvent) {
 			const image = await generatePlayerEventImage(player, event, game);
 			const output = await image.render(false);
