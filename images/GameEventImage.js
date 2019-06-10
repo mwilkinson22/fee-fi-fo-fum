@@ -34,7 +34,7 @@ export default class GameEventImage extends Canvas {
 		this.colours.lightClaret = "#a53552";
 
 		//Variables
-		this.game = game;
+		this.game = JSON.parse(JSON.stringify(game));
 		this.event = event;
 	}
 
