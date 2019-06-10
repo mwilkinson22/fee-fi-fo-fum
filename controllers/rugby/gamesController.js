@@ -282,12 +282,12 @@ export async function handleEvent(req, res) {
 
 		//Create Event Object
 		const eventObject = {
-			event,
-			_player: player
+			event
 		};
 
 		//Update Database for Player Events
 		if (gameEvents[event].isPlayerEvent) {
+			eventObject._player = player;
 			await Game.findOneAndUpdate(
 				{ _id },
 				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
