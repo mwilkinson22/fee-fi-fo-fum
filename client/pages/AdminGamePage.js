@@ -161,7 +161,11 @@ class AdminGamePage extends Component {
 			next: getNextGame(game._id, gameList)
 		};
 		const links = _.mapValues(gameIds, (id, type) => {
-			const { slug, date, _opposition } = gameList[id];
+			const game = gameList[id];
+			if (!game) {
+				return null;
+			}
+			const { slug, date, _opposition } = game;
 			const team = teamList[_opposition];
 			return (
 				<Link
