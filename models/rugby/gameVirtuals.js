@@ -16,7 +16,8 @@ function getInstance(doc) {
 			"specialRounds",
 			"sponsor",
 			"manOfSteelPoints",
-			"scoreOnly"
+			"scoreOnly",
+			"usesPregameSquads"
 		])
 		.value();
 
@@ -117,7 +118,9 @@ export default gameSchema => {
 
 	gameSchema.virtual("status").get(function() {
 		const { pregameSquads, playerStats, squadsAnnounced } = this;
-		if (!pregameSquads || pregameSquads.length < 2) {
+		const { usesPregameSquads } = getInstance(this);
+
+		if (usesPregameSquads && (!pregameSquads || pregameSquads.length < 2)) {
 			return 0;
 		} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2 || !squadsAnnounced) {
 			return 1;

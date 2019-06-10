@@ -28,7 +28,12 @@ class AdminGameSquads extends Component {
 			newState.squads = _.chain(teams)
 				.map(id => {
 					const fullSquad = game.eligiblePlayers[id];
-					const pregameSquad = _.find(game.pregameSquads, s => s._team === id).squad;
+					let availablePlayers;
+					if (game._competition.instance.usesPregameSquads) {
+						availablePlayers = _.find(game.pregameSquads, s => s._team === id).squad;
+					} else {
+						availablePlayers = _.map(fullSquad, ({ _player }) => _player._id);
+					}
 
 					const filteredSquad = _.map(fullSquad, squadMember => {
 						let name = "";
@@ -52,7 +57,7 @@ class AdminGameSquads extends Component {
 							mainPosition: squadMember._player.playerDetails.mainPosition,
 							otherPositions: squadMember._player.playerDetails.otherPositions,
 							inPregame: Boolean(
-								_.find(pregameSquad, p => p === squadMember._player._id)
+								_.find(availablePlayers, p => p == squadMember._player._id)
 							),
 							position
 						};

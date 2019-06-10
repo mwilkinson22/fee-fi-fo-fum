@@ -65,6 +65,20 @@ class SquadSelector extends Component {
 		);
 	}
 
+	renderExtraPlayerSelector(options) {
+		if (!options.length) {
+			return null;
+		}
+		return (
+			<select onChange={ev => this.addToPregame(ev.target.value)} value={""}>
+				<option disabled={true} value="">
+					Add Extra Players
+				</option>
+				{options}
+			</select>
+		);
+	}
+
 	render() {
 		const { squad, teamColours } = this.state;
 
@@ -162,15 +176,7 @@ class SquadSelector extends Component {
 									<h6>Available Players</h6>
 									{this.renderNextPosition(currentSquad)}
 									{availableOptions}
-									<select
-										onChange={ev => this.addToPregame(ev.target.value)}
-										value={""}
-									>
-										<option disabled={true} value="">
-											Add Extra Players
-										</option>
-										{dropdownOptions}
-									</select>
+									{this.renderExtraPlayerSelector(dropdownOptions)}
 								</div>
 								<div className="buttons">
 									<button

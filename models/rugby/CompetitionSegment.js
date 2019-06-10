@@ -53,6 +53,7 @@ const competitionSegmentSchema = new Schema(
 						adjustment: Number
 					}
 				],
+				usesPregameSquads: { type: Boolean, default: true },
 				manOfSteelPoints: { type: Boolean, default: false },
 				scoreOnly: { type: Boolean, default: true }
 			}

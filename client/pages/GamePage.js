@@ -157,7 +157,7 @@ class GamePage extends Component {
 
 	generatePregameList() {
 		const { game, previousGame } = this.state;
-		if (game.squadsAnnounced) {
+		if (!game._competition.instance.usesPregameSquads || game.squadsAnnounced) {
 			return null;
 		} else {
 			return <PregameSquadList game={game} previousGame={previousGame} />;

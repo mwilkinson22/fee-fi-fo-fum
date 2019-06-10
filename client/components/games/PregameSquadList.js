@@ -151,6 +151,7 @@ class PregameSquadList extends Component {
 		const { pregameSquads } = this.state.game;
 		let content;
 		let squadsFound = false;
+
 		if (pregameSquads.length) {
 			content = this.renderSquads();
 			squadsFound = true;

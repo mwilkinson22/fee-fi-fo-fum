@@ -100,16 +100,23 @@ class AdminGamePage extends Component {
 	getSubmenu() {
 		const { pathname } = this.props.location;
 		const { manOfSteelPoints, game } = this.state;
-		const { status, slug, pregameSquads, playerStats } = game;
+		const { status, slug, pregameSquads, playerStats, _competition } = game;
+		const { usesPregameSquads } = _competition.instance;
 		const groups = ["Pre-game", "Match Day", "Post-game"];
 		const submenuItems = [
 			{ label: "Overview", value: "", group: 0 },
-			{ label: "Pregame Squad", value: "pregame", group: 0 },
 			{ label: "Photos", value: "photos", group: 0 }
 		];
 
-		if (pregameSquads.length) {
-			submenuItems.push({ label: "Pregame Squad Image", value: "pregame-image", group: 0 });
+		if (usesPregameSquads) {
+			submenuItems.push({ label: "Pregame Squad", value: "pregame", group: 0 });
+			if (pregameSquads.length) {
+				submenuItems.push({
+					label: "Pregame Squad Image",
+					value: "pregame-image",
+					group: 0
+				});
+			}
 		}
 
 		if (status >= 1) {
