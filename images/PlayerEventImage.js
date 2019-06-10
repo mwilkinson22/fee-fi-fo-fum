@@ -31,6 +31,10 @@ export default class PlayerEventImage extends Canvas {
 				family: "Montserrat"
 			},
 			score: {
+				size: Math.round(cHeight * 0.08),
+				family: "Montserrat"
+			},
+			hashtag: {
 				size: Math.round(cHeight * 0.075),
 				family: "Montserrat"
 			}
@@ -243,13 +247,44 @@ export default class PlayerEventImage extends Canvas {
 	}
 
 	async drawGameEvent(event) {
-		const { ctx, cWidth, cHeight, positions } = this;
+		const { ctx, cWidth, cHeight, positions, game, textStyles } = this;
 		let rows = [];
 		let size = Math.round(cHeight * 0.18);
+		let height = Math.round(cHeight * 0.35);
 		ctx.fillStyle = this.colours.gold;
 		ctx.shadowColor = "black";
 		ctx.shadowOffsetX = 5;
 		ctx.shadowOffsetY = 5;
+
+		//Add Golden Point for extra time
+		if (game.extraTime && ["T", "PK", "DG", "CN", "HT"].indexOf(event) > -1) {
+			const hashtagSize = textStyles.hashtag.size;
+			const font = textStyles.hashtag.string;
+			const hashtagRows = [
+				[
+					{
+						text: "#",
+						colour: "#FFF",
+						font
+					},
+					{
+						text: "GOLDEN",
+						colour: this.colours.gold,
+						font
+					},
+					{
+						text: "POINT",
+						colour: "#FFF",
+						font
+					}
+				]
+			];
+			this.textBuilder(hashtagRows, cWidth - positions.rightPanelWidth / 2, cHeight * 0.485);
+
+			size = size - hashtagSize / 2;
+			height = height - hashtagSize / 2;
+		}
+
 		switch (event) {
 			case "T":
 				rows.push([
@@ -316,6 +351,26 @@ export default class PlayerEventImage extends Canvas {
 					]
 				);
 				break;
+			case "FT":
+				size = size * 1.2;
+				rows.push([
+					{
+						text: "40",
+						colour: this.colours.gold,
+						size
+					},
+					{
+						text: "/",
+						colour: "#FFF",
+						size
+					},
+					{
+						text: "20",
+						colour: this.colours.gold,
+						size: size
+					}
+				]);
+				break;
 			case "YC":
 				rows.push([
 					{
@@ -375,7 +430,7 @@ export default class PlayerEventImage extends Canvas {
 			});
 		});
 
-		this.textBuilder(rows, cWidth - positions.rightPanelWidth / 2, Math.round(cHeight * 0.35));
+		this.textBuilder(rows, cWidth - positions.rightPanelWidth / 2, height);
 
 		if (event === "fan_motm") {
 			const rotation = -0.2;

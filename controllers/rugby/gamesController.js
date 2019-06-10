@@ -274,7 +274,7 @@ export async function handleEvent(req, res) {
 	}
 
 	//If the event is valid
-	const game = await validateGame(_id, res);
+	const game = await validateGame(_id, res, Game.findById(_id).squadImage());
 	if (game) {
 		const { postTweet, tweet, replyTweet } = req.body;
 
@@ -293,6 +293,9 @@ export async function handleEvent(req, res) {
 					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
 				}
 			);
+		} else if (event == "extraTime") {
+			game.extraTime = true;
+			await game.save();
 		}
 
 		//Post Tweet
@@ -302,13 +305,11 @@ export async function handleEvent(req, res) {
 			let media_ids = null;
 			if (event !== "none") {
 				if (gameEvents[event].isPlayerEvent) {
-					const gameForImage = await Game.findById(_id).squadImage();
-
 					//Check for hat-trick
 					let imageEvent = event;
 					if (event === "T") {
 						const { stats } = _.find(
-							gameForImage._doc.playerStats,
+							game._doc.playerStats,
 							p => p._player._id == player
 						);
 						const { T } = stats;
@@ -317,11 +318,7 @@ export async function handleEvent(req, res) {
 						}
 					}
 
-					const imageModel = await generatePlayerEventImage(
-						player,
-						imageEvent,
-						gameForImage
-					);
+					const imageModel = await generatePlayerEventImage(player, imageEvent, game);
 					image = await imageModel.render(true);
 				} else {
 					const imageModel = await new GameEventImage(game, event);
@@ -384,6 +381,10 @@ export async function deleteEvent(req, res) {
 						arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(_player) }]
 					}
 				);
+			}
+
+			if (event == "extraTime") {
+				game.extraTime = false;
 			}
 
 			//Remove event from database

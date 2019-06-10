@@ -36,6 +36,7 @@ const gameSchema = new Schema(
 		_video_referee: { type: Schema.Types.ObjectId, ref: "people", default: null },
 		attendance: { type: Number, default: null },
 		tv: { type: String, enum: [false, "bbc", "sky"], default: null },
+		extraTime: { type: Boolean, default: false },
 		externalId: { type: Number, default: null },
 		externalSync: { type: Boolean, default: false },
 		slug: { type: String, unique: true, required: true },
@@ -196,7 +197,9 @@ gameSchema.query.squadImage = function() {
 		round: 1,
 		customTitle: 1,
 		playerStats: 1,
-		squadsAnnounced: 1
+		squadsAnnounced: 1,
+		extraTime: 1,
+		events: 1
 	})
 		.populate({
 			path: "playerStats._player",
@@ -319,7 +322,7 @@ gameSchema.virtual("images.logo").get(function() {
 });
 
 gameSchema.virtual("title").get(function() {
-	const { round, customTitle, _competition } = this;
+	const { round, customTitle } = this;
 	if (customTitle) {
 		return customTitle;
 	} else {

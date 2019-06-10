@@ -121,6 +121,7 @@ class AdminGameEvent extends Component {
 					{ label: "Conversion", value: "CN" },
 					{ label: "Penalty Goal", value: "PK" },
 					{ label: "Drop Goal", value: "DG" },
+					{ label: "40/20", value: "FT" },
 					{ label: "Yellow Card", value: "YC" },
 					{ label: "Red Card", value: "RC" },
 					{ label: "Man of the Match", value: "motm" },
@@ -132,6 +133,7 @@ class AdminGameEvent extends Component {
 				options: [
 					{ label: "Kick Off", value: "kickOff" },
 					{ label: "Half Time", value: "halfTime" },
+					{ label: "Extra Time", value: "extraTime" },
 					{ label: "Full Time", value: "fullTime" }
 				]
 			}

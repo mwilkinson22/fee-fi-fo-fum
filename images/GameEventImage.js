@@ -117,6 +117,9 @@ export default class GameEventImage extends Canvas {
 			case "fullTime":
 				text = ["FULL", " TIME"];
 				break;
+			case "extraTime":
+				text = ["EXTRA", " TIME"];
+				break;
 		}
 		ctx.font = textStyles.event.string;
 		ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.005);
