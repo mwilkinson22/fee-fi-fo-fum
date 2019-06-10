@@ -103,7 +103,10 @@ class AdminGameOverview extends Component {
 				.nullable(),
 			attendance: Yup.number()
 				.label("Attendance")
-				.nullable()
+				.nullable(),
+			extraTime: Yup.boolean()
+				.required()
+				.label("Game went to Extra Time")
 		});
 	}
 
@@ -146,7 +149,8 @@ class AdminGameOverview extends Component {
 			tv: game.tv || "",
 			_referee,
 			_video_referee,
-			attendance: game.attendance || ""
+			attendance: game.attendance || "",
+			extraTime: game.extraTime || false
 		};
 	}
 
@@ -261,6 +265,7 @@ class AdminGameOverview extends Component {
 
 	renderFields(formikProps) {
 		const validationSchema = this.getValidationSchema();
+		const { game } = this.state;
 
 		//Options
 		const {
@@ -288,8 +293,7 @@ class AdminGameOverview extends Component {
 		];
 		const venueFields = [
 			{ name: "isAway", type: "Radio", options: awayOptions },
-			{ name: "_ground", type: "Select", options: groundList },
-			{ name: "attendance", type: "number" }
+			{ name: "_ground", type: "Select", options: groundList }
 		];
 		const mediaFields = [
 			{ name: "customTitle", type: "text", placeholder: "Auto-generated if left blank" },
@@ -300,6 +304,18 @@ class AdminGameOverview extends Component {
 			{ name: "_referee", type: "Select", options: referees, isClearable: true },
 			{ name: "_video_referee", type: "Select", options: referees, isClearable: true }
 		];
+		const postGameFields = [
+			{ name: "attendance", type: "number" },
+			{ name: "extraTime", type: "Boolean" }
+		];
+
+		let postGameSection;
+		if (game.status > 1) {
+			postGameSection = [
+				<h6 key="header">Post-Match</h6>,
+				processFormFields(postGameFields, validationSchema)
+			];
+		}
 		return (
 			<Form>
 				<div className="form-card grid">
@@ -311,6 +327,7 @@ class AdminGameOverview extends Component {
 					{processFormFields(mediaFields, validationSchema)}
 					<h6>Referees</h6>
 					{processFormFields(refereeFields, validationSchema)}
+					{postGameSection}
 
 					<div className="buttons">
 						<button type="clear">Clear</button>
