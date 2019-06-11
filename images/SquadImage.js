@@ -85,7 +85,15 @@ export default class SquadImage extends Canvas {
 		//Variables
 		this.game = game;
 		this.options = options;
-		this.extraInterchanges = _.filter(game.playerStats, s => s._team == localTeam).length > 17;
+		this.teamBadges = {
+			[localTeam]: {},
+			[game._opposition._id]: {}
+		};
+		this.extraInterchanges =
+			_.filter(
+				game.playerStats,
+				s => s._team == (options.showOpposition ? game._opposition._id : localTeam)
+			).length > 17;
 	}
 
 	processPlayerPositions([x, y]) {
@@ -93,6 +101,33 @@ export default class SquadImage extends Canvas {
 		const newX = sideBarWidth + dividerWidth * 0.75 + Math.round(mainPanelWidth * x);
 		const newY = Math.round(this.cHeight * y);
 		return [newX, newY];
+	}
+
+	async loadTeamImages() {
+		const { game, options } = this;
+		//Get Team Badges
+		const Team = mongoose.model("teams");
+		const localTeamObject = await Team.findById(localTeam, "images").lean();
+
+		this.teamBadges[localTeam].dark = await this.googleToCanvas(
+			`images/teams/${localTeamObject.images.dark || localTeamObject.images.main}`
+		);
+		this.teamBadges[game._opposition._id].dark = await this.googleToCanvas(
+			`images/teams/${game._opposition.images.dark || game._opposition.images.main}`
+		);
+
+		if (options.showOpposition) {
+			const { _id, images } = game._opposition;
+			let image;
+			if (!images.light && !images.dark) {
+				//If we don't have light/dark variants, we've already loaded the main image and can copy it
+				image = this.teamBadges[_id].dark;
+			} else {
+				//Otherwise, load either the light or main one
+				image = await this.googleToCanvas(`images/teams/${images.light || images.main}`);
+			}
+			this.teamBadges[_id].light = image;
+		}
 	}
 
 	async drawBackground() {
@@ -104,7 +139,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const { ctx, game, textStyles, cWidth, cHeight, localTeamObject, extraInterchanges } = this;
+		const { ctx, game, textStyles, cWidth, cHeight, teamBadges, extraInterchanges } = this;
 		const {
 			bannerY,
 			sideBarWidth,
@@ -180,15 +215,7 @@ export default class SquadImage extends Canvas {
 
 		//Team Badges (limit to 17-man squads)
 		if (!extraInterchanges) {
-			const oppositionImages = game._opposition.images;
-			const localImages = localTeamObject.images;
-			const oppositionBadge = await this.googleToCanvas(
-				"images/teams/" + (oppositionImages.dark || oppositionImages.main)
-			);
-			const localBadge = await this.googleToCanvas(
-				"images/teams/" + (localImages.dark || localImages.main)
-			);
-			let badges = [localBadge, oppositionBadge];
+			let badges = [teamBadges[localTeam].dark, teamBadges[game._opposition._id].dark];
 			if (game.isAway) {
 				badges = badges.reverse();
 			}
@@ -210,16 +237,17 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSquad() {
-		const { cHeight, positions } = this;
+		const { cHeight, positions, options, game } = this;
 		const { eligiblePlayers, playerStats } = this.game;
 
 		//Create Squad Object
+		const filterTeam = options.showOpposition ? game._opposition._id : localTeam;
 		this.squad = _.chain(playerStats)
-			.filter(s => s._team == localTeam)
+			.filter(s => s._team == filterTeam)
 			.sortBy("position")
 			.map(({ _player }) => {
 				const { name, nickname, displayNicknameInCanvases, _id } = _player;
-				const squadEntry = _.find(eligiblePlayers[localTeam], m => m._player._id == _id);
+				const squadEntry = _.find(eligiblePlayers[filterTeam], m => m._player._id == _id);
 				return {
 					displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
 					number: squadEntry && squadEntry.number ? squadEntry.number : "",
@@ -286,7 +314,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawStartingSquadMember(player, position) {
-		const { ctx, positions, textStyles, colours } = this;
+		const { ctx, positions, textStyles, colours, options, teamBadges, game } = this;
 		const {
 			playerHeight,
 			playerWidth,
@@ -299,16 +327,28 @@ export default class SquadImage extends Canvas {
 		const { image, displayName, number } = player;
 
 		//Player Image
-		const playerImage = await this.googleToCanvas(`images/people/full/${image || "blank.png"}`);
-		const sx = 0;
-		const sy = 0;
-		const sw = playerImage.width;
-		const sh = playerImage.width / (playerWidth / playerHeight);
 		const dx = x - playerWidth / 2;
 		const dy = y - playerHeight / 2;
-		ctx.shadowBlur = 15;
-		ctx.shadowColor = "black";
-		ctx.drawImage(playerImage, sx, sy, sw, sh, dx, dy, playerWidth, playerHeight);
+		if (options.showOpposition) {
+			this.contain(
+				teamBadges[game._opposition._id].light,
+				dx,
+				dy + playerNameBarHeight / 2,
+				playerWidth,
+				playerHeight - playerNameBarHeight
+			);
+		} else {
+			const playerImage = await this.googleToCanvas(
+				`images/people/full/${image || "blank.png"}`
+			);
+			const sx = 0;
+			const sy = 0;
+			const sw = playerImage.width;
+			const sh = playerImage.width / (playerWidth / playerHeight);
+			ctx.shadowBlur = 15;
+			ctx.shadowColor = "black";
+			ctx.drawImage(playerImage, sx, sy, sw, sh, dx, dy, playerWidth, playerHeight);
+		}
 
 		//Get Box Sizes
 		ctx.font = textStyles.playerNameBar.string;
@@ -338,7 +378,11 @@ export default class SquadImage extends Canvas {
 		this.resetShadow();
 
 		//Draw Number Box
-		ctx.fillStyle = colours.claret;
+		if (options.showOpposition) {
+			ctx.fillStyle = game._opposition.colours.text;
+		} else {
+			ctx.fillStyle = colours.claret;
+		}
 		this.fillRoundedRect(
 			numberBoxX,
 			boxY,
@@ -352,7 +396,11 @@ export default class SquadImage extends Canvas {
 		);
 
 		//Draw Name box
-		ctx.fillStyle = "#F4F4F4";
+		if (options.showOpposition) {
+			ctx.fillStyle = game._opposition.colours.main;
+		} else {
+			ctx.fillStyle = "#F4F4F4";
+		}
 		this.fillRoundedRect(
 			nameBoxX,
 			boxY,
@@ -366,12 +414,20 @@ export default class SquadImage extends Canvas {
 		);
 
 		//Add Number
+		if (options.showOpposition) {
+			ctx.fillStyle = game._opposition.colours.main;
+		} else {
+			ctx.fillStyle = colours.gold;
+		}
 		ctx.textAlign = "center";
-		ctx.fillStyle = colours.gold;
 		ctx.fillText(number, numberBoxX + playerNameBarNumberWidth / 2, textY);
 
 		//Add Name
-		ctx.fillStyle = colours.claret;
+		if (options.showOpposition) {
+			ctx.fillStyle = game._opposition.colours.text;
+		} else {
+			ctx.fillStyle = colours.claret;
+		}
 		ctx.fillText(displayName, nameBoxX + nameBoxWidth / 2, textY);
 	}
 
@@ -406,8 +462,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async render(forTwitter = false) {
-		const Team = mongoose.model("teams");
-		this.localTeamObject = await Team.findById(localTeam, "images").lean();
+		await this.loadTeamImages();
 		await this.drawBackground();
 		await this.drawSidebar();
 		await this.drawSquad();

@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 
 //Components
 import LoadingPage from "../../LoadingPage";
+import Select from "../fields/Select";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
@@ -24,13 +25,17 @@ class AdminGamePregameImage extends Component {
 		}
 
 		const { hashtags } = game;
+
+		//Get Initial Tweets
+		const tweet = `Here is your Giants squad for ${
+			Number(game.date.toString("H")) < 6 ? "today" : "tonight"
+		}'s game against ${game._opposition.name.short}!\n\n${
+			hashtags ? hashtags.map(t => `#${t}`).join(" ") : ""
+		}`;
+
 		this.state = {
 			game,
-			tweet: `Here is your Giants squad for ${
-				Number(game.date.toString("H")) < 6 ? "today" : "tonight"
-			}'s game against ${game._opposition.name.short}!\n\n${
-				hashtags ? hashtags.map(t => `#${t}`).join(" ") : ""
-			}`
+			tweet
 		};
 	}
 
@@ -47,6 +52,12 @@ class AdminGamePregameImage extends Component {
 
 		if (!prevState.teams) {
 			newState.teams = _.pick(fullTeams, [localTeam, game._opposition._id]);
+			newState.teamOptions = _.chain(newState.teams)
+				.filter(t => _.filter(game.playerStats, p => p._team == t._id).length)
+				.sortBy(t => t._id != localTeam)
+				.map(t => ({ value: t._id, label: t.name.short }))
+				.value();
+			newState.selectedTeam = newState.teamOptions[0];
 		}
 
 		return newState;
@@ -64,7 +75,7 @@ class AdminGamePregameImage extends Component {
 	}
 
 	renderTweetComposer() {
-		const { teams, tweet } = this.state;
+		const { teams, tweet, selectedTeam } = this.state;
 		const { game, localTeam } = this.props;
 		const localSquad = _.find(
 			teams[localTeam].squads,
@@ -92,20 +103,22 @@ class AdminGamePregameImage extends Component {
 	}
 
 	async generatePreview() {
+		const { game, getSquadImage, localTeam } = this.props;
 		await this.setState({ previewImage: false });
-		const { game, getSquadImage } = this.props;
-		const image = await getSquadImage(game._id);
+		const image = await getSquadImage(game._id, this.state.selectedTeam.value != localTeam);
 		await this.setState({ previewImage: image });
 	}
 
 	async postTweet() {
+		const { game, tweetSquadImage, localTeam } = this.props;
 		this.setState({ tweetSent: true });
-		const { game, tweetSquadImage } = this.props;
-		tweetSquadImage(game._id, _.pick(this.state, ["tweet", "replyTweet"]));
+		const options = _.pick(this.state, ["tweet", "replyTweet"]);
+		options.showOpposition = this.state.selectedTeam.value != localTeam;
+		tweetSquadImage(game._id, options);
 	}
 
 	render() {
-		const { teams } = this.state;
+		const { teams, teamOptions } = this.state;
 		const { game } = this.props;
 
 		if (game === undefined || teams === undefined) {
@@ -115,6 +128,16 @@ class AdminGamePregameImage extends Component {
 		return (
 			<div className="container pregame-image-loader">
 				<div className="form-card grid">
+					<label>Team</label>
+					<Select
+						options={teamOptions}
+						onChange={selectedTeam =>
+							this.setState({
+								selectedTeam
+							})
+						}
+						defaultValue={this.state.selectedTeam}
+					/>
 					<label>Tweet</label>
 					{this.renderTweetComposer()}
 					<label>In Reply To</label>

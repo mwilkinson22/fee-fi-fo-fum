@@ -515,20 +515,21 @@ export async function postPregameImage(req, res) {
 	}
 }
 
-async function generateSquadImage(game, forTwitter) {
+async function generateSquadImage(game, showOpposition, forTwitter) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
-	const imageClass = new SquadImage(gameWithSquads);
+	const imageClass = new SquadImage(gameWithSquads, { showOpposition });
 	const image = await imageClass.render(forTwitter);
 	return image;
 }
 
 export async function fetchSquadImage(req, res) {
 	const { _id } = req.params;
+	const { showOpposition } = req.query;
 
 	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 
 	if (game) {
-		const image = await generateSquadImage(game, false);
+		const image = await generateSquadImage(game, showOpposition === "true", false);
 		res.send(image);
 	}
 }
@@ -539,7 +540,7 @@ export async function postSquadImage(req, res) {
 	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 
 	if (game) {
-		const image = await generateSquadImage(game, true);
+		const image = await generateSquadImage(game, req.body.showOpposition, true);
 		const upload = await twitter.post("media/upload", {
 			media_data: image
 		});
