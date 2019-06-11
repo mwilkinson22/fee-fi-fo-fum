@@ -1,6 +1,7 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -157,12 +158,13 @@ class AdminGameOverview extends Component {
 		};
 	}
 
-	onSubmit(values) {
+	async onSubmit(values) {
 		const { addGame, updateGameBasics, game } = this.props;
 		if (game) {
 			updateGameBasics(game._id, values);
 		} else {
-			addGame(values);
+			const newGame = await addGame(values);
+			this.setState({ redirect: `/admin/game/${newGame.slug}` });
 		}
 	}
 
@@ -346,6 +348,11 @@ class AdminGameOverview extends Component {
 	}
 
 	render() {
+		const { redirect } = this.state;
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		}
+
 		const requireToRender = ["competitionSegmentList", "groundList", "peopleList"];
 		let stopRender = false;
 		for (const prop of requireToRender) {

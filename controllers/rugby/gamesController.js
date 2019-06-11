@@ -119,20 +119,30 @@ async function addEligiblePlayers(games) {
 }
 
 async function getUpdatedGame(id, res) {
-	//To be called after post/put methods
+	//Get Full Game
 	let game = await Game.findById(id).fullGame();
 	game = await addEligiblePlayers([game]);
-	res.send(_.keyBy(game, "_id"));
+	const fullGames = _.keyBy(game, "_id");
+
+	//Get Game For List
+	const list = await processList();
+
+	res.send({ id, fullGames, ...list });
 }
 
-//Getters
-export async function getList(req, res) {
+async function processList() {
 	const games = await Game.find({})
 		.forList()
 		.lean();
 
 	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
-	res.send({ gameList: list, slugMap });
+	return { gameList: list, slugMap };
+}
+
+//Getters
+export async function getList(req, res) {
+	const list = await processList();
+	res.send(list);
 }
 
 export async function getGames(req, res) {
