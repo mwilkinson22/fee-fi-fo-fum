@@ -122,13 +122,18 @@ const gameSchema = new Schema(
 getGameVirtuals(gameSchema);
 
 //Methods
-gameSchema.statics.generateSlug = async function(opposition, date) {
-	const Team = mongoose.models("teams");
-	const team = await Team.findById(opposition);
-	const coreSlugText = (team.name.short + " " + date)
-		.replace(/\s/g, "-")
-		.replace(/[^A-Za-z-]/gi, "")
-		.toLowerCase();
+gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType }) {
+	//Get Team
+	const Team = mongoose.model("teams");
+	const team = await Team.findById(_opposition, "slug");
+
+	//Get Team Type
+	const TeamType = mongoose.model("teamTypes");
+	const teamType = await TeamType.findById(_teamType, "slug");
+
+	const coreSlugText = `${team.slug}${
+		teamType.slug == "first" ? "-" : `-${teamType.slug}-`
+	}${date.toString("yyyy-MM-dd")}`;
 
 	let slugExists = await this.findOne({
 		slug: coreSlugText

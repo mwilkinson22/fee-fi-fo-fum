@@ -118,16 +118,24 @@ export default gameSchema => {
 
 	gameSchema.virtual("status").get(function() {
 		const { pregameSquads, playerStats, squadsAnnounced } = this;
-		const { usesPregameSquads } = getInstance(this);
+		const instance = getInstance(this);
+		if (instance) {
+			const { usesPregameSquads } = instance;
 
-		if (usesPregameSquads && (!pregameSquads || pregameSquads.length < 2)) {
-			return 0;
-		} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2 || !squadsAnnounced) {
-			return 1;
-		} else if (!_.sumBy(playerStats, "stats.TK")) {
-			return 2;
+			if (usesPregameSquads && (!pregameSquads || pregameSquads.length < 2)) {
+				return 0;
+			} else if (
+				Object.keys(_.groupBy(playerStats, "_team")).length < 2 ||
+				!squadsAnnounced
+			) {
+				return 1;
+			} else if (!_.sumBy(playerStats, "stats.TK")) {
+				return 2;
+			} else {
+				return 3;
+			}
 		} else {
-			return 3;
+			return null;
 		}
 	});
 };

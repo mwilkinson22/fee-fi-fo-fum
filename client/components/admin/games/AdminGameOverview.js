@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
-import { updateGameBasics } from "../../../actions/gamesActions";
+import { addGame, updateGameBasics } from "../../../actions/gamesActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -121,42 +121,49 @@ class AdminGameOverview extends Component {
 		} = this.getOptions();
 
 		//Get Select Values
-		const _teamType = _.filter(teamTypes, type => type.value === game._teamType);
-		const _competition = _.filter(
-			competitionSegmentList,
-			comp => comp.value === game._competition._id
-		);
-		const _opposition = _.filter(teamList, team => team.value === game._opposition._id);
-		const _ground = _.filter(groundList, ground => ground.value === game._ground._id);
-		const _referee = game._referee
-			? _.filter(referees, ref => ref.value === game._referee._id)
-			: "";
-		const _video_referee = game._video_referee
-			? _.filter(referees, ref => ref.value === game._video_referee._id)
-			: "";
+		let _teamType, _competition, _opposition, _ground, _referee, _video_referee;
+		if (game) {
+			_teamType = _.filter(teamTypes, type => type.value === game._teamType);
+			_competition = _.filter(
+				competitionSegmentList,
+				comp => comp.value === game._competition._id
+			);
+			_opposition = _.filter(teamList, team => team.value === game._opposition._id);
+			_ground = _.filter(groundList, ground => ground.value === game._ground._id);
+			_referee = game._referee
+				? _.filter(referees, ref => ref.value === game._referee._id)
+				: "";
+			_video_referee = game._video_referee
+				? _.filter(referees, ref => ref.value === game._video_referee._id)
+				: "";
+		}
 
 		return {
-			date: new Date(game.date).toString("yyyy-MM-dd"),
-			time: new Date(game.date).toString("HH:mm:ss"),
+			date: game ? new Date(game.date).toString("yyyy-MM-dd") : "",
+			time: game ? new Date(game.date).toString("HH:mm:ss") : "",
 			_teamType: _teamType ? _teamType[0] : "",
 			_competition: _competition ? _competition[0] : "",
 			_opposition: _opposition ? _opposition[0] : "",
-			round: game.round || "",
-			customTitle: game.customTitle || "",
-			customHashtags: game.customHashtags ? game.customHashtags.join(" ") : "",
-			isAway: game.isAway,
+			round: (game && game.round) || "",
+			customTitle: (game && game.customTitle) || "",
+			customHashtags: game && game.customHashtags ? game.customHashtags.join(" ") : "",
+			isAway: game ? game.isAway : false,
 			_ground: _ground ? _ground[0] : "",
-			tv: game.tv || "",
+			tv: (game && game.tv) || "",
 			_referee,
 			_video_referee,
-			attendance: game.attendance || "",
-			extraTime: game.extraTime || false
+			attendance: (game && game.attendance) || "",
+			extraTime: (game && game.extraTime) || false
 		};
 	}
 
 	onSubmit(values) {
-		const { updateGameBasics, game } = this.props;
-		updateGameBasics(game._id, values);
+		const { addGame, updateGameBasics, game } = this.props;
+		if (game) {
+			updateGameBasics(game._id, values);
+		} else {
+			addGame(values);
+		}
 	}
 
 	getOptions(formikProps) {
@@ -310,7 +317,7 @@ class AdminGameOverview extends Component {
 		];
 
 		let postGameSection;
-		if (game.status > 1) {
+		if (game && game.status > 1) {
 			postGameSection = [
 				<h6 key="header">Post-Match</h6>,
 				processFormFields(postGameFields, validationSchema)
@@ -331,7 +338,7 @@ class AdminGameOverview extends Component {
 
 					<div className="buttons">
 						<button type="clear">Clear</button>
-						<button type="submit">Submit</button>
+						<button type="submit">{game ? "Update" : "Add"} Game</button>
 					</div>
 				</div>
 			</Form>
@@ -381,6 +388,7 @@ export default connect(
 		fetchAllCompetitionSegments,
 		fetchAllGrounds,
 		fetchPeopleList,
+		addGame,
 		updateGameBasics
 	}
 )(AdminGameOverview);

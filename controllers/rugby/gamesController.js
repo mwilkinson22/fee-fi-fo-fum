@@ -38,7 +38,7 @@ async function validateGame(_id, res, promise = null) {
 
 async function processBasics(values) {
 	//Combine datetime
-	values.date += ` ${values.time}`;
+	values.date = new Date(`${values.date} ${values.time}`);
 	delete values.time;
 
 	//Pull select values
@@ -146,6 +146,15 @@ export async function getGames(req, res) {
 	games = await addEligiblePlayers(games);
 
 	res.send(_.keyBy(games, "_id"));
+}
+
+//Create New Game
+export async function addGame(req, res) {
+	const values = await processBasics(req.body);
+	values.slug = await Game.generateSlug(values);
+	const game = new Game(values);
+	await game.save();
+	await getUpdatedGame(game._id, res);
 }
 
 //Updaters

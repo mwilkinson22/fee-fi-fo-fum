@@ -5,7 +5,7 @@ import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import AdminGameCard from "../components/games/AdminGameCard";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { validateGameDate } from "../../helpers/gameHelper";
 import HelmetBuilder from "../components/HelmetBuilder";
 
@@ -181,6 +181,9 @@ class AdminGameList extends Component {
 						<div className="container">
 							<h1>{this.generatePageHeader()}</h1>
 							{this.generateTeamTypeMenu()}
+							<Link to="/admin/game/new" className="card nav-card">
+								Add New Game
+							</Link>
 							<GameFilters
 								games={games}
 								onFilterChange={activeFilters => this.setState({ activeFilters })}
