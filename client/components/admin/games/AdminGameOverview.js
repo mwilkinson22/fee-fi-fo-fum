@@ -124,32 +124,30 @@ class AdminGameOverview extends Component {
 		//Get Select Values
 		let _teamType, _competition, _opposition, _ground, _referee, _video_referee;
 		if (game) {
-			_teamType = _.filter(teamTypes, type => type.value === game._teamType);
-			_competition = _.filter(
+			_teamType = _.find(teamTypes, type => type.value == game._teamType);
+			_competition = _.find(
 				competitionSegmentList,
-				comp => comp.value === game._competition._id
+				comp => comp.value == game._competition._id
 			);
-			_opposition = _.filter(teamList, team => team.value === game._opposition._id);
-			_ground = _.filter(groundList, ground => ground.value === game._ground._id);
-			_referee = game._referee
-				? _.filter(referees, ref => ref.value === game._referee._id)
-				: "";
+			_opposition = _.find(teamList, team => team.value == game._opposition._id);
+			_ground = _.find(groundList, ground => ground.value == game._ground._id);
+			_referee = game._referee ? _.find(referees, ref => ref.value == game._referee._id) : "";
 			_video_referee = game._video_referee
-				? _.filter(referees, ref => ref.value === game._video_referee._id)
+				? _.find(referees, ref => ref.value == game._video_referee._id)
 				: "";
 		}
 
 		return {
 			date: game ? new Date(game.date).toString("yyyy-MM-dd") : "",
 			time: game ? new Date(game.date).toString("HH:mm:ss") : "",
-			_teamType: _teamType ? _teamType[0] : "",
-			_competition: _competition ? _competition[0] : "",
-			_opposition: _opposition ? _opposition[0] : "",
+			_teamType: _teamType || "",
+			_competition: _competition || "",
+			_opposition: _opposition || "",
 			round: (game && game.round) || "",
 			customTitle: (game && game.customTitle) || "",
 			customHashtags: game && game.customHashtags ? game.customHashtags.join(" ") : "",
 			isAway: game ? game.isAway : false,
-			_ground: _ground ? _ground[0] : "",
+			_ground: _ground || "",
 			tv: (game && game.tv) || "",
 			_referee,
 			_video_referee,
@@ -372,6 +370,7 @@ class AdminGameOverview extends Component {
 					validationSchema={() => this.getValidationSchema()}
 					onSubmit={values => this.onSubmit(values)}
 					initialValues={this.getDefaults()}
+					enableReinitialize={true}
 					render={formikProps => this.renderFields(formikProps)}
 				/>
 			</div>

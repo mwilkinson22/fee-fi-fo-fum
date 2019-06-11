@@ -179,6 +179,14 @@ gameSchema.query.fullGame = function() {
 				path: "_parentCompetition",
 				select: "name"
 			}
+		})
+		.populate({
+			path: "_referee",
+			select: "name"
+		})
+		.populate({
+			path: "_video_referee",
+			select: "name"
 		});
 };
 
