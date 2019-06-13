@@ -80,6 +80,7 @@ class AdminGamePregameImage extends Component {
 			}
 
 			//Player List
+			newState.playerOptions = [{ label: "None", value: false }];
 			if (thisLocalSquad) {
 				//Get the squad for the season, with numbers
 				const squadNumbers = _.find(
@@ -114,9 +115,6 @@ class AdminGamePregameImage extends Component {
 					}
 				});
 
-				//Create Object
-				newState.playerOptions = [{ label: "None", value: false }];
-
 				if (newPlayers.length) {
 					newState.playerOptions.push({
 						label: "New Players",
@@ -135,7 +133,7 @@ class AdminGamePregameImage extends Component {
 					newState.playerOptions.length > 1 &&
 					_.sample(newState.playerOptions[1].options);
 			} else {
-				newState.playerOptions = [];
+				newState.playerForImage = newState.playerOptions[0];
 			}
 		}
 

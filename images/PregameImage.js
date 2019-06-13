@@ -64,7 +64,7 @@ export default class PregameImage extends Canvas {
 		this.game = game;
 		this.options = {
 			singleTeam: options.singleTeam, //False, or a team id
-			playerForImage: options.playerForImage !== "false" && options.playerForImage, //If undefined, unavailable or has no image, we choose randomly
+			playerForImage: options.playerForImage !== "false" && options.playerForImage,
 			playersToHighlight: options.playersToHighlight.split(",")
 		};
 		const teamIds = [localTeam, game._opposition._id];
@@ -258,7 +258,7 @@ export default class PregameImage extends Canvas {
 		this.setTeamShadow(team);
 
 		//Set Positioning
-		let numX = options.playerForImage ? Math.round(cWidth * 0.3) : Math.round(cWidth * 0.2);
+		let numX = options.playerForImage ? Math.round(cWidth * 0.3) : Math.round(cWidth * 0.075);
 		let nameX = numX + Math.round(textStyles.singleList.size * 1.7);
 		const initialY = Math.round(cHeight * 0.34);
 		let y = initialY;
@@ -283,7 +283,7 @@ export default class PregameImage extends Canvas {
 
 			//Reset for second column
 			if (i === Math.floor(squad.length / 2)) {
-				numX = nameX + widest + Math.round(textStyles.singleList.size * 3);
+				numX = nameX + widest + Math.round(textStyles.singleList.size * 4);
 				nameX = numX + Math.round(textStyles.singleList.size * 1.7);
 				y = initialY;
 			}
@@ -357,7 +357,9 @@ export default class PregameImage extends Canvas {
 		}
 
 		//Player
-		if (options.playerForImage !== false) {
+		if (options.playerForImage) {
+			console.log(typeof options.playerForImage);
+			console.log("happening anyway");
 			await this.drawPlayer(Boolean(singleTeam));
 		}
 
