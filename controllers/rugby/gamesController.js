@@ -297,7 +297,7 @@ export async function handleEvent(req, res) {
 	//If the event is valid
 	let game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 	if (game) {
-		const { postTweet, tweet, replyTweet } = req.body;
+		let { postTweet, tweet, replyTweet } = req.body;
 
 		//Create Event Object
 		const eventObject = {
@@ -353,6 +353,15 @@ export async function handleEvent(req, res) {
 				});
 				const { media_id_string } = upload.data;
 				media_ids = [media_id_string];
+			}
+
+			if (replyTweet) {
+				//Check we can access it
+				try {
+					await twitter.get(`statuses/show/${replyTweet}`);
+				} catch (e) {
+					replyTweet = undefined;
+				}
 			}
 
 			//Post Tweet
