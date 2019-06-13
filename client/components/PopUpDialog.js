@@ -11,11 +11,13 @@ class PopUpDialog extends Component {
 	}
 
 	render() {
-		const { asGrid, children, closeButtonText, onDestroy } = this.props;
+		const { asGrid, children, className, closeButtonText, onDestroy } = this.props;
 
 		return (
 			<div className="pop-up-dialog-bg" onClick={ev => this.handleBackgroundClick(ev)}>
-				<div className={`pop-up-dialog form-card ${asGrid ? "grid" : ""}`}>
+				<div
+					className={`pop-up-dialog form-card ${asGrid ? "grid" : ""} ${className || ""}`}
+				>
 					{children}
 					{closeButtonText && (
 						<div className="buttons">
@@ -34,6 +36,7 @@ PopUpDialog.propTypes = {
 	asGrid: PropTypes.bool,
 	children: PropTypes.node.isRequired,
 	clickBackgroundToClose: PropTypes.bool,
+	className: PropTypes.string,
 	closeButtonText: PropTypes.string, //Doesn't display, if null
 	onDestroy: PropTypes.func.isRequired
 };

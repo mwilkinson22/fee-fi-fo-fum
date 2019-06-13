@@ -16,6 +16,7 @@ import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Components
 import LoadingPage from "../../LoadingPage";
+import PopUpDialog from "../../PopUpDialog";
 
 //Constants
 import gameEvents from "~/constants/gameEvents";
@@ -246,23 +247,24 @@ class AdminGameEvent extends Component {
 							</div>
 						);
 					}
+					let replySection = <div className="action empty" key="no-reply" />;
+					if (tweet_id) {
+						replySection = (
+							<div
+								key="reply"
+								className="action reply"
+								onClick={() => formikProps.setFieldValue("replyTweet", tweet_id)}
+							>
+								↩
+							</div>
+						);
+					}
 					return [
-						<div
-							key="reply"
-							className="action reply"
-							onClick={() => formikProps.setFieldValue("replyTweet", tweet_id)}
-						>
-							↩️
-						</div>,
+						replySection,
 						<div
 							key="delete"
 							className="action delete"
-							onClick={() =>
-								this.props.deleteGameEvent(this.props.game._id, _id, {
-									deleteTweet: true,
-									removeFromDb: true
-								})
-							}
+							onClick={() => this.setState({ deleteEvent: _id })}
 						>
 							🛇
 						</div>,
@@ -309,6 +311,93 @@ class AdminGameEvent extends Component {
 		}
 	}
 
+	renderDeleteEventDialog() {
+		const { events } = this.props.game;
+		const { deleteEvent } = this.state;
+		const eventObject = _.find(events, e => e._id == deleteEvent);
+		if (eventObject) {
+			const { event, tweet_id, tweet_text, inDatabase } = eventObject;
+			const header = event === "none" ? `Remove Tweet` : `Undo ${gameEvents[event].label}`;
+			let subHeader;
+			if (tweet_text) {
+				subHeader = (
+					<p>
+						<em>{tweet_text}</em>
+					</p>
+				);
+			}
+			const buttons = [];
+
+			if (inDatabase) {
+				buttons.push(
+					<button
+						type="button"
+						onClick={() => this.handleEventDeletion(false, true)}
+						className="delete"
+						key="stat"
+					>
+						Delete Stat
+					</button>
+				);
+			}
+
+			if (tweet_id) {
+				buttons.push(
+					<button
+						type="button"
+						onClick={() => this.handleEventDeletion(true, false)}
+						className="delete"
+						key="tweet"
+					>
+						Delete Tweet
+					</button>
+				);
+			}
+
+			if (inDatabase && tweet_id) {
+				buttons.push(
+					<button
+						type="button"
+						onClick={() => this.handleEventDeletion(true, true)}
+						className="delete"
+						key="both"
+					>
+						Delete Both
+					</button>
+				);
+			}
+
+			buttons.push(
+				<button
+					type="button"
+					key="cancel"
+					onClick={() => this.setState({ deleteEvent: undefined })}
+				>
+					Cancel
+				</button>
+			);
+
+			return (
+				<PopUpDialog
+					className="event-delete-dialog"
+					onDestroy={() => this.setState({ deleteEvent: undefined })}
+				>
+					<h6>{header}</h6>
+					{subHeader}
+					{buttons}
+				</PopUpDialog>
+			);
+		}
+	}
+
+	async handleEventDeletion(deleteTweet, removeFromDb) {
+		const { game, deleteGameEvent } = this.props;
+		const { deleteEvent } = this.state;
+
+		await deleteGameEvent(game._id, deleteEvent, { deleteTweet, removeFromDb });
+		await this.setState({ deleteEvent: undefined });
+	}
+
 	async generatePreview(fValues) {
 		const values = _.cloneDeep(fValues);
 		await this.setState({ previewImage: false });
@@ -326,7 +415,8 @@ class AdminGameEvent extends Component {
 			return <LoadingPage />;
 		}
 		return (
-			<div className="container">
+			<div className="container game-event-page">
+				{this.renderDeleteEventDialog()}
 				<Formik
 					validationSchema={() => this.getValidationSchema()}
 					onSubmit={(values, formikActions) => this.onSubmit(values, formikActions)}

@@ -464,7 +464,7 @@
 		font-style: italic;
 	}
 
-	.action:hover {
+	.action:not(.empty):hover {
 		background: #eee;
 		cursor: pointer;
 	}
@@ -566,6 +566,15 @@
 				&.main {
 					order: 4;
 				}
+			}
+		}
+	}
+	.game-event-page {
+		.event-delete-dialog {
+			display: flex;
+			flex-direction: column;
+			* {
+				margin-bottom: 4pt;
 			}
 		}
 	}
