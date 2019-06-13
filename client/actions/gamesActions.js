@@ -49,10 +49,7 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 	} else {
 		toast.success("Game Updated");
 	}
-	return _.chain(res.data.fullGames[id].events)
-		.sortBy("date")
-		.reverse()
-		.value()[0];
+	return res.data.fullGames[id].events;
 };
 
 export const crawlGame = (id, includeScoringStats) => async (dispatch, getState, api) => {
@@ -83,6 +80,7 @@ export const deleteGameEvent = (id, event, params) => async (dispatch, getState,
 	const res = await api.delete(`/games/${id}/event/${event}?${query}`);
 	dispatch({ type: UPDATE_GAME, payload: res.data });
 	toast.success("Event deleted");
+	return res.data.fullGames[id].events;
 };
 
 export const crawlLocalGames = () => async (dispatch, getState, api) => {

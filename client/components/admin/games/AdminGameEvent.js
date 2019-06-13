@@ -23,7 +23,7 @@ import gameEvents from "~/constants/gameEvents";
 
 //Helpers
 import { processFormFields } from "~/helpers/adminHelper";
-import { convertTeamToSelect } from "~/helpers/gameHelper";
+import { convertTeamToSelect, getMostRecentTweet } from "~/helpers/gameHelper";
 
 class AdminGameEvent extends Component {
 	constructor(props) {
@@ -70,7 +70,8 @@ class AdminGameEvent extends Component {
 	}
 
 	getDefaults() {
-		const { hashtags } = this.props.game;
+		const { hashtags, events } = this.props.game;
+
 		return {
 			event: {
 				label: "None",
@@ -79,7 +80,7 @@ class AdminGameEvent extends Component {
 			player: "",
 			postTweet: true,
 			tweet: hashtags ? `\n\n${hashtags.map(t => `#${t}`).join(" ")}` : "",
-			replyTweet: ""
+			replyTweet: getMostRecentTweet(events)
 		};
 	}
 
@@ -94,13 +95,11 @@ class AdminGameEvent extends Component {
 		values.player = values.player.value || null;
 
 		//Post Event
-		const event = await postGameEvent(game._id, values);
+		const events = await postGameEvent(game._id, values);
 
 		//Reset Form
 		formikActions.resetForm();
-		if (values.postTweet) {
-			formikActions.setFieldValue("replyTweet", event.tweet_id);
-		}
+		formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
 		formikActions.setFieldValue("postTweet", values.postTweet);
 		this.setState({ previewImage: null, isPosting: false });
 
@@ -110,6 +109,16 @@ class AdminGameEvent extends Component {
 				value: "CN"
 			});
 		}
+	}
+
+	async onDelete(formikActions, deleteTweet, removeFromDb) {
+		const { game, deleteGameEvent } = this.props;
+		const { deleteEvent } = this.state;
+
+		const events = await deleteGameEvent(game._id, deleteEvent, { deleteTweet, removeFromDb });
+		formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
+
+		await this.setState({ deleteEvent: undefined });
 	}
 
 	getEventTypes() {
@@ -294,7 +303,12 @@ class AdminGameEvent extends Component {
 					];
 				})
 				.value();
-			return <div className="form-card event-list">{renderedList}</div>;
+			return (
+				<div className="form-card event-list">
+					{renderedList}
+					{this.renderDeleteEventDialog(formikProps)}
+				</div>
+			);
 		} else {
 			return null;
 		}
@@ -311,7 +325,7 @@ class AdminGameEvent extends Component {
 		}
 	}
 
-	renderDeleteEventDialog() {
+	renderDeleteEventDialog(formikProps) {
 		const { events } = this.props.game;
 		const { deleteEvent } = this.state;
 		const eventObject = _.find(events, e => e._id == deleteEvent);
@@ -332,7 +346,7 @@ class AdminGameEvent extends Component {
 				buttons.push(
 					<button
 						type="button"
-						onClick={() => this.handleEventDeletion(false, true)}
+						onClick={() => this.onDelete(formikProps, false, true)}
 						className="delete"
 						key="stat"
 					>
@@ -345,7 +359,7 @@ class AdminGameEvent extends Component {
 				buttons.push(
 					<button
 						type="button"
-						onClick={() => this.handleEventDeletion(true, false)}
+						onClick={() => this.onDelete(formikProps, true, false)}
 						className="delete"
 						key="tweet"
 					>
@@ -358,7 +372,7 @@ class AdminGameEvent extends Component {
 				buttons.push(
 					<button
 						type="button"
-						onClick={() => this.handleEventDeletion(true, true)}
+						onClick={() => this.onDelete(formikProps, true, true)}
 						className="delete"
 						key="both"
 					>
@@ -390,14 +404,6 @@ class AdminGameEvent extends Component {
 		}
 	}
 
-	async handleEventDeletion(deleteTweet, removeFromDb) {
-		const { game, deleteGameEvent } = this.props;
-		const { deleteEvent } = this.state;
-
-		await deleteGameEvent(game._id, deleteEvent, { deleteTweet, removeFromDb });
-		await this.setState({ deleteEvent: undefined });
-	}
-
 	async generatePreview(fValues) {
 		const values = _.cloneDeep(fValues);
 		await this.setState({ previewImage: false });
@@ -416,7 +422,6 @@ class AdminGameEvent extends Component {
 		}
 		return (
 			<div className="container game-event-page">
-				{this.renderDeleteEventDialog()}
 				<Formik
 					validationSchema={() => this.getValidationSchema()}
 					onSubmit={(values, formikActions) => this.onSubmit(values, formikActions)}

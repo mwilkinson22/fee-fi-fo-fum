@@ -20,6 +20,19 @@ export function fixDates(games) {
 	});
 }
 
+export function getMostRecentTweet(events) {
+	const arr = _.chain(events)
+		.sortBy("date")
+		.filter("tweet_id")
+		.reverse()
+		.value();
+	if (arr.length) {
+		return arr[0].tweet_id;
+	} else {
+		return "";
+	}
+}
+
 function getAdjacentGame(id, gameList, next) {
 	const { _teamType, date } = gameList[id];
 	const list = _.chain(gameList)
