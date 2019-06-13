@@ -49,7 +49,7 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 	} else {
 		toast.success("Game Updated");
 	}
-	return _.chain(res.data[id].events)
+	return _.chain(res.data.fullGames[id].events)
 		.sortBy("date")
 		.reverse()
 		.value()[0];
@@ -78,8 +78,9 @@ export const setManOfSteelPoints = (id, values) => async (dispatch, getState, ap
 	toast.success("Man of Steel points saved");
 };
 
-export const deleteGameEvent = (id, event) => async (dispatch, getState, api) => {
-	const res = await api.delete(`/games/${id}/event/${event}`);
+export const deleteGameEvent = (id, event, params) => async (dispatch, getState, api) => {
+	const query = _.map(params, (val, key) => `${key}=${val.toString()}`).join("&");
+	const res = await api.delete(`/games/${id}/event/${event}?${query}`);
 	dispatch({ type: UPDATE_GAME, payload: res.data });
 	toast.success("Event deleted");
 };

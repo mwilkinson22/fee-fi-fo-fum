@@ -306,6 +306,7 @@ export async function handleEvent(req, res) {
 
 		//Update Database for Player Events
 		if (gameEvents[event].isPlayerEvent) {
+			eventObject.inDatabase = true;
 			eventObject._player = player;
 			await Game.findOneAndUpdate(
 				{ _id },
@@ -315,6 +316,7 @@ export async function handleEvent(req, res) {
 				}
 			);
 		} else if (event == "extraTime") {
+			eventObject.inDatabase = true;
 			game.extraTime = true;
 			await game.save();
 		}
@@ -380,7 +382,12 @@ export async function handleEvent(req, res) {
 
 export async function deleteEvent(req, res) {
 	const { _id, _event } = req.params;
+	let { deleteTweet, removeFromDb } = req.query;
 	const game = await validateGame(_id, res);
+
+	//Convert strings to booleans. Default to false
+	deleteTweet = deleteTweet === "true";
+	removeFromDb = removeFromDb === "true";
 
 	if (game) {
 		const e = _.find(game._doc.events, e => e._id == _event);
@@ -389,14 +396,14 @@ export async function deleteEvent(req, res) {
 		} else {
 			const { event, tweet_id, _player } = e;
 			//Delete Tweet
-			if (tweet_id) {
+			if (deleteTweet && tweet_id) {
 				await twitter.post(`statuses/destroy/${tweet_id}`);
 			}
 
-			//Undo Player Stat
-			if (_player) {
-				await Game.findOneAndUpdate(
-					{ _id },
+			//Undo DB Data
+			const eventObject = game.events.id(_event);
+			if (removeFromDb && _player && eventObject.inDatabase) {
+				await game.updateOne(
 					{ $inc: { [`playerStats.$[elem].stats.${event}`]: -1 } },
 					{
 						arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(_player) }]
@@ -404,12 +411,22 @@ export async function deleteEvent(req, res) {
 				);
 			}
 
-			if (event == "extraTime") {
+			if (removeFromDb && event == "extraTime" && eventObject.inDatabase) {
 				game.extraTime = false;
 			}
 
-			//Remove event from database
-			await game.events.id(_event).remove();
+			//Update model
+			if (deleteTweet) {
+				eventObject.tweet_id = null;
+				eventObject.tweet_image = null;
+				eventObject.tweet_text = null;
+			}
+			if (removeFromDb) {
+				eventObject.inDatabase = false;
+			}
+			if (!eventObject.tweet_id && !eventObject.inDatabase) {
+				await game.events.id(_event).remove();
+			}
 			await game.save();
 
 			//Return Updated Game

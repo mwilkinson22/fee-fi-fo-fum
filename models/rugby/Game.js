@@ -68,7 +68,8 @@ const gameSchema = new Schema(
 					date: { type: Date, default: Date.now },
 					tweet_id: { type: String, default: null },
 					tweet_text: { type: String, default: null },
-					tweet_image: { type: String, default: null }
+					tweet_image: { type: String, default: null },
+					inDatabase: { type: Boolean, default: false }
 				}
 			],
 			default: []

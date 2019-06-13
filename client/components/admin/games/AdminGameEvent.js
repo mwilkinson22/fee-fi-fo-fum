@@ -257,7 +257,12 @@ class AdminGameEvent extends Component {
 						<div
 							key="delete"
 							className="action delete"
-							onClick={() => this.props.deleteGameEvent(this.props.game._id, _id)}
+							onClick={() =>
+								this.props.deleteGameEvent(this.props.game._id, _id, {
+									deleteTweet: true,
+									removeFromDb: true
+								})
+							}
 						>
 							🛇
 						</div>,
