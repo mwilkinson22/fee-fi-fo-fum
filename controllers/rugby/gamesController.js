@@ -295,7 +295,7 @@ export async function handleEvent(req, res) {
 	}
 
 	//If the event is valid
-	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
+	let game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 	if (game) {
 		const { postTweet, tweet, replyTweet } = req.body;
 
@@ -308,13 +308,14 @@ export async function handleEvent(req, res) {
 		if (gameEvents[event].isPlayerEvent) {
 			eventObject.inDatabase = true;
 			eventObject._player = player;
-			await Game.findOneAndUpdate(
+			game = await Game.findOneAndUpdate(
 				{ _id },
 				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
 				{
+					new: true,
 					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
 				}
-			);
+			).gameDayImage();
 		} else if (event == "extraTime") {
 			eventObject.inDatabase = true;
 			game.extraTime = true;
