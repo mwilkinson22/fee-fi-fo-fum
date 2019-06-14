@@ -358,8 +358,6 @@ export default class PregameImage extends Canvas {
 
 		//Player
 		if (options.playerForImage) {
-			console.log(typeof options.playerForImage);
-			console.log("happening anyway");
 			await this.drawPlayer(Boolean(singleTeam));
 		}
 
