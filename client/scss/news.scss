@@ -2,6 +2,7 @@
 	@include pseudoImage;
 	background-size: cover;
 	padding-top: 30%;
+	display: grid;
 	&:hover p {
 		color: #444;
 	}
@@ -13,7 +14,6 @@
 	.post-meta {
 		background: rgba($claret, 0.9);
 		padding: 4%;
-		height: 100%;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
