@@ -31,7 +31,7 @@ async function validateGame(_id, res, promise = null) {
 	if (game) {
 		return game;
 	} else {
-		res.status(404).send(`No game with id ${_id} was found`);
+		res.status(404).send(`No game found with id ${_id}`);
 		return false;
 	}
 }
@@ -289,15 +289,18 @@ export async function handleEvent(req, res) {
 	const { _id } = req.params;
 	const { event, player } = req.body;
 
+	if (!event) {
+		res.status(400).send(`No event type specified`);
+	}
 	if (!gameEvents[event]) {
-		res.status(500).send({ error: `Invalid event type '${event}'` });
-		return false;
+		res.status(400).send(`Invalid event type - '${event}'`);
+		return;
 	}
 
 	//If the event is valid
 	let game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
 	if (game) {
-		let { postTweet, tweet, replyTweet } = req.body;
+		const { postTweet, tweet, replyTweet } = req.body;
 
 		//Create Event Object
 		const eventObject = {
@@ -306,6 +309,10 @@ export async function handleEvent(req, res) {
 
 		//Update Database for Player Events
 		if (gameEvents[event].isPlayerEvent) {
+			if (!player) {
+				res.status(400).send("No player specified");
+				return;
+			}
 			eventObject.inDatabase = true;
 			eventObject._player = player;
 			game = await Game.findOneAndUpdate(
@@ -355,23 +362,24 @@ export async function handleEvent(req, res) {
 				media_ids = [media_id_string];
 			}
 
-			if (replyTweet) {
-				//Check we can access it
-				try {
-					await twitter.get(`statuses/show/${replyTweet}`);
-				} catch (e) {
-					replyTweet = undefined;
-				}
+			//Post Tweet
+			let postedTweet, tweetError;
+			try {
+				postedTweet = await twitter.post("statuses/update", {
+					status: tweet,
+					in_reply_to_status_id: replyTweet,
+					auto_populate_reply_metadata: true,
+					tweet_mode: "extended",
+					media_ids
+				});
+			} catch (e) {
+				tweetError = e;
 			}
 
-			//Post Tweet
-			const postedTweet = await twitter.post("statuses/update", {
-				status: tweet,
-				in_reply_to_status_id: replyTweet,
-				auto_populate_reply_metadata: true,
-				tweet_mode: "extended",
-				media_ids
-			});
+			if (tweetError) {
+				res.status(tweetError.statusCode).send(`(Twitter) - ${tweetError.message}`);
+				return;
+			}
 
 			eventObject.tweet_text = tweet;
 			eventObject.tweet_id = postedTweet.data.id_str;
@@ -402,7 +410,7 @@ export async function deleteEvent(req, res) {
 	if (game) {
 		const e = _.find(game._doc.events, e => e._id == _event);
 		if (!e) {
-			res.status(500).send({ error: `Event '${_event}' not found` });
+			res.status(404).send(`Event with id ${_event} not found`);
 		} else {
 			const { event, tweet_id, _player } = e;
 			//Delete Tweet
@@ -613,8 +621,12 @@ async function generatePlayerEventImage(player, event, basicGame) {
 export async function fetchEventImage(req, res) {
 	const { _id } = req.params;
 	const { event, player } = req.body;
-	if (!gameEvents[event]) {
-		res.send({});
+	if (!event) {
+		res.status(400).send("No event type specified");
+	} else if (!gameEvents[event] || event === "none") {
+		res.status(400).send(`Invalid event type - '${event}'`);
+	} else if (!player) {
+		res.status(400).send("No player selected");
 	} else {
 		const game = await Game.findById(_id).gameDayImage();
 		if (gameEvents[event].isPlayerEvent) {
