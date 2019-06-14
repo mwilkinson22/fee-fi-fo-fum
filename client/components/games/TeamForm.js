@@ -353,11 +353,13 @@ class TeamForm extends Component {
 		let table;
 		if (game._competition.type == "League") {
 			table = (
-				<LeagueTable
-					competition={game._competition._id}
-					year={game.date.getFullYear()}
-					highlightTeams={[localTeam, game._opposition._id]}
-				/>
+				<div>
+					<LeagueTable
+						competition={game._competition._id}
+						year={game.date.getFullYear()}
+						highlightTeams={[localTeam, game._opposition._id]}
+					/>
+				</div>
 			);
 		}
 
