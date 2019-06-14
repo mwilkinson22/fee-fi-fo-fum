@@ -43,13 +43,17 @@ export const markSquadAsAnnounced = (id, announced) => async (dispatch, getState
 
 export const postGameEvent = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/event/`, values);
-	dispatch({ type: UPDATE_GAME, payload: res.data });
-	if (values.postTweet) {
-		toast.success("Tweet Sent");
+	if (res.data) {
+		dispatch({ type: UPDATE_GAME, payload: res.data });
+		if (values.postTweet) {
+			toast.success("Tweet Sent");
+		} else {
+			toast.success("Game Updated");
+		}
+		return res.data.fullGames[id].events;
 	} else {
-		toast.success("Game Updated");
+		return false;
 	}
-	return res.data.fullGames[id].events;
 };
 
 export const crawlGame = (id, includeScoringStats) => async (dispatch, getState, api) => {

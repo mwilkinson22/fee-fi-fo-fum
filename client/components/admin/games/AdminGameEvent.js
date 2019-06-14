@@ -84,8 +84,9 @@ class AdminGameEvent extends Component {
 		};
 	}
 
-	async onSubmit(values, formikActions) {
+	async onSubmit(fValues, formikActions) {
 		const { postGameEvent, game } = this.props;
+		const values = _.cloneDeep(fValues);
 
 		//Disable Submit Button
 		this.setState({ isPosting: true });
@@ -97,17 +98,20 @@ class AdminGameEvent extends Component {
 		//Post Event
 		const events = await postGameEvent(game._id, values);
 
-		//Reset Form
-		formikActions.resetForm();
-		formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
-		formikActions.setFieldValue("postTweet", values.postTweet);
+		//Clean Up
 		this.setState({ previewImage: null, isPosting: false });
+		if (events !== false) {
+			//Reset Form
+			formikActions.resetForm();
+			formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
+			formikActions.setFieldValue("postTweet", values.postTweet);
 
-		if (values.event === "T") {
-			formikActions.setFieldValue("event", {
-				label: "Conversion",
-				value: "CN"
-			});
+			if (values.event === "T") {
+				formikActions.setFieldValue("event", {
+					label: "Conversion",
+					value: "CN"
+				});
+			}
 		}
 	}
 
@@ -119,6 +123,17 @@ class AdminGameEvent extends Component {
 		formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
 
 		await this.setState({ deleteEvent: undefined });
+	}
+
+	async generatePreview(fValues) {
+		const values = _.cloneDeep(fValues);
+		await this.setState({ previewImage: false });
+		const { previewPlayerEventImage, game } = this.props;
+		values.event = values.event.value;
+		values.player = values.player.value || null;
+
+		const image = await previewPlayerEventImage(game._id, values);
+		await this.setState({ previewImage: image });
 	}
 
 	getEventTypes() {
@@ -402,17 +417,6 @@ class AdminGameEvent extends Component {
 				</PopUpDialog>
 			);
 		}
-	}
-
-	async generatePreview(fValues) {
-		const values = _.cloneDeep(fValues);
-		await this.setState({ previewImage: false });
-		const { previewPlayerEventImage, game } = this.props;
-		values.event = values.event.value;
-		values.player = values.player.value || null;
-
-		const image = await previewPlayerEventImage(game._id, values);
-		await this.setState({ previewImage: image });
 	}
 
 	render() {

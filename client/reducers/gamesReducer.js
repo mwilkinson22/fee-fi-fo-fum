@@ -11,6 +11,10 @@ import {
 import { fixDates } from "../../helpers/gameHelper";
 
 export default function(state = { fullGames: {} }, action) {
+	if (!action || !action.payload) {
+		return state;
+	}
+
 	switch (action.type) {
 		case FETCH_GAMES:
 			fixDates(action.payload);
