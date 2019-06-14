@@ -6,27 +6,30 @@ const newsCategories = _.map(require("../constants/newsCategories"), category =>
 });
 
 const newsPostSchema = new Schema({
-	title: String,
-	_author: { type: Schema.Types.ObjectId, ref: "users" },
-	subtitle: String,
-	content: String,
-	contentHistory: [
-		{
-			version: Number,
-			content: String
-		}
-	],
-	image: String,
-	version: Number,
-	dateCreated: Date,
-	dateModified: Date,
-	isPublished: { type: Boolean, default: false },
-	category: { type: String, enum: newsCategories },
+	title: { type: String, required: true },
+	_author: { type: Schema.Types.ObjectId, ref: "users", required: true },
+	subtitle: { type: String, default: null },
+	content: { type: String, required: true },
+	contentHistory: {
+		type: [
+			{
+				version: Number,
+				content: String
+			}
+		],
+		default: []
+	},
+	image: { type: String, default: null },
+	version: { type: Number, default: 0 },
+	dateCreated: { type: String, required: true, default: Date.now },
+	dateModified: { type: String, required: true, default: Date.now },
+	isPublished: { type: Boolean, default: false, required: true },
+	category: { type: String, enum: newsCategories, required: true },
 	_people: [{ type: Schema.Types.ObjectId, ref: "people" }],
 	_game: { type: Schema.Types.ObjectId, ref: "games", default: null },
 	_teams: [{ type: Schema.Types.ObjectId, ref: "teams" }],
-	tags: [String],
-	slug: { type: String, unique: true }
+	tags: { type: [String], default: [] },
+	slug: { type: String, unique: true, required: true }
 });
 
 newsPostSchema.query.forList = function() {
@@ -35,7 +38,11 @@ newsPostSchema.query.forList = function() {
 		title: 1,
 		image: 1,
 		dateCreated: 1,
-		category: 1
+		category: 1,
+		_game: 1,
+		_people: 1,
+		_teams: 1,
+		tags: 1
 	});
 };
 
