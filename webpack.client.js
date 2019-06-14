@@ -10,6 +10,7 @@ const config = {
 	output: {
 		filename: "bundle.js",
 		path: path.resolve(__dirname, "public")
-	}
+	},
+	devtool: "source-map"
 };
 module.exports = merge(baseConfig, config);
