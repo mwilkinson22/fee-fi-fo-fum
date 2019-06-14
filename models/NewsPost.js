@@ -43,7 +43,7 @@ newsPostSchema.query.forList = function() {
 		_people: 1,
 		_teams: 1,
 		tags: 1
-	});
+	}).lean();
 };
 
 mongoose.model("newsPosts", newsPostSchema);

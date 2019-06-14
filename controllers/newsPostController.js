@@ -20,10 +20,7 @@ function generateQuery(user, obj = {}) {
 export async function getPostList(req, res) {
 	const query = generateQuery(req.user);
 
-	const posts = await NewsPost.find(
-		query,
-		"title category slug image isPublished dateCreated"
-	).lean();
+	const posts = await NewsPost.find(query).forList();
 
 	const { list, slugMap } = await getListsAndSlugs(posts, collectionName);
 

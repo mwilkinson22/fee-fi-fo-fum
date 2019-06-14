@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
@@ -12,10 +13,12 @@ import NotFoundPage from "./NotFoundPage";
 import TeamBanner from "../components/teams/TeamBanner";
 import TeamForm from "../components/games/TeamForm";
 import PregameSquadList from "../components/games/PregameSquadList";
+import NewsPostCard from "../components/news/NewsPostCard";
 
 //Actions
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
+import { fetchPostList } from "~/client/actions/newsActions";
 
 //Constants
 import { imagePath } from "../extPaths";
@@ -28,10 +31,22 @@ class GamePage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { slugMap, fetchGameList, fullTeams, localTeam, fetchTeam } = props;
+		const {
+			slugMap,
+			fetchGameList,
+			fullTeams,
+			localTeam,
+			fetchTeam,
+			postList,
+			fetchPostList
+		} = props;
 
 		if (!slugMap) {
 			fetchGameList();
+		}
+
+		if (!postList) {
+			fetchPostList();
 		}
 
 		if (!fullTeams[localTeam]) {
@@ -172,6 +187,31 @@ class GamePage extends Component {
 		}
 	}
 
+	generateNewsPosts() {
+		const { postList } = this.props;
+		const { game } = this.state;
+		let gamePosts = [];
+		if (postList) {
+			gamePosts = _.chain(postList)
+				.filter(p => p._game == game._id)
+				.map(p => <NewsPostCard post={p} key={p._id} />)
+				.value();
+		}
+
+		if (gamePosts.length) {
+			return (
+				<section className="news">
+					<h2>News</h2>
+					<div className="container">
+						<div className="post-list">{gamePosts}</div>
+					</div>
+				</section>
+			);
+		} else {
+			return null;
+		}
+	}
+
 	getPageTitle() {
 		const { isAway, scores, _opposition, date } = this.state.game;
 		let strings;
@@ -196,6 +236,7 @@ class GamePage extends Component {
 	}
 
 	render() {
+		const { postList } = this.props;
 		const { game } = this.state;
 		if (game === undefined) {
 			return <LoadingPage />;
@@ -203,6 +244,8 @@ class GamePage extends Component {
 			return <Redirect to={`/games/${game.slug}`} />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
+		} else if (!postList) {
+			return <LoadingPage />;
 		} else {
 			return (
 				<div className="game-page">
@@ -218,17 +261,19 @@ class GamePage extends Component {
 					{this.generateCountdown()}
 					{this.generatePregameList()}
 					{this.generateForm()}
+					{this.generateNewsPosts()}
 				</div>
 			);
 		}
 	}
 }
 
-function mapStateToProps({ games, config, teams }, ownProps) {
+function mapStateToProps({ games, config, teams, news }, ownProps) {
 	const { fullGames, slugMap, gameList } = games;
 	const { localTeam, authUser } = config;
 	const { fullTeams } = teams;
-	return { fullGames, slugMap, localTeam, authUser, gameList, fullTeams, ...ownProps };
+	const { postList } = news;
+	return { fullGames, slugMap, postList, localTeam, authUser, gameList, fullTeams, ...ownProps };
 }
 
 async function loadData(store, path) {
@@ -247,7 +292,7 @@ async function loadData(store, path) {
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGames, fetchGameList, fetchTeam }
+		{ fetchGames, fetchGameList, fetchTeam, fetchPostList }
 	)(GamePage),
 	loadData
 };
