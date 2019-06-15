@@ -77,6 +77,10 @@ export default gameSchema => {
 
 	gameSchema.virtual("images.logo").get(function() {
 		const { images } = this;
+		if (!images) {
+			return null;
+		}
+
 		if (images.customLogo) {
 			return `images/games/logo/${images.customLogo}`;
 		}
