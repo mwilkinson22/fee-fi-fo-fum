@@ -69,7 +69,7 @@ class PlayerStatSection extends Component {
 			} else {
 				newState.games = _.chain(gameIds)
 					.map(id => fullGames[id])
-					.filter({ playerStats: [{ _player: person._id }] })
+					.filter({ playerStats: [{ _player: person._id }], squadsAnnounced: true })
 					.cloneDeep()
 					.map(game => {
 						game.playerStats = _.filter(game.playerStats, stats => {
