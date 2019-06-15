@@ -13,6 +13,7 @@ import NotFoundPage from "./NotFoundPage";
 import TeamBanner from "../components/teams/TeamBanner";
 import TeamForm from "../components/games/TeamForm";
 import PregameSquadList from "../components/games/PregameSquadList";
+import MatchSquadList from "../components/games/MatchSquadList";
 import NewsPostCard from "../components/news/NewsPostCard";
 
 //Actions
@@ -179,6 +180,15 @@ class GamePage extends Component {
 		}
 	}
 
+	generateSquads() {
+		const { game } = this.state;
+		if (game.squadsAnnounced) {
+			return <MatchSquadList game={game} />;
+		} else {
+			return null;
+		}
+	}
+
 	generateForm() {
 		if (this.state.isFixture) {
 			return <TeamForm game={this.state.game} />;
@@ -261,6 +271,8 @@ class GamePage extends Component {
 					{this.generateCountdown()}
 					{this.generatePregameList()}
 					{this.generateForm()}
+
+					{this.generateSquads()}
 					{this.generateNewsPosts()}
 				</div>
 			);
@@ -279,7 +291,11 @@ function mapStateToProps({ games, config, teams, news }, ownProps) {
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
 	const { localTeam } = store.getState().config;
-	await Promise.all([store.dispatch(fetchGameList()), store.dispatch(fetchTeam(localTeam))]);
+	await Promise.all([
+		store.dispatch(fetchPostList()),
+		store.dispatch(fetchGameList()),
+		store.dispatch(fetchTeam(localTeam))
+	]);
 	const { id } = store.getState().games.slugMap[slug];
 	const gamesToLoad = [id];
 	const previousId = getLastGame(id, store.getState().games.gameList);

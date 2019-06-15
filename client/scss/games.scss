@@ -481,11 +481,8 @@
 			}
 		}
 	}
-
+	section.match-squads,
 	section.pregame-squads {
-		&.with-squads {
-			padding: 0;
-		}
 		.team-blocks {
 			display: flex;
 			flex-wrap: wrap;
@@ -509,14 +506,45 @@
 						text-shadow: inherit;
 					}
 				}
+				@media #{$mobile-and-tablet} {
+					.team-image {
+						max-height: 40pt;
+					}
+				}
+				@media #{$desktop-only} {
+					.team-image {
+						opacity: 0.5;
+						max-height: 70%;
+						position: absolute;
+						top: 0;
+						bottom: 0;
+						margin: auto;
+					}
+					&:first-child {
+						.team-image {
+							left: 0;
+							transform: translateX(-30%);
+						}
+					}
+					&:last-child {
+						.team-image {
+							right: 0;
+							transform: translateX(30%);
+						}
+					}
+				}
 			}
+		}
+	}
+	section.pregame-squads {
+		&.with-squads {
+			padding: 0;
+		}
+		.team-blocks {
 			@media #{$mobile-and-tablet} {
 				flex-direction: column;
 				.team-block {
 					text-shadow: none;
-					.team-image {
-						max-height: 40pt;
-					}
 					.player {
 						.name,
 						.number {
@@ -533,15 +561,6 @@
 			@media #{$desktop-only} {
 				.team-block {
 					text-shadow: inherit;
-					overflow: hidden;
-					.team-image {
-						opacity: 0.5;
-						max-height: 70%;
-						position: absolute;
-						top: 0;
-						bottom: 0;
-						margin: auto;
-					}
 					.player {
 						.number {
 							min-width: 36pt;
@@ -553,26 +572,35 @@
 					}
 					&:first-child {
 						align-items: flex-end;
-						.team-image {
-							left: 0;
-							transform: translateX(-30%);
-						}
 						.player {
 							flex-direction: row-reverse;
 						}
 					}
 					&:last-child {
 						align-items: flex-start;
-						.team-image {
-							right: 0;
-							transform: translateX(30%);
-						}
 						.player {
 							.number {
 								text-align: right;
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+	section.match-squads {
+		padding: 0;
+		.team-block {
+			.row {
+				.player {
+					position: relative;
+				}
+			}
+		}
+		@media #{$mobile-and-tablet} {
+			.team-block {
+				.row {
+					order: 1 !important;
 				}
 			}
 		}
