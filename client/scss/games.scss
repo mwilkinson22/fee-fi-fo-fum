@@ -180,9 +180,6 @@
 		}
 		@media #{$mobile-and-tablet} {
 			padding: 4pt 0;
-			&:last-child {
-				padding-bottom: 10pt;
-			}
 		}
 	}
 	section.header {
@@ -495,12 +492,11 @@
 				flex-direction: column;
 				align-items: center;
 				padding: 10pt;
+				overflow-x: hidden;
 				.player {
 					@include header;
 					z-index: 2;
-					font-size: 18pt;
 					white-space: nowrap;
-					display: flex;
 					.name,
 					.number {
 						text-shadow: inherit;
@@ -512,7 +508,7 @@
 					}
 				}
 				@media #{$desktop-only} {
-					.team-image {
+					& > .team-image {
 						opacity: 0.5;
 						max-height: 70%;
 						position: absolute;
@@ -521,13 +517,13 @@
 						margin: auto;
 					}
 					&:first-child {
-						.team-image {
+						& > .team-image {
 							left: 0;
 							transform: translateX(-30%);
 						}
 					}
 					&:last-child {
-						.team-image {
+						& > .team-image {
 							right: 0;
 							transform: translateX(30%);
 						}
@@ -540,12 +536,19 @@
 		&.with-squads {
 			padding: 0;
 		}
+		.team-block {
+			min-width: 250px;
+			.player {
+				display: flex;
+			}
+		}
 		.team-blocks {
 			@media #{$mobile-and-tablet} {
 				flex-direction: column;
 				.team-block {
 					text-shadow: none;
 					.player {
+						font-size: 18pt;
 						.name,
 						.number {
 							text-shadow: none;
@@ -592,15 +595,120 @@
 		padding: 0;
 		.team-block {
 			.row {
+				display: flex;
+				align-items: center;
 				.player {
 					position: relative;
+					.name-bar {
+						display: flex;
+						overflow: hidden;
+					}
+				}
+				&:last-child {
+					border-top: 2pt rgba(120, 120, 120, 0.4);
 				}
 			}
 		}
+
 		@media #{$mobile-and-tablet} {
 			.team-block {
 				.row {
+					flex-direction: column;
 					order: 1 !important;
+					.interchange-header {
+						display: none;
+					}
+					&:not(:last-child) {
+						margin-bottom: 6pt;
+					}
+					img {
+						display: none;
+					}
+					.number,
+					.name {
+						margin: 0 2pt;
+						color: inherit !important;
+						background: inherit !important;
+					}
+				}
+			}
+		}
+		@media #{$desktop-only} {
+			.team-blocks {
+				.team-block {
+					min-width: 400pt;
+					.row {
+						width: 100%;
+						justify-content: center;
+						&:nth-child(4) {
+							//Halfbacks
+							margin: 8pt 0;
+							.player {
+								margin-left: 6%;
+								margin-right: 6%;
+							}
+						}
+						&:last-child {
+							//Interchanges
+							flex-wrap: wrap;
+							padding: 10pt;
+							.interchange-header {
+								@include header;
+								text-align: center;
+								border-top: 1pt solid;
+								padding-top: 4pt;
+								width: 100%;
+							}
+						}
+						a.player {
+							.name-bar {
+								transition: box-shadow 100ms;
+							}
+							&:hover .name-bar {
+								box-shadow: 0 0 6pt #ffcc00;
+							}
+						}
+						.player {
+							margin: 2pt 4pt;
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							&.starting {
+								min-width: 20%;
+								.image {
+									width: 70pt;
+									height: 60pt;
+									position: relative;
+									overflow: hidden;
+									img {
+										max-width: 100%;
+										position: absolute;
+										top: 0;
+										left: 0;
+										right: 0;
+										margin: auto;
+										z-index: 2;
+									}
+								}
+							}
+							.name-bar {
+								.number,
+								.name {
+									padding: 2pt 8pt;
+									text-align: center;
+								}
+								.number {
+									min-width: 30pt;
+								}
+							}
+						}
+						.player.starting {
+							.name-bar {
+								border-radius: 4pt;
+								overflow: hidden;
+							}
+						}
+					}
 				}
 			}
 		}

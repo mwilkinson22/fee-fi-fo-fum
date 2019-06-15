@@ -19,7 +19,6 @@ class TeamImage extends Component {
 		return (
 			<img
 				src={`${teamImagePath}${useWebp && isRaster ? webp : image}`}
-				webp={teamImagePath + webp}
 				className={`team-image ${className || ""}`}
 				alt={name.long}
 				title={name.long}

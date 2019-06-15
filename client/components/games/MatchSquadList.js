@@ -2,10 +2,12 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import Colour from "color";
 
 //Components
 import TeamImage from "~/client/components/teams/TeamImage";
 import { Link } from "react-router-dom";
+import PersonImage from "~/client/components/people/PersonImage";
 
 class MatchSquadList extends Component {
 	constructor(props) {
@@ -55,7 +57,7 @@ class MatchSquadList extends Component {
 					};
 
 					//Create Component
-					row.push(this.renderPlayer(player));
+					row.push(this.renderPlayer(player, team));
 
 					//Handle Rows
 					const rowIndex = newRowPositions.indexOf(position);
@@ -67,25 +69,29 @@ class MatchSquadList extends Component {
 							</div>
 						);
 						row = [];
+						if (position == 13) {
+							row.push(
+								<div
+									className="interchange-header"
+									key="ih"
+									style={{ color: team.colours.text }}
+								>
+									Interchanges
+								</div>
+							);
+						}
 					}
 				});
 
 				if (!squad.length) {
 					return null;
 				} else {
+					let backgroundColor = team.colours.main;
+					if (team._id == localTeam) {
+						backgroundColor = Colour(backgroundColor).darken(0.3);
+					}
 					return (
-						<div
-							className="team-block"
-							key={team._id}
-							style={{
-								backgroundColor: team.colours.main,
-								textShadow: `0 0 2pt ${team.colours.main},-2px 2px 2pt ${
-									team.colours.main
-								}, 2px 2px 2pt ${team.colours.main},2px -2px 2pt ${
-									team.colours.main
-								},-2px -2px 2pt ${team.colours.main}`
-							}}
-						>
+						<div className="team-block" key={team._id} style={{ backgroundColor }}>
 							<TeamImage team={team} />
 							{rows}
 						</div>
@@ -102,13 +108,89 @@ class MatchSquadList extends Component {
 		return <div className="team-blocks">{content}</div>;
 	}
 
-	renderPlayer(player) {
-		const { name, id, position } = player;
-		return (
-			<span key={id} className={player`${position <= 13 ? "starting" : "interchange"}`}>
-				{name.full}
-			</span>
-		);
+	renderPlayer(player, team) {
+		const { name, id, position, number, slug } = player;
+		const { localTeam } = this.props;
+
+		//Get Styling
+		let nameStyle = {};
+		let numberStyle = {};
+		if (team._id == localTeam) {
+			nameStyle = {
+				background: team.colours.text,
+				border: `solid 1pt ${team.colours.text}`,
+				color: team.colours.main
+			};
+			numberStyle = {
+				background: team.colours.main,
+				border: `solid 1pt ${team.colours.main}`,
+				color: team.colours.trim1
+			};
+		} else {
+			nameStyle = {
+				background: team.colours.main,
+				color: team.colours.text
+			};
+			numberStyle = {
+				background: team.colours.text,
+				color: team.colours.main
+			};
+		}
+
+		//Get Image
+		let image;
+		if (position > 13) {
+			image = null;
+		} else if (team._id != localTeam) {
+			image = (
+				<div className="image" key={id}>
+					<TeamImage team={team} />
+				</div>
+			);
+		} else {
+			image = (
+				<div className="image" key={id}>
+					<PersonImage person={player} />
+				</div>
+			);
+		}
+
+		//Render Item
+		const props = {
+			key: id,
+			className: `player ${position <= 13 ? "starting" : "interchange"}`,
+			style: {
+				background: "transparent",
+				color: team.colours.text
+			}
+		};
+
+		const border = team._id != localTeam && `1pt ${team.colours.text} solid`;
+		const content = [
+			image,
+			<div
+				className={`name-bar ${border ? "with-border" : "no-border"}`}
+				key="name-bar"
+				style={{ border }}
+			>
+				<div className="number" style={numberStyle}>
+					{number || ""}
+				</div>
+				<div className="name" style={nameStyle}>
+					{name.last}
+				</div>
+			</div>
+		];
+
+		if (team._id == localTeam && slug) {
+			return (
+				<Link {...props} to={`/players/${slug}`}>
+					{content}
+				</Link>
+			);
+		} else {
+			return <div {...props}>{content}</div>;
+		}
 	}
 
 	render() {

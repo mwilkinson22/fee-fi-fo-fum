@@ -12,8 +12,9 @@ class PersonImage extends Component {
 		return (
 			<img
 				src={`${personImagePath}${useWebp ? webp : image}`}
-				className={`person-image ${className}`}
+				className={`person-image ${className || ""}`}
 				alt={`${first} ${last}`}
+				title={`${first} ${last}`}
 			/>
 		);
 	}
