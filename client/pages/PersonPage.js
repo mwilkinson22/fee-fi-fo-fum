@@ -100,6 +100,20 @@ class PersonPage extends Component {
 		}
 	}
 
+	getPersonDataSection() {
+		const sections = [this.getInfoTable(), this.getDescription()];
+		const sectionCount = _.filter(sections, _.identity).length;
+		if (sectionCount) {
+			return (
+				<section className="person-data">
+					<div className="container">{sections}</div>
+				</section>
+			);
+		} else {
+			return null;
+		}
+	}
+
 	getInfoTable() {
 		const { person } = this.state;
 		const { playerDetails, dateOfBirth, nickname, _hometown, _represents } = person;
@@ -137,19 +151,27 @@ class PersonPage extends Component {
 				</tr>
 			);
 		});
-		return (
-			<div className="info-table">
-				<table>
-					<tbody>{rows}</tbody>
-				</table>
-			</div>
-		);
+		if (rows.length) {
+			return (
+				<div className="info-table" key="info-table">
+					<table>
+						<tbody>{rows}</tbody>
+					</table>
+				</div>
+			);
+		} else {
+			return null;
+		}
 	}
 
 	getDescription() {
 		const { person } = this.state;
 		if (person.description) {
-			return <div className="description">{Parser(person.description)}</div>;
+			return (
+				<div className="description" key="description">
+					{Parser(person.description)}
+				</div>
+			);
 		} else {
 			return null;
 		}
@@ -194,12 +216,7 @@ class PersonPage extends Component {
 							</div>
 						</div>
 					</section>
-					<section className="person-data">
-						<div className="container">
-							{this.getInfoTable()}
-							{this.getDescription()}
-						</div>
-					</section>
+					{this.getPersonDataSection()}
 					{_.keys(person.playerStatYears).length ? (
 						<PlayerStatSection person={person} />
 					) : (
