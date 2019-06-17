@@ -508,6 +508,7 @@
 				}
 			}
 			@media #{$mobile-only} {
+				margin: 8pt 0;
 				.team-image {
 					display: none;
 				}
@@ -531,6 +532,7 @@
 			flex-wrap: wrap;
 			width: 100%;
 			.team-block {
+				min-width: 250px;
 				position: relative;
 				flex-grow: 1;
 				flex-basis: 0;
@@ -583,7 +585,6 @@
 			padding: 0;
 		}
 		.team-block {
-			min-width: 250px;
 			.player {
 				display: flex;
 			}
