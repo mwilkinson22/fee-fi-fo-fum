@@ -212,6 +212,7 @@ class PlayerStatSection extends Component {
 			const header = <h2 key={category}>{category}</h2>;
 			const boxes = _.chain(keys)
 				.filter(key => totalStats[key])
+				.filter(key => totalStats[key].gameCount > 0)
 				.filter(key => totalStats[key].total > 0 || !playerStatTypes[key].moreIsBetter)
 				.map(key => (
 					<SingleStatBox
