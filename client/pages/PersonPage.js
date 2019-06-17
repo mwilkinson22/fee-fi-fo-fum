@@ -200,7 +200,11 @@ class PersonPage extends Component {
 							{this.getDescription()}
 						</div>
 					</section>
-					{_.keys(person.playerStatYears).length && <PlayerStatSection person={person} />}
+					{_.keys(person.playerStatYears).length ? (
+						<PlayerStatSection person={person} />
+					) : (
+						""
+					)}
 				</div>
 			);
 		}
