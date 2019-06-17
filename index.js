@@ -100,4 +100,5 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export const PORT = process.env.PORT || 3000;
+console.log("\x1b[32m", `Application started and listening on port ${PORT}`);
 app.listen(PORT);
