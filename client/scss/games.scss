@@ -478,6 +478,52 @@
 			}
 		}
 	}
+	section.game-events {
+		.events {
+			display: grid;
+			background: #f4f4f4;
+			box-shadow: 2pt 2pt 2pt #888;
+			h6 {
+				grid-column: 1 / -1;
+				text-align: center;
+				font-size: 16pt;
+				background: #e7e7e7;
+				padding: 4pt;
+			}
+			div {
+				&.team-image {
+					background: $claret;
+				}
+				display: flex;
+				padding: 4pt;
+				flex-direction: column;
+				align-items: center;
+				font-weight: 600;
+				justify-content: center;
+				a:hover {
+					color: $claret;
+				}
+				img {
+					max-height: 40pt;
+				}
+			}
+			@media #{$mobile-only} {
+				.team-image {
+					display: none;
+				}
+				div {
+					padding-bottom: 8pt;
+				}
+			}
+			@media #{$desktop-and-tablet} {
+				grid-template-columns: 1fr 1fr;
+				div {
+					font-size: 14pt;
+				}
+			}
+		}
+	}
+
 	section.match-squads,
 	section.pregame-squads {
 		.team-blocks {

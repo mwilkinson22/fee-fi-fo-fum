@@ -14,6 +14,7 @@ import TeamBanner from "../components/teams/TeamBanner";
 import TeamForm from "../components/games/TeamForm";
 import PregameSquadList from "../components/games/PregameSquadList";
 import MatchSquadList from "../components/games/MatchSquadList";
+import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
 
 //Actions
@@ -180,6 +181,15 @@ class GamePage extends Component {
 		}
 	}
 
+	generateEvents() {
+		const { game } = this.state;
+		if (game.squadsAnnounced) {
+			return <GameEvents game={game} />;
+		} else {
+			return null;
+		}
+	}
+
 	generateSquads() {
 		const { game } = this.state;
 		if (game.squadsAnnounced) {
@@ -272,6 +282,7 @@ class GamePage extends Component {
 					{this.generatePregameList()}
 					{this.generateForm()}
 
+					{this.generateEvents()}
 					{this.generateSquads()}
 					{this.generateNewsPosts()}
 				</div>
