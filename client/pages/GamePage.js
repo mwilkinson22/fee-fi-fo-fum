@@ -30,6 +30,7 @@ import { Redirect } from "react-router-dom";
 
 //Helpers
 import { getLastGame } from "~/helpers/gameHelper";
+import LeagueTable from "~/client/components/seasons/LeagueTable";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -269,6 +270,40 @@ class GamePage extends Component {
 		}
 	}
 
+	generateLeagueTable() {
+		const { localTeam } = this.props;
+		const { _competition, date, status, _opposition } = this.state.game;
+		if (status >= 2 && _competition.type == "League") {
+			const dayOfWeek = date.getDay();
+			let toDate;
+			if (dayOfWeek == 1) {
+				//If it's a Monday, advance to tuesday
+				toDate = _.clone(date)
+					.next()
+					.tuesday();
+			} else {
+				//Otherwise get midnight the next monday
+				toDate = _.clone(date)
+					.next()
+					.monday()
+					.at("00:00:00");
+			}
+
+			return (
+				<section className="league-table">
+					<div className="container">
+						<LeagueTable
+							competition={_competition._id}
+							year={date.getFullYear()}
+							toDate={toDate}
+							highlightTeams={[localTeam, _opposition._id]}
+						/>
+					</div>
+				</section>
+			);
+		}
+	}
+
 	render() {
 		const { postList } = this.props;
 		const { game } = this.state;
@@ -299,6 +334,7 @@ class GamePage extends Component {
 					{this.generateForm()}
 					{this.generateSquads()}
 					{this.generateStats()}
+					{this.generateLeagueTable()}
 				</div>
 			);
 		}

@@ -120,10 +120,10 @@ class LeagueTable extends Component {
 			newState.games = [...games.local, ...games.neutral];
 
 			if (fromDate) {
-				newState.games = newState.games.filter(g => g.date >= new Date(fromDate));
+				newState.games = newState.games.filter(g => g.date >= fromDate);
 			}
 			if (toDate) {
-				newState.games = newState.games.filter(g => g.date <= new Date(toDate));
+				newState.games = newState.games.filter(g => g.date <= toDate);
 			}
 		}
 
@@ -307,11 +307,13 @@ class LeagueTable extends Component {
 LeagueTable.propTypes = {
 	competition: PropTypes.string.isRequired,
 	year: PropTypes.number.isRequired,
-	fromDate: PropTypes.string,
-	toDate: PropTypes.string
+	highlightTeams: PropTypes.arrayOf(PropTypes.string),
+	fromDate: PropTypes.instanceOf(Date),
+	toDate: PropTypes.instanceOf(Date)
 };
 
 LeagueTable.defaultProps = {
+	highlightTeams: null,
 	fromDate: null,
 	toDate: null
 };
