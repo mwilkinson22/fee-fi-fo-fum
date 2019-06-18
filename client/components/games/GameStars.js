@@ -92,7 +92,16 @@ class GameStars extends Component {
 									{key == "M" ? value : PlayerStatsHelper.toString(key, value)}
 								</span>
 								<span className="key">{playerStatTypes[key].plural}</span>
-								{value == bestValue ? <span className="best">★</span> : ""}
+								{value == bestValue ? (
+									<span
+										className="best"
+										title={`${moreIsBetter ? "Most" : "Least"} in game`}
+									>
+										★
+									</span>
+								) : (
+									""
+								)}
 							</div>
 						);
 					})

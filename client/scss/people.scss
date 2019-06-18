@@ -80,6 +80,7 @@
 		width: 100%;
 		align-items: flex-start;
 		overflow: hidden;
+		pointer-events: none;
 		.person-image {
 			pointer-events: none;
 			top: 0;
