@@ -17,6 +17,7 @@ import MatchSquadList from "../components/games/MatchSquadList";
 import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
 import HeadToHeadStats from "../components/games/HeadToHeadStats";
+import GameStars from "../components/games/GameStars";
 
 //Actions
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
@@ -261,7 +262,10 @@ class GamePage extends Component {
 		if (game._competition.instance.scoreOnly || game.status < 3) {
 			return null;
 		} else {
-			return [<HeadToHeadStats game={game} key="head-to-head" />];
+			return [
+				<HeadToHeadStats game={game} key="head-to-head" />,
+				<GameStars game={game} key="game-stars" />
+			];
 		}
 	}
 

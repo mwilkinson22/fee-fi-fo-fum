@@ -128,7 +128,7 @@ class SquadListPage extends Component {
 				/>
 			);
 		});
-		return <div className="squad-list">{players}</div>;
+		return <div className="person-card-grouping">{players}</div>;
 	}
 
 	generateHelmet() {

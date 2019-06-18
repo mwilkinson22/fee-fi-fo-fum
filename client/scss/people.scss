@@ -89,6 +89,18 @@
 	}
 }
 
+.person-card-grouping {
+	display: grid;
+	grid-gap: 10pt;
+	padding: 10pt 5%;
+	@media #{$desktop-and-tablet} {
+		grid-template-columns: repeat(auto-fill, minmax(250pt, 1fr));
+	}
+	@media #{$mobile-only} {
+		grid-template-columns: 1fr;
+	}
+}
+
 .person-page {
 	section.header {
 		position: relative;
