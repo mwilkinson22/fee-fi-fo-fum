@@ -233,7 +233,7 @@
 			background-size: cover;
 			min-height: 50vh;
 			flex-direction: column-reverse;
-			justify-content: start;
+			justify-content: flex-start;
 			.game-details {
 				background: $gameInfoBackground;
 				text-align: center;
