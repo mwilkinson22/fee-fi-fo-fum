@@ -293,8 +293,8 @@ class GamePage extends Component {
 						{this.generateEditLink()}
 					</section>
 					{this.generateCountdown()}
-					{this.generateNewsPosts()}
 					{this.generateEvents()}
+					{this.generateNewsPosts()}
 					{this.generatePregameList()}
 					{this.generateForm()}
 					{this.generateSquads()}
