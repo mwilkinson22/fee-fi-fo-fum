@@ -40,6 +40,11 @@ class HeadToHeadStats extends Component {
 
 		const groupedStats = _.chain(playerStatTypes)
 			.map((obj, key) => {
+				//No reason to return 'Points'
+				if (key == "PT") {
+					return null;
+				}
+
 				//Get values
 				const values = _.chain(teams)
 					.map(({ _id }) => [_id, processedStats[_id][key]])
