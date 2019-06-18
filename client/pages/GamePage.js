@@ -256,12 +256,12 @@ class GamePage extends Component {
 		return strings.join("") + " - " + new Date(date).toString("dd/MM/yyyy");
 	}
 
-	generateHeadToHeadStats() {
+	generateStats() {
 		const { game } = this.state;
 		if (game._competition.instance.scoreOnly || game.status < 3) {
 			return null;
 		} else {
-			return <HeadToHeadStats game={game} />;
+			return [<HeadToHeadStats game={game} key="head-to-head" />];
 		}
 	}
 
@@ -296,7 +296,7 @@ class GamePage extends Component {
 					{this.generateSquads()}
 					{this.generateNewsPosts()}
 
-					{this.generateHeadToHeadStats()}
+					{this.generateStats()}
 				</div>
 			);
 		}
