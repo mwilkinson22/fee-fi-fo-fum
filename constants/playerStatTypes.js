@@ -88,7 +88,7 @@ module.exports = {
 		moreIsBetter: true,
 		type: "Attack",
 		scoreOnly: false,
-		requiredForGameStar: 3
+		requiredForGameStar: 4
 	},
 	AT: {
 		singular: "Attacking Kick",
