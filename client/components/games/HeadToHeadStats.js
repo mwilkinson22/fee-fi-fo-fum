@@ -16,7 +16,7 @@ class HeadToHeadStats extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { game, localTeam, fullTeams } = nextProps;
 		const newState = { game };
 		newState.teams = [fullTeams[localTeam], game._opposition];
@@ -140,6 +140,8 @@ class HeadToHeadStats extends Component {
 					<div className="container">{this.renderStats(statGroups)}</div>
 				</section>
 			);
+		} else {
+			return null;
 		}
 	}
 }
