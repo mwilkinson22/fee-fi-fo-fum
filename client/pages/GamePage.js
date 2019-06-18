@@ -16,6 +16,7 @@ import PregameSquadList from "../components/games/PregameSquadList";
 import MatchSquadList from "../components/games/MatchSquadList";
 import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
+import HeadToHeadStats from "../components/games/HeadToHeadStats";
 
 //Actions
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
@@ -255,6 +256,15 @@ class GamePage extends Component {
 		return strings.join("") + " - " + new Date(date).toString("dd/MM/yyyy");
 	}
 
+	generateHeadToHeadStats() {
+		const { game } = this.state;
+		if (game._competition.instance.scoreOnly || game.status < 3) {
+			return null;
+		} else {
+			return <HeadToHeadStats game={game} />;
+		}
+	}
+
 	render() {
 		const { postList } = this.props;
 		const { game } = this.state;
@@ -285,6 +295,8 @@ class GamePage extends Component {
 					{this.generateEvents()}
 					{this.generateSquads()}
 					{this.generateNewsPosts()}
+
+					{this.generateHeadToHeadStats()}
 				</div>
 			);
 		}
