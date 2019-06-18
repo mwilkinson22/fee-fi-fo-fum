@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { fetchNeutralGames } from "../../actions/neutralGamesActions";
 import { fetchGames, fetchGameList } from "../../actions/gamesActions";
@@ -46,7 +47,9 @@ class LeagueTable extends Component {
 			fetchGames,
 			competition,
 			year,
-			localTeam
+			localTeam,
+			fromDate,
+			toDate
 		} = nextProps;
 		const newState = {};
 
@@ -93,7 +96,7 @@ class LeagueTable extends Component {
 		} else {
 			games.local = _.chain(games.local)
 				.map(id => {
-					const { isAway, _opposition, score } = fullGames[id];
+					const { isAway, _opposition, score, date } = fullGames[id];
 					if (!score) {
 						return null;
 					}
@@ -108,12 +111,20 @@ class LeagueTable extends Component {
 						_homeTeam,
 						_awayTeam,
 						homePoints,
-						awayPoints
+						awayPoints,
+						date
 					};
 				})
 				.filter(_.identity)
 				.value();
 			newState.games = [...games.local, ...games.neutral];
+
+			if (fromDate) {
+				newState.games = newState.games.filter(g => g.date >= new Date(fromDate));
+			}
+			if (toDate) {
+				newState.games = newState.games.filter(g => g.date <= new Date(toDate));
+			}
 		}
 
 		return newState;
@@ -140,7 +151,7 @@ class LeagueTable extends Component {
 						game._competition === competitionSegment._id &&
 						validateGameDate(game, "results", year)
 				)
-				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints"]))
+				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints", "date"]))
 				.value();
 
 			games.local.push(...l);
@@ -293,6 +304,18 @@ class LeagueTable extends Component {
 	}
 }
 
+LeagueTable.propTypes = {
+	competition: PropTypes.string.isRequired,
+	year: PropTypes.number.isRequired,
+	fromDate: PropTypes.string,
+	toDate: PropTypes.string
+};
+
+LeagueTable.defaultProps = {
+	fromDate: null,
+	toDate: null
+};
+
 function mapStateToProps({ config, games, teams, competitions }, ownProps) {
 	const { teamList } = teams;
 	const { competitionSegmentList } = competitions;
@@ -304,8 +327,7 @@ function mapStateToProps({ config, games, teams, competitions }, ownProps) {
 		gameList,
 		fullGames,
 		localTeam,
-		competitionSegmentList,
-		...ownProps
+		competitionSegmentList
 	};
 }
 
