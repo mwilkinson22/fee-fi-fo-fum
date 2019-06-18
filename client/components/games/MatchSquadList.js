@@ -198,7 +198,12 @@ class MatchSquadList extends Component {
 		if (!teamBlocks) {
 			return null;
 		} else {
-			return <section className="match-squads">{teamBlocks}</section>;
+			return (
+				<section className="match-squads">
+					<h2>Teams</h2>
+					{teamBlocks}
+				</section>
+			);
 		}
 	}
 }

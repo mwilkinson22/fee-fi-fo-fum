@@ -639,7 +639,10 @@
 		}
 	}
 	section.match-squads {
-		padding: 0;
+		padding-bottom: 0;
+		h2 {
+			margin-bottom: 8pt;
+		}
 		.team-block {
 			.row {
 				display: flex;
