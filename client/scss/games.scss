@@ -743,6 +743,8 @@
 								}
 							}
 							.name-bar {
+								border-radius: 4pt;
+								overflow: hidden;
 								.number,
 								.name {
 									padding: 2pt 8pt;
@@ -751,12 +753,6 @@
 								.number {
 									min-width: 30pt;
 								}
-							}
-						}
-						.player.starting {
-							.name-bar {
-								border-radius: 4pt;
-								overflow: hidden;
 							}
 						}
 					}
