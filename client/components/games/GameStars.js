@@ -33,7 +33,8 @@ class GameStars extends Component {
 			.filter(s => s.requiredForGameStar !== null)
 			.value();
 
-		const cards = _.chain(game.playerStats)
+		const processedStats = PlayerStatsHelper.processNestedStats(game.playerStats);
+		const cards = _.chain(processedStats)
 			.filter(p => p._team == localTeam)
 			.map(({ _player, stats }) => {
 				const processedStats = PlayerStatsHelper.processStats(stats);
@@ -81,12 +82,17 @@ class GameStars extends Component {
 					.sortBy("value")
 					.reverse()
 					.map(({ key, value }) => {
+						const { moreIsBetter } = playerStatTypes[key];
+						const allValues = game.playerStats.map(p => p.stats[key]);
+						const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
+
 						return (
 							<div key={key} className="row">
 								<span className="value">
 									{key == "M" ? value : PlayerStatsHelper.toString(key, value)}
 								</span>
 								<span className="key">{playerStatTypes[key].plural}</span>
+								{value == bestValue ? <span className="best">★</span> : ""}
 							</div>
 						);
 					})
@@ -113,9 +119,7 @@ class GameStars extends Component {
 			return (
 				<section className="game-stars">
 					<h2>Game Stars</h2>
-					<div className="container">
-						<div className="person-card-grouping">{cards}</div>
-					</div>
+					<div className="person-card-grouping">{cards}</div>
 				</section>
 			);
 		} else {

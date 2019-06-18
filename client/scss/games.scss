@@ -842,12 +842,13 @@
 				border-top: solid thin $gold;
 				.row {
 					display: block;
-					.value {
+					.value,
+					.best {
 						color: white;
-						padding-right: 4pt;
 					}
 					.key {
 						color: $gold;
+						padding: 0 4pt;
 						font-weight: bold;
 					}
 				}
