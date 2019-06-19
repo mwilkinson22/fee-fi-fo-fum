@@ -834,23 +834,33 @@
 		}
 	}
 	section.game-stars {
-		.person-card {
-			.game-star-stats {
-				@include header;
-				text-shadow: 1px 1px 1px black;
-				margin-top: 4pt;
-				padding-top: 4pt;
-				border-top: solid thin $gold;
-				.row {
-					display: block;
-					.value,
-					.best {
-						color: white;
-					}
-					.key {
-						color: $gold;
-						padding: 0 4pt;
-						font-weight: bold;
+		.person-card-grouping {
+			.person-card {
+				.game-star-stats {
+					@include header;
+					text-shadow: 1px 1px 1px black;
+					margin-top: 4pt;
+					padding-top: 4pt;
+					border-top: solid thin $gold;
+					flex-grow: 1;
+					display: flex;
+					flex-direction: column;
+					.row {
+						&:not(:first-child) {
+							margin-top: 4pt;
+						}
+						.key,
+						.value {
+							display: block;
+						}
+						.value,
+						.best {
+							color: white;
+						}
+						.key {
+							color: $gold;
+							font-weight: bold;
+						}
 					}
 				}
 			}

@@ -86,22 +86,44 @@ class GameStars extends Component {
 						const allValues = game.playerStats.map(p => p.stats[key]);
 						const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
 
+						//Get Value String
+						let valueString;
+						switch (key) {
+							case "TS":
+								if (!values.find(v => v.key == "TK")) {
+									//Show Tackles
+									const { TK, MI } = game.playerStats.find(
+										p => p._player == id
+									).stats;
+									valueString =
+										PlayerStatsHelper.toString(key, value) +
+										` (${TK}/${TK + MI})`;
+								}
+								break;
+							case "M":
+								valueString = value;
+								break;
+						}
+						if (!valueString) {
+							valueString = PlayerStatsHelper.toString(key, value);
+						}
+
 						return (
 							<div key={key} className="row">
 								<span className="value">
-									{key == "M" ? value : PlayerStatsHelper.toString(key, value)}
+									{value == bestValue ? (
+										<span
+											className="best"
+											title={`${moreIsBetter ? "Most" : "Least"} in game`}
+										>
+											★&nbsp;
+										</span>
+									) : (
+										""
+									)}
+									{valueString}&nbsp;
 								</span>
-								<span className="key">{playerStatTypes[key].plural}</span>
-								{value == bestValue ? (
-									<span
-										className="best"
-										title={`${moreIsBetter ? "Most" : "Least"} in game`}
-									>
-										★
-									</span>
-								) : (
-									""
-								)}
+								<span className="key">{playerStatTypes[key].plural} </span>
 							</div>
 						);
 					})
