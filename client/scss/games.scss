@@ -849,15 +849,15 @@
 						&:not(:first-child) {
 							margin-top: 4pt;
 						}
-						.key,
+						.label,
 						.value {
-							display: block;
+							display: inline-block;
 						}
 						.value,
 						.best {
 							color: white;
 						}
-						.key {
+						.label {
 							color: $gold;
 							font-weight: bold;
 						}

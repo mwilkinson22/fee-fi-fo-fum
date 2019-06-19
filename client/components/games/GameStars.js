@@ -108,6 +108,23 @@ class GameStars extends Component {
 							valueString = PlayerStatsHelper.toString(key, value);
 						}
 
+						//Label
+						let label;
+						switch (key) {
+							case "TS":
+								label = "Tackling";
+								break;
+							case "KS":
+								label = "Kicking";
+								break;
+							case "AG":
+								label = "Avg Gain";
+								break;
+							default:
+								label = playerStatTypes[key][value === 1 ? "singular" : "plural"];
+								break;
+						}
+
 						return (
 							<div key={key} className="row">
 								<span className="value">
@@ -123,7 +140,7 @@ class GameStars extends Component {
 									)}
 									{valueString}&nbsp;
 								</span>
-								<span className="key">{playerStatTypes[key].plural} </span>
+								<span className="label">{label} </span>
 							</div>
 						);
 					})
