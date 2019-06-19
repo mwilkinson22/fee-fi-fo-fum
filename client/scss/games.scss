@@ -172,6 +172,8 @@
 .game-page {
 	h2 {
 		text-align: center;
+		font-size: 2em;
+		margin-bottom: 8pt;
 	}
 	section:not(.header) {
 		padding: 18pt 0;
@@ -417,9 +419,6 @@
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
-				h2 {
-					width: 100%;
-				}
 				.team {
 					flex-grow: 1;
 					margin: 10pt;
@@ -640,9 +639,6 @@
 	}
 	section.match-squads {
 		padding-bottom: 0;
-		h2 {
-			margin-bottom: 8pt;
-		}
 		.team-block {
 			.row {
 				display: flex;

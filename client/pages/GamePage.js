@@ -292,6 +292,7 @@ class GamePage extends Component {
 			return (
 				<section className="league-table">
 					<div className="container">
+						<h2>After this round</h2>
 						<LeagueTable
 							competition={_competition._id}
 							year={date.getFullYear()}
