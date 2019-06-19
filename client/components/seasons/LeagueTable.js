@@ -254,7 +254,7 @@ class LeagueTable extends Component {
 					"data.F.content",
 					"data.team-name.content"
 				],
-				["desc", "desc", "asc", "asc"]
+				["desc", "desc", "desc", "asc"]
 			)
 			.map((row, pos) => {
 				row.data.position.content = pos + 1;
