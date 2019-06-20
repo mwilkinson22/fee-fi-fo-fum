@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import _ from "lodash";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
@@ -6,7 +7,7 @@ import TeamImage from "../teams/TeamImage";
 import playerStatTypes from "../../../constants/playerStatTypes";
 import Table from "../Table";
 
-export default class StatsTables extends Component {
+class StatsTables extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -15,25 +16,22 @@ export default class StatsTables extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { games, players } = nextProps;
-
-		//Ensure exactly one type of table is called
-		if (!games && !players) {
-			throw new Error("Either games or players must be passed into StatsTables");
-		}
-		if (games && players) {
-			throw new Error("Only one out of games and players can be passed into StatsTables");
-		}
-
-		const tableType = games ? "games" : "players";
+		const { listType, data } = nextProps;
 
 		//Get Rows
 		let rows;
-		if (games) {
-			rows = StatsTables.processGameList(games);
-		}
-		if (players) {
-			rows = StatsTables.processPlayerList(games);
+		let firstColumnHeader;
+		switch (listType) {
+			case "player": {
+				rows = StatsTables.processGameList(data);
+				firstColumnHeader = "Game";
+				break;
+			}
+			case "games": {
+				rows = StatsTables.processGameList(data);
+				console.log(data);
+				break;
+			}
 		}
 
 		const statTypes = _.chain(rows)
@@ -51,7 +49,7 @@ export default class StatsTables extends Component {
 			activeTab = tabs[0];
 		}
 
-		return { statTypes, rows, activeTab, tableType };
+		return { statTypes, rows, activeTab, firstColumnHeader };
 	}
 
 	static processGameList(games) {
@@ -134,7 +132,7 @@ export default class StatsTables extends Component {
 	}
 
 	renderColumns() {
-		const { statTypes, activeTab, tableType } = this.state;
+		const { statTypes, activeTab, firstColumnHeader } = this.state;
 		const columnsFromStatType = statTypes[activeTab].map(key => {
 			const stat = playerStatTypes[key];
 			return {
@@ -147,7 +145,7 @@ export default class StatsTables extends Component {
 		return [
 			{
 				key: "first",
-				label: tableType === "games" ? "Game" : "Player",
+				label: firstColumnHeader,
 				defaultAscSort: true,
 				dataUsesTh: true
 			},
@@ -156,14 +154,34 @@ export default class StatsTables extends Component {
 	}
 
 	renderFoot() {
+		const { showTotal, showAverage } = this.props;
 		const { statTypes, activeTab, rows } = this.state;
-		if (rows.length < 2) {
+		if (rows.length < 2 || (!showTotal && !showAverage)) {
 			return null;
 		} else {
 			const data = rows.map(row => {
 				return _.mapValues(row.data, stat => stat.sortValue);
 			});
 			const summedStats = PlayerStatsHelper.sumStats(data);
+
+			//Get Labels
+			const first = [];
+			if (showTotal) {
+				first.push(
+					<span className="total" key="total">
+						Total
+					</span>
+				);
+			}
+			if (showAverage) {
+				first.push(
+					<span className="average" key="average">
+						Average
+					</span>
+				);
+			}
+
+			//Get Data
 			const foot = _.chain(statTypes[activeTab])
 				.map(key => {
 					const stat = playerStatTypes[key];
@@ -174,21 +192,27 @@ export default class StatsTables extends Component {
 						total = null;
 					}
 
-					content.push(
+					const totalSpan = (
 						<span className="total" key="total" title={`Total ${stat.plural}`}>
 							{PlayerStatsHelper.toString(key, total)}
 						</span>
 					);
-					if (["TS", "KS"].indexOf(key) === -1) {
-						content.push(
-							<span
-								className="average"
-								key="average"
-								title={`Average ${stat.plural}`}
-							>
-								{PlayerStatsHelper.toString(key, average)}
-							</span>
-						);
+					const averageSpan = (
+						<span className="average" key="average" title={`Average ${stat.plural}`}>
+							{PlayerStatsHelper.toString(key, average)}
+						</span>
+					);
+
+					if (["TS", "KS"].indexOf(key) > -1) {
+						//For Tackle and Kicking Success, we just show the one value regardless of settings
+						content.push(averageSpan);
+					} else {
+						if (showTotal) {
+							content.push(totalSpan);
+						}
+						if (showAverage) {
+							content.push(averageSpan);
+						}
 					}
 
 					return [key, content];
@@ -196,14 +220,7 @@ export default class StatsTables extends Component {
 				.fromPairs()
 				.value();
 			return {
-				first: [
-					<span className="total" key="total">
-						Total
-					</span>,
-					<span className="average" key="average">
-						Average
-					</span>
-				],
+				first,
 				...foot
 			};
 		}
@@ -228,3 +245,17 @@ export default class StatsTables extends Component {
 		);
 	}
 }
+
+StatsTables.propTypes = {
+	data: PropTypes.array.isRequired,
+	listType: PropTypes.oneOf(["player", "game"]).isRequired,
+	showAverage: PropTypes.bool,
+	showTotal: PropTypes.bool
+};
+
+StatsTables.defaultProps = {
+	showAverage: true,
+	showTotal: true
+};
+
+export default StatsTables;
