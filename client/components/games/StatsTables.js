@@ -102,6 +102,7 @@ class StatsTables extends Component {
 				const { _player, _team, stats } = p;
 				const player = eligiblePlayers[_team].find(p => p._player._id == _player);
 
+				const { number } = player;
 				const { name, slug } = player._player;
 
 				let first;
@@ -109,7 +110,10 @@ class StatsTables extends Component {
 					<div className="badge-wrapper" key="image">
 						<TeamImage team={teamList[_team]} variant="dark" key="image" />
 					</div>,
-					<div key="name">{`${p.number ? `${p.number}. ` : ""}${name.full}`}</div>
+					<div key="name" className="name">
+						<div>{`${number ? `${number}. ` : ""}${name.first}`}</div>
+						<div>{name.last}</div>
+					</div>
 				];
 
 				if (_team == _opposition._id) {
