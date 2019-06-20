@@ -261,7 +261,7 @@ class GamePage extends Component {
 			strings = strings.reverse();
 		}
 
-		return strings.join("") + " - " + new Date(date).toString("dd/MM/yyyy");
+		return strings.join("") + " - " + date.toString("dd/MM/yyyy");
 	}
 
 	generateStats() {
