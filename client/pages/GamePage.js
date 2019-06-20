@@ -318,7 +318,6 @@ class GamePage extends Component {
 	generateLeagueTable() {
 		const { localTeam } = this.props;
 		const { _competition, date, status, _opposition } = this.state.game;
-		console.log("Loading League Table");
 		if (status >= 2 && _competition.type == "League") {
 			const dayOfWeek = date.getDay();
 			let toDate;

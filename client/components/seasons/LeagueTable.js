@@ -35,10 +35,12 @@ class LeagueTable extends Component {
 			fetchAllCompetitionSegments();
 		}
 
-		this.state = {};
+		this.state = {
+			isLoadingGames: false
+		};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const {
 			gameList,
 			neutralGames,
@@ -99,9 +101,15 @@ class LeagueTable extends Component {
 
 		const gamesToLoad = _.reject(games.local, id => fullGames[id]);
 		if (gamesToLoad.length) {
-			console.log("Loading", gamesToLoad);
-			fetchGames(gamesToLoad);
+			if (prevState.isLoadingGames) {
+				console.log("already loading");
+			} else {
+				console.log("Loading:", gamesToLoad);
+				fetchGames(gamesToLoad);
+				newState.isLoadingGames = true;
+			}
 		} else {
+			newState.isLoadingGames = false;
 			games.local = _.chain(games.local)
 				.map(id => {
 					const { isAway, _opposition, score, date } = fullGames[id];
