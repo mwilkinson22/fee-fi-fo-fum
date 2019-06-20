@@ -101,10 +101,7 @@ class LeagueTable extends Component {
 
 		const gamesToLoad = _.reject(games.local, id => fullGames[id]);
 		if (gamesToLoad.length) {
-			if (prevState.isLoadingGames) {
-				console.log("already loading");
-			} else {
-				console.log("Loading:", gamesToLoad);
+			if (!prevState.isLoadingGames) {
 				fetchGames(gamesToLoad);
 				newState.isLoadingGames = true;
 			}
