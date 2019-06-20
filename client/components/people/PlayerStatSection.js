@@ -274,6 +274,7 @@ class PlayerStatSection extends Component {
 				content = [
 					this.getStatBoxes(),
 					<div className="container" key="tables">
+						<h2>Games</h2>
 						<StatsTables listType="player" data={filteredGames} />
 					</div>
 				];

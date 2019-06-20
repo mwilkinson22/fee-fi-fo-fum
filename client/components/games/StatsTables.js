@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import _ from "lodash";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
@@ -16,7 +17,7 @@ class StatsTables extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { listType, data } = nextProps;
+		const { listType, data, teamList } = nextProps;
 
 		//Get Rows
 		let rows;
@@ -27,9 +28,9 @@ class StatsTables extends Component {
 				firstColumnHeader = "Game";
 				break;
 			}
-			case "games": {
-				rows = StatsTables.processGameList(data);
-				console.log(data);
+			case "game": {
+				rows = StatsTables.processPlayerList(data, teamList);
+				firstColumnHeader = "Player";
 				break;
 			}
 		}
@@ -92,7 +93,60 @@ class StatsTables extends Component {
 		return rows;
 	}
 
-	static processPlayerList() {}
+	static processPlayerList(game, teamList) {
+		const { isAway, _opposition, playerStats, eligiblePlayers } = game;
+		const rows = _.chain(playerStats)
+			.map(p => ({ ...p, isAway: p._team == _opposition._id ? !isAway : isAway }))
+			.orderBy(["isAway", "position"], ["asc", "asc"])
+			.map((p, sortValue) => {
+				const { _player, _team, stats } = p;
+				const player = eligiblePlayers[_team].find(p => p._player._id == _player);
+
+				const { name, slug } = player._player;
+
+				let first;
+				const firstContent = [
+					<div className="badge-wrapper" key="image">
+						<TeamImage team={teamList[_team]} variant="dark" key="image" />
+					</div>,
+					<div key="name">{`${p.number ? `${p.number}. ` : ""}${name.full}`}</div>
+				];
+
+				if (_team == _opposition._id) {
+					first = {
+						content: <span>{firstContent}</span>,
+						sortValue
+					};
+				} else {
+					first = {
+						content: <Link to={`/players/${slug}`}>{firstContent}</Link>,
+						sortValue
+					};
+				}
+
+				const formattedStats = _.chain(PlayerStatsHelper.processStats(stats))
+					.mapValues()
+					.mapValues((val, key) => {
+						if (!playerStatTypes[key]) {
+							return null;
+						}
+						return {
+							content: PlayerStatsHelper.toString(key, val),
+							sortValue: val
+						};
+					})
+					.pickBy(_.identity)
+					.value();
+
+				const data = {
+					first,
+					...formattedStats
+				};
+				return { key: slug, data };
+			})
+			.value();
+		return rows;
+	}
 
 	handleTableHeaderClick(inputKey = null, enforcedDirection = null) {
 		const { key, asc } = this.state.sortBy;
@@ -229,7 +283,6 @@ class StatsTables extends Component {
 	render() {
 		return (
 			<div className="stat-tables">
-				<h2>Games</h2>
 				{this.renderTabs()}
 				<div className="stat-table-wrapper">
 					<Table
@@ -247,7 +300,7 @@ class StatsTables extends Component {
 }
 
 StatsTables.propTypes = {
-	data: PropTypes.array.isRequired,
+	data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
 	listType: PropTypes.oneOf(["player", "game"]).isRequired,
 	showAverage: PropTypes.bool,
 	showTotal: PropTypes.bool
@@ -258,4 +311,9 @@ StatsTables.defaultProps = {
 	showTotal: true
 };
 
-export default StatsTables;
+function mapStateToProps({ teams }) {
+	const { teamList } = teams;
+	return { teamList };
+}
+
+export default connect(mapStateToProps)(StatsTables);

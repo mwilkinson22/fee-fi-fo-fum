@@ -866,4 +866,66 @@
 			}
 		}
 	}
+	section.stats-table {
+		.stat-table-selector {
+			@include noTextSelect;
+			display: flex;
+			margin-bottom: 14pt;
+			div {
+				flex-grow: 1;
+				width: 100%;
+				padding: 6pt 4pt;
+				background: #fff;
+				cursor: pointer;
+				text-align: center;
+				&:hover {
+					background: #eee;
+				}
+				&.active {
+					pointer-events: none;
+					background: $claret;
+					color: white;
+					font-weight: 600;
+				}
+			}
+
+			@media #{$mobile-only} {
+				flex-direction: column;
+				div:not(.active) + div:not(.active) {
+					border-top: solid thin #eee;
+				}
+			}
+			@media #{$desktop-and-tablet} {
+				border-radius: 4pt;
+				overflow: hidden;
+				div:not(.active) + div:not(.active) {
+					border-left: solid thin #eee;
+				}
+			}
+		}
+		table {
+			tbody {
+				th {
+					> * {
+						display: flex;
+						align-items: center;
+						justify-content: flex-start;
+						padding: 4pt;
+						.badge-wrapper {
+							height: 24pt;
+							width: 40pt;
+							margin: 0 6pt;
+							display: inline-flex;
+							align-items: center;
+							justify-content: center;
+							img {
+								max-width: 100%;
+								max-height: 100%;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

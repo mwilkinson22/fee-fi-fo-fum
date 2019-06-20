@@ -101,6 +101,8 @@ class Table extends Component {
 				const data = row.data[sortBy.key];
 				if (data === undefined) {
 					return 0;
+				} else if (data.sortValue === null) {
+					return sortBy.asc ? 99999999999999 : -999999999999;
 				} else if (data.sortValue !== undefined) {
 					return data.sortValue;
 				} else {

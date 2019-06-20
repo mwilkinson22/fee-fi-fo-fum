@@ -31,6 +31,7 @@ import { Redirect } from "react-router-dom";
 //Helpers
 import { getLastGame } from "~/helpers/gameHelper";
 import LeagueTable from "~/client/components/seasons/LeagueTable";
+import StatsTables from "~/client/components/games/StatsTables";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -61,7 +62,7 @@ class GamePage extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 
 		const { match, slugMap, gameList, fullGames, fetchGames, fullTeams, localTeam } = nextProps;
@@ -86,6 +87,11 @@ class GamePage extends Component {
 				newState.game = fullGames[id];
 				newState.previousGame = fullGames[previousId];
 				newState.isFixture = newState.game.date >= new Date();
+
+				//Update Stat Table on game change
+				if (newState.game != prevState.game) {
+					newState.statTableTeam = "both";
+				}
 			}
 		}
 
@@ -265,9 +271,48 @@ class GamePage extends Component {
 		} else {
 			return [
 				<HeadToHeadStats game={game} key="head-to-head" />,
-				<GameStars game={game} key="game-stars" />
+				<GameStars game={game} key="game-stars" />,
+				this.generateStatsTableSection()
 			];
 		}
+	}
+
+	generateStatsTableSection() {
+		const { localTeam, fullTeams } = this.props;
+		const { game, statTableTeam } = this.state;
+		let tableSelectorOptions = [
+			{ key: localTeam, label: fullTeams[localTeam].name.short },
+			{ key: "both", label: "Both Teams" },
+			{ key: game._opposition._id, label: game._opposition.name.short }
+		];
+		if (game.isAway) {
+			tableSelectorOptions = tableSelectorOptions.reverse();
+		}
+
+		const tableSelector = _.map(tableSelectorOptions, ({ label, key }) => (
+			<div
+				onClick={() => this.setState({ statTableTeam: key })}
+				key={key}
+				className={key == statTableTeam ? "active" : ""}
+			>
+				{label}
+			</div>
+		));
+		let filteredGame = _.clone(game);
+		if (statTableTeam != "both") {
+			filteredGame.playerStats = filteredGame.playerStats.filter(
+				({ _team }) => _team == statTableTeam
+			);
+		}
+		return (
+			<section className="stats-table">
+				<div className="container">
+					<h2>Stats</h2>
+					<div className="stat-table-selector">{tableSelector}</div>
+					<StatsTables listType="game" data={filteredGame} />
+				</div>
+			</section>
+		);
 	}
 
 	generateLeagueTable() {
