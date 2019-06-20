@@ -88,10 +88,18 @@ class LeagueTable extends Component {
 
 		//Set segment as variable, to enable for point inheritance
 		const competitionSegment = _.find(competitionSegmentList, c => c._id == competition);
-		const games = LeagueTable.getGames(competitionSegment, year, gameList, neutralGames);
+		const games = LeagueTable.getGames(
+			competitionSegment,
+			year,
+			gameList,
+			neutralGames,
+			fromDate,
+			toDate
+		);
 
 		const gamesToLoad = _.reject(games.local, id => fullGames[id]);
 		if (gamesToLoad.length) {
+			console.log("Loading", gamesToLoad);
 			fetchGames(gamesToLoad);
 		} else {
 			games.local = _.chain(games.local)
@@ -118,19 +126,19 @@ class LeagueTable extends Component {
 				.filter(_.identity)
 				.value();
 			newState.games = [...games.local, ...games.neutral];
-
-			if (fromDate) {
-				newState.games = newState.games.filter(g => g.date >= fromDate);
-			}
-			if (toDate) {
-				newState.games = newState.games.filter(g => g.date <= toDate);
-			}
 		}
 
 		return newState;
 	}
 
-	static getGames(competitionSegment, year, gameList, neutralGames) {
+	static getGames(
+		competitionSegment,
+		year,
+		gameList,
+		neutralGames,
+		fromDate = null,
+		toDate = null
+	) {
 		const games = {
 			local: [],
 			neutral: []
@@ -142,6 +150,8 @@ class LeagueTable extends Component {
 						game._competition === competitionSegment._id &&
 						validateGameDate(game, "results", year)
 				)
+				.filter(({ date }) => (fromDate ? date >= fromDate : true))
+				.filter(({ date }) => (toDate ? date <= toDate : true))
 				.map(game => game._id)
 				.value();
 
@@ -151,6 +161,8 @@ class LeagueTable extends Component {
 						game._competition === competitionSegment._id &&
 						validateGameDate(game, "results", year)
 				)
+				.filter(({ date }) => (fromDate ? date >= fromDate : true))
+				.filter(({ date }) => (toDate ? date <= toDate : true))
 				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints", "date"]))
 				.value();
 
