@@ -52,6 +52,10 @@ $transition: all 300ms;
 }
 
 @mixin noTextSelect {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 	user-select: none;
 }
 
