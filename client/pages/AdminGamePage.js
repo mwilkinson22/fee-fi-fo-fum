@@ -30,10 +30,9 @@ class AdminGamePage extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { match, slugMap, gameList, fullGames, fetchGames } = nextProps;
 		const { slug } = match.params;
-		let { lastGameId } = prevState;
 		const newState = {};
 		if (!slugMap) {
 			return newState;
@@ -46,9 +45,7 @@ class AdminGamePage extends Component {
 		const id = slugMap[slug].id;
 
 		//Get Previous Game Id
-		if (lastGameId === undefined) {
-			lastGameId = newState.lastGameId = getLastGame(id, gameList);
-		}
+		const lastGameId = (newState.lastGameId = getLastGame(id, gameList));
 
 		//Get Games To Load
 		const gamesRequired = [id];
