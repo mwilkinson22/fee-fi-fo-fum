@@ -305,7 +305,7 @@ class GamePage extends Component {
 			);
 		}
 		return (
-			<section className="stats-table">
+			<section className="stats-table" key="stats-table">
 				<div className="container">
 					<h2>Stats</h2>
 					<div className="stat-table-selector">{tableSelector}</div>
