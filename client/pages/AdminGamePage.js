@@ -207,7 +207,7 @@ class AdminGamePage extends Component {
 		const { game, lastGame, manOfSteelPoints } = this.state;
 		return (
 			<div>
-				<HelmetBuilder key="helmet" title={this.getPageTitle()} />
+				<HelmetBuilder title={this.getPageTitle()} canonical={`/admin/game/${game.slug}`} />
 				<Switch>
 					<Route
 						path="/admin/game/:slug/man-of-steel"

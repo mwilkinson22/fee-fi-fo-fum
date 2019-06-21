@@ -12,7 +12,7 @@ export default class AdminGamePage extends Component {
 		const title = "Add New Game";
 		return (
 			<div className="admin-game-page admin-page">
-				<HelmetBuilder key="helmet" title={title} />
+				<HelmetBuilder title={title} />
 				<section className="page-header">
 					<div className="container">
 						<h1 key="header">{title}</h1>

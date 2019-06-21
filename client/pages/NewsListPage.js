@@ -117,7 +117,7 @@ class NewsListPage extends Component {
 			}
 			return (
 				<div className="post-list-page">
-					<HelmetBuilder title={pageTitle} canonical={`news/${category}`} />
+					<HelmetBuilder title={pageTitle} canonical={`/news/category/${category}`} />
 					{this.generateHeader()}
 					<section className="posts">
 						<div className="container">

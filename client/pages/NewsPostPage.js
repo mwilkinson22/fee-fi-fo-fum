@@ -196,7 +196,7 @@ class NewsPostPage extends Component {
 					<div className={`news-post ${post.category}`}>
 						<HelmetBuilder
 							title={post.title}
-							canonical={`news/post/${post.slug}`}
+							canonical={`/news/post/${post.slug}`}
 							cardImage={post.image}
 							description={
 								post.content.replace(/<[^>]*>/g, "").substring(0, 500) + "..."

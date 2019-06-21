@@ -169,7 +169,7 @@ class AdminGameList extends Component {
 			return <LoadingPage />;
 		} else {
 			const canonical =
-				listType === "fixtures" ? `fixtures/${teamType}` : `results/${year}/${teamType}`;
+				listType === "fixtures" ? `/fixtures/${teamType}` : `/results/${year}/${teamType}`;
 			const pageTitle =
 				listType === "fixtures"
 					? "Huddersfield Giants Fixtures"

@@ -199,7 +199,7 @@ class PersonPage extends Component {
 				<div className={`person-page`}>
 					<HelmetBuilder
 						title={`${person.name.first} ${person.name.last}`}
-						canonical={`${person.isCoach ? "coaches" : "players"}/${person.slug}`}
+						canonical={`/${person.isCoach ? "coaches" : "players"}/${person.slug}`}
 					/>
 					<section className="header">
 						<div className="background" />

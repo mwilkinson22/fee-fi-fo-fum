@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeam, fetchTeamList } from "../actions/teamsActions";
+import { fetchTeam } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -67,7 +67,7 @@ class AdminTeamPage extends Component {
 	getContent() {
 		return (
 			<div>
-				<HelmetBuilder key="helmet" title={this.state.team.name.long} />
+				<HelmetBuilder title={this.state.team.name.long} />
 				<Switch>
 					<Route
 						exact

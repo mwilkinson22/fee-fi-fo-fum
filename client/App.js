@@ -48,7 +48,7 @@ class App extends Component {
 			<div>
 				<ScrollToTop>
 					<Header />
-					<HelmetBuilder />
+					<HelmetBuilder title="" canonical="/" />
 					{renderRoutes(route.routes)}
 					<ToastContainer position="bottom-right" />
 				</ScrollToTop>

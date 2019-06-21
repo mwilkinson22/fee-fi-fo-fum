@@ -144,7 +144,7 @@ class SquadListPage extends Component {
 		title += " Squad";
 
 		//Canonical
-		let canonical = "squads";
+		let canonical = "/squads";
 		if (years[0] != year) {
 			canonical += `/${year}`;
 

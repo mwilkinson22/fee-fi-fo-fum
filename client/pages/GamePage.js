@@ -364,7 +364,7 @@ class GamePage extends Component {
 		} else {
 			return (
 				<div className="game-page">
-					<HelmetBuilder title={this.getPageTitle()} canonical={`games/${game.slug}`} />
+					<HelmetBuilder title={this.getPageTitle()} canonical={`/games/${game.slug}`} />
 					<section className="header">
 						<GameHeaderImage game={game} className="game-header-image" />
 						<div className="game-details">

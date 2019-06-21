@@ -3,7 +3,9 @@ import { localTeam } from "../../config/keys";
 import { detect } from "detect-browser";
 const browser = detect();
 
-export const getCoreConfig = ({ headers, useragent }) => async dispatch => {
+export const getCoreConfig = req => async dispatch => {
+	const { headers, useragent, protocol, originalUrl } = req;
+
 	const config = {
 		//Set Browser
 		browser,
@@ -15,7 +17,13 @@ export const getCoreConfig = ({ headers, useragent }) => async dispatch => {
 		rgba: browser && ["edge", "ie"].indexOf(browser.name) === -1,
 
 		//Local Team
-		localTeam
+		localTeam,
+
+		//Base URL
+		baseUrl: protocol + "://" + req.get("host"),
+
+		//Initial Path
+		initialPath: originalUrl
 	};
 
 	//Check for device
