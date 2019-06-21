@@ -171,6 +171,7 @@
 
 .game-page {
 	@include noTextSelect;
+	overflow: hidden;
 	h2 {
 		text-align: center;
 		font-size: 2em;
@@ -539,10 +540,9 @@
 				flex-direction: column;
 				align-items: center;
 				padding: 10pt;
-				overflow-x: hidden;
+				overflow: visible;
 				.player {
 					@include header;
-					z-index: 2;
 					white-space: nowrap;
 					.name,
 					.number {
@@ -586,6 +586,7 @@
 		.team-block {
 			.player {
 				display: flex;
+				font-size: 1.2em;
 			}
 		}
 		.team-blocks {
@@ -594,7 +595,6 @@
 				.team-block {
 					text-shadow: none;
 					.player {
-						font-size: 18pt;
 						.name,
 						.number {
 							text-shadow: none;
@@ -649,6 +649,38 @@
 						display: flex;
 						overflow: hidden;
 					}
+					&:not(:hover) {
+						.stats-box {
+							display: none;
+						}
+					}
+					.stats-box {
+						background: #111;
+						position: absolute;
+						top: 100%;
+						left: 50%;
+						transform: translateX(-50%);
+						padding: 6pt;
+						display: grid;
+						grid-template-columns: auto auto;
+						z-index: 3;
+						font-family: "Titillium Web";
+						font-size: 0.9em;
+						text-transform: none;
+						box-shadow: 2pt 2pt 2pt #000;
+						align-items: center;
+						.value,
+						label {
+							padding: 2pt;
+						}
+						.value {
+							color: white;
+							text-align: right;
+						}
+						.label {
+							color: $gold;
+						}
+					}
 				}
 				&:last-child {
 					border-top: 2pt rgba(120, 120, 120, 0.4);
@@ -668,6 +700,9 @@
 						margin-bottom: 6pt;
 					}
 					img {
+						display: none;
+					}
+					.name-bar :not(:hover) ~ .stats-box {
 						display: none;
 					}
 					.number,

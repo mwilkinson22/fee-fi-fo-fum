@@ -9,6 +9,9 @@ import TeamImage from "~/client/components/teams/TeamImage";
 import { Link } from "react-router-dom";
 import PersonImage from "~/client/components/people/PersonImage";
 
+//Helpers
+import { getGameStarStats } from "~/helpers/gameHelper";
+
 class MatchSquadList extends Component {
 	constructor(props) {
 		super(props);
@@ -111,6 +114,7 @@ class MatchSquadList extends Component {
 	renderPlayer(player, team) {
 		const { name, id, position, number, slug } = player;
 		const { localTeam } = this.props;
+		const { game } = this.state;
 
 		//Get Styling
 		let nameStyle = {};
@@ -181,6 +185,34 @@ class MatchSquadList extends Component {
 				</div>
 			</div>
 		];
+
+		//Add GameStar stats
+		if (!game._competition.instance.scoreOnly && game.status === 3) {
+			const gameStarStats = getGameStarStats(game.playerStats, id, {
+				T: 1,
+				G: 1,
+				DG: 1,
+				TA: 1,
+				TK: 25
+			});
+			if (gameStarStats.length) {
+				const statList = gameStarStats.map(({ key, label, value }) => {
+					return [
+						<span className="value" key={`${key}-value`}>
+							{value}&nbsp;
+						</span>,
+						<span className="label" key={`${key}-label`}>
+							{label}
+						</span>
+					];
+				});
+				content.push(
+					<div key="stats" className="stats-box">
+						{statList}
+					</div>
+				);
+			}
+		}
 
 		if (team._id == localTeam && slug) {
 			return (

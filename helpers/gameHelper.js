@@ -53,9 +53,19 @@ export function getNextGame(id, gameList) {
 	return getAdjacentGame(id, gameList, true);
 }
 
-export function getGameStarStats(playerStats, _player) {
+export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) {
 	const statTypes = _.chain(playerStatTypes)
-		.map((obj, key) => ({ key, ...obj }))
+		.cloneDeep()
+		.map((obj, key) => {
+			if (overwriteThreshold[key] !== undefined) {
+				obj.requiredForGameStar = overwriteThreshold[key];
+			}
+
+			return {
+				key,
+				...obj
+			};
+		})
 		.filter(s => s.requiredForGameStar !== null)
 		.value();
 
