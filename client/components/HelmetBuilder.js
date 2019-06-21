@@ -22,19 +22,24 @@ class HelmetBuilder extends Component {
 		const url = baseUrl + canonical;
 
 		return (
-			<Helmet>
-				<title>{title}</title>
-				<link rel="canonical" href={url} />
-				<link rel="shortcut icon" href={`${imagePath}favicon.png`} />
-				<meta name="twitter:card" content="summary_large_image" />
-				<meta name="twitter:title" property="og:title" content={title} />
-				<meta name="twitter:site" content="@GiantsFanzine" />
-				<meta name="twitter:creator" content={`@${author}`} />
-				<meta property="og:type" content="website" />
-				<meta name="twitter:image" property="og:image" content={cardImage} />
-				<meta property="twitter:description" content={description} />
-				<meta property="og:url" content={url} />
-			</Helmet>
+			<Helmet
+				key={url}
+				title={title}
+				link={[
+					{ rel: "canonical", href: url },
+					{ rel: "shortcut icon", href: `${imagePath}favicon.png` }
+				]}
+				meta={[
+					{ name: "twitter:card", content: "summary_large_image" },
+					{ name: "twitter:title", property: "og:title", content: title },
+					{ name: "twitter:site", content: "@GiantsFanzine" },
+					{ name: "twitter:creator", content: `@${author}` },
+					{ property: "og:type", content: "website" },
+					{ name: "twitter:image", property: "og:image", content: cardImage },
+					{ property: "twitter:description", content: description },
+					{ property: "og:url", content: url }
+				]}
+			/>
 		);
 	}
 }
