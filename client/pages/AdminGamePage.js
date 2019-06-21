@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchGames, reloadGames, fetchGameList } from "../actions/gamesActions";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -271,6 +271,17 @@ class AdminGamePage extends Component {
 		);
 	}
 
+	async handleRefresh() {
+		const { game, lastGame } = this.state;
+		const { reloadGames } = this.props;
+		const ids = [game._id];
+		if (lastGame) {
+			ids.push(lastGame._id);
+		}
+
+		await reloadGames(ids);
+	}
+
 	render() {
 		const { game } = this.state;
 		if (game === undefined) {
@@ -282,8 +293,16 @@ class AdminGamePage extends Component {
 				<div className="admin-game-page admin-page">
 					<section className="page-header">
 						<div className="container">
-							<h1 key="header">{this.getPageTitle()}</h1>
+							<h1 key="header">
+								{this.getPageTitle()}&nbsp;
+								<span className="refresh" onClick={() => this.handleRefresh()}>
+									↺
+								</span>
+							</h1>
 							{this.getNavigation()}
+							<Link to={`/games/${game.slug}`} className="card nav-card">
+								View on frontend
+							</Link>
 							{this.getSubmenu()}
 						</div>
 					</section>
@@ -302,5 +321,5 @@ function mapStateToProps({ config, games, teams }, ownProps) {
 }
 export default connect(
 	mapStateToProps,
-	{ fetchGames, fetchGameList }
+	{ fetchGames, reloadGames, fetchGameList }
 )(AdminGamePage);

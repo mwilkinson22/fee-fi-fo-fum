@@ -7,6 +7,17 @@ export const fetchGames = ids => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_GAMES, payload: res.data });
 };
 
+export const reloadGames = ids => async (dispatch, getState, api) => {
+	const deleters = _.chain(ids)
+		.map(id => [id, undefined])
+		.fromPairs()
+		.value();
+	dispatch({ type: FETCH_GAMES, payload: deleters });
+	const res = await api.get(`/games/${ids.join(",")}`);
+	dispatch({ type: FETCH_GAMES, payload: res.data });
+	toast.success(`${ids.length} games refreshed`);
+};
+
 export const fetchGameList = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/games`);
 	dispatch({ type: FETCH_GAME_LIST, payload: res.data });
