@@ -12,6 +12,7 @@ import PersonCard from "../people/PersonCard";
 
 //Helpers
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { getGameStarStats } from "~/helpers/gameHelper";
 
 class GameStars extends Component {
 	constructor(props) {
@@ -28,43 +29,11 @@ class GameStars extends Component {
 	processCards() {
 		const { localTeam } = this.props;
 		const { game } = this.state;
-		const statTypes = _.chain(playerStatTypes)
-			.map((obj, key) => ({ key, ...obj }))
-			.filter(s => s.requiredForGameStar !== null)
-			.value();
 
-		const processedStats = PlayerStatsHelper.processNestedStats(game.playerStats);
-		const cards = _.chain(processedStats)
+		const cards = _.chain(game.playerStats)
 			.filter(p => p._team == localTeam)
-			.map(({ _player, stats }) => {
-				const processedStats = PlayerStatsHelper.processStats(stats);
-				const values = _.chain(statTypes)
-					.map(({ key, moreIsBetter, requiredForGameStar }) => {
-						let isValid;
-
-						const value = processedStats[key];
-
-						//Check basic threshold
-						if (value) {
-							isValid = moreIsBetter
-								? value >= requiredForGameStar
-								: value <= requiredForGameStar;
-						}
-
-						//Check for exceptions
-						if (
-							(key == "TS" && processedStats.TK < 25) ||
-							(key == "KS" && processedStats.G < 4)
-						) {
-							isValid = false;
-						}
-
-						if (isValid) {
-							return { key, value };
-						}
-					})
-					.filter(_.identity)
-					.value();
+			.map(({ _player }) => {
+				const values = getGameStarStats(game.playerStats, _player);
 
 				if (values.length) {
 					return { id: _player, values };
@@ -81,54 +50,12 @@ class GameStars extends Component {
 				const rows = _.chain(values)
 					.sortBy("value")
 					.reverse()
-					.map(({ key, value }) => {
+					.map(({ key, label, value, isBest }) => {
 						const { moreIsBetter } = playerStatTypes[key];
-						const allValues = game.playerStats.map(p => p.stats[key]);
-						const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
-
-						//Get Value String
-						let valueString;
-						switch (key) {
-							case "TS":
-								if (!values.find(v => v.key == "TK")) {
-									//Show Tackles
-									const { TK, MI } = game.playerStats.find(
-										p => p._player == id
-									).stats;
-									valueString =
-										PlayerStatsHelper.toString(key, value) +
-										` (${TK}/${TK + MI})`;
-								}
-								break;
-							case "M":
-								valueString = value;
-								break;
-						}
-						if (!valueString) {
-							valueString = PlayerStatsHelper.toString(key, value);
-						}
-
-						//Label
-						let label;
-						switch (key) {
-							case "TS":
-								label = "Tackling";
-								break;
-							case "KS":
-								label = "Kicking";
-								break;
-							case "AG":
-								label = "Avg Gain";
-								break;
-							default:
-								label = playerStatTypes[key][value === 1 ? "singular" : "plural"];
-								break;
-						}
-
 						return (
 							<div key={key} className="row">
 								<span className="value">
-									{value == bestValue ? (
+									{isBest ? (
 										<span
 											className="best"
 											title={`${moreIsBetter ? "Most" : "Least"} in game`}
@@ -138,7 +65,7 @@ class GameStars extends Component {
 									) : (
 										""
 									)}
-									{valueString}&nbsp;
+									{value}&nbsp;
 								</span>
 								<span className="label">{label} </span>
 							</div>

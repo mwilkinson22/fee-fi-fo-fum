@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
+import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 const playerStatTypes = require("~/constants/playerStatTypes");
 
 export function validateGameDate(game, listType, year = null) {
@@ -50,6 +51,85 @@ export function getLastGame(id, gameList) {
 
 export function getNextGame(id, gameList) {
 	return getAdjacentGame(id, gameList, true);
+}
+
+export function getGameStarStats(playerStats, _player) {
+	const statTypes = _.chain(playerStatTypes)
+		.map((obj, key) => ({ key, ...obj }))
+		.filter(s => s.requiredForGameStar !== null)
+		.value();
+
+	const processedStats = PlayerStatsHelper.processStats(
+		playerStats.find(p => p._player == _player).stats
+	);
+	const values = _.chain(statTypes)
+		.map(({ key, moreIsBetter, requiredForGameStar }) => {
+			let isValid;
+
+			const value = processedStats[key];
+
+			//Check basic threshold
+			if (value) {
+				isValid = moreIsBetter
+					? value >= requiredForGameStar
+					: value <= requiredForGameStar;
+			}
+
+			//Check for exceptions
+			if ((key == "TS" && processedStats.TK < 25) || (key == "KS" && processedStats.G < 4)) {
+				isValid = false;
+			}
+
+			if (isValid) {
+				return { key, value };
+			}
+		})
+		.filter(_.identity)
+		.value();
+	return values.map(({ key, value }) => {
+		//Get Value String
+		let valueString;
+		switch (key) {
+			case "TS":
+				if (!values.find(v => v.key == "TK")) {
+					//Show Tackles
+					const { TK, MI } = playerStats.find(p => p._player == _player).stats;
+					valueString = PlayerStatsHelper.toString(key, value) + ` (${TK}/${TK + MI})`;
+				}
+				break;
+			case "M":
+				valueString = value;
+				break;
+		}
+		if (!valueString) {
+			valueString = PlayerStatsHelper.toString(key, value);
+		}
+
+		//Label
+		let label;
+		switch (key) {
+			case "TS":
+				label = "Tackling";
+				break;
+			case "KS":
+				label = "Kicking";
+				break;
+			case "AG":
+				label = "Avg Gain";
+				break;
+			default:
+				label = playerStatTypes[key][value === 1 ? "singular" : "plural"];
+				break;
+		}
+
+		//Check for 'best'
+		const { moreIsBetter } = playerStatTypes[key];
+		const allValues = playerStats.map(p => p.stats[key]);
+		const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
+		const isBest = value === bestValue;
+
+		return { key, value: valueString, label, isBest };
+	});
 }
 
 export function convertTeamToSelect(game, teamList, singleTeam = false, includeNone = false) {
