@@ -178,7 +178,7 @@ gameSchema.query.fullGame = function() {
 				"name _parentCompetition appendCompetitionName instances instance type hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
-				select: "name"
+				select: "name useAllSquads"
 			}
 		})
 		.populate({
@@ -222,7 +222,7 @@ gameSchema.query.pregameImage = function() {
 			select: "name _parentCompetition instances instance hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
-				select: "name"
+				select: "name useAllSquads"
 			}
 		})
 		.populate({
@@ -262,7 +262,7 @@ gameSchema.query.gameDayImage = function() {
 			select: "name _parentCompetition instances instance hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
-				select: "name"
+				select: "name useAllSquads"
 			}
 		})
 		.populate({

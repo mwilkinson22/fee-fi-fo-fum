@@ -91,23 +91,46 @@ async function addEligiblePlayers(games) {
 	});
 	teams = _.keyBy(teams, "_id");
 
+	//Check to see if any games are valid for more than one teamType
+	let teamTypes;
+	if (games.filter(g => g._competition._parentCompetition.useAllSquads).length) {
+		const TeamType = mongoose.model("teamTypes");
+		const results = await TeamType.find({}, "_id gender");
+		teamTypes = _.keyBy(results, "_id");
+	}
+
 	//Loop each game
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
-
 		const year = new Date(game.date).getFullYear();
+
+		//Get Valid Team Types
+		const { useAllSquads } = game._competition._parentCompetition;
+		let validTeamTypes;
+		if (useAllSquads) {
+			const { gender } = teamTypes[game._teamType];
+			validTeamTypes = _.filter(teamTypes, t => t.gender == gender).map(t =>
+				t._id.toString()
+			);
+		} else {
+			validTeamTypes = [game._teamType];
+		}
 
 		//Loop local and opposition teams
 		game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
 			.map(id => {
 				const team = teams[id];
-				const squad = _.find(
-					team.squads,
-					squad =>
-						squad.year == year &&
-						squad._teamType.toString() == game._teamType.toString()
-				);
-				return [id, squad ? squad.players : []];
+				const squad = _.chain(team.squads)
+					.filter(
+						squad =>
+							squad.year == year &&
+							validTeamTypes.indexOf(squad._teamType.toString()) > -1
+					)
+					.map(s => s.players)
+					.flatten()
+					.uniqBy(p => p._player._id)
+					.value();
+				return [id, squad];
 			})
 			.fromPairs()
 			.value();
