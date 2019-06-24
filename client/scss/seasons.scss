@@ -57,6 +57,9 @@
 			}
 			td {
 				text-align: center;
+				&:last-child {
+					font-weight: 600;
+				}
 			}
 		}
 	}
