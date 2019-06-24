@@ -168,6 +168,7 @@ class LeagueTable extends Component {
 				)
 				.filter(({ date }) => (fromDate ? date >= fromDate : true))
 				.filter(({ date }) => (toDate ? date <= toDate : true))
+				.filter(({ homePoints, awayPoints }) => homePoints != null && awayPoints != null)
 				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints", "date"]))
 				.value();
 
