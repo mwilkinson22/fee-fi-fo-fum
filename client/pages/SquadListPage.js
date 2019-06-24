@@ -142,7 +142,7 @@ class SquadListPage extends Component {
 		//Title
 		let title = `${year} Huddersfield Giants`;
 		if (specifyTeamTypeInMeta) {
-			title += teamTypeObject.name;
+			title += ` ${teamTypeObject.name}`;
 		}
 		title += " Squad";
 
