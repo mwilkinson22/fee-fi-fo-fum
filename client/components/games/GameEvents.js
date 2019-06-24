@@ -52,17 +52,24 @@ class GameEvents extends Component {
 		const elements = [];
 
 		//Add Badges
-		teams.forEach(team =>
+		teams.forEach((team, i) => {
 			elements.push(
 				<div key={team._id + " image"} className="team-image">
 					<TeamImage team={team} variant="light" />
 				</div>
-			)
-		);
+			);
+			if (i == 0) {
+				elements.push(<div className="team-image" key="blank" />);
+			}
+		});
 
 		//Add Events
 		events.forEach(({ event, stats }) => {
-			elements.push(<h6 key={event}>{playerStatTypes[event].plural}</h6>);
+			elements.push(
+				<div key={event} className="event-label">
+					<h6>{playerStatTypes[event].plural}</h6>
+				</div>
+			);
 			elements.push(
 				_.map(teams, team => {
 					const players = stats[team._id] || [];
