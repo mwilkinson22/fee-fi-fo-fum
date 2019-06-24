@@ -34,7 +34,7 @@ class NewsPostCard extends Component {
 					{this.getTitle()}
 					<h6>
 						<span>{categoryElement}</span>
-						<span>{new Date(post.dateCreated).toString("dddd dS MMM yyyy H:mm")}</span>
+						<span>{post.dateCreated.toString("dddd dS MMM yyyy H:mm")}</span>
 					</h6>
 				</div>
 			</div>
