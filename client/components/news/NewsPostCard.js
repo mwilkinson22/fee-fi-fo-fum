@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import _ from "lodash";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
@@ -6,8 +7,8 @@ import newsCategories from "../../../constants/newsCategories";
 
 class NewsPostCard extends Component {
 	getTitle() {
-		const { post } = this.props;
-		if (this.props.inArticle) {
+		const { post, inArticle } = this.props;
+		if (inArticle) {
 			return <h1 className="title">{post.title}</h1>;
 		} else {
 			return <h5 className="title">{post.title}</h5>;
@@ -41,18 +42,30 @@ class NewsPostCard extends Component {
 	}
 
 	render() {
-		const { slug } = this.props.post;
-		if (this.props.inArticle) {
+		const { inArticle, isAdminList } = this.props;
+		if (inArticle) {
 			return this.generateContent();
 		} else {
+			const { slug } = this.props.post;
 			return (
-				<Link to={`/news/post/${slug}`} className="card">
+				<Link to={`${isAdminList ? "/admin" : ""}/news/post/${slug}`} className="card">
 					{this.generateContent()}
 				</Link>
 			);
 		}
 	}
 }
+
+NewsPostCard.propTypes = {
+	inArticle: PropTypes.bool,
+	isAdminList: PropTypes.bool,
+	post: PropTypes.object.isRequired
+};
+
+NewsPostCard.defaultProps = {
+	isAdminList: false,
+	inArticle: false
+};
 
 function mapStateToProps({ news }) {
 	const { categories } = news;

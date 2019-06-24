@@ -135,25 +135,7 @@
 			}
 		}
 	}
-	//
-	//@media #{$mobile-only} {
-	//	.post-body-header {
-	//		flex-direction: column;
-	//		.post-share {
-	//			border-top: solid 1pt $claret;
-	//			border-bottom: solid 1pt $claret;
-	//			padding: 8pt 0;
-	//			margin: 8pt 0;
-	//		}
-	//	}
-	//}
-	//@media #{$desktop-and-tablet} {
-	//	.post-body-header {
-	//		border-bottom: solid 1pt $claret;
-	//		padding-bottom: 8pt;
-	//		margin-bottom: 8pt;
-	//	}
-	//}
+
 	@media #{$desktop-only} {
 		.post-wrapper {
 			display: grid;
