@@ -57,7 +57,7 @@ class SquadListPage extends Component {
 			.filter(squad => squad.year == newState.year && squad._teamType == newState.teamType)
 			.map(squad => squad.players)
 			.flatten()
-			.sortBy(player => player.number || 9999)
+			.sortBy(({ number, _player }) => number || _player.name.last)
 			.value();
 
 		return newState;
