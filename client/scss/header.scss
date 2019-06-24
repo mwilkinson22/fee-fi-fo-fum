@@ -8,9 +8,16 @@ header {
 
 	.main-header-logo {
 		height: 30pt;
-		margin: 8pt 0 0;
 	}
 
+	.social {
+		justify-content: flex-end;
+		display: flex;
+		img {
+			height: 20pt;
+			margin: 3pt;
+		}
+	}
 	nav {
 		ul {
 			padding: 0;
@@ -20,18 +27,8 @@ header {
 
 				ul a {
 					display: block;
-					font-size: 0.8em;
-					font-weight: 400;
+					font-size: 0.75em;
 				}
-			}
-		}
-		.social {
-			flex-grow: 1;
-			justify-content: flex-end;
-			display: flex;
-			img {
-				height: 20pt;
-				margin: 3pt;
 			}
 		}
 
@@ -106,20 +103,31 @@ header {
 		}
 
 		nav {
+			& > * {
+				padding: 6pt 0;
+				&:not(:first-child) {
+					border-top: solid thin #888;
+				}
+			}
 			z-index: 1000;
-			&:not(.active) .mobile-nav-background {
+			position: absolute;
+			min-width: 50%;
+			overflow: auto;
+			right: 100%;
+			top: 0;
+			background: #222;
+			height: 100vh;
+			transition: transform 300ms;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+
+			&:not(.active) + .mobile-nav-background {
 				opacity: 0;
 				pointer-events: none;
 			}
 			.root-nav-list {
-				min-width: 50%;
-				overflow: auto;
-				position: absolute;
-				right: 100%;
-				top: 0;
-				background: #222;
-				height: 100vh;
-				transition: transform 300ms;
+				width: 100%;
 				.nav-section {
 					width: 100%;
 					font-weight: 600;
@@ -138,8 +146,14 @@ header {
 					}
 				}
 			}
-			&.active > .root-nav-list {
+			&.active {
 				transform: translateX(100%);
+			}
+			.social {
+				justify-content: center;
+				a {
+					padding: 0 5pt;
+				}
 			}
 		}
 	}
@@ -147,8 +161,22 @@ header {
 
 @media #{$desktop-only} {
 	header {
+		.top-bar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding-top: 8pt;
+		}
 		nav {
-			& > ul {
+			.nav-wrapper.admin,
+			.nav-wrapper.admin .submenu {
+				background: #111;
+				.nav-section:last-child {
+					flex-grow: 1;
+					text-align: right;
+				}
+			}
+			.root-nav-list {
 				display: flex;
 				align-items: center;
 				.nav-section {
@@ -158,16 +186,6 @@ header {
 
 					ul {
 						display: none;
-					}
-
-					&.social {
-						flex-grow: 1;
-						justify-content: flex-end;
-						display: flex;
-						img {
-							height: 20pt;
-							margin: 3pt;
-						}
 					}
 
 					.nav-menu-header {
@@ -193,11 +211,19 @@ header {
 							top: 100%;
 							min-width: 100%;
 							border-radius: 0 0 3pt 3pt;
+							z-index: 2;
+							box-shadow: 0 2pt 2pt rgba(0, 0, 0, 0.8);
 							li a {
 								padding: 8pt 10pt 8pt 6pt;
 							}
 						}
 					}
+				}
+			}
+			.social {
+				img {
+					height: 20pt;
+					margin: 3pt;
 				}
 			}
 		}

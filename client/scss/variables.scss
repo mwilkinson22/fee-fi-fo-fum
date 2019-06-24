@@ -40,15 +40,24 @@ $transition: all 300ms;
 		color: $gold;
 	}
 }
+
 @mixin mobileOnly {
 	@media #{$desktop-only} {
-		display: none;
+		display: none !important;
 	}
 }
 @mixin desktopOnly {
 	@media #{$mobile-and-tablet} {
-		display: none;
+		display: none !important;
 	}
+}
+
+.mobile-only {
+	@include mobileOnly;
+}
+
+.desktop-only {
+	@include desktopOnly;
 }
 
 @mixin noTextSelect {
