@@ -211,7 +211,7 @@ gameSchema.query.pregameImage = function() {
 	return this.select(
 		"hashtags customHashtags pregameSquads isAway date _ground _opposition _competition _teamType images"
 	)
-		.populate({ path: "pregameSquads.squad", select: "name image" })
+		.populate({ path: "pregameSquads.squad", select: "name image gender" })
 		.populate({
 			path: "_ground",
 			select: "name address._city",
@@ -251,7 +251,7 @@ gameSchema.query.gameDayImage = function() {
 	})
 		.populate({
 			path: "playerStats._player",
-			select: "name nickname displayNicknameInCanvases squadNameWhenDuplicate image"
+			select: "name nickname displayNicknameInCanvases squadNameWhenDuplicate image gender"
 		})
 		.populate({
 			path: "_ground",

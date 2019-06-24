@@ -6,7 +6,7 @@ class PersonImage extends Component {
 	render() {
 		const { person, useWebp } = this.props;
 		const { first, last } = person.name;
-		const image = person.image || "blank.png";
+		const image = person.image || `blank-${person.gender}.png`;
 		const { className } = this.props;
 		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
 		return (

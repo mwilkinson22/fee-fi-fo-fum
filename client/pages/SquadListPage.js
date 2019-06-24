@@ -46,7 +46,10 @@ class SquadListPage extends Component {
 			.value();
 
 		//Get Active TeamType
-		const filteredTeamType = _.find(teamType => teamType.slug === match.params.teamType);
+		const filteredTeamType = _.find(
+			newState.teamTypes,
+			teamType => teamType.slug == match.params.teamType
+		);
 		newState.teamType = filteredTeamType ? filteredTeamType._id : newState.teamTypes[0]._id;
 
 		//Get Players

@@ -324,7 +324,7 @@ export default class SquadImage extends Canvas {
 			playerNameBarNumberWidth
 		} = positions;
 		const [x, y] = players[position];
-		const { image, displayName, number } = player;
+		const { image, displayName, number, gender } = player;
 
 		//Player Image
 		const dx = x - playerWidth / 2;
@@ -339,7 +339,7 @@ export default class SquadImage extends Canvas {
 			);
 		} else {
 			const playerImage = await this.googleToCanvas(
-				`images/people/full/${image || "blank.png"}`
+				`images/people/full/${image || `blank-${gender}.png`}`
 			);
 			const sx = 0;
 			const sy = 0;

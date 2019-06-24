@@ -49,14 +49,15 @@ class MatchSquadList extends Component {
 						({ _player }) => _player._id == p._player
 					);
 					const { position } = p;
-					const { id, name, image, slug } = _player;
+					const { id, name, image, slug, gender } = _player;
 					const player = {
 						id,
 						name,
 						number,
 						image,
 						position,
-						slug
+						slug,
+						gender
 					};
 
 					//Create Component
