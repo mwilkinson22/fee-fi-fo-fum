@@ -1,4 +1,5 @@
-import { FETCH_NEWS_POST, FETCH_NEWS_POST_LEGACY, FETCH_POST_LIST } from "./types";
+import { FETCH_NEWS_POST, FETCH_NEWS_POST_LEGACY, FETCH_POST_LIST, UPDATE_POST } from "./types";
+import { toast } from "react-toastify";
 
 export const fetchNewsPost = id => async (dispatch, getState, api) => {
 	let payload;
@@ -35,4 +36,10 @@ export const fetchLegacyNewsPost = id => async (dispatch, getState, api) => {
 		payload = res.data;
 	}
 	dispatch({ type: FETCH_NEWS_POST_LEGACY, payload, id });
+};
+
+export const updateNewsPost = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/news/post/${id}`, values);
+	dispatch({ type: UPDATE_POST, payload: res.data });
+	toast.success("Post updated");
 };

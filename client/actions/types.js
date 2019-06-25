@@ -22,6 +22,7 @@ export const UPDATE_TEAM = "update_team";
 export const FETCH_NEWS_POST = "fetch_news_post";
 export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_POST_LIST = "fetch_post_list";
+export const UPDATE_POST = "update_post";
 
 //People
 export const FETCH_PERSON = "fetch_person";
@@ -37,3 +38,6 @@ export const FETCH_ALL_COMPETITION_SEGMENTS = "fetch_all_competition_segments";
 
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
+
+//Users
+export const FETCH_USERS = "fetch_users";

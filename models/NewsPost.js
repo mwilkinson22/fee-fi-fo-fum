@@ -46,4 +46,11 @@ newsPostSchema.query.forList = function() {
 	}).lean();
 };
 
+newsPostSchema.query.fullPost = function() {
+	return this.populate({
+		path: "_author",
+		select: "name frontendName twitter image"
+	});
+};
+
 mongoose.model("newsPosts", newsPostSchema);

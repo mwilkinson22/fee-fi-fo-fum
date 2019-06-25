@@ -7,6 +7,7 @@ import teamsReducer from "./teamsReducer";
 import newsReducer from "./newsReducer";
 import peopleReducer from "./peopleReducer";
 import seasonReducer from "./seasonReducer";
+import userReducer from "./userReducer";
 
 export default combineReducers({
 	competitions: competitionReducer,
@@ -16,5 +17,6 @@ export default combineReducers({
 	news: newsReducer,
 	people: peopleReducer,
 	seasons: seasonReducer,
-	teams: teamsReducer
+	teams: teamsReducer,
+	users: userReducer
 });

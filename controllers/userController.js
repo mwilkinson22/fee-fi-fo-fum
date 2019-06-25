@@ -15,6 +15,11 @@ export async function getUser(req, res) {
 	}
 }
 
+export async function getUserList(req, res) {
+	const users = await User.find({}).forList();
+	res.send(users);
+}
+
 //Setters
 export async function createNewUser(req, res) {
 	const { username, password, email, firstName, lastName } = req.body;

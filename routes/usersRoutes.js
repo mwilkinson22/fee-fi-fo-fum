@@ -12,6 +12,9 @@ module.exports = app => {
 	//Create New User
 	app.post("/api/users", requireAdmin, userController.createNewUser);
 
+	//Get User List
+	app.get("/api/users", requireAdmin, userController.getUserList);
+
 	//Get existing user
 	app.get("/api/user/:id", requireAuth, userController.getUser);
 

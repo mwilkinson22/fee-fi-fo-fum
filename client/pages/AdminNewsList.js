@@ -34,11 +34,12 @@ class AdminNewsList extends Component {
 		if (!postList) {
 			content = <LoadingPage />;
 		} else {
-			content = _.chain(postList)
+			const posts = _.chain(postList)
 				.sortBy("dateCreated")
 				.reverse()
 				.map(post => <NewsPostCard post={post} isAdminList={true} key={post._id} />)
 				.value();
+			content = <div className="container post-list">{posts}</div>;
 		}
 
 		return (
@@ -46,9 +47,7 @@ class AdminNewsList extends Component {
 				<section className="page-header">
 					<h1>News Posts</h1>
 				</section>
-				<section>
-					<div className="container post-list">{content}</div>
-				</section>
+				<section>{content}</section>
 			</div>
 		);
 	}
