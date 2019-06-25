@@ -8,7 +8,7 @@ import NewsPostPreview from "../components/news/NewsPostCard";
 import { FacebookProvider, Comments } from "react-facebook";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import {
 	FacebookShareButton,
 	FacebookIcon,
@@ -90,6 +90,20 @@ class NewsPostPage extends Component {
 		}
 	}
 
+	renderEditLink() {
+		const { authUser } = this.props;
+		const { post } = this.state;
+		if (authUser) {
+			return (
+				<Link className="card nav-card" to={`/admin/news/post/${post.slug}`}>
+					Edit this post
+				</Link>
+			);
+		} else {
+			return null;
+		}
+	}
+
 	formatPost() {
 		const { post } = this.state;
 		const author = post._author;
@@ -128,6 +142,7 @@ class NewsPostPage extends Component {
 
 		return (
 			<div className="container">
+				{this.renderEditLink()}
 				<div className="post-wrapper">
 					<div className="post-header">
 						<NewsPostPreview post={post} inArticle={true} />
@@ -210,10 +225,11 @@ class NewsPostPage extends Component {
 	}
 }
 
-function mapStateToProps({ news }, ownProps) {
+function mapStateToProps({ config, news }) {
+	const { authUser } = config;
 	const { fullPosts, postList, slugMap } = news;
 
-	return { fullPosts, postList, slugMap, ...ownProps };
+	return { fullPosts, postList, slugMap, authUser };
 }
 
 async function loadData(store, path) {

@@ -140,6 +140,19 @@ class AdminNewsPostPage extends Component {
 		console.log("Deleting");
 	}
 
+	renderViewLink() {
+		const { post } = this.state;
+		if (post.isPublished) {
+			return (
+				<Link className="card nav-card" to={`/news/post/${post.slug}`}>
+					View this post
+				</Link>
+			);
+		} else {
+			return null;
+		}
+	}
+
 	render() {
 		const { isNew } = this.props;
 		const { post, users, categories, isLoading } = this.state;
@@ -166,6 +179,7 @@ class AdminNewsPostPage extends Component {
 						<Link className="nav-card card" to="/admin/news">
 							↩ Return to post list
 						</Link>
+						{this.renderViewLink()}
 						<h1>{title}</h1>
 					</div>
 				</section>
