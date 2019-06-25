@@ -115,9 +115,12 @@ export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) 
 		switch (key) {
 			case "TS":
 				if (!values.find(v => v.key == "TK")) {
-					//Show Tackles
 					const { TK, MI } = playerStats.find(p => p._player == _player).stats;
+					//Show Tackles
 					valueString = PlayerStatsHelper.toString(key, value) + ` (${TK}/${TK + MI})`;
+
+					//Factor Total tackles into starPoints
+					starPoints = value / 100 + TK / 25;
 				}
 				break;
 			case "M":
