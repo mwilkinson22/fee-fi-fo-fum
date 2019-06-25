@@ -36,12 +36,11 @@ class GameStars extends Component {
 				const values = getGameStarStats(game.playerStats, _player);
 
 				if (values.length) {
-					return { id: _player, values };
+					return { id: _player, values, starPoints: _.sumBy(values, "starPoints") };
 				}
 			})
 			.filter(_.identity)
-			.sortBy(({ values }) => values.length)
-			.reverse()
+			.orderBy(["values.length", "starPoints"], ["desc", "desc"])
 			.map(({ id, values }) => {
 				const { _player, number } = game.eligiblePlayers[localTeam].find(
 					p => p._player._id == id

@@ -93,12 +93,23 @@ export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) 
 			}
 
 			if (isValid) {
-				return { key, value };
+				let starPoints;
+				if (moreIsBetter) {
+					//Here we assume requiredForGameStar will never be 0
+					starPoints = value / requiredForGameStar;
+				} else if (value) {
+					//If value is not 0, then a simple divide
+					starPoints = requiredForGameStar / value;
+				} else {
+					starPoints = requiredForGameStar + 1;
+				}
+				return { key, value, starPoints };
 			}
 		})
 		.filter(_.identity)
 		.value();
-	return values.map(({ key, value }) => {
+
+	return values.map(({ key, value, starPoints }) => {
 		//Get Value String
 		let valueString;
 		switch (key) {
@@ -140,7 +151,7 @@ export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) 
 		const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
 		const isBest = value === bestValue;
 
-		return { key, value: valueString, label, isBest };
+		return { key, value: valueString, label, isBest, starPoints };
 	});
 }
 
