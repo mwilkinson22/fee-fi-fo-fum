@@ -33,7 +33,7 @@ class NewsListPage extends Component {
 		const page = match.params.page || 1;
 		const posts = _.chain(postList)
 			.values()
-			.sortBy("datePublished")
+			.sortBy("dateCreated")
 			.reverse()
 			.filter(post => category === "all" || post.category === category)
 			.value();

@@ -55,7 +55,7 @@ class NewsPostPage extends Component {
 				post,
 				recentPosts: _.chain(postList)
 					.values()
-					.sortBy("datePublished")
+					.sortBy("dateCreated")
 					.reverse()
 					.filter(post => post.id !== id)
 					.chunk(5)

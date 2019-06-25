@@ -60,7 +60,7 @@ class HomePage extends Component {
 		if (postList) {
 			newState.postList = _.chain(postList)
 				.values()
-				.sortBy("datePublished")
+				.sortBy("dateCreated")
 				.reverse()
 				.chunk(3)
 				.value()[0];
