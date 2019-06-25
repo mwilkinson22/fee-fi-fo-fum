@@ -10,17 +10,7 @@ const newsPostSchema = new Schema({
 	_author: { type: Schema.Types.ObjectId, ref: "users", required: true },
 	subtitle: { type: String, default: null },
 	content: { type: String, required: true },
-	contentHistory: {
-		type: [
-			{
-				version: Number,
-				content: String
-			}
-		],
-		default: []
-	},
 	image: { type: String, default: null },
-	version: { type: Number, default: 0 },
 	dateCreated: { type: String, required: true, default: Date.now },
 	dateModified: { type: String, required: true, default: Date.now },
 	isPublished: { type: Boolean, default: false, required: true },
