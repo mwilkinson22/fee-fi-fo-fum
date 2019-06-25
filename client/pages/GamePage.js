@@ -223,6 +223,8 @@ class GamePage extends Component {
 		if (postList) {
 			gamePosts = _.chain(postList)
 				.filter(p => p._game == game._id)
+				.sortBy("dateCreated")
+				.reverse()
 				.map(p => <NewsPostCard post={p} key={p._id} />)
 				.value();
 		}
