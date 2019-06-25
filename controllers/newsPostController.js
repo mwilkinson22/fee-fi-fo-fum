@@ -83,13 +83,9 @@ export async function updatePost(req, res) {
 		res.status(404).send(`No post found with id ${_id}`);
 		return false;
 	} else {
-		await NewsPost.findOneAndUpdate(
-			{ _id },
-			{
-				...req.body,
-				dateModified: new Date()
-			}
-		);
+		const values = _.mapValues(req.body, v => (v == "" ? null : v));
+		values.dateModified = new Date();
+		await newsPost.updateOne(values);
 
 		await getUpdatedPost(_id, res);
 	}
