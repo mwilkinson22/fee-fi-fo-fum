@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { EditorState, convertFromRaw } from "draft-js";
 
 export function fixDates(posts) {
 	return _.mapValues(posts, post => {
@@ -12,4 +13,9 @@ export function fixDates(posts) {
 		}
 		return post;
 	});
+}
+
+export function convertToEditorState(text) {
+	const convertedState = convertFromRaw(JSON.parse(text));
+	return EditorState.createWithContent(convertedState);
 }

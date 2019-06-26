@@ -5,12 +5,15 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
+import { createEditorState } from "medium-draft";
+import { convertToRaw } from "draft-js";
 
 //Components
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
+import NewsPostEditor from "../components/news/NewsPostEditor";
 
 //Actions
 import { fetchPostList, fetchNewsPost, updateNewsPost } from "~/client/actions/newsActions";
@@ -22,6 +25,7 @@ import newsCategories from "~/constants/newsCategories";
 
 //Helpers
 import { processFormFields } from "~/helpers/adminHelper";
+import { convertToEditorState } from "~/helpers/newsHelper";
 
 class AdminNewsPostPage extends Component {
 	constructor(props) {
@@ -40,8 +44,6 @@ class AdminNewsPostPage extends Component {
 		if (!userList) {
 			fetchUserList();
 		}
-
-		this.state = {};
 
 		this.state = {};
 	}
@@ -111,6 +113,12 @@ class AdminNewsPostPage extends Component {
 
 	getDefaults() {
 		const { post, users, categories } = this.state;
+		let content;
+		if (post && post.content) {
+			content = convertToEditorState(post.content);
+		} else {
+			content = createEditorState();
+		}
 		if (post) {
 			const { title, subtitle, dateCreated, isPublished } = post;
 			return {
@@ -120,7 +128,8 @@ class AdminNewsPostPage extends Component {
 				dateCreated: dateCreated.toString("yyyy-MM-dd"),
 				timeCreated: dateCreated.toString("HH:mm:ss"),
 				isPublished,
-				category: categories.find(({ value }) => value == post.category) || ""
+				category: categories.find(({ value }) => value == post.category) || "",
+				content
 			};
 		}
 	}
@@ -130,6 +139,7 @@ class AdminNewsPostPage extends Component {
 		const { post } = this.state;
 		const values = _.cloneDeep(fValues);
 		values._author = values._author.value;
+		values.content = JSON.stringify(convertToRaw(values.content.getCurrentContent()));
 		values.category = values.category.value;
 		values.dateCreated = new Date(`${values.dateCreated} ${values.timeCreated}`);
 		delete values.timeCreated;
@@ -206,6 +216,14 @@ class AdminNewsPostPage extends Component {
 											{processFormFields(mainFields, validationSchema)}
 											<label>Last Modified</label>
 											<input disabled value={dateModifiedString} />
+										</div>
+										<div className="form-card">
+											<NewsPostEditor
+												editorState={formikProps.values.content}
+												onChange={c =>
+													formikProps.setFieldValue("content", c)
+												}
+											/>
 										</div>
 										<div className="form-card grid">
 											<div className="buttons">
