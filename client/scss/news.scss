@@ -1,3 +1,8 @@
+.md-RichEditor-root {
+	background: transparent !important;
+	padding: 0 !important;
+}
+
 .post-preview {
 	@include pseudoImage;
 	background-size: cover;
@@ -62,7 +67,6 @@
 		}
 
 		.post-body {
-			overflow: auto;
 			.post-body-header {
 				display: flex;
 				justify-content: space-between;

@@ -1,14 +1,10 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
-import Parser from "html-react-parser";
-import LoadingPage from "../components/LoadingPage";
-import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 import { connect } from "react-redux";
-import NewsPostPreview from "../components/news/NewsPostCard";
-import { FacebookProvider, Comments } from "react-facebook";
-import HelmetBuilder from "../components/HelmetBuilder";
-import NotFoundPage from "./NotFoundPage";
 import { Link, Redirect } from "react-router-dom";
+import { FacebookProvider, Comments } from "react-facebook";
+import { Editor } from "medium-draft";
 import {
 	FacebookShareButton,
 	FacebookIcon,
@@ -21,6 +17,18 @@ import {
 	EmailShareButton,
 	EmailIcon
 } from "react-share";
+
+//Components
+import LoadingPage from "../components/LoadingPage";
+import NotFoundPage from "./NotFoundPage";
+import NewsPostCard from "../components/news/NewsPostCard";
+import HelmetBuilder from "../components/HelmetBuilder";
+
+//Actions
+import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
+
+//Helpers
+import { convertToEditorState } from "~/helpers/newsHelper";
 
 class NewsPostPage extends Component {
 	constructor(props) {
@@ -49,18 +57,20 @@ class NewsPostPage extends Component {
 			const post = fullPosts[id];
 			if (!post) {
 				fetchNewsPost(id);
+				return { post: undefined };
+			} else {
+				post.editorState = convertToEditorState(post.content);
+				return {
+					post,
+					recentPosts: _.chain(postList)
+						.values()
+						.sortBy("dateCreated")
+						.reverse()
+						.filter(post => post.id !== id)
+						.chunk(5)
+						.value()[0]
+				};
 			}
-
-			return {
-				post,
-				recentPosts: _.chain(postList)
-					.values()
-					.sortBy("dateCreated")
-					.reverse()
-					.filter(post => post.id !== id)
-					.chunk(5)
-					.value()[0]
-			};
 		}
 	}
 
@@ -75,7 +85,7 @@ class NewsPostPage extends Component {
 			return recentPosts.map(recentPost => {
 				if (recentPost.slug !== post.slug) {
 					return (
-						<NewsPostPreview
+						<NewsPostCard
 							post={recentPost}
 							includeContent={false}
 							key={recentPost.slug}
@@ -145,7 +155,7 @@ class NewsPostPage extends Component {
 				{this.renderEditLink()}
 				<div className="post-wrapper">
 					<div className="post-header">
-						<NewsPostPreview post={post} inArticle={true} />
+						<NewsPostCard post={post} inArticle={true} />
 					</div>
 					<div className="post-body">
 						<div className="post-body-header">
@@ -181,7 +191,13 @@ class NewsPostPage extends Component {
 								</EmailShareButton>
 							</div>
 						</div>
-						<div className="post-content">{Parser(post.content)}</div>
+						<div className="post-content">
+							<Editor
+								editorState={post.editorState}
+								editorEnabled={false}
+								onChange={() => {}}
+							/>
+						</div>
 					</div>
 					<ul className="other-posts">
 						<li>
