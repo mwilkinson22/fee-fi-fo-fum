@@ -57,6 +57,9 @@ app.use(express.static("public"));
 require("./routes/usersRoutes")(app);
 require("./routes/rugby")(app);
 require("./routes/newsRoutes")(app);
+app.all("/api*", (req, res) => {
+	res.status("404").send("404 - Invalid API path");
+});
 
 //Render
 app.get("*", async (req, res) => {
