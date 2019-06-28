@@ -75,7 +75,7 @@ export default class PlayerEventImage extends Canvas {
 		this.backgroundRendered = true;
 	}
 
-	async drawGameData(withLogo = true) {
+	async drawGameData() {
 		if (!this.backgroundRendered) {
 			await this.drawBackground();
 		}
@@ -145,17 +145,29 @@ export default class PlayerEventImage extends Canvas {
 		});
 
 		//Add Game Logo
-		if (withLogo) {
-			const gameLogoUrl =
-				game.images.logo || `images/layout/branding/square-logo-with-shadow.png`;
-			const gameLogo = await this.googleToCanvas(gameLogoUrl);
+		const brandLogoUrl = `images/layout/branding/square-logo-with-shadow.png`;
+		const gameLogoUrl = game.images.logo || brandLogoUrl;
+		const gameLogo = await this.googleToCanvas(gameLogoUrl);
+		this.contain(
+			gameLogo,
+			cWidth - (positions.rightPanelWidth + logoWidth) / 2,
+			Math.round(cHeight * 0.05),
+			logoWidth,
+			logoHeight
+		);
+
+		if (game.images.logo) {
+			const brandLogo = await this.googleToCanvas(brandLogoUrl);
+			ctx.shadowBlur = 20;
+			ctx.shadowColor = "#000";
 			this.contain(
-				gameLogo,
-				cWidth - (positions.rightPanelWidth + logoWidth) / 2,
+				brandLogo,
+				Math.round(cWidth * 0.04),
 				Math.round(cHeight * 0.05),
-				logoWidth,
-				logoHeight
+				Math.round(cWidth * 0.1),
+				Math.round(cHeight * 0.1)
 			);
+			this.resetShadow();
 		}
 	}
 
