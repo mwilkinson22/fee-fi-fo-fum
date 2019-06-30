@@ -23,6 +23,7 @@ import LoadingPage from "../components/LoadingPage";
 import NotFoundPage from "./NotFoundPage";
 import NewsPostCard from "../components/news/NewsPostCard";
 import HelmetBuilder from "../components/HelmetBuilder";
+import AuthorImage from "../components/news/AuthorImage";
 
 //Actions
 import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
@@ -160,10 +161,9 @@ class NewsPostPage extends Component {
 					<div className="post-body">
 						<div className="post-body-header">
 							<div className="post-author">
-								<div
-									className="author-image"
-									style={{ backgroundImage: `url('${author.image}')` }}
-								/>
+								<div className="author-image">
+									<AuthorImage author={author} />
+								</div>
 								{authorDetails}
 							</div>
 							<div className="post-share">
