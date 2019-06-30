@@ -7,6 +7,7 @@ const SlugRedirect = mongoose.model("slugRedirect");
 
 //Helpers
 import { getListsAndSlugs } from "./genericController";
+import { uploadImageToGoogle } from "~/helpers/fileHelper";
 
 //Config
 function generateQuery(user, obj = {}) {
@@ -88,5 +89,21 @@ export async function updatePost(req, res) {
 		await newsPost.updateOne(values);
 
 		await getUpdatedPost(_id, res);
+	}
+}
+
+//Upload Inline Image
+export async function uploadInlineImage(req, res) {
+	const fileSizeLimit = 5;
+	if (req.file.size / 1024 / 1024 > fileSizeLimit) {
+		res.status(413).send(`Image must be less than ${fileSizeLimit}mb`);
+	} else {
+		const { externalUrl } = await uploadImageToGoogle(
+			req.file,
+			"images/news/inline/",
+			false,
+			req.body.name
+		);
+		res.send(externalUrl);
 	}
 }

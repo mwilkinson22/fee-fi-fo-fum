@@ -43,3 +43,8 @@ export const updateNewsPost = (id, values) => async (dispatch, getState, api) =>
 	dispatch({ type: UPDATE_POST, payload: res.data });
 	toast.success("Post updated");
 };
+
+export const uploadInlineImage = data => async (dispatch, getState, api) => {
+	const res = await api.post(`/news/image/inline`, data);
+	return res.data;
+};

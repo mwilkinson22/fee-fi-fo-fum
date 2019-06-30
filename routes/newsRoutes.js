@@ -1,5 +1,6 @@
 import * as NewsPostController from "../controllers/newsPostController";
 import requireAdmin from "../middlewares/requireAdmin";
+import upload from "../middlewares/upload";
 
 module.exports = app => {
 	app.get("/api/news/legacyPost/:id", NewsPostController.getLegacyPost);
@@ -9,4 +10,10 @@ module.exports = app => {
 	app.get("/api/news/posts", NewsPostController.getPostList);
 
 	app.put("/api/news/post/:_id", requireAdmin, NewsPostController.updatePost);
+
+	app.post(
+		"/api/news/image/inline",
+		upload.single("image"),
+		NewsPostController.uploadInlineImage
+	);
 };

@@ -26,12 +26,21 @@ export async function uploadToGoogle({ originalname, buffer, mimetype }, path = 
 	};
 }
 
-export async function uploadImageToGoogle(file, path, webPConvert = true) {
+export async function uploadImageToGoogle(file, path, webPConvert = true, nameOverride = null) {
+	let fileName;
 	const fileNameArray = file.originalname.split(".");
-	fileNameArray.pop();
-	const fileName = fileNameArray.join(".");
+	const extension = fileNameArray.pop();
 
+	if (nameOverride) {
+		fileName = nameOverride;
+		file.originalname = `${fileName}.${extension}`;
+	} else {
+		fileName = fileNameArray.join(".");
+	}
+
+	console.log("uploading");
 	const uploadedImage = await uploadToGoogle(file, path);
+	console.log("done");
 
 	if (webPConvert) {
 		const buffer = await sharp(file.buffer)
