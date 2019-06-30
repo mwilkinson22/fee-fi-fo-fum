@@ -4,6 +4,11 @@ module.exports = {
 	localTeam: process.env.LOCAL_TEAM,
 	earliestGiantsData: 2017,
 	fixtureCrawlUrl: process.env.FIXTURE_CRAWL_URL,
+	gc: {
+		client_email: process.env.GC_EMAIL,
+		private_key: process.env.GC_KEY
+	},
+	googleBucketName: process.env.GOOGLE_BUCKET,
 	twitter: {
 		consumer_key: process.env.TWITTER_CONSUMER_KEY,
 		consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
