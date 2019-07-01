@@ -22,14 +22,15 @@ export async function uploadToGoogle({ originalname, buffer, mimetype }, path = 
 	return {
 		name: originalname,
 		nameWithPath: path + originalname,
-		externalUrl
+		externalUrl,
+		extension: originalname.split(".").pop()
 	};
 }
 
 export async function uploadImageToGoogle(file, path, webPConvert = true, nameOverride = null) {
 	let fileName;
 	const fileNameArray = file.originalname.split(".");
-	const extension = fileNameArray.pop();
+	const extension = fileNameArray.pop().toLowerCase();
 
 	if (nameOverride) {
 		fileName = nameOverride;
@@ -38,9 +39,20 @@ export async function uploadImageToGoogle(file, path, webPConvert = true, nameOv
 		fileName = fileNameArray.join(".");
 	}
 
-	console.log("uploading");
+	switch (extension) {
+		case "jpg":
+		case "jpeg":
+			file.buffer = await sharp(file.buffer)
+				.jpeg()
+				.toBuffer();
+			break;
+		case "png":
+			file.buffer = await sharp(file.buffer)
+				.png()
+				.toBuffer();
+			break;
+	}
 	const uploadedImage = await uploadToGoogle(file, path);
-	console.log("done");
 
 	if (webPConvert) {
 		const buffer = await sharp(file.buffer)
