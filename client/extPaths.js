@@ -9,6 +9,7 @@ if (typeof window !== "undefined") {
 export { localUrl };
 export const personImagePath = imagePath + "people/full/";
 export const teamImagePath = imagePath + "teams/";
+export const newsHeaderPath = imagePath + "news/headers/";
 export const userImagePath = imagePath + "users/";
 export const gameImagePath = imagePath + "games/";
 export const groundImagePath = imagePath + "grounds/";
