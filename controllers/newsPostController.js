@@ -116,3 +116,16 @@ export async function uploadInlineImage(req, res) {
 		res.send(externalUrl);
 	}
 }
+
+//Create Post
+export async function deletePost(req, res) {
+	const { _id } = req.params;
+	const newsPost = await NewsPost.findById(_id);
+	if (!newsPost) {
+		res.status(404).send(`No post found with id ${_id}`);
+		return false;
+	} else {
+		await NewsPost.findByIdAndRemove(_id);
+		res.send(_id);
+	}
+}

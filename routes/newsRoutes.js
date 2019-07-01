@@ -13,6 +13,8 @@ module.exports = app => {
 
 	app.post("/api/news/post/", requireAdmin, NewsPostController.createPost);
 
+	app.delete("/api/news/post/:_id", requireAdmin, NewsPostController.deletePost);
+
 	app.post(
 		"/api/news/image/inline",
 		upload.single("image"),

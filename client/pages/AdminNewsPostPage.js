@@ -19,8 +19,9 @@ import NewsPostEditor from "../components/news/NewsPostEditor";
 import {
 	fetchPostList,
 	fetchNewsPost,
+	createNewsPost,
 	updateNewsPost,
-	createNewsPost
+	deleteNewsPost
 } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 import { fetchGameList } from "~/client/actions/gamesActions";
@@ -60,6 +61,11 @@ class AdminNewsPostPage extends Component {
 
 		//Is New
 		newState.isNew = !slug;
+
+		//Handle Redirect
+		if (prevState.redirect == nextProps.location.pathname) {
+			newState.redirect = undefined;
+		}
 
 		//Check we have the info we need
 		if (!slugMap || !userList || !gameList) {
@@ -175,12 +181,15 @@ class AdminNewsPostPage extends Component {
 			await updateNewsPost(post._id, values);
 		} else {
 			const slug = await createNewsPost(values);
-			this.setState({ redirect: slug });
+			this.setState({ redirect: `/admin/news/post/${slug}` });
 		}
 	}
 
-	handleDelete() {
-		console.log("Deleting");
+	async handleDelete() {
+		const { deleteNewsPost } = this.props;
+		const { post } = this.state;
+		await deleteNewsPost(post._id);
+		this.setState({ redirect: "/admin/news/" });
 	}
 
 	renderViewLink() {
@@ -198,16 +207,15 @@ class AdminNewsPostPage extends Component {
 
 	render() {
 		const { post, isNew, users, categories, isLoading, redirect } = this.state;
-
 		if (redirect) {
-			return <Redirect to={`/admin/news/post/${redirect}`} />;
+			return <Redirect to={redirect} />;
 		}
 
 		if (post === false && !isNew) {
 			return <NotFoundPage error={"Game not found"} />;
 		}
 
-		if (isLoading || (post === undefined && !isNew)) {
+		if (isLoading || (post === undefined && !isNew) || !users || !categories) {
 			return <LoadingPage />;
 		}
 
@@ -298,5 +306,13 @@ function mapStateToProps({ config, games, news, users }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchPostList, fetchNewsPost, fetchUserList, fetchGameList, updateNewsPost, createNewsPost }
+	{
+		fetchPostList,
+		fetchNewsPost,
+		fetchUserList,
+		fetchGameList,
+		createNewsPost,
+		updateNewsPost,
+		deleteNewsPost
+	}
 )(AdminNewsPostPage);

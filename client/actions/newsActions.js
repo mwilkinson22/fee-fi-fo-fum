@@ -1,4 +1,10 @@
-import { FETCH_NEWS_POST, FETCH_NEWS_POST_LEGACY, FETCH_POST_LIST, UPDATE_POST } from "./types";
+import {
+	DELETE_POST,
+	FETCH_NEWS_POST,
+	FETCH_NEWS_POST_LEGACY,
+	FETCH_POST_LIST,
+	UPDATE_POST
+} from "./types";
 import { toast } from "react-toastify";
 
 export const fetchNewsPost = id => async (dispatch, getState, api) => {
@@ -55,4 +61,10 @@ export const updateNewsPost = (id, values) => async (dispatch, getState, api) =>
 export const uploadInlineImage = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/news/image/inline`, data);
 	return res.data;
+};
+
+export const deleteNewsPost = id => async (dispatch, getState, api) => {
+	const res = await api.delete(`/news/post/${id}`);
+	await dispatch({ type: DELETE_POST, payload: res.data });
+	toast.success("Post deleted");
 };

@@ -1,4 +1,6 @@
 import {
+	DELETE_NEUTRAL_GAME,
+	DELETE_POST,
 	FETCH_NEWS_POST,
 	FETCH_NEWS_POST_LEGACY,
 	FETCH_POST_LIST,
@@ -31,12 +33,6 @@ export default function(state = { fullPosts: {} }, action) {
 		case UPDATE_POST: {
 			fixDates(action.payload.postList);
 			fixDates(action.payload.fullPosts);
-			console.log(action.payload.fullPosts);
-			// console.log(state.fullPosts);
-			// console.log({
-			// 	...state.fullPosts,
-			// 	...action.payload.fullPosts
-			// });
 			return {
 				...state,
 				fullPosts: {
@@ -51,6 +47,14 @@ export default function(state = { fullPosts: {} }, action) {
 				}
 			};
 		}
+
+		case DELETE_POST:
+			const { [action.payload]: removedFull, ...fullPosts } = state.fullPosts;
+			const { [action.payload]: removedFromList, ...postList } = state.postList;
+			return {
+				...fullPosts,
+				...postList
+			};
 
 		default:
 			return state;

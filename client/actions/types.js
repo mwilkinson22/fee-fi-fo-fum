@@ -23,6 +23,7 @@ export const FETCH_NEWS_POST = "fetch_news_post";
 export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_POST_LIST = "fetch_post_list";
 export const UPDATE_POST = "update_post";
+export const DELETE_POST = "delete_post";
 
 //People
 export const FETCH_PERSON = "fetch_person";
