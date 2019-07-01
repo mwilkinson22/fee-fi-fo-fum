@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { createEditorState } from "medium-draft";
@@ -16,7 +16,12 @@ import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 import NewsPostEditor from "../components/news/NewsPostEditor";
 
 //Actions
-import { fetchPostList, fetchNewsPost, updateNewsPost } from "~/client/actions/newsActions";
+import {
+	fetchPostList,
+	fetchNewsPost,
+	updateNewsPost,
+	createNewsPost
+} from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 import { fetchGameList } from "~/client/actions/gamesActions";
 
@@ -53,26 +58,31 @@ class AdminNewsPostPage extends Component {
 		const { slug } = match.params;
 		const newState = {};
 
+		//Is New
+		newState.isNew = !slug;
+
 		//Check we have the info we need
 		if (!slugMap || !userList || !gameList) {
 			return newState;
 		}
 
 		//Get Post
-		if (!slugMap[slug]) {
-			newState.post = false;
-		} else if (slugMap[slug].redirect) {
-			//TODO
-			return {};
-		} else if (slugMap) {
-			const id = slugMap[slug].id;
-			const post = fullPosts[id];
-			if (!post && !prevState.isLoading) {
-				fetchNewsPost(id);
-				newState.isLoading = true;
-			} else if (post) {
-				newState.post = post;
-				newState.isLoading = false;
+		if (!newState.isNew) {
+			if (!slugMap[slug]) {
+				newState.post = false;
+			} else if (slugMap[slug].redirect) {
+				//TODO
+				return {};
+			} else if (slugMap) {
+				const id = slugMap[slug].id;
+				const post = fullPosts[id];
+				if (!post && !prevState.isLoading) {
+					fetchNewsPost(id);
+					newState.isLoading = true;
+				} else if (post) {
+					newState.post = post;
+					newState.isLoading = false;
+				}
 			}
 		}
 
@@ -92,7 +102,8 @@ class AdminNewsPostPage extends Component {
 	}
 
 	getValidationSchema() {
-		return Yup.object().shape({
+		const { isNew } = this.state;
+		let shape = {
 			title: Yup.string()
 				.required()
 				.label("Title"),
@@ -100,50 +111,72 @@ class AdminNewsPostPage extends Component {
 				.required()
 				.label("Author"),
 			subtitle: Yup.string().label("Sub-title"),
-			dateCreated: Yup.date().label("Date Created"),
-			timeCreated: Yup.string().label("Time Created"),
-			isPublished: Yup.boolean()
-				.required()
-				.label("Published?"),
 			category: Yup.mixed()
 				.required()
-				.label("Category")
-		});
+				.label("Category"),
+			slug: Yup.string()
+				.required()
+				.label("Slug")
+		};
+		if (!isNew) {
+			shape = {
+				...shape,
+				dateCreated: Yup.date().label("Date Created"),
+				timeCreated: Yup.string().label("Time Created"),
+				isPublished: Yup.boolean()
+					.required()
+					.label("Published?")
+			};
+		}
+		return Yup.object().shape(shape);
 	}
 
 	getDefaults() {
-		const { post, users, categories } = this.state;
-		let content;
-		if (post && post.content) {
-			content = convertToEditorState(post.content);
+		const { authUser } = this.props;
+		const { isNew, post, users, categories } = this.state;
+		if (isNew) {
+			return {
+				title: "",
+				_author: users.find(({ value }) => value == authUser._id) || "",
+				subtitle: "",
+				category: "",
+				slug: "",
+				content: createEditorState()
+			};
 		} else {
-			content = createEditorState();
-		}
-		if (post) {
 			const { title, subtitle, dateCreated, isPublished } = post;
 			return {
 				title,
 				_author: users.find(({ value }) => value == post._author._id) || "",
 				subtitle: subtitle || "",
+				slug: post.slug,
 				dateCreated: dateCreated.toString("yyyy-MM-dd"),
 				timeCreated: dateCreated.toString("HH:mm:ss"),
 				isPublished,
 				category: categories.find(({ value }) => value == post.category) || "",
-				content
+				content: convertToEditorState(post.content)
 			};
 		}
 	}
 
 	async handleSubmit(fValues) {
-		const { updateNewsPost } = this.props;
+		const { createNewsPost, updateNewsPost } = this.props;
 		const { post } = this.state;
+
+		//Create Values
 		const values = _.cloneDeep(fValues);
 		values._author = values._author.value;
-		values.content = JSON.stringify(convertToRaw(values.content.getCurrentContent()));
 		values.category = values.category.value;
-		values.dateCreated = new Date(`${values.dateCreated} ${values.timeCreated}`);
-		delete values.timeCreated;
-		await updateNewsPost(post._id, values);
+		values.content = JSON.stringify(convertToRaw(values.content.getCurrentContent()));
+
+		if (post) {
+			values.dateCreated = new Date(`${values.dateCreated} ${values.timeCreated}`);
+			delete values.timeCreated;
+			await updateNewsPost(post._id, values);
+		} else {
+			const slug = await createNewsPost(values);
+			this.setState({ redirect: slug });
+		}
 	}
 
 	handleDelete() {
@@ -152,7 +185,7 @@ class AdminNewsPostPage extends Component {
 
 	renderViewLink() {
 		const { post } = this.state;
-		if (post.isPublished) {
+		if (post && post.isPublished) {
 			return (
 				<Link className="card nav-card" to={`/news/post/${post.slug}`}>
 					View this post
@@ -164,8 +197,11 @@ class AdminNewsPostPage extends Component {
 	}
 
 	render() {
-		const { isNew } = this.props;
-		const { post, users, categories, isLoading } = this.state;
+		const { post, isNew, users, categories, isLoading, redirect } = this.state;
+
+		if (redirect) {
+			return <Redirect to={`/admin/news/post/${redirect}`} />;
+		}
 
 		if (post === false && !isNew) {
 			return <NotFoundPage error={"Game not found"} />;
@@ -205,10 +241,15 @@ class AdminNewsPostPage extends Component {
 									{ name: "subtitle", type: "text" },
 									{ name: "_author", type: "Select", options: users },
 									{ name: "category", type: "Select", options: categories },
-									{ name: "isPublished", type: "Boolean" },
-									{ name: "dateCreated", type: "date" },
-									{ name: "timeCreated", type: "time" }
+									{ name: "slug", type: "text" }
 								];
+								if (!isNew) {
+									mainFields.push(
+										{ name: "isPublished", type: "Boolean" },
+										{ name: "dateCreated", type: "date" },
+										{ name: "timeCreated", type: "time" }
+									);
+								}
 								return (
 									<Form>
 										<div className="form-card grid">
@@ -217,14 +258,16 @@ class AdminNewsPostPage extends Component {
 											<label>Last Modified</label>
 											<input disabled value={dateModifiedString} />
 										</div>
-										<div className="form-card">
-											<NewsPostEditor
-												editorState={formikProps.values.content}
-												onChange={c =>
-													formikProps.setFieldValue("content", c)
-												}
-											/>
-										</div>
+										{isNew ? null : (
+											<div className="form-card">
+												<NewsPostEditor
+													editorState={formikProps.values.content}
+													onChange={c =>
+														formikProps.setFieldValue("content", c)
+													}
+												/>
+											</div>
+										)}
 										<div className="form-card grid">
 											<div className="buttons">
 												<button type="reset">Reset</button>
@@ -245,14 +288,15 @@ class AdminNewsPostPage extends Component {
 	}
 }
 
-function mapStateToProps({ games, news, users }) {
+function mapStateToProps({ config, games, news, users }) {
+	const { authUser } = config;
 	const { postList, slugMap, fullPosts } = news;
 	const { userList } = users;
 	const { gameList } = games;
-	return { postList, slugMap, fullPosts, userList, gameList };
+	return { authUser, postList, slugMap, fullPosts, userList, gameList };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchPostList, fetchNewsPost, fetchUserList, fetchGameList, updateNewsPost }
+	{ fetchPostList, fetchNewsPost, fetchUserList, fetchGameList, updateNewsPost, createNewsPost }
 )(AdminNewsPostPage);

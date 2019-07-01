@@ -11,6 +11,8 @@ module.exports = app => {
 
 	app.put("/api/news/post/:_id", requireAdmin, NewsPostController.updatePost);
 
+	app.post("/api/news/post/", requireAdmin, NewsPostController.createPost);
+
 	app.post(
 		"/api/news/image/inline",
 		upload.single("image"),

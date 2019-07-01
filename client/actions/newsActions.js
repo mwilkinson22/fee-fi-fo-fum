@@ -38,6 +38,14 @@ export const fetchLegacyNewsPost = id => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_NEWS_POST_LEGACY, payload, id });
 };
 
+export const createNewsPost = values => async (dispatch, getState, api) => {
+	const res = await api.post(`/news/post/`, values);
+	dispatch({ type: UPDATE_POST, payload: res.data });
+	toast.success("Post Created");
+	const { _id, fullPosts } = res.data;
+	return fullPosts[_id].slug;
+};
+
 export const updateNewsPost = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/news/post/${id}`, values);
 	dispatch({ type: UPDATE_POST, payload: res.data });

@@ -45,7 +45,12 @@ class AdminNewsList extends Component {
 		return (
 			<div className="admin-page admin-news-list">
 				<section className="page-header">
-					<h1>News Posts</h1>
+					<div className="container">
+						<h1>News Posts</h1>
+						<Link className="card nav-card" to="/admin/news/post/new">
+							Create New Post
+						</Link>
+					</div>
 				</section>
 				<section>{content}</section>
 			</div>
