@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { userImagePath } from "../../extPaths";
 
-class TeamImage extends Component {
+class AuthorImage extends Component {
 	render() {
 		const { author, useWebp, className } = this.props;
 		const { image, name } = author;
@@ -26,4 +26,4 @@ function mapStateToProps({ config }, ownProps) {
 	};
 }
 
-export default connect(mapStateToProps)(TeamImage);
+export default connect(mapStateToProps)(AuthorImage);
