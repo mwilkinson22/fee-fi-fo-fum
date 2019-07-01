@@ -3,8 +3,8 @@ import _ from "lodash";
 //Helper Functions
 function getInstance(doc) {
 	const { date, _competition } = doc;
-	if (!_competition._parentCompetition) {
-		return null; //Competition not populated
+	if (!date || !_competition || !_competition._parentCompetition) {
+		return null;
 	}
 	const year = new Date(date).getFullYear();
 
