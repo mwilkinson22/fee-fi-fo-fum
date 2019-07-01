@@ -25,7 +25,7 @@ class NewsPostCard extends Component {
 			category.name
 		);
 		let { image } = post;
-		if (webp) {
+		if (image && webp) {
 			const imageArr = image.split(".");
 			imageArr.pop();
 			image = imageArr.join(".") + ".webp";
@@ -34,7 +34,7 @@ class NewsPostCard extends Component {
 			<div
 				className="post-preview"
 				style={{
-					backgroundImage: `url('${newsHeaderPath}${image}')`
+					backgroundImage: image ? `url('${newsHeaderPath}${image}')` : null
 				}}
 			>
 				<div className="post-meta">
