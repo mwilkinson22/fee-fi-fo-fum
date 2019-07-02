@@ -2,6 +2,7 @@ import _ from "lodash";
 import React from "react";
 import { Field, FastField } from "formik";
 import FormField from "../client/components/admin/fields/FormField";
+import * as Yup from "yup";
 
 export function processFormFields(fields, validationSchema, fastFields = false) {
 	function resolve(path, obj) {
@@ -37,4 +38,13 @@ export function processFormFields(fields, validationSchema, fastFields = false) 
 			return <Field {...fieldProps} />;
 		}
 	});
+}
+
+export function validateSlug(label = "Slug") {
+	return Yup.string()
+		.required()
+		.matches(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers and hyphens")
+		.matches(/^[a-z0-9]/, "Slug must not begin with a hyphen")
+		.matches(/[a-z0-9]$/, "Slug must not end with a hyphen")
+		.label(label);
 }

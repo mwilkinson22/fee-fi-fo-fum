@@ -30,7 +30,7 @@ import { fetchGameList } from "~/client/actions/gamesActions";
 import newsCategories from "~/constants/newsCategories";
 
 //Helpers
-import { processFormFields } from "~/helpers/adminHelper";
+import { processFormFields, validateSlug } from "~/helpers/adminHelper";
 import { convertToEditorState } from "~/helpers/newsHelper";
 
 class AdminNewsPostPage extends Component {
@@ -120,15 +120,7 @@ class AdminNewsPostPage extends Component {
 			category: Yup.mixed()
 				.required()
 				.label("Category"),
-			slug: Yup.string()
-				.required()
-				.matches(
-					/^[a-z0-9-]+$/,
-					"Slug can only contain lowercase letters, numbers and hyphens"
-				)
-				.matches(/^[a-z0-9]/, "Slug must not begin with a hyphen")
-				.matches(/[a-z0-9]$/, "Slug must not end with a hyphen")
-				.label("Slug")
+			slug: validateSlug()
 		};
 		if (!isNew) {
 			shape = {
