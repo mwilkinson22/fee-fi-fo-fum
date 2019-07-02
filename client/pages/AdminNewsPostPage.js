@@ -122,6 +122,12 @@ class AdminNewsPostPage extends Component {
 				.label("Category"),
 			slug: Yup.string()
 				.required()
+				.matches(
+					/^[a-z0-9-]+$/,
+					"Slug can only contain lowercase letters, numbers and hyphens"
+				)
+				.matches(/^[a-z0-9]/, "Slug must not begin with a hyphen")
+				.matches(/[a-z0-9]$/, "Slug must not end with a hyphen")
 				.label("Slug")
 		};
 		if (!isNew) {
