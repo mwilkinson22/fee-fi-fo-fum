@@ -13,7 +13,7 @@ import { fetchTeam } from "../../../actions/teamsActions";
 import { getSquadImage, tweetSquadImage } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
-class AdminGamePregameImage extends Component {
+class AdminGameSquadImage extends Component {
 	constructor(props) {
 		super(props);
 		const { game, fullTeams, fetchTeam, localTeam } = props;
@@ -178,4 +178,4 @@ function mapStateToProps({ config, teams }, ownProps) {
 export default connect(
 	mapStateToProps,
 	{ fetchTeam, getSquadImage, tweetSquadImage }
-)(AdminGamePregameImage);
+)(AdminGameSquadImage);
