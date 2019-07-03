@@ -34,7 +34,7 @@ class NewsPostLegacyRedirect extends Component {
 }
 
 function mapStateToProps({ news }, ownProps) {
-	return { ...ownProps, redirect: news.redirects[ownProps.match.params.id] };
+	return { redirect: news.redirects[ownProps.match.params.id] };
 }
 
 function loadData(store, path) {

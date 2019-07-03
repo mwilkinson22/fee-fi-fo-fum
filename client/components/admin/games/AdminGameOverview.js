@@ -389,13 +389,13 @@ class AdminGameOverview extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ games, teams, competitions, grounds, people }, ownProps) {
+function mapStateToProps({ games, teams, competitions, grounds, people }) {
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { groundList } = grounds;
 	const { peopleList } = people;
 
-	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList, ...ownProps };
+	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList };
 }
 // export default form;
 export default connect(

@@ -169,10 +169,10 @@ class AdminGameSquadImage extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }, ownProps) {
+function mapStateToProps({ config, teams }) {
 	const { fullTeams } = teams;
 	const { localTeam } = config;
-	return { fullTeams, localTeam, ...ownProps };
+	return { fullTeams, localTeam };
 }
 
 export default connect(

@@ -312,11 +312,11 @@ class AdminGamePage extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, teams }, ownProps) {
+function mapStateToProps({ config, games, teams }) {
 	const { fullGames, slugMap, gameList } = games;
 	const { teamTypes, teamList } = teams;
 	const { localTeam } = config;
-	return { localTeam, fullGames, teamList, slugMap, gameList, teamTypes, ...ownProps };
+	return { localTeam, fullGames, teamList, slugMap, gameList, teamTypes };
 }
 export default connect(
 	mapStateToProps,

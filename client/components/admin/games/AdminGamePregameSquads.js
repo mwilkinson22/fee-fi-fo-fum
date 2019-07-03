@@ -232,10 +232,10 @@ class AdminGamePregameSquads extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }, ownProps) {
+function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
 	const { teamList } = teams;
-	return { localTeam, teamList, ...ownProps };
+	return { localTeam, teamList };
 }
 
 export default connect(

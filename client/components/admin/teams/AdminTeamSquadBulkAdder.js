@@ -359,10 +359,10 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 }
 
-function mapStateToProps({ people, teams }, ownProps) {
+function mapStateToProps({ people, teams }) {
 	const { peopleList } = people;
 	const { fullTeams } = teams;
-	return { peopleList, fullTeams, ...ownProps };
+	return { peopleList, fullTeams };
 }
 
 export default connect(

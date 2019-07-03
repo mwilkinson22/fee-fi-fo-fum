@@ -188,10 +188,10 @@ class AdminTeamOverview extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ grounds, teams }, ownProps) {
+function mapStateToProps({ grounds, teams }) {
 	const { groundList } = grounds;
 	const { fullTeams, slugMap } = teams;
-	return { fullTeams, slugMap, groundList, ...ownProps };
+	return { fullTeams, slugMap, groundList };
 }
 // export default form;
 export default connect(

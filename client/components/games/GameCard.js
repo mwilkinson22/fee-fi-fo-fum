@@ -115,9 +115,9 @@ class GameCard extends Component {
 	}
 }
 
-function mapStateToProps({ config }, ownProps) {
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	return { localTeam, ...ownProps };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(GameCard);

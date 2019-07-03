@@ -27,10 +27,9 @@ class GameHeaderImage extends Component {
 	}
 }
 
-function mapStateToProps({ config }, ownProps) {
+function mapStateToProps({ config }) {
 	return {
-		useWebp: config.webp,
-		...ownProps
+		useWebp: config.webp
 	};
 }
 

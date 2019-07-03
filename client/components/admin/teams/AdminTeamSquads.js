@@ -314,9 +314,9 @@ class AdminTeamSquads extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ teams }, ownProps) {
+function mapStateToProps({ teams }) {
 	const { slugMap, fullTeams, teamTypes } = teams;
-	return { slugMap, fullTeams, teamTypes, ...ownProps };
+	return { slugMap, fullTeams, teamTypes };
 }
 
 // export default form;

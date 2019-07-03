@@ -228,9 +228,9 @@ class PersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ people }, ownProps) {
+function mapStateToProps({ people }) {
 	const { slugMap, fullPeople } = people;
-	return { slugMap, fullPeople, ...ownProps };
+	return { slugMap, fullPeople };
 }
 
 async function loadData(store, path) {

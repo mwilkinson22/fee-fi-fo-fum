@@ -389,12 +389,12 @@ class GamePage extends Component {
 	}
 }
 
-function mapStateToProps({ games, config, teams, news }, ownProps) {
+function mapStateToProps({ games, config, teams, news }) {
 	const { fullGames, slugMap, gameList } = games;
 	const { localTeam, authUser } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
-	return { fullGames, slugMap, postList, localTeam, authUser, gameList, fullTeams, ...ownProps };
+	return { fullGames, slugMap, postList, localTeam, authUser, gameList, fullTeams };
 }
 
 async function loadData(store, path) {

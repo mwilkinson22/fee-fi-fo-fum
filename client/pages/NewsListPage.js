@@ -131,9 +131,9 @@ class NewsListPage extends Component {
 	}
 }
 
-function mapStateToProps({ news }, ownProps) {
+function mapStateToProps({ news }) {
 	const { postList } = news;
-	return { postList, ...ownProps };
+	return { postList };
 }
 
 async function loadData(store) {

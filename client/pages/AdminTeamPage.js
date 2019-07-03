@@ -107,9 +107,9 @@ class AdminTeamPage extends Component {
 	}
 }
 
-function mapStateToProps({ teams }, ownProps) {
+function mapStateToProps({ teams }) {
 	const { fullTeams, slugMap } = teams;
-	return { fullTeams, slugMap, ...ownProps };
+	return { fullTeams, slugMap };
 }
 export default connect(
 	mapStateToProps,

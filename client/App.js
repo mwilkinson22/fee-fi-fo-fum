@@ -57,13 +57,9 @@ class App extends Component {
 	}
 }
 
-function mapStateToProps(state, ownProps) {
-	return ownProps;
-}
-
 export default {
 	component: connect(
-		mapStateToProps,
+		null,
 		{ fetchUser }
 	)(App)
 };

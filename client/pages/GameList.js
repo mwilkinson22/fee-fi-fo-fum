@@ -213,7 +213,7 @@ class GameList extends Component {
 	}
 }
 
-function mapStateToProps({ games, teams }, ownProps) {
+function mapStateToProps({ games, teams }) {
 	const { gameList, fullGames } = games;
 	const { teamTypes } = teams;
 	return {

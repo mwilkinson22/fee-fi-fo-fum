@@ -336,7 +336,7 @@ LeagueTable.defaultProps = {
 	toDate: null
 };
 
-function mapStateToProps({ config, games, teams, competitions }, ownProps) {
+function mapStateToProps({ config, games, teams, competitions }) {
 	const { teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { neutralGames, gameList, fullGames } = games;

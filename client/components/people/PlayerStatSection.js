@@ -290,10 +290,10 @@ class PlayerStatSection extends Component {
 	}
 }
 
-function mapStateToProps({ games, teams }, ownProps) {
+function mapStateToProps({ games, teams }) {
 	const { teamTypes } = teams;
 	const { gameList, fullGames } = games;
-	return { teamTypes, gameList, fullGames, ...ownProps };
+	return { teamTypes, gameList, fullGames };
 }
 
 export default connect(
