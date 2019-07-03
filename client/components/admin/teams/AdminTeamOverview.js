@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -10,10 +10,10 @@ import { fetchAllGrounds } from "../../../actions/groundActions";
 import { updateTeam } from "../../../actions/teamsActions";
 
 //Components
+import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
-import { processFormFields } from "~/helpers/adminHelper";
 
-class AdminTeamOverview extends Component {
+class AdminTeamOverview extends BasicForm {
 	constructor(props) {
 		super(props);
 		const { groundList, fetchAllGrounds, team } = props;
@@ -30,31 +30,7 @@ class AdminTeamOverview extends Component {
 			statBarColour: "#BB0000"
 		};
 
-		this.state = { groundList, team };
-	}
-
-	static getDerivedStateFromProps(nextProps) {
-		const { fullTeams, slugMap, match, groundList } = nextProps;
-		const newState = {};
-
-		const { slug } = match.params;
-		const { id } = slugMap[slug];
-		newState.team = fullTeams[id];
-
-		if (groundList) {
-			newState.groundList = _.chain(groundList)
-				.map(ground => ({
-					value: ground._id,
-					label: `${ground.name}, ${ground.address._city.name}`
-				}))
-				.sortBy("label")
-				.value();
-		}
-		return newState;
-	}
-
-	getValidationSchema() {
-		return Yup.object().shape({
+		const validationSchema = Yup.object().shape({
 			name: Yup.object().shape({
 				long: Yup.string()
 					.required()
@@ -92,6 +68,28 @@ class AdminTeamOverview extends Component {
 				statBarColour: Yup.string().label("Stat Bar")
 			})
 		});
+
+		this.state = { groundList, team, validationSchema };
+	}
+
+	static getDerivedStateFromProps(nextProps) {
+		const { fullTeams, slugMap, match, groundList } = nextProps;
+		const newState = {};
+
+		const { slug } = match.params;
+		const { id } = slugMap[slug];
+		newState.team = fullTeams[id];
+
+		if (groundList) {
+			newState.groundList = _.chain(groundList)
+				.map(ground => ({
+					value: ground._id,
+					label: `${ground.name}, ${ground.address._city.name}`
+				}))
+				.sortBy("label")
+				.value();
+		}
+		return newState;
 	}
 
 	getDefaults() {
@@ -129,7 +127,6 @@ class AdminTeamOverview extends Component {
 
 	renderFields() {
 		const { groundList } = this.state;
-		const validationSchema = this.getValidationSchema();
 		const teamFields = [
 			{ name: "name.long", type: "text" },
 			{ name: "name.short", type: "text" },
@@ -159,9 +156,9 @@ class AdminTeamOverview extends Component {
 			<Form>
 				<div className="form-card grid">
 					<h6>Team</h6>
-					{processFormFields(teamFields, validationSchema)}
+					{this.renderFieldGroup(teamFields)}
 					<h6>Colours</h6>
-					{processFormFields(colourFields, validationSchema)}
+					{this.renderFieldGroup(colourFields)}
 					<div className="buttons">
 						<button type="clear">Clear</button>
 						<button type="submit">Submit</button>
@@ -180,7 +177,7 @@ class AdminTeamOverview extends Component {
 		return (
 			<div className="container">
 				<Formik
-					validationSchema={() => this.getValidationSchema()}
+					validationSchema={this.state.validationSchema}
 					onSubmit={values => this.onSubmit(values)}
 					initialValues={this.getDefaults()}
 					render={formikProps => this.renderFields(formikProps.values)}

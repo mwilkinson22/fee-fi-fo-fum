@@ -2,17 +2,17 @@ import React, { Component } from "react";
 
 export default class Boolean extends Component {
 	render() {
-		const { field } = this.props;
+		const { name, value } = this.props;
 		return (
 			<div className="boolean">
 				<input
-					{...field}
-					defaultChecked={field.value}
+					{...this.props}
+					defaultChecked={value}
 					type="checkbox"
 					className="boolean-checkbox"
-					id={field.name}
+					id={`bool-${name}`}
 				/>
-				<label className="boolean-slider" htmlFor={field.name} />
+				<label className="boolean-slider" htmlFor={`bool-${name}`} />
 			</div>
 		);
 	}

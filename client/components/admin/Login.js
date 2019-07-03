@@ -1,13 +1,20 @@
-import React, { Component } from "react";
+//Modules
+import React from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
-import { login } from "../../actions/userActions";
 import * as Yup from "yup";
-import { processFormFields } from "~/helpers/adminHelper";
 
-class Login extends Component {
-	getValidationSchema() {
-		return Yup.object().shape({
+//Components
+import BasicForm from "./BasicForm";
+
+//Actions
+import { login } from "../../actions/userActions";
+
+class Login extends BasicForm {
+	constructor(props) {
+		super(props);
+
+		const validationSchema = Yup.object().shape({
 			username: Yup.string()
 				.required()
 				.label("Username"),
@@ -15,6 +22,8 @@ class Login extends Component {
 				.required()
 				.label("Password")
 		});
+
+		this.state = { validationSchema };
 	}
 
 	renderFields() {
@@ -23,7 +32,7 @@ class Login extends Component {
 		return (
 			<Form>
 				<div className="form-card login-card">
-					{processFormFields(fields, this.getValidationSchema())}
+					{this.renderFieldGroup(fields)}
 					<div className="buttons">
 						<button type="submit">Log In</button>
 					</div>
@@ -42,7 +51,7 @@ class Login extends Component {
 						username: "",
 						password: ""
 					}}
-					validationSchema={this.getValidationSchema()}
+					validationSchema={this.state.validationSchema}
 					render={formikProps => this.renderFields(formikProps)}
 				/>
 			</div>

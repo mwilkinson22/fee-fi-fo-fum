@@ -3,19 +3,19 @@ import React, { Component } from "react";
 
 export default class Radio extends Component {
 	render() {
-		const { field, options } = this.props;
+		const { name, options } = this.props;
 		return (
-			<div key={field.name} className="radio-fields">
+			<div key={name} className="radio-fields">
 				{_.map(options, option => {
-					const id = `${field.name}-${option.value}`;
+					const id = `${name}-${option.value}`;
 					return [
 						<input
 							key="input"
 							type="radio"
 							id={id}
-							{...field}
+							{...this.props}
 							value={option.value}
-							defaultChecked={field.value === option.value}
+							defaultChecked={this.props.value === option.value}
 						/>,
 						<label key="label" htmlFor={id}>
 							{option.label}

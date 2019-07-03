@@ -1,12 +1,13 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
+import BasicForm from "../components/admin/BasicForm";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
@@ -21,10 +22,7 @@ import {
 } from "../actions/neutralGamesActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
 
-//Helpers
-import { processFormFields } from "~/helpers/adminHelper";
-
-class AdminNeutralGamePage extends Component {
+class AdminNeutralGamePage extends BasicForm {
 	constructor(props) {
 		super(props);
 		const {
@@ -53,7 +51,53 @@ class AdminNeutralGamePage extends Component {
 
 		const newState = {};
 
+		//Check for New Game
 		newState.isNew = match.params.id === "new";
+
+		//Set Basic validation schema
+		const validationSchema = {
+			externalSync: Yup.boolean().label("External Sync"),
+			externalId: Yup.number()
+				.when("externalSync", (externalSync, schema) => {
+					return externalSync
+						? schema.required("An ID is required for External Sync")
+						: null;
+				})
+				.label("External Id"),
+			externalSite: Yup.mixed().label("External Site"),
+			time: Yup.string()
+				.required()
+				.label("Time"),
+			_teamType: Yup.string()
+				.required()
+				.label("Team Type"),
+			_competition: Yup.string()
+				.required()
+				.label("Competition"),
+			_homeTeam: Yup.mixed()
+				.required()
+				.test("isUnique", "Home Team and Away Team cannot match", function(_homeTeam) {
+					const { _awayTeam } = this.parent;
+					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
+				})
+				.label("Home Team"),
+			_awayTeam: Yup.mixed()
+				.required()
+				.test("isUnique", "Home Team and Away Team cannot match", function(_awayTeam) {
+					const { _homeTeam } = this.parent;
+					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
+				})
+				.label("Away Team"),
+			homePoints: Yup.number()
+				.min(0)
+				.label("Home Points"),
+			awayPoints: Yup.number()
+				.min(0)
+				.label("Away Points"),
+			date: Yup.date()
+				.required()
+				.label("Date")
+		};
 
 		if (!newState.isNew) {
 			const game = _.find(neutralGames, g => g._id === match.params.id) || false;
@@ -61,8 +105,16 @@ class AdminNeutralGamePage extends Component {
 				newState.game = _.cloneDeep(game);
 				newState.game._homeTeam = teamList[game._homeTeam];
 				newState.game._awayTeam = teamList[game._awayTeam];
+				const year = new Date(game.date).getFullYear();
+				validationSchema.date = Yup.date()
+					.required()
+					.label("Date")
+					.min(`${year}-01-01`)
+					.max(`${year}-12-31`);
 			}
 		}
+
+		newState.validationSchema = Yup.object().shape(validationSchema);
 
 		return newState;
 	}
@@ -135,66 +187,6 @@ class AdminNeutralGamePage extends Component {
 				</div>
 			</section>
 		);
-	}
-
-	getValidationSchema() {
-		const { game } = this.state;
-		const schema = {
-			externalSync: Yup.boolean().label("External Sync"),
-			externalId: Yup.number()
-				.when("externalSync", (externalSync, schema) => {
-					return externalSync
-						? schema.required("An ID is required for External Sync")
-						: null;
-				})
-				.label("External Id"),
-			externalSite: Yup.mixed().label("External Site"),
-			time: Yup.string()
-				.required()
-				.label("Time"),
-			_teamType: Yup.string()
-				.required()
-				.label("Team Type"),
-			_competition: Yup.string()
-				.required()
-				.label("Competition"),
-			_homeTeam: Yup.mixed()
-				.required()
-				.test("isUnique", "Home Team and Away Team cannot match", function(_homeTeam) {
-					const { _awayTeam } = this.parent;
-					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
-				})
-				.label("Home Team"),
-			_awayTeam: Yup.mixed()
-				.required()
-				.test("isUnique", "Home Team and Away Team cannot match", function(_awayTeam) {
-					const { _homeTeam } = this.parent;
-					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
-				})
-				.label("Away Team"),
-			homePoints: Yup.number()
-				.min(0)
-				.label("Home Points"),
-			awayPoints: Yup.number()
-				.min(0)
-				.label("Away Points")
-		};
-
-		//Set Date
-		if (game) {
-			const year = new Date(game.date).getFullYear();
-			schema.date = Yup.date()
-				.required()
-				.label("Date")
-				.min(`${year}-01-01`)
-				.max(`${year}-12-31`);
-		} else {
-			schema.date = Yup.date()
-				.required()
-				.label("Date");
-		}
-
-		return Yup.object().shape(schema);
 	}
 
 	getDefaults() {
@@ -305,7 +297,7 @@ class AdminNeutralGamePage extends Component {
 	}
 
 	render() {
-		const { game, isNew, redirect } = this.state;
+		const { game, isNew, redirect, validationSchema } = this.state;
 
 		if (redirect) {
 			return <Redirect to={`/admin/neutralGames/${redirect}`} />;
@@ -318,8 +310,6 @@ class AdminNeutralGamePage extends Component {
 		if (!game && !isNew) {
 			return <NotFoundPage error={"Game not found"} />;
 		}
-
-		const validationSchema = this.getValidationSchema();
 
 		return (
 			<div>
@@ -365,7 +355,7 @@ class AdminNeutralGamePage extends Component {
 								return (
 									<Form>
 										<div className="form-card grid">
-											{processFormFields(fields, validationSchema)}
+											{this.renderFieldGroup(fields)}
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">Save</button>
