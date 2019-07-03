@@ -16,7 +16,7 @@ import LoadingPage from "../../LoadingPage";
 class AdminTeamOverview extends BasicForm {
 	constructor(props) {
 		super(props);
-		const { groundList, fetchAllGrounds, team } = props;
+		const { groundList, fetchAllGrounds, team, teamTypes } = props;
 		if (!groundList) {
 			fetchAllGrounds();
 		}
@@ -29,6 +29,8 @@ class AdminTeamOverview extends BasicForm {
 			pitchColour: "#BB0000",
 			statBarColour: "#BB0000"
 		};
+
+		const _grounds = _.mapValues(teamTypes, ({ name }) => Yup.string().label(name));
 
 		const validationSchema = Yup.object().shape({
 			name: Yup.object().shape({
@@ -46,9 +48,10 @@ class AdminTeamOverview extends BasicForm {
 				.required()
 				.length(3)
 				.label("Hashtag Prefix"),
-			_ground: Yup.string()
+			_defaultGround: Yup.string()
 				.required()
-				.label("Homeground"),
+				.label("Default Ground"),
+			_grounds: Yup.object().shape(_grounds),
 			colours: Yup.object().shape({
 				main: Yup.string()
 					.required()
@@ -94,6 +97,7 @@ class AdminTeamOverview extends BasicForm {
 
 	getDefaults() {
 		const { team, groundList } = this.state;
+		const { teamTypes } = this.props;
 		const { colourTypes } = this;
 		const colours = _.mapValues(colourTypes, (defaultValue, type) => {
 			if (team && team.colours[type]) {
@@ -102,7 +106,19 @@ class AdminTeamOverview extends BasicForm {
 				return defaultValue;
 			}
 		});
-		const ground = _.filter(groundList, ground => ground.value === team._ground);
+		const defaultGround = _.find(groundList, ground => ground.value == team._defaultGround);
+		const _grounds = _.chain(teamTypes)
+			.sortBy("sortOrder")
+			.map(({ _id }) => {
+				let result = "";
+				const currentValue = team._grounds.find(({ _teamType }) => _teamType == _id);
+				if (currentValue) {
+					result = _.find(groundList, ground => ground.value == currentValue._ground);
+				}
+				return [_id, result];
+			})
+			.fromPairs()
+			.value();
 		return {
 			name: {
 				long: team.name ? team.name.long : "",
@@ -110,7 +126,8 @@ class AdminTeamOverview extends BasicForm {
 			},
 			nickname: team.nickname || "",
 			hashtagPrefix: team.hashtagPrefix || "",
-			_ground: ground[0] ? ground[0] : "",
+			_defaultGround: defaultGround || "",
+			_grounds,
 			colours: {
 				...colours,
 				customPitchColour: team && team.colours.pitchColour !== null,
@@ -127,13 +144,26 @@ class AdminTeamOverview extends BasicForm {
 
 	renderFields() {
 		const { groundList } = this.state;
+		const { teamTypes } = this.props;
 		const teamFields = [
 			{ name: "name.long", type: "text" },
 			{ name: "name.short", type: "text" },
 			{ name: "nickname", type: "text" },
-			{ name: "hashtagPrefix", type: "text" },
-			{ name: "_ground", type: "Select", options: groundList }
+			{ name: "hashtagPrefix", type: "text" }
 		];
+
+		const groundFields = [{ name: "_defaultGround", type: "Select", options: groundList }];
+		_.chain(teamTypes)
+			.sortBy("sortOrder")
+			.each(({ _id }) => {
+				groundFields.push({
+					name: `_grounds.${_id}`,
+					type: "Select",
+					options: groundList,
+					isClearable: true
+				});
+			})
+			.value();
 
 		const colourFields = [
 			{ name: "colours.main", type: "color" },
@@ -157,6 +187,8 @@ class AdminTeamOverview extends BasicForm {
 				<div className="form-card grid">
 					<h6>Team</h6>
 					{this.renderFieldGroup(teamFields)}
+					<h6>Grounds</h6>
+					{this.renderFieldGroup(groundFields)}
 					<h6>Colours</h6>
 					{this.renderFieldGroup(colourFields)}
 					<div className="buttons">
@@ -190,8 +222,8 @@ class AdminTeamOverview extends BasicForm {
 //Add Redux Support
 function mapStateToProps({ grounds, teams }) {
 	const { groundList } = grounds;
-	const { fullTeams, slugMap } = teams;
-	return { fullTeams, slugMap, groundList };
+	const { fullTeams, slugMap, teamTypes } = teams;
+	return { fullTeams, slugMap, groundList, teamTypes };
 }
 // export default form;
 export default connect(

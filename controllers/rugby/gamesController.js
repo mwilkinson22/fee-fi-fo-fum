@@ -73,9 +73,11 @@ async function processBasics(values) {
 	if (values._ground === "auto") {
 		const Team = mongoose.model("teams");
 		const homeTeam = await Team.findById(
-			values.isAway === "true" ? values._opposition : localTeam
+			values.isAway === "true" || values.isAway === true ? values._opposition : localTeam,
+			"_defaultGround _grounds"
 		);
-		values._ground = homeTeam._ground;
+		let ground = homeTeam._grounds.find(g => g._teamType == values._teamType);
+		values._ground = ground ? ground._ground : homeTeam._defaultGround;
 	}
 
 	return values;

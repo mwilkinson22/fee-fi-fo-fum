@@ -90,7 +90,7 @@ export default class BasicForm extends Component {
 			if (["Select", "Tweet"].indexOf(type) > -1) {
 				formikProps.field.onChange = option => {
 					formikProps.form.setFieldTouched(field.name, true);
-					formikProps.form.setFieldValue(field.name, option);
+					formikProps.form.setFieldValue(field.name, option || "");
 				};
 			}
 

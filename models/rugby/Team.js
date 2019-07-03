@@ -7,7 +7,13 @@ const teamSchema = new Schema({
 		short: String
 	},
 	nickname: String,
-	_ground: { type: Schema.Types.ObjectId, ref: "grounds" },
+	_defaultGround: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+	_grounds: [
+		{
+			_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+			_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true }
+		}
+	],
 	hashtagPrefix: String,
 	colours: {
 		main: String,

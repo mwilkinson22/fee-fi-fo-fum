@@ -8,7 +8,6 @@ const Person = mongoose.model("people");
 
 //Modules
 const _ = require("lodash");
-const Colour = require("color");
 
 //Helpers
 async function getUpdatedTeam(id, res) {
@@ -36,7 +35,7 @@ export async function getTeamTypes(req, res) {
 	res.send(_.keyBy(teamTypes, "_id"));
 }
 
-export async function update(req, res) {
+export async function updateTeam(req, res) {
 	const { _id } = req.params;
 	const team = await Team.findById(_id);
 	if (!team) {
@@ -45,7 +44,7 @@ export async function update(req, res) {
 		//Handle Plain Text Fields
 		const values = _.mapValues(req.body, (val, key) => {
 			switch (key) {
-				case "_ground":
+				case "_defaultGround":
 					return val.value;
 				case "colours":
 					if (!val.customPitchColour) {
@@ -55,6 +54,16 @@ export async function update(req, res) {
 						val.statBarColour = null;
 					}
 					return val;
+				case "_grounds":
+					return _.chain(val)
+						.map((ground, _teamType) => {
+							if (ground && ground.value) {
+								console.log({ _ground: ground.value, _teamType });
+								return { _ground: ground.value, _teamType };
+							}
+						})
+						.filter(_.identity)
+						.value();
 				default:
 					return val;
 			}

@@ -13,7 +13,7 @@ module.exports = app => {
 	//Putters
 	app.put("/api/teams/:_id/squad/:squadId/append", requireAdmin, teamsController.appendSquad);
 	app.put("/api/teams/:_id/squad/:squadId", requireAdmin, teamsController.updateSquad);
-	app.put("/api/teams/:_id", requireAdmin, teamsController.update);
+	app.put("/api/teams/:_id", requireAdmin, teamsController.updateTeam);
 
 	//Post
 	app.post("/api/teams/:_id/squad/", requireAdmin, teamsController.createSquad);
