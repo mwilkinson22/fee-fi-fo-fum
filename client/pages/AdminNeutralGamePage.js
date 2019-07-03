@@ -18,7 +18,7 @@ import * as Yup from "yup";
 import { processFormFields } from "~/helpers/adminHelper";
 import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 
-class AdminNeutralGameList extends Component {
+class AdminNeutralGamePage extends Component {
 	constructor(props) {
 		super(props);
 		const {
@@ -402,4 +402,4 @@ export default connect(
 		updateNeutralGames,
 		deleteNeutralGame
 	}
-)(AdminNeutralGameList);
+)(AdminNeutralGamePage);
