@@ -158,32 +158,65 @@ export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) 
 	});
 }
 
-export function convertTeamToSelect(game, teamList, singleTeam = false, includeNone = false) {
-	function listToOptions({ _player }, team) {
+export function convertTeamToSelect(
+	game,
+	teamList,
+	singleTeam = false,
+	includeNone = false,
+	fromPregame = false
+) {
+	function listToOptions(_player, team) {
 		const p = _.find(game.eligiblePlayers[team], p => _player == p._player._id);
 		const numberStr = p.number ? `${p.number}. ` : "";
 		const label = numberStr + p._player.name.full;
 		return { label, value: _player };
 	}
 
+	function pregameSort(p, team) {
+		const player = _.find(game.eligiblePlayers[team], eP => eP._player._id == p);
+		return player ? player.number : 999;
+	}
+
 	let options;
-	if (singleTeam) {
-		options = _.chain(game.playerStats)
-			.filter(p => p._team == singleTeam)
-			.sortBy("position")
-			.map(p => listToOptions(p, singleTeam))
-			.value();
+	if (fromPregame) {
+		if (singleTeam) {
+			options = _.chain(game.pregameSquads)
+				.find(p => p._team == singleTeam)
+				.sortBy(p => pregameSort(p, singleTeam))
+				.map(p => listToOptions(p, singleTeam))
+				.value();
+		} else {
+			options = _.chain(game.pregameSquads)
+				.groupBy("_team")
+				.mapValues(s => s[0].squad)
+				.map((squad, team) => {
+					const options = _.chain(squad)
+						.sortBy(p => pregameSort(p, team))
+						.map(p => listToOptions(p, team))
+						.value();
+					return { label: teamList[team].name.short, options };
+				})
+				.value();
+		}
 	} else {
-		options = _.chain(game.playerStats)
-			.groupBy("_team")
-			.map((squad, team) => {
-				const options = _.chain(squad)
-					.sortBy("position")
-					.map(p => listToOptions(p, team))
-					.value();
-				return { label: teamList[team].name.short, options };
-			})
-			.value();
+		if (singleTeam) {
+			options = _.chain(game.playerStats)
+				.filter(p => p._team == singleTeam)
+				.sortBy("position")
+				.map(p => listToOptions(p._player, singleTeam))
+				.value();
+		} else {
+			options = _.chain(game.playerStats)
+				.groupBy("_team")
+				.map((squad, team) => {
+					const options = _.chain(squad)
+						.sortBy("position")
+						.map(p => listToOptions(p._player, team))
+						.value();
+					return { label: teamList[team].name.short, options };
+				})
+				.value();
+		}
 	}
 	if (includeNone) {
 		return [{ label: "None", value: "" }, ...options];

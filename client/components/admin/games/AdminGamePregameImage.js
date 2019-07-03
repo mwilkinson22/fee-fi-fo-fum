@@ -13,6 +13,9 @@ import { fetchTeam } from "../../../actions/teamsActions";
 import { getPregameImage, tweetPregameImage } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
+//Helpers
+import { convertTeamToSelect } from "~/helpers/gameHelper";
+
 class AdminGamePregameImage extends Component {
 	constructor(props) {
 		super(props);
@@ -37,7 +40,7 @@ class AdminGamePregameImage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, lastGame, fullTeams, localTeam } = nextProps;
+		const { game, lastGame, fullTeams, localTeam, teamList } = nextProps;
 		const newState = {};
 
 		let teams = [localTeam, game._opposition._id];
@@ -81,7 +84,14 @@ class AdminGamePregameImage extends Component {
 			}
 
 			//Player List
-			newState.playerOptions = [{ label: "None", value: false }];
+			newState.playerHighlightOptions = convertTeamToSelect(
+				game,
+				teamList,
+				false,
+				false,
+				true
+			);
+			newState.playerImageOptions = [{ label: "None", value: false }];
 			if (thisLocalSquad) {
 				//Get the squad for the season, with numbers
 				const squadNumbers = _.find(
@@ -117,24 +127,26 @@ class AdminGamePregameImage extends Component {
 				});
 
 				if (newPlayers.length) {
-					newState.playerOptions.push({
+					newState.playerImageOptions.push({
 						label: "New Players",
 						options: _.sortBy(newPlayers, p => p.number || 999)
 					});
 				}
 
 				if (otherPlayers.length) {
-					newState.playerOptions.push({
+					newState.playerImageOptions.push({
 						label: "Other Players",
 						options: _.sortBy(otherPlayers, p => p.number || 999)
 					});
 				}
 
+				newState.playersToHighlight = newState.playerImageOptions[1].options;
+
 				newState.playerForImage =
-					newState.playerOptions.length > 1 &&
-					_.sample(newState.playerOptions[1].options);
+					newState.playerImageOptions.length > 1 &&
+					_.sample(newState.playerImageOptions[1].options);
 			} else {
-				newState.playerForImage = newState.playerOptions[0];
+				newState.playerForImage = newState.playerImageOptions[0];
 			}
 		}
 
@@ -165,28 +177,28 @@ class AdminGamePregameImage extends Component {
 	}
 
 	renderPlayerImageSelect() {
-		const { playerForImage, playerOptions } = this.state;
+		const { playerForImage, playerImageOptions } = this.state;
 
 		return (
 			<Select
 				styles={selectStyling}
 				onChange={playerForImage => this.setState({ playerForImage })}
 				defaultValue={playerForImage}
-				options={playerOptions}
+				options={playerImageOptions}
 			/>
 		);
 	}
 
-	renderPlayerHighlightToggle() {
-		const { highlightNewPlayers } = this.state;
-		const options = [{ label: "Yes", value: true }, { label: "No", value: false }];
+	renderPlayerHighlightSelect() {
+		const { playersToHighlight, playerHighlightOptions } = this.state;
 
 		return (
 			<Select
 				styles={selectStyling}
-				onChange={({ value }) => this.setState({ highlightNewPlayers: value })}
-				defaultValue={_.find(options, ({ value }) => value == highlightNewPlayers)}
-				options={options}
+				onChange={playersToHighlight => this.setState({ playersToHighlight })}
+				defaultValue={playersToHighlight}
+				options={playerHighlightOptions}
+				isMulti={true}
 			/>
 		);
 	}
@@ -220,16 +232,18 @@ class AdminGamePregameImage extends Component {
 	}
 
 	optionsToQuery() {
-		const { highlightNewPlayers, playerForImage, playersToHighlight, team } = this.state;
-		let query = `?playerForImage=${playerForImage &&
-			playerForImage.value}&playersToHighlight=${highlightNewPlayers &&
-			playersToHighlight.join(",")}`;
-
+		const { playerForImage, playersToHighlight, team } = this.state;
+		const query = {
+			playerForImage: playerForImage.value,
+			playersToHighlight: playersToHighlight.map(p => p.value).join(",")
+		};
 		if (team !== "both") {
-			query += `&singleTeam=${team}`;
+			query.singleTeam = team;
 		}
 
-		return query;
+		const queryStr = _.map(query, (val, key) => `${key}=${val}`).join("&");
+
+		return `?${queryStr}`;
 	}
 
 	renderTweetComposer() {
@@ -276,7 +290,7 @@ class AdminGamePregameImage extends Component {
 					<label>Player For Image</label>
 					{this.renderPlayerImageSelect()}
 					<label>Highlight New Players</label>
-					{this.renderPlayerHighlightToggle()}
+					{this.renderPlayerHighlightSelect()}
 					<label>Tweet</label>
 					{this.renderTweetComposer()}
 					<label>In Reply To</label>
@@ -304,10 +318,10 @@ class AdminGamePregameImage extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }, ownProps) {
-	const { fullTeams } = teams;
+function mapStateToProps({ config, teams }) {
+	const { fullTeams, teamList } = teams;
 	const { localTeam } = config;
-	return { fullTeams, localTeam, ...ownProps };
+	return { fullTeams, localTeam, teamList };
 }
 
 export default connect(
