@@ -1,8 +1,18 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+
+//Components
 import LoadingPage from "../components/LoadingPage";
+import HelmetBuilder from "../components/HelmetBuilder";
+import NotFoundPage from "~/client/pages/NotFoundPage";
+import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
+
+//Actions
 import {
 	fetchNeutralGames,
 	updateNeutralGames,
@@ -10,13 +20,9 @@ import {
 	deleteNeutralGame
 } from "../actions/neutralGamesActions";
 import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
-import { Formik, Form } from "formik";
-import HelmetBuilder from "../components/HelmetBuilder";
-import NotFoundPage from "~/client/pages/NotFoundPage";
-import * as Yup from "yup";
 
+//Helpers
 import { processFormFields } from "~/helpers/adminHelper";
-import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 
 class AdminNeutralGamePage extends Component {
 	constructor(props) {
