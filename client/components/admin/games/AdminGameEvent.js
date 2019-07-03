@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -15,6 +15,7 @@ import { fetchPeopleList } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Components
+import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 import PopUpDialog from "../../PopUpDialog";
 
@@ -22,10 +23,9 @@ import PopUpDialog from "../../PopUpDialog";
 import gameEvents from "~/constants/gameEvents";
 
 //Helpers
-import { processFormFields } from "~/helpers/adminHelper";
 import { convertTeamToSelect, getMostRecentTweet } from "~/helpers/gameHelper";
 
-class AdminGameEvent extends Component {
+class AdminGameEvent extends BasicForm {
 	constructor(props) {
 		super(props);
 		const { game, peopleList, fetchPeopleList, fullTeams, localTeam, fetchTeam } = props;
@@ -38,20 +38,8 @@ class AdminGameEvent extends Component {
 		if (!fullTeams[game._opposition._id]) {
 			fetchTeam(game._opposition._id);
 		}
-		this.state = {};
-	}
 
-	static getDerivedStateFromProps(nextProps) {
-		const { fullTeams, localTeam, game } = nextProps;
-		if (!fullTeams[localTeam] || !fullTeams[game._opposition._id]) {
-			return {};
-		}
-
-		return nextProps;
-	}
-
-	getValidationSchema() {
-		const shape = {
+		const validationSchema = Yup.object().shape({
 			event: Yup.mixed()
 				.required()
 				.label("Event"),
@@ -65,8 +53,18 @@ class AdminGameEvent extends Component {
 			postTweet: Yup.boolean().label("Post Tweet?"),
 			tweet: Yup.string().label("Tweet"),
 			replyTweet: Yup.string().label("Reply To Tweet")
-		};
-		return Yup.object().shape(shape);
+		});
+
+		this.state = { validationSchema };
+	}
+
+	static getDerivedStateFromProps(nextProps) {
+		const { fullTeams, localTeam, game } = nextProps;
+		if (!fullTeams[localTeam] || !fullTeams[game._opposition._id]) {
+			return {};
+		}
+
+		return nextProps;
 	}
 
 	getDefaults() {
@@ -166,11 +164,9 @@ class AdminGameEvent extends Component {
 	}
 
 	renderFields(formikProps) {
-		const { localTeam } = this.props;
-		const { isPosting } = this.state;
-		const { game, peopleList, teamList } = this.props;
+		const { localTeam, game, peopleList, teamList } = this.props;
+		const { isPosting, validationSchema } = this.state;
 		const { event, postTweet } = formikProps.values;
-		const validationSchema = this.getValidationSchema();
 		const eventTypes = this.getEventTypes();
 		const fields = [
 			{ name: "event", type: "Select", options: eventTypes, isSearchable: false }
@@ -198,11 +194,9 @@ class AdminGameEvent extends Component {
 				{
 					name: "tweet",
 					type: "Tweet",
-					customProps: {
-						variables,
-						caretPoint: 0,
-						variableInstruction: "@ Player"
-					}
+					variables,
+					caretPoint: 0,
+					variableInstruction: "@ Player"
 				},
 				{ name: "replyTweet", type: "text" }
 			);
@@ -211,7 +205,7 @@ class AdminGameEvent extends Component {
 			<Form>
 				<div className="form-card grid">
 					<h6>Add Game Event</h6>
-					{processFormFields(fields, validationSchema)}
+					{this.renderFieldGroup(fields)}
 					<div className="buttons">
 						<button type="button" onClick={() => formikProps.resetForm()}>
 							Clear
@@ -427,7 +421,7 @@ class AdminGameEvent extends Component {
 		return (
 			<div className="container game-event-page">
 				<Formik
-					validationSchema={() => this.getValidationSchema()}
+					validationSchema={this.state.validationSchema}
 					onSubmit={(values, formikActions) => this.onSubmit(values, formikActions)}
 					initialValues={this.getDefaults()}
 					render={formikProps => this.renderFields(formikProps)}

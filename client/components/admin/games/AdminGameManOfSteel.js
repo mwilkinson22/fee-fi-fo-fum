@@ -1,28 +1,47 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
+
+//Components
+import BasicForm from "../BasicForm";
 
 //Actions
 import { setManOfSteelPoints } from "~/client/actions/gamesActions";
 
 //Helpers
-import { processFormFields } from "~/helpers/adminHelper";
 import { convertTeamToSelect } from "~/helpers/gameHelper";
 
-class AdminGameManOfSteel extends Component {
+class AdminGameManOfSteel extends BasicForm {
 	constructor(props) {
 		super(props);
 
+		//Get Team Options
 		const options = convertTeamToSelect(props.game, props.teamList);
 
-		this.state = { options };
-	}
+		//Get Validation Schema
+		const fieldValidation = Yup.object()
+			.required()
+			.test("isUnique", "Player selected twice", function({ value }) {
+				return (
+					_.chain(this.parent)
+						.map("value")
+						.filter(o => o == value)
+						.value().length <= 1
+				);
+			});
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		return {};
+		const validationSchema = Yup.object().shape({
+			manOfSteel: Yup.object().shape({
+				1: fieldValidation.label("1 Point"),
+				2: fieldValidation.label("2 Points"),
+				3: fieldValidation.label("3 Points")
+			})
+		});
+
+		this.state = { options, validationSchema };
 	}
 
 	getDefaults() {
@@ -46,40 +65,19 @@ class AdminGameManOfSteel extends Component {
 		return defaults;
 	}
 
-	getValidationSchema() {
-		const fieldType = Yup.object()
-			.required()
-			.test("isUnique", "Player selected twice", function({ value }) {
-				return (
-					_.chain(this.parent)
-						.map("value")
-						.filter(o => o == value)
-						.value().length <= 1
-				);
-			});
-
-		return Yup.object().shape({
-			manOfSteel: Yup.object().shape({
-				1: fieldType.label("1 Point"),
-				2: fieldType.label("2 Points"),
-				3: fieldType.label("3 Points")
-			})
-		});
-	}
-
 	async onSubmit({ manOfSteel }) {
 		const { setManOfSteelPoints, game } = this.props;
 		await setManOfSteelPoints(game._id, _.mapValues(manOfSteel, "value"));
 	}
 
 	render() {
-		const { options } = this.state;
+		const { options, validationSchema } = this.state;
 		return (
 			<div className="container">
 				<Formik
 					initialValues={this.getDefaults()}
 					onSubmit={values => this.onSubmit(values)}
-					validationSchema={values => this.getValidationSchema(values)}
+					validationSchema={validationSchema}
 					render={() => {
 						const fields = [];
 						for (let i = 3; i > 0; i--) {
@@ -89,7 +87,7 @@ class AdminGameManOfSteel extends Component {
 						return (
 							<Form>
 								<div className="form-card grid">
-									{processFormFields(fields, this.getValidationSchema())}
+									{this.renderFieldGroup(fields)}
 									<div className="buttons">
 										<button type="reset">Reset</button>
 										<button type="submit">Update</button>

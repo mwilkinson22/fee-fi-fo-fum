@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
@@ -12,16 +12,26 @@ import selectStyling from "~/constants/selectStyling";
 import { updateTeamSquad } from "../../../actions/teamsActions";
 
 //Components
+import BasicForm from "../BasicForm";
 import Table from "../../Table";
 import AdminTeamSquadBulkAdder from "./AdminTeamSquadBulkAdder";
 
-//Helpers
-import { processFormFields } from "~/helpers/adminHelper";
-
-class AdminTeamSquads extends Component {
+class AdminTeamSquads extends BasicForm {
 	constructor(props) {
 		super(props);
-		this.state = {};
+
+		const validationSchema = Yup.object().shape({
+			year: Yup.number()
+				.required()
+				.min(1895)
+				.max(new Date().getFullYear() + 1)
+				.label("Year"),
+			teamType: Yup.string()
+				.required()
+				.label("Team Type")
+		});
+
+		this.state = { validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -76,21 +86,10 @@ class AdminTeamSquads extends Component {
 
 	renderNewSquadFields() {
 		const { teamTypes } = this.props;
-		const { newSquadData, newSquadError, team } = this.state;
+		const { newSquadData, newSquadError, team, validationSchema } = this.state;
 		if (!newSquadData) {
-			const currentYear = new Date().getFullYear();
-			const validationSchema = Yup.object().shape({
-				year: Yup.number()
-					.required()
-					.min(1895)
-					.max(currentYear + 1)
-					.label("Year"),
-				teamType: Yup.string()
-					.required()
-					.label("Team Type")
-			});
 			const initialValues = {
-				year: currentYear,
+				year: new Date().getFullYear(),
 				teamType: ""
 			};
 			const options = _.chain(teamTypes)
@@ -112,7 +111,7 @@ class AdminTeamSquads extends Component {
 						<Form>
 							<div className="form-card grid">
 								<h6>New Squad</h6>
-								{processFormFields(fields, validationSchema)}
+								{this.renderFieldGroup(fields)}
 								<div className="buttons">
 									<button type="submit">Add Players</button>
 								</div>

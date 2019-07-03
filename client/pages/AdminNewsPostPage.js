@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { Formik, Form } from "formik";
@@ -9,6 +9,7 @@ import { createEditorState } from "medium-draft";
 import { convertToRaw } from "draft-js";
 
 //Components
+import BasicForm from "../components/admin/BasicForm";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
@@ -30,10 +31,9 @@ import { fetchGameList } from "~/client/actions/gamesActions";
 import newsCategories from "~/constants/newsCategories";
 
 //Helpers
-import { processFormFields, validateSlug } from "~/helpers/adminHelper";
 import { convertToEditorState } from "~/helpers/newsHelper";
 
-class AdminNewsPostPage extends Component {
+class AdminNewsPostPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
@@ -51,7 +51,24 @@ class AdminNewsPostPage extends Component {
 			fetchUserList();
 		}
 
-		this.state = {};
+		const validationSchema = Yup.object().shape({
+			title: Yup.string()
+				.required()
+				.label("Title"),
+			_author: Yup.mixed()
+				.required()
+				.label("Author"),
+			subtitle: Yup.string().label("Sub-title"),
+			category: Yup.mixed()
+				.required()
+				.label("Category"),
+			slug: validateSlug(),
+			dateCreated: Yup.date().label("Date Created"),
+			timeCreated: Yup.string().label("Time Created"),
+			isPublished: Yup.boolean().label("Published?")
+		});
+
+		this.state = { validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -105,34 +122,6 @@ class AdminNewsPostPage extends Component {
 			.value();
 
 		return newState;
-	}
-
-	getValidationSchema() {
-		const { isNew } = this.state;
-		let shape = {
-			title: Yup.string()
-				.required()
-				.label("Title"),
-			_author: Yup.mixed()
-				.required()
-				.label("Author"),
-			subtitle: Yup.string().label("Sub-title"),
-			category: Yup.mixed()
-				.required()
-				.label("Category"),
-			slug: validateSlug()
-		};
-		if (!isNew) {
-			shape = {
-				...shape,
-				dateCreated: Yup.date().label("Date Created"),
-				timeCreated: Yup.string().label("Time Created"),
-				isPublished: Yup.boolean()
-					.required()
-					.label("Published?")
-			};
-		}
-		return Yup.object().shape(shape);
 	}
 
 	getDefaults() {
@@ -204,7 +193,15 @@ class AdminNewsPostPage extends Component {
 	}
 
 	render() {
-		const { post, isNew, users, categories, isLoading, redirect } = this.state;
+		const {
+			post,
+			isNew,
+			users,
+			categories,
+			isLoading,
+			redirect,
+			validationSchema
+		} = this.state;
 		if (redirect) {
 			return <Redirect to={redirect} />;
 		}
@@ -217,7 +214,6 @@ class AdminNewsPostPage extends Component {
 			return <LoadingPage />;
 		}
 
-		const validationSchema = this.getValidationSchema();
 		const title = isNew ? "New Post" : post.title;
 		let dateModifiedString = "-";
 		if (post && post.dateModified) {
@@ -260,7 +256,7 @@ class AdminNewsPostPage extends Component {
 									<Form>
 										<div className="form-card grid">
 											<h6>Post Info</h6>
-											{processFormFields(mainFields, validationSchema)}
+											{this.renderFieldGroup(mainFields)}
 											<label>Last Modified</label>
 											<input disabled value={dateModifiedString} />
 										</div>

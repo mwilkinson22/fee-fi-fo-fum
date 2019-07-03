@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
@@ -13,10 +13,10 @@ import { fetchPeopleList } from "../../../actions/peopleActions";
 import { addGame, updateGameBasics } from "../../../actions/gamesActions";
 
 //Components
+import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
-import { processFormFields } from "~/helpers/adminHelper";
 
-class AdminGameOverview extends Component {
+class AdminGameOverview extends BasicForm {
 	constructor(props) {
 		super(props);
 		const {
@@ -44,71 +44,77 @@ class AdminGameOverview extends Component {
 		this.getOptions();
 	}
 
-	static getDerivedStateFromProps(nextProps) {
-		return _.pick(nextProps, [
-			"game",
-			"teamList",
-			"teamTypes",
-			"competitionSegmentList",
-			"groundList",
-			"peopleList"
-		]);
-	}
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const {
+			game,
+			teamList,
+			teamTypes,
+			competitionSegmentList,
+			groundList,
+			peopleList
+		} = nextProps;
+		const newState = {
+			game,
+			teamList,
+			teamTypes,
+			competitionSegmentList,
+			groundList,
+			peopleList
+		};
 
-	getValidationSchema() {
-		const { game } = this.state;
-		let date;
-		if (game && game.status > 0) {
-			const year = new Date(game.date).getFullYear();
-			date = Yup.date()
-				.required()
-				.label("Date")
-				.min(`${year}-01-01`)
-				.max(`${year}-12-31`);
-		} else {
-			date = Yup.date()
-				.required()
-				.label("Date");
+		if (game && (!prevState.game || game._id != prevState.game._id)) {
+			let date;
+			if (game && game.status > 0) {
+				const year = new Date(game.date).getFullYear();
+				date = Yup.date()
+					.required()
+					.label("Date")
+					.min(`${year}-01-01`)
+					.max(`${year}-12-31`);
+			} else {
+				date = Yup.date()
+					.required()
+					.label("Date");
+			}
+			newState.validationSchema = Yup.object().shape({
+				date,
+				time: Yup.string()
+					.required()
+					.label("Time"),
+				_teamType: Yup.string()
+					.required()
+					.label("Team Type"),
+				_competition: Yup.string()
+					.required()
+					.label("Competition"),
+				_opposition: Yup.string()
+					.required()
+					.label("Opposition"),
+				round: Yup.number()
+					.min(1)
+					.label("Round"),
+				customTitle: Yup.string().label("Title"),
+				customHashtags: Yup.string().label("Hashtags"),
+				isAway: Yup.boolean()
+					.required()
+					.label("Home/Away"),
+				_ground: Yup.string()
+					.required()
+					.label("Ground"),
+				tv: Yup.string().label("TV"),
+				_referee: Yup.string()
+					.label("Referee")
+					.nullable(),
+				_video_referee: Yup.string()
+					.label("Video Referee")
+					.nullable(),
+				attendance: Yup.number()
+					.label("Attendance")
+					.nullable(),
+				extraTime: Yup.boolean().label("Game went to Extra Time")
+			});
 		}
-		return Yup.object().shape({
-			date,
-			time: Yup.string()
-				.required()
-				.label("Time"),
-			_teamType: Yup.string()
-				.required()
-				.label("Team Type"),
-			_competition: Yup.string()
-				.required()
-				.label("Competition"),
-			_opposition: Yup.string()
-				.required()
-				.label("Opposition"),
-			round: Yup.number()
-				.min(1)
-				.label("Round"),
-			customTitle: Yup.string().label("Title"),
-			customHashtags: Yup.string().label("Hashtags"),
-			isAway: Yup.boolean()
-				.required()
-				.label("Home/Away"),
-			_ground: Yup.string()
-				.required()
-				.label("Ground"),
-			tv: Yup.string().label("TV"),
-			_referee: Yup.string()
-				.label("Referee")
-				.nullable(),
-			_video_referee: Yup.string()
-				.label("Video Referee")
-				.nullable(),
-			attendance: Yup.number()
-				.label("Attendance")
-				.nullable(),
-			extraTime: Yup.boolean()
-				.required()
-				.label("Game went to Extra Time")
-		});
+		return newState;
 	}
 
 	getDefaults() {
@@ -271,7 +277,6 @@ class AdminGameOverview extends Component {
 	}
 
 	renderFields(formikProps) {
-		const validationSchema = this.getValidationSchema();
 		const { game } = this.state;
 
 		//Options
@@ -320,20 +325,20 @@ class AdminGameOverview extends Component {
 		if (game && game.status > 1) {
 			postGameSection = [
 				<h6 key="header">Post-Match</h6>,
-				processFormFields(postGameFields, validationSchema)
+				this.renderFieldGroup(postGameFields)
 			];
 		}
 		return (
 			<Form>
 				<div className="form-card grid">
 					<h6>Basics</h6>
-					{processFormFields(mainFields, validationSchema)}
+					{this.renderFieldGroup(mainFields)}
 					<h6>Venue</h6>
-					{processFormFields(venueFields, validationSchema)}
+					{this.renderFieldGroup(venueFields)}
 					<h6>Media</h6>
-					{processFormFields(mediaFields, validationSchema)}
+					{this.renderFieldGroup(mediaFields)}
 					<h6>Referees</h6>
-					{processFormFields(refereeFields, validationSchema)}
+					{this.renderFieldGroup(refereeFields)}
 					{postGameSection}
 
 					<div className="buttons">
@@ -346,12 +351,17 @@ class AdminGameOverview extends Component {
 	}
 
 	render() {
-		const { redirect } = this.state;
+		const { redirect, validationSchema } = this.state;
 		if (redirect) {
 			return <Redirect to={redirect} />;
 		}
 
-		const requireToRender = ["competitionSegmentList", "groundList", "peopleList"];
+		const requireToRender = [
+			"competitionSegmentList",
+			"groundList",
+			"peopleList",
+			"validationSchema"
+		];
 		let stopRender = false;
 		for (const prop of requireToRender) {
 			if (!this.state[prop]) {
@@ -367,7 +377,7 @@ class AdminGameOverview extends Component {
 		return (
 			<div className="container">
 				<Formik
-					validationSchema={() => this.getValidationSchema()}
+					validationSchema={validationSchema}
 					onSubmit={values => this.onSubmit(values)}
 					initialValues={this.getDefaults()}
 					enableReinitialize={true}

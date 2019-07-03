@@ -1,18 +1,20 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
+
+//Components
+import BasicForm from "../BasicForm";
 
 //Actions
 import { setMotm } from "~/client/actions/gamesActions";
 
 //Helpers
-import { processFormFields } from "~/helpers/adminHelper";
 import { convertTeamToSelect } from "~/helpers/gameHelper";
 
-class AdminGameManOfTheMatch extends Component {
+class AdminGameManOfTheMatch extends BasicForm {
 	constructor(props) {
 		super(props);
 
@@ -21,7 +23,13 @@ class AdminGameManOfTheMatch extends Component {
 		const motmOptions = convertTeamToSelect(game, teamList, false, true);
 		const fanMotmOptions = convertTeamToSelect(game, teamList, localTeam, true);
 
-		this.state = { motmOptions, fanMotmOptions };
+		const validationSchema = Yup.object().shape({
+			_motm: Yup.object().label("Man of the Match"),
+			_fan_motm: Yup.object().label("Fans' Man of the Match"),
+			fan_motm_link: Yup.string().label("Poll Link")
+		});
+
+		this.state = { motmOptions, fanMotmOptions, validationSchema };
 	}
 
 	getDefaults() {
@@ -35,14 +43,6 @@ class AdminGameManOfTheMatch extends Component {
 			_fan_motm: _.find(fanMotmOptions, p => p.value == game._fan_motm) || fanMotmOptions[0],
 			fan_motm_link: game.fan_motm_link || ""
 		};
-	}
-
-	getValidationSchema() {
-		return Yup.object().shape({
-			_motm: Yup.object().label("Man of the Match"),
-			_fan_motm: Yup.object().label("Fans' Man of the Match"),
-			fan_motm_link: Yup.string().label("Poll Link")
-		});
 	}
 
 	async onSubmit(values) {
@@ -63,7 +63,7 @@ class AdminGameManOfTheMatch extends Component {
 				<Formik
 					initialValues={this.getDefaults()}
 					onSubmit={values => this.onSubmit(values)}
-					validationSchema={values => this.getValidationSchema(values)}
+					validationSchema={this.state.validationSchema}
 					render={() => {
 						const fields = [
 							{ name: "_motm", type: "Select", options: motmOptions },
@@ -74,7 +74,7 @@ class AdminGameManOfTheMatch extends Component {
 						return (
 							<Form>
 								<div className="form-card grid">
-									{processFormFields(fields, this.getValidationSchema())}
+									{this.renderFieldGroup(fields)}
 									<div className="buttons">
 										<button type="reset">Reset</button>
 										<button type="submit">Update</button>
