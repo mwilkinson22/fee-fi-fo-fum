@@ -2,10 +2,11 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import Select from "react-select";
+import selectStyling from "~/constants/selectStyling";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import Select from "../fields/Select";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
@@ -130,12 +131,15 @@ class AdminGamePregameImage extends Component {
 				<div className="form-card grid">
 					<label>Team</label>
 					<Select
+						styles={selectStyling}
 						options={teamOptions}
 						onChange={selectedTeam =>
 							this.setState({
 								selectedTeam
 							})
 						}
+						isSearchable={false}
+						isDisabled={teamOptions.length <= 1}
 						defaultValue={this.state.selectedTeam}
 					/>
 					<label>Tweet</label>

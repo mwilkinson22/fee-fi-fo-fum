@@ -16,8 +16,9 @@ import AdminGameEvent from "../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../components/admin/games/AdminGameStats";
 import AdminGameManOfSteel from "../components/admin/games/AdminGameManOfSteel";
 import AdminGameManOfTheMatch from "../components/admin/games/AdminGameManOfTheMatch";
-import Select from "../components/admin/fields/Select";
+import Select from "react-select";
 import { getLastGame, getNextGame } from "~/helpers/gameHelper";
+import selectStyling from "~/constants/selectStyling";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -147,6 +148,7 @@ class AdminGamePage extends Component {
 			.value();
 		return (
 			<Select
+				styles={selectStyling}
 				options={options}
 				defaultValue={currentOption}
 				isSearchable={false}

@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { Field, ErrorMessage } from "formik";
 import Boolean from "./Boolean";
 import Radio from "./Radio";
-import Select from "./Select";
+import Select from "react-select";
 import TweetComposer from "../../TweetComposer";
+import selectStyling from "~/constants/selectStyling";
 
 export default class FormField extends Component {
 	render() {
@@ -40,15 +41,17 @@ export default class FormField extends Component {
 				component = (
 					<Select
 						key="field"
-						field={field}
+						{...field}
 						options={options}
 						onChange={option => {
 							form.setFieldTouched(field.name, true);
 							form.setFieldValue(field.name, option);
 						}}
-						disabled={disabled}
+						isDisabled={disabled}
 						isClearable={isClearable}
 						isSearchable={isSearchable}
+						styles={selectStyling}
+						className="react-select"
 					/>
 				);
 				break;

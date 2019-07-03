@@ -2,10 +2,11 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import Select from "react-select";
+import selectStyling from "~/constants/selectStyling";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import Select from "../fields/Select";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
@@ -154,8 +155,9 @@ class AdminGamePregameImage extends Component {
 
 		return (
 			<Select
+				styles={selectStyling}
 				onChange={({ value }) => this.setState({ team: value })}
-				disabled={options.length === 1}
+				isDisabled={options.length === 1}
 				defaultValue={_.find(options, ({ value }) => value == team)}
 				options={options}
 			/>
@@ -167,6 +169,7 @@ class AdminGamePregameImage extends Component {
 
 		return (
 			<Select
+				styles={selectStyling}
 				onChange={playerForImage => this.setState({ playerForImage })}
 				defaultValue={playerForImage}
 				options={playerOptions}
@@ -180,6 +183,7 @@ class AdminGamePregameImage extends Component {
 
 		return (
 			<Select
+				styles={selectStyling}
 				onChange={({ value }) => this.setState({ highlightNewPlayers: value })}
 				defaultValue={_.find(options, ({ value }) => value == highlightNewPlayers)}
 				options={options}

@@ -3,6 +3,8 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
+import Select from "react-select";
+import selectStyling from "~/constants/selectStyling";
 
 //Actions
 import { fetchPeopleList } from "../../../actions/peopleActions";
@@ -10,7 +12,6 @@ import { appendTeamSquad, createTeamSquad } from "../../../actions/teamsActions"
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import Select from "../fields/Select";
 import Table from "../../Table";
 
 class AdminTeamSquadBulkAdder extends Component {
@@ -240,6 +241,7 @@ class AdminTeamSquadBulkAdder extends Component {
 						data.name = [
 							<Field
 								component={Select}
+								styles={selectStyling}
 								options={selectOptions}
 								name={selectFieldName}
 								onChange={option => {

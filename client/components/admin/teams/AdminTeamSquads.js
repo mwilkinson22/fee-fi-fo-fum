@@ -3,9 +3,10 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
-import Select from "../fields/Select";
 import * as Yup from "yup";
 import { Link, Redirect } from "react-router-dom";
+import Select from "react-select";
+import selectStyling from "~/constants/selectStyling";
 
 //Actions
 import { updateTeamSquad } from "../../../actions/teamsActions";
@@ -62,6 +63,7 @@ class AdminTeamSquads extends Component {
 
 		return (
 			<Select
+				styles={selectStyling}
 				options={options}
 				onChange={opt => {
 					this.props.history.push(`/admin/teams/${team.slug}/squads/${opt.value}`);
