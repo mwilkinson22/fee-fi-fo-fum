@@ -58,7 +58,6 @@ export async function updateTeam(req, res) {
 					return _.chain(val)
 						.map((ground, _teamType) => {
 							if (ground && ground.value) {
-								console.log({ _ground: ground.value, _teamType });
 								return { _ground: ground.value, _teamType };
 							}
 						})
