@@ -83,6 +83,10 @@ class Header extends Component {
 					}
 				},
 				{
+					header: "Grounds",
+					headerLink: "/admin/grounds"
+				},
+				{
 					header: "News",
 					headerLink: "/admin/news"
 				},

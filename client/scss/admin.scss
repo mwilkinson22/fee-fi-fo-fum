@@ -19,6 +19,25 @@
 			max-width: 100%;
 		}
 	}
+	.plain-list {
+		font-size: 1.2em;
+		li {
+			a {
+				width: 100%;
+				font-weight: 600;
+				color: black;
+				display: block;
+				padding: 6pt 0;
+				&:hover {
+					color: lighten($claret, 5%);
+				}
+			}
+
+			&:not(:last-child) {
+				border-bottom: solid thin #ddd;
+			}
+		}
+	}
 
 	h6 {
 		@include noTextSelect;

@@ -14,6 +14,8 @@ import AdminGameList from "../../pages/AdminGameList";
 import AdminGamePage from "../../pages/AdminGamePage";
 import AdminNewGamePage from "../../pages/AdminNewGamePage";
 
+import AdminGroundList from "../../pages/AdminGroundList";
+
 import AdminNewsList from "../../pages/AdminNewsList";
 import AdminNewsPostPage from "../../pages/AdminNewsPostPage";
 
@@ -42,6 +44,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />
 					<Route path="/admin/games/" exact component={AdminGameList} />
+
+					<Route path="/admin/grounds" component={AdminGroundList} />
 
 					<Route path="/admin/news/post/new" component={AdminNewsPostPage} />
 					<Route path="/admin/news/post/:slug" component={AdminNewsPostPage} />
