@@ -101,10 +101,10 @@ class AdminGameEvent extends BasicForm {
 		if (events !== false) {
 			//Reset Form
 			formikActions.resetForm();
-			formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
 			formikActions.setFieldValue("postTweet", values.postTweet);
 
 			if (values.event === "T") {
+				formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
 				formikActions.setFieldValue("event", {
 					label: "Conversion",
 					value: "CN"
