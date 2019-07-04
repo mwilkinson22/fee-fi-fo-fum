@@ -2,6 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -9,14 +10,17 @@ import * as Yup from "yup";
 import BasicForm from "../components/admin/BasicForm";
 import NotFoundPage from "./NotFoundPage";
 import LoadingPage from "../components/LoadingPage";
+import DeleteButtons from "../components/admin/fields/DeleteButtons";
 
 //Actions
 import { fetchCities } from "~/client/actions/locationActions";
-import { fetchAllGrounds } from "~/client/actions/groundActions";
+import {
+	fetchAllGrounds,
+	createGround,
+	updateGround,
+	deleteGround
+} from "~/client/actions/groundActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
-
-//Helpers
-import { validateSlug } from "~/helpers/adminHelper";
 
 class AdminGroundPage extends BasicForm {
 	constructor(props) {
@@ -52,7 +56,6 @@ class AdminGroundPage extends BasicForm {
 					.required()
 					.label("Google Place ID")
 			}),
-			slug: validateSlug(),
 			parking: Yup.object().shape({
 				stadium: Yup.boolean().label("Stadium Parking"),
 				roadside: Yup.boolean().label("Roadside Parking")
@@ -62,11 +65,15 @@ class AdminGroundPage extends BasicForm {
 		this.state = { validationSchema };
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const { groundList, match, cities } = nextProps;
 		const newState = { isLoading: false };
 
 		newState.isNew = !match.params.slug;
+
+		if (!newState.isNew && !prevState.isDeleted) {
+			newState.redirect = false;
+		}
 
 		if (!cities || (!newState.isNew && !groundList)) {
 			newState.isLoading = true;
@@ -94,7 +101,6 @@ class AdminGroundPage extends BasicForm {
 				postcode: "",
 				googlePlaceId: ""
 			},
-			slug: "",
 			parking: {
 				stadium: false,
 				roadside: false
@@ -111,14 +117,35 @@ class AdminGroundPage extends BasicForm {
 		return values;
 	}
 
-	handleSubmit(fValues) {
+	async handleSubmit(fValues) {
+		const { createGround, updateGround } = this.props;
+		const { ground, isNew } = this.state;
 		const values = _.cloneDeep(fValues);
 		values.address._city = values.address._city.value;
-		console.log(values);
+
+		if (isNew) {
+			const newSlug = await createGround(values);
+			await this.setState({ redirect: `/admin/grounds/${newSlug}` });
+		} else {
+			await updateGround(ground._id, values);
+		}
+	}
+
+	async handleDelete() {
+		const { deleteGround } = this.props;
+		const { ground } = this.state;
+		const success = await deleteGround(ground._id);
+		if (success) {
+			this.setState({ isDeleted: true, redirect: "/admin/grounds" });
+		}
 	}
 
 	render() {
-		const { ground, isNew, isLoading, validationSchema, cityOptions } = this.state;
+		const { redirect, ground, isNew, isLoading, validationSchema, cityOptions } = this.state;
+
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		}
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -145,8 +172,7 @@ class AdminGroundPage extends BasicForm {
 							render={() => {
 								const mainFields = [
 									{ name: "name", type: "text" },
-									{ name: "addThe", type: "Boolean" },
-									{ name: "slug", type: "text" }
+									{ name: "addThe", type: "Boolean" }
 								];
 								const addressFields = [
 									{ name: "address.street", type: "text" },
@@ -176,6 +202,7 @@ class AdminGroundPage extends BasicForm {
 												</button>
 											</div>
 										</div>
+										<DeleteButtons onDelete={() => this.handleDelete()} />
 									</Form>
 								);
 							}}
@@ -195,5 +222,5 @@ function mapStateToProps({ grounds, locations }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllGrounds, fetchCities }
+	{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround }
 )(AdminGroundPage);

@@ -35,6 +35,10 @@ axiosInstance.interceptors.response.use(
 				errorMessage = error.response.data.error;
 			}
 			toast.error(`${status} ${statusText}${errorMessage ? ": " + errorMessage : ""}`);
+			if (error.response.data.toLog) {
+				console.log(error.response.data.toLog);
+				toast.error("See console log for more details");
+			}
 		} else {
 			toast.error("503 - Service Unavailable");
 		}
