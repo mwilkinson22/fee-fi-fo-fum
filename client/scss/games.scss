@@ -976,3 +976,403 @@
 		}
 	}
 }
+
+.admin-game-page {
+	h1 {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+
+		.refresh {
+			cursor: pointer;
+			background: #1a6f39;
+			color: white;
+			font-size: 0.7em;
+			padding: 0 5pt 2pt;
+			border-radius: 100%;
+		}
+	}
+	.navigation {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 10pt;
+		.nav-card {
+			display: flex;
+			align-items: center;
+			padding: 6pt 10pt;
+			justify-content: center;
+			img {
+				max-height: 24pt;
+				margin: 0 4pt;
+			}
+			&.next,
+			&.last {
+				white-space: nowrap;
+			}
+			&.next {
+				img {
+					margin-left: 8pt;
+				}
+			}
+			&.last {
+				flex-direction: row-reverse;
+				img {
+					margin-right: 8pt;
+				}
+			}
+		}
+		@media #{$desktop-only} {
+			.nav-card {
+				width: auto;
+				margin: 0;
+				flex-grow: 1;
+				&.main {
+					flex-grow: 10;
+					margin: 0 4pt;
+				}
+			}
+		}
+		@media #{$mobile-and-tablet} {
+			flex-direction: column;
+			.nav-card {
+				margin: 4pt 0;
+				&.main {
+					order: 4;
+				}
+			}
+		}
+	}
+	.game-event-page {
+		.event-delete-dialog {
+			display: flex;
+			flex-direction: column;
+			* {
+				margin-bottom: 4pt;
+			}
+		}
+	}
+	.admin-stats-page {
+		.stat-tables {
+			margin: 0 10pt;
+
+			.stat-table-wrapper {
+				margin-bottom: 14pt;
+
+				thead th {
+					text-align: center;
+				}
+
+				tbody {
+					th {
+						text-align: left;
+						padding-left: 4pt;
+						padding-right: 8pt;
+					}
+
+					input {
+						width: 50pt;
+						border-radius: 4pt;
+						text-align: center;
+						border: solid thin #999;
+
+						&.error {
+							border: solid 1pt red;
+						}
+
+						padding: 2pt;
+
+						&[type="number"]::-webkit-inner-spin-button,
+						&[type="number"]::-webkit-outer-spin-button {
+							opacity: 1;
+						}
+					}
+				}
+			}
+		}
+
+		.admin-game-stat-crawler {
+			.player-rows-wrapper {
+				display: grid;
+
+				grid-template-columns: 1fr;
+				@media #{$desktop-and-tablet} {
+					grid-template-columns: repeat(2, 1fr);
+				}
+
+				.player-rows {
+					display: grid;
+					grid-template-columns: max-content max-content 1fr;
+
+					.name,
+					.match {
+						padding: 2pt 8pt;
+					}
+
+					.name {
+						font-weight: 600;
+					}
+
+					.match-type {
+						width: 10pt;
+						height: 100%;
+						display: block;
+						background: #900;
+
+						&.exact {
+							background: #518c56;
+						}
+
+						&.partial {
+							background: #e68d39;
+						}
+					}
+
+					@media #{$mobile-only} {
+						grid-template-columns: max-content 1fr;
+						text-align: center;
+						.match-type {
+							grid-row-end: span 2;
+						}
+						.match:not(:last-child) {
+							border-bottom: solid thin #ddd;
+						}
+					}
+				}
+			}
+		}
+	}
+	.admin-pregame-squad-page {
+		.pregame-wrapper {
+			display: grid;
+			grid-gap: 10pt;
+
+			.buttons {
+				margin-bottom: 4pt;
+				button {
+					margin-right: 8pt;
+				}
+			}
+
+			table {
+				width: 100%;
+				margin-bottom: 20pt;
+				td:last-child {
+					width: 100%;
+				}
+				tbody {
+					tr {
+						cursor: pointer;
+					}
+				}
+				tfoot {
+					td {
+						text-align: right;
+						&:first-child {
+							color: #222;
+						}
+					}
+				}
+			}
+
+			@media #{$desktop-and-tablet} {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+	}
+	.pregame-image-loader {
+		.preview-image {
+			max-width: 100%;
+		}
+	}
+	.event-list {
+		display: grid;
+
+		.event-type {
+			font-weight: 600;
+		}
+
+		.tweet-text {
+			font-style: italic;
+		}
+
+		.action:not(.empty):hover {
+			background: #eee;
+			cursor: pointer;
+		}
+
+		.image {
+			grid-column: 1 / -1;
+			img {
+				max-width: 100%;
+			}
+			&:not(.visible) {
+				display: none;
+			}
+		}
+
+		& > * {
+			padding: 2pt 4pt;
+		}
+
+		@media #{$mobile-only} {
+			grid-template-columns: 1fr 1fr;
+			text-align: center;
+
+			& > * {
+				background: #f4f4f4;
+				box-shadow: 2pt 2pt 2pt #777;
+			}
+			.action {
+				border-style: dashed;
+				border-color: #bbb;
+				border-bottom-width: thin;
+				margin-top: 10pt;
+				padding: 8pt 0;
+				&:not(.reply) {
+					border-left-width: thin;
+				}
+			}
+			:not(.action) {
+				grid-column: 1 / -1;
+			}
+		}
+		@media #{$desktop-and-tablet} {
+			grid-template-columns: repeat(4, max-content) auto;
+			.image {
+				text-align: center;
+				img {
+					max-height: 200pt;
+				}
+			}
+			& > * {
+				border-bottom: solid thin #bbb;
+			}
+		}
+	}
+}
+
+.neutral-game-table {
+	th,
+	td,
+	.team-badge {
+		text-align: center;
+		img {
+			max-height: 30pt;
+		}
+	}
+
+	input {
+		border: solid thin #333;
+		border-radius: 4pt;
+		padding: 2pt 4pt;
+		font-size: 1.1em;
+	}
+}
+
+.squad-selector-wrapper {
+	.team-image {
+		height: 50pt;
+		left: 0;
+		right: 0;
+		margin: 0 auto 10pt;
+		display: block;
+	}
+	.squad-selector {
+		display: grid;
+		grid-gap: 10pt;
+
+		.squad-selector-card {
+			@include noTextSelect;
+			cursor: pointer;
+			padding: 4pt 8pt;
+			display: flex;
+			border-left-style: solid;
+			border-width: 1pt;
+			border-left-width: 6pt;
+			background: white;
+			flex-direction: column;
+			justify-content: center;
+			min-height: 30pt;
+			span:first-child {
+				font-weight: bold;
+			}
+			span {
+				display: block;
+			}
+		}
+
+		.selected .selected-squad-member {
+			display: grid;
+			grid-template-columns: 40pt 1fr;
+			align-items: center;
+			min-height: 30pt;
+
+			&:nth-child(3),
+			&:nth-child(7),
+			&:nth-child(9),
+			&:nth-child(12),
+			&:nth-child(15),
+			&:nth-child(19) {
+				margin-top: 10pt;
+			}
+
+			.action-bar {
+				display: flex;
+				justify-content: space-around;
+				background: rgba(100, 100, 100, 0.05);
+				margin-top: 5pt;
+				.action {
+					width: 100%;
+					text-align: center;
+					height: 100%;
+					padding: 5pt 0;
+					cursor: pointer;
+					&:not(:last-child) {
+						border-right: rgba(100, 100, 100, 0.1);
+					}
+					&:hover {
+						background: rgba(100, 100, 100, 0.1);
+					}
+				}
+			}
+
+			&:nth-child(2) .move-up,
+			&:last-child .move-down {
+				opacity: 0.05;
+				pointer-events: none;
+			}
+
+			.position {
+				text-align: center;
+				font-weight: bold;
+			}
+
+			.squad-selector-card {
+				box-shadow: none;
+				height: 100%;
+			}
+		}
+
+		.available {
+			select {
+				margin-top: 10pt;
+				padding: 2pt 4pt;
+				width: 100%;
+			}
+		}
+
+		.buttons {
+			margin-top: 10pt;
+		}
+
+		@media #{$desktop-and-tablet} {
+			grid-template-columns: 1fr 1fr;
+
+			.selected .position,
+			.squad-selector-card span:first-child {
+				font-size: 1.2em;
+			}
+		}
+	}
+}
