@@ -15,8 +15,9 @@ class SquadSelector extends Component {
 			teamColours.borderColor = props.teamColours.trim1;
 		}
 
+		console.log(props.squad);
 		this.state = {
-			squad: _.sortBy(props.squad, s => s.number || 9999999999),
+			squad: _.sortBy(props.squad, s => s.number || s.name),
 			teamColours
 		};
 	}
