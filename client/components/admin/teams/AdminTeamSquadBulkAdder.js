@@ -244,6 +244,7 @@ class AdminTeamSquadBulkAdder extends Component {
 								styles={selectStyling}
 								options={selectOptions}
 								name={selectFieldName}
+								value={values.nameSelect}
 								onChange={option => {
 									formikProps.setFieldValue(selectFieldName, option);
 								}}
