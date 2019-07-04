@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import competitionReducer from "./competitionReducer";
 import configReducer from "./configReducer";
 import gamesReducer from "./gamesReducer";
+import locationReducer from "./locationReducer";
 import groundReducer from "./groundReducer";
 import teamsReducer from "./teamsReducer";
 import newsReducer from "./newsReducer";
@@ -14,6 +15,7 @@ export default combineReducers({
 	config: configReducer,
 	games: gamesReducer,
 	grounds: groundReducer,
+	locations: locationReducer,
 	news: newsReducer,
 	people: peopleReducer,
 	seasons: seasonReducer,

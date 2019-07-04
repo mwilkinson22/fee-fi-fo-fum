@@ -12,6 +12,10 @@ export const DELETE_NEUTRAL_GAME = "delete_neutral_game";
 export const CRAWL_LOCAL_GAMES = "crawl_local_games";
 export const CRAWL_NEUTRAL_GAMES = "crawl_neutral_games";
 
+//Locations
+export const FETCH_CITIES = "fetch_cities";
+export const FETCH_COUNTRIES = "fetch_countries";
+
 //Teams
 export const FETCH_ALL_TEAMS = "fetch_all_teams";
 export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
