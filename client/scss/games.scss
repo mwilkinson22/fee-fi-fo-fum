@@ -793,6 +793,14 @@
 									text-align: center;
 								}
 								.number {
+									&:empty {
+										display: none;
+										& + .name {
+											width: 100%;
+											padding-left: 12pt;
+											padding-right: 12pt;
+										}
+									}
 									min-width: 30pt;
 								}
 							}
