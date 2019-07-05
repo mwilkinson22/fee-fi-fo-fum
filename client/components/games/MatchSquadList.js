@@ -189,7 +189,7 @@ class MatchSquadList extends Component {
 
 		//Add GameStar stats
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
-			const gameStarStats = getGameStarStats(game.playerStats, id, {
+			const gameStarStats = getGameStarStats(game, id, {
 				T: 1,
 				G: 1,
 				DG: 1,

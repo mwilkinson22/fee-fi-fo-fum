@@ -11,7 +11,6 @@ import playerStatTypes from "~/constants/playerStatTypes";
 import PersonCard from "../people/PersonCard";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 import { getGameStarStats } from "~/helpers/gameHelper";
 
 class GameStars extends Component {
@@ -33,7 +32,7 @@ class GameStars extends Component {
 		const cards = _.chain(game.playerStats)
 			.filter(p => p._team == localTeam)
 			.map(({ _player }) => {
-				const values = getGameStarStats(game.playerStats, _player);
+				const values = getGameStarStats(game, _player);
 
 				if (values.length) {
 					return { id: _player, values, starPoints: _.sumBy(values, "starPoints") };
@@ -50,10 +49,11 @@ class GameStars extends Component {
 					.sortBy("value")
 					.reverse()
 					.map(({ key, label, value, isBest }) => {
-						const { moreIsBetter } = playerStatTypes[key];
+						const isMotm = ["MOTM", "FAN_MOTM"].indexOf(key) > -1;
+						const { moreIsBetter } = playerStatTypes[key] || {};
 						return (
 							<div key={key} className="row">
-								<span className="value">
+								<span className={`value ${isMotm ? "upper" : ""}`}>
 									{isBest ? (
 										<span
 											className="best"

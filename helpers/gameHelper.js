@@ -55,7 +55,7 @@ export function getNextGame(id, gameList) {
 	return getAdjacentGame(id, gameList, true);
 }
 
-export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) {
+export function getGameStarStats(game, _player, overwriteThreshold = {}) {
 	const statTypes = _.chain(playerStatTypes)
 		.cloneDeep()
 		.map((obj, key) => {
@@ -72,7 +72,7 @@ export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) 
 		.value();
 
 	const processedStats = PlayerStatsHelper.processStats(
-		playerStats.find(p => p._player == _player).stats
+		game.playerStats.find(p => p._player == _player).stats
 	);
 	const values = _.chain(statTypes)
 		.map(({ key, moreIsBetter, requiredForGameStar }) => {
@@ -109,50 +109,68 @@ export function getGameStarStats(playerStats, _player, overwriteThreshold = {}) 
 		.filter(_.identity)
 		.value();
 
+	if (_player == game._motm) {
+		values.push({ key: "MOTM", starPoints: 3, value: null });
+	}
+	if (_player == game._fan_motm) {
+		values.push({ key: "FAN_MOTM", starPoints: 3, value: null });
+	}
+
 	return values.map(({ key, value, starPoints }) => {
-		//Get Value String
+		let isBest = false;
 		let valueString;
-		switch (key) {
-			case "TS":
-				if (!values.find(v => v.key == "TK")) {
-					const { TK, MI } = playerStats.find(p => p._player == _player).stats;
-					//Show Tackles
-					valueString = PlayerStatsHelper.toString(key, value) + ` (${TK}/${TK + MI})`;
-
-					//Factor Total tackles into starPoints
-					starPoints = value / 100 + TK / 25;
-				}
-				break;
-			case "M":
-				valueString = value;
-				break;
-		}
-		if (!valueString) {
-			valueString = PlayerStatsHelper.toString(key, value);
-		}
-
-		//Label
 		let label;
-		switch (key) {
-			case "TS":
-				label = "Tackling";
-				break;
-			case "KS":
-				label = "Kicking";
-				break;
-			case "AG":
-				label = "Avg Gain";
-				break;
-			default:
-				label = playerStatTypes[key][value === 1 ? "singular" : "plural"];
-				break;
-		}
 
-		//Check for 'best'
-		const { moreIsBetter } = playerStatTypes[key];
-		const allValues = playerStats.map(p => p.stats[key]);
-		const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
-		const isBest = value === bestValue;
+		if (key == "MOTM") {
+			valueString = "Man";
+			label = "of the Match";
+		} else if (key == "FAN_MOTM") {
+			valueString = "Fans'";
+			label = "Man of the Match";
+		} else {
+			//Get Value String
+			switch (key) {
+				case "TS":
+					if (!values.find(v => v.key == "TK")) {
+						const { TK, MI } = game.playerStats.find(p => p._player == _player).stats;
+						//Show Tackles
+						valueString =
+							PlayerStatsHelper.toString(key, value) + ` (${TK}/${TK + MI})`;
+
+						//Factor Total tackles into starPoints
+						starPoints = value / 100 + TK / 25;
+					}
+					break;
+				case "M":
+					valueString = value;
+					break;
+			}
+			if (!valueString) {
+				valueString = PlayerStatsHelper.toString(key, value);
+			}
+
+			//Label
+			switch (key) {
+				case "TS":
+					label = "Tackling";
+					break;
+				case "KS":
+					label = "Kicking";
+					break;
+				case "AG":
+					label = "Avg Gain";
+					break;
+				default:
+					label = playerStatTypes[key][value === 1 ? "singular" : "plural"];
+					break;
+			}
+
+			//Check for 'best'
+			const { moreIsBetter } = playerStatTypes[key];
+			const allValues = game.playerStats.map(p => p.stats[key]);
+			const bestValue = moreIsBetter ? _.max(allValues) : _.min(allValues);
+			isBest = value === bestValue;
+		}
 
 		return { key, value: valueString, label, isBest, starPoints };
 	});

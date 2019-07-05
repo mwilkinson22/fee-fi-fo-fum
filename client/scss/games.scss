@@ -906,6 +906,9 @@
 						.best {
 							color: white;
 							text-transform: none;
+							&.upper {
+								text-transform: uppercase;
+							}
 						}
 						.label {
 							color: $gold;
