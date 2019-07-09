@@ -193,6 +193,25 @@ class AdminNewsPostPage extends BasicForm {
 		}
 	}
 
+	renderDeleteButtons() {
+		const { isNew } = this.state;
+		if (!isNew) {
+			return <DeleteButtons onDelete={() => this.handleDelete()} />;
+		}
+	}
+
+	renderContentEditor(formikProps) {
+		const { isNew } = this.state;
+		if (!isNew) {
+			return (
+				<NewsPostEditor
+					editorState={formikProps.values.content}
+					onChange={c => formikProps.setFieldValue("content", c)}
+				/>
+			);
+		}
+	}
+
 	render() {
 		const {
 			post,
@@ -260,26 +279,13 @@ class AdminNewsPostPage extends BasicForm {
 											{this.renderFieldGroup(mainFields)}
 											<label>Last Modified</label>
 											<input disabled value={dateModifiedString} />
-										</div>
-										{isNew ? null : (
-											<div className="form-card">
-												<NewsPostEditor
-													editorState={formikProps.values.content}
-													onChange={c =>
-														formikProps.setFieldValue("content", c)
-													}
-												/>
-											</div>
-										)}
-										<div className="form-card grid">
+											{this.renderContentEditor(formikProps)}
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">Save Post</button>
 											</div>
 										</div>
-										{isNew ? null : (
-											<DeleteButtons onDelete={() => this.handleDelete()} />
-										)}
+										{this.renderDeleteButtons()}
 									</Form>
 								);
 							}}
