@@ -33,29 +33,32 @@ export default class BasicForm extends Component {
 				"Validation Schema must be stored within state to use processFieldProperties"
 			);
 		}
-
 		const validationSchemaFields = validationSchema.describe().fields;
 		return fields.map(field => {
-			const { label, tests } = this.extractValidationRule(field.name, validationSchemaFields);
+			const extractedField = this.extractValidationRule(field.name, validationSchemaFields);
+			if (extractedField) {
+				const { label, tests } = extractedField;
 
-			//Get Label
-			if (!field.label) {
-				field.label = label || field.name;
+				//Get Label
+				if (!field.label) {
+					field.label = label || field.name;
+				}
+
+				//Determine Required Status
+				field.required = Boolean(tests.find(test => test.name === "required"));
+
+				//Get Min & Max
+				const min = tests.find(test => test.name === "min");
+				const max = tests.find(test => test.name === "max");
+				if (min) {
+					field.min = min.params.min;
+				}
+				if (max) {
+					field.max = max.params.max;
+				}
+			} else {
+				field.label = field.name;
 			}
-
-			//Determine Required Status
-			field.required = Boolean(tests.find(test => test.name === "required"));
-
-			//Get Min & Max
-			const min = tests.find(test => test.name === "min");
-			const max = tests.find(test => test.name === "max");
-			if (min) {
-				field.min = min.params.min;
-			}
-			if (max) {
-				field.max = max.params.max;
-			}
-
 			return field;
 		});
 	}
