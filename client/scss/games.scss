@@ -882,6 +882,51 @@
 			}
 		}
 	}
+	section.man-of-steel {
+		.man-of-steel-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			.person-image {
+				max-height: 300pt;
+			}
+			.man-of-steel-table {
+				@include header;
+				& > * {
+					padding: 12pt 20pt;
+					font-size: 1.2em;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+				}
+				a:hover {
+					color: $gold !important;
+				}
+				.points {
+					border-right: solid 8pt;
+				}
+				.stats {
+					font-family: "Titillium Web";
+					font-size: 0.8em;
+				}
+				display: grid;
+				grid-template-columns: auto 1fr;
+			}
+			@media #{$mobile-and-tablet} {
+				padding-bottom: 10pt;
+				flex-direction: column;
+			}
+		}
+
+		@media #{$desktop-only} {
+			&.with-image {
+				padding-bottom: 0;
+				.person-image {
+					margin-right: 50pt;
+				}
+			}
+		}
+	}
 	section.game-stars {
 		.person-card-grouping {
 			.person-card {

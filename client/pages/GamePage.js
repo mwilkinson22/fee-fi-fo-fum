@@ -32,6 +32,8 @@ import { Redirect } from "react-router-dom";
 import { getLastGame } from "~/helpers/gameHelper";
 import LeagueTable from "~/client/components/seasons/LeagueTable";
 import StatsTables from "~/client/components/games/StatsTables";
+import PersonImage from "~/client/components/people/PersonImage";
+import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -194,6 +196,15 @@ class GamePage extends Component {
 		const { game } = this.state;
 		if (game.squadsAnnounced) {
 			return <GameEvents game={game} />;
+		} else {
+			return null;
+		}
+	}
+
+	generateManOfSteel() {
+		const { manOfSteel, _competition } = this.state.game;
+		if (_competition.instance.manOfSteelPoints && manOfSteel && manOfSteel.length) {
+			return <ManOfSteelPoints game={this.state.game} />;
 		} else {
 			return null;
 		}
@@ -377,6 +388,7 @@ class GamePage extends Component {
 					</section>
 					{this.generateCountdown()}
 					{this.generateEvents()}
+					{this.generateManOfSteel()}
 					{this.generateNewsPosts()}
 					{this.generatePregameList()}
 					{this.generateForm()}
