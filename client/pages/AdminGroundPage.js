@@ -140,6 +140,16 @@ class AdminGroundPage extends BasicForm {
 		}
 	}
 
+	renderDeleteButtons() {
+		if (!this.state.isNew) {
+			return (
+				<div className="form-card">
+					<DeleteButtons onDelete={() => this.handleDelete()} />
+				</div>
+			);
+		}
+	}
+
 	render() {
 		const { redirect, ground, isNew, isLoading, validationSchema, cityOptions } = this.state;
 
@@ -189,6 +199,7 @@ class AdminGroundPage extends BasicForm {
 
 								return (
 									<Form>
+										{this.renderDeleteButtons()}
 										<div className="card form-card grid">
 											{this.renderFieldGroup(mainFields)}
 											<h6>Address</h6>
@@ -202,7 +213,6 @@ class AdminGroundPage extends BasicForm {
 												</button>
 											</div>
 										</div>
-										<DeleteButtons onDelete={() => this.handleDelete()} />
 									</Form>
 								);
 							}}

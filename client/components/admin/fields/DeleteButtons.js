@@ -39,11 +39,7 @@ class DeleteButtons extends Component {
 				</button>
 			);
 		}
-		return (
-			<div className="form-card">
-				<div className="buttons">{buttons}</div>
-			</div>
-		);
+		return <div className="buttons">{buttons}</div>;
 	}
 }
 

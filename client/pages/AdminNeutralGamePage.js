@@ -296,6 +296,16 @@ class AdminNeutralGamePage extends BasicForm {
 		return options;
 	}
 
+	renderDeleteButtons() {
+		if (this.state.game) {
+			return (
+				<div className="form-card">
+					<DeleteButtons onDelete={() => this.handleDelete()} />
+				</div>
+			);
+		}
+	}
+
 	render() {
 		const { game, isNew, redirect, validationSchema } = this.state;
 
@@ -354,6 +364,7 @@ class AdminNeutralGamePage extends BasicForm {
 
 								return (
 									<Form>
+										{this.renderDeleteButtons()}
 										<div className="form-card grid">
 											{this.renderFieldGroup(fields)}
 											<div className="buttons">
@@ -361,9 +372,6 @@ class AdminNeutralGamePage extends BasicForm {
 												<button type="submit">Save</button>
 											</div>
 										</div>
-										{game && (
-											<DeleteButtons onDelete={() => this.handleDelete()} />
-										)}
 									</Form>
 								);
 							}}

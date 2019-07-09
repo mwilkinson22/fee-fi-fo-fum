@@ -196,7 +196,11 @@ class AdminNewsPostPage extends BasicForm {
 	renderDeleteButtons() {
 		const { isNew } = this.state;
 		if (!isNew) {
-			return <DeleteButtons onDelete={() => this.handleDelete()} />;
+			return (
+				<div className="form-card">
+					<DeleteButtons onDelete={() => this.handleDelete()} />
+				</div>
+			);
 		}
 	}
 
@@ -274,6 +278,7 @@ class AdminNewsPostPage extends BasicForm {
 								}
 								return (
 									<Form>
+										{this.renderDeleteButtons()}
 										<div className="form-card grid">
 											<h6>Post Info</h6>
 											{this.renderFieldGroup(mainFields)}
@@ -285,7 +290,6 @@ class AdminNewsPostPage extends BasicForm {
 												<button type="submit">Save Post</button>
 											</div>
 										</div>
-										{this.renderDeleteButtons()}
 									</Form>
 								);
 							}}
