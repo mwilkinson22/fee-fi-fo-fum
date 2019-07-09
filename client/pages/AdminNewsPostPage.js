@@ -32,6 +32,7 @@ import newsCategories from "~/constants/newsCategories";
 
 //Helpers
 import { convertToEditorState } from "~/helpers/newsHelper";
+import { validateSlug } from "~/helpers/adminHelper";
 
 class AdminNewsPostPage extends BasicForm {
 	constructor(props) {
