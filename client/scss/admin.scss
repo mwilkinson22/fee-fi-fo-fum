@@ -15,6 +15,7 @@
 		.error,
 		.buttons,
 		.md-RichEditor-root,
+		img,
 		.full-span {
 			grid-column: 1 / -1;
 			max-width: 100%;
@@ -102,6 +103,15 @@
 		color: $claret;
 	}
 
+	.image-uploader {
+		img {
+			max-width: 100%;
+			display: block;
+		}
+		input {
+			margin: 10pt 0;
+		}
+	}
 	button {
 		background: #eee;
 		color: black;
