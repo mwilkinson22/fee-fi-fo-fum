@@ -26,7 +26,7 @@ import {
 	deleteNewsPost,
 	uploadHeaderImage,
 	deleteHeaderImage,
-	getAllHeaderImages
+	fetchAllHeaderImages
 } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 import { fetchGameList } from "~/client/actions/gamesActions";
@@ -43,7 +43,16 @@ class AdminNewsPostPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { postList, fetchPostList, userList, fetchUserList, gameList, fetchGameList } = props;
+		const {
+			postList,
+			fetchPostList,
+			userList,
+			fetchUserList,
+			gameList,
+			fetchGameList,
+			headerImages,
+			fetchAllHeaderImages
+		} = props;
 
 		if (!postList) {
 			fetchPostList();
@@ -55,6 +64,10 @@ class AdminNewsPostPage extends BasicForm {
 
 		if (!userList) {
 			fetchUserList();
+		}
+
+		if (!headerImages) {
+			fetchAllHeaderImages();
 		}
 
 		const validationSchema = Yup.object().shape({
@@ -69,6 +82,7 @@ class AdminNewsPostPage extends BasicForm {
 				.required()
 				.label("Category"),
 			slug: validateSlug(),
+			image: Yup.string().label("Header Image"),
 			dateCreated: Yup.date().label("Date Created"),
 			timeCreated: Yup.string().label("Time Created"),
 			isPublished: Yup.boolean().label("Published?")
@@ -78,7 +92,15 @@ class AdminNewsPostPage extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPosts, match, slugMap, fetchNewsPost, userList, gameList } = nextProps;
+		const {
+			fullPosts,
+			match,
+			slugMap,
+			fetchNewsPost,
+			userList,
+			gameList,
+			headerImages
+		} = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
@@ -91,7 +113,7 @@ class AdminNewsPostPage extends BasicForm {
 		}
 
 		//Check we have the info we need
-		if (!slugMap || !userList || !gameList) {
+		if (!slugMap || !userList || !gameList || !headerImages) {
 			return newState;
 		}
 
@@ -140,15 +162,17 @@ class AdminNewsPostPage extends BasicForm {
 				subtitle: "",
 				category: "",
 				slug: "",
+				image: "",
 				content: createEditorState()
 			};
 		} else {
-			const { title, subtitle, dateCreated, isPublished } = post;
+			const { title, subtitle, dateCreated, isPublished, slug } = post;
 			return {
 				title,
 				_author: users.find(({ value }) => value == post._author._id) || "",
 				subtitle: subtitle || "",
-				slug: post.slug,
+				slug,
+				image: post.image || "",
 				dateCreated: dateCreated.toString("yyyy-MM-dd"),
 				timeCreated: dateCreated.toString("HH:mm:ss"),
 				isPublished,
@@ -277,7 +301,6 @@ class AdminNewsPostPage extends BasicForm {
 		if (isLoading || (post === undefined && !isNew) || !users || !categories) {
 			return <LoadingPage />;
 		}
-		this.props.getAllHeaderImages();
 
 		const title = isNew ? "New Post" : post.title;
 		let dateModifiedString = "-";
@@ -308,7 +331,13 @@ class AdminNewsPostPage extends BasicForm {
 									{ name: "subtitle", type: "text" },
 									{ name: "_author", type: "Select", options: users },
 									{ name: "category", type: "Select", options: categories },
-									{ name: "slug", type: "text" }
+									{ name: "slug", type: "text" },
+									{
+										name: "image",
+										type: "Image",
+										path: "images/news/headers/",
+										imageList: this.props.headerImages
+									}
 								];
 								if (!isNew) {
 									mainFields.push(
@@ -344,10 +373,10 @@ class AdminNewsPostPage extends BasicForm {
 
 function mapStateToProps({ config, games, news, users }) {
 	const { authUser } = config;
-	const { postList, slugMap, fullPosts } = news;
+	const { postList, slugMap, fullPosts, headerImages } = news;
 	const { userList } = users;
 	const { gameList } = games;
-	return { authUser, postList, slugMap, fullPosts, userList, gameList };
+	return { authUser, postList, slugMap, fullPosts, userList, gameList, headerImages };
 }
 
 export default connect(
@@ -362,6 +391,6 @@ export default connect(
 		deleteNewsPost,
 		uploadHeaderImage,
 		deleteHeaderImage,
-		getAllHeaderImages
+		fetchAllHeaderImages
 	}
 )(AdminNewsPostPage);

@@ -8,6 +8,7 @@ import selectStyling from "~/constants/selectStyling";
 //Components
 import BooleanField from "./fields/Boolean";
 import Radio from "./fields/Radio";
+import ImageSelector from "./fields/ImageSelector";
 import TweetComposer from "../TweetComposer";
 
 export default class BasicForm extends Component {
@@ -103,7 +104,6 @@ export default class BasicForm extends Component {
 				...formikProps.field,
 				...props
 			};
-
 			//Get the final component
 			switch (type) {
 				case "Boolean":
@@ -114,6 +114,8 @@ export default class BasicForm extends Component {
 					return (
 						<Select className="react-select" styles={selectStyling} {...mainProps} />
 					);
+				case "Image":
+					return <ImageSelector {...mainProps} form={formikProps.form} />;
 				case "Tweet":
 					return (
 						<TweetComposer
