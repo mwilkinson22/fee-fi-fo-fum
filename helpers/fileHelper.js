@@ -2,6 +2,26 @@ import { googleBucketName } from "~/config/keys";
 import sharp from "sharp";
 const bucket = require("~/constants/googleBucket");
 
+export async function getDirectoryList(directory, exclude = ["webp"]) {
+	const res = await bucket.getFiles({
+		autoPaginate: false,
+		directory
+	});
+
+	const files = res[0];
+	return files
+		.map(f => {
+			const { timeCreated: created, updated, size } = f.metadata;
+			return {
+				created,
+				updated,
+				size,
+				name: f.name.replace(directory, "")
+			};
+		})
+		.filter(f => f.name.length && exclude.indexOf(f.name.split(".").pop()) === -1);
+}
+
 export async function uploadToGoogle({ originalname, buffer, mimetype }, path = "") {
 	const file = bucket.file(path + originalname);
 	const externalUrl = await new Promise((resolve, reject) => {

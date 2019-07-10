@@ -25,7 +25,8 @@ import {
 	updateNewsPost,
 	deleteNewsPost,
 	uploadHeaderImage,
-	deleteHeaderImage
+	deleteHeaderImage,
+	getAllHeaderImages
 } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 import { fetchGameList } from "~/client/actions/gamesActions";
@@ -276,6 +277,7 @@ class AdminNewsPostPage extends BasicForm {
 		if (isLoading || (post === undefined && !isNew) || !users || !categories) {
 			return <LoadingPage />;
 		}
+		this.props.getAllHeaderImages();
 
 		const title = isNew ? "New Post" : post.title;
 		let dateModifiedString = "-";
@@ -359,6 +361,7 @@ export default connect(
 		updateNewsPost,
 		deleteNewsPost,
 		uploadHeaderImage,
-		deleteHeaderImage
+		deleteHeaderImage,
+		getAllHeaderImages
 	}
 )(AdminNewsPostPage);

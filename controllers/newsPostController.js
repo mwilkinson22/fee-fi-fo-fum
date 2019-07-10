@@ -7,7 +7,7 @@ const SlugRedirect = mongoose.model("slugRedirect");
 
 //Helpers
 import { getListsAndSlugs } from "./genericController";
-import { uploadImageToGoogle } from "~/helpers/fileHelper";
+import { getDirectoryList, uploadImageToGoogle } from "~/helpers/fileHelper";
 
 //Config
 function generateQuery(user, obj = {}) {
@@ -99,6 +99,13 @@ export async function updatePost(req, res) {
 
 		await getUpdatedPost(_id, res);
 	}
+}
+
+//Get All Header Images
+export async function getHeaderImages(req, res) {
+	const imageList = await getDirectoryList("images/news/headers/");
+
+	res.send(imageList);
 }
 
 //Upload Header Image

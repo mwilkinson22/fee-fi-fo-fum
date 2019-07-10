@@ -7,6 +7,8 @@ module.exports = app => {
 
 	app.get("/api/news/post/:id", NewsPostController.getFullPost);
 
+	app.get("/api/news/headerImages", NewsPostController.getHeaderImages);
+
 	app.get("/api/news/posts", NewsPostController.getPostList);
 
 	app.put("/api/news/post/:_id", requireAdmin, NewsPostController.updatePost);

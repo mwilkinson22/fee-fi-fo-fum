@@ -1,11 +1,13 @@
 import {
-	DELETE_NEUTRAL_GAME,
 	DELETE_POST,
 	FETCH_NEWS_POST,
 	FETCH_NEWS_POST_LEGACY,
 	FETCH_POST_LIST,
+	FETCH_POST_IMAGES,
 	UPDATE_POST
 } from "../actions/types";
+
+import { fixFiles } from "~/helpers/adminHelper";
 import { fixDates } from "~/helpers/newsHelper";
 
 export default function(state = { fullPosts: {} }, action) {
@@ -15,6 +17,13 @@ export default function(state = { fullPosts: {} }, action) {
 			return {
 				...state,
 				...action.payload
+			};
+
+		case FETCH_POST_IMAGES:
+			fixFiles(action.payload);
+			return {
+				...state,
+				headerImages: action.payload
 			};
 
 		case FETCH_NEWS_POST:

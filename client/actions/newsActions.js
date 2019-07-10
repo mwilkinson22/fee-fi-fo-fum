@@ -3,6 +3,7 @@ import {
 	FETCH_NEWS_POST,
 	FETCH_NEWS_POST_LEGACY,
 	FETCH_POST_LIST,
+	FETCH_POST_IMAGES,
 	UPDATE_POST
 } from "./types";
 import { toast } from "react-toastify";
@@ -56,6 +57,11 @@ export const updateNewsPost = (id, values) => async (dispatch, getState, api) =>
 	const res = await api.put(`/news/post/${id}`, values);
 	dispatch({ type: UPDATE_POST, payload: res.data });
 	toast.success("Post updated");
+};
+
+export const fetchAllHeaderImages = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/news/headerImages`);
+	dispatch({ type: FETCH_POST_IMAGES, payload: res.data });
 };
 
 export const uploadHeaderImage = (id, data) => async (dispatch, getState, api) => {

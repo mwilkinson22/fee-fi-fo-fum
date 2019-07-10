@@ -26,6 +26,7 @@ export const UPDATE_TEAM = "update_team";
 export const FETCH_NEWS_POST = "fetch_news_post";
 export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_POST_LIST = "fetch_post_list";
+export const FETCH_POST_IMAGES = "fetch_post_images";
 export const UPDATE_POST = "update_post";
 export const DELETE_POST = "delete_post";
 
