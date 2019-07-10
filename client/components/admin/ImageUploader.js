@@ -15,19 +15,31 @@ class ImageUploader extends Component {
 	onChange(ev) {
 		const input = ev.target;
 		if (input.files && input.files[0]) {
+			const { name } = input.files[0];
+
 			const reader = new FileReader();
-
 			reader.readAsDataURL(input.files[0]);
-
 			reader.onload = e => {
-				this.setState({ image: e.target.result });
+				this.setState({ image: e.target.result, name });
 			};
 		}
 	}
 
+	async onSubmit(image) {
+		const { name } = this.state;
+		const res = await fetch(image);
+		const blob = await res.blob();
+		this.props.onSubmit({ blob, name });
+	}
+
+	clearImage() {
+		this.setState({ image: undefined });
+		this.inputRef.current.value = null;
+	}
+
 	renderButtons() {
 		const { image } = this.state;
-		const { initialPreviewSrc, onSubmit, onDelete } = this.props;
+		const { onDelete } = this.props;
 
 		if (!image && onDelete) {
 			return <DeleteButtons onDelete={onDelete} />;
@@ -36,16 +48,10 @@ class ImageUploader extends Component {
 		if (image) {
 			return (
 				<div className="buttons">
-					<button
-						type="button"
-						onClick={() => {
-							this.setState({ image: undefined });
-							this.inputRef.current.value = null;
-						}}
-					>
+					<button type="button" onClick={() => this.clearImage()}>
 						Clear
 					</button>
-					<button type="button" onClick={() => onSubmit(this.state.image)}>
+					<button type="button" onClick={() => this.onSubmit(this.state.image)}>
 						Upload
 					</button>
 				</div>
