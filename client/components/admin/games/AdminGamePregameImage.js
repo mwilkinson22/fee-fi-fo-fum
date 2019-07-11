@@ -108,14 +108,11 @@ class AdminGamePregameImage extends Component {
 					//Get Player Object
 					const squadMember = _.find(squadNumbers, ({ _player }) => _player._id == id);
 					const { image } = squadMember._player;
-					if (!image) {
-						return null;
-					}
 
 					//Get Data
 					const { number } = squadMember;
 					const label = `${number ? number + ". " : ""}${squadMember._player.name.full}`;
-					const option = { label, value: id, number };
+					const option = { label, value: id, number, image };
 
 					//Push to object
 					const isNew = _.find(newState.playersToHighlight, p => p == id);
@@ -126,21 +123,21 @@ class AdminGamePregameImage extends Component {
 					}
 				});
 
-				if (newPlayers.length) {
+				if (newPlayers.filter(p => p.image).length) {
 					newState.playerImageOptions.push({
 						label: "New Players",
-						options: _.sortBy(newPlayers, p => p.number || 999)
+						options: _.sortBy(newPlayers.filter(p => p.image), p => p.number || 999)
 					});
 				}
 
-				if (otherPlayers.length) {
+				if (otherPlayers.filter(p => p.image).length) {
 					newState.playerImageOptions.push({
 						label: "Other Players",
-						options: _.sortBy(otherPlayers, p => p.number || 999)
+						options: _.sortBy(otherPlayers.filter(p => p.image), p => p.number || 999)
 					});
 				}
 
-				newState.playersToHighlight = newState.playerImageOptions[1].options;
+				newState.playersToHighlight = newPlayers;
 
 				newState.playerForImage =
 					newState.playerImageOptions.length > 1 &&
