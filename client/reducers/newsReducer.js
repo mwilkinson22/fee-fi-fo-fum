@@ -20,10 +20,9 @@ export default function(state = { fullPosts: {} }, action) {
 			};
 
 		case FETCH_POST_IMAGES:
-			fixFiles(action.payload);
 			return {
 				...state,
-				headerImages: action.payload
+				headerImages: fixFiles(action.payload)
 			};
 
 		case FETCH_NEWS_POST:
@@ -40,16 +39,14 @@ export default function(state = { fullPosts: {} }, action) {
 			return { ...state, redirects: { ...state.redirects, [action.id]: action.payload } };
 
 		case UPDATE_POST: {
-			fixDates(action.payload.postList);
-			fixDates(action.payload.fullPosts);
 			return {
 				...state,
 				fullPosts: {
 					...state.fullPosts,
-					...action.payload.fullPosts
+					...fixDates(action.payload.fullPosts)
 				},
 				postList: {
-					...action.payload.postList
+					...fixDates(action.payload.postList)
 				},
 				slugMap: {
 					...action.payload.slugMap

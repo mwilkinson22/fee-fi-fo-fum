@@ -17,26 +17,23 @@ export default function(state = { fullGames: {} }, action) {
 
 	switch (action.type) {
 		case FETCH_GAMES:
-			fixDates(action.payload);
 			return {
 				...state,
 				fullGames: {
 					...state.fullGames,
-					...action.payload
+					...fixDates(action.payload)
 				}
 			};
 
 		case UPDATE_GAME:
-			fixDates(action.payload.fullGames);
-			fixDates(action.payload.gameList);
 			return {
 				...state,
 				fullGames: {
 					...state.fullGames,
-					...action.payload.fullGames
+					...fixDates(action.payload.fullGames)
 				},
 				gameList: {
-					...action.payload.gameList
+					...fixDates(action.payload.gameList)
 				},
 				slugMap: {
 					...action.payload.slugMap
@@ -51,19 +48,17 @@ export default function(state = { fullGames: {} }, action) {
 			};
 
 		case FETCH_NEUTRAL_GAMES:
-			fixDates(action.payload);
 			return {
 				...state,
-				neutralGames: action.payload
+				neutralGames: fixDates(action.payload)
 			};
 
 		case UPDATE_NEUTRAL_GAMES:
-			fixDates(action.payload);
 			return {
 				...state,
 				neutralGames: {
 					...state.neutralGames,
-					...action.payload
+					...fixDates(action.payload)
 				}
 			};
 
