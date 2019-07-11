@@ -212,6 +212,7 @@
 	}
 
 	.image-selector-field-wrapper {
+		@include noTextSelect;
 		border-radius: 4pt;
 		padding: 10pt 10pt 6pt;
 		.image-selector-field {
