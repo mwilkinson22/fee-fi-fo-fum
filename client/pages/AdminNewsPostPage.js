@@ -78,7 +78,9 @@ class AdminNewsPostPage extends BasicForm {
 				.required()
 				.label("Category"),
 			slug: validateSlug(),
-			image: Yup.string().label("Header Image"),
+			image: Yup.string()
+				.required()
+				.label("Header Image"),
 			dateCreated: Yup.date().label("Date Created"),
 			timeCreated: Yup.string().label("Time Created"),
 			isPublished: Yup.boolean().label("Published?")
@@ -292,13 +294,7 @@ class AdminNewsPostPage extends BasicForm {
 									{ name: "subtitle", type: "text" },
 									{ name: "_author", type: "Select", options: users },
 									{ name: "category", type: "Select", options: categories },
-									{ name: "slug", type: "text" },
-									{
-										name: "image",
-										type: "Image",
-										path: "images/news/headers/",
-										imageList: this.props.headerImages
-									}
+									{ name: "slug", type: "text" }
 								];
 								if (!isNew) {
 									mainFields.push(
@@ -314,7 +310,25 @@ class AdminNewsPostPage extends BasicForm {
 											{this.renderFieldGroup(mainFields)}
 											<label>Last Modified</label>
 											<input disabled value={dateModifiedString} />
+										</div>
+										<div className="form-card grid">
+											{this.renderFieldGroup([
+												{
+													name: "image",
+													type: "Image",
+													path: "images/news/headers/",
+													acceptSVG: false,
+													imageList: this.props.headerImages,
+													defaultUploadName:
+														formikProps.values.slug || null
+												}
+											])}
+										</div>
+										<div className="form-card grid">
+											<h6>Post</h6>
 											{this.renderContentEditor(formikProps)}
+										</div>
+										<div className="form-card grid">
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">Save Post</button>
