@@ -325,7 +325,6 @@ class AdminNewsPostPage extends BasicForm {
 											])}
 										</div>
 										<div className="form-card grid">
-											<h6>Post</h6>
 											{this.renderContentEditor(formikProps)}
 										</div>
 										<div className="form-card grid">
