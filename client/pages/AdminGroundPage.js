@@ -18,7 +18,8 @@ import {
 	fetchAllGrounds,
 	createGround,
 	updateGround,
-	deleteGround
+	deleteGround,
+	fetchAllHeaderImages
 } from "~/client/actions/groundActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
@@ -26,7 +27,14 @@ class AdminGroundPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { groundList, fetchAllGrounds, cities, fetchCities } = props;
+		const {
+			groundList,
+			fetchAllGrounds,
+			cities,
+			fetchCities,
+			headerImages,
+			fetchAllHeaderImages
+		} = props;
 
 		if (!groundList) {
 			fetchAllGrounds();
@@ -34,6 +42,10 @@ class AdminGroundPage extends BasicForm {
 
 		if (!cities) {
 			fetchCities();
+		}
+
+		if (!headerImages) {
+			fetchAllHeaderImages();
 		}
 
 		const validationSchema = Yup.object().shape({
@@ -59,14 +71,15 @@ class AdminGroundPage extends BasicForm {
 			parking: Yup.object().shape({
 				stadium: Yup.boolean().label("Stadium Parking"),
 				roadside: Yup.boolean().label("Roadside Parking")
-			})
+			}),
+			image: Yup.string().label("Image")
 		});
 
 		this.state = { validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { groundList, match, cities } = nextProps;
+		const { groundList, match, cities, headerImages } = nextProps;
 		const newState = { isLoading: false };
 
 		newState.isNew = !match.params.slug;
@@ -75,7 +88,7 @@ class AdminGroundPage extends BasicForm {
 			newState.redirect = false;
 		}
 
-		if (!cities || (!newState.isNew && !groundList)) {
+		if (!cities || !headerImages || (!newState.isNew && !groundList)) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -104,12 +117,14 @@ class AdminGroundPage extends BasicForm {
 			parking: {
 				stadium: false,
 				roadside: false
-			}
+			},
+			image: ""
 		};
 
 		if (!isNew) {
 			values = _.pick(_.cloneDeep(ground), Object.keys(values));
 			values.address.street2 = values.address.street2 || ""; //Nullable
+			values.image = values.image || ""; //Nullable
 			values.address._city = cityOptions.find(
 				({ value }) => value == ground.address._city._id
 			);
@@ -179,7 +194,7 @@ class AdminGroundPage extends BasicForm {
 							onSubmit={values => this.handleSubmit(values)}
 							initialValues={this.getDefaults()}
 							validationSchema={validationSchema}
-							render={() => {
+							render={formikProps => {
 								const mainFields = [
 									{ name: "name", type: "text" },
 									{ name: "addThe", type: "Boolean" }
@@ -206,6 +221,17 @@ class AdminGroundPage extends BasicForm {
 											{this.renderFieldGroup(addressFields)}
 											<h6>Travel</h6>
 											{this.renderFieldGroup(travelFields)}
+											<h6>Image</h6>
+											{this.renderFieldGroup([
+												{
+													name: "image",
+													type: "Image",
+													path: "images/grounds/",
+													acceptSVG: true,
+													imageList: this.props.headerImages,
+													defaultUploadName: formikProps.values.slug
+												}
+											])}
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">
@@ -225,12 +251,12 @@ class AdminGroundPage extends BasicForm {
 }
 
 function mapStateToProps({ grounds, locations }) {
-	const { groundList } = grounds;
+	const { groundList, headerImages } = grounds;
 	const { cities } = locations;
-	return { cities, groundList };
+	return { cities, groundList, headerImages };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround }
+	{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround, fetchAllHeaderImages }
 )(AdminGroundPage);

@@ -5,6 +5,7 @@ const Ground = mongoose.model(collectionName);
 
 //Helpers
 import { getListsAndSlugs } from "../genericController";
+import { getDirectoryList } from "~/helpers/fileHelper";
 async function validateGround(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -26,6 +27,12 @@ export async function getGroundsList(req, res) {
 	const { list, slugMap } = await getListsAndSlugs(grounds, collectionName);
 
 	res.send({ groundList: list, slugMap });
+}
+
+export async function getHeaderImages(req, res) {
+	const imageList = await getDirectoryList("images/grounds/");
+
+	res.send(imageList);
 }
 
 //POSTers

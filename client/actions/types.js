@@ -38,6 +38,7 @@ export const FETCH_PEOPLE_LIST = "fetch_people_list";
 export const CREATE_GROUND = "create_ground";
 export const UPDATE_GROUND = "update_ground";
 export const DELETE_GROUND = "delete_ground";
+export const FETCH_GROUND_IMAGES = "fetch_ground_images";
 export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 
 //Seasons
