@@ -235,10 +235,12 @@ class AdminNewsPostPage extends BasicForm {
 		const { isNew } = this.state;
 		if (!isNew) {
 			return (
-				<NewsPostEditor
-					editorState={formikProps.values.content}
-					onChange={c => formikProps.setFieldValue("content", c)}
-				/>
+				<div className="form-card">
+					<NewsPostEditor
+						editorState={formikProps.values.content}
+						onChange={c => formikProps.setFieldValue("content", c)}
+					/>
+				</div>
 			);
 		}
 	}
@@ -305,13 +307,7 @@ class AdminNewsPostPage extends BasicForm {
 								}
 								return (
 									<Form>
-										{this.renderDeleteButtons()}
-										<div className="form-card grid">
-											{this.renderFieldGroup(mainFields)}
-											<label>Last Modified</label>
-											<input disabled value={dateModifiedString} />
-										</div>
-										<div className="form-card grid">
+										<div className="form-card no-labels">
 											{this.renderFieldGroup([
 												{
 													name: "image",
@@ -325,14 +321,18 @@ class AdminNewsPostPage extends BasicForm {
 											])}
 										</div>
 										<div className="form-card grid">
-											{this.renderContentEditor(formikProps)}
+											{this.renderFieldGroup(mainFields)}
+											<label>Last Modified</label>
+											<input disabled value={dateModifiedString} />
 										</div>
-										<div className="form-card grid">
+										{this.renderContentEditor(formikProps)}
+										<div className="form-card">
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">Save Post</button>
 											</div>
 										</div>
+										{this.renderDeleteButtons()}
 									</Form>
 								);
 							}}

@@ -20,6 +20,12 @@
 			max-width: 100%;
 		}
 	}
+
+	&.no-labels {
+		label {
+			display: none;
+		}
+	}
 	.plain-list {
 		font-size: 1.2em;
 		li {
@@ -206,7 +212,6 @@
 	}
 
 	.image-selector-field-wrapper {
-		background: #1a1a1a;
 		border-radius: 4pt;
 		padding: 10pt 10pt 6pt;
 		.image-selector-field {
@@ -218,7 +223,7 @@
 			display: block;
 			padding-bottom: 10pt;
 			&.text {
-				color: white;
+				color: #555;
 				text-align: center;
 			}
 		}
