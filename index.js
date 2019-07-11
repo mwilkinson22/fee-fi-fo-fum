@@ -54,6 +54,7 @@ import "./client/scss/styles.scss";
 app.use(express.static("public"));
 
 // API Routes
+require("./routes/fileRoutes")(app);
 require("./routes/usersRoutes")(app);
 require("./routes/rugby")(app);
 require("./routes/newsRoutes")(app);

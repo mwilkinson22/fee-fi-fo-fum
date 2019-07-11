@@ -12,7 +12,7 @@ import { convertToRaw } from "draft-js";
 import BasicForm from "../components/admin/BasicForm";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
-import ImageUploader from "../components/admin/ImageUploaderLegacy";
+import ImageUploader from "../components/admin/ImageUploader";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 import NewsPostEditor from "../components/news/NewsPostEditor";
@@ -24,8 +24,6 @@ import {
 	createNewsPost,
 	updateNewsPost,
 	deleteNewsPost,
-	uploadHeaderImage,
-	deleteHeaderImage,
 	fetchAllHeaderImages
 } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
@@ -245,41 +243,6 @@ class AdminNewsPostPage extends BasicForm {
 		}
 	}
 
-	renderImageHandler() {
-		const { isNew, post } = this.state;
-
-		if (!isNew) {
-			return (
-				<div className="form-card">
-					<h6>Header Image</h6>
-					<ImageUploader
-						initialPreviewSrc={post.image ? newsHeaderPath + post.image : null}
-						onSubmit={image => this.handleImageUpload(image)}
-						onDelete={() => this.handleImageDelete()}
-						acceptSVG={true}
-					/>
-				</div>
-			);
-		}
-	}
-
-	async handleImageUpload(image) {
-		const { post } = this.state;
-		const { uploadHeaderImage } = this.props;
-
-		const formData = new FormData();
-		await formData.append("image", image.blob);
-		await formData.append("name", image.name);
-
-		await uploadHeaderImage(post._id, formData);
-	}
-
-	async handleImageDelete() {
-		const { deleteHeaderImage } = this.props;
-		const { post } = this.state;
-		await deleteHeaderImage(post._id);
-	}
-
 	render() {
 		const {
 			post,
@@ -359,7 +322,6 @@ class AdminNewsPostPage extends BasicForm {
 												<button type="submit">Save Post</button>
 											</div>
 										</div>
-										{this.renderImageHandler()}
 									</Form>
 								);
 							}}
@@ -389,8 +351,6 @@ export default connect(
 		createNewsPost,
 		updateNewsPost,
 		deleteNewsPost,
-		uploadHeaderImage,
-		deleteHeaderImage,
 		fetchAllHeaderImages
 	}
 )(AdminNewsPostPage);

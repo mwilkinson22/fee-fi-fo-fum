@@ -106,10 +106,12 @@
 	.image-uploader {
 		img {
 			max-width: 100%;
+			max-height: 60vh;
 			display: block;
 		}
 		input {
 			margin: 10pt 0;
+			width: 100%;
 		}
 	}
 	button {
@@ -119,6 +121,10 @@
 
 		&:hover {
 			background: #ddd;
+		}
+
+		&:disabled {
+			pointer-events: none;
 		}
 
 		&.delete {
