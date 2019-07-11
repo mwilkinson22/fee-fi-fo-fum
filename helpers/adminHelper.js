@@ -19,5 +19,5 @@ export function fixFiles(files) {
 			}
 			return file;
 		})
-		.sort((a, b) => (a.updated > b.updated ? 1 : -1));
+		.sort((a, b) => (a.updated < b.updated ? 1 : -1));
 }
