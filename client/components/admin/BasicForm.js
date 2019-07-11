@@ -8,7 +8,7 @@ import selectStyling from "~/constants/selectStyling";
 //Components
 import BooleanField from "./fields/Boolean";
 import Radio from "./fields/Radio";
-import ImageSelector from "./fields/ImageSelector";
+import ImageField from "./fields/ImageField";
 import TweetComposer from "../TweetComposer";
 
 export default class BasicForm extends Component {
@@ -91,7 +91,7 @@ export default class BasicForm extends Component {
 		//Get Render Method
 		const render = formikProps => {
 			//Update default onChange method for custom Select component
-			if (["Select", "Tweet"].indexOf(type) > -1) {
+			if (["Select", "Tweet", "Image"].indexOf(type) > -1) {
 				formikProps.field.onChange = option => {
 					formikProps.form.setFieldTouched(field.name, true);
 					formikProps.form.setFieldValue(field.name, option || "");
@@ -115,7 +115,7 @@ export default class BasicForm extends Component {
 						<Select className="react-select" styles={selectStyling} {...mainProps} />
 					);
 				case "Image":
-					return <ImageSelector {...mainProps} form={formikProps.form} />;
+					return <ImageField {...mainProps} />;
 				case "Tweet":
 					return (
 						<TweetComposer

@@ -22,10 +22,14 @@ class PopUpDialog extends Component {
 		if (className) {
 			dialogClassName.push(className);
 		}
+
+		//Pass In onDestroy
+		const clonedChildren = React.cloneElement(children, { onDestroy });
+
 		return (
 			<div className="pop-up-dialog-bg" onClick={ev => this.handleBackgroundClick(ev)}>
 				<div className={dialogClassName.join(" ")}>
-					{children}
+					{clonedChildren}
 					{closeButtonText && (
 						<div className="buttons">
 							<button type="button" onClick={() => onDestroy()}>

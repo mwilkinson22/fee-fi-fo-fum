@@ -2,59 +2,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-//Components
-import PopUpDialog from "../../PopUpDialog";
-
 //Constants
 import { googleBucket } from "~/client/extPaths";
 
 class ImageSelector extends Component {
 	constructor(props) {
 		super(props);
-		console.log(props);
 		this.state = {
 			currentImage: props.value
 		};
-	}
-
-	renderField() {
-		const { value: currentImage, path } = this.props;
-		const onClick = () => this.setState({ showImageSelector: true, currentImage });
-		if (currentImage.length) {
-			return (
-				<img
-					src={googleBucket + path + currentImage}
-					className="image-selector-field image"
-					title={currentImage}
-					onClick={onClick}
-				/>
-			);
-		} else {
-			return (
-				<span className="image-selector-field text" onClick={onClick}>
-					Add Image
-				</span>
-			);
-		}
-	}
-
-	renderSelector() {
-		const { showImageSelector, showImageUploader } = this.state;
-
-		if (showImageSelector && !showImageUploader) {
-			return (
-				<PopUpDialog
-					onDestroy={() => this.setState({ showImageSelector: false })}
-					fullSize={true}
-				>
-					<div className="image-selector">
-						{this.renderPreviewBox()}
-						{this.renderImageList()}
-						{this.renderButtons()}
-					</div>
-				</PopUpDialog>
-			);
-		}
 	}
 
 	renderPreviewBox() {
@@ -116,33 +72,18 @@ class ImageSelector extends Component {
 
 	renderButtons() {
 		const { currentImage } = this.state;
-		const { name, form } = this.props;
+		const { onChange, onDestroy } = this.props;
 		return (
 			<div className="buttons">
-				<button
-					type="button"
-					className="delete"
-					onClick={async () => {
-						await form.setFieldValue(name, "");
-						this.setState({ image: "", showImageSelector: false });
-					}}
-				>
-					Remove Image
-				</button>
-				<button
-					type="button"
-					onClick={async () => {
-						this.setState({ showImageUploader: true });
-					}}
-				>
-					Upload Image
+				<button type="button" onClick={onDestroy}>
+					Cancel
 				</button>
 				<button
 					type="button"
 					className="confirm"
 					onClick={async () => {
-						await form.setFieldValue(name, currentImage);
-						this.setState({ showImageSelector: false });
+						await onChange(currentImage);
+						onDestroy();
 					}}
 				>
 					Update Image
@@ -153,16 +94,16 @@ class ImageSelector extends Component {
 
 	render() {
 		return (
-			<div className="image-selector-field-wrapper">
-				{this.renderField()}
-				{this.renderSelector()}
+			<div className="image-selector">
+				{this.renderPreviewBox()}
+				{this.renderImageList()}
+				{this.renderButtons()}
 			</div>
 		);
 	}
 }
 
 ImageSelector.propTypes = {
-	acceptSVG: PropTypes.bool,
 	value: PropTypes.string.isRequired,
 	path: PropTypes.string.isRequired,
 	imageList: PropTypes.arrayOf(
@@ -172,11 +113,9 @@ ImageSelector.propTypes = {
 			updated: PropTypes.instanceOf(Date).isRequired,
 			size: PropTypes.number.isRequired
 		})
-	).isRequired
-};
-
-ImageSelector.defaultProps = {
-	acceptSVG: false
+	).isRequired,
+	onChange: PropTypes.func.isRequired,
+	onDestroy: PropTypes.func.isRequired
 };
 
 export default ImageSelector;

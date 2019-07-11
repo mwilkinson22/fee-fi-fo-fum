@@ -56,6 +56,7 @@
 	.buttons {
 		display: flex;
 		justify-content: space-between;
+		flex-wrap: wrap;
 		button {
 			white-space: nowrap;
 		}
@@ -199,85 +200,108 @@
 	}
 
 	.image-selector-field-wrapper {
+		background: #1a1a1a;
+		border-radius: 4pt;
+		padding: 10pt 10pt 6pt;
 		.image-selector-field {
-			cursor: pointer;
 			max-width: 100%;
 			max-height: 200pt;
+			left: 0;
+			right: 0;
+			margin: auto;
+			display: block;
+			padding-bottom: 10pt;
+			&.text {
+				color: white;
+				text-align: center;
+			}
+		}
+	}
+	.image-selector {
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+		max-height: 85vh;
+
+		.preview-box {
+			display: grid;
+			justify-content: center;
+			align-items: center;
 		}
 
-		.image-selector {
+		.image-list {
+			overflow: auto;
 			display: grid;
-			min-height: 0;
-			max-height: 85vh;
-
-			.image-list {
-				overflow: auto;
-				display: grid;
-				align-items: center;
-				justify-content: center;
-				margin: 10pt 0;
-				flex-grow: 1;
-				grid-template-columns: repeat(auto-fill, minmax(160pt, 1fr));
-				grid-gap: 10pt;
-				.thumbnail {
-					cursor: pointer;
-					max-width: 100%;
-					&.selected {
-						box-shadow: 0 0 10pt $claret;
-					}
+			align-items: center;
+			justify-content: center;
+			margin: 10pt 0;
+			flex-grow: 1;
+			grid-template-columns: repeat(auto-fill, minmax(160pt, 1fr));
+			grid-gap: 10pt;
+			.thumbnail {
+				cursor: pointer;
+				max-width: 100%;
+				&.selected {
+					box-shadow: 0 0 10pt $claret;
 				}
 			}
+		}
 
-			@media #{$mobile-and-tablet} {
-				grid-template-rows: 1fr 40pt;
-				.preview-box {
+		@media #{$mobile-and-tablet} {
+			.preview-box {
+				.img-wrapper {
+					width: 100%;
+					img {
+						max-width: 100%;
+						max-height: 20vh;
+						padding-bottom: 10pt;
+						border-bottom: solid thin #ddd;
+					}
+				}
+				.attributes {
 					display: none;
 				}
 			}
-			@media #{$desktop-only} {
-				grid-template-rows: 200pt 1fr 40pt;
-				.preview-box {
-					@include noTextSelect;
-					&.with-image {
-						display: grid;
-						grid-template-columns: 1fr 1fr;
+		}
+		@media #{$desktop-only} {
+			grid-template-rows: 200pt 1fr 40pt;
+			.preview-box {
+				@include noTextSelect;
+				&.with-image {
+					grid-template-columns: 1fr 1fr;
+					justify-content: center;
+					background: #1a1a1a;
+					.img-wrapper {
+						display: flex;
 						justify-content: center;
-						background: #1a1a1a;
-						.img-wrapper {
-							display: flex;
-							justify-content: center;
-							flex-grow: 1;
-							img {
-								max-width: 100%;
-								max-height: 100%;
-							}
+						flex-grow: 1;
+						img {
+							max-width: 100%;
+							max-height: 200pt;
 						}
-						.attributes {
-							display: flex;
-							flex-direction: column;
-							justify-content: center;
-							flex-grow: 1;
-							white-space: nowrap;
-							.attribute {
-								padding: 4pt 8pt;
-								color: white;
-								font-size: 0.9em;
-								strong {
-									margin-right: 4pt;
-								}
-								&:not(:last-child) {
-									border-bottom: solid thin #3a3a3a;
-								}
+					}
+					.attributes {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						flex-grow: 1;
+						white-space: nowrap;
+						.attribute {
+							padding: 4pt 8pt;
+							color: white;
+							font-size: 0.9em;
+							strong {
+								margin-right: 4pt;
+							}
+							&:not(:last-child) {
+								border-bottom: solid thin #3a3a3a;
 							}
 						}
 					}
-					&.no-image {
-						display: grid;
-						justify-content: center;
-						align-items: center;
-						color: #aaa;
-						padding: 10pt;
-					}
+				}
+				&.no-image {
+					color: #aaa;
+					padding: 10pt;
 				}
 			}
 		}
