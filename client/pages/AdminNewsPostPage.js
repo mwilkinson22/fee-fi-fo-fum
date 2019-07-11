@@ -12,7 +12,6 @@ import { convertToRaw } from "draft-js";
 import BasicForm from "../components/admin/BasicForm";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
-import ImageUploader from "../components/admin/ImageUploader";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 import NewsPostEditor from "../components/news/NewsPostEditor";
@@ -31,7 +30,6 @@ import { fetchGameList } from "~/client/actions/gamesActions";
 
 //Constants
 import newsCategories from "~/constants/newsCategories";
-import { newsHeaderPath } from "~/client/extPaths";
 
 //Helpers
 import { convertToEditorState } from "~/helpers/newsHelper";

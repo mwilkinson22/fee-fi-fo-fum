@@ -18,19 +18,6 @@ module.exports = app => {
 	app.delete("/api/news/post/:_id", requireAdmin, NewsPostController.deletePost);
 
 	app.post(
-		"/api/news/post/:_id/headerImage",
-		requireAdmin,
-		upload.single("image"),
-		NewsPostController.uploadHeaderImage
-	);
-
-	app.delete(
-		"/api/news/post/:_id/headerImage",
-		requireAdmin,
-		NewsPostController.deleteHeaderImage
-	);
-
-	app.post(
 		"/api/news/image/inline",
 		requireAdmin,
 		upload.single("image"),

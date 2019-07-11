@@ -64,18 +64,6 @@ export const fetchAllHeaderImages = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_POST_IMAGES, payload: res.data });
 };
 
-export const uploadHeaderImage = (id, data) => async (dispatch, getState, api) => {
-	const res = await api.post(`/news/post/${id}/headerImage`, data);
-	dispatch({ type: UPDATE_POST, payload: res.data });
-	toast.success("Image updated");
-};
-
-export const deleteHeaderImage = id => async (dispatch, getState, api) => {
-	const res = await api.delete(`/news/post/${id}/headerImage`);
-	dispatch({ type: UPDATE_POST, payload: res.data });
-	toast.success("Image deleted");
-};
-
 export const uploadInlineImage = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/news/image/inline`, data);
 	return res.data;

@@ -108,53 +108,6 @@ export async function getHeaderImages(req, res) {
 	res.send(imageList);
 }
 
-//Upload Header Image
-export async function uploadHeaderImage(req, res) {
-	const { _id } = req.params;
-	const newsPost = await NewsPost.findById(_id);
-	if (!newsPost) {
-		res.status(404).send(`No post found with id ${_id}`);
-		return false;
-	} else {
-		const fileSizeLimit = 5;
-
-		if (req.file.size / 1024 / 1024 > fileSizeLimit) {
-			res.status(413).send(`Image must be less than ${fileSizeLimit}mb`);
-		} else {
-			//Update originalname for blob
-			req.file.originalname = req.body.name;
-
-			//Upload
-			const { name } = await uploadImageToGoogle(
-				req.file,
-				"images/news/headers/",
-				true,
-				`${newsPost.slug}-${new Date().getTime()}`
-			);
-
-			//Update model
-			await newsPost.updateOne({ image: name });
-
-			//Return
-			await getUpdatedPost(_id, res);
-		}
-	}
-}
-
-//Delete Header Image
-export async function deleteHeaderImage(req, res) {
-	const { _id } = req.params;
-	const newsPost = await NewsPost.findById(_id);
-	if (!newsPost) {
-		res.status(404).send(`No post found with id ${_id}`);
-		return false;
-	} else {
-		await newsPost.updateOne({ image: null });
-
-		await getUpdatedPost(_id, res);
-	}
-}
-
 //Upload Inline Image
 export async function uploadInlineImage(req, res) {
 	const fileSizeLimit = 5;
