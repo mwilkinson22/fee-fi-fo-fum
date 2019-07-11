@@ -108,22 +108,6 @@ export async function getHeaderImages(req, res) {
 	res.send(imageList);
 }
 
-//Upload Inline Image
-export async function uploadInlineImage(req, res) {
-	const fileSizeLimit = 5;
-	if (req.file.size / 1024 / 1024 > fileSizeLimit) {
-		res.status(413).send(`Image must be less than ${fileSizeLimit}mb`);
-	} else {
-		const { externalUrl } = await uploadImageToGoogle(
-			req.file,
-			"images/news/inline/",
-			false,
-			req.body.name
-		);
-		res.send(externalUrl);
-	}
-}
-
 //Create Post
 export async function deletePost(req, res) {
 	const { _id } = req.params;

@@ -1,7 +1,7 @@
 import React from "react";
 import { ImageSideButton, Block, addNewBlock } from "medium-draft";
 import { connect } from "react-redux";
-import { uploadInlineImage } from "../../actions/newsActions";
+import { uploadFile } from "../../actions/fileActions";
 
 class CustomImageSideButton extends ImageSideButton {
 	async onChange(e) {
@@ -12,13 +12,16 @@ class CustomImageSideButton extends ImageSideButton {
 
 			// This is a post request to server endpoint with image as `image`
 			const formData = new FormData();
-			formData.append("image", file);
+			formData.append("file", file);
+			formData.append("path", "images/news/inline/");
 			formData.append("name", `${slug}-${new Date().getTime()}`);
-			const url = await this.props.uploadInlineImage(formData);
-			if (url) {
+			formData.append("isImage", true);
+			formData.append("convertImageToWebP", false);
+			const { externalUrl } = await this.props.uploadFile(formData);
+			if (externalUrl) {
 				this.props.setEditorState(
 					addNewBlock(this.props.getEditorState(), Block.IMAGE, {
-						src: url
+						src: externalUrl
 					})
 				);
 			}
@@ -34,5 +37,5 @@ function mapStateToProps({ config }) {
 
 export default connect(
 	mapStateToProps,
-	{ uploadInlineImage }
+	{ uploadFile }
 )(CustomImageSideButton);
