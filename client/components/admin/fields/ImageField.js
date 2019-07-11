@@ -6,7 +6,6 @@ import { googleBucket } from "~/client/extPaths";
 //Components
 import ImageSelector from "../ImageSelector";
 import FileUploader from "../FileUploader";
-import PopUpDialog from "~/client/components/PopUpDialog";
 
 class ImageField extends Component {
 	constructor(props) {
@@ -24,17 +23,13 @@ class ImageField extends Component {
 		const { path, imageList, onChange } = this.props;
 		if (showImageSelector) {
 			return (
-				<PopUpDialog
+				<ImageSelector
+					value={value}
+					path={path}
+					imageList={imageList}
+					onChange={onChange}
 					onDestroy={() => this.setState({ showImageSelector: false })}
-					fullSize={true}
-				>
-					<ImageSelector
-						value={value}
-						path={path}
-						imageList={imageList}
-						onChange={onChange}
-					/>
-				</PopUpDialog>
+				/>
 			);
 		}
 	}

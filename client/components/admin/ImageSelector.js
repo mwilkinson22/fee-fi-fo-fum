@@ -2,6 +2,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+//Components
+import PopUpDialog from "../PopUpDialog";
+
 //Constants
 import { googleBucket } from "~/client/extPaths";
 
@@ -94,12 +97,15 @@ class ImageSelector extends Component {
 	}
 
 	render() {
+		const { onDestroy } = this.props;
 		return (
-			<div className="image-selector">
-				{this.renderPreviewBox()}
-				{this.renderImageList()}
-				{this.renderButtons()}
-			</div>
+			<PopUpDialog onDestroy={onDestroy} fullSize={true}>
+				<div className="image-selector">
+					{this.renderPreviewBox()}
+					{this.renderImageList()}
+					{this.renderButtons()}
+				</div>
+			</PopUpDialog>
 		);
 	}
 }
