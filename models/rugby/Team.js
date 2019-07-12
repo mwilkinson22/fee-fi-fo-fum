@@ -3,10 +3,10 @@ const { Schema } = mongoose;
 
 const teamSchema = new Schema({
 	name: {
-		long: String,
-		short: String
+		long: { type: String, required: true },
+		short: { type: String, required: true }
 	},
-	nickname: String,
+	nickname: { type: String, required: true },
 	_defaultGround: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
 	_grounds: [
 		{
@@ -14,34 +14,37 @@ const teamSchema = new Schema({
 			_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true }
 		}
 	],
-	hashtagPrefix: String,
+	hashtagPrefix: { type: String, required: true },
 	colours: {
-		main: String,
-		trim1: String,
-		trim2: String,
-		text: String,
-		pitchColour: String,
-		statBarColour: String
+		main: { type: String, required: true },
+		trim1: { type: String, required: true },
+		trim2: { type: String, required: true },
+		text: { type: String, required: true },
+		pitchColour: { type: String, default: null },
+		statBarColour: { type: String, default: null }
 	},
-	squads: [
-		{
-			year: Number,
-			_teamType: {
-				type: Schema.Types.ObjectId,
-				ref: "teamTypes"
-			},
-			players: [
-				{
-					_player: { type: Schema.Types.ObjectId, ref: "people" },
-					number: Number,
-					from: Date,
-					to: Date,
-					onLoan: Boolean,
-					friendlyOnly: Boolean
-				}
-			]
-		}
-	],
+	squads: {
+		type: [
+			{
+				year: Number,
+				_teamType: {
+					type: Schema.Types.ObjectId,
+					ref: "teamTypes"
+				},
+				players: [
+					{
+						_player: { type: Schema.Types.ObjectId, ref: "people" },
+						number: Number,
+						from: Date,
+						to: Date,
+						onLoan: Boolean,
+						friendlyOnly: Boolean
+					}
+				]
+			}
+		],
+		default: []
+	},
 	shirt: [
 		{
 			year: Number,
