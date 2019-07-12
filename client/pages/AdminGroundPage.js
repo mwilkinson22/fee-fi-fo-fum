@@ -194,7 +194,7 @@ class AdminGroundPage extends BasicForm {
 							onSubmit={values => this.handleSubmit(values)}
 							initialValues={this.getDefaults()}
 							validationSchema={validationSchema}
-							render={formikProps => {
+							render={() => {
 								const mainFields = [
 									{ name: "name", type: "text" },
 									{ name: "addThe", type: "Boolean" }
@@ -229,7 +229,7 @@ class AdminGroundPage extends BasicForm {
 													path: "images/grounds/",
 													acceptSVG: true,
 													imageList: this.props.headerImages,
-													defaultUploadName: formikProps.values.slug
+													defaultUploadName: ground.slug
 												}
 											])}
 											<div className="buttons">
