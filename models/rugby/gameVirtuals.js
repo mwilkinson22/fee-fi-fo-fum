@@ -133,7 +133,7 @@ export default gameSchema => {
 				!squadsAnnounced
 			) {
 				return 1;
-			} else if (!_.sumBy(playerStats, "stats.TK")) {
+			} else if (!instance.scoreOnly && !_.sumBy(playerStats, "stats.TK")) {
 				return 2;
 			} else {
 				return 3;
