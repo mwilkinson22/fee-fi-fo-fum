@@ -110,28 +110,22 @@ class AdminTeamSquadBulkAdder extends Component {
 					if (result.exact.length === 0) {
 						result.approx = _.chain(peopleList)
 							.filter(p => {
-								let match = false;
-
 								//Remove all non alphanumeric
-								match =
+								let match =
 									p.name.toLowerCase().replace(/[^A-Za-z]/gi, "") ==
 									result.name.toLowerCase().replace(/[^A-Za-z]/gi, "");
 
-								//Try with just the last name
+								//Try with first initial and last name
 								if (!match) {
-									result.name
-										.toLowerCase()
-										.split(" ")
-										.map(str => {
-											p.name
-												.toLowerCase()
-												.split(" ")
-												.map(name => {
-													if (name === str) {
-														match = true;
-													}
-												});
-										});
+									const firstInitial = result.name.substr(0, 1);
+									const lastName = result.name.split(" ").pop();
+									const regex = new RegExp(
+										`^${firstInitial}.+ ${lastName}$`,
+										"ig"
+									);
+									if (p.name.match(regex)) {
+										match = true;
+									}
 								}
 
 								return match;
@@ -149,7 +143,7 @@ class AdminTeamSquadBulkAdder extends Component {
 				.sortBy(p => Number(p.number) || 9999)
 				.value();
 
-			this.setState({ parsedList: parsedList });
+			this.setState({ parsedList });
 		}
 	}
 
