@@ -193,7 +193,7 @@ class LeagueTable extends Component {
 						value = team.name.short;
 						break;
 					case "team-badge":
-						value = <TeamImage team={team} />;
+						value = <TeamImage team={team} variant="dark" />; //In case of rowClass, we overwrite this later
 						break;
 					case "Pts":
 						value = teamHasAdjustment ? teamHasAdjustment.adjustment : 0;
@@ -253,7 +253,7 @@ class LeagueTable extends Component {
 
 	formatRowsForTable(rows) {
 		const { instance } = this.state;
-		const { localTeam } = this.props;
+		const { localTeam, teamList } = this.props;
 		let { highlightTeams } = this.props;
 		if (!highlightTeams) {
 			highlightTeams = [localTeam];
@@ -283,6 +283,8 @@ class LeagueTable extends Component {
 				if (highlightTeams.indexOf(row.key) > -1) {
 					row.className = "highlight";
 				} else if (rowClass) {
+					const team = teamList[row.key];
+					row.data["team-badge"].content = <TeamImage team={team} variant="light" />;
 					row.className = rowClass.className;
 				}
 				return row;
