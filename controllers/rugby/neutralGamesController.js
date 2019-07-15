@@ -1,7 +1,6 @@
 //Mongoose
 import mongoose from "mongoose";
 const collectionName = "games";
-const Game = mongoose.model(collectionName);
 const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 
@@ -14,6 +13,7 @@ import axios from "axios";
 const { localTeam } = require("../../config/keys");
 
 //Helpers
+import { parseExternalGame } from "~/helpers/gameHelper";
 import { crawlFixtures } from "./gamesController";
 
 //Getters
@@ -78,52 +78,28 @@ export async function crawlAndUpdate(req, res) {
 		{
 			externalSync: true,
 			externalId: { $ne: null },
-			externalSite: { $ne: null },
 			date: {
 				$gt: new Date().addDays(-30),
 				$lte: new Date().addHours(-2)
 			},
 			$or: [{ homePoints: null }, { awayPoints: null }]
 		},
-		"_id externalId externalSite"
-	).lean();
+		"_id externalId _competition"
+	).populate({
+		path: "_competition",
+		select: "_parentCompetition externalCompId externalDivId externalReportPage",
+		populate: {
+			path: "_parentCompetition",
+			select: "webcrawlFormat webcrawlUrl"
+		}
+	});
 
 	const values = {};
 
 	for (const game of games) {
-		const { _id, externalId, externalSite } = game;
-		let url;
-		switch (externalSite) {
-			case "RFL":
-				url = `https://www.rugby-league.com/challengecup/match_report/${externalId}`;
-				break;
-			case "SL":
-				url = `https://www.superleague.co.uk/match-centre/report/${externalId}`;
-				break;
-			default:
-				continue;
-		}
-
-		const { data } = await axios.get(url);
-		const html = parse(data);
-
-		if (externalSite === "SL") {
-			const [homePoints, awayPoints] = html.querySelectorAll(".matchreportheader .col-2 h2");
-			values[_id] = {
-				homePoints: homePoints.text.trim(),
-				awayPoints: awayPoints.text.trim()
-			};
-		}
-
-		if (externalSite === "RFL") {
-			const header = html.querySelector(".overview h3");
-			if (header) {
-				const [homePoints, awayPoints] = header.text.match(/\d+/gi);
-				values[_id] = {
-					homePoints,
-					awayPoints
-				};
-			}
+		const results = await parseExternalGame(game, true);
+		if (results) {
+			values[game._id] = results;
 		}
 	}
 	await updateGames({ body: values }, res);
