@@ -334,6 +334,62 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 				}
 				break;
 			case "RFL":
+				//This currently just loads scores, as there are no opta stats on the rfl site
+				for (const ha in teams) {
+					const team = teams[ha];
+
+					//Create nested object
+					results[team] = {};
+
+					//Get Rows
+					const lists = html.querySelectorAll(".tryScorersRow ul");
+					const rows = lists[ha == "home" ? 0 : 1].querySelectorAll("li");
+					for (const row of rows) {
+						const title = row.querySelector("h4 span");
+						if (title) {
+							let stat;
+							//Get Key From Text
+							switch (title.rawText.trim()) {
+								case "Tries":
+									stat = "T";
+									break;
+								case "Goals":
+									stat = "G";
+									break;
+								case "Drop Goals":
+									stat = "DG";
+									break;
+							}
+							const statList = row.text
+								.replace(new RegExp(`^${title.rawText.trim()}`, "gi"), "")
+								.trim();
+							if (stat && statList.length) {
+								statList.split(",").forEach(s => {
+									let [name, count] = s.split(/(?=\(\d)/);
+
+									//Get Name
+									name = name.trim();
+									if (!name) {
+										return true;
+									}
+
+									//Get Total
+									let total;
+									if (count) {
+										total = Number(count.replace(/\D/gi, ""));
+									} else {
+										total = 1;
+									}
+
+									if (!results[team][name]) {
+										results[team][name] = { stats: {} };
+									}
+									results[team][name].stats[stat] = total;
+								});
+							}
+						}
+					}
+				}
 				break;
 			default:
 				return false;
