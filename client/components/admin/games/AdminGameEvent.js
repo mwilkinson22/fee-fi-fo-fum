@@ -6,18 +6,14 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
-import {
-	postGameEvent,
-	previewPlayerEventImage,
-	deleteGameEvent
-} from "~/client/actions/gamesActions";
+import { postGameEvent, previewPlayerEventImage } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Components
 import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
-import PopUpDialog from "../../PopUpDialog";
+import AdminGameEventList from "./AdminGameEventList";
 
 //Constants
 import gameEvents from "~/constants/gameEvents";
@@ -68,7 +64,7 @@ class AdminGameEvent extends BasicForm {
 	}
 
 	getDefaults() {
-		const { hashtags, events } = this.props.game;
+		const { hashtags } = this.props.game;
 
 		return {
 			event: {
@@ -78,7 +74,7 @@ class AdminGameEvent extends BasicForm {
 			player: "",
 			postTweet: true,
 			tweet: hashtags ? `\n\n${hashtags.map(t => `#${t}`).join(" ")}` : "",
-			replyTweet: getMostRecentTweet(events)
+			replyTweet: ""
 		};
 	}
 
@@ -111,16 +107,6 @@ class AdminGameEvent extends BasicForm {
 				});
 			}
 		}
-	}
-
-	async onDelete(formikActions, deleteTweet, removeFromDb) {
-		const { game, deleteGameEvent } = this.props;
-		const { deleteEvent } = this.state;
-
-		const events = await deleteGameEvent(game._id, deleteEvent, { deleteTweet, removeFromDb });
-		formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
-
-		await this.setState({ deleteEvent: undefined });
 	}
 
 	async generatePreview(fValues) {
@@ -165,7 +151,7 @@ class AdminGameEvent extends BasicForm {
 
 	renderFields(formikProps) {
 		const { localTeam, game, peopleList, teamList } = this.props;
-		const { isPosting, validationSchema } = this.state;
+		const { isPosting } = this.state;
 		const { event, postTweet } = formikProps.values;
 		const eventTypes = this.getEventTypes();
 		const fields = [
@@ -223,104 +209,12 @@ class AdminGameEvent extends BasicForm {
 
 					{this.renderPreview()}
 				</div>
-				{this.renderEventList(formikProps)}
+				<AdminGameEventList
+					game={game}
+					onReply={val => formikProps.setFieldValue("replyTweet", val)}
+				/>
 			</Form>
 		);
-	}
-
-	renderEventList(formikProps) {
-		const { events, eligiblePlayers } = this.props.game;
-		const playerList = _.chain(eligiblePlayers)
-			.map((players, team) => {
-				return _.map(players, p => ({ team, ...p }));
-			})
-			.flatten()
-			.value();
-
-		if (events && events.length) {
-			const renderedList = _.chain(events)
-				.sortBy("date")
-				.reverse()
-				.map(e => {
-					const { _id, event, _player, tweet_text, tweet_image, tweet_id, date } = e;
-
-					//Get Player
-					let player;
-					if (_player) {
-						player = _.find(playerList, p => p._player._id == _player)._player.name
-							.full;
-					}
-
-					//Get Tweet Image
-					let image;
-					if (tweet_image) {
-						image = (
-							<div
-								key="image"
-								className={`image ${
-									this.state.visibleEventImage === _id ? "visible" : ""
-								}`}
-							>
-								<img src={tweet_image} />
-							</div>
-						);
-					}
-					let replySection = <div className="action empty" key="no-reply" />;
-					if (tweet_id) {
-						replySection = (
-							<div
-								key="reply"
-								className="action reply"
-								onClick={() => formikProps.setFieldValue("replyTweet", tweet_id)}
-							>
-								↩
-							</div>
-						);
-					}
-					return [
-						replySection,
-						<div
-							key="delete"
-							className="action delete"
-							onClick={() => this.setState({ deleteEvent: _id })}
-						>
-							🛇
-						</div>,
-						<div
-							key="date"
-							className="date"
-							onClick={() => this.setState({ visibleEventImage: _id })}
-						>
-							{new Date(date).toString("HH:mm:ss")}
-						</div>,
-						<div
-							key="event-type"
-							className="event-type"
-							onClick={() => this.setState({ visibleEventImage: _id })}
-						>
-							{gameEvents[event].label}
-							{player ? ` (${player})` : ""}
-						</div>,
-						<div
-							key="tweet-text"
-							className="tweet-text"
-							onClick={() => this.setState({ visibleEventImage: _id })}
-						>
-							{tweet_text}
-						</div>,
-						image
-					];
-				})
-				.value();
-			return (
-				<div className="form-card event-list">
-					{renderedList}
-					{this.renderDeleteEventDialog(formikProps)}
-				</div>
-			);
-		} else {
-			return null;
-		}
 	}
 
 	renderPreview() {
@@ -331,85 +225,6 @@ class AdminGameEvent extends BasicForm {
 			return <LoadingPage className="full-span" />;
 		} else {
 			return null;
-		}
-	}
-
-	renderDeleteEventDialog(formikProps) {
-		const { events } = this.props.game;
-		const { deleteEvent } = this.state;
-		const eventObject = _.find(events, e => e._id == deleteEvent);
-		if (eventObject) {
-			const { event, tweet_id, tweet_text, inDatabase } = eventObject;
-			const header = event === "none" ? `Remove Tweet` : `Undo ${gameEvents[event].label}`;
-			let subHeader;
-			if (tweet_text) {
-				subHeader = (
-					<p>
-						<em>{tweet_text}</em>
-					</p>
-				);
-			}
-			const buttons = [];
-
-			if (inDatabase) {
-				buttons.push(
-					<button
-						type="button"
-						onClick={() => this.onDelete(formikProps, false, true)}
-						className="delete"
-						key="stat"
-					>
-						Delete Stat
-					</button>
-				);
-			}
-
-			if (tweet_id) {
-				buttons.push(
-					<button
-						type="button"
-						onClick={() => this.onDelete(formikProps, true, false)}
-						className="delete"
-						key="tweet"
-					>
-						Delete Tweet
-					</button>
-				);
-			}
-
-			if (inDatabase && tweet_id) {
-				buttons.push(
-					<button
-						type="button"
-						onClick={() => this.onDelete(formikProps, true, true)}
-						className="delete"
-						key="both"
-					>
-						Delete Both
-					</button>
-				);
-			}
-
-			buttons.push(
-				<button
-					type="button"
-					key="cancel"
-					onClick={() => this.setState({ deleteEvent: undefined })}
-				>
-					Cancel
-				</button>
-			);
-
-			return (
-				<PopUpDialog
-					className="event-delete-dialog"
-					onDestroy={() => this.setState({ deleteEvent: undefined })}
-				>
-					<h6>{header}</h6>
-					{subHeader}
-					{buttons}
-				</PopUpDialog>
-			);
 		}
 	}
 
@@ -442,5 +257,5 @@ function mapStateToProps({ config, people, teams }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage, deleteGameEvent }
+	{ fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage }
 )(AdminGameEvent);
