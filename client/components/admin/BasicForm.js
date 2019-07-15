@@ -86,7 +86,7 @@ export default class BasicForm extends Component {
 	}
 
 	renderField(field) {
-		const { label, type, name, ...props } = field;
+		const { label, type, name, disableFastField, ...props } = field;
 
 		//Get Render Method
 		const render = formikProps => {
@@ -136,7 +136,7 @@ export default class BasicForm extends Component {
 			render
 		};
 
-		if (field.disableFastField) {
+		if (disableFastField) {
 			return <Field {...fieldProps} />;
 		} else {
 			return <FastField {...fieldProps} />;
