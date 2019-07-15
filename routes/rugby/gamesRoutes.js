@@ -6,7 +6,6 @@ import requireAdmin from "../../middlewares/requireAdmin";
 
 module.exports = app => {
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
-	app.post("/api/games/:_id/images/pregame", requireAdmin, gamesController.postPregameImage);
 	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);
 	app.post("/api/games/:_id/images/squad", requireAdmin, gamesController.postSquadImage);
 

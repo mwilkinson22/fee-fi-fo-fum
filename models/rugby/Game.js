@@ -207,31 +207,7 @@ gameSchema.query.crawl = function() {
 		});
 };
 
-gameSchema.query.pregameImage = function() {
-	return this.select(
-		"hashtags customHashtags pregameSquads isAway date _ground _opposition _competition _teamType images"
-	)
-		.populate({ path: "pregameSquads.squad", select: "name image gender" })
-		.populate({
-			path: "_ground",
-			select: "name address._city",
-			populate: { path: "address._city", select: "name" }
-		})
-		.populate({
-			path: "_competition",
-			select: "name _parentCompetition instances instance hashtagPrefix",
-			populate: {
-				path: "_parentCompetition",
-				select: "name useAllSquads"
-			}
-		})
-		.populate({
-			path: "_opposition",
-			select: "hashtagPrefix"
-		});
-};
-
-gameSchema.query.gameDayImage = function() {
+gameSchema.query.eventImage = function() {
 	return this.select({
 		hashtags: 1,
 		customHashtags: 1,
@@ -246,16 +222,19 @@ gameSchema.query.gameDayImage = function() {
 		customTitle: 1,
 		playerStats: 1,
 		squadsAnnounced: 1,
+		pregameSquads: 1,
 		extraTime: 1,
 		events: 1
 	})
+		.populate({ path: "pregameSquads.squad", select: "name image gender" })
 		.populate({
 			path: "playerStats._player",
 			select: "name nickname displayNicknameInCanvases squadNameWhenDuplicate image gender"
 		})
 		.populate({
 			path: "_ground",
-			select: "name"
+			select: "name address._city",
+			populate: { path: "address._city", select: "name" }
 		})
 		.populate({
 			path: "_competition",

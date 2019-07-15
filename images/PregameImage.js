@@ -62,6 +62,7 @@ export default class PregameImage extends Canvas {
 
 		//Variables
 		this.game = game;
+		console.log(options);
 		this.options = {
 			singleTeam: options.singleTeam, //False, or a team id
 			playerForImage: options.playerForImage !== "false" && options.playerForImage,

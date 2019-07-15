@@ -323,7 +323,7 @@ export async function handleEvent(req, res) {
 	}
 
 	//If the event is valid
-	let game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
+	let game = await validateGame(_id, res, Game.findById(_id).eventImage());
 	if (game) {
 		const { postTweet, tweet, replyTweet } = req.body;
 
@@ -347,7 +347,7 @@ export async function handleEvent(req, res) {
 					new: true,
 					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
 				}
-			).gameDayImage();
+			).eventImage();
 		} else if (event == "extraTime") {
 			eventObject.inDatabase = true;
 			game.extraTime = true;
@@ -357,9 +357,9 @@ export async function handleEvent(req, res) {
 		//Post Tweet
 		if (postTweet) {
 			//Create Image
-			let image;
 			let media_ids = null;
 			if (event !== "none") {
+				let image;
 				if (gameEvents[event].isPlayerEvent) {
 					//Check for hat-trick
 					let imageEvent = event;
@@ -373,15 +373,21 @@ export async function handleEvent(req, res) {
 							imageEvent = "HT";
 						}
 					}
-
-					const imageModel = await generatePlayerEventImage(player, imageEvent, game);
-					image = await imageModel.render(true);
+					image = await generatePlayerEventImage(player, imageEvent, game);
 				} else {
-					const imageModel = await new GameEventImage(game, event);
-					image = await imageModel.render(true);
+					switch (event) {
+						case "pregameSquad":
+							image = await generatePregameImage(game, req.body.imageOptions);
+							break;
+						default:
+							image = await new GameEventImage(game, event);
+							break;
+					}
 				}
+
+				const media_data = image ? await image.render(true) : null;
 				const upload = await twitter.post("media/upload", {
-					media_data: image
+					media_data
 				});
 				const { media_id_string } = upload.data;
 				media_ids = [media_id_string];
@@ -554,43 +560,20 @@ export async function fetchExternalGame(req, res) {
 }
 
 //Image Generators
-async function generatePregameImage(game, forTwitter, options = {}) {
+async function generatePregameImage(game, options = {}) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
-	const imageClass = new PregameImage(gameWithSquads, options);
-	const image = await imageClass.render(forTwitter);
-	return image;
+	return new PregameImage(gameWithSquads, options);
 }
 
 export async function fetchPregameImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await validateGame(_id, res, Game.findById(_id).pregameImage());
+	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
 
 	if (game) {
-		const image = await generatePregameImage(game, false, req.query);
+		const imageModel = await generatePregameImage(game, req.query);
+		const image = imageModel.render(false);
 		res.send(image);
-	}
-}
-
-export async function postPregameImage(req, res) {
-	const { _id } = req.params;
-
-	const game = await validateGame(_id, res, Game.findById(_id).pregameImage());
-
-	if (game) {
-		const image = await generatePregameImage(game, true, req.query);
-		const upload = await twitter.post("media/upload", {
-			media_data: image
-		});
-		const { media_id_string } = upload.data;
-		const tweet = await twitter.post("statuses/update", {
-			status: req.body.tweet,
-			in_reply_to_status_id: req.body.replyTweet,
-			auto_populate_reply_metadata: true,
-			media_ids: [media_id_string]
-		});
-
-		res.send(tweet);
 	}
 }
 
@@ -605,7 +588,7 @@ export async function fetchSquadImage(req, res) {
 	const { _id } = req.params;
 	const { showOpposition } = req.query;
 
-	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
+	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
 
 	if (game) {
 		const image = await generateSquadImage(game, showOpposition === "true", false);
@@ -616,7 +599,7 @@ export async function fetchSquadImage(req, res) {
 export async function postSquadImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await validateGame(_id, res, Game.findById(_id).gameDayImage());
+	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
 
 	if (game) {
 		const image = await generateSquadImage(game, req.body.showOpposition, true);
@@ -653,7 +636,7 @@ export async function fetchEventImage(req, res) {
 	} else if (!player) {
 		res.status(400).send("No player selected");
 	} else {
-		const game = await Game.findById(_id).gameDayImage();
+		const game = await Game.findById(_id).eventImage();
 		if (gameEvents[event].isPlayerEvent) {
 			const image = await generatePlayerEventImage(player, event, game);
 			const output = await image.render(false);

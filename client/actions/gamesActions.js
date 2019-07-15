@@ -108,11 +108,6 @@ export const getPregameImage = (id, query = "") => async (dispatch, getState, ap
 	return res.data;
 };
 
-export const tweetPregameImage = (id, query, tweetData) => async (dispatch, getState, api) => {
-	await api.post(`/games/${id}/images/pregame${query}`, tweetData);
-	toast.success("Tweet Sent!");
-};
-
 export const getSquadImage = (id, showOpposition) => async (dispatch, getState, api) => {
 	const res = await api.get(
 		`/games/${id}/images/squad?showOpposition=${showOpposition.toString()}`

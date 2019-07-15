@@ -7,10 +7,11 @@ import selectStyling from "~/constants/selectStyling";
 
 //Components
 import LoadingPage from "../../LoadingPage";
+import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import { getPregameImage, tweetPregameImage } from "../../../actions/gamesActions";
+import { getPregameImage, postGameEvent } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
 //Helpers
@@ -203,18 +204,21 @@ class AdminGamePregameImage extends Component {
 	async generatePreview() {
 		this.setState({ previewImage: false });
 		const { game, getPregameImage } = this.props;
-		const image = await getPregameImage(game._id, this.optionsToQuery());
+		const image = await getPregameImage(game._id, this.handleImageOptions(true));
 		this.setState({ previewImage: image });
 	}
 
 	postTweet() {
 		this.setState({ tweetSent: true });
-		const { game, tweetPregameImage } = this.props;
-		tweetPregameImage(
-			game._id,
-			this.optionsToQuery(),
-			_.pick(this.state, ["tweet", "replyTweet"])
-		);
+		const { game, postGameEvent } = this.props;
+		const { tweet, replyTweet } = this.state;
+		postGameEvent(game._id, {
+			tweet,
+			replyTweet,
+			postTweet: true,
+			event: "pregameSquad",
+			imageOptions: this.handleImageOptions(false)
+		});
 	}
 
 	renderPreview() {
@@ -228,7 +232,7 @@ class AdminGamePregameImage extends Component {
 		}
 	}
 
-	optionsToQuery() {
+	handleImageOptions(toString) {
 		const { playerForImage, playersToHighlight, team } = this.state;
 		const query = {
 			playerForImage: playerForImage.value,
@@ -238,9 +242,12 @@ class AdminGamePregameImage extends Component {
 			query.singleTeam = team;
 		}
 
-		const queryStr = _.map(query, (val, key) => `${key}=${val}`).join("&");
-
-		return `?${queryStr}`;
+		if (toString) {
+			const queryStr = _.map(query, (val, key) => `${key}=${val}`).join("&");
+			return `?${queryStr}`;
+		} else {
+			return query;
+		}
 	}
 
 	renderTweetComposer() {
@@ -310,6 +317,10 @@ class AdminGamePregameImage extends Component {
 					</div>
 					{this.renderPreview()}
 				</div>
+				<AdminGameEventList
+					game={game}
+					onReply={replyTweet => this.setState({ replyTweet })}
+				/>
 			</div>
 		);
 	}
@@ -323,5 +334,5 @@ function mapStateToProps({ config, teams }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, getPregameImage, tweetPregameImage }
+	{ fetchTeam, getPregameImage, postGameEvent }
 )(AdminGamePregameImage);
