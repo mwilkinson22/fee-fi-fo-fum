@@ -85,7 +85,7 @@ class AdminGameEventList extends Component {
 				className="date"
 				onClick={() => this.setState({ visibleEventImage: _id })}
 			>
-				{new Date(date).toString("HH:mm:ss")}
+				{new Date(date).toString("ddS MMM HH:mm:ss")}
 			</div>,
 			<div
 				key="event-type"
