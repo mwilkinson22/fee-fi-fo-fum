@@ -218,13 +218,7 @@ AdminGameEventList.propTypes = {
 	onReply: PropTypes.func.isRequired
 };
 
-AdminGameEventList.defaultProps = {};
-
-function mapStateToProps(props) {
-	return {};
-}
-
 export default connect(
-	mapStateToProps,
+	null,
 	{ deleteGameEvent }
 )(AdminGameEventList);
