@@ -339,7 +339,7 @@ class AdminNeutralGamePage extends BasicForm {
 									<Form>
 										{this.renderDeleteButtons()}
 										<div className="form-card grid">
-											{this.renderFieldGroup(fields)}
+											{this.renderFieldGroup(fields, true)}
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">Save</button>

@@ -64,12 +64,13 @@ export default class BasicForm extends Component {
 		});
 	}
 
-	renderFieldGroup(fields) {
+	renderFieldGroup(fields, disableFastField = false) {
 		return _.chain(this.processFieldProperties(fields))
 			.map(field => {
 				const { name, label, required } = field;
 
-				const renderedField = field.renderedComponent || this.renderField(field);
+				const renderedField =
+					field.renderedComponent || this.renderField({ disableFastField, ...field });
 
 				return [
 					<label key={`${name}-label`} className={required ? "required" : ""}>
