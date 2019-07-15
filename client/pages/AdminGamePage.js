@@ -128,10 +128,14 @@ class AdminGamePage extends Component {
 		if (status >= 2) {
 			submenuItems.push(
 				{ label: "Add In-Game Event", value: "event", group: 1 },
-				{ label: "Scores", value: "scores", group: 1 },
-				{ label: "Stats", value: "stats", group: 2 },
-				{ label: "Man of the Match", value: "motm", group: 2 }
+				{ label: "Scores", value: "scores", group: 1 }
 			);
+
+			if (!_competition.instance.scoreOnly) {
+				submenuItems.push({ label: "Stats", value: "stats", group: 2 });
+			}
+
+			submenuItems.push({ label: "Man of the Match", value: "motm", group: 2 });
 			if (manOfSteelPoints) {
 				submenuItems.push({ label: "Man of Steel", value: "man-of-steel", group: 2 });
 			}
@@ -227,7 +231,13 @@ class AdminGamePage extends Component {
 					<Route
 						path="/admin/game/:slug/stats"
 						exact
-						render={() => <AdminGameStats game={game} scoreOnly={false} />}
+						render={() =>
+							game._competition.instance.scoreOnly ? (
+								<NotFoundPage />
+							) : (
+								<AdminGameStats game={game} scoreOnly={false} />
+							)
+						}
 					/>
 					<Route
 						path="/admin/game/:slug/scores"
