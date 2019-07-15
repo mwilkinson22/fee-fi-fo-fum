@@ -62,7 +62,7 @@ class AdminGameOverview extends BasicForm {
 			peopleList
 		};
 
-		if (game && (!prevState.game || game._id != prevState.game._id)) {
+		if (!game || (!prevState.game || game._id != prevState.game._id)) {
 			let date;
 			if (game && game.status > 0) {
 				const year = new Date(game.date).getFullYear();
@@ -287,6 +287,7 @@ class AdminGameOverview extends BasicForm {
 			groundList,
 			referees
 		} = this.getOptions(formikProps);
+
 		const awayOptions = [{ value: false, label: "Home" }, { value: true, label: "Away" }];
 		const tvOptions = [
 			{ value: "", label: "None" },
@@ -296,11 +297,16 @@ class AdminGameOverview extends BasicForm {
 
 		//Fields
 		const mainFields = [
-			{ name: "date", type: "date" },
+			{ name: "date", type: "date", disableFastField: true },
 			{ name: "time", type: "time" },
-			{ name: "_teamType", type: "Select", options: teamTypes },
-			{ name: "_competition", type: "Select", options: competitionSegmentList },
-			{ name: "_opposition", type: "Select", options: teamList },
+			{ name: "_teamType", type: "Select", options: teamTypes, disableFastField: true },
+			{
+				name: "_competition",
+				type: "Select",
+				options: competitionSegmentList,
+				disableFastField: true
+			},
+			{ name: "_opposition", type: "Select", options: teamList, disableFastField: true },
 			{ name: "round", type: "number" }
 		];
 		const venueFields = [
@@ -389,7 +395,7 @@ class AdminGameOverview extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ games, teams, competitions, grounds, people }) {
+function mapStateToProps({ teams, competitions, grounds, people }) {
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { groundList } = grounds;
