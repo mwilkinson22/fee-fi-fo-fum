@@ -13,5 +13,7 @@ export default {
 	kickOff: { label: "Kick Off", isPlayerEvent: false },
 	halfTime: { label: "Half Time", isPlayerEvent: false },
 	fullTime: { label: "Full Time", isPlayerEvent: false },
-	extraTime: { label: "Extra Time", isPlayerEvent: false }
+	extraTime: { label: "Extra Time", isPlayerEvent: false },
+	pregameSquad: { label: "Pregame Squad", isPlayerEvent: false },
+	matchSquad: { label: "Match Squad", isPlayerEvent: false }
 };
