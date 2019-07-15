@@ -172,14 +172,13 @@ class AdminGameOverview extends BasicForm {
 		}
 	}
 
-	getOptions(formikProps) {
+	getOptions(values) {
 		const options = {};
 		let { teamTypes, teamList, competitionSegmentList, groundList, peopleList } = this.state;
 		const { game } = this.state;
+		values = values || game;
 		//Filter
-		if (formikProps || game) {
-			const values = formikProps ? formikProps.values : null;
-
+		if (values) {
 			//Filter Competitions on Team Type and Year
 			const filterDate = values ? values.date : game.date;
 			const filterTeamType = values ? values._teamType.value : game._teamType;
@@ -276,6 +275,22 @@ class AdminGameOverview extends BasicForm {
 		return options;
 	}
 
+	handleDependentFieldChange(formikProps, name, value) {
+		const values = { ...formikProps.values, [name]: value };
+		const options = this.getOptions(values);
+
+		formikProps.setFieldValue(name, value);
+		formikProps.setFieldTouched(name, true);
+
+		if (!_.find(options.competitionSegmentList, o => o.value == values._competition.value)) {
+			formikProps.setFieldValue("_competition", "");
+		}
+
+		if (!_.find(options.teamList, o => o.value == values._opposition.value)) {
+			formikProps.setFieldValue("_opposition", "");
+		}
+	}
+
 	renderFields(formikProps) {
 		const { game } = this.state;
 
@@ -286,7 +301,7 @@ class AdminGameOverview extends BasicForm {
 			teamList,
 			groundList,
 			referees
-		} = this.getOptions(formikProps);
+		} = this.getOptions(formikProps.values);
 
 		const awayOptions = [{ value: false, label: "Home" }, { value: true, label: "Away" }];
 		const tvOptions = [
@@ -297,14 +312,25 @@ class AdminGameOverview extends BasicForm {
 
 		//Fields
 		const mainFields = [
-			{ name: "date", type: "date", disableFastField: true },
+			{
+				name: "date",
+				type: "date",
+				disableFastField: true
+			},
 			{ name: "time", type: "time" },
-			{ name: "_teamType", type: "Select", options: teamTypes, disableFastField: true },
+			{
+				name: "_teamType",
+				type: "Select",
+				options: teamTypes,
+				disableFastField: true,
+				onChange: opt => this.handleDependentFieldChange(formikProps, "_teamType", opt)
+			},
 			{
 				name: "_competition",
 				type: "Select",
 				options: competitionSegmentList,
-				disableFastField: true
+				disableFastField: true,
+				onChange: opt => this.handleDependentFieldChange(formikProps, "_competition", opt)
 			},
 			{ name: "_opposition", type: "Select", options: teamList, disableFastField: true },
 			{ name: "round", type: "number" }
