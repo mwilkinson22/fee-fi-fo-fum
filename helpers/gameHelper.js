@@ -247,7 +247,37 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 	const { data } = await axios.get(url);
 	const html = parse(data);
 
+	//Get Teams
+	const teams = _.chain(game.playerStats)
+		.map("_team")
+		.uniq()
+		.map(team => {
+			let isHome = team != game._opposition;
+			if (game.isAway) {
+				isHome = !isHome;
+			}
+			return [isHome ? "home" : "away", team];
+		})
+		.fromPairs()
+		.value();
+
 	if (justGetScores) {
+		let results;
+		if (webcrawlFormat == "SL") {
+			results = html
+				.querySelectorAll(".matchreportheader .col-2 h2")
+				.map(e => Number(e.text));
+		} else if (webcrawlFormat == "RFL") {
+			results = html
+				.querySelector(".overview h3")
+				.text.match(/\d+/g)
+				.map(Number);
+		}
+
+		return {
+			homePoints: results[0],
+			awayPoints: results[1]
+		};
 	} else {
 		//Get Stat Types
 		const statTypeIndexes = _.chain(playerStatTypes)
@@ -264,20 +294,6 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 			.uniq()
 			//Convert back to object
 			.map(key => [key, null])
-			.fromPairs()
-			.value();
-
-		//Get Teams
-		const teams = _.chain(game.playerStats)
-			.map("_team")
-			.uniq()
-			.map(team => {
-				let isHome = team != game._opposition;
-				if (game.isAway) {
-					isHome = !isHome;
-				}
-				return [isHome ? "home" : "away", team];
-			})
 			.fromPairs()
 			.value();
 
