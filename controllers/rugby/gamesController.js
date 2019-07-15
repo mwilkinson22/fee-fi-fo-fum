@@ -578,7 +578,7 @@ export async function fetchPregameImage(req, res) {
 
 	if (game) {
 		const imageModel = await generatePregameImage(game, req.query);
-		const image = imageModel.render(false);
+		const image = await imageModel.render(false);
 		res.send(image);
 	}
 }
