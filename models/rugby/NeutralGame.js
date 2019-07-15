@@ -10,7 +10,6 @@ const neutralGameSchema = new Schema({
 	awayPoints: { type: Number, default: null },
 	_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes" },
 	externalId: { type: Number, default: null },
-	externalSite: { type: String, enum: ["RFL", "SL", null], default: null },
 	externalSync: { type: Boolean, default: false }
 });
 
