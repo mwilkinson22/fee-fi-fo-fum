@@ -115,11 +115,6 @@ export const getSquadImage = (id, showOpposition) => async (dispatch, getState, 
 	return res.data;
 };
 
-export const tweetSquadImage = (id, options) => async (dispatch, getState, api) => {
-	await api.post(`/games/${id}/images/squad`, options);
-	toast.success("Tweet Sent!");
-};
-
 export const previewPlayerEventImage = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/event/imagePreview`, values);
 	return res.data;

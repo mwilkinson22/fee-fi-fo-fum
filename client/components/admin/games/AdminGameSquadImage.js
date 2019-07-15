@@ -7,10 +7,11 @@ import selectStyling from "~/constants/selectStyling";
 
 //Components
 import LoadingPage from "../../LoadingPage";
+import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import { getSquadImage, tweetSquadImage } from "../../../actions/gamesActions";
+import { getSquadImage, postGameEvent } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
 class AdminGameSquadImage extends Component {
@@ -42,7 +43,7 @@ class AdminGameSquadImage extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { game, fullTeams, localTeam } = nextProps;
-		const newState = {};
+		const newState = { game };
 
 		let teams = [localTeam, game._opposition._id];
 
@@ -76,7 +77,7 @@ class AdminGameSquadImage extends Component {
 	}
 
 	renderTweetComposer() {
-		const { teams, tweet, selectedTeam } = this.state;
+		const { teams, tweet } = this.state;
 		const { game, localTeam } = this.props;
 		const localSquad = _.find(
 			teams[localTeam].squads,
@@ -111,16 +112,21 @@ class AdminGameSquadImage extends Component {
 	}
 
 	async postTweet() {
-		const { game, tweetSquadImage, localTeam } = this.props;
+		const { game, postGameEvent, localTeam } = this.props;
+		const { tweet, replyTweet, selectedTeam } = this.state;
 		this.setState({ tweetSent: true });
-		const options = _.pick(this.state, ["tweet", "replyTweet"]);
-		options.showOpposition = this.state.selectedTeam.value != localTeam;
-		tweetSquadImage(game._id, options);
+		const options = {
+			tweet,
+			replyTweet,
+			postTweet: true,
+			event: "matchSquad",
+			showOpposition: selectedTeam.value != localTeam
+		};
+		postGameEvent(game._id, options);
 	}
 
 	render() {
-		const { teams, teamOptions } = this.state;
-		const { game } = this.props;
+		const { teams, teamOptions, game } = this.state;
 
 		if (game === undefined || teams === undefined) {
 			return <LoadingPage />;
@@ -164,6 +170,10 @@ class AdminGameSquadImage extends Component {
 					</div>
 					{this.renderPreview()}
 				</div>
+				<AdminGameEventList
+					game={game}
+					onReply={replyTweet => this.setState({ replyTweet })}
+				/>
 			</div>
 		);
 	}
@@ -177,5 +187,5 @@ function mapStateToProps({ config, teams }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, getSquadImage, tweetSquadImage }
+	{ fetchTeam, getSquadImage, postGameEvent }
 )(AdminGameSquadImage);

@@ -379,6 +379,12 @@ export async function handleEvent(req, res) {
 						case "pregameSquad":
 							image = await generatePregameImage(game, req.body.imageOptions);
 							break;
+						case "matchSquad":
+							image = await generateSquadImage(
+								game,
+								req.body.showOpposition === "true"
+							);
+							break;
 						default:
 							image = await new GameEventImage(game, event);
 							break;
@@ -577,11 +583,9 @@ export async function fetchPregameImage(req, res) {
 	}
 }
 
-async function generateSquadImage(game, showOpposition, forTwitter) {
+async function generateSquadImage(game, showOpposition) {
 	const [gameWithSquads] = await addEligiblePlayers([game]);
-	const imageClass = new SquadImage(gameWithSquads, { showOpposition });
-	const image = await imageClass.render(forTwitter);
-	return image;
+	return new SquadImage(gameWithSquads, { showOpposition });
 }
 
 export async function fetchSquadImage(req, res) {
@@ -591,30 +595,9 @@ export async function fetchSquadImage(req, res) {
 	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
 
 	if (game) {
-		const image = await generateSquadImage(game, showOpposition === "true", false);
+		const imageClass = await generateSquadImage(game, showOpposition === "true");
+		const image = await imageClass.render(false);
 		res.send(image);
-	}
-}
-
-export async function postSquadImage(req, res) {
-	const { _id } = req.params;
-
-	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
-
-	if (game) {
-		const image = await generateSquadImage(game, req.body.showOpposition, true);
-		const upload = await twitter.post("media/upload", {
-			media_data: image
-		});
-		const { media_id_string } = upload.data;
-		const tweet = await twitter.post("statuses/update", {
-			status: req.body.tweet,
-			in_reply_to_status_id: req.body.replyTweet,
-			auto_populate_reply_metadata: true,
-			media_ids: [media_id_string]
-		});
-
-		res.send(tweet);
 	}
 }
 

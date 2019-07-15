@@ -5,11 +5,9 @@ import * as gamesController from "../../controllers/rugby/gamesController";
 import requireAdmin from "../../middlewares/requireAdmin";
 
 module.exports = app => {
+	//Getters
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
 	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);
-	app.post("/api/games/:_id/images/squad", requireAdmin, gamesController.postSquadImage);
-
-	//Getters
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
 	app.get("/api/games/:ids", gamesController.getGames);
 	app.get("/api/games", gamesController.getList);
