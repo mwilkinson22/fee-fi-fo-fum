@@ -61,7 +61,9 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 		} else {
 			toast.success("Game Updated");
 		}
-		return res.data.fullGames[id].events;
+
+		const event = _.orderBy(res.data.fullGames[id].events, ["date"], ["desc"])[0];
+		return event;
 	} else {
 		return false;
 	}

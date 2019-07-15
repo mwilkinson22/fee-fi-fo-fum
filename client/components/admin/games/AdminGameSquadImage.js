@@ -114,7 +114,8 @@ class AdminGameSquadImage extends Component {
 	async postTweet() {
 		const { game, postGameEvent, localTeam } = this.props;
 		const { tweet, replyTweet, selectedTeam } = this.state;
-		this.setState({ tweetSent: true });
+		console.log(selectedTeam.value != localTeam);
+		this.setState({ tweetSending: true });
 		const options = {
 			tweet,
 			replyTweet,
@@ -122,7 +123,8 @@ class AdminGameSquadImage extends Component {
 			event: "matchSquad",
 			showOpposition: selectedTeam.value != localTeam
 		};
-		postGameEvent(game._id, options);
+		const event = await postGameEvent(game._id, options);
+		this.setState({ tweetSending: false, replyTweet: event.tweet_id });
 	}
 
 	render() {
@@ -163,7 +165,7 @@ class AdminGameSquadImage extends Component {
 						<button
 							type="button"
 							onClick={() => this.postTweet()}
-							disabled={this.state.tweetSent}
+							disabled={this.state.tweetSending}
 						>
 							Post
 						</button>

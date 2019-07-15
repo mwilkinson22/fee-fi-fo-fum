@@ -208,17 +208,19 @@ class AdminGamePregameImage extends Component {
 		this.setState({ previewImage: image });
 	}
 
-	postTweet() {
-		this.setState({ tweetSent: true });
+	async postTweet() {
+		this.setState({ tweetSending: true });
 		const { game, postGameEvent } = this.props;
 		const { tweet, replyTweet } = this.state;
-		postGameEvent(game._id, {
+		const event = await postGameEvent(game._id, {
 			tweet,
 			replyTweet,
 			postTweet: true,
 			event: "pregameSquad",
 			imageOptions: this.handleImageOptions(false)
 		});
+
+		await this.setState({ tweetSending: false, replyTweet: event.tweet_id });
 	}
 
 	renderPreview() {
@@ -310,7 +312,7 @@ class AdminGamePregameImage extends Component {
 						<button
 							type="button"
 							onClick={() => this.postTweet()}
-							disabled={this.state.tweetSent}
+							disabled={this.state.tweetSending}
 						>
 							Post
 						</button>

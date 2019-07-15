@@ -19,7 +19,7 @@ import AdminGameEventList from "./AdminGameEventList";
 import gameEvents from "~/constants/gameEvents";
 
 //Helpers
-import { convertTeamToSelect, getMostRecentTweet } from "~/helpers/gameHelper";
+import { convertTeamToSelect } from "~/helpers/gameHelper";
 
 class AdminGameEvent extends BasicForm {
 	constructor(props) {
@@ -90,17 +90,17 @@ class AdminGameEvent extends BasicForm {
 		values.player = values.player.value || null;
 
 		//Post Event
-		const events = await postGameEvent(game._id, values);
+		const event = await postGameEvent(game._id, values);
 
 		//Clean Up
 		this.setState({ previewImage: null, isPosting: false });
-		if (events !== false) {
+		if (event) {
 			//Reset Form
 			formikActions.resetForm();
 			formikActions.setFieldValue("postTweet", values.postTweet);
 
 			if (values.event === "T") {
-				formikActions.setFieldValue("replyTweet", getMostRecentTweet(events));
+				formikActions.setFieldValue("replyTweet", event.tweet_id || "");
 				formikActions.setFieldValue("event", {
 					label: "Conversion",
 					value: "CN"

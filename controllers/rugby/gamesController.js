@@ -380,10 +380,7 @@ export async function handleEvent(req, res) {
 							image = await generatePregameImage(game, req.body.imageOptions);
 							break;
 						case "matchSquad":
-							image = await generateSquadImage(
-								game,
-								req.body.showOpposition === "true"
-							);
+							image = await generateSquadImage(game, req.body.showOpposition);
 							break;
 						default:
 							image = await new GameEventImage(game, event);
