@@ -18,13 +18,10 @@ class AdminGameCrawler extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		return {};
-	}
-
 	renderErrors() {
 		const { crawlData } = this.state;
 		const { game, teamList, teams } = this.props;
+		const { scoreOnly } = game._competition.instance;
 
 		//Check For Inconsistencies in teams
 		const errors = [];
@@ -32,7 +29,7 @@ class AdminGameCrawler extends Component {
 			const externalCount = Object.keys(crawlData.results[teamId]).length;
 			const localCount = game.playerStats.filter(p => p._team == teamId).length;
 			const teamName = teamList[teamId].name.short;
-			if (externalCount !== localCount) {
+			if (!scoreOnly && externalCount !== localCount) {
 				errors.push(
 					<li key={teamId + "mismatch"}>
 						Crawled {teamName} squad size does not match local. Local: {localCount}{" "}
@@ -50,7 +47,7 @@ class AdminGameCrawler extends Component {
 							.name.full
 				)
 				.value();
-			if (unmatchedPlayers.length) {
+			if (!scoreOnly && unmatchedPlayers.length) {
 				errors.push(
 					<li key={teamId + "unmatched"}>
 						{teamName} players missing from remote site: {unmatchedPlayers.join(", ")}
@@ -168,18 +165,22 @@ class AdminGameCrawler extends Component {
 					return true;
 				}
 
-				const { stats } = crawlData.results[team][name];
+				const playerResults = crawlData.results[team][name];
+				if (playerResults && playerResults.stats) {
+					console.log(playerResults);
+					const { stats } = playerResults;
 
-				//Fix Goals
-				if (stats.G) {
-					stats.CN = stats.G;
-					delete stats.G;
+					//Fix Goals
+					if (stats.G) {
+						stats.CN = stats.G;
+						delete stats.G;
+					}
+
+					formikProps.setFieldValue(`stats.${_id}`, {
+						...formikProps.values.stats[_id],
+						...stats
+					});
 				}
-
-				formikProps.setFieldValue(`stats.${_id}`, {
-					...formikProps.values.stats[_id],
-					...stats
-				});
 			});
 
 			//Update partial matches
@@ -197,6 +198,30 @@ class AdminGameCrawler extends Component {
 
 		//Clear Data
 		this.setState({ crawlData: null });
+	}
+
+	renderButtons() {
+		const { scoreOnly } = this.props;
+		if (scoreOnly) {
+			return (
+				<div className="buttons">
+					<button type="button" onClick={async () => this.onRequest(true)}>
+						Get Scores
+					</button>
+				</div>
+			);
+		} else {
+			return (
+				<div className="buttons">
+					<button type="button" onClick={async () => this.onRequest(false)}>
+						Get Stats
+					</button>
+					<button type="button" onClick={async () => this.onRequest(true)}>
+						Get Scores + Stats
+					</button>
+				</div>
+			);
+		}
 	}
 
 	render() {
@@ -233,16 +258,7 @@ class AdminGameCrawler extends Component {
 				</div>
 			];
 		} else {
-			content = (
-				<div className="buttons">
-					<button type="button" onClick={async () => this.onRequest(false)}>
-						Get Stats
-					</button>
-					<button type="button" onClick={async () => this.onRequest(true)}>
-						Get Scores + Stats
-					</button>
-				</div>
-			);
+			content = this.renderButtons();
 		}
 
 		return (

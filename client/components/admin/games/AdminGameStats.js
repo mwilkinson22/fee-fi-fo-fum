@@ -92,19 +92,14 @@ class AdminGameStats extends Component {
 
 	renderGameCrawler(formikProps) {
 		const { game, scoreOnly } = this.props;
-		//Only Show on the stats page
-		if (scoreOnly) {
-			return null;
-		} else {
-			return (
-				<AdminGameCrawler
-					formikProps={formikProps}
-					game={game}
-					scoreOnly={scoreOnly}
-					teams={this.state.teams}
-				/>
-			);
-		}
+		return (
+			<AdminGameCrawler
+				formikProps={formikProps}
+				game={game}
+				scoreOnly={scoreOnly}
+				teams={this.state.teams}
+			/>
+		);
 	}
 
 	renderTeamTable(formikProps, team) {
