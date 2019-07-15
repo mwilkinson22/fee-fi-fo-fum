@@ -199,27 +199,25 @@ class AdminGameOverview extends BasicForm {
 				});
 			}
 			//Filter Team on Competition and Year
-			let competitionSegment = values ? values._competition : game._competition;
+			const competitionSegmentOption = values ? values._competition : game._competition;
+			const competitionSegment = _.find(
+				competitionSegmentList,
+				comp => comp.id === competitionSegmentOption.value
+			);
 			if (!filterYear || !competitionSegment || !competitionSegmentList.length) {
 				teamList = [];
 			} else {
-				//Get Full Segment Object
-				competitionSegment = _.filter(
-					competitionSegmentList,
-					comp => comp.id === competitionSegment.value
-				);
-
 				//Get Instance
-				const competitionInstance = _.filter(
+				const competitionInstance = _.find(
 					competitionSegment.instances,
-					instance => instance.year === filterYear || instance.year === null
+					instance => instance.year == filterYear || instance.year == null
 				);
-				// if (competitionInstance.teams) {
-				// 	teamList = _.filter(
-				// 		teamList,
-				// 		team => competitionInstance.teams.indexOf(team._id) > -1
-				// 	);
-				// }
+				if (competitionInstance.teams) {
+					teamList = _.filter(
+						teamList,
+						team => competitionInstance.teams.indexOf(team._id) > -1
+					);
+				}
 			}
 		}
 
