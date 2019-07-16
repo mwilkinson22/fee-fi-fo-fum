@@ -1,5 +1,6 @@
 import "babel-polyfill";
 import express from "express";
+import compression from "compression";
 import { matchRoutes } from "react-router-config";
 import Routes from "./client/Routes";
 import renderer from "./helpers/server/renderer";
@@ -33,6 +34,9 @@ const app = express();
 
 //Enable bodyParser
 app.use(bodyParser.json());
+
+//Enable compression
+app.use(compression());
 
 //Set up useragent detection
 app.use(useragent.express());
