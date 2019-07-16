@@ -39,8 +39,7 @@
 				color: white;
 			}
 			&.highlight {
-				background: $claret;
-				color: $gold;
+				border-left: solid 5pt $claret;
 				font-weight: bold;
 			}
 			th {

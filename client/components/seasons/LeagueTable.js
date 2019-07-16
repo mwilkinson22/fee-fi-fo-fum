@@ -288,16 +288,17 @@ class LeagueTable extends Component {
 			)
 			.map((row, pos) => {
 				row.data.position.content = pos + 1;
+				row.className = "";
 				const rowClass = _.find(
 					instance.leagueTableColours,
 					p => p.position.indexOf(pos + 1) > -1
 				);
 				if (highlightTeams.indexOf(row.key) > -1) {
-					row.className = "highlight";
+					row.className += "highlight ";
 				} else if (rowClass) {
 					const team = teamList[row.key];
 					row.data["team-badge"].content = <TeamImage team={team} variant="light" />;
-					row.className = rowClass.className;
+					row.className += rowClass.className;
 				}
 				return row;
 			})
