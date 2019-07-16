@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeam } from "../actions/teamsActions";
 import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
 import _ from "lodash";
@@ -10,11 +9,6 @@ import { NavLink } from "react-router-dom";
 class SquadListPage extends Component {
 	constructor(props) {
 		super(props);
-		const { localTeam, fullTeams, fetchTeam } = props;
-		if (!fullTeams[localTeam]) {
-			fetchTeam(localTeam);
-		}
-
 		this.state = {};
 	}
 
@@ -22,10 +16,6 @@ class SquadListPage extends Component {
 		const newState = {};
 		const { localTeam, fullTeams, match, teamTypes } = nextProps;
 		const team = fullTeams[localTeam];
-
-		if (!team) {
-			return newState;
-		}
 
 		//Get Years
 		newState.years = _.chain(team.squads)
@@ -190,8 +180,5 @@ function mapStateToProps({ config, teams }) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchTeam }
-	)(SquadListPage)
+	component: connect(mapStateToProps)(SquadListPage)
 };
