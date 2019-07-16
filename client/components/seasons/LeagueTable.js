@@ -295,7 +295,8 @@ class LeagueTable extends Component {
 				);
 				if (highlightTeams.indexOf(row.key) > -1) {
 					row.className += "highlight ";
-				} else if (rowClass) {
+				}
+				if (rowClass) {
 					const team = teamList[row.key];
 					row.data["team-badge"].content = <TeamImage team={team} variant="light" />;
 					row.className += rowClass.className;
