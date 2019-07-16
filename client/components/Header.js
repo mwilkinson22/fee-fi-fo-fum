@@ -52,10 +52,6 @@ class Header extends Component {
 					}
 				},
 				{
-					header: "squads",
-					headerLink: "/squads/"
-				},
-				{
 					header: "News",
 					headerLink: "/news/",
 					subMenuRootLink: "/news/category/",
@@ -63,6 +59,14 @@ class Header extends Component {
 						.keyBy("name")
 						.mapValues("slug")
 						.value()
+				},
+				{
+					header: "Seasons",
+					headerLink: "/seasons/"
+				},
+				{
+					header: "Squads",
+					headerLink: "/squads/"
 				}
 			]
 		];

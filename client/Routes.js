@@ -6,6 +6,7 @@ import GamePage from "./pages/GamePage";
 import GameList from "./pages/GameList";
 import PersonPage from "./pages/PersonPage";
 import SquadListPage from "./pages/SquadListPage";
+import SeasonPage from "./pages/SeasonPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -76,6 +77,25 @@ const squadRoutes = [
 	}
 ];
 
+const seasonRoutes = [
+	{
+		...SeasonPage,
+		path: "/seasons/:year/:teamType/:page"
+	},
+	{
+		...SeasonPage,
+		path: "/seasons/:year/:teamType"
+	},
+	{
+		...SeasonPage,
+		path: "/seasons/:year"
+	},
+	{
+		...SeasonPage,
+		path: "/seasons"
+	}
+];
+
 const newsRoutes = [
 	{
 		...NewsPostPage,
@@ -114,6 +134,7 @@ export default [
 			...personRoutes,
 			...squadRoutes,
 			...newsRoutes,
+			...seasonRoutes,
 			{
 				...HomePage,
 				path: "/",
