@@ -44,6 +44,10 @@ body {
 		display: block;
 		margin-bottom: 40pt;
 	}
+
+	&.no-margin::after {
+		margin-bottom: 0;
+	}
 }
 
 .sub-menu {
@@ -178,6 +182,7 @@ body {
 }
 
 .list-filters {
+	@include noTextSelect;
 	display: flex;
 	justify-content: center;
 	align-items: center;

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import _ from "lodash";
+import PropTypes from "prop-types";
 
-export default class GameFilters extends Component {
+class GameFilters extends Component {
 	updateActiveFilters(target) {
 		const { name, value } = target;
 		const { activeFilters, onFilterChange } = this.props;
@@ -84,3 +85,13 @@ export default class GameFilters extends Component {
 		return <div className="list-filters">{content}</div>;
 	}
 }
+
+GameFilters.propTypes = {
+	games: PropTypes.arrayOf(PropTypes.object).isRequired,
+	activeFilters: PropTypes.object.isRequired,
+	onFilterChange: PropTypes.func.isRequired
+};
+
+GameFilters.defaultProps = {};
+
+export default GameFilters;

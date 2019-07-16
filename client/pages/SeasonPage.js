@@ -12,6 +12,7 @@ import NotFoundPage from "~/client/pages/NotFoundPage";
 //Actions
 import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
 import SeasonOverview from "~/client/components/seasons/SeasonOverview";
+import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
 
 //Constants
 import { earliestGiantsData } from "~/config/keys";
@@ -159,7 +160,6 @@ class SeasonPage extends Component {
 	}
 	generatePageMenu() {
 		const { teamTypes, teamType, year } = this.state;
-		console.log(teamTypes);
 		const coreUrl = `/seasons/${year}/${teamTypes.find(t => t._id == teamType).slug}`;
 		const pages = [
 			{ slug: "overview", name: "Overview" },
@@ -228,6 +228,8 @@ class SeasonPage extends Component {
 			switch (page) {
 				case "overview":
 					return <SeasonOverview {...props} />;
+				case "player-stats":
+					return <SeasonPlayerStats {...props} />;
 				default:
 					return <NotFoundPage />;
 			}
@@ -245,7 +247,7 @@ class SeasonPage extends Component {
 			<div className="season-page">
 				{this.generateHelmet()}
 
-				<section className="page-header">
+				<section className="page-header no-margin">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
 						{this.generateTeamTypeMenu()}

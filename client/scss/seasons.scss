@@ -103,10 +103,24 @@
 		padding-top: 5pt;
 		border-top: solid 1pt #ddd;
 	}
+	section.page-header ~ section {
+		padding-top: 40pt;
+	}
+
 	section.season-overview {
 		.info-table,
 		.league-table {
 			margin-bottom: 20pt;
+		}
+	}
+
+	section.game-filters {
+		background: darken($claret, 5%);
+		padding-bottom: 15pt;
+		color: white;
+		h2,
+		h4 {
+			color: white;
 		}
 	}
 }
