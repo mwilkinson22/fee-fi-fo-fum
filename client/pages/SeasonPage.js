@@ -13,6 +13,9 @@ import NotFoundPage from "~/client/pages/NotFoundPage";
 import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
 import SeasonOverview from "~/client/components/seasons/SeasonOverview";
 
+//Constants
+import { earliestGiantsData } from "~/config/keys";
+
 class SeasonPage extends Component {
 	constructor(props) {
 		super(props);
@@ -37,7 +40,10 @@ class SeasonPage extends Component {
 		//Once we have the game list, render the game list and find the available years
 		let { results, years } = prevState;
 		if (!results) {
-			results = _.filter(gameList, g => g.date < new Date());
+			results = _.filter(
+				gameList,
+				g => g.date < new Date() && Number(g.date.getFullYear()) >= earliestGiantsData
+			);
 			newState.results = results;
 		}
 
