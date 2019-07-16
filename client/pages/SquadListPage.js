@@ -183,11 +183,6 @@ class SquadListPage extends Component {
 	}
 }
 
-async function loadData(store) {
-	const { localTeam } = store.getState().config;
-	return store.dispatch(fetchTeam(localTeam));
-}
-
 function mapStateToProps({ config, teams }) {
 	const { fullTeams, teamTypes } = teams;
 	const { localTeam } = config;
@@ -198,6 +193,5 @@ export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchTeam }
-	)(SquadListPage),
-	loadData
+	)(SquadListPage)
 };
