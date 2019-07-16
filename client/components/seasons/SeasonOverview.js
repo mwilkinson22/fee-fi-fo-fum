@@ -166,7 +166,7 @@ class SeasonOverview extends Component {
 		}
 
 		return (
-			<section className="season-page season-overview">
+			<section className="season-overview">
 				<h2>Overview</h2>
 				<div className="container">
 					{this.renderOverviewTable()}

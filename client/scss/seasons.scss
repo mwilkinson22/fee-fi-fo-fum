@@ -98,7 +98,12 @@
 		margin-bottom: 10pt;
 		text-align: center;
 	}
-	&.season-overview {
+	.page-menu {
+		margin-top: 5pt;
+		padding-top: 5pt;
+		border-top: solid 1pt #ddd;
+	}
+	section.season-overview {
 		.info-table,
 		.league-table {
 			margin-bottom: 20pt;

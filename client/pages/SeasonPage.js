@@ -157,6 +157,43 @@ class SeasonPage extends Component {
 			</div>
 		);
 	}
+	generatePageMenu() {
+		const { teamTypes, teamType, year } = this.state;
+		console.log(teamTypes);
+		const coreUrl = `/seasons/${year}/${teamTypes.find(t => t._id == teamType).slug}`;
+		const pages = [
+			{ slug: "overview", name: "Overview" },
+			{ slug: "player-stats", name: "Player Stats" }
+		];
+		const submenu = pages.map(teamType => {
+			const { name, slug } = teamType;
+			return (
+				<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
+					{name}
+				</NavLink>
+			);
+		});
+
+		const dummyLinkUrls = ["/seasons/", `/seasons/${year}`, coreUrl];
+		const dummyLinks = dummyLinkUrls.map(url => {
+			return (
+				<NavLink
+					key={url}
+					className="hidden"
+					exact={true}
+					to={url}
+					activeClassName="active"
+				/>
+			);
+		});
+
+		return (
+			<div className="sub-menu page-menu">
+				{dummyLinks}
+				{submenu}
+			</div>
+		);
+	}
 
 	generateHelmet() {
 		const { year, teamType, page } = this.state;
@@ -205,13 +242,14 @@ class SeasonPage extends Component {
 		}
 
 		return (
-			<div className="team-page">
+			<div className="season-page">
 				{this.generateHelmet()}
 
 				<section className="page-header">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
 						{this.generateTeamTypeMenu()}
+						{this.generatePageMenu()}
 					</div>
 				</section>
 				{this.renderContent()}
