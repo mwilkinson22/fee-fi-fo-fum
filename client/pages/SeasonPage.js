@@ -7,9 +7,11 @@ import { NavLink } from "react-router-dom";
 //Components
 import HelmetBuilder from "../components/HelmetBuilder";
 import LoadingPage from "../components/LoadingPage";
+import NotFoundPage from "~/client/pages/NotFoundPage";
 
 //Actions
 import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
+import SeasonOverview from "~/client/components/seasons/SeasonOverview";
 
 class SeasonPage extends Component {
 	constructor(props) {
@@ -41,7 +43,7 @@ class SeasonPage extends Component {
 
 		if (!years) {
 			years = _.chain(results)
-				.map(({ date }) => date.getFullYear())
+				.map(({ date }) => Number(date.getFullYear()))
 				.uniq()
 				.sort()
 				.reverse()
@@ -55,7 +57,7 @@ class SeasonPage extends Component {
 		//Get TeamTypes
 		let { teamTypes } = prevState;
 		if (newState.year !== prevState.year) {
-			teamTypes = _.chain(newState.results)
+			teamTypes = _.chain(results)
 				.filter(game => game.date.getFullYear() == newState.year)
 				.map(game => teamTypesList[game._teamType])
 				.uniqBy("_id")
@@ -87,7 +89,7 @@ class SeasonPage extends Component {
 				fetchGames(gamesToLoad);
 				newState.isLoadingGames = true;
 			} else if (!gamesToLoad.length) {
-				newState.games = gamesRequired;
+				newState.games = gamesRequired.map(g => fullGames[g._id]);
 				newState.isLoadingGames = false;
 			}
 		}
@@ -170,14 +172,31 @@ class SeasonPage extends Component {
 		return <HelmetBuilder title={title} canonical={canonical} />;
 	}
 
+	renderContent() {
+		const { page, games, year, teamType, isLoadingGames } = this.state;
+		if (isLoadingGames) {
+			return <LoadingPage />;
+		} else {
+			const props = {
+				games,
+				year,
+				teamType
+			};
+			switch (page) {
+				case "overview":
+					return <SeasonOverview {...props} />;
+				default:
+					return <NotFoundPage />;
+			}
+		}
+	}
+
 	render() {
-		const { isLoadingGameList, isLoadingGames } = this.state;
+		const { isLoadingGameList } = this.state;
 
 		if (isLoadingGameList) {
 			return <LoadingPage />;
 		}
-
-		const content = isLoadingGames ? <LoadingPage /> : null;
 
 		return (
 			<div className="team-page">
@@ -189,7 +208,7 @@ class SeasonPage extends Component {
 						{this.generateTeamTypeMenu()}
 					</div>
 				</section>
-				{content}
+				{this.renderContent()}
 			</div>
 		);
 	}

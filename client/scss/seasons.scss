@@ -92,3 +92,17 @@
 		}
 	}
 }
+
+.season-page {
+	h2 {
+		font-size: 2.4em;
+		margin-bottom: 10pt;
+		text-align: center;
+	}
+	&.season-overview {
+		.info-table,
+		.league-table {
+			margin-bottom: 20pt;
+		}
+	}
+}

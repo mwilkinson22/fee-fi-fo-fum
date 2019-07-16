@@ -292,27 +292,6 @@
 				padding: 16pt;
 				background: #f4f4f4;
 				box-shadow: 2pt 2pt 4pt rgba(black, 0.5);
-				&.info-table {
-					table {
-						width: 100%;
-						th,
-						td {
-							padding: 10pt;
-						}
-						th {
-							white-space: nowrap;
-						}
-						td {
-							width: 100%;
-						}
-						tr {
-							text-align: left;
-							&:not(:last-child) {
-								border-bottom: solid thin #ddd;
-							}
-						}
-					}
-				}
 				&.description {
 					display: flex;
 					flex-direction: column;

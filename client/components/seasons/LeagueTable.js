@@ -89,9 +89,9 @@ class LeagueTable extends Component {
 		];
 
 		//Set segment as variable, to enable for point inheritance
-		const competitionSegment = _.find(competitionSegmentList, c => c._id == competition);
 		const games = LeagueTable.getGames(
-			competitionSegment,
+			competition,
+			competitionSegmentList,
 			year,
 			gameList,
 			neutralGames,
@@ -137,7 +137,8 @@ class LeagueTable extends Component {
 	}
 
 	static getGames(
-		competitionSegment,
+		competition,
+		competitionSegmentList,
 		year,
 		gameList,
 		neutralGames,
@@ -148,7 +149,9 @@ class LeagueTable extends Component {
 			local: [],
 			neutral: []
 		};
-		while (competitionSegment) {
+		let competitionSegment;
+		while (competition) {
+			competitionSegment = _.find(competitionSegmentList, c => c._id == competition);
 			const l = _.chain(gameList)
 				.filter(
 					game =>
@@ -174,7 +177,7 @@ class LeagueTable extends Component {
 
 			games.local.push(...l);
 			games.neutral.push(...n);
-			competitionSegment = competitionSegment._pointsCarriedFrom;
+			competition = competitionSegment._pointsCarriedFrom;
 		}
 		return games;
 	}
@@ -210,19 +213,28 @@ class LeagueTable extends Component {
 	}
 
 	addGamesToRows(rows) {
+		//If we have an empty object, no teams are defined and we can create them on the fly
+		const createNewRows = Object.keys(rows).length === 0;
+
 		//Add basic details
 		_.each(this.state.games, game => {
+			let home;
+			let away;
+
 			const { _homeTeam, _awayTeam, homePoints, awayPoints } = game;
 			//Ensure rows exist
-			if (!rows[_homeTeam]) {
+			if (!rows[_homeTeam] && createNewRows) {
 				rows[_homeTeam] = this.createRowForTeam(_homeTeam);
 			}
-			if (!rows[_awayTeam]) {
+			if (!rows[_awayTeam] && createNewRows) {
 				rows[_awayTeam] = this.createRowForTeam(_awayTeam);
 			}
 
-			const home = rows[_homeTeam];
-			const away = rows[_awayTeam];
+			//Assign Rows, either to the table or a dummy row set
+			//This prevents teams being added incorrectly where points carried from another league
+			//I.e. The bottom four from the Regular Season won't be added to the Super 8s table
+			home = rows[_homeTeam] || this.createRowForTeam(_homeTeam);
+			away = rows[_awayTeam] || this.createRowForTeam(_awayTeam);
 
 			//Set Points
 			home.F += homePoints;

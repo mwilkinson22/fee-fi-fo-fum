@@ -119,7 +119,8 @@ class HomePage extends Component {
 
 		const boxGameIds = _.map(boxGames, g => g._id);
 		const tableGameIds = LeagueTable.getGames(
-			_.find(competitionSegments, c => c._id == leagueTableCompetition),
+			leagueTableCompetition,
+			competitionSegments,
 			leagueTableYear,
 			gameList,
 			neutralGames
