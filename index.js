@@ -36,7 +36,7 @@ const app = express();
 app.use(bodyParser.json());
 
 //Enable compression
-// app.use(compression({ level: 9 }));
+app.use(compression({ level: 9 }));
 
 //Set up useragent detection
 app.use(useragent.express());
