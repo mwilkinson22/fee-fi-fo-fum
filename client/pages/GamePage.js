@@ -18,6 +18,10 @@ import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
 import HeadToHeadStats from "../components/games/HeadToHeadStats";
 import GameStars from "../components/games/GameStars";
+import LeagueTable from "~/client/components/seasons/LeagueTable";
+import StatsTables from "~/client/components/games/StatsTables";
+import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
+import PageSwitch from "../components/PageSwitch";
 
 //Actions
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
@@ -30,10 +34,6 @@ import { Redirect } from "react-router-dom";
 
 //Helpers
 import { getLastGame } from "~/helpers/gameHelper";
-import LeagueTable from "~/client/components/seasons/LeagueTable";
-import StatsTables from "~/client/components/games/StatsTables";
-import PersonImage from "~/client/components/people/PersonImage";
-import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -294,23 +294,14 @@ class GamePage extends Component {
 		const { localTeam, fullTeams } = this.props;
 		const { game, statTableTeam } = this.state;
 		let tableSelectorOptions = [
-			{ key: localTeam, label: fullTeams[localTeam].name.short },
-			{ key: "both", label: "Both Teams" },
-			{ key: game._opposition._id, label: game._opposition.name.short }
+			{ value: localTeam, label: fullTeams[localTeam].name.short },
+			{ value: "both", label: "Both Teams" },
+			{ value: game._opposition._id, label: game._opposition.name.short }
 		];
 		if (game.isAway) {
 			tableSelectorOptions = tableSelectorOptions.reverse();
 		}
 
-		const tableSelector = _.map(tableSelectorOptions, ({ label, key }) => (
-			<div
-				onClick={() => this.setState({ statTableTeam: key })}
-				key={key}
-				className={key == statTableTeam ? "active" : ""}
-			>
-				{label}
-			</div>
-		));
 		let filteredGame = _.clone(game);
 		if (statTableTeam != "both") {
 			filteredGame.playerStats = filteredGame.playerStats.filter(
@@ -321,7 +312,11 @@ class GamePage extends Component {
 			<section className="stats-table" key="stats-table">
 				<div className="container">
 					<h2>Stats</h2>
-					<div className="stat-table-selector">{tableSelector}</div>
+					<PageSwitch
+						currentValue={statTableTeam}
+						onChange={statTableTeam => this.setState({ statTableTeam })}
+						options={tableSelectorOptions}
+					/>
 					<StatsTables listType="game" data={filteredGame} />
 				</div>
 			</section>

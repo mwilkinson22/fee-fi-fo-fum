@@ -965,41 +965,6 @@
 		}
 	}
 	section.stats-table {
-		.stat-table-selector {
-			display: flex;
-			margin-bottom: 14pt;
-			div {
-				flex-grow: 1;
-				width: 100%;
-				padding: 6pt 4pt;
-				background: #fff;
-				cursor: pointer;
-				text-align: center;
-				&:hover {
-					background: #eee;
-				}
-				&.active {
-					pointer-events: none;
-					background: $claret;
-					color: white;
-					font-weight: 600;
-				}
-			}
-
-			@media #{$mobile-only} {
-				flex-direction: column;
-				div:not(.active) + div:not(.active) {
-					border-top: solid thin #eee;
-				}
-			}
-			@media #{$desktop-and-tablet} {
-				border-radius: 4pt;
-				overflow: hidden;
-				div:not(.active) + div:not(.active) {
-					border-left: solid thin #eee;
-				}
-			}
-		}
 		table {
 			tbody {
 				th {
