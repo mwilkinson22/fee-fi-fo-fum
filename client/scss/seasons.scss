@@ -103,7 +103,7 @@
 		padding-top: 5pt;
 		border-top: solid 1pt #ddd;
 	}
-	section.page-header ~ section {
+	section.page-header + section {
 		padding-top: 40pt;
 	}
 
@@ -122,5 +122,9 @@
 		h4 {
 			color: white;
 		}
+	}
+
+	section.stat-type-switch {
+		padding: 20pt 0;
 	}
 }

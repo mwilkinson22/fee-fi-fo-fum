@@ -6,12 +6,14 @@ import { connect } from "react-redux";
 
 //Components
 import GameFilters from "../games/GameFilters";
+import PageSwitch from "../PageSwitch";
 
 class SeasonPlayerStats extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			activeFilters: {}
+			activeFilters: {},
+			statType: "totals"
 		};
 	}
 
@@ -25,10 +27,10 @@ class SeasonPlayerStats extends Component {
 	}
 
 	render() {
-		const { games, activeFilters } = this.state;
+		const { games, activeFilters, statType } = this.state;
 		console.log(_.filter(games, activeFilters));
-		return (
-			<section className="player-stats game-filters">
+		return [
+			<section className="game-filters" key="filters">
 				<div className="container">
 					<GameFilters
 						games={games}
@@ -36,8 +38,20 @@ class SeasonPlayerStats extends Component {
 						onFilterChange={activeFilters => this.setState({ activeFilters })}
 					/>
 				</div>
+			</section>,
+			<section className="stat-type-switch" key="switch">
+				<div className="container">
+					<PageSwitch
+						currentValue={statType}
+						onChange={statType => this.setState({ statType })}
+						options={[
+							{ value: "totals", label: "Show Totals" },
+							{ value: "averages", label: "Show Averages" }
+						]}
+					/>
+				</div>
 			</section>
-		);
+		];
 	}
 }
 
