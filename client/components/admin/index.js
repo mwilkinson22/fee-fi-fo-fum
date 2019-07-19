@@ -7,6 +7,9 @@ import { Switch, Route } from "react-router-dom";
 import NotFoundPage from "../../pages/NotFoundPage";
 import Logout from "./Logout";
 
+import AdminCountryList from "../../pages/AdminCountryList";
+import AdminCountryPage from "../../pages/AdminCountryPage";
+
 import AdminNeutralGameList from "../../pages/AdminNeutralGameList";
 import AdminNeutralGamePage from "../../pages/AdminNeutralGamePage";
 
@@ -45,6 +48,10 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />
 					<Route path="/admin/games/" exact component={AdminGameList} />
+
+					<Route path="/admin/countries/new" exact component={AdminCountryPage} />
+					<Route path="/admin/countries/:slug" exact component={AdminCountryPage} />
+					<Route path="/admin/countries" exact component={AdminCountryList} />
 
 					<Route path="/admin/grounds/new" component={AdminGroundPage} />
 					<Route path="/admin/grounds/:slug" component={AdminGroundPage} />

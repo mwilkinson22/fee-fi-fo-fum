@@ -1,4 +1,4 @@
-import { FETCH_CITIES, FETCH_COUNTRIES } from "../actions/types";
+import { DELETE_COUNTRY, FETCH_CITIES, FETCH_COUNTRIES, UPDATE_COUNTRY } from "../actions/types";
 
 export default function(state = {}, action) {
 	switch (action.type) {
@@ -12,6 +12,21 @@ export default function(state = {}, action) {
 			return {
 				...state,
 				countries: action.payload
+			};
+
+		case UPDATE_COUNTRY:
+			return {
+				...state,
+				countries: [
+					...state.countries.filter(c => c._id != action.payload._id),
+					action.payload
+				]
+			};
+
+		case DELETE_COUNTRY:
+			return {
+				...state,
+				countries: [...state.countries.filter(c => c._id != action.payload)]
 			};
 
 		default:

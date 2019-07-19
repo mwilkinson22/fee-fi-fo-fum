@@ -87,8 +87,13 @@ class Header extends Component {
 					}
 				},
 				{
-					header: "Grounds",
-					headerLink: "/admin/grounds"
+					header: "Locations",
+					headerLink: "/admin/grounds",
+					subMenuRootLink: "/admin/",
+					subMenu: {
+						Countries: "countries",
+						Grounds: "grounds"
+					}
 				},
 				{
 					header: "News",
