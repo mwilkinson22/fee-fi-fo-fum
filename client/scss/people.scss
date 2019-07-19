@@ -111,6 +111,11 @@ a .person-image {
 		position: relative;
 		overflow: hidden;
 		.container {
+			.person-image {
+				-webkit-filter: drop-shadow(0 0 4pt rgba(0, 0, 0, 0.5));
+				-ms-filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#00000088')";
+				filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#00000088')";
+			}
 			.overlay {
 				color: white;
 				h1 {
