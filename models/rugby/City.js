@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const citySchema = new Schema({
-	name: { type: String, unique: true, required: true },
+	name: { type: String, required: true },
 	_country: { type: Schema.Types.ObjectId, ref: "countries" },
 	slug: { type: String, unique: true, required: true }
 });
