@@ -166,7 +166,7 @@
 						& > *:nth-child(-n + 3) {
 							color: $gold;
 							a:hover {
-								color: lighten($gold, 8%);
+								color: lighten($gold, 20%);
 							}
 						}
 						h6 {
