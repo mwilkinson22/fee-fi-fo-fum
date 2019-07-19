@@ -34,6 +34,7 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
+		const { localTeam, fullTeams } = this.props;
 		const navMenus = [
 			[
 				{
@@ -82,7 +83,7 @@ class Header extends Component {
 					headerLink: "/admin/games",
 					subMenuRootLink: "/admin/",
 					subMenu: {
-						Local: "games",
+						[fullTeams[localTeam].name.short]: "games",
 						Neutral: "neutralGames"
 					}
 				},
@@ -209,9 +210,10 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ config }) {
-	const { authUser } = config;
-	return { authUser };
+function mapStateToProps({ config, teams }) {
+	const { authUser, localTeam } = config;
+	const { fullTeams } = teams;
+	return { authUser, localTeam, fullTeams };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));
