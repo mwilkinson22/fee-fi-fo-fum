@@ -38,13 +38,13 @@ export default class PlayerStatsHelper {
 			.uniq()
 			.filter(key => playerStatTypes[key] !== undefined)
 			.map(key => {
-				const total = _.sumBy(stats, key);
 				const statType = playerStatTypes[key];
 				const gameCount = _.sumBy(stats, obj => {
 					return obj.hasOwnProperty(key) && obj[key] != null ? 1 : 0;
 				});
-				let average, best;
+				let total, average, best;
 				if (gameCount) {
+					total = _.sumBy(stats, key);
 					average = total / gameCount;
 					if (statType.moreIsBetter) {
 						best = _.maxBy(stats, key)[key];
