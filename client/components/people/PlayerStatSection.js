@@ -111,25 +111,21 @@ class PlayerStatSection extends Component {
 		}
 
 		//TeamTypes Menu
-		let teamTypeMenu;
-		if (teamTypes.length > 1) {
-			const submenu = _.chain(this.props.teamTypes)
-				.map(type => {
-					const { name, _id } = type;
-					return (
-						<span
-							key={_id}
-							className={`pseudo-link ${_id === teamType ? "active" : ""}`}
-							onClick={() => this.setState({ teamType: _id })}
-						>
-							{name}
-						</span>
-					);
-				})
-				.value();
-			teamTypeMenu = <div className="sub-menu light">{submenu}</div>;
-		}
-
+		const submenu = _.chain(teamTypes)
+			.map(type => {
+				const { name, _id } = type;
+				return (
+					<span
+						key={_id}
+						className={`pseudo-link ${_id === teamType ? "active" : ""}`}
+						onClick={() => this.setState({ teamType: _id })}
+					>
+						{name}
+					</span>
+				);
+			})
+			.value();
+		const teamTypeMenu = <div className="sub-menu light">{submenu}</div>;
 		return (
 			<div className="section-header">
 				<div className="container">
