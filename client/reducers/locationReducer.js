@@ -39,7 +39,7 @@ export default function(state = {}, action) {
 		case DELETE_CITY:
 			return {
 				...state,
-				city: [...state.cities.filter(c => c._id != action.payload)]
+				cities: [...state.cities.filter(c => c._id != action.payload)]
 			};
 
 		case DELETE_COUNTRY:
