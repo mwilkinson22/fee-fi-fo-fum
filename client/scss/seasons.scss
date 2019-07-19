@@ -172,6 +172,10 @@
 						h6 {
 							position: absolute;
 							bottom: 100%;
+							span {
+								display: block;
+								font-size: 0.7em;
+							}
 						}
 						span {
 							display: inline-block;
@@ -259,6 +263,10 @@
 							h6 {
 								right: 0;
 								font-size: 20pt;
+								text-align: right;
+								&.with-condition {
+									font-size: 16pt;
+								}
 							}
 						}
 					}

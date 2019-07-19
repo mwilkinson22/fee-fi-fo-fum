@@ -31,6 +31,15 @@ class PlayerLeaderboard extends Component {
 				.reject(({ value }) => value == null)
 				//Remove values of 0, when moreIsBetter = true
 				.reject(({ value }) => moreIsBetter && !value)
+				//For Tackle Success, ensure we have an average of at least 20 per game
+				.filter(({ _player }) => {
+					if (key !== "TS") {
+						return true;
+					} else {
+						const { average } = _.find(stats, s => s._player == _player).stats.TK;
+						return average >= 20;
+					}
+				})
 				//Order Remaining Entries
 				.orderBy(
 					["value", "gameCount"],
@@ -116,6 +125,16 @@ class PlayerLeaderboard extends Component {
 
 		const { plural } = playerStatTypes[statKey];
 
+		let title = <h6>{plural}</h6>;
+
+		if (statKey == "TS") {
+			title = (
+				<h6 className="with-condition">
+					Tackle Rate<span>(with at least 20 per game)</span>
+				</h6>
+			);
+		}
+
 		if (list.length) {
 			const playerForImage = players[leader]._player;
 			return (
@@ -127,7 +146,7 @@ class PlayerLeaderboard extends Component {
 					</div>
 					<div className="list">
 						{list}
-						<h6>{plural}</h6>
+						{title}
 					</div>
 				</div>
 			);
