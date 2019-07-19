@@ -10,11 +10,14 @@ module.exports = app => {
 	app.get("/api/countries", locationController.getCountries);
 
 	//Putters
+	app.put("/api/cities/:_id", requireAdmin, locationController.updateCity);
 	app.put("/api/countries/:_id", requireAdmin, locationController.updateCountry);
 
 	//Post
+	app.post("/api/cities", requireAdmin, locationController.createCity);
 	app.post("/api/countries", requireAdmin, locationController.createCountry);
 
 	//Delete
+	app.delete("/api/cities/:_id", requireAdmin, locationController.deleteCity);
 	app.delete("/api/countries/:_id", requireAdmin, locationController.deleteCountry);
 };

@@ -91,6 +91,7 @@ class Header extends Component {
 					headerLink: "/admin/grounds",
 					subMenuRootLink: "/admin/",
 					subMenu: {
+						Cities: "cities",
 						Countries: "countries",
 						Grounds: "grounds"
 					}

@@ -39,4 +39,11 @@ citySchema.statics.generateSlug = async function({ name, _country }) {
 	}
 };
 
+citySchema.query.populated = function() {
+	return this.populate({
+		path: "_country",
+		select: "name"
+	});
+};
+
 mongoose.model("cities", citySchema);

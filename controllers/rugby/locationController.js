@@ -15,19 +15,21 @@ async function validateItem(model, _id, res) {
 	}
 }
 
-async function getUpdatedItem(model, id, res) {
-	//Get Full Game
-	const instance = await model.findById(id);
+async function getUpdatedCity(id, res) {
+	const instance = await City.findById(id).populated();
+
+	res.send(instance);
+}
+
+async function getUpdatedCountry(id, res) {
+	const instance = await Country.findById(id);
 
 	res.send(instance);
 }
 
 //Getters
 export async function getCities(req, res) {
-	const cities = await City.find({}, {}, { sort: { name: 1 } }).populate({
-		path: "_country",
-		select: "name"
-	});
+	const cities = await City.find({}, {}, { sort: { name: 1 } }).populated();
 	res.send(cities);
 }
 
@@ -37,23 +39,73 @@ export async function getCountries(req, res) {
 }
 
 //Putters
+export async function updateCity(req, res) {
+	const { _id } = req.params;
+	const city = await validateItem(City, _id, res);
+	if (city) {
+		await city.updateOne({ ...req.body });
+		await getUpdatedCity(_id, res);
+	}
+}
+
 export async function updateCountry(req, res) {
 	const { _id } = req.params;
 	const country = await validateItem(Country, _id, res);
 	if (country) {
 		await country.updateOne({ ...req.body });
-		await getUpdatedItem(Country, _id, res);
+		await getUpdatedCountry(_id, res);
 	}
 }
 
 //Post
+export async function createCity(req, res) {
+	const city = new City(req.body);
+	await city.save();
+	await getUpdatedCity(city._id, res);
+}
+
 export async function createCountry(req, res) {
 	const country = new Country(req.body);
 	await country.save();
-	await getUpdatedItem(Country, country._id, res);
+	await getUpdatedCountry(country._id, res);
 }
 
 //Delete
+export async function deleteCity(req, res) {
+	const { _id } = req.params;
+	const city = await validateItem(City, _id, res);
+	if (city) {
+		const Ground = mongoose.model("grounds");
+		const Person = mongoose.model("people");
+
+		const grounds = await Ground.find({ "address._city": _id }, "slug").lean();
+		const people = await Person.find({ _hometown: _id }, "slug").lean();
+
+		if (grounds.length || people.length) {
+			let error = "City cannot be deleted, as it is required for ";
+
+			if (grounds.length) {
+				error += `${grounds.length} ${grounds.length === 1 ? "ground" : "grounds"}`;
+				if (people.length) {
+					error += " & ";
+				}
+			}
+
+			if (people.length) {
+				error += `${people.length} ${people.length === 1 ? "person" : "people"}`;
+			}
+
+			res.status(409).send({
+				error,
+				toLog: { grounds, people }
+			});
+		} else {
+			await city.remove();
+			res.send({});
+		}
+	}
+}
+
 export async function deleteCountry(req, res) {
 	const { _id } = req.params;
 	const country = await validateItem(Country, _id, res);

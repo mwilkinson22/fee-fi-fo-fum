@@ -15,7 +15,9 @@ export const CRAWL_NEUTRAL_GAMES = "crawl_neutral_games";
 //Locations
 export const FETCH_CITIES = "fetch_cities";
 export const FETCH_COUNTRIES = "fetch_countries";
+export const UPDATE_CITY = "update_city";
 export const UPDATE_COUNTRY = "update_country";
+export const DELETE_CITY = "delete_city";
 export const DELETE_COUNTRY = "delete_country";
 
 //Teams

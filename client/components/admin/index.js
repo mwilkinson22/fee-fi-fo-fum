@@ -7,6 +7,9 @@ import { Switch, Route } from "react-router-dom";
 import NotFoundPage from "../../pages/NotFoundPage";
 import Logout from "./Logout";
 
+import AdminCityList from "../../pages/AdminCityList";
+import AdminCityPage from "../../pages/AdminCityPage";
+
 import AdminCountryList from "../../pages/AdminCountryList";
 import AdminCountryPage from "../../pages/AdminCountryPage";
 
@@ -48,6 +51,10 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
 					<Route path="/admin/games/:year/" exact component={AdminGameList} />
 					<Route path="/admin/games/" exact component={AdminGameList} />
+
+					<Route path="/admin/cities/new" exact component={AdminCityPage} />
+					<Route path="/admin/cities/:slug" exact component={AdminCityPage} />
+					<Route path="/admin/cities" exact component={AdminCityList} />
 
 					<Route path="/admin/countries/new" exact component={AdminCountryPage} />
 					<Route path="/admin/countries/:slug" exact component={AdminCountryPage} />
