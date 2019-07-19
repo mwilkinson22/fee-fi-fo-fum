@@ -1175,6 +1175,15 @@
 				}
 			}
 
+			.edit-team-squads-link {
+				font-weight: 600;
+				margin-bottom: 4pt;
+				display: block;
+				&:hover {
+					color: $claret;
+				}
+			}
+
 			table {
 				width: 100%;
 				margin-bottom: 20pt;

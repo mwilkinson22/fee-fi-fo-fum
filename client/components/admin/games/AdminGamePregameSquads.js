@@ -3,25 +3,35 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
+import { Link } from "react-router-dom";
 
 //Components
 import Table from "../../Table";
+import LoadingPage from "../../LoadingPage";
 
 //Actions
+import { fetchTeam } from "../../../actions/teamsActions";
 import { setPregameSquads } from "../../../actions/gamesActions";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
 		super(props);
+
+		const { fetchTeam, fullTeams, game } = props;
+		const { _opposition } = game;
+		if (!fullTeams[_opposition._id]) {
+			fetchTeam(_opposition._id);
+		}
+
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { teamList } = nextProps;
-		if (!nextProps) {
-			return {};
+		const { fullTeams, game } = nextProps;
+		if (!fullTeams[game._opposition._id]) {
+			return { isLoading: true };
 		} else {
-			return { teamList };
+			return { isLoading: false, fullTeams };
 		}
 	}
 
@@ -120,7 +130,7 @@ class AdminGamePregameSquads extends Component {
 
 	render() {
 		const { game, lastGame, localTeam } = this.props;
-		const { teamList } = this.state;
+		const { fullTeams, isLoading } = this.state;
 
 		const columns = [
 			{
@@ -147,6 +157,9 @@ class AdminGamePregameSquads extends Component {
 			defaultAscSort: true,
 			sortBy: { key: "number", asc: true }
 		};
+		if (isLoading) {
+			return <LoadingPage />;
+		}
 
 		return (
 			<div className="admin-pregame-squad-page">
@@ -207,9 +220,24 @@ class AdminGamePregameSquads extends Component {
 													/>
 												];
 											}
+											const team = fullTeams[id];
+											const squad = team.squads.find(
+												s =>
+													s._teamType == game._teamType &&
+													s.year == game.date.getFullYear()
+											);
+											const squadId = squad ? squad._id : "";
 											return (
 												<div key={id} className="pregame-squad-wrapper">
-													<h2>{teamList[id].name.short}</h2>
+													<h2>{team.name.short}</h2>
+													<Link
+														className="edit-team-squads-link"
+														to={`/admin/teams/${
+															team.slug
+														}/squads/${squadId}`}
+													>
+														Edit Squad
+													</Link>
 													{content}
 												</div>
 											);
@@ -234,11 +262,11 @@ class AdminGamePregameSquads extends Component {
 
 function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
-	const { teamList } = teams;
-	return { localTeam, teamList };
+	const { fullTeams } = teams;
+	return { localTeam, fullTeams };
 }
 
 export default connect(
 	mapStateToProps,
-	{ setPregameSquads }
+	{ setPregameSquads, fetchTeam }
 )(AdminGamePregameSquads);
