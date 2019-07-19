@@ -127,4 +127,143 @@
 	section.stat-type-switch {
 		padding: 20pt 0;
 	}
+
+	section.player-leaderboards {
+		.leaderboard-wrapper {
+			.leaderboards {
+				display: grid;
+				grid-gap: 20pt;
+				width: 100%;
+
+				.leaderboard {
+					@include noTextSelect;
+					display: flex;
+					position: relative;
+					.leader {
+						left: 0;
+						top: 0;
+						bottom: 0;
+						margin: auto;
+						display: block;
+						img {
+							position: absolute;
+							max-width: 100%;
+							left: 0;
+							right: 0;
+							margin: auto;
+						}
+					}
+					.list {
+						@include header;
+						padding: 10pt;
+						position: relative;
+						grid-gap: 10pt;
+						background: darken($claret, 5%);
+						color: white;
+						display: grid;
+						grid-template-columns: auto 1fr auto;
+						align-items: center;
+						& > *:nth-child(-n + 3) {
+							color: $gold;
+							a:hover {
+								color: lighten($gold, 8%);
+							}
+						}
+						h6 {
+							position: absolute;
+							bottom: 100%;
+						}
+						span {
+							display: inline-block;
+						}
+						.value {
+							text-transform: none;
+						}
+					}
+				}
+			}
+			@media #{$mobile-only} {
+				h2 {
+					margin: 0;
+				}
+				&:not(:first-child) h2 {
+					margin-top: 10pt;
+					padding-top: 10pt;
+					border-top: solid 2pt;
+				}
+				.leaderboards {
+					.leaderboard {
+						flex-direction: column;
+						.leader {
+							width: 100%;
+							z-index: -1;
+							height: 180pt;
+							img {
+								max-height: 100%;
+								top: 0;
+							}
+						}
+						.list {
+							box-shadow: 2pt 2pt 2pt rgba(0, 0, 0, 0.5);
+							border-radius: 0 4pt 4pt 4pt;
+							width: 100%;
+							h6 {
+								background: white;
+								padding: 4pt 8pt;
+								border-radius: 4pt 4pt 0 0;
+								color: $claret;
+								font-size: 14pt;
+								box-shadow: inherit;
+								z-index: -1;
+							}
+						}
+					}
+				}
+			}
+			@media #{$desktop-and-tablet} {
+				background: #eee;
+				margin-bottom: 20pt;
+				padding: 20pt;
+				border-radius: 4pt;
+				box-shadow: 2pt 2pt 2pt rgba(0, 0, 0, 0.5);
+
+				.leaderboards {
+					grid-template-columns: repeat(auto-fill, minmax(310pt, 1fr));
+					.leaderboard {
+						$playerOverhang: 30pt;
+						margin-top: $playerOverhang;
+						min-height: 140pt;
+						background: #fff;
+						justify-content: flex-end;
+						box-shadow: 2pt 2pt 2pt rgba(0, 0, 0, 0.5);
+						border-radius: 4pt;
+
+						.leader {
+							position: absolute;
+							z-index: 2;
+							width: 40%;
+
+							img {
+								max-height: calc(100% + 30pt);
+								bottom: 0;
+							}
+						}
+
+						.list {
+							width: 80%;
+							padding-left: 20%;
+							.name {
+								max-height: 120pt;
+								overflow: auto;
+							}
+							h6 {
+								right: 0;
+								font-size: 20pt;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

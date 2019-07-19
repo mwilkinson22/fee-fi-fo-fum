@@ -2,6 +2,10 @@
 	pointer-events: none;
 }
 
+a .person-image {
+	pointer-events: initial;
+}
+
 .person-card-wrapper {
 	position: relative;
 	display: flex;
