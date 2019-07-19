@@ -59,13 +59,15 @@ export async function updateCountry(req, res) {
 
 //Post
 export async function createCity(req, res) {
-	const city = new City(req.body);
+	const slug = await City.generateSlug(req.body);
+	const city = new City({ ...req.body, slug });
 	await city.save();
 	await getUpdatedCity(city._id, res);
 }
 
 export async function createCountry(req, res) {
-	const country = new Country(req.body);
+	const slug = await Country.generateSlug(req.body.name);
+	const country = new Country({ ...req.body, slug });
 	await country.save();
 	await getUpdatedCountry(country._id, res);
 }

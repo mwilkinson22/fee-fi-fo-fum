@@ -34,63 +34,73 @@ class AdminCountryPage extends BasicForm {
 			fetchCountries();
 		}
 
-		const validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			demonym: Yup.string()
-				.required()
-				.label("Demonym"),
-			slug: validateSlug()
-		});
-
-		this.state = { validationSchema };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { countries, match } = nextProps;
 		const newState = { isLoading: false };
 
+		//Create Or Edit
 		newState.isNew = !match.params.slug;
 
-		if (!newState.isNew && !prevState.isDeleted) {
+		//Remove redirect after creation/deletion
+		if (prevState.redirect == match.url) {
 			newState.redirect = false;
 		}
 
+		//Check Everything is loaded
 		if (!newState.isNew && !countries) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		newState.country = _.find(countries, ({ slug }) => slug == match.params.slug) || false;
+		//Create Validation Schema
+		const rawValidationSchema = {
+			name: Yup.string()
+				.required()
+				.label("Name"),
+			demonym: Yup.string()
+				.required()
+				.label("Demonym")
+		};
+		if (match.params.slug) {
+			rawValidationSchema.slug = validateSlug();
+		}
+		newState.validationSchema = Yup.object().shape(rawValidationSchema);
+
+		//Get Current Country
+		if (!newState.isNew) {
+			newState.country = _.find(countries, ({ slug }) => slug == match.params.slug) || false;
+		}
 
 		return newState;
 	}
 
 	getDefaults() {
 		const { country, isNew } = this.state;
-		let values = {
-			name: "",
-			demonym: "",
-			slug: ""
-		};
 
-		if (!isNew) {
-			values = _.pick(_.cloneDeep(country), Object.keys(values));
+		if (isNew) {
+			return {
+				name: "",
+				demonym: ""
+			};
+		} else {
+			return country;
 		}
-		return values;
 	}
 
 	async handleSubmit(values) {
 		const { createCountry, updateCountry } = this.props;
 		const { country, isNew } = this.state;
 
+		let newSlug;
 		if (isNew) {
-			const newSlug = await createCountry(values);
-			await this.setState({ redirect: `/admin/countries/${newSlug}` });
+			newSlug = await createCountry(values);
 		} else {
-			await updateCountry(country._id, values);
+			newSlug = await updateCountry(country._id, values);
 		}
+		await this.setState({ redirect: `/admin/countries/${newSlug}` });
 	}
 
 	async handleDelete() {
@@ -144,9 +154,12 @@ class AdminCountryPage extends BasicForm {
 							render={() => {
 								const fields = [
 									{ name: "name", type: "text" },
-									{ name: "demonym", type: "text" },
-									{ name: "slug", type: "text" }
+									{ name: "demonym", type: "text" }
 								];
+
+								if (!isNew) {
+									fields.push({ name: "slug", type: "text" });
+								}
 
 								return (
 									<Form>

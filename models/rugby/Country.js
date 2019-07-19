@@ -10,8 +10,9 @@ const countrySchema = new Schema({
 countrySchema.statics.generateSlug = async function(name) {
 	const coreSlugText = name
 		.toLowerCase()
-		.replace(/\s+/gi, "-")
-		.replace(/(?![a-z-])./gi, "");
+		.replace(/(?![a-z-\s])./gi, "")
+		.trim()
+		.replace(/\s+/gi, "-");
 
 	let slugExists = await this.findOne({
 		slug: coreSlugText

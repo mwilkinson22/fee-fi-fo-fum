@@ -39,37 +39,48 @@ class AdminCityPage extends BasicForm {
 			fetchCities();
 		}
 
-		const validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			_country: Yup.mixed()
-				.required()
-				.label("Country"),
-			slug: validateSlug()
-		});
-
-		this.state = { validationSchema };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { countries, cities, match } = nextProps;
 		const newState = { isLoading: false };
 
+		//Create or Edit
 		newState.isNew = !match.params.slug;
 
-		if (!newState.isNew && !prevState.isDeleted) {
+		//Remove redirect after creation/deletion
+		if (prevState.redirect == match.url) {
 			newState.redirect = false;
 		}
 
-		if (!newState.isNew && (!countries || !cities)) {
+		//Check Everything is loaded
+		if (!countries || (!newState.isNew && !cities)) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		newState.city = _.find(cities, ({ slug }) => slug == match.params.slug) || false;
+		//Create Validation Schema
+		const rawValidationSchema = {
+			name: Yup.string()
+				.required()
+				.label("Name"),
+			_country: Yup.mixed()
+				.required()
+				.label("Country")
+		};
+		if (match.params.slug) {
+			rawValidationSchema.slug = validateSlug();
+		}
 
-		//Country Options
+		newState.validationSchema = Yup.object().shape(rawValidationSchema);
+
+		//Get Current City
+		if (!newState.isNew) {
+			newState.city = _.find(cities, ({ slug }) => slug == match.params.slug) || false;
+		}
+
+		//Get Country Options
 		newState.countries = _.sortBy(
 			countries.map(c => ({ label: c.name, value: c._id })),
 			"label"
@@ -80,17 +91,19 @@ class AdminCityPage extends BasicForm {
 
 	getDefaults() {
 		const { city, countries, isNew } = this.state;
-		let values = {
-			name: "",
-			_country: "",
-			slug: ""
-		};
 
-		if (!isNew) {
-			values = _.pick(_.cloneDeep(city), Object.keys(values));
-			values._country = countries.find(c => c.value == city._country._id);
+		if (isNew) {
+			return {
+				name: "",
+				country: ""
+			};
+		} else {
+			return {
+				name: city.name,
+				_country: countries.find(c => c.value == city._country._id),
+				slug: city.slug
+			};
 		}
-		return values;
 	}
 
 	async handleSubmit(fValues) {
@@ -100,12 +113,13 @@ class AdminCityPage extends BasicForm {
 		const values = _.cloneDeep(fValues);
 		values._country = values._country.value;
 
+		let newSlug;
 		if (isNew) {
-			const newSlug = await createCity(values);
-			await this.setState({ redirect: `/admin/cities/${newSlug}` });
+			newSlug = await createCity(values);
 		} else {
-			await updateCity(city._id, values);
+			newSlug = await updateCity(city._id, values);
 		}
+		await this.setState({ redirect: `/admin/cities/${newSlug}` });
 	}
 
 	async handleDelete() {
@@ -159,9 +173,11 @@ class AdminCityPage extends BasicForm {
 							render={() => {
 								const fields = [
 									{ name: "name", type: "text" },
-									{ name: "_country", type: "Select", options: countries },
-									{ name: "slug", type: "text" }
+									{ name: "_country", type: "Select", options: countries }
 								];
+								if (!isNew) {
+									fields.push({ name: "slug", type: "text" });
+								}
 
 								return (
 									<Form>

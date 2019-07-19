@@ -14,8 +14,9 @@ citySchema.statics.generateSlug = async function({ name, _country }) {
 
 	const citySlug = name
 		.toLowerCase()
-		.replace(/\s+/gi, "-")
-		.replace(/(?![a-z-])./gi, "");
+		.replace(/(?![a-z-\s])./gi, "")
+		.trim()
+		.replace(/\s+/gi, "-");
 
 	const coreSlugText = `${citySlug}-${country.slug}`;
 

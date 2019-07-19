@@ -36,12 +36,14 @@ export const updateCity = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/cities/${id}`, data);
 	dispatch({ type: UPDATE_CITY, payload: res.data });
 	toast.success("City Updated");
+	return res.data.slug;
 };
 
 export const updateCountry = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/countries/${id}`, data);
 	dispatch({ type: UPDATE_COUNTRY, payload: res.data });
 	toast.success("Country Updated");
+	return res.data.slug;
 };
 
 export const deleteCity = id => async (dispatch, getState, api) => {
