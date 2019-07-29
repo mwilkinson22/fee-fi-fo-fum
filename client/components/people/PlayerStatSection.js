@@ -2,6 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 //Actions
 import { fetchGameList, fetchGames } from "../../actions/gamesActions";
@@ -16,6 +17,7 @@ import SingleStatBox from "../stats/SingleStatBox";
 import LoadingPage from "../LoadingPage";
 import StatsTables from "../games/StatsTables";
 import GameFilters from "../games/GameFilters";
+import TeamImage from "../teams/TeamImage";
 
 class PlayerStatSection extends Component {
 	constructor(props) {
@@ -78,6 +80,8 @@ class PlayerStatSection extends Component {
 						return game;
 					})
 					.value();
+
+				newState.filteredGames = _.filter(newState.games, prevState.activeFilters);
 			}
 		}
 
@@ -249,8 +253,56 @@ class PlayerStatSection extends Component {
 		);
 	}
 
+	getStatsTables() {
+		const { filteredGames } = this.state;
+
+		const rows = _.map(filteredGames, game => {
+			const { slug, _opposition, date, title } = game;
+			const stats = _.chain(game.playerStats[0].stats)
+				.mapValues((val, key) => {
+					if (!playerStatTypes[key]) {
+						return null;
+					}
+					return {
+						content: PlayerStatsHelper.toString(key, val),
+						sortValue: val,
+						title: `${playerStatTypes[key].plural} against ${
+							game._opposition.name.short
+						}`
+					};
+				})
+				.pickBy(_.identity)
+				.value();
+			const data = {
+				first: {
+					content: (
+						<Link to={`/games/${slug}`} className="fixture-box">
+							<TeamImage team={_opposition} />
+							<div className="date mobile">{new Date(date).toString("dS MMM")}</div>
+							<div className="date desktop">
+								{new Date(date).toString("ddd dS MMMM")}
+							</div>
+							<div className="title">{title}</div>
+						</Link>
+					),
+					sortValue: date.toString("yyyyMMdd"),
+					title
+				},
+				...stats
+			};
+			return { key: slug, data };
+		});
+
+		return (
+			<div className="container" key="tables">
+				<h2>Games</h2>
+				<StatsTables listType="player" rows={rows} firstColumnHeader="Games" />
+			</div>
+		);
+	}
+
 	render() {
-		const { years, games, activeFilters } = this.state;
+		const { years, filteredGames, games } = this.state;
 		if (!years) {
 			return <LoadingPage />;
 		}
@@ -258,23 +310,14 @@ class PlayerStatSection extends Component {
 		let content;
 		if (!games) {
 			content = <LoadingPage />;
+		} else if (filteredGames.length === 0) {
+			content = (
+				<div className="container no-games-found" key="no-games-found">
+					No game data available
+				</div>
+			);
 		} else {
-			const filteredGames = _.filter(games, activeFilters);
-			if (filteredGames.length === 0) {
-				content = (
-					<div className="container no-games-found" key="no-games-found">
-						No game data available
-					</div>
-				);
-			} else {
-				content = [
-					this.getStatBoxes(),
-					<div className="container" key="tables">
-						<h2>Games</h2>
-						<StatsTables listType="player" data={filteredGames} />
-					</div>
-				];
-			}
+			content = [this.getStatBoxes(), this.getStatsTables()];
 		}
 
 		return (

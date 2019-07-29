@@ -1,10 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 import _ from "lodash";
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
-import TeamImage from "../teams/TeamImage";
 import playerStatTypes from "../../../constants/playerStatTypes";
 import Table from "../Table";
 
@@ -17,23 +15,7 @@ class StatsTables extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { listType, data, teamList } = nextProps;
-
-		//Get Rows
-		let rows;
-		let firstColumnHeader;
-		switch (listType) {
-			case "player": {
-				rows = StatsTables.processGameList(data);
-				firstColumnHeader = "Game";
-				break;
-			}
-			case "game": {
-				rows = StatsTables.processPlayerList(data, teamList);
-				firstColumnHeader = "Player";
-				break;
-			}
-		}
+		const { rows } = nextProps;
 
 		const statTypes = _.chain(rows)
 			.map(row => _.keys(row.data))
@@ -50,106 +32,7 @@ class StatsTables extends Component {
 			activeTab = tabs[0];
 		}
 
-		return { statTypes, rows, activeTab, firstColumnHeader };
-	}
-
-	static processGameList(games) {
-		const rows = _.map(games, game => {
-			const { slug, _opposition, date, title } = game;
-			const stats = _.chain(game.playerStats[0].stats)
-				.mapValues((val, key) => {
-					if (!playerStatTypes[key]) {
-						return null;
-					}
-					return {
-						content: PlayerStatsHelper.toString(key, val),
-						sortValue: val,
-						title: `${playerStatTypes[key].plural} against ${
-							game._opposition.name.short
-						}`
-					};
-				})
-				.pickBy(_.identity)
-				.value();
-			const data = {
-				first: {
-					content: (
-						<Link to={`/games/${slug}`} className="fixture-box">
-							<TeamImage team={_opposition} />
-							<div className="date mobile">{new Date(date).toString("dS MMM")}</div>
-							<div className="date desktop">
-								{new Date(date).toString("ddd dS MMMM")}
-							</div>
-							<div className="title">{title}</div>
-						</Link>
-					),
-					sortValue: date.toString("yyyyMMdd"),
-					title
-				},
-				...stats
-			};
-			return { key: slug, data };
-		});
-		return rows;
-	}
-
-	static processPlayerList(game, teamList) {
-		const { isAway, _opposition, playerStats, eligiblePlayers } = game;
-		const rows = _.chain(playerStats)
-			.map(p => ({ ...p, isAway: p._team == _opposition._id ? !isAway : isAway }))
-			.orderBy(["isAway", "position"], ["asc", "asc"])
-			.map((p, sortValue) => {
-				const { _player, _team, stats } = p;
-				const player = eligiblePlayers[_team].find(p => p._player._id == _player);
-
-				const { number } = player;
-				const { name, slug } = player._player;
-
-				let first;
-				const firstContent = [
-					<div className="badge-wrapper" key="image">
-						<TeamImage team={teamList[_team]} variant="dark" key="image" />
-					</div>,
-					<div key="name" className="name">
-						<div>{`${number ? `${number}. ` : ""}${name.first}`}</div>
-						<div>{name.last}</div>
-					</div>
-				];
-
-				if (_team == _opposition._id) {
-					first = {
-						content: <span>{firstContent}</span>,
-						sortValue
-					};
-				} else {
-					first = {
-						content: <Link to={`/players/${slug}`}>{firstContent}</Link>,
-						sortValue
-					};
-				}
-
-				const formattedStats = _.chain(PlayerStatsHelper.processStats(stats))
-					.mapValues()
-					.mapValues((val, key) => {
-						if (!playerStatTypes[key]) {
-							return null;
-						}
-						return {
-							content: PlayerStatsHelper.toString(key, val),
-							sortValue: val
-						};
-					})
-					.pickBy(_.identity)
-					.value();
-
-				const data = {
-					first,
-					...formattedStats
-				};
-				return { key: slug, data };
-			})
-			.value();
-		return rows;
+		return { statTypes, rows, activeTab };
 	}
 
 	handleTableHeaderClick(inputKey = null, enforcedDirection = null) {
@@ -190,7 +73,8 @@ class StatsTables extends Component {
 	}
 
 	renderColumns() {
-		const { statTypes, activeTab, firstColumnHeader } = this.state;
+		const { statTypes, activeTab } = this.state;
+		const { firstColumnHeader } = this.props;
 		const columnsFromStatType = statTypes[activeTab].map(key => {
 			const stat = playerStatTypes[key];
 			return {
@@ -304,13 +188,14 @@ class StatsTables extends Component {
 }
 
 StatsTables.propTypes = {
-	data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
-	listType: PropTypes.oneOf(["player", "game"]).isRequired,
+	firstColumnHeader: PropTypes.string,
+	rows: Table.propTypes.rows,
 	showAverage: PropTypes.bool,
 	showTotal: PropTypes.bool
 };
 
 StatsTables.defaultProps = {
+	firstColumnHeader: "",
 	showAverage: true,
 	showTotal: true
 };

@@ -34,6 +34,9 @@ import { Redirect } from "react-router-dom";
 
 //Helpers
 import { getLastGame } from "~/helpers/gameHelper";
+import TeamImage from "~/client/components/teams/TeamImage";
+import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import playerStatTypes from "~/constants/playerStatTypes";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -55,10 +58,6 @@ class GamePage extends Component {
 
 		if (!postList) {
 			fetchPostList();
-		}
-
-		if (!fullTeams[localTeam]) {
-			fetchTeam(localTeam);
 		}
 
 		this.state = {};
@@ -293,6 +292,8 @@ class GamePage extends Component {
 	generateStatsTableSection() {
 		const { localTeam, fullTeams } = this.props;
 		const { game, statTableTeam } = this.state;
+
+		//Generate Team Selector Data
 		let tableSelectorOptions = [
 			{ value: localTeam, label: fullTeams[localTeam].name.short },
 			{ value: "both", label: "Both Teams" },
@@ -308,6 +309,68 @@ class GamePage extends Component {
 				({ _team }) => _team == statTableTeam
 			);
 		}
+
+		//Process game stats into rows
+		const { isAway, _opposition, playerStats, eligiblePlayers } = game;
+		const rows = _.chain(playerStats)
+			.map(p => ({ ...p, isAway: p._team == _opposition._id ? !isAway : isAway }))
+			.orderBy(["isAway", "position"], ["asc", "asc"])
+			.map((p, sortValue) => {
+				const { _player, _team, stats } = p;
+				const player = eligiblePlayers[_team].find(p => p._player._id == _player);
+
+				const { number } = player;
+				const { name, slug } = player._player;
+
+				let first;
+				const firstContent = [
+					<div className="badge-wrapper" key="image">
+						<TeamImage
+							team={_team == _opposition._id ? _opposition : fullTeams[localTeam]}
+							variant="dark"
+							key="image"
+						/>
+					</div>,
+					<div key="name" className="name">
+						<div>{`${number ? `${number}. ` : ""}${name.first}`}</div>
+						<div>{name.last}</div>
+					</div>
+				];
+
+				if (_team == _opposition._id) {
+					first = {
+						content: <span>{firstContent}</span>,
+						sortValue
+					};
+				} else {
+					first = {
+						content: <Link to={`/players/${slug}`}>{firstContent}</Link>,
+						sortValue
+					};
+				}
+
+				const formattedStats = _.chain(PlayerStatsHelper.processStats(stats))
+					.mapValues()
+					.mapValues((val, key) => {
+						if (!playerStatTypes[key]) {
+							return null;
+						}
+						return {
+							content: PlayerStatsHelper.toString(key, val),
+							sortValue: val
+						};
+					})
+					.pickBy(_.identity)
+					.value();
+
+				const data = {
+					first,
+					...formattedStats
+				};
+				return { key: slug, data };
+			})
+			.value();
+
 		return (
 			<section className="stats-table" key="stats-table">
 				<div className="container">
@@ -317,7 +380,7 @@ class GamePage extends Component {
 						onChange={statTableTeam => this.setState({ statTableTeam })}
 						options={tableSelectorOptions}
 					/>
-					<StatsTables listType="game" data={filteredGame} />
+					<StatsTables rows={rows} firstColumnHeader="Player" />
 				</div>
 			</section>
 		);
