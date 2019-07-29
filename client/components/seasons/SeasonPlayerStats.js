@@ -3,10 +3,12 @@ import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 //Components
 import GameFilters from "../games/GameFilters";
 import PageSwitch from "../PageSwitch";
+import StatsTables from "../games/StatsTables";
 
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
@@ -111,6 +113,49 @@ class SeasonPlayerStats extends Component {
 		});
 	}
 
+	renderStatTables() {
+		const { players, statType, processedStats } = this.state;
+		const rows = processedStats.map(({ _player, stats }) => {
+			//Generate first column
+			const p = players[_player];
+			const sortValue = p.number ? ("00" + p.number).slice(-3) : `999-${p._player.name.last}`;
+			const first = {
+				content: (
+					<Link to={`/players/${p._player.slug}`}>
+						{p.number ? `${p.number}. ` : ""}
+						{p._player.name.full}
+					</Link>
+				),
+				sortValue
+			};
+
+			//Stat Columns
+			const statData = _.mapValues(stats, (data, key) => {
+				const value = data[statType];
+				return {
+					content: PlayerStatsHelper.toString(key, value),
+					sortValue: value || (playerStatTypes[key].moreIsBetter ? 0 : 1000000)
+				};
+			});
+
+			return {
+				key: _player,
+				data: {
+					first,
+					...statData
+				}
+			};
+		});
+		return (
+			<StatsTables
+				rows={rows}
+				firstColumnHeader="Player"
+				showTotal={false}
+				showAverage={false}
+			/>
+		);
+	}
+
 	render() {
 		const { games, activeFilters, statType } = this.state;
 		return [
@@ -138,6 +183,10 @@ class SeasonPlayerStats extends Component {
 			</section>,
 			<section className="player-leaderboards" key="leaderboard">
 				<div className="container">{this.renderLeaderboards()}</div>
+			</section>,
+			<section className="player-stat-tables" key="stat-tables">
+				<h2>Stats</h2>
+				<div className="container">{this.renderStatTables()}</div>
 			</section>
 		];
 	}
