@@ -40,10 +40,6 @@ class AdminGameOverview extends BasicForm {
 		this.state = {};
 	}
 
-	componentDidMount() {
-		this.getOptions();
-	}
-
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const {
 			game,
@@ -176,9 +172,8 @@ class AdminGameOverview extends BasicForm {
 		const options = {};
 		let { teamTypes, teamList, competitionSegmentList, groundList, peopleList } = this.state;
 		const { game } = this.state;
-		values = values || game;
 		//Filter
-		if (values) {
+		if (values || game) {
 			//Filter Competitions on Team Type and Year
 			const filterDate = values ? values.date : game.date;
 			const filterTeamType = values ? values._teamType.value : game._teamType;
@@ -199,10 +194,10 @@ class AdminGameOverview extends BasicForm {
 				});
 			}
 			//Filter Team on Competition and Year
-			const competitionSegmentOption = values ? values._competition : game._competition;
+			const competitionSegmentId = values ? values._competition.value : game._competition._id;
 			const competitionSegment = _.find(
 				competitionSegmentList,
-				comp => comp.id === competitionSegmentOption.value
+				comp => comp.id == competitionSegmentId
 			);
 			if (!filterYear || !competitionSegment || !competitionSegmentList.length) {
 				teamList = [];
@@ -390,6 +385,7 @@ class AdminGameOverview extends BasicForm {
 			"competitionSegmentList",
 			"groundList",
 			"peopleList",
+			"teamList",
 			"validationSchema"
 		];
 		let stopRender = false;
