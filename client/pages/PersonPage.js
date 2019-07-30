@@ -144,16 +144,37 @@ class PersonPage extends Component {
 		}
 
 		if (_sponsor) {
-			data["Sponsor"] = _sponsor.twitter ? (
-				<a
-					href={`https://twitter.com/${_sponsor.twitter}`}
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					{_sponsor.name}
-				</a>
-			) : (
-				_sponsor.name
+			//Format name as text or link
+			let name;
+			if (_sponsor.url) {
+				name = (
+					<a href={`${_sponsor.url}`} target="_blank" rel="noopener noreferrer">
+						{_sponsor.name}
+					</a>
+				);
+			} else {
+				name = _sponsor.name;
+			}
+
+			let twitter;
+			if (_sponsor.twitter) {
+				twitter = (
+					<a
+						key="twitter"
+						href={`https://www.twitter.com/${_sponsor.twitter}`}
+						className="twitter"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<img src={`${layoutImagePath}icons/twitter.svg`} alt="Twitter Logo" />
+					</a>
+				);
+			}
+			data["Sponsor"] = (
+				<div>
+					{twitter}
+					{name}
+				</div>
 			);
 		}
 
