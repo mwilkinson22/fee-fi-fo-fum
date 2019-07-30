@@ -80,7 +80,7 @@ export async function getPerson(req, res) {
 
 export async function getSponsors(req, res) {
 	const sponsors = await PlayerSponsor.find({}).lean();
-	res.send({ sponsors });
+	res.send(sponsors);
 }
 
 export async function searchNames(req, res) {
