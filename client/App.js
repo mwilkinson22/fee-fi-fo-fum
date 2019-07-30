@@ -43,9 +43,13 @@ class App extends Component {
 	}
 
 	render() {
-		const { route } = this.props;
+		const { route, browser } = this.props;
+		let className = "";
+		if (browser) {
+			className = `browser-${browser.toLowerCase().replace(/(?![A-Za-z0-9-_])./gi, "-")}`;
+		}
 		return (
-			<div>
+			<div className={className}>
 				<ScrollToTop>
 					<Header />
 					<HelmetBuilder title="" canonical="/" />
@@ -57,9 +61,14 @@ class App extends Component {
 	}
 }
 
+function mapStateToProps({ config }) {
+	const { browser } = config;
+	return { browser };
+}
+
 export default {
 	component: connect(
-		null,
+		mapStateToProps,
 		{ fetchUser }
 	)(App)
 };
