@@ -14,4 +14,5 @@ export const userImagePath = imagePath + "users/";
 export const gameImagePath = imagePath + "games/";
 export const groundImagePath = imagePath + "grounds/";
 export const layoutImagePath = imagePath + "layout/";
+export const sponsorImagePath = imagePath + "sponsors/";
 export const competitionImagePath = imagePath + "competitions/";

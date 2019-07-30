@@ -20,6 +20,7 @@ import keys from "./config/keys";
 
 //Add Mongoose Models
 import "./models/User";
+import "./models/PlayerSponsor";
 import "./models/IdLink";
 import "./models/SlugRedirect";
 import "./models/rugby";
