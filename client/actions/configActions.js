@@ -1,11 +1,10 @@
 import { GET_CORE_CONFIG } from "./types";
 import { localTeam } from "../../config/keys";
-import { detect } from "detect-browser";
-const browser = detect();
 
 export const getCoreConfig = req => async dispatch => {
 	const { headers, useragent, protocol, originalUrl } = req;
 
+	const { browser } = useragent;
 	const config = {
 		//Set Browser
 		browser,
@@ -14,7 +13,7 @@ export const getCoreConfig = req => async dispatch => {
 		webp: headers.accept && headers.accept.indexOf("image/webp") > -1,
 
 		//Set rgba compatiblility
-		rgba: browser && ["edge", "ie"].indexOf(browser.name) === -1,
+		rgba: ["Edge", "IE"].indexOf(browser) === -1,
 
 		//Local Team
 		localTeam,
