@@ -13,6 +13,7 @@ import requireAdmin from "../../middlewares/requireAdmin";
 module.exports = app => {
 	//Getters
 	app.get("/api/people/searchNames/:names", peopleController.searchNames);
+	app.get("/api/people/sponsors", peopleController.getSponsors);
 	app.get("/api/people/:id", peopleController.getPerson);
 	app.get("/api/people", peopleController.getList);
 

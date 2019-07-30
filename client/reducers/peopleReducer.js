@@ -1,4 +1,4 @@
-import { FETCH_PEOPLE_LIST, FETCH_PERSON } from "../actions/types";
+import { FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_SPONSORS } from "../actions/types";
 
 export default function(state = { fullPeople: {} }, action) {
 	switch (action.type) {
@@ -10,6 +10,12 @@ export default function(state = { fullPeople: {} }, action) {
 
 		case FETCH_PEOPLE_LIST:
 			return { ...state, ...action.payload };
+
+		case FETCH_SPONSORS:
+			return {
+				...state,
+				sponsors: action.payload
+			};
 
 		default:
 			return state;

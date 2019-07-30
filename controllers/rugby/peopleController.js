@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 //Mongoose
 const collectionName = "people";
 const Person = mongoose.model(collectionName);
+const PlayerSponsor = mongoose.model("playerSponsors");
 const Game = mongoose.model("games");
 
 //Helpers
@@ -31,7 +32,8 @@ export async function getPerson(req, res) {
 	//Get Core Data
 	const doc = await Person.findById(id)
 		.populate({ path: "_hometown", populate: { path: "_country" } })
-		.populate({ path: "_represents" });
+		.populate({ path: "_represents" })
+		.populate({ path: "_sponsor" });
 	const person = JSON.parse(JSON.stringify(doc));
 
 	//Get Stat Years
@@ -74,6 +76,11 @@ export async function getPerson(req, res) {
 	}
 
 	res.send(person);
+}
+
+export async function getSponsors(req, res) {
+	const sponsors = await PlayerSponsor.find({}).lean();
+	res.send({ sponsors });
 }
 
 export async function searchNames(req, res) {

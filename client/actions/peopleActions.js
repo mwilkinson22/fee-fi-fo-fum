@@ -1,9 +1,14 @@
-import { FETCH_PEOPLE_LIST, FETCH_PERSON } from "./types";
+import { FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_SPONSORS } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchPeopleList = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/people`);
 	dispatch({ type: FETCH_PEOPLE_LIST, payload: res.data });
+};
+
+export const fetchPlayerSponsors = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/people/sponsors`);
+	dispatch({ type: FETCH_SPONSORS, payload: res.data });
 };
 
 export const fetchPerson = id => async (dispatch, getState, api) => {
