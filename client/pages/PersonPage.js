@@ -116,7 +116,7 @@ class PersonPage extends Component {
 
 	getInfoTable() {
 		const { person } = this.state;
-		const { playerDetails, dateOfBirth, nickname, _hometown, _represents } = person;
+		const { playerDetails, dateOfBirth, nickname, _hometown, _represents, _sponsor } = person;
 		const data = {};
 		if (dateOfBirth) {
 			const dob = new Date(person.dateOfBirth);
@@ -141,6 +141,20 @@ class PersonPage extends Component {
 
 		if (playerDetails.contractEnds && playerDetails.contractEnds >= new Date().getFullYear()) {
 			data["Contracted Until"] = playerDetails.contractEnds;
+		}
+
+		if (_sponsor) {
+			data["Sponsor"] = _sponsor.twitter ? (
+				<a
+					href={`https://twitter.com/${_sponsor.twitter}`}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{_sponsor.name}
+				</a>
+			) : (
+				_sponsor.name
+			);
 		}
 
 		const rows = _.map(data, (value, field) => {
