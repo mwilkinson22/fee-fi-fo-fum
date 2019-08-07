@@ -24,11 +24,9 @@ class ImageSelector extends Component {
 			const dateFormat = "yyyy-MM-dd H:mm";
 			const metadata = imageList.find(i => i.name == currentImage);
 			const src = googleBucket + path + currentImage;
-			return (
-				<div className="preview-box with-image">
-					<div className="img-wrapper">
-						<img src={src} />
-					</div>
+			let textContent;
+			if (metadata) {
+				textContent = (
 					<ul className="attributes">
 						<li className="attribute">
 							<strong>Name</strong>
@@ -47,6 +45,16 @@ class ImageSelector extends Component {
 							{(metadata.size / 1024).toFixed(2)}kb
 						</li>
 					</ul>
+				);
+			} else {
+				textContent = <p>Image metadata not found</p>;
+			}
+			return (
+				<div className="preview-box with-image">
+					<div className="img-wrapper">
+						<img src={src} />
+					</div>
+					{textContent}
 				</div>
 			);
 		}
