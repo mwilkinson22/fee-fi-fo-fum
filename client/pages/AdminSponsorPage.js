@@ -15,21 +15,21 @@ import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
 import {
-	fetchPlayerSponsors,
-	createPlayerSponsor,
-	updatePlayerSponsor,
-	deletePlayerSponsor,
+	fetchSponsors,
+	createSponsor,
+	updateSponsor,
+	deleteSponsor,
 	fetchAllSponsorLogos
-} from "~/client/actions/peopleActions";
+} from "~/client/actions/sponsorActions";
 
 class AdminCountryPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { sponsors, fetchPlayerSponsors, sponsorLogos, fetchAllSponsorLogos } = props;
+		const { sponsorList, fetchSponsors, sponsorLogos, fetchAllSponsorLogos } = props;
 
-		if (!sponsors) {
-			fetchPlayerSponsors();
+		if (!sponsorList) {
+			fetchSponsors();
 		}
 
 		if (!sponsorLogos) {
@@ -40,7 +40,7 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { sponsors, match } = nextProps;
+		const { sponsorList, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
@@ -52,7 +52,7 @@ class AdminCountryPage extends BasicForm {
 		}
 
 		//Check Everything is loaded
-		if (!newState.isNew && !sponsors) {
+		if (!newState.isNew && !sponsorList) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -69,7 +69,7 @@ class AdminCountryPage extends BasicForm {
 
 		//Get Current Sponsor
 		if (!newState.isNew) {
-			newState.sponsor = _.find(sponsors, ({ _id }) => _id == match.params.id) || false;
+			newState.sponsor = sponsorList[match.params.id] || false;
 		}
 
 		return newState;
@@ -91,21 +91,21 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	async handleSubmit(values) {
-		const { createPlayerSponsor, updatePlayerSponsor } = this.props;
+		const { createSponsor, updateSponsor } = this.props;
 		const { sponsor, isNew } = this.state;
 
 		if (isNew) {
-			const newId = await createPlayerSponsor(values);
+			const newId = await createSponsor(values);
 			await this.setState({ redirect: `/admin/sponsors/${newId}` });
 		} else {
-			await updatePlayerSponsor(sponsor._id, values);
+			await updateSponsor(sponsor._id, values);
 		}
 	}
 
 	async handleDelete() {
-		const { deletePlayerSponsor } = this.props;
+		const { deleteSponsor } = this.props;
 		const { sponsor } = this.state;
-		const success = await deletePlayerSponsor(sponsor._id);
+		const success = await deleteSponsor(sponsor._id);
 		if (success) {
 			this.setState({ isDeleted: true, redirect: "/admin/sponsors" });
 		}
@@ -188,18 +188,18 @@ class AdminCountryPage extends BasicForm {
 	}
 }
 
-function mapStateToProps({ people }) {
-	const { sponsors, sponsorLogos } = people;
-	return { sponsors, sponsorLogos };
+function mapStateToProps({ sponsors }) {
+	const { sponsorList, sponsorLogos } = sponsors;
+	return { sponsorList, sponsorLogos };
 }
 
 export default connect(
 	mapStateToProps,
 	{
-		fetchPlayerSponsors,
-		createPlayerSponsor,
-		updatePlayerSponsor,
-		deletePlayerSponsor,
+		fetchSponsors,
+		createSponsor,
+		updateSponsor,
+		deleteSponsor,
 		fetchAllSponsorLogos
 	}
 )(AdminCountryPage);

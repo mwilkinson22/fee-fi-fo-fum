@@ -6,5 +6,6 @@ module.exports = app => {
 	require("./neutralGamesRoutes")(app);
 	require("./peopleRoutes")(app);
 	require("./seasonRoutes")(app);
+	require("./sponsorRoutes")(app);
 	require("./teamsRoutes")(app);
 };

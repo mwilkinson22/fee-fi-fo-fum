@@ -8,29 +8,30 @@ import { Link } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
 
 //Actions
-import { fetchPlayerSponsors } from "~/client/actions/peopleActions";
+import { fetchSponsors } from "~/client/actions/sponsorActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 class AdminSponsorList extends Component {
 	constructor(props) {
 		super(props);
 
-		const { sponsors, fetchPlayerSponsors } = props;
+		const { sponsorList, fetchSponsors } = props;
 
-		if (!sponsors) {
-			fetchPlayerSponsors();
+		if (!sponsorList) {
+			fetchSponsors();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { sponsors } = nextProps;
-		return { sponsors };
+		const { sponsorList } = nextProps;
+		return { sponsorList };
 	}
 
 	renderList() {
-		const sponsors = _.chain(this.state.sponsors)
+		const { sponsorList } = this.state;
+		const sponsors = _.chain(sponsorList)
 			.sortBy("name")
 			.map(({ _id, name }) => (
 				<li key={_id}>
@@ -47,9 +48,9 @@ class AdminSponsorList extends Component {
 	}
 
 	render() {
-		const { sponsors } = this.state;
+		const { sponsorList } = this.state;
 		let content;
-		if (!sponsors) {
+		if (!sponsorList) {
 			content = <LoadingPage />;
 		} else {
 			content = this.renderList();
@@ -75,12 +76,12 @@ class AdminSponsorList extends Component {
 	}
 }
 
-function mapStateToProps({ people }) {
-	const { sponsors } = people;
-	return { sponsors };
+function mapStateToProps({ sponsors }) {
+	const { sponsorList } = sponsors;
+	return { sponsorList };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchPlayerSponsors }
+	{ fetchSponsors }
 )(AdminSponsorList);

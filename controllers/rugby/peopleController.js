@@ -5,13 +5,10 @@ import mongoose from "mongoose";
 //Mongoose
 const collectionName = "people";
 const Person = mongoose.model(collectionName);
-const PlayerSponsor = mongoose.model("playerSponsors");
 const Game = mongoose.model("games");
 
 //Helpers
 import { getListsAndSlugs } from "../genericController";
-import { addEligiblePlayers } from "~/controllers/rugby/gamesController";
-import { getDirectoryList } from "~/helpers/fileHelper";
 const { earliestGiantsData } = require("../../config/keys");
 
 //To Delete
@@ -24,20 +21,6 @@ export async function getList(req, res) {
 	).lean();
 	const { list, slugMap } = await getListsAndSlugs(people, collectionName);
 	res.send({ peopleList: list, slugMap });
-}
-
-async function validateSponsor(_id, res) {
-	if (!_id) {
-		res.status(400).send(`No id provided`);
-	}
-
-	const sponsor = await PlayerSponsor.findById(_id);
-	if (sponsor) {
-		return sponsor;
-	} else {
-		res.status(404).send(`No sponsor found with id ${_id}`);
-		return false;
-	}
 }
 
 export async function getPerson(req, res) {
@@ -91,53 +74,6 @@ export async function getPerson(req, res) {
 	}
 
 	res.send(person);
-}
-
-export async function createSponsor(req, res) {
-	const sponsor = new PlayerSponsor(req.body);
-	await sponsor.save();
-	res.send(sponsor);
-}
-
-export async function getSponsors(req, res) {
-	const sponsors = await PlayerSponsor.find({}).lean();
-	res.send(_.keyBy(sponsors, "_id"));
-}
-
-export async function updateSponsor(req, res) {
-	const { _id } = req.params;
-	const sponsor = await validateSponsor(_id, res);
-	if (sponsor) {
-		await sponsor.updateOne(req.body);
-		const newSponsor = await PlayerSponsor.findById(_id).lean();
-		res.send(newSponsor);
-	}
-}
-
-export async function deleteSponsor(req, res) {
-	const { _id } = req.params;
-	const sponsor = await validateSponsor(_id, res);
-	if (sponsor) {
-		const players = await Person.find({ _sponsor: _id }, "name").lean();
-		if (players.length) {
-			let error = `Sponsor cannot be deleted as it is required for ${players.length} ${
-				players.length == 1 ? "player" : "players"
-			}`;
-
-			res.status(409).send({
-				error,
-				toLog: { players }
-			});
-		} else {
-			await sponsor.remove();
-			res.send({});
-		}
-	}
-}
-
-export async function getSponsorLogos(req, res) {
-	const imageList = await getDirectoryList("images/sponsors/");
-	res.send(imageList);
 }
 
 export async function searchNames(req, res) {
