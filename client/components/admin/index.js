@@ -27,6 +27,7 @@ import AdminNewsList from "../../pages/AdminNewsList";
 import AdminNewsPostPage from "../../pages/AdminNewsPostPage";
 
 import AdminSponsorList from "../../pages/AdminSponsorList";
+import AdminSponsorPage from "../../pages/AdminSponsorPage";
 
 import AdminTeamList from "../../pages/AdminTeamList";
 import AdminTeamPage from "../../pages/AdminTeamPage";
@@ -70,6 +71,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/news/post/:slug" component={AdminNewsPostPage} />
 					<Route path="/admin/news/" exact component={AdminNewsList} />
 
+					<Route path="/admin/sponsors/new" exact component={AdminSponsorPage} />
+					<Route path="/admin/sponsors/:id" exact component={AdminSponsorPage} />
 					<Route path="/admin/sponsors/" exact component={AdminSponsorList} />
 
 					<Route path="/admin/teams/:slug" component={AdminTeamPage} />

@@ -13,6 +13,7 @@ import requireAdmin from "../../middlewares/requireAdmin";
 module.exports = app => {
 	//Getters
 	app.get("/api/people/searchNames/:names", peopleController.searchNames);
+	app.get("/api/people/sponsorLogos", peopleController.getSponsorLogos);
 	app.get("/api/people/sponsors", peopleController.getSponsors);
 	app.get("/api/people/:id", peopleController.getPerson);
 	app.get("/api/people", peopleController.getList);
@@ -49,4 +50,11 @@ module.exports = app => {
 
 	//Putters
 	app.put("/api/people/setExternalNames", peopleController.setExternalNames);
+	app.put("/api/people/sponsors/:_id", peopleController.updateSponsor);
+
+	//Posters
+	app.post("/api/people/sponsors/", peopleController.createSponsor);
+
+	//Deleters
+	app.delete("/api/people/sponsors/:_id", peopleController.deleteSponsor);
 };

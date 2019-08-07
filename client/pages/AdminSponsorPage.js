@@ -1,0 +1,205 @@
+//Modules
+import _ from "lodash";
+import React from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+
+//Components
+import BasicForm from "../components/admin/BasicForm";
+import NotFoundPage from "./NotFoundPage";
+import LoadingPage from "../components/LoadingPage";
+import DeleteButtons from "../components/admin/fields/DeleteButtons";
+import HelmetBuilder from "~/client/components/HelmetBuilder";
+
+//Actions
+import {
+	fetchPlayerSponsors,
+	createPlayerSponsor,
+	updatePlayerSponsor,
+	deletePlayerSponsor,
+	fetchAllSponsorLogos
+} from "~/client/actions/peopleActions";
+
+class AdminCountryPage extends BasicForm {
+	constructor(props) {
+		super(props);
+
+		const { sponsors, fetchPlayerSponsors, sponsorLogos, fetchAllSponsorLogos } = props;
+
+		if (!sponsors) {
+			fetchPlayerSponsors();
+		}
+
+		if (!sponsorLogos) {
+			fetchAllSponsorLogos();
+		}
+
+		this.state = {};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { sponsors, match } = nextProps;
+		const newState = { isLoading: false };
+
+		//Create Or Edit
+		newState.isNew = !match.params.id;
+
+		//Remove redirect after creation/deletion
+		if (prevState.redirect == match.url) {
+			newState.redirect = false;
+		}
+
+		//Check Everything is loaded
+		if (!newState.isNew && !sponsors) {
+			newState.isLoading = true;
+			return newState;
+		}
+
+		//Create Validation Schema
+		newState.validationSchema = Yup.object().shape({
+			name: Yup.string()
+				.required()
+				.label("Name"),
+			url: Yup.string().label("URL"),
+			twitter: Yup.string().label("Twitter Handle"),
+			image: Yup.string().label("Logo")
+		});
+
+		//Get Current Sponsor
+		if (!newState.isNew) {
+			newState.sponsor = _.find(sponsors, ({ _id }) => _id == match.params.id) || false;
+		}
+
+		return newState;
+	}
+
+	getDefaults() {
+		const { sponsor, isNew } = this.state;
+
+		if (isNew) {
+			return {
+				name: "",
+				url: "",
+				twitter: "",
+				image: ""
+			};
+		} else {
+			return _.mapValues(sponsor, v => v || "");
+		}
+	}
+
+	async handleSubmit(values) {
+		const { createPlayerSponsor, updatePlayerSponsor } = this.props;
+		const { sponsor, isNew } = this.state;
+
+		if (isNew) {
+			const newId = await createPlayerSponsor(values);
+			await this.setState({ redirect: `/admin/sponsors/${newId}` });
+		} else {
+			await updatePlayerSponsor(sponsor._id, values);
+		}
+	}
+
+	async handleDelete() {
+		const { deletePlayerSponsor } = this.props;
+		const { sponsor } = this.state;
+		const success = await deletePlayerSponsor(sponsor._id);
+		if (success) {
+			this.setState({ isDeleted: true, redirect: "/admin/sponsors" });
+		}
+	}
+
+	renderDeleteButtons() {
+		if (!this.state.isNew) {
+			return (
+				<div className="form-card">
+					<DeleteButtons onDelete={() => this.handleDelete()} />
+				</div>
+			);
+		}
+	}
+
+	render() {
+		const { redirect, sponsor, isNew, isLoading, validationSchema } = this.state;
+
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		}
+
+		if (isLoading) {
+			return <LoadingPage />;
+		}
+		if (!isNew && sponsor === false) {
+			return <NotFoundPage message="Sponsor not found" />;
+		}
+
+		const title = isNew ? "Add New Sponsor" : sponsor.name;
+		return (
+			<div className="admin-sponsor-page">
+				<HelmetBuilder title={title} />
+				<section className="page-header">
+					<div className="container">
+						<h1>{title}</h1>
+					</div>
+				</section>
+				<section className="form">
+					<div className="container">
+						<Formik
+							onSubmit={values => this.handleSubmit(values)}
+							initialValues={this.getDefaults()}
+							validationSchema={validationSchema}
+							render={({ values }) => {
+								const fields = [
+									{ name: "name", type: "text" },
+									{ name: "url", type: "text" },
+									{ name: "twitter", type: "text" },
+									{
+										name: "image",
+										type: "Image",
+										path: "images/sponsors/",
+										acceptSVG: true,
+										imageList: this.props.sponsorLogos,
+										defaultUploadName: sponsor ? sponsor._id : values.name
+									}
+								];
+
+								return (
+									<Form>
+										<div className="card form-card grid">
+											{this.renderFieldGroup(fields)}
+											<div className="buttons">
+												<button type="reset">Reset</button>
+												<button type="submit">
+													{isNew ? "Add" : "Update"} Sponsor
+												</button>
+											</div>
+										</div>
+										{this.renderDeleteButtons()}
+									</Form>
+								);
+							}}
+						/>
+					</div>
+				</section>
+			</div>
+		);
+	}
+}
+
+function mapStateToProps({ people }) {
+	const { sponsors, sponsorLogos } = people;
+	return { sponsors, sponsorLogos };
+}
+
+export default connect(
+	mapStateToProps,
+	{
+		fetchPlayerSponsors,
+		createPlayerSponsor,
+		updatePlayerSponsor,
+		deletePlayerSponsor,
+		fetchAllSponsorLogos
+	}
+)(AdminCountryPage);

@@ -37,7 +37,11 @@ export const DELETE_POST = "delete_post";
 //People
 export const FETCH_PERSON = "fetch_person";
 export const FETCH_PEOPLE_LIST = "fetch_people_list";
+export const CREATE_SPONSOR = "create_sponsor";
 export const FETCH_SPONSORS = "fetch_sponsors";
+export const UPDATE_SPONSOR = "update_sponsor";
+export const DELETE_SPONSOR = "delete_sponsor";
+export const FETCH_SPONSOR_LOGOS = "fetch_sponsor_logos";
 
 //Grounds
 export const CREATE_GROUND = "create_ground";
