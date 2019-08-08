@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import HelmetBuilder from "../components/HelmetBuilder";
 import AdminGameOverview from "../components/admin/games/AdminGameOverview";
 
-export default class AdminGamePage extends Component {
+export default class AdminNewGamePage extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
