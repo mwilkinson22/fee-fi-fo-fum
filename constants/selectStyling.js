@@ -4,7 +4,8 @@ export default {
 		background: state.isSelected ? "#751432" : state.isFocused ? "#7514324d" : "transparent",
 		":active": {
 			backgroundColor: "#7514324d"
-		}
+		},
+		color: state.isSelected ? "#FC0" : "#000"
 	}),
 	control: (provided, state) => ({
 		...provided,

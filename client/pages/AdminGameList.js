@@ -21,7 +21,7 @@ class AdminGameList extends Component {
 		this.state = { listType: match.params.year === "fixtures" ? "fixtures" : "results" };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
 		const { gameList, fullGames, teamTypes, match, fetchGames } = nextProps;
 		newState.listType =
@@ -76,11 +76,6 @@ class AdminGameList extends Component {
 			newState.games = undefined;
 		} else {
 			newState.games = _.map(gameIds, id => fullGames[id]);
-		}
-
-		//Reset Filters
-		if (newState.year !== prevState.year || newState.teamType !== prevState.teamType) {
-			newState.activeFilters = {};
 		}
 
 		return newState;
@@ -148,14 +143,13 @@ class AdminGameList extends Component {
 	}
 
 	populateGameList() {
-		const { games, activeFilters } = this.state;
-		if (!games) {
+		const { filteredGames } = this.state;
+		if (!filteredGames) {
 			return <LoadingPage />;
 		} else {
-			const renderedGames = _.chain(games)
-				.filter(activeFilters)
-				.map(game => <AdminGameCard key={game._id} game={game} />)
-				.value();
+			const renderedGames = filteredGames.map(game => (
+				<AdminGameCard key={game._id} game={game} />
+			));
 
 			const result = renderedGames.length ? renderedGames : <h3>No games found</h3>;
 			return <div className="container admin-game-list">{result}</div>;
@@ -165,7 +159,7 @@ class AdminGameList extends Component {
 	render() {
 		const { listType, games, year, teamType } = this.state;
 		const { gameList } = this.props;
-		if (!teamType || !gameList) {
+		if (!teamType || !gameList || !games) {
 			return <LoadingPage />;
 		} else {
 			const canonical =
@@ -186,8 +180,7 @@ class AdminGameList extends Component {
 							</Link>
 							<GameFilters
 								games={games}
-								onFilterChange={activeFilters => this.setState({ activeFilters })}
-								activeFilters={this.state.activeFilters}
+								onFilterChange={filteredGames => this.setState({ filteredGames })}
 							/>
 						</div>
 					</section>

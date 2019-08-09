@@ -1,97 +1,161 @@
 import React, { Component } from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
+import Select from "react-select";
+import selectStyling from "~/constants/selectStyling";
+import LoadingPage from "~/client/components/LoadingPage";
 
 class GameFilters extends Component {
-	updateActiveFilters(target) {
-		const { name, value } = target;
-		const { activeFilters, onFilterChange } = this.props;
+	constructor(props) {
+		super(props);
 
-		if (value.length === 0) {
-			delete activeFilters[name];
-		} else if (name === "isAway") {
-			activeFilters[name] = value === "true";
-		} else {
-			activeFilters[name] = {};
-			activeFilters[name]._id = value;
-		}
-
-		onFilterChange(activeFilters);
+		//Set State
+		this.state = {};
 	}
-	render() {
-		const { games } = this.props;
-		const filters = {
-			_competition: { name: "Competition", options: [] },
-			_opposition: { name: "Opposition", options: [] },
-			isAway: {
-				name: "Venue",
-				options: [{ name: "Home", value: false }, { name: "Away", value: true }]
-			}
-		};
 
-		if (games) {
-			filters._competition.options = _.chain(games)
-				.map(game => ({
-					name: game._competition.instance.title,
-					value: game._competition._id
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { games, friendliesByDefault, onFilterChange } = nextProps;
+		let { activeFilters } = prevState;
+		let newState = {};
+
+		if (!prevState.games || _.differenceBy(games, prevState.games, "_id").length) {
+			//Render Options
+			const allOption = { label: "All", value: false };
+			const competitionOptions = _.chain(games)
+				.map(({ _competition }) => ({
+					label: _competition.instance.title,
+					value: _competition._id,
+					isFriendly: _competition.type == "Friendly"
 				}))
 				.uniqBy("value")
-				.sortBy("name")
+				.sortBy("label")
 				.value();
 
-			filters._opposition.options = _.chain(games)
-				.map(game => ({ name: game._opposition.name.long, value: game._opposition._id }))
+			const oppositionOptions = _.chain(games)
+				.map(game => ({ label: game._opposition.name.long, value: game._opposition._id }))
 				.uniqBy("value")
-				.sortBy("name")
+				.sortBy("label")
 				.value();
+
+			const venueOptions = [
+				allOption,
+				{ label: "Home", value: "home" },
+				{ label: "Away", value: "away" }
+			];
+
+			const filters = {
+				_competition: {
+					name: "Competition",
+					options: competitionOptions
+				},
+				_opposition: {
+					name: "Opposition",
+					options: [allOption, ...oppositionOptions]
+				},
+				venue: {
+					name: "Venue",
+					options: venueOptions
+				}
+			};
+
+			activeFilters = {
+				_competition: filters._competition.options.filter(o =>
+					friendliesByDefault ? false : !o.isFriendly
+				),
+				_opposition: allOption,
+				venue: allOption
+			};
+
+			newState = { games, filters, activeFilters };
 		}
 
-		const content = _.map(filters, (data, filter) => {
-			const { name } = data;
+		//Pass filtered games into callback
+		const { _competition, _opposition, venue } = activeFilters;
+		newState.filteredGames = games.filter(g => {
+			let isValid = true;
 
-			//Create Options
-			const options = _.map(data.options, option => {
-				return (
-					<option key={option.value} value={option.value}>
-						{option.name}
-					</option>
-				);
-			});
-
-			//Determine Value
-			let value;
-			const { activeFilters } = this.props;
-			if (filter === "isAway") {
-				value = activeFilters.isAway !== null ? activeFilters.isAway : "";
-			} else {
-				value = activeFilters && activeFilters[filter] ? activeFilters[filter]._id : "";
+			//Opposition
+			if (_opposition && _opposition.value) {
+				isValid = g._opposition._id == _opposition.value;
 			}
 
-			//Return JSX
-			return (
-				<div key={filter} className="list-filter">
-					<h4>{name}</h4>
-					<select
-						onChange={ev => this.updateActiveFilters(ev.target)}
-						name={filter}
-						value={value}
-					>
-						<option value="">All</option>
-						{options}
-					</select>
-				</div>
-			);
+			//Venue
+			if (isValid && venue && venue.value) {
+				isValid = g.isAway === (venue.value === "away");
+			}
+
+			//Competition
+			if (isValid && _competition && _competition.length) {
+				isValid = _competition.find(c => c.value == g._competition._id);
+			}
+
+			return isValid;
 		});
-		return <div className="list-filters">{content}</div>;
+
+		if (
+			!prevState.filteredGames ||
+			_.xorBy(newState.filteredGames, prevState.filteredGames, "_id").length
+		) {
+			onFilterChange(newState.filteredGames);
+		}
+
+		return newState;
+	}
+
+	async updateActiveFilters(key, option) {
+		const { activeFilters } = this.state;
+		activeFilters[key] = option;
+
+		this.setState({ activeFilters });
+	}
+
+	renderFilter(key) {
+		const { filters, activeFilters } = this.state;
+
+		//Get filter data
+		const { name, options } = filters[key];
+
+		//Get currently selected Options
+		const value = activeFilters[key];
+
+		return (
+			<div key={key} className="list-filter">
+				<h4>{name}</h4>
+				<Select
+					styles={selectStyling}
+					options={options}
+					value={value}
+					isSearchable={false}
+					onChange={option => this.updateActiveFilters(key, option)}
+					isMulti={key == "_competition"}
+					placeholder={key == "_competition" ? "All" : "Select..."}
+				/>
+			</div>
+		);
+	}
+
+	render() {
+		const { filters } = this.state;
+		if (!filters) {
+			return <LoadingPage />;
+		}
+
+		return (
+			<div className="list-filters">
+				{Object.keys(filters).map(key => this.renderFilter(key))}
+			</div>
+		);
 	}
 }
 
 GameFilters.propTypes = {
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
-	activeFilters: PropTypes.object.isRequired,
-	onFilterChange: PropTypes.func.isRequired
+	onFilterChange: PropTypes.func.isRequired,
+	friendliesByDefault: PropTypes.bool
 };
 
-GameFilters.defaultProps = {};
+GameFilters.defaultProps = {
+	friendliesByDefault: true
+};
 
 export default GameFilters;

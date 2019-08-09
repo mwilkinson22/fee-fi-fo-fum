@@ -81,11 +81,6 @@ class GameList extends Component {
 			newState.games = _.map(gameIds, id => fullGames[id]);
 		}
 
-		//Reset Filters
-		if (newState.year !== prevState.year || newState.teamType !== prevState.teamType) {
-			newState.activeFilters = {};
-		}
-
 		return newState;
 	}
 
@@ -159,21 +154,16 @@ class GameList extends Component {
 	}
 
 	populateGameList() {
-		const { games, activeFilters } = this.state;
-		if (!games) {
+		const { filteredGames } = this.state;
+		if (!filteredGames) {
 			return <LoadingPage />;
 		} else {
 			let isFirst = true;
-			const renderedGames = _.chain(games)
-				.filter(activeFilters)
-				.map(game => {
-					const includeCountdown = isFirst;
-					isFirst = false;
-					return (
-						<GameCard key={game._id} game={game} includeCountdown={includeCountdown} />
-					);
-				})
-				.value();
+			const renderedGames = filteredGames.map(game => {
+				const includeCountdown = isFirst;
+				isFirst = false;
+				return <GameCard key={game._id} game={game} includeCountdown={includeCountdown} />;
+			});
 
 			const result = renderedGames.length ? renderedGames : <h3>No games found</h3>;
 			return <div className="container game-list">{result}</div>;
@@ -183,7 +173,7 @@ class GameList extends Component {
 	render() {
 		const { listType, games, year, teamType } = this.state;
 		const { gameList } = this.props;
-		if (!teamType || !gameList) {
+		if (!teamType || !gameList || !games) {
 			return <LoadingPage />;
 		} else {
 			const canonical =
@@ -201,8 +191,7 @@ class GameList extends Component {
 							{this.generateTeamTypeMenu()}
 							<GameFilters
 								games={games}
-								onFilterChange={activeFilters => this.setState({ activeFilters })}
-								activeFilters={this.state.activeFilters}
+								onFilterChange={filteredGames => this.setState({ filteredGames })}
 							/>
 						</div>
 					</section>
