@@ -1,9 +1,8 @@
 import {
-	CREATE_GROUND,
+	FETCH_GROUND,
 	DELETE_GROUND,
 	FETCH_ALL_GROUNDS,
-	FETCH_GROUND_IMAGES,
-	UPDATE_GROUND
+	FETCH_GROUND_IMAGES
 } from "../actions/types";
 
 import { fixFiles } from "~/helpers/adminHelper";
@@ -21,8 +20,7 @@ export default function(state = {}, action) {
 				...action.payload
 			};
 
-		case CREATE_GROUND:
-		case UPDATE_GROUND:
+		case FETCH_GROUND:
 			return {
 				...state,
 				groundList: {

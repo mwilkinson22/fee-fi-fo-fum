@@ -1,15 +1,9 @@
-import {
-	CREATE_SPONSOR,
-	DELETE_SPONSOR,
-	FETCH_SPONSOR_LOGOS,
-	FETCH_SPONSORS,
-	UPDATE_SPONSOR
-} from "./types";
+import { DELETE_SPONSOR, FETCH_SPONSOR, FETCH_SPONSOR_LOGOS, FETCH_SPONSORS } from "./types";
 import { toast } from "react-toastify";
 
 export const createSponsor = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/sponsors`, data);
-	dispatch({ type: CREATE_SPONSOR, payload: res.data });
+	dispatch({ type: FETCH_SPONSOR, payload: res.data });
 	toast.success("Sponsor Created");
 	return res.data._id;
 };
@@ -21,7 +15,7 @@ export const fetchSponsors = () => async (dispatch, getState, api) => {
 
 export const updateSponsor = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/sponsors/${id}`, data);
-	dispatch({ type: UPDATE_SPONSOR, payload: res.data });
+	dispatch({ type: FETCH_SPONSOR, payload: res.data });
 	toast.success("Sponsor Updated");
 };
 

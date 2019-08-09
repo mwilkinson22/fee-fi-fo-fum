@@ -15,8 +15,8 @@ export const CRAWL_NEUTRAL_GAMES = "crawl_neutral_games";
 //Locations
 export const FETCH_CITIES = "fetch_cities";
 export const FETCH_COUNTRIES = "fetch_countries";
-export const UPDATE_CITY = "update_city";
-export const UPDATE_COUNTRY = "update_country";
+export const FETCH_CITY = "fetch_city";
+export const FETCH_COUNTRY = "fetch_country";
 export const DELETE_CITY = "delete_city";
 export const DELETE_COUNTRY = "delete_country";
 
@@ -37,15 +37,15 @@ export const DELETE_POST = "delete_post";
 //People
 export const FETCH_PERSON = "fetch_person";
 export const FETCH_PEOPLE_LIST = "fetch_people_list";
-export const CREATE_SPONSOR = "create_sponsor";
+
+//Sponsors
+export const FETCH_SPONSOR = "fetch_sponsor";
 export const FETCH_SPONSORS = "fetch_sponsors";
-export const UPDATE_SPONSOR = "update_sponsor";
 export const DELETE_SPONSOR = "delete_sponsor";
 export const FETCH_SPONSOR_LOGOS = "fetch_sponsor_logos";
 
 //Grounds
-export const CREATE_GROUND = "create_ground";
-export const UPDATE_GROUND = "update_ground";
+export const FETCH_GROUND = "fetch_ground";
 export const DELETE_GROUND = "delete_ground";
 export const FETCH_GROUND_IMAGES = "fetch_ground_images";
 export const FETCH_ALL_GROUNDS = "fetch_all_grounds";

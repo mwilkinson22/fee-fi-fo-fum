@@ -1,9 +1,8 @@
 import {
-	CREATE_SPONSOR,
 	DELETE_SPONSOR,
+	FETCH_SPONSOR,
 	FETCH_SPONSOR_LOGOS,
-	FETCH_SPONSORS,
-	UPDATE_SPONSOR
+	FETCH_SPONSORS
 } from "../actions/types";
 import { fixFiles } from "~/helpers/adminHelper";
 
@@ -15,8 +14,7 @@ export default function(state = {}, action) {
 				sponsorList: action.payload
 			};
 
-		case CREATE_SPONSOR:
-		case UPDATE_SPONSOR:
+		case FETCH_SPONSOR:
 			return {
 				...state,
 				sponsorList: {

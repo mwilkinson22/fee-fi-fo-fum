@@ -3,8 +3,8 @@ import {
 	DELETE_COUNTRY,
 	FETCH_CITIES,
 	FETCH_COUNTRIES,
-	UPDATE_CITY,
-	UPDATE_COUNTRY
+	FETCH_CITY,
+	FETCH_COUNTRY
 } from "./types";
 import { toast } from "react-toastify";
 
@@ -20,28 +20,28 @@ export const fetchCountries = () => async (dispatch, getState, api) => {
 
 export const createCity = data => async (dispatch, getState, api) => {
 	const res = await api.post("/cities", data);
-	dispatch({ type: UPDATE_CITY, payload: res.data });
+	dispatch({ type: FETCH_CITY, payload: res.data });
 	toast.success("New City Created");
 	return res.data.slug;
 };
 
 export const createCountry = data => async (dispatch, getState, api) => {
 	const res = await api.post("/countries", data);
-	dispatch({ type: UPDATE_COUNTRY, payload: res.data });
+	dispatch({ type: FETCH_COUNTRY, payload: res.data });
 	toast.success("New Country Created");
 	return res.data.slug;
 };
 
 export const updateCity = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/cities/${id}`, data);
-	dispatch({ type: UPDATE_CITY, payload: res.data });
+	dispatch({ type: FETCH_CITY, payload: res.data });
 	toast.success("City Updated");
 	return res.data.slug;
 };
 
 export const updateCountry = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/countries/${id}`, data);
-	dispatch({ type: UPDATE_COUNTRY, payload: res.data });
+	dispatch({ type: FETCH_COUNTRY, payload: res.data });
 	toast.success("Country Updated");
 	return res.data.slug;
 };

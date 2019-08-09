@@ -1,10 +1,4 @@
-import {
-	FETCH_ALL_GROUNDS,
-	CREATE_GROUND,
-	UPDATE_GROUND,
-	DELETE_GROUND,
-	FETCH_GROUND_IMAGES
-} from "./types";
+import { FETCH_ALL_GROUNDS, FETCH_GROUND, DELETE_GROUND, FETCH_GROUND_IMAGES } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchAllGrounds = () => async (dispatch, getState, api) => {
@@ -14,14 +8,14 @@ export const fetchAllGrounds = () => async (dispatch, getState, api) => {
 
 export const createGround = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/grounds`, values);
-	dispatch({ type: CREATE_GROUND, payload: res.data });
+	dispatch({ type: FETCH_GROUND, payload: res.data });
 	toast.success(`New ground saved`);
 	return res.data.slug;
 };
 
 export const updateGround = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/grounds/${id}`, values);
-	dispatch({ type: UPDATE_GROUND, payload: res.data });
+	dispatch({ type: FETCH_GROUND, payload: res.data });
 	toast.success(`Ground updated`);
 };
 
