@@ -22,8 +22,7 @@ import {
 	fetchNewsPost,
 	createNewsPost,
 	updateNewsPost,
-	deleteNewsPost,
-	fetchAllHeaderImages
+	deleteNewsPost
 } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 import { fetchGameList } from "~/client/actions/gamesActions";
@@ -45,9 +44,7 @@ class AdminNewsPostPage extends BasicForm {
 			userList,
 			fetchUserList,
 			gameList,
-			fetchGameList,
-			headerImages,
-			fetchAllHeaderImages
+			fetchGameList
 		} = props;
 
 		if (!postList) {
@@ -60,10 +57,6 @@ class AdminNewsPostPage extends BasicForm {
 
 		if (!userList) {
 			fetchUserList();
-		}
-
-		if (!headerImages) {
-			fetchAllHeaderImages();
 		}
 
 		const validationSchema = Yup.object().shape({
@@ -96,8 +89,7 @@ class AdminNewsPostPage extends BasicForm {
 			slugMap,
 			fetchNewsPost,
 			userList,
-			gameList,
-			headerImages
+			gameList
 		} = nextProps;
 		const { slug } = match.params;
 		const newState = {};
@@ -111,7 +103,7 @@ class AdminNewsPostPage extends BasicForm {
 		}
 
 		//Check we have the info we need
-		if (!slugMap || !userList || !gameList || !headerImages) {
+		if (!slugMap || !userList || !gameList) {
 			return newState;
 		}
 
@@ -314,7 +306,6 @@ class AdminNewsPostPage extends BasicForm {
 													type: "Image",
 													path: "images/news/headers/",
 													acceptSVG: false,
-													imageList: this.props.headerImages,
 													defaultUploadName:
 														formikProps.values.slug || null
 												}
@@ -346,10 +337,10 @@ class AdminNewsPostPage extends BasicForm {
 
 function mapStateToProps({ config, games, news, users }) {
 	const { authUser } = config;
-	const { postList, slugMap, fullPosts, headerImages } = news;
+	const { postList, slugMap, fullPosts } = news;
 	const { userList } = users;
 	const { gameList } = games;
-	return { authUser, postList, slugMap, fullPosts, userList, gameList, headerImages };
+	return { authUser, postList, slugMap, fullPosts, userList, gameList };
 }
 
 export default connect(
@@ -361,7 +352,6 @@ export default connect(
 		fetchGameList,
 		createNewsPost,
 		updateNewsPost,
-		deleteNewsPost,
-		fetchAllHeaderImages
+		deleteNewsPost
 	}
 )(AdminNewsPostPage);

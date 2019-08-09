@@ -18,8 +18,7 @@ import {
 	fetchAllGrounds,
 	createGround,
 	updateGround,
-	deleteGround,
-	fetchAllHeaderImages
+	deleteGround
 } from "~/client/actions/groundActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
@@ -31,9 +30,7 @@ class AdminGroundPage extends BasicForm {
 			groundList,
 			fetchAllGrounds,
 			cities,
-			fetchCities,
-			headerImages,
-			fetchAllHeaderImages
+			fetchCities
 		} = props;
 
 		if (!groundList) {
@@ -42,10 +39,6 @@ class AdminGroundPage extends BasicForm {
 
 		if (!cities) {
 			fetchCities();
-		}
-
-		if (!headerImages) {
-			fetchAllHeaderImages();
 		}
 
 		const validationSchema = Yup.object().shape({
@@ -79,7 +72,7 @@ class AdminGroundPage extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { groundList, match, cities, headerImages } = nextProps;
+		const { groundList, match, cities } = nextProps;
 		const newState = { isLoading: false };
 
 		newState.isNew = !match.params.slug;
@@ -88,7 +81,7 @@ class AdminGroundPage extends BasicForm {
 			newState.redirect = false;
 		}
 
-		if (!cities || !headerImages || (!newState.isNew && !groundList)) {
+		if (!cities || (!newState.isNew && !groundList)) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -228,7 +221,6 @@ class AdminGroundPage extends BasicForm {
 													type: "Image",
 													path: "images/grounds/",
 													acceptSVG: true,
-													imageList: this.props.headerImages,
 													defaultUploadName: ground.slug
 												}
 											])}
@@ -251,12 +243,12 @@ class AdminGroundPage extends BasicForm {
 }
 
 function mapStateToProps({ grounds, locations }) {
-	const { groundList, headerImages } = grounds;
+	const { groundList } = grounds;
 	const { cities } = locations;
-	return { cities, groundList, headerImages };
+	return { cities, groundList };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround, fetchAllHeaderImages }
+	{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround }
 )(AdminGroundPage);

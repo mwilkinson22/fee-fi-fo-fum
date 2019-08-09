@@ -1,19 +1,11 @@
 import {
 	FETCH_GROUND,
 	DELETE_GROUND,
-	FETCH_ALL_GROUNDS,
-	FETCH_GROUND_IMAGES
+	FETCH_ALL_GROUNDS
 } from "../actions/types";
 
-import { fixFiles } from "~/helpers/adminHelper";
 export default function(state = {}, action) {
 	switch (action.type) {
-		case FETCH_GROUND_IMAGES:
-			return {
-				...state,
-				headerImages: fixFiles(action.payload)
-			};
-
 		case FETCH_ALL_GROUNDS:
 			return {
 				...state,

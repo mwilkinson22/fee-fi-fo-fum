@@ -20,13 +20,12 @@ class ImageField extends Component {
 
 	renderImageSelector() {
 		const { value, showImageSelector } = this.state;
-		const { path, imageList, onChange } = this.props;
+		const { path, onChange } = this.props;
 		if (showImageSelector) {
 			return (
 				<ImageSelector
 					value={value}
 					path={path}
-					imageList={imageList}
 					onChange={onChange}
 					onDestroy={() => this.setState({ showImageSelector: false })}
 				/>
@@ -36,14 +35,7 @@ class ImageField extends Component {
 
 	renderImageUploader() {
 		const { value, showImageUploader } = this.state;
-		const {
-			path,
-			imageList,
-			onChange,
-			acceptSVG,
-			convertToWebP,
-			defaultUploadName
-		} = this.props;
+		const { path, onChange, acceptSVG, convertToWebP, defaultUploadName } = this.props;
 		if (showImageUploader) {
 			const accept = ["jpg", "jpeg", "gif", "png"];
 			if (acceptSVG) {
@@ -54,7 +46,6 @@ class ImageField extends Component {
 					accept={accept}
 					value={value}
 					path={path}
-					fileNames={imageList.map(i => i.name)}
 					isImage={true}
 					onComplete={onChange}
 					onDestroy={() => this.setState({ showImageUploader: false })}
@@ -115,21 +106,12 @@ ImageField.propTypes = {
 	defaultUploadName: PropTypes.string,
 	value: PropTypes.string.isRequired,
 	path: PropTypes.string.isRequired,
-	imageList: PropTypes.arrayOf(
-		PropTypes.shape({
-			name: PropTypes.string.isRequired,
-			created: PropTypes.instanceOf(Date).isRequired,
-			updated: PropTypes.instanceOf(Date).isRequired,
-			size: PropTypes.number.isRequired
-		})
-	),
 	onChange: PropTypes.func.isRequired
 };
 
 ImageField.defaultProps = {
 	acceptSVG: true,
-	convertToWebP: true,
-	imageList: []
+	convertToWebP: true
 };
 
 export default ImageField;

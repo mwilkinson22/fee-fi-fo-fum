@@ -6,9 +6,6 @@ import mongoose from "mongoose";
 const collectionName = "sponsors";
 const Sponsor = mongoose.model(collectionName);
 
-//Helpers
-import { getDirectoryList } from "~/helpers/fileHelper";
-
 async function validateSponsor(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -64,9 +61,4 @@ export async function deleteSponsor(req, res) {
 			res.send({});
 		}
 	}
-}
-
-export async function getSponsorLogos(req, res) {
-	const imageList = await getDirectoryList("images/sponsors/");
-	res.send(imageList);
 }

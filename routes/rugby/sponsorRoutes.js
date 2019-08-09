@@ -5,7 +5,6 @@ import * as sponsorController from "../../controllers/rugby/sponsorController";
 import requireAdmin from "../../middlewares/requireAdmin";
 
 module.exports = app => {
-	app.get("/api/sponsors/logos", requireAdmin, sponsorController.getSponsorLogos);
 	app.get("/api/sponsors", requireAdmin, sponsorController.getSponsors);
 
 	app.put("/api/sponsors/:_id", requireAdmin, sponsorController.updateSponsor);

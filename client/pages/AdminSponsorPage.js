@@ -18,22 +18,17 @@ import {
 	fetchSponsors,
 	createSponsor,
 	updateSponsor,
-	deleteSponsor,
-	fetchAllSponsorLogos
+	deleteSponsor
 } from "~/client/actions/sponsorActions";
 
 class AdminCountryPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { sponsorList, fetchSponsors, sponsorLogos, fetchAllSponsorLogos } = props;
+		const { sponsorList, fetchSponsors } = props;
 
 		if (!sponsorList) {
 			fetchSponsors();
-		}
-
-		if (!sponsorLogos) {
-			fetchAllSponsorLogos();
 		}
 
 		this.state = {};
@@ -160,7 +155,6 @@ class AdminCountryPage extends BasicForm {
 										type: "Image",
 										path: "images/sponsors/",
 										acceptSVG: true,
-										imageList: this.props.sponsorLogos,
 										defaultUploadName: sponsor ? sponsor._id : values.name
 									}
 								];
@@ -189,8 +183,8 @@ class AdminCountryPage extends BasicForm {
 }
 
 function mapStateToProps({ sponsors }) {
-	const { sponsorList, sponsorLogos } = sponsors;
-	return { sponsorList, sponsorLogos };
+	const { sponsorList } = sponsors;
+	return { sponsorList };
 }
 
 export default connect(
@@ -199,7 +193,6 @@ export default connect(
 		fetchSponsors,
 		createSponsor,
 		updateSponsor,
-		deleteSponsor,
-		fetchAllSponsorLogos
+		deleteSponsor
 	}
 )(AdminCountryPage);

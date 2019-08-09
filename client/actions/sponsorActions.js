@@ -1,4 +1,4 @@
-import { DELETE_SPONSOR, FETCH_SPONSOR, FETCH_SPONSOR_LOGOS, FETCH_SPONSORS } from "./types";
+import { DELETE_SPONSOR, FETCH_SPONSOR, FETCH_SPONSORS } from "./types";
 import { toast } from "react-toastify";
 
 export const createSponsor = data => async (dispatch, getState, api) => {
@@ -27,9 +27,4 @@ export const deleteSponsor = id => async (dispatch, getState, api) => {
 		return true;
 	}
 	return false;
-};
-
-export const fetchAllSponsorLogos = () => async (dispatch, getState, api) => {
-	const res = await api.get(`/sponsors/logos`);
-	dispatch({ type: FETCH_SPONSOR_LOGOS, payload: res.data });
 };

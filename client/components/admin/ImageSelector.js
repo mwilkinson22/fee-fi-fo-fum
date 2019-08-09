@@ -1,9 +1,14 @@
 //Modules
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 //Components
+import LoadingPage from "../LoadingPage";
 import PopUpDialog from "../PopUpDialog";
+
+//Actions
+import { getFiles } from "~/client/actions/fileActions";
 
 //Constants
 import { googleBucket } from "~/client/extPaths";
@@ -17,12 +22,30 @@ class ImageSelector extends Component {
 		};
 	}
 
+	componentDidMount() {
+		const { path, getFiles } = this.props;
+		getFiles(path).then(files => {
+			this.setState({
+				images: files
+					.map(file => {
+						if (file) {
+							file.created = new Date(file.created);
+							file.updated = new Date(file.updated);
+							file.size = Number(file.size);
+						}
+						return file;
+					})
+					.sort((a, b) => (a.updated < b.updated ? 1 : -1))
+			});
+		});
+	}
+
 	renderPreviewBox() {
-		const { path, imageList } = this.props;
-		const { currentImage } = this.state;
+		const { path } = this.props;
+		const { currentImage, images } = this.state;
 		if (currentImage) {
 			const dateFormat = "yyyy-MM-dd H:mm";
-			const metadata = imageList.find(i => i.name == currentImage);
+			const metadata = images.find(i => i.name == currentImage);
 			const src = googleBucket + path + currentImage;
 			let textContent;
 			if (metadata) {
@@ -66,10 +89,10 @@ class ImageSelector extends Component {
 	}
 
 	renderImageList() {
-		const { imageList, path } = this.props;
-		const { currentImage } = this.state;
+		const { path } = this.props;
+		const { currentImage, images } = this.state;
 
-		const content = imageList.map(i => (
+		const content = images.map(i => (
 			<img
 				className={`thumbnail ${i.name == currentImage ? " selected" : ""}`}
 				src={googleBucket + path + i.name}
@@ -106,13 +129,23 @@ class ImageSelector extends Component {
 
 	render() {
 		const { onDestroy } = this.props;
-		return (
-			<PopUpDialog onDestroy={onDestroy} fullSize={true}>
+		const { images } = this.state;
+		let content;
+
+		if (!images) {
+			content = <LoadingPage />;
+		} else {
+			content = (
 				<div className="image-selector">
 					{this.renderPreviewBox()}
 					{this.renderImageList()}
 					{this.renderButtons()}
 				</div>
+			);
+		}
+		return (
+			<PopUpDialog onDestroy={onDestroy} fullSize={true}>
+				{content}
 			</PopUpDialog>
 		);
 	}
@@ -121,16 +154,11 @@ class ImageSelector extends Component {
 ImageSelector.propTypes = {
 	value: PropTypes.string.isRequired,
 	path: PropTypes.string.isRequired,
-	imageList: PropTypes.arrayOf(
-		PropTypes.shape({
-			name: PropTypes.string.isRequired,
-			created: PropTypes.instanceOf(Date).isRequired,
-			updated: PropTypes.instanceOf(Date).isRequired,
-			size: PropTypes.number.isRequired
-		})
-	).isRequired,
 	onChange: PropTypes.func.isRequired,
 	onDestroy: PropTypes.func.isRequired
 };
 
-export default ImageSelector;
+export default connect(
+	null,
+	{ getFiles }
+)(ImageSelector);

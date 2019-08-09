@@ -30,7 +30,6 @@ export const UPDATE_TEAM = "update_team";
 export const FETCH_NEWS_POST = "fetch_news_post";
 export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_POST_LIST = "fetch_post_list";
-export const FETCH_POST_IMAGES = "fetch_post_images";
 export const UPDATE_POST = "update_post";
 export const DELETE_POST = "delete_post";
 
@@ -42,12 +41,10 @@ export const FETCH_PEOPLE_LIST = "fetch_people_list";
 export const FETCH_SPONSOR = "fetch_sponsor";
 export const FETCH_SPONSORS = "fetch_sponsors";
 export const DELETE_SPONSOR = "delete_sponsor";
-export const FETCH_SPONSOR_LOGOS = "fetch_sponsor_logos";
 
 //Grounds
 export const FETCH_GROUND = "fetch_ground";
 export const DELETE_GROUND = "delete_ground";
-export const FETCH_GROUND_IMAGES = "fetch_ground_images";
 export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 
 //Seasons
