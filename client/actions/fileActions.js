@@ -4,7 +4,6 @@ export const uploadFile = data => async (dispatch, getState, api) => {
 };
 
 export const getFiles = path => async (dispatch, getState, api) => {
-	console.log(path);
 	const res = await api.get(`/files/${encodeURIComponent(path)}`);
 	return res.data;
 };
