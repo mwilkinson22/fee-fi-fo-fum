@@ -79,6 +79,10 @@ class Header extends Component {
 					exactNav: true
 				},
 				{
+					header: "Competitions",
+					headerLink: "/admin/competitions"
+				},
+				{
 					header: "Games",
 					headerLink: "/admin/games",
 					subMenuRootLink: "/admin/",
