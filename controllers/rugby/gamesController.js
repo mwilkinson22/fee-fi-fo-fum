@@ -64,6 +64,12 @@ async function processBasics(values) {
 	];
 	_.each(nullable, prop => (values[prop] === "" ? (values[prop] = null) : null));
 
+	//Check for empty images
+	values.images = _.chain(values.images)
+		.pick(["header", "midpage", "customLogo"])
+		.mapValues(i => i || null)
+		.value();
+
 	//Split Hashtags
 	if (values.customHashtags) {
 		values.customHashtags = values.customHashtags.match(/[A-Za-z0-9]+/gi);

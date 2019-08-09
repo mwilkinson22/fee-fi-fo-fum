@@ -104,6 +104,11 @@ class AdminGameOverview extends BasicForm {
 				_video_referee: Yup.string()
 					.label("Video Referee")
 					.nullable(),
+				images: Yup.object().shape({
+					header: Yup.string().label("Header"),
+					midpage: Yup.string().label("Midpage"),
+					customLogo: Yup.string().label("Custom Logo")
+				}),
 				attendance: Yup.number()
 					.label("Attendance")
 					.nullable(),
@@ -124,7 +129,14 @@ class AdminGameOverview extends BasicForm {
 		} = this.getOptions();
 
 		//Get Select Values
-		let _teamType, _competition, _opposition, _ground, _referee, _video_referee;
+		let _teamType, _competition, _opposition, _ground, _referee, _video_referee, images;
+
+		images = {
+			header: "",
+			midpage: "",
+			customLogo: ""
+		};
+
 		if (game) {
 			_teamType = _.find(teamTypes, type => type.value == game._teamType);
 			_competition = _.find(
@@ -137,6 +149,7 @@ class AdminGameOverview extends BasicForm {
 			_video_referee = game._video_referee
 				? _.find(referees, ref => ref.value == game._video_referee._id)
 				: "";
+			images = _.mapValues(game.images, v => v || "");
 		}
 
 		return {
@@ -154,7 +167,8 @@ class AdminGameOverview extends BasicForm {
 			_referee,
 			_video_referee,
 			attendance: (game && game.attendance) || "",
-			extraTime: (game && game.extraTime) || false
+			extraTime: (game && game.extraTime) || false,
+			images
 		};
 	}
 
@@ -341,6 +355,28 @@ class AdminGameOverview extends BasicForm {
 			{ name: "_referee", type: "Select", options: referees, isClearable: true },
 			{ name: "_video_referee", type: "Select", options: referees, isClearable: true }
 		];
+		const imageFields = [
+			{
+				name: "images.header",
+				type: "Image",
+				path: "images/games/header/",
+				defaultUploadName: game ? game.slug : "",
+				acceptSVG: false
+			},
+			{
+				name: "images.midpage",
+				type: "Image",
+				path: "images/games/midpage/",
+				defaultUploadName: game ? game.slug : "",
+				acceptSVG: false
+			},
+			{
+				name: "images.customLogo",
+				type: "Image",
+				path: "images/games/logo/",
+				defaultUploadName: game ? game.slug : ""
+			}
+		];
 		const postGameFields = [
 			{ name: "attendance", type: "number" },
 			{ name: "extraTime", type: "Boolean" }
@@ -364,6 +400,8 @@ class AdminGameOverview extends BasicForm {
 					{this.renderFieldGroup(mediaFields)}
 					<h6>Referees</h6>
 					{this.renderFieldGroup(refereeFields)}
+					<h6>Images</h6>
+					{this.renderFieldGroup(imageFields)}
 					{postGameSection}
 
 					<div className="buttons">
