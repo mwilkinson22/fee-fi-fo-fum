@@ -75,7 +75,7 @@ class ImageSelector extends Component {
 			return (
 				<div className="preview-box with-image">
 					<div className="img-wrapper">
-						<img src={src} />
+						<img src={`${src}?t=${new Date().getTime()}`} />
 					</div>
 					{textContent}
 				</div>

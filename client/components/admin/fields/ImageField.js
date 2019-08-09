@@ -64,7 +64,7 @@ class ImageField extends Component {
 		if (value.length) {
 			content = (
 				<img
-					src={googleBucket + path + value}
+					src={`${googleBucket + path + value}?t=${new Date().getTime()}`}
 					className="image-selector-field image"
 					title={value}
 				/>
