@@ -54,7 +54,11 @@ class HomePage extends Component {
 			fetchGames,
 			competitionSegmentList
 		} = nextProps;
-		const newState = {};
+		const newState = { competitionSegmentList };
+
+		if (!competitionSegmentList) {
+			return {};
+		}
 
 		//Posts
 		if (postList) {
@@ -167,6 +171,12 @@ class HomePage extends Component {
 	}
 
 	render() {
+		const { competitionSegmentList } = this.state;
+
+		if (!competitionSegmentList) {
+			return <LoadingPage />;
+		}
+
 		return (
 			<div className="homepage">
 				<section className="latest-news">{this.generateNewsPosts()}</section>
