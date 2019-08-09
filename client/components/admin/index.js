@@ -11,6 +11,7 @@ import AdminCityList from "../../pages/AdminCityList";
 import AdminCityPage from "../../pages/AdminCityPage";
 
 import AdminCompetitionList from "../../pages/AdminCompetitionList";
+import AdminCompetitionPage from "../../pages/AdminCompetitionPage";
 
 import AdminCountryList from "../../pages/AdminCountryList";
 import AdminCountryPage from "../../pages/AdminCountryPage";
@@ -61,6 +62,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/cities/:slug" exact component={AdminCityPage} />
 					<Route path="/admin/cities" exact component={AdminCityList} />
 
+					<Route path="/admin/competitions/new" exact component={AdminCompetitionPage} />
+					<Route path="/admin/competitions/:_id" exact component={AdminCompetitionPage} />
 					<Route path="/admin/competitions" exact component={AdminCompetitionList} />
 
 					<Route path="/admin/countries/new" exact component={AdminCountryPage} />

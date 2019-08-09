@@ -8,17 +8,17 @@ import { Link } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
 
 //Actions
-import { fetchAllCompetitions } from "~/client/actions/competitionActions";
+import { fetchCompetitions } from "~/client/actions/competitionActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 class AdminCompetitionList extends Component {
 	constructor(props) {
 		super(props);
 
-		const { competitionList, fetchAllCompetitions } = props;
+		const { competitionList, fetchCompetitions } = props;
 
 		if (!competitionList) {
-			fetchAllCompetitions();
+			fetchCompetitions();
 		}
 
 		this.state = {};
@@ -83,5 +83,5 @@ function mapStateToProps({ competitions }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllCompetitions }
+	{ fetchCompetitions }
 )(AdminCompetitionList);

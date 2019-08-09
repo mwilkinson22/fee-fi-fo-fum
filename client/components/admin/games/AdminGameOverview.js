@@ -7,7 +7,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
-import { fetchAllCompetitionSegments } from "../../../actions/competitionActions";
+import { fetchCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
 import { addGame, updateGameBasics } from "../../../actions/gamesActions";
@@ -21,7 +21,7 @@ class AdminGameOverview extends BasicForm {
 		super(props);
 		const {
 			competitionSegmentList,
-			fetchAllCompetitionSegments,
+			fetchCompetitionSegments,
 			groundList,
 			fetchAllGrounds,
 			peopleList,
@@ -29,7 +29,7 @@ class AdminGameOverview extends BasicForm {
 		} = props;
 
 		if (!competitionSegmentList) {
-			fetchAllCompetitionSegments();
+			fetchCompetitionSegments();
 		}
 		if (!groundList) {
 			fetchAllGrounds();
@@ -427,7 +427,7 @@ function mapStateToProps({ teams, competitions, grounds, people }) {
 export default connect(
 	mapStateToProps,
 	{
-		fetchAllCompetitionSegments,
+		fetchCompetitionSegments,
 		fetchAllGrounds,
 		fetchPeopleList,
 		addGame,

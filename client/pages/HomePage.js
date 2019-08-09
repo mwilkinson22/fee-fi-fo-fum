@@ -7,7 +7,7 @@ import GameCard from "../components/games/GameCard";
 import { fetchPostList } from "../actions/newsActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
 import { fetchNeutralGames } from "../actions/neutralGamesActions";
-import { fetchAllCompetitionSegments } from "../actions/competitionActions";
+import { fetchCompetitionSegments } from "../actions/competitionActions";
 import LeagueTable from "../components/seasons/LeagueTable";
 const leagueTableCompetition = "5c05342af22062c1fc3fe3c5";
 const leagueTableYear = new Date().getFullYear();
@@ -24,7 +24,7 @@ class HomePage extends Component {
 			gameList,
 			fetchGameList,
 			competitionSegments,
-			fetchAllCompetitionSegments,
+			fetchCompetitionSegments,
 			neutralGames,
 			fetchNeutralGames
 		} = props;
@@ -35,7 +35,7 @@ class HomePage extends Component {
 			fetchGameList();
 		}
 		if (!competitionSegments) {
-			fetchAllCompetitionSegments();
+			fetchCompetitionSegments();
 		}
 		if (!neutralGames) {
 			fetchNeutralGames();
@@ -201,7 +201,7 @@ class HomePage extends Component {
 async function loadData(store) {
 	await Promise.all([
 		store.dispatch(fetchPostList()),
-		store.dispatch(fetchAllCompetitionSegments()),
+		store.dispatch(fetchCompetitionSegments()),
 		store.dispatch(fetchGameList()),
 		store.dispatch(fetchNeutralGames())
 	]);
@@ -227,7 +227,7 @@ export default {
 			fetchPostList,
 			fetchGameList,
 			fetchGames,
-			fetchAllCompetitionSegments,
+			fetchCompetitionSegments,
 			fetchNeutralGames
 		}
 	)(HomePage),

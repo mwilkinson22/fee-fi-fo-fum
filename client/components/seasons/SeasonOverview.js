@@ -10,16 +10,16 @@ import LoadingPage from "../LoadingPage";
 import LeagueTable from "./LeagueTable";
 
 //Actions
-import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
+import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 
 class SeasonOverview extends Component {
 	constructor(props) {
 		super(props);
 
-		const { competitionSegmentList, fetchAllCompetitionSegments } = props;
+		const { competitionSegmentList, fetchCompetitionSegments } = props;
 
 		if (!competitionSegmentList) {
-			fetchAllCompetitionSegments();
+			fetchCompetitionSegments();
 		}
 
 		this.state = {};
@@ -192,5 +192,5 @@ function mapStateToProps({ competitions, config }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllCompetitionSegments }
+	{ fetchCompetitionSegments }
 )(SeasonOverview);

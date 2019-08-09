@@ -20,20 +20,20 @@ import {
 	createNeutralGames,
 	deleteNeutralGame
 } from "../actions/neutralGamesActions";
-import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
+import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 
 class AdminNeutralGamePage extends BasicForm {
 	constructor(props) {
 		super(props);
 		const {
 			competitionSegmentList,
-			fetchAllCompetitionSegments,
+			fetchCompetitionSegments,
 			neutralGames,
 			fetchNeutralGames
 		} = props;
 
 		if (!competitionSegmentList) {
-			fetchAllCompetitionSegments();
+			fetchCompetitionSegments();
 		}
 
 		if (!neutralGames) {
@@ -373,7 +373,7 @@ function mapStateToProps({ config, games, teams, competitions }) {
 export default connect(
 	mapStateToProps,
 	{
-		fetchAllCompetitionSegments,
+		fetchCompetitionSegments,
 		fetchNeutralGames,
 		createNeutralGames,
 		updateNeutralGames,

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { fetchNeutralGames } from "../../actions/neutralGamesActions";
 import { fetchGames, fetchGameList } from "../../actions/gamesActions";
-import { fetchAllCompetitionSegments } from "~/client/actions/competitionActions";
+import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 import LoadingPage from "../../components/LoadingPage";
 import { competitionImagePath } from "../../extPaths";
 import { validateGameDate } from "~/helpers/gameHelper";
@@ -20,7 +20,7 @@ class LeagueTable extends Component {
 			neutralGames,
 			fetchNeutralGames,
 			competitionSegmentList,
-			fetchAllCompetitionSegments
+			fetchCompetitionSegments
 		} = props;
 
 		if (!gameList) {
@@ -32,7 +32,7 @@ class LeagueTable extends Component {
 		}
 
 		if (!competitionSegmentList) {
-			fetchAllCompetitionSegments();
+			fetchCompetitionSegments();
 		}
 
 		this.state = {
@@ -369,5 +369,5 @@ function mapStateToProps({ config, games, teams, competitions }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchNeutralGames, fetchGames, fetchGameList, fetchAllCompetitionSegments }
+	{ fetchNeutralGames, fetchGames, fetchGameList, fetchCompetitionSegments }
 )(LeagueTable);
