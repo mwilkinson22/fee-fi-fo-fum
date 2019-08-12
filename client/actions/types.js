@@ -2,6 +2,12 @@
 export const FETCH_USER = "fetch_user";
 export const LOGOUT = "logout";
 
+//Competitions
+export const FETCH_ALL_COMPETITIONS = "fetch_all_competitions";
+export const FETCH_ALL_COMPETITION_SEGMENTS = "fetch_all_competition_segments";
+export const FETCH_COMPETITION = "fetch_competition";
+export const DELETE_COMPETITION = "delete_competition";
+
 //Games
 export const FETCH_GAMES = "fetch_games";
 export const FETCH_GAME_LIST = "fetch_game_list";
@@ -49,8 +55,6 @@ export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 
 //Seasons
 export const FETCH_LEAGUE_TABLE = "fetch_league_table";
-export const FETCH_ALL_COMPETITIONS = "fetch_all_competitions";
-export const FETCH_ALL_COMPETITION_SEGMENTS = "fetch_all_competition_segments";
 
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
