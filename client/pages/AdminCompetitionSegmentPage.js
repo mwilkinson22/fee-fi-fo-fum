@@ -189,6 +189,26 @@ class AdminCompetitionPage extends BasicForm {
 		}
 	}
 
+	renderHeader() {
+		let { parent, segment, isNew } = this.state;
+		if (!parent) {
+			parent = segment._parentCompetition;
+		}
+		const title = isNew ? `Add New Competition - ${parent.name}` : segment.name;
+
+		return (
+			<section className="page-header">
+				<HelmetBuilder title={title} />
+				<div className="container">
+					<Link className="nav-card" to={`/admin/competitions/${parent._id}`}>
+						Return to {parent.name}
+					</Link>
+					<h1>{title}</h1>
+				</div>
+			</section>
+		);
+	}
+
 	renderDeleteButtons() {
 		if (!this.state.isNew) {
 			return (
@@ -224,16 +244,9 @@ class AdminCompetitionPage extends BasicForm {
 			return <NotFoundPage message="Competition Segment not found" />;
 		}
 
-		const title = isNew ? `Add New Competition - ${parent.name}` : segment.name;
-
 		return (
 			<div className="admin-competition-segment-page">
-				<HelmetBuilder title={title} />
-				<section className="page-header">
-					<div className="container">
-						<h1>{title}</h1>
-					</div>
-				</section>
+				{this.renderHeader()}
 				<section className="form">
 					<div className="container">
 						<Formik
