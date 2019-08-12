@@ -55,10 +55,7 @@ class NeutralGameList extends Component {
 					const rows = _.chain(games)
 						.sortBy("date")
 						.map(game => {
-							const competitionSegment = _.find(
-								competitionSegmentList,
-								c => c._id == game._competition
-							);
+							const competitionSegment = competitionSegmentList[game._competition];
 
 							const data = _.chain(columns)
 								.map(column => {

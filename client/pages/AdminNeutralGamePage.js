@@ -203,7 +203,7 @@ class AdminNeutralGamePage extends BasicForm {
 				},
 				_competition: {
 					value: game._competition,
-					label: _.find(competitionSegmentList, c => c._id === game._competition).name
+					label: competitionSegmentList[game._competition].name
 				},
 				_homeTeam: {
 					value: game._homeTeam._id,
@@ -245,10 +245,7 @@ class AdminNeutralGamePage extends BasicForm {
 				.value();
 
 			if (values._competition) {
-				const competition = _.find(
-					competitionSegmentList,
-					c => c._id === values._competition.value
-				);
+				const competition = competitionSegmentList[values._competition.value];
 				const instance = _.find(
 					competition.instances,
 					i => i.year == year || i.year == null

@@ -25,7 +25,7 @@ class SeasonOverview extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { games, year, teamType, competitionSegmentList } = nextProps;
 		let newState = {};
 
@@ -40,7 +40,7 @@ class SeasonOverview extends Component {
 			newState.leagues = _.chain(games)
 				.orderBy(["date"], ["desc"])
 				.uniqBy(g => g._competition._id)
-				.map(g => competitionSegmentList.find(c => c._id == g._competition._id))
+				.map(g => competitionSegmentList[g._competition._id])
 				.filter(c => c.type == "League")
 				.value();
 		}

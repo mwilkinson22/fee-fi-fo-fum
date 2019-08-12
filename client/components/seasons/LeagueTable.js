@@ -59,7 +59,7 @@ class LeagueTable extends Component {
 			return newState;
 		}
 		//Get Competition Info
-		newState.segment = _.find(competitionSegmentList, c => c._id === competition);
+		newState.segment = competitionSegmentList[competition];
 		newState.instance = _.find(
 			newState.segment.instances,
 			instance => instance.year == year || instance.year === null
@@ -151,7 +151,7 @@ class LeagueTable extends Component {
 		};
 		let competitionSegment;
 		while (competition) {
-			competitionSegment = _.find(competitionSegmentList, c => c._id == competition);
+			competitionSegment = competitionSegmentList[competition];
 			const l = _.chain(gameList)
 				.filter(
 					game =>
