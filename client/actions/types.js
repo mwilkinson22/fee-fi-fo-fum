@@ -6,7 +6,9 @@ export const LOGOUT = "logout";
 export const FETCH_ALL_COMPETITIONS = "fetch_all_competitions";
 export const FETCH_ALL_COMPETITION_SEGMENTS = "fetch_all_competition_segments";
 export const FETCH_COMPETITION = "fetch_competition";
+export const FETCH_COMPETITION_SEGMENT = "fetch_competition_segment";
 export const DELETE_COMPETITION = "delete_competition";
+export const DELETE_COMPETITION_SEGMENT = "delete_competition_segment";
 
 //Games
 export const FETCH_GAMES = "fetch_games";

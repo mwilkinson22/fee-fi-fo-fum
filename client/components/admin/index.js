@@ -12,6 +12,7 @@ import AdminCityPage from "../../pages/AdminCityPage";
 
 import AdminCompetitionList from "../../pages/AdminCompetitionList";
 import AdminCompetitionPage from "../../pages/AdminCompetitionPage";
+import AdminCompetitionSegmentPage from "../../pages/AdminCompetitionSegmentPage";
 
 import AdminCountryList from "../../pages/AdminCountryList";
 import AdminCountryPage from "../../pages/AdminCountryPage";
@@ -62,7 +63,16 @@ class AdminRouter extends Component {
 					<Route path="/admin/cities/:slug" exact component={AdminCityPage} />
 					<Route path="/admin/cities" exact component={AdminCityList} />
 
-					<Route path="/admin/competitions/new" exact component={AdminCompetitionPage} />
+					<Route
+						path="/admin/competitions/segments/new/:parent"
+						exact
+						component={AdminCompetitionSegmentPage}
+					/>
+					<Route
+						path="/admin/competitions/segments/:_id"
+						exact
+						component={AdminCompetitionSegmentPage}
+					/>
 					<Route path="/admin/competitions/:_id" exact component={AdminCompetitionPage} />
 					<Route path="/admin/competitions" exact component={AdminCompetitionList} />
 

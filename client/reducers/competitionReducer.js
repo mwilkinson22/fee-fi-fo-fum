@@ -1,8 +1,10 @@
 import {
 	DELETE_COMPETITION,
+	DELETE_COMPETITION_SEGMENT,
 	FETCH_ALL_COMPETITION_SEGMENTS,
 	FETCH_ALL_COMPETITIONS,
-	FETCH_COMPETITION
+	FETCH_COMPETITION,
+	FETCH_COMPETITION_SEGMENT
 } from "../actions/types";
 
 export default function(state = {}, action) {
@@ -23,7 +25,10 @@ export default function(state = {}, action) {
 			};
 
 		case DELETE_COMPETITION:
-			const { [action.payload]: oldId, ...competitionList } = state.competitionList;
+			const {
+				[action.payload]: oldCompetitionId,
+				...competitionList
+			} = state.competitionList;
 			return {
 				...state,
 				competitionList
@@ -34,6 +39,26 @@ export default function(state = {}, action) {
 				...state,
 				competitionSegmentList: action.payload
 			};
+
+		case FETCH_COMPETITION_SEGMENT:
+			return {
+				...state,
+				competitionSegmentList: {
+					...state.competitionSegmentList,
+					[action.payload._id]: action.payload
+				}
+			};
+
+		case DELETE_COMPETITION_SEGMENT:
+			const {
+				[action.payload]: oldSegmentId,
+				...competitionSegmentList
+			} = state.competitionSegmentList;
+			return {
+				...state,
+				competitionSegmentList
+			};
+
 		default:
 			return state;
 	}
