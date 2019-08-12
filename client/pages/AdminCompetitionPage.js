@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -16,6 +16,7 @@ import HelmetBuilder from "~/client/components/HelmetBuilder";
 //Actions
 import {
 	fetchCompetitions,
+	fetchCompetitionSegments,
 	createCompetition,
 	updateCompetition,
 	deleteCompetition
@@ -28,10 +29,19 @@ class AdminCompetitionPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { competitionList, fetchCompetitions } = props;
+		const {
+			competitionList,
+			fetchCompetitions,
+			competitionSegmentList,
+			fetchCompetitionSegments
+		} = props;
 
 		if (!competitionList) {
 			fetchCompetitions();
+		}
+
+		if (!competitionSegmentList) {
+			fetchCompetitionSegments();
 		}
 
 		const options = {
@@ -43,7 +53,7 @@ class AdminCompetitionPage extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { competitionList, match } = nextProps;
+		const { competitionList, competitionSegmentList, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
@@ -55,7 +65,7 @@ class AdminCompetitionPage extends BasicForm {
 		}
 
 		//Check Everything is loaded
-		if (!newState.isNew && !competitionList) {
+		if (!newState.isNew && (!competitionList || !competitionSegmentList)) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -78,6 +88,12 @@ class AdminCompetitionPage extends BasicForm {
 		if (!newState.isNew) {
 			newState.competition = competitionList[match.params._id] || false;
 		}
+
+		//Get Segments
+		newState.segments = _.filter(
+			competitionSegmentList,
+			s => s._parentCompetition._id == match.params._id
+		);
 
 		return newState;
 	}
@@ -143,6 +159,49 @@ class AdminCompetitionPage extends BasicForm {
 		}
 	}
 
+	renderSegmentList() {
+		const { teamTypes, match } = this.props;
+		const { isNew, segments } = this.state;
+		if (!isNew) {
+			const content = _.chain(segments)
+				.sortBy(s => teamTypes[s._teamType].sortOrder)
+				.groupBy("_teamType")
+				.map(g => this.renderSegmentGroup(g))
+				.value();
+			return (
+				<div className="card form-card">
+					<h2>Competition Segments</h2>
+					<Link
+						to={`/admin/competitions/segments/new/${match.params._id}`}
+						className={`card nav-card`}
+					>
+						Create New Segment
+					</Link>
+					{content}
+				</div>
+			);
+		}
+	}
+
+	renderSegmentGroup(segments) {
+		const { teamTypes } = this.props;
+		const teamType = teamTypes[segments[0]._teamType];
+		const list = _.chain(segments)
+			.sortBy("name")
+			.map(({ _id, name }) => (
+				<li key={_id}>
+					<Link to={`/admin/competitions/segments/${_id}`}>{name}</Link>
+				</li>
+			))
+			.value();
+		return (
+			<div key={teamType._id}>
+				<h6>{teamType.name}</h6>
+				<ul className="plain-list">{list}</ul>
+			</div>
+		);
+	}
+
 	render() {
 		const { redirect, competition, isNew, isLoading, validationSchema, options } = this.state;
 
@@ -203,6 +262,7 @@ class AdminCompetitionPage extends BasicForm {
 											</div>
 										</div>
 										{this.renderDeleteButtons()}
+										{this.renderSegmentList()}
 									</Form>
 								);
 							}}
@@ -214,15 +274,17 @@ class AdminCompetitionPage extends BasicForm {
 	}
 }
 
-function mapStateToProps({ competitions }) {
-	const { competitionList } = competitions;
-	return { competitionList };
+function mapStateToProps({ competitions, teams }) {
+	const { competitionList, competitionSegmentList } = competitions;
+	const { teamTypes } = teams;
+	return { competitionList, competitionSegmentList, teamTypes };
 }
 
 export default connect(
 	mapStateToProps,
 	{
 		fetchCompetitions,
+		fetchCompetitionSegments,
 		createCompetition,
 		updateCompetition,
 		deleteCompetition
