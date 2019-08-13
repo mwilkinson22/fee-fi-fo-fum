@@ -219,6 +219,48 @@ class AdminCompetitionPage extends BasicForm {
 		}
 	}
 
+	renderInstanceMenu() {
+		const { isNew, segment } = this.state;
+		if (!isNew) {
+			const content = _.chain(segment.instances)
+				.sortBy("year")
+				.reverse()
+				.map(i => {
+					const titleArr = [
+						i.year,
+						i.sponsor,
+						segment._parentCompetition.name,
+						segment.name
+					];
+					return {
+						...i,
+						title: _.filter(titleArr, _.identity).join(" ")
+					};
+				})
+				.map(i => (
+					<li key={i._id}>
+						<Link to={`/admin/competitions/segments/${segment._id}/instances/${i._id}`}>
+							{i.title}
+						</Link>
+					</li>
+				))
+				.value();
+
+			return (
+				<div className="card form-card">
+					<h2>Instances</h2>
+					<Link
+						to={`/admin/competitions/segments/${segment._id}/instances/new/`}
+						className={`card nav-card`}
+					>
+						Create New Instance
+					</Link>
+					<ul className="plain-list">{content}</ul>
+				</div>
+			);
+		}
+	}
+
 	render() {
 		const {
 			redirect,
@@ -290,6 +332,7 @@ class AdminCompetitionPage extends BasicForm {
 											</div>
 										</div>
 										{this.renderDeleteButtons()}
+										{this.renderInstanceMenu()}
 									</Form>
 								);
 							}}
