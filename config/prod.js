@@ -9,6 +9,7 @@ module.exports = {
 		private_key: process.env.GC_KEY
 	},
 	googleBucketName: process.env.GOOGLE_BUCKET,
+	iftttKey: process.env.IFTTT_KEY,
 	twitter: {
 		consumer_key: process.env.TWITTER_CONSUMER_KEY,
 		consumer_secret: process.env.TWITTER_CONSUMER_SECRET,

@@ -16,7 +16,7 @@ const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
 
 //Helpers
-import { parseExternalGame } from "~/helpers/gameHelper";
+import { parseExternalGame, postToIfttt } from "~/helpers/gameHelper";
 
 //Images
 import PregameImage from "~/images/PregameImage";
@@ -427,6 +427,9 @@ export async function handleEvent(req, res) {
 			if (tweetMediaObject) {
 				eventObject.tweet_image = tweetMediaObject[0].media_url;
 			}
+
+			//Post to ifttt
+			await postToIfttt(tweet, eventObject.tweet_image);
 		}
 
 		//Add Event

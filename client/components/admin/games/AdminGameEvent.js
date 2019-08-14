@@ -46,7 +46,7 @@ class AdminGameEvent extends BasicForm {
 					return !isPlayerEvent || (player && player.value);
 				})
 				.label("Player"),
-			postTweet: Yup.boolean().label("Post Tweet?"),
+			postTweet: Yup.boolean().label("Post to Social?"),
 			tweet: Yup.string().label("Tweet"),
 			replyTweet: Yup.string().label("Reply To Tweet")
 		});

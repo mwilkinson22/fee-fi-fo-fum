@@ -2,6 +2,7 @@ import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { iftttKey } from "~/config/keys";
 const playerStatTypes = require("~/constants/playerStatTypes");
 
 export function validateGameDate(game, listType, year = null) {
@@ -21,6 +22,23 @@ export function fixDates(games) {
 		}
 		return game;
 	});
+}
+
+export async function postToIfttt(text, image) {
+	let event = "facebook";
+	const data = {
+		value1: text
+	};
+
+	if (image) {
+		event += "_with_photo";
+		data.value2 = image;
+	}
+	const res = await axios.post(
+		`https://maker.ifttt.com/trigger/${event}/with/key/${iftttKey}`,
+		data
+	);
+	return res;
 }
 
 function getAdjacentGame(id, gameList, next) {
