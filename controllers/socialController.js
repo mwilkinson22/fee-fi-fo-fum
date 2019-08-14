@@ -8,6 +8,9 @@ const SocialProfile = mongoose.model("socialProfiles");
 //Helpers
 import twitter from "~/services/twitter";
 
+//Constants
+import { defaultSocialProfile } from "~/config/keys";
+
 async function validateProfile(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -49,8 +52,32 @@ export async function deleteProfile(req, res) {
 	const { _id } = req.params;
 	const profile = await validateProfile(_id, res);
 	if (profile) {
-		await profile.remove();
-		res.send({});
+		const Game = mongoose.model("games");
+		const games = await Game.find({ events: { $elemMatch: { _profile: _id } } }, "slug");
+
+		const errors = [];
+		if (_id == defaultSocialProfile) {
+			errors.push("it is the current default");
+		}
+		if (games.length) {
+			errors.push(
+				`it is required for tweets in ${games.length} ${
+					games.length == 1 ? "game" : "games"
+				}`
+			);
+		}
+
+		if (errors.length) {
+			const error = `Profile cannot be deleted as ${errors.join(" & ")}`;
+
+			res.status(409).send({
+				error,
+				toLog: { games }
+			});
+		} else {
+			await profile.remove();
+			res.send({});
+		}
 	}
 }
 
