@@ -26,12 +26,7 @@ class AdminGroundPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const {
-			groundList,
-			fetchAllGrounds,
-			cities,
-			fetchCities
-		} = props;
+		const { groundList, fetchAllGrounds, cities, fetchCities } = props;
 
 		if (!groundList) {
 			fetchAllGrounds();
