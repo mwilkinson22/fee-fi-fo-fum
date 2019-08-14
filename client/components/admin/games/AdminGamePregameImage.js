@@ -10,6 +10,7 @@ import LoadingPage from "../../LoadingPage";
 import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
+import { fetchProfiles } from "~/client/actions/socialActions";
 import { fetchTeam } from "../../../actions/teamsActions";
 import { getPregameImage, postGameEvent } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
@@ -17,10 +18,13 @@ import TweetComposer from "~/client/components/TweetComposer";
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
 
+//Constants
+import { defaultSocialProfile } from "~/config/keys";
+
 class AdminGamePregameImage extends Component {
 	constructor(props) {
 		super(props);
-		const { game, fullTeams, fetchTeam, localTeam } = props;
+		const { game, fullTeams, fetchTeam, localTeam, profiles, fetchProfiles } = props;
 
 		if (!fullTeams[localTeam]) {
 			fetchTeam(localTeam);
@@ -28,9 +32,13 @@ class AdminGamePregameImage extends Component {
 		if (!fullTeams[game._opposition._id]) {
 			fetchTeam(game._opposition._id);
 		}
+		if (!profiles) {
+			fetchProfiles();
+		}
 
 		const { hashtags } = game;
 		this.state = {
+			_profile: defaultSocialProfile,
 			game,
 			highlightNewPlayers: true,
 			team: game.pregameSquads.length > 1 ? "both" : _.values(game.pregameSquads)[0]._team,
@@ -41,13 +49,18 @@ class AdminGamePregameImage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, lastGame, fullTeams, localTeam, teamList } = nextProps;
+		const { game, lastGame, fullTeams, localTeam, teamList, profiles } = nextProps;
 		const newState = {};
 
 		let teams = [localTeam, game._opposition._id];
 
 		//Ensure both teams have loaded
 		if (_.reject(teams, team => fullTeams[team]).length) {
+			return newState;
+		}
+
+		//Ensure we have social profiles
+		if (!profiles) {
 			return newState;
 		}
 
@@ -151,6 +164,25 @@ class AdminGamePregameImage extends Component {
 		return newState;
 	}
 
+	renderProfileSelect() {
+		const { profiles } = this.props;
+		const { _profile } = this.state;
+
+		let options = _.map(profiles, ({ name, _id }) => ({
+			value: _id,
+			label: name
+		}));
+
+		return (
+			<Select
+				styles={selectStyling}
+				onChange={({ value }) => this.setState({ _profile: value })}
+				isDisabled={options.length === 1}
+				defaultValue={_.find(options, ({ value }) => value == _profile)}
+				options={options}
+			/>
+		);
+	}
 	renderTeamSelect() {
 		const { pregameSquads } = this.props.game;
 		const { teams, team } = this.state;
@@ -211,8 +243,9 @@ class AdminGamePregameImage extends Component {
 	async postTweet() {
 		this.setState({ tweetSending: true });
 		const { game, postGameEvent } = this.props;
-		const { tweet, replyTweet } = this.state;
+		const { tweet, replyTweet, _profile } = this.state;
 		const event = await postGameEvent(game._id, {
+			_profile,
 			tweet,
 			replyTweet,
 			postTweet: true,
@@ -291,6 +324,8 @@ class AdminGamePregameImage extends Component {
 		return (
 			<div className="container pregame-image-loader">
 				<div className="form-card grid">
+					<label>Profile</label>
+					{this.renderProfileSelect()}
 					<label>Team</label>
 					{this.renderTeamSelect()}
 					<label>Player For Image</label>
@@ -328,13 +363,13 @@ class AdminGamePregameImage extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, teams, social }) {
 	const { fullTeams, teamList } = teams;
 	const { localTeam } = config;
-	return { fullTeams, localTeam, teamList };
+	return { fullTeams, localTeam, teamList, profiles: social };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, getPregameImage, postGameEvent }
+	{ fetchProfiles, fetchTeam, getPregameImage, postGameEvent }
 )(AdminGamePregameImage);

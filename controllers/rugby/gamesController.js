@@ -331,7 +331,7 @@ export async function handleEvent(req, res) {
 	//If the event is valid
 	let game = await validateGame(_id, res, Game.findById(_id).eventImage());
 	if (game) {
-		const { postTweet, tweet, replyTweet } = req.body;
+		const { postTweet, tweet, replyTweet, _profile } = req.body;
 
 		//Create Event Object
 		const eventObject = {
@@ -362,6 +362,8 @@ export async function handleEvent(req, res) {
 
 		//Post Tweet
 		if (postTweet) {
+			const twitterClient = await twitter(_profile);
+
 			//Create Image
 			let media_ids = null;
 			if (event !== "none") {
@@ -395,7 +397,7 @@ export async function handleEvent(req, res) {
 				}
 
 				const media_data = image ? await image.render(true) : null;
-				const upload = await twitter.post("media/upload", {
+				const upload = await twitterClient.post("media/upload", {
 					media_data
 				});
 				const { media_id_string } = upload.data;
@@ -405,7 +407,7 @@ export async function handleEvent(req, res) {
 			//Post Tweet
 			let postedTweet, tweetError;
 			try {
-				postedTweet = await twitter.post("statuses/update", {
+				postedTweet = await twitterClient.post("statuses/update", {
 					status: tweet,
 					in_reply_to_status_id: replyTweet,
 					auto_populate_reply_metadata: true,
@@ -423,13 +425,15 @@ export async function handleEvent(req, res) {
 
 			eventObject.tweet_text = tweet;
 			eventObject.tweet_id = postedTweet.data.id_str;
+			eventObject._profile = _profile;
+
 			const tweetMediaObject = postedTweet.data.entities.media;
 			if (tweetMediaObject) {
 				eventObject.tweet_image = tweetMediaObject[0].media_url;
 			}
 
 			//Post to ifttt
-			await postToIfttt(tweet, eventObject.tweet_image);
+			await postToIfttt(_profile, tweet, eventObject.tweet_image);
 		}
 
 		//Add Event
@@ -455,10 +459,11 @@ export async function deleteEvent(req, res) {
 		if (!e) {
 			res.status(404).send(`Event with id ${_event} not found`);
 		} else {
-			const { event, tweet_id, _player } = e;
+			const { event, tweet_id, _player, _profile } = e;
 			//Delete Tweet
 			if (deleteTweet && tweet_id) {
-				await twitter.post(`statuses/destroy/${tweet_id}`);
+				const twitterClient = await twitter(_profile);
+				await twitterClient.post(`statuses/destroy/${tweet_id}`);
 			}
 
 			//Undo DB Data

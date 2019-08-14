@@ -9,6 +9,7 @@ import * as Yup from "yup";
 import { postGameEvent, previewPlayerEventImage } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
+import { fetchProfiles } from "~/client/actions/socialActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -17,6 +18,7 @@ import AdminGameEventList from "./AdminGameEventList";
 
 //Constants
 import gameEvents from "~/constants/gameEvents";
+import { defaultSocialProfile } from "~/config/keys";
 
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
@@ -24,7 +26,16 @@ import { convertTeamToSelect } from "~/helpers/gameHelper";
 class AdminGameEvent extends BasicForm {
 	constructor(props) {
 		super(props);
-		const { game, peopleList, fetchPeopleList, fullTeams, localTeam, fetchTeam } = props;
+		const {
+			game,
+			peopleList,
+			fetchPeopleList,
+			fullTeams,
+			localTeam,
+			fetchTeam,
+			profiles,
+			fetchProfiles
+		} = props;
 		if (!peopleList) {
 			fetchPeopleList();
 		}
@@ -35,7 +46,14 @@ class AdminGameEvent extends BasicForm {
 			fetchTeam(game._opposition._id);
 		}
 
+		if (!profiles) {
+			fetchProfiles();
+		}
+
 		const validationSchema = Yup.object().shape({
+			_profile: Yup.mixed()
+				.required()
+				.label("Profile"),
 			event: Yup.mixed()
 				.required()
 				.label("Event"),
@@ -55,18 +73,30 @@ class AdminGameEvent extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullTeams, localTeam, game } = nextProps;
-		if (!fullTeams[localTeam] || !fullTeams[game._opposition._id]) {
-			return {};
+		const { fullTeams, localTeam, game, profiles, peopleList } = nextProps;
+		const newState = { isLoading: false };
+
+		if (!fullTeams[localTeam] || !fullTeams[game._opposition._id] || !peopleList || !profiles) {
+			newState.isLoading = true;
+			return newState;
 		}
 
-		return nextProps;
+		newState.profiles = _.sortBy(
+			_.map(profiles, ({ name, _id }) => ({ label: name, value: _id })),
+			"label"
+		);
+
+		console.log(newState.profiles);
+
+		return newState;
 	}
 
 	getDefaults() {
 		const { hashtags } = this.props.game;
+		const { profiles } = this.state;
 
 		return {
+			_profile: profiles.find(p => p.value == defaultSocialProfile) || profiles[0],
 			event: {
 				label: "None",
 				value: "none"
@@ -88,6 +118,7 @@ class AdminGameEvent extends BasicForm {
 		//Pull value ids
 		values.event = values.event.value;
 		values.player = values.player.value || null;
+		values._profile = values._profile.value || null;
 
 		//Post Event
 		const event = await postGameEvent(game._id, values);
@@ -98,6 +129,7 @@ class AdminGameEvent extends BasicForm {
 			//Reset Form
 			formikActions.resetForm();
 			formikActions.setFieldValue("postTweet", values.postTweet);
+			formikActions.setFieldValue("_profile", fValues._profile);
 
 			if (values.event === "T") {
 				formikActions.setFieldValue("replyTweet", event.tweet_id || "");
@@ -151,12 +183,10 @@ class AdminGameEvent extends BasicForm {
 
 	renderFields(formikProps) {
 		const { localTeam, game, peopleList, teamList } = this.props;
-		const { isPosting } = this.state;
+		const { isPosting, profiles } = this.state;
 		const { event, postTweet } = formikProps.values;
 		const eventTypes = this.getEventTypes();
-		const fields = [
-			{ name: "event", type: "Select", options: eventTypes, isSearchable: false }
-		];
+		let fields = [{ name: "event", type: "Select", options: eventTypes, isSearchable: false }];
 
 		if (event.value && gameEvents[event.value].isPlayerEvent) {
 			const players = convertTeamToSelect(game, teamList);
@@ -184,7 +214,8 @@ class AdminGameEvent extends BasicForm {
 					caretPoint: 0,
 					variableInstruction: "@ Player"
 				},
-				{ name: "replyTweet", type: "text" }
+				{ name: "replyTweet", type: "text" },
+				{ name: "_profile", type: "Select", options: profiles }
 			);
 		}
 		return (
@@ -229,8 +260,8 @@ class AdminGameEvent extends BasicForm {
 	}
 
 	render() {
-		const { peopleList } = this.state;
-		if (!peopleList) {
+		const { isLoading } = this.state;
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 		return (
@@ -247,15 +278,15 @@ class AdminGameEvent extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ config, people, teams }) {
+function mapStateToProps({ config, people, teams, social }) {
 	const { localTeam } = config;
 	const { peopleList } = people;
 	const { teamList, fullTeams } = teams;
-	return { localTeam, peopleList, teamList, fullTeams };
+	return { localTeam, peopleList, teamList, fullTeams, profiles: social };
 }
 
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage }
+	{ fetchProfiles, fetchPeopleList, postGameEvent, fetchTeam, previewPlayerEventImage }
 )(AdminGameEvent);

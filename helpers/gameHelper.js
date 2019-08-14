@@ -1,8 +1,13 @@
+//Modules
 import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
+import mongoose from "mongoose";
+
+//Helpers
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
-import { iftttKey } from "~/config/keys";
+
+//Constants
 const playerStatTypes = require("~/constants/playerStatTypes");
 
 export function validateGameDate(game, listType, year = null) {
@@ -24,7 +29,11 @@ export function fixDates(games) {
 	});
 }
 
-export async function postToIfttt(text, image) {
+export async function postToIfttt(_profile, text, image) {
+	//Get Profile
+	const SocialProfile = mongoose.model("socialProfiles");
+	const profile = await SocialProfile.findById(_profile).lean();
+
 	let event = "facebook";
 	const data = {
 		value1: text
@@ -35,7 +44,7 @@ export async function postToIfttt(text, image) {
 		data.value2 = image;
 	}
 	const res = await axios.post(
-		`https://maker.ifttt.com/trigger/${event}/with/key/${iftttKey}`,
+		`https://maker.ifttt.com/trigger/${event}/with/key/${profile.iftttKey}`,
 		data
 	);
 	return res;

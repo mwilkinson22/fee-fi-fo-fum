@@ -10,20 +10,28 @@ import LoadingPage from "../../LoadingPage";
 import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
+import { fetchProfiles } from "~/client/actions/socialActions";
 import { fetchTeam } from "../../../actions/teamsActions";
 import { getSquadImage, postGameEvent } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
+//Constants
+import { defaultSocialProfile } from "~/config/keys";
+
 class AdminGameSquadImage extends Component {
 	constructor(props) {
 		super(props);
-		const { game, fullTeams, fetchTeam, localTeam } = props;
+		const { game, fullTeams, fetchTeam, localTeam, profiles, fetchProfiles } = props;
 
 		if (!fullTeams[localTeam]) {
 			fetchTeam(localTeam);
 		}
 		if (!fullTeams[game._opposition._id]) {
 			fetchTeam(game._opposition._id);
+		}
+
+		if (!profiles) {
+			fetchProfiles();
 		}
 
 		const { hashtags } = game;
@@ -36,19 +44,20 @@ class AdminGameSquadImage extends Component {
 		}`;
 
 		this.state = {
+			_profile: defaultSocialProfile,
 			game,
 			tweet
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, fullTeams, localTeam } = nextProps;
+		const { game, fullTeams, localTeam, profiles } = nextProps;
 		const newState = { game };
 
 		let teams = [localTeam, game._opposition._id];
 
 		//Ensure both teams have loaded
-		if (_.reject(teams, team => fullTeams[team]).length) {
+		if (_.reject(teams, team => fullTeams[team]).length || !profiles) {
 			return newState;
 		}
 
@@ -74,6 +83,26 @@ class AdminGameSquadImage extends Component {
 		} else {
 			return null;
 		}
+	}
+
+	renderProfileSelector() {
+		const { profiles } = this.props;
+		const { _profile } = this.state;
+
+		let options = _.map(profiles, ({ name, _id }) => ({
+			value: _id,
+			label: name
+		}));
+
+		return (
+			<Select
+				styles={selectStyling}
+				onChange={({ value }) => this.setState({ _profile: value })}
+				isDisabled={options.length === 1}
+				defaultValue={_.find(options, ({ value }) => value == _profile)}
+				options={options}
+			/>
+		);
 	}
 
 	renderTweetComposer() {
@@ -113,10 +142,11 @@ class AdminGameSquadImage extends Component {
 
 	async postTweet() {
 		const { game, postGameEvent, localTeam } = this.props;
-		const { tweet, replyTweet, selectedTeam } = this.state;
-		console.log(selectedTeam.value != localTeam);
+		const { tweet, replyTweet, selectedTeam, _profile } = this.state;
+
 		this.setState({ tweetSending: true });
 		const options = {
+			_profile,
 			tweet,
 			replyTweet,
 			postTweet: true,
@@ -137,6 +167,8 @@ class AdminGameSquadImage extends Component {
 		return (
 			<div className="container pregame-image-loader">
 				<div className="form-card grid">
+					<label>Profile</label>
+					{this.renderProfileSelector()}
 					<label>Team</label>
 					<Select
 						styles={selectStyling}
@@ -181,13 +213,13 @@ class AdminGameSquadImage extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, teams, social }) {
 	const { fullTeams } = teams;
 	const { localTeam } = config;
-	return { fullTeams, localTeam };
+	return { fullTeams, localTeam, profiles: social };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchTeam, getSquadImage, postGameEvent }
+	{ fetchProfiles, fetchTeam, getSquadImage, postGameEvent }
 )(AdminGameSquadImage);

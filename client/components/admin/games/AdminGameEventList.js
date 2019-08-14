@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 //Components
+import LoadingPage from "~/client/components/LoadingPage";
 import PopUpDialog from "~/client/components/PopUpDialog";
 
 //Constants
@@ -19,7 +20,7 @@ class AdminGameEventList extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { events, eligiblePlayers } = nextProps.game;
 		const newState = {};
 
@@ -39,7 +40,7 @@ class AdminGameEventList extends Component {
 		return newState;
 	}
 
-	renderRow({ _id, event, _player, tweet_text, tweet_image, tweet_id, date }) {
+	renderRow({ _id, event, _player, tweet_text, tweet_image, tweet_id, _profile, date }) {
 		const { playerList } = this.state;
 		const { onReply } = this.props;
 
@@ -71,6 +72,7 @@ class AdminGameEventList extends Component {
 		} else {
 			replySection = <div className="action empty" key="no-reply" />;
 		}
+
 		return [
 			replySection,
 			<div
@@ -79,6 +81,9 @@ class AdminGameEventList extends Component {
 				onClick={() => this.setState({ deleteEvent: _id })}
 			>
 				🛇
+			</div>,
+			<div key="profile" className="profile">
+				{_profile ? _profile.name : "-"}
 			</div>,
 			<div
 				key="date"
@@ -202,7 +207,7 @@ class AdminGameEventList extends Component {
 				.map(e => this.renderRow(e))
 				.value();
 			return (
-				<div className="form-card event-list">
+				<div className={"form-card event-list"}>
 					{renderedList}
 					{this.renderDeleteEventDialog()}
 				</div>

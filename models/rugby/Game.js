@@ -69,7 +69,8 @@ const gameSchema = new Schema(
 					tweet_id: { type: String, default: null },
 					tweet_text: { type: String, default: null },
 					tweet_image: { type: String, default: null },
-					inDatabase: { type: Boolean, default: false }
+					inDatabase: { type: Boolean, default: false },
+					_profile: { type: Schema.Types.ObjectId, ref: "socialProfiles" }
 				}
 			],
 			default: []
@@ -166,6 +167,10 @@ gameSchema.query.fullGame = function() {
 		path: "_opposition",
 		select: "name colours hashtagPrefix images"
 	})
+		.populate({
+			path: "events._profile",
+			select: "name"
+		})
 		.populate({
 			path: "_ground",
 			populate: {
