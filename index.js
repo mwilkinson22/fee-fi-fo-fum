@@ -20,6 +20,7 @@ import keys from "./config/keys";
 
 //Add Mongoose Models
 import "./models/User";
+import "./models/SocialProfile";
 import "./models/Sponsor";
 import "./models/IdLink";
 import "./models/SlugRedirect";
@@ -61,6 +62,7 @@ app.use(express.static("public"));
 // API Routes
 require("./routes/fileRoutes")(app);
 require("./routes/usersRoutes")(app);
+require("./routes/socialRoutes")(app);
 require("./routes/rugby")(app);
 require("./routes/newsRoutes")(app);
 app.all("/api*", (req, res) => {
