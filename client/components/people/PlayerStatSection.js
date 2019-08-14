@@ -28,7 +28,7 @@ class PlayerStatSection extends Component {
 			fetchGameList();
 		}
 
-		this.state = { activeFilters: {} };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -80,8 +80,6 @@ class PlayerStatSection extends Component {
 						return game;
 					})
 					.value();
-
-				newState.filteredGames = _.filter(newState.games, prevState.activeFilters);
 			}
 		}
 
@@ -137,8 +135,8 @@ class PlayerStatSection extends Component {
 					{teamTypeMenu}
 					<GameFilters
 						games={games || []}
-						onFilterChange={activeFilters => this.setState(activeFilters)}
-						activeFilters={this.state.activeFilters}
+						onFilterChange={filteredGames => this.setState({ filteredGames })}
+						friendliesByDefault={false}
 					/>
 				</div>
 			</div>
@@ -146,8 +144,7 @@ class PlayerStatSection extends Component {
 	}
 
 	getStatBoxes() {
-		const { games, activeFilters } = this.state;
-		const filteredGames = _.filter(games, activeFilters);
+		const { filteredGames } = this.state;
 		const positions = _.chain(filteredGames)
 			.map(game => {
 				switch (game.playerStats[0].position) {
