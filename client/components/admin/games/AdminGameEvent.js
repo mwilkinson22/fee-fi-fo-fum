@@ -199,20 +199,35 @@ class AdminGameEvent extends BasicForm {
 			const variables = _.chain(game.playerStats)
 				.filter(p => p._team == localTeam)
 				.sortBy("position")
-				.map(({ _player }) => peopleList[_player])
-				.filter(p => p.twitter)
-				.map(({ name, twitter }) => ({
-					name: `${name.first} ${name.last}`,
-					value: `@${twitter}`
-				}))
+				.map(
+					({ _player }) =>
+						game.eligiblePlayers[localTeam].find(p => p._player._id == _player)._player
+				)
+				.map(({ name, twitter, _sponsor }) => {
+					let entries = [];
+					if (twitter) {
+						entries.push({ name: `${name.full} Twitter`, value: `@${twitter}` });
+					}
+					if (_sponsor) {
+						entries.push({
+							name: `${name.full} sponsor`,
+							value: `\n\n${name.first} is sponsored by ${
+								_sponsor.twitter ? `@${_sponsor.twitter}` : _sponsor.name
+							}`
+						});
+					}
+					return entries;
+				})
+				.flatten()
 				.value();
+
 			fields.push(
 				{
 					name: "tweet",
 					type: "Tweet",
 					variables,
 					caretPoint: 0,
-					variableInstruction: "@ Player"
+					variableInstruction: "Players"
 				},
 				{ name: "replyTweet", type: "text" },
 				{ name: "_profile", type: "Select", options: profiles }
