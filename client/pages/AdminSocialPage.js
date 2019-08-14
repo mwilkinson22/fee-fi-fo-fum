@@ -18,7 +18,8 @@ import {
 	fetchProfiles,
 	createProfile,
 	updateProfile,
-	deleteProfile
+	deleteProfile,
+	twitterTest
 } from "~/client/actions/socialActions";
 
 class AdminProfilePage extends BasicForm {
@@ -135,8 +136,41 @@ class AdminProfilePage extends BasicForm {
 		}
 	}
 
+	async twitterTest(values) {
+		await this.setState({ twitterTestResults: "loading" });
+		const twitterTestResults = await this.props.twitterTest(values);
+		await this.setState({ twitterTestResults });
+	}
+
+	renderTwitterTestResults() {
+		const { twitterTestResults } = this.state;
+
+		if (twitterTestResults && twitterTestResults !== "loading") {
+			if (twitterTestResults.authenticated) {
+				return (
+					<label>
+						{"\u2705"} Logged in as @{twitterTestResults.user}
+					</label>
+				);
+			} else {
+				return (
+					<label>
+						{"\u274c"} {twitterTestResults.error.message}
+					</label>
+				);
+			}
+		}
+	}
+
 	render() {
-		const { redirect, profile, isNew, isLoading, validationSchema } = this.state;
+		const {
+			redirect,
+			profile,
+			isNew,
+			isLoading,
+			validationSchema,
+			twitterTestResults
+		} = this.state;
 
 		if (redirect) {
 			return <Redirect to={redirect} />;
@@ -164,7 +198,7 @@ class AdminProfilePage extends BasicForm {
 							onSubmit={values => this.handleSubmit(values)}
 							initialValues={this.getDefaults()}
 							validationSchema={validationSchema}
-							render={() => {
+							render={({ values }) => {
 								const mainFields = [
 									{ name: "name", type: "text" },
 									{ name: "iftttKey", type: "text" }
@@ -182,6 +216,17 @@ class AdminProfilePage extends BasicForm {
 											{this.renderFieldGroup(mainFields)}
 											<h6>Twitter</h6>
 											{this.renderFieldGroup(twitterFields)}
+											<button
+												type="button"
+												disabled={
+													_.filter(values.twitter, v => v == "").length ||
+													twitterTestResults == "loading"
+												}
+												onClick={() => this.twitterTest(values.twitter)}
+											>
+												Test
+											</button>
+											{this.renderTwitterTestResults()}
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">
@@ -207,5 +252,5 @@ function mapStateToProps({ social }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchProfiles, createProfile, updateProfile, deleteProfile }
+	{ fetchProfiles, createProfile, updateProfile, deleteProfile, twitterTest }
 )(AdminProfilePage);

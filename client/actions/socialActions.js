@@ -28,3 +28,8 @@ export const deleteProfile = id => async (dispatch, getState, api) => {
 	}
 	return false;
 };
+
+export const twitterTest = data => async (dispatch, getState, api) => {
+	const res = await api.post(`/socialProfiles/twitterTest`, data);
+	return res.data;
+};

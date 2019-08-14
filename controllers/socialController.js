@@ -5,6 +5,9 @@ import _ from "lodash";
 import mongoose from "mongoose";
 const SocialProfile = mongoose.model("socialProfiles");
 
+//Helpers
+import twitter from "~/services/twitter";
+
 async function validateProfile(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -48,5 +51,26 @@ export async function deleteProfile(req, res) {
 	if (profile) {
 		await profile.remove();
 		res.send({});
+	}
+}
+
+export async function twitterTest(req, res) {
+	const twitterClient = await twitter(null, req.body);
+	let error, result;
+	try {
+		result = await twitterClient.get("account/settings");
+	} catch (e) {
+		error = e;
+	}
+	if (error) {
+		res.send({
+			authenticated: false,
+			error
+		});
+	} else {
+		res.send({
+			authenticated: true,
+			user: result.data.screen_name
+		});
 	}
 }
