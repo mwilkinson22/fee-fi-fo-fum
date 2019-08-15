@@ -145,6 +145,7 @@ class PlayerStatSection extends Component {
 
 	getStatBoxes() {
 		const { filteredGames } = this.state;
+		const { localTeam } = this.props;
 		const positions = _.chain(filteredGames)
 			.map(game => {
 				switch (game.playerStats[0].position) {
@@ -232,12 +233,40 @@ class PlayerStatSection extends Component {
 			}
 		});
 
+		const gameResults = _.chain(filteredGames)
+			.groupBy(g => {
+				const { [localTeam]: local, [g._opposition._id]: opposition } = g.score;
+				if (local > opposition) {
+					return "Win|Wins";
+				} else if (opposition > local) {
+					return "Loss|Losses";
+				} else {
+					return "Draw|Draws";
+				}
+			})
+			.map((games, result) => {
+				const [singular, plural] = result.split("|");
+				return {
+					games: games.length,
+					result: games.length == 1 ? singular : plural
+				};
+			})
+			.sortBy("games")
+			.reverse()
+			.map(({ games, result }) => (
+				<div key={result} className="extra">
+					{games} {result}
+				</div>
+			))
+			.value();
+
 		return (
 			<div className="container" key="boxes">
 				<div className="single-stat-boxes positions">
 					<div className="single-stat-box card">
 						<div className="total">{filteredGames.length}</div>
 						<div className="name">{filteredGames.length === 1 ? "Game" : "Games"}</div>
+						{gameResults}
 					</div>
 					<div className="single-stat-box card">
 						<table>
@@ -326,10 +355,11 @@ class PlayerStatSection extends Component {
 	}
 }
 
-function mapStateToProps({ games, teams }) {
+function mapStateToProps({ config, games, teams }) {
+	const { localTeam } = config;
 	const { teamTypes } = teams;
 	const { gameList, fullGames } = games;
-	return { teamTypes, gameList, fullGames };
+	return { teamTypes, gameList, fullGames, localTeam };
 }
 
 export default connect(
