@@ -1389,6 +1389,7 @@
 				margin-top: 10pt;
 				padding: 2pt 4pt;
 				width: 100%;
+				border-radius: 4pt;
 			}
 		}
 
@@ -1398,11 +1399,6 @@
 
 		@media #{$desktop-and-tablet} {
 			grid-template-columns: 1fr 1fr;
-
-			.selected .position,
-			.squad-selector-card span:first-child {
-				font-size: 1.2em;
-			}
 		}
 	}
 }
