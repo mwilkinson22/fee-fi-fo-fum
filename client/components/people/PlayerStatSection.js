@@ -307,7 +307,7 @@ class PlayerStatSection extends Component {
 		let content;
 		if (!games) {
 			content = <LoadingPage />;
-		} else if (filteredGames.length === 0) {
+		} else if (!filteredGames || filteredGames.length === 0) {
 			content = (
 				<div className="container no-games-found" key="no-games-found">
 					No game data available
