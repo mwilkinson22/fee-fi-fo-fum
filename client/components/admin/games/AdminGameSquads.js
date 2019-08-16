@@ -88,7 +88,7 @@ class AdminGameSquads extends Component {
 			const { colours } = teamList[id];
 			return (
 				<div className="form-card squad-selector-wrapper" key={id}>
-					<TeamImage team={teamList[id]} />
+					<TeamImage team={teamList[id]} variant="dark" />
 					<SquadSelector
 						squad={squads[id]}
 						teamColours={colours}
