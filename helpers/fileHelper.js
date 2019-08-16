@@ -2,12 +2,12 @@ import { googleBucketName } from "~/config/keys";
 import sharp from "sharp";
 const bucket = require("~/constants/googleBucket");
 
-export async function uploadToGoogle({ originalname, buffer, mimetype }, path = "") {
+export async function uploadToGoogle({ originalname, buffer, mimeType }, path = "") {
 	const file = bucket.file(path + originalname);
 	const externalUrl = await new Promise((resolve, reject) => {
 		const stream = file.createWriteStream({
 			metaData: {
-				contentType: mimetype
+				contentType: mimeType
 			}
 		});
 		stream.on("error", err => {
