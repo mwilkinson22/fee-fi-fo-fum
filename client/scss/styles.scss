@@ -104,7 +104,7 @@ body {
 }
 
 .table {
-	@include noTextSelect;
+	user-select: none;
 	box-shadow: 2pt 2pt 2pt rgba(black, 0.4);
 	width: 100%;
 	th,
@@ -182,7 +182,7 @@ body {
 }
 
 .list-filters {
-	@include noTextSelect;
+	user-select: none;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -263,7 +263,7 @@ a.card:hover {
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
-	@include noTextSelect;
+	user-select: none;
 
 	display: grid;
 	grid-gap: 20pt;
@@ -368,7 +368,7 @@ button,
 
 .stat-tables {
 	padding-bottom: 20pt;
-	@include noTextSelect;
+	user-select: none;
 	.stat-table-tabs {
 		div {
 			cursor: pointer;

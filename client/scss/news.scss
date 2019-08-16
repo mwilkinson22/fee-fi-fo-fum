@@ -49,7 +49,7 @@
 		}
 
 		.post-header {
-			@include noTextSelect;
+			user-select: none;
 			h6 {
 				color: white;
 			}
@@ -207,7 +207,7 @@
 }
 .post-pagination {
 	ul {
-		@include noTextSelect;
+		user-select: none;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;

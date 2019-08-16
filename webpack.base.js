@@ -6,7 +6,18 @@ module.exports = {
 		rules: [
 			{
 				test: /\.css$/,
-				loaders: ["style-loader", "css-loader"]
+				loaders: [
+					"style-loader",
+					{
+						loader: "postcss-loader",
+						options: {
+							ident: "postcss",
+							sourceMap: true,
+							plugins: [require("autoprefixer")()]
+						}
+					},
+					"css-loader"
+				]
 			},
 			{
 				test: /\.(js|node)?$/,
@@ -29,6 +40,14 @@ module.exports = {
 							loader: "css-loader",
 							options: {
 								sourceMap: true
+							}
+						},
+						{
+							loader: "postcss-loader",
+							options: {
+								ident: "postcss",
+								sourceMap: true,
+								plugins: [require("autoprefixer")()]
 							}
 						},
 						{

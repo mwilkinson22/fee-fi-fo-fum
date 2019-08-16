@@ -60,13 +60,6 @@ $transition: all 300ms;
 	@include desktopOnly;
 }
 
-@mixin noTextSelect {
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
 @mixin pseudoImage {
 	background-position: center;
 	background-size: contain;

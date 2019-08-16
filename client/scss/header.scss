@@ -1,5 +1,5 @@
 header {
-	@include noTextSelect;
+	user-select: none;
 	background-color: $claret;
 	color: white;
 	position: sticky;

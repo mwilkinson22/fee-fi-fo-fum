@@ -170,7 +170,7 @@
 }
 
 .game-page {
-	@include noTextSelect;
+	user-select: none;
 	overflow: hidden;
 	h2 {
 		text-align: center;
@@ -1313,7 +1313,7 @@
 		grid-gap: 10pt;
 
 		.squad-selector-card {
-			@include noTextSelect;
+			user-select: none;
 			cursor: pointer;
 			padding: 4pt 8pt;
 			display: flex;

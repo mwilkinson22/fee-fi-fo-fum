@@ -136,7 +136,7 @@
 				width: 100%;
 
 				.leaderboard {
-					@include noTextSelect;
+					user-select: none;
 					display: flex;
 					position: relative;
 					.leader {

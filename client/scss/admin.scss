@@ -47,7 +47,7 @@
 	}
 
 	h6 {
-		@include noTextSelect;
+		user-select: none;
 		font-size: 1.4em;
 		margin-bottom: 10pt;
 		&:not(:first-child) {
@@ -81,7 +81,7 @@
 	}
 
 	label {
-		@include noTextSelect;
+		user-select: none;
 		white-space: nowrap;
 		padding-right: 8pt;
 		font-weight: bold;
@@ -159,7 +159,7 @@
 		}
 
 		label {
-			@include noTextSelect;
+			user-select: none;
 			cursor: pointer;
 			padding: 4pt 8pt;
 			border-radius: 4pt;
@@ -212,7 +212,7 @@
 	}
 
 	.image-selector-field-wrapper {
-		@include noTextSelect;
+		user-select: none;
 		border-radius: 4pt;
 		padding: 10pt 10pt 6pt;
 		.image-selector-field {
@@ -279,7 +279,7 @@
 		@media #{$desktop-only} {
 			grid-template-rows: 200pt 1fr 40pt;
 			.preview-box {
-				@include noTextSelect;
+				user-select: none;
 				&.with-image {
 					grid-template-columns: 1fr 1fr;
 					justify-content: center;
