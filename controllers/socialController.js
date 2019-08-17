@@ -109,14 +109,16 @@ export async function twitterAuth(req, res) {
 	try {
 		a = await twitterClient.post("https://api.twitter.com/oauth/request_token", {
 			oauth_consumer_key: twitterClient.config.consumer_key,
-			oauth_callback: "https://fee-fi-fo-fum.herokuapp.com/api/twitter/callback"
+			oauth_callback: encodeURIComponent(
+				"https://fee-fi-fo-fum.herokuapp.com/api/twitter/callback"
+			)
 		});
 	} catch (err) {
 		e = err;
 	}
 	console.log(e);
 	// console.log(e.response);
-	res.send(e);
+	res.send({ a, e });
 }
 
 export async function twitterCallback(req, res) {
