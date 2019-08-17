@@ -101,3 +101,25 @@ export async function twitterTest(req, res) {
 		});
 	}
 }
+
+export async function twitterAuth(req, res) {
+	//Get Default App
+	const twitterClient = await twitter(defaultSocialProfile);
+	let a, e;
+	try {
+		a = await twitterClient.post("https://api.twitter.com/oauth/request_token", {
+			oauth_consumer_key: twitterClient.config.consumer_key,
+			oauth_callback: "https://fee-fi-fo-fum.herokuapp.com/api/twitter/callback"
+		});
+	} catch (err) {
+		e = err;
+	}
+	console.log(e);
+	// console.log(e.response);
+	res.send(e);
+}
+
+export async function twitterCallback(req, res) {
+	console.log(req.body);
+	res.send(req.body);
+}
