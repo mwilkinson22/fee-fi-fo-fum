@@ -17,7 +17,7 @@ class GameCard extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 		const { game, localTeam } = nextProps;
-		const { _opposition, isAway, score } = game;
+		const { _opposition, isAway } = game;
 
 		//Get date
 		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));
@@ -30,7 +30,8 @@ class GameCard extends Component {
 		newState.isFixture = isFixture;
 
 		//Score
-		if (score) {
+		const score = game.score || game.scoreOverride;
+		if (score && Object.keys(score).length >= 2) {
 			const localScore = score[localTeam];
 			const oppositionScore = score[_opposition._id];
 			if (localScore && oppositionScore) {
