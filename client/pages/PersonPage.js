@@ -101,7 +101,7 @@ class PersonPage extends Component {
 	}
 
 	getPersonDataSection() {
-		const sections = [this.getInfoTable(), this.getDescription()];
+		const sections = [this.getInfoTable() /* , this.getDescription() */];
 		const sectionCount = _.filter(sections, _.identity).length;
 		if (sectionCount) {
 			return (
