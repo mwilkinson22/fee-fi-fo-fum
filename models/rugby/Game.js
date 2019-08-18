@@ -104,7 +104,15 @@ const gameSchema = new Schema(
 				}
 			],
 			default: []
-		}
+		},
+
+		//Temporary score override where squads/details are unavailable
+		scoreOverride: [
+			{
+				_team: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+				points: { type: Number, required: true }
+			}
+		]
 	},
 	{
 		toJSON: {

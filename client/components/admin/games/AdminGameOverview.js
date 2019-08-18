@@ -47,7 +47,8 @@ class AdminGameOverview extends BasicForm {
 			teamTypes,
 			competitionSegmentList,
 			groundList,
-			peopleList
+			peopleList,
+			localTeam
 		} = nextProps;
 		const newState = {
 			game,
@@ -59,7 +60,13 @@ class AdminGameOverview extends BasicForm {
 		};
 
 		if (!game || (!prevState.game || game._id != prevState.game._id)) {
-			let date;
+			let date, scoreOverride;
+			if (game) {
+				scoreOverride = Yup.object().shape({
+					[localTeam]: Yup.string().label(teamList[localTeam].name.short),
+					[game._opposition._id]: Yup.string().label(game._opposition.name.short)
+				});
+			}
 			if (game && game.status > 0) {
 				const year = new Date(game.date).getFullYear();
 				date = Yup.date()
@@ -112,7 +119,8 @@ class AdminGameOverview extends BasicForm {
 				attendance: Yup.number()
 					.label("Attendance")
 					.nullable(),
-				extraTime: Yup.boolean().label("Game went to Extra Time")
+				extraTime: Yup.boolean().label("Game went to Extra Time"),
+				scoreOverride
 			});
 		}
 		return newState;
@@ -120,6 +128,7 @@ class AdminGameOverview extends BasicForm {
 
 	getDefaults() {
 		const { game } = this.state;
+		const { localTeam } = this.props;
 		const {
 			teamTypes,
 			competitionSegmentList,
@@ -129,7 +138,14 @@ class AdminGameOverview extends BasicForm {
 		} = this.getOptions();
 
 		//Get Select Values
-		let _teamType, _competition, _opposition, _ground, _referee, _video_referee, images;
+		let _teamType,
+			_competition,
+			_opposition,
+			_ground,
+			_referee,
+			_video_referee,
+			images,
+			scoreOverride;
 
 		images = {
 			header: "",
@@ -150,6 +166,10 @@ class AdminGameOverview extends BasicForm {
 				? _.find(referees, ref => ref.value == game._video_referee._id)
 				: "";
 			images = _.mapValues(game.images, v => v || "");
+			scoreOverride = {
+				[localTeam]: game.scoreOverride[localTeam] || "",
+				[game._opposition._id]: game.scoreOverride[game._opposition._id] || ""
+			};
 		}
 
 		return {
@@ -168,7 +188,8 @@ class AdminGameOverview extends BasicForm {
 			_video_referee,
 			attendance: (game && game.attendance) || "",
 			extraTime: (game && game.extraTime) || false,
-			images
+			images,
+			scoreOverride
 		};
 	}
 
@@ -300,6 +321,7 @@ class AdminGameOverview extends BasicForm {
 
 	renderFields(formikProps) {
 		const { game } = this.state;
+		const { localTeam } = this.props;
 
 		//Options
 		const {
@@ -377,13 +399,25 @@ class AdminGameOverview extends BasicForm {
 				defaultUploadName: game ? game.slug : ""
 			}
 		];
-		const postGameFields = [
-			{ name: "attendance", type: "number" },
-			{ name: "extraTime", type: "Boolean" }
-		];
+
+		let scoreOverrideSection;
+		if (game) {
+			const scoreOverrideFields = [
+				{ name: `scoreOverride.${localTeam}`, type: "number" },
+				{ name: `scoreOverride.${game._opposition._id}`, type: "number" }
+			];
+			scoreOverrideSection = [
+				<h6 key="header">Score Override</h6>,
+				this.renderFieldGroup(scoreOverrideFields)
+			];
+		}
 
 		let postGameSection;
 		if (game && game.status > 1) {
+			const postGameFields = [
+				{ name: "attendance", type: "number" },
+				{ name: "extraTime", type: "Boolean" }
+			];
 			postGameSection = [
 				<h6 key="header">Post-Match</h6>,
 				this.renderFieldGroup(postGameFields)
@@ -402,6 +436,7 @@ class AdminGameOverview extends BasicForm {
 					{this.renderFieldGroup(refereeFields)}
 					<h6>Images</h6>
 					{this.renderFieldGroup(imageFields)}
+					{scoreOverrideSection}
 					{postGameSection}
 
 					<div className="buttons">
@@ -453,13 +488,14 @@ class AdminGameOverview extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ teams, competitions, grounds, people }) {
+function mapStateToProps({ teams, competitions, grounds, people, config }) {
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { groundList } = grounds;
 	const { peopleList } = people;
+	const { localTeam } = config;
 
-	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList };
+	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList, localTeam };
 }
 // export default form;
 export default connect(

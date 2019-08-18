@@ -64,6 +64,12 @@ async function processBasics(values) {
 	];
 	_.each(nullable, prop => (values[prop] === "" ? (values[prop] = null) : null));
 
+	//Handle Score Override
+	values.scoreOverride = _.chain(values.scoreOverride)
+		.map((points, _team) => ({ points, _team }))
+		.reject(({ points }) => points == null || points == "")
+		.value();
+
 	//Check for empty images
 	values.images = _.chain(values.images)
 		.pick(["header", "midpage", "customLogo"])
@@ -115,6 +121,15 @@ async function addEligiblePlayers(games) {
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
 		const year = new Date(game.date).getFullYear();
+
+		//TEMP
+		//Get Score Override
+		if (game.scoreOverride) {
+			game.scoreOverride = _.chain(game.scoreOverride)
+				.keyBy("_team")
+				.mapValues("points")
+				.value();
+		}
 
 		//Get Valid Team Types
 		const { useAllSquads } = game._competition._parentCompetition;
