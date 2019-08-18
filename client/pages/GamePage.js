@@ -137,7 +137,9 @@ class GamePage extends Component {
 	}
 
 	generateTeamBanners() {
-		const { isAway, score, _opposition } = this.state.game;
+		const { game } = this.state;
+		const { isAway, _opposition } = game;
+		const score = game.score || game.scoreOverride;
 		const { localTeam, fullTeams } = this.props;
 		let teams = [fullTeams[localTeam], _opposition];
 		if (isAway) {
