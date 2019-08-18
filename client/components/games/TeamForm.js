@@ -159,14 +159,15 @@ class TeamForm extends Component {
 			const sameYear = game.date.getFullYear() == new Date().getFullYear();
 			const date = game.date.toString(`dS MMM${sameYear ? "" : " yyyy"}`);
 
-			//Get Team Boes
+			//Get Team Boxes
 			let dateColours = { main: "#444", text: "#DDD" };
-			if (game.score) {
+			const score = game.score || game.scoreOverride;
+			if (score && Object.keys(score).length >= 2) {
 				//Result
-				if (game.score[localTeam] > game.score[game._opposition._id]) {
+				if (score[localTeam] > score[game._opposition._id]) {
 					results["W"]++;
 					dateColours = fullTeams[localTeam].colours;
-				} else if (game.score[localTeam] < game.score[game._opposition._id]) {
+				} else if (score[localTeam] < score[game._opposition._id]) {
 					results["L"]++;
 					dateColours = game._opposition.colours;
 				} else {
@@ -174,8 +175,8 @@ class TeamForm extends Component {
 				}
 
 				//Points
-				points[localTeam] += game.score[localTeam];
-				points[game._opposition._id] += game.score[game._opposition._id];
+				points[localTeam] += score[localTeam];
+				points[game._opposition._id] += score[game._opposition._id];
 			}
 			//TeamBoxes
 			const teamBoxes = teams.map((team, i) => (
@@ -185,7 +186,7 @@ class TeamForm extends Component {
 					style={{ background: team.colours.main, color: team.colours.text }}
 				>
 					{badges[team._id]}
-					{game.score ? game.score[team._id] : null}
+					{score ? score[team._id] : null}
 				</div>
 			));
 
@@ -237,7 +238,11 @@ class TeamForm extends Component {
 
 		//Format local games the same as neutral
 		const allGames = gamesRequired.map(_id => {
-			const { date, isAway, score, _opposition, slug } = fullGames[_id];
+			let { date, isAway, score, scoreOverride, _opposition, slug } = fullGames[_id];
+
+			if (!score) {
+				score = scoreOverride;
+			}
 
 			//Set Teams & Score
 			let points = [
