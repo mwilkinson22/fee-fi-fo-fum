@@ -103,7 +103,7 @@ class AdminGameEvent extends BasicForm {
 			},
 			player: "",
 			postTweet: true,
-			tweet: hashtags ? `\n\n${hashtags.map(t => `#${t}`).join(" ")}` : "",
+			tweet: hashtags ? `\n\n${_.uniq(hashtags.map(t => `#${t}`)).join(" ")}` : "",
 			replyTweet: ""
 		};
 	}
