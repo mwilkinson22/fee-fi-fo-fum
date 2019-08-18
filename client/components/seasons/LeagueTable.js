@@ -109,16 +109,23 @@ class LeagueTable extends Component {
 			newState.isLoadingGames = false;
 			games.local = _.chain(games.local)
 				.map(id => {
-					const { isAway, _opposition, score, date } = fullGames[id];
-					if (!score) {
+					const { isAway, _opposition, score, scoreOverride, date } = fullGames[id];
+					console.log(scoreOverride);
+					if (!score && (!scoreOverride || Object.keys(scoreOverride).length < 2)) {
 						return null;
 					}
 
 					//Return in the same format as a neutral game, for ease of parsing
 					const _homeTeam = isAway ? _opposition._id : localTeam;
 					const _awayTeam = isAway ? localTeam : _opposition._id;
-					const homePoints = score[_homeTeam];
-					const awayPoints = score[_awayTeam];
+					let homePoints, awayPoints;
+					if (score) {
+						homePoints = score[_homeTeam];
+						awayPoints = score[_awayTeam];
+					} else {
+						homePoints = scoreOverride[_homeTeam];
+						awayPoints = scoreOverride[_awayTeam];
+					}
 
 					return {
 						_homeTeam,
