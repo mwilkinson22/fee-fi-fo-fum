@@ -18,6 +18,8 @@ import bodyParser from "body-parser";
 import useragent from "express-useragent";
 import keys from "./config/keys";
 
+import requireHttps from "~/middlewares/requireHttps";
+
 //Add Mongoose Models
 import "./models/User";
 import "./models/SocialProfile";
@@ -33,6 +35,9 @@ mongoose.connect(keys.mongoURI, {
 });
 
 const app = express();
+
+//Require https
+app.use(requireHttps);
 
 //Enable bodyParser
 app.use(bodyParser.json());
