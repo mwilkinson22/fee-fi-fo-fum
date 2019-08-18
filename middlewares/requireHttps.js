@@ -9,6 +9,7 @@ module.exports = (req, res, next) => {
 
 		// The 'x-forwarded-proto' check is for Heroku
 		if ((!req.secure && req.get("x-forwarded-proto") !== "https") || !www) {
+			console.log(req.url);
 			return res.redirect("https://" + host + req.url);
 		}
 	}
