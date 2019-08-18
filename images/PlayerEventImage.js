@@ -146,7 +146,8 @@ export default class PlayerEventImage extends Canvas {
 
 		//Add Game Logo
 		const brandLogoUrl = `images/layout/branding/square-logo-with-shadow.png`;
-		const gameLogoUrl = game.images.logo || brandLogoUrl;
+		const updateSponsor = "images/sponsors/burton-hills.jpg";
+		const gameLogoUrl = updateSponsor || game.images.logo || brandLogoUrl;
 		const gameLogo = await this.googleToCanvas(gameLogoUrl);
 		this.contain(
 			gameLogo,
