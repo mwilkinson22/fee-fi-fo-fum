@@ -1,4 +1,5 @@
 module.exports = {
+	authGuid: process.env.AUTH_GUID,
 	cookieKey: process.env.COOKIE_KEY,
 	defaultSocialProfile: process.env.DEFAULT_SOCIAL_PROFILE,
 	earliestGiantsData: 2017,
