@@ -74,4 +74,30 @@ teamSchema.query.fullTeam = function() {
 	});
 };
 
+teamSchema.statics.generateSlug = async function({ name }) {
+	const coreSlugText = name.long
+		.toLowerCase()
+		.replace(/\s/gi, "-")
+		.replace(/(?![_\w-])./gi, "");
+
+	let slugExists = await this.findOne({
+		slug: coreSlugText
+	});
+
+	if (!slugExists) {
+		return coreSlugText;
+	} else {
+		let i = 2;
+		let slug;
+		while (slugExists) {
+			slug = coreSlugText + "-" + i++;
+			slugExists = await this.findOne({
+				slug
+			});
+		}
+
+		return slug;
+	}
+};
+
 mongoose.model("teams", teamSchema);

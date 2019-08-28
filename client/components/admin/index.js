@@ -38,6 +38,7 @@ import AdminSponsorPage from "../../pages/AdminSponsorPage";
 
 import AdminTeamList from "../../pages/AdminTeamList";
 import AdminTeamPage from "../../pages/AdminTeamPage";
+import AdminNewTeamPage from "../../pages/AdminNewTeamPage";
 
 class AdminRouter extends Component {
 	render() {
@@ -99,6 +100,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/sponsors/:id" exact component={AdminSponsorPage} />
 					<Route path="/admin/sponsors/" exact component={AdminSponsorList} />
 
+					<Route path="/admin/teams/new" component={AdminNewTeamPage} />
 					<Route path="/admin/teams/:slug" component={AdminTeamPage} />
 					<Route path="/admin/teams/" exact component={AdminTeamList} />
 

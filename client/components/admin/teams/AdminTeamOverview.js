@@ -2,12 +2,13 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
 import { fetchAllGrounds } from "../../../actions/groundActions";
-import { updateTeam } from "../../../actions/teamsActions";
+import { updateTeam, createTeam } from "../../../actions/teamsActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -20,15 +21,6 @@ class AdminTeamOverview extends BasicForm {
 		if (!groundList) {
 			fetchAllGrounds();
 		}
-
-		this.colourTypes = {
-			main: "#BB0000",
-			text: "#FFFFFF",
-			trim1: "#FFFFFF",
-			trim2: "#000000",
-			pitchColour: "#BB0000",
-			statBarColour: "#BB0000"
-		};
 
 		const _grounds = _.mapValues(teamTypes, ({ name }) => Yup.string().label(name));
 
@@ -86,9 +78,11 @@ class AdminTeamOverview extends BasicForm {
 		const { fullTeams, slugMap, match, groundList } = nextProps;
 		const newState = {};
 
-		const { slug } = match.params;
-		const { id } = slugMap[slug];
-		newState.team = fullTeams[id];
+		if (match && match.params.slug) {
+			const { slug } = match.params;
+			const { id } = slugMap[slug];
+			newState.team = fullTeams[id];
+		}
 
 		if (groundList) {
 			newState.groundList = _.chain(groundList)
@@ -99,68 +93,94 @@ class AdminTeamOverview extends BasicForm {
 				.sortBy("label")
 				.value();
 		}
+
 		return newState;
 	}
 
 	getDefaults() {
 		const { team, groundList } = this.state;
 		const { teamTypes } = this.props;
-		const { colourTypes } = this;
-		const colours = _.mapValues(colourTypes, (defaultValue, type) => {
-			if (team && team.colours[type]) {
-				return team.colours[type];
-			} else {
-				return defaultValue;
-			}
-		});
-		const images = _.chain(["main", "light", "dark"])
-			.map(type => {
-				let value;
-				if (team && team.images[type]) {
-					value = team.images[type];
-				} else {
-					value = "";
-				}
-				return [type, value];
-			})
-			.fromPairs()
-			.value();
 
-		const defaultGround = _.find(groundList, ground => ground.value == team._defaultGround);
-		const _grounds = _.chain(teamTypes)
-			.sortBy("sortOrder")
-			.map(({ _id }) => {
-				let result = "";
-				const currentValue = team._grounds.find(({ _teamType }) => _teamType == _id);
-				if (currentValue) {
-					result = _.find(groundList, ground => ground.value == currentValue._ground);
-				}
-				return [_id, result];
-			})
-			.fromPairs()
-			.value();
-		return {
+		//Set basics for new teams:
+		let defaults = {
 			name: {
-				long: team.name ? team.name.long : "",
-				short: team.name ? team.name.short : ""
+				short: "",
+				long: ""
 			},
-			nickname: team.nickname || "",
-			hashtagPrefix: team.hashtagPrefix || "",
-			_defaultGround: defaultGround || "",
-			_grounds,
+			nickname: "",
+			hashtagPrefix: "",
+			_defaultGround: "",
+			_grounds: "",
+			images: {
+				main: "",
+				light: "",
+				dark: ""
+			},
 			colours: {
-				...colours,
-				customPitchColour: team && team.colours.pitchColour !== null,
-				customStatBarColour: team && team.colours.statBarColour !== null
-			},
-			images
+				main: "#BB0000",
+				text: "#FFFFFF",
+				trim1: "#FFFFFF",
+				trim2: "#000000",
+				pitchColour: "#BB0000",
+				statBarColour: "#BB0000",
+				customPitchColour: false,
+				customStatBarColour: false
+			}
 		};
+
+		if (team) {
+			defaults = _.mapValues(defaults, (val, key) => {
+				if (team[key] != null) {
+					switch (key) {
+						case "_defaultGround":
+							return (
+								_.find(groundList, ground => ground.value == team._defaultGround) ||
+								""
+							);
+						case "_grounds":
+							return _.chain(teamTypes)
+								.sortBy("sortOrder")
+								.map(({ _id }) => {
+									let result = "";
+									const currentValue = team._grounds.find(
+										({ _teamType }) => _teamType == _id
+									);
+									if (currentValue) {
+										result = _.find(
+											groundList,
+											ground => ground.value == currentValue._ground
+										);
+									}
+									return [_id, result];
+								})
+								.fromPairs()
+								.value();
+						case "name":
+						case "colours":
+						case "images":
+							return _.mapValues(team[key], (v, subkey) => v || val[subkey]);
+						default:
+							return team[key];
+					}
+				} else {
+					return val;
+				}
+			});
+		}
+
+		return defaults;
 	}
 
-	onSubmit(values) {
-		const { updateTeam } = this.props;
+	async onSubmit(values) {
+		const { updateTeam, createTeam } = this.props;
 		const { team } = this.state;
-		updateTeam(team._id, values);
+
+		if (team) {
+			updateTeam(team._id, values);
+		} else {
+			await createTeam(values);
+			await this.setState({ redirect: `/admin/teams/` });
+		}
 	}
 
 	renderFields() {
@@ -239,7 +259,7 @@ class AdminTeamOverview extends BasicForm {
 					{this.renderFieldGroup(imageFields)}
 					<div className="buttons">
 						<button type="clear">Clear</button>
-						<button type="submit">Submit</button>
+						<button type="submit">{team ? "Update" : "Add"} Team</button>
 					</div>
 				</div>
 			</Form>
@@ -247,7 +267,12 @@ class AdminTeamOverview extends BasicForm {
 	}
 
 	render() {
-		const { groundList } = this.state;
+		const { groundList, redirect } = this.state;
+
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		}
+
 		if (!groundList) {
 			return <LoadingPage />;
 		}
@@ -274,5 +299,5 @@ function mapStateToProps({ grounds, teams }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchAllGrounds, updateTeam }
+	{ fetchAllGrounds, updateTeam, createTeam }
 )(AdminTeamOverview);

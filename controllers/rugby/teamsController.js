@@ -16,6 +16,34 @@ async function getUpdatedTeam(id, res) {
 	res.send({ [id]: team });
 }
 
+function processBasics(values) {
+	return _.mapValues(values, (val, key) => {
+		switch (key) {
+			case "_defaultGround":
+				return val.value;
+			case "colours":
+				if (!val.customPitchColour) {
+					val.pitchColour = null;
+				}
+				if (!val.customStatBarColour) {
+					val.statBarColour = null;
+				}
+				return val;
+			case "_grounds":
+				return _.chain(val)
+					.map((ground, _teamType) => {
+						if (ground && ground.value) {
+							return { _ground: ground.value, _teamType };
+						}
+					})
+					.filter(_.identity)
+					.value();
+			default:
+				return val;
+		}
+	});
+}
+
 //Getters
 export async function getList(req, res) {
 	const teams = await Team.find({}, "name colours images slug").lean();
@@ -35,6 +63,18 @@ export async function getTeamTypes(req, res) {
 	res.send(_.keyBy(teamTypes, "_id"));
 }
 
+export async function createTeam(req, res) {
+	//Handle Plain Text Fields
+	const slug = await Team.generateSlug(req.body);
+	const values = processBasics({
+		...req.body,
+		slug
+	});
+	const team = new Team(values);
+	await team.save();
+	await getUpdatedTeam(team._id, res);
+}
+
 export async function updateTeam(req, res) {
 	const { _id } = req.params;
 	const team = await Team.findById(_id);
@@ -42,31 +82,7 @@ export async function updateTeam(req, res) {
 		res.status(404).send(`No team with id ${_id} was found`);
 	} else {
 		//Handle Plain Text Fields
-		const values = _.mapValues(req.body, (val, key) => {
-			switch (key) {
-				case "_defaultGround":
-					return val.value;
-				case "colours":
-					if (!val.customPitchColour) {
-						val.pitchColour = null;
-					}
-					if (!val.customStatBarColour) {
-						val.statBarColour = null;
-					}
-					return val;
-				case "_grounds":
-					return _.chain(val)
-						.map((ground, _teamType) => {
-							if (ground && ground.value) {
-								return { _ground: ground.value, _teamType };
-							}
-						})
-						.filter(_.identity)
-						.value();
-				default:
-					return val;
-			}
-		});
+		const values = processBasics(req.body);
 		await Team.updateOne({ _id }, values);
 		await getUpdatedTeam(_id, res);
 	}

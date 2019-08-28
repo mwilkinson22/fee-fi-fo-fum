@@ -16,8 +16,16 @@ export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_ALL_TEAM_TYPES, payload: res.data });
 };
 
+export const createTeam = values => async (dispatch, getState, api) => {
+	const res = await api.post(`/teams/`, values);
+	toast.success("Team Created");
+	dispatch({ type: UPDATE_TEAM, payload: res.data });
+	return res.data;
+};
+
 export const updateTeam = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/teams/${id}`, values);
+	toast.success("Team updated");
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
 };
 

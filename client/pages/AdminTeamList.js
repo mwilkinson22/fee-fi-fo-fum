@@ -50,6 +50,9 @@ class AdminTeamList extends Component {
 				</section>
 				<section className="team-list">
 					<div className="container">
+						<Link to="/admin/teams/new" className="nav-card">
+							Add New Team
+						</Link>
 						<ul>{this.renderList()}</ul>
 					</div>
 				</section>

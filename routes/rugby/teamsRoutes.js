@@ -17,4 +17,5 @@ module.exports = app => {
 
 	//Post
 	app.post("/api/teams/:_id/squad/", requireAdmin, teamsController.createSquad);
+	app.post("/api/teams/", requireAdmin, teamsController.createTeam);
 };
