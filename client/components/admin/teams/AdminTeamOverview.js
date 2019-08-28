@@ -52,6 +52,13 @@ class AdminTeamOverview extends BasicForm {
 				.required()
 				.label("Default Ground"),
 			_grounds: Yup.object().shape(_grounds),
+			images: Yup.object().shape({
+				main: Yup.string()
+					.required()
+					.label("Main"),
+				light: Yup.string().label("Light Variant"),
+				dark: Yup.string().label("Dark Variant")
+			}),
 			colours: Yup.object().shape({
 				main: Yup.string()
 					.required()
@@ -106,6 +113,19 @@ class AdminTeamOverview extends BasicForm {
 				return defaultValue;
 			}
 		});
+		const images = _.chain(["main", "light", "dark"])
+			.map(type => {
+				let value;
+				if (team && team.images[type]) {
+					value = team.images[type];
+				} else {
+					value = "";
+				}
+				return [type, value];
+			})
+			.fromPairs()
+			.value();
+
 		const defaultGround = _.find(groundList, ground => ground.value == team._defaultGround);
 		const _grounds = _.chain(teamTypes)
 			.sortBy("sortOrder")
@@ -132,7 +152,8 @@ class AdminTeamOverview extends BasicForm {
 				...colours,
 				customPitchColour: team && team.colours.pitchColour !== null,
 				customStatBarColour: team && team.colours.statBarColour !== null
-			}
+			},
+			images
 		};
 	}
 
@@ -143,7 +164,7 @@ class AdminTeamOverview extends BasicForm {
 	}
 
 	renderFields() {
-		const { groundList } = this.state;
+		const { groundList, team } = this.state;
 		const { teamTypes } = this.props;
 		const teamFields = [
 			{ name: "name.long", type: "text" },
@@ -182,6 +203,29 @@ class AdminTeamOverview extends BasicForm {
 			}
 		];
 
+		const imageField = {
+			type: "Image",
+			path: "images/teams/",
+			acceptSVG: true,
+			defaultUploadName: team ? team.slug : null
+		};
+		const imageFields = [
+			{
+				...imageField,
+				name: "images.main"
+			},
+			{
+				...imageField,
+				name: "images.dark",
+				defaultUploadName: imageField.defaultUploadName + "-dark"
+			},
+			{
+				...imageField,
+				name: "images.light",
+				defaultUploadName: imageField.defaultUploadName + "-light"
+			}
+		];
+
 		return (
 			<Form>
 				<div className="form-card grid">
@@ -191,6 +235,8 @@ class AdminTeamOverview extends BasicForm {
 					{this.renderFieldGroup(groundFields)}
 					<h6>Colours</h6>
 					{this.renderFieldGroup(colourFields)}
+					<h6>Images</h6>
+					{this.renderFieldGroup(imageFields)}
 					<div className="buttons">
 						<button type="clear">Clear</button>
 						<button type="submit">Submit</button>
