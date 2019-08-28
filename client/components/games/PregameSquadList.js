@@ -23,10 +23,13 @@ class PregameSquadList extends Component {
 		const dueDate = new Date(date).addDays(-2);
 		dueDate.setHours(12, 0, 0, 0);
 		const daysToGo = (dueDate - new Date()) / 1000 / 60 / 60 / 24;
+		const isToday = new Date().setHours(12, 0, 0, 0) === dueDate.getTime();
 
 		let text;
 		if (daysToGo < 0) {
 			text = "soon";
+		} else if (isToday) {
+			text = "this afternoon";
 		} else if (daysToGo < 6.5) {
 			text = `${dueDate.toString("dddd")} afternoon`;
 		} else {

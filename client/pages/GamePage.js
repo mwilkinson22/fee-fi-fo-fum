@@ -42,15 +42,7 @@ class GamePage extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			slugMap,
-			fetchGameList,
-			fullTeams,
-			localTeam,
-			fetchTeam,
-			postList,
-			fetchPostList
-		} = props;
+		const { slugMap, fetchGameList, postList, fetchPostList } = props;
 
 		if (!slugMap) {
 			fetchGameList();
