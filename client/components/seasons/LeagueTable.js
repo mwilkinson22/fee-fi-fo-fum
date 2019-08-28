@@ -110,7 +110,7 @@ class LeagueTable extends Component {
 			games.local = _.chain(games.local)
 				.map(id => {
 					const { isAway, _opposition, score, scoreOverride, date } = fullGames[id];
-					console.log(scoreOverride);
+
 					if (!score && (!scoreOverride || Object.keys(scoreOverride).length < 2)) {
 						return null;
 					}
