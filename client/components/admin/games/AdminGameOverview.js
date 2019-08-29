@@ -406,10 +406,13 @@ class AdminGameOverview extends BasicForm {
 
 		let scoreOverrideSection;
 		if (game) {
-			const scoreOverrideFields = [
+			let scoreOverrideFields = [
 				{ name: `scoreOverride.${localTeam}`, type: "number" },
 				{ name: `scoreOverride.${game._opposition._id}`, type: "number" }
 			];
+			if (game.isAway) {
+				scoreOverrideFields = scoreOverrideFields.reverse();
+			}
 			scoreOverrideSection = [
 				<h6 key="header">Score Override</h6>,
 				this.renderFieldGroup(scoreOverrideFields)
