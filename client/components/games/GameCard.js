@@ -34,7 +34,7 @@ class GameCard extends Component {
 		if (score && Object.keys(score).length >= 2) {
 			const localScore = score[localTeam];
 			const oppositionScore = score[_opposition._id];
-			if (localScore && oppositionScore) {
+			if (localScore !== null && oppositionScore !== null) {
 				const oppositionName = _opposition.name.short;
 				if (isAway) {
 					newState.scoreString = `${oppositionName} ${oppositionScore}-${localScore} Giants`;

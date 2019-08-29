@@ -167,8 +167,12 @@ class AdminGameOverview extends BasicForm {
 				: "";
 			images = _.mapValues(game.images, v => v || "");
 			scoreOverride = {
-				[localTeam]: game.scoreOverride[localTeam] || "",
-				[game._opposition._id]: game.scoreOverride[game._opposition._id] || ""
+				[localTeam]:
+					game.scoreOverride[localTeam] == null ? "" : game.scoreOverride[localTeam],
+				[game._opposition._id]:
+					game.scoreOverride[game._opposition._id] == null
+						? ""
+						: game.scoreOverride[game._opposition._id]
 			};
 		}
 
