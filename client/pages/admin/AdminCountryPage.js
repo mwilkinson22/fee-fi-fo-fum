@@ -7,39 +7,42 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
-import BasicForm from "../components/admin/BasicForm";
-import NotFoundPage from "./NotFoundPage";
-import LoadingPage from "../components/LoadingPage";
-import DeleteButtons from "../components/admin/fields/DeleteButtons";
+import BasicForm from "../../components/admin/BasicForm";
+import NotFoundPage from "../NotFoundPage";
+import LoadingPage from "../../components/LoadingPage";
+import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
 import {
-	fetchSponsors,
-	createSponsor,
-	updateSponsor,
-	deleteSponsor
-} from "~/client/actions/sponsorActions";
+	fetchCountries,
+	createCountry,
+	updateCountry,
+	deleteCountry
+} from "~/client/actions/locationActions";
+
+//Helpers
+import { validateSlug } from "~/helpers/adminHelper";
 
 class AdminCountryPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { sponsorList, fetchSponsors } = props;
+		const { countries, fetchCountries } = props;
 
-		if (!sponsorList) {
-			fetchSponsors();
+		if (!countries) {
+			fetchCountries();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { sponsorList, match } = nextProps;
+		const { countries, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
-		newState.isNew = !match.params.id;
+		newState.isNew = !match.params.slug;
 
 		//Remove redirect after creation/deletion
 		if (prevState.redirect == match.url) {
@@ -47,62 +50,65 @@ class AdminCountryPage extends BasicForm {
 		}
 
 		//Check Everything is loaded
-		if (!newState.isNew && !sponsorList) {
+		if (!newState.isNew && !countries) {
 			newState.isLoading = true;
 			return newState;
 		}
 
 		//Create Validation Schema
-		newState.validationSchema = Yup.object().shape({
+		const rawValidationSchema = {
 			name: Yup.string()
 				.required()
 				.label("Name"),
-			url: Yup.string().label("URL"),
-			twitter: Yup.string().label("Twitter Handle"),
-			image: Yup.string().label("Logo")
-		});
+			demonym: Yup.string()
+				.required()
+				.label("Demonym")
+		};
+		if (match.params.slug) {
+			rawValidationSchema.slug = validateSlug();
+		}
+		newState.validationSchema = Yup.object().shape(rawValidationSchema);
 
-		//Get Current Sponsor
+		//Get Current Country
 		if (!newState.isNew) {
-			newState.sponsor = sponsorList[match.params.id] || false;
+			newState.country = _.find(countries, ({ slug }) => slug == match.params.slug) || false;
 		}
 
 		return newState;
 	}
 
 	getDefaults() {
-		const { sponsor, isNew } = this.state;
+		const { country, isNew } = this.state;
 
 		if (isNew) {
 			return {
 				name: "",
-				url: "",
-				twitter: "",
-				image: ""
+				demonym: ""
 			};
 		} else {
-			return _.mapValues(sponsor, v => v || "");
+			return country;
 		}
 	}
 
 	async handleSubmit(values) {
-		const { createSponsor, updateSponsor } = this.props;
-		const { sponsor, isNew } = this.state;
+		const { createCountry, updateCountry } = this.props;
+		const { country, isNew } = this.state;
 
+		let newSlug;
 		if (isNew) {
-			const newId = await createSponsor(values);
-			await this.setState({ redirect: `/admin/sponsors/${newId}` });
+			newSlug = await createCountry(values);
 		} else {
-			await updateSponsor(sponsor._id, values);
+			newSlug = await updateCountry(country._id, values);
 		}
+		await this.setState({ redirect: `/admin/countries/${newSlug}` });
 	}
 
 	async handleDelete() {
-		const { deleteSponsor } = this.props;
-		const { sponsor } = this.state;
-		const success = await deleteSponsor(sponsor._id);
+		const { deleteCountry } = this.props;
+		const { country } = this.state;
+		const success = await deleteCountry(country._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/sponsors" });
+			this.setState({ isDeleted: true, redirect: "/admin/countries" });
 		}
 	}
 
@@ -117,7 +123,7 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	render() {
-		const { redirect, sponsor, isNew, isLoading, validationSchema } = this.state;
+		const { redirect, country, isNew, isLoading, validationSchema } = this.state;
 
 		if (redirect) {
 			return <Redirect to={redirect} />;
@@ -126,13 +132,13 @@ class AdminCountryPage extends BasicForm {
 		if (isLoading) {
 			return <LoadingPage />;
 		}
-		if (!isNew && sponsor === false) {
-			return <NotFoundPage message="Sponsor not found" />;
+		if (!isNew && country === false) {
+			return <NotFoundPage message="Country not found" />;
 		}
 
-		const title = isNew ? "Add New Sponsor" : sponsor.name;
+		const title = isNew ? "Add New Country" : country.name;
 		return (
-			<div className="admin-sponsor-page">
+			<div className="admin-country-page">
 				<HelmetBuilder title={title} />
 				<section className="page-header">
 					<div className="container">
@@ -145,19 +151,15 @@ class AdminCountryPage extends BasicForm {
 							onSubmit={values => this.handleSubmit(values)}
 							initialValues={this.getDefaults()}
 							validationSchema={validationSchema}
-							render={({ values }) => {
+							render={() => {
 								const fields = [
 									{ name: "name", type: "text" },
-									{ name: "url", type: "text" },
-									{ name: "twitter", type: "text" },
-									{
-										name: "image",
-										type: "Image",
-										path: "images/sponsors/",
-										acceptSVG: true,
-										defaultUploadName: sponsor ? sponsor._id : values.name
-									}
+									{ name: "demonym", type: "text" }
 								];
+
+								if (!isNew) {
+									fields.push({ name: "slug", type: "text" });
+								}
 
 								return (
 									<Form>
@@ -166,7 +168,7 @@ class AdminCountryPage extends BasicForm {
 											<div className="buttons">
 												<button type="reset">Reset</button>
 												<button type="submit">
-													{isNew ? "Add" : "Update"} Sponsor
+													{isNew ? "Add" : "Update"} Country
 												</button>
 											</div>
 										</div>
@@ -182,17 +184,12 @@ class AdminCountryPage extends BasicForm {
 	}
 }
 
-function mapStateToProps({ sponsors }) {
-	const { sponsorList } = sponsors;
-	return { sponsorList };
+function mapStateToProps({ locations }) {
+	const { countries } = locations;
+	return { countries };
 }
 
 export default connect(
 	mapStateToProps,
-	{
-		fetchSponsors,
-		createSponsor,
-		updateSponsor,
-		deleteSponsor
-	}
+	{ fetchCountries, createCountry, updateCountry, deleteCountry }
 )(AdminCountryPage);

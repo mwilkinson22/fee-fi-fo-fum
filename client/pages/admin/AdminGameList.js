@@ -1,13 +1,13 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import LoadingPage from "../components/LoadingPage";
-import GameFilters from "../components/games/GameFilters";
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
-import AdminGameCard from "../components/games/AdminGameCard";
+import LoadingPage from "../../components/LoadingPage";
+import GameFilters from "../../components/games/GameFilters";
+import { fetchGames, fetchGameList } from "../../actions/gamesActions";
+import AdminGameCard from "../../components/games/AdminGameCard";
 import { Link, NavLink } from "react-router-dom";
-import { validateGameDate } from "../../helpers/gameHelper";
-import HelmetBuilder from "../components/HelmetBuilder";
+import { validateGameDate } from "../../../helpers/gameHelper";
+import HelmetBuilder from "../../components/HelmetBuilder";
 
 class AdminGameList extends Component {
 	constructor(props) {

@@ -2,7 +2,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import TeamImage from "../components/teams/TeamImage";
+import TeamImage from "../../components/teams/TeamImage";
 
 class AdminTeamList extends Component {
 	renderList() {

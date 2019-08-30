@@ -7,40 +7,40 @@ import { Switch, Route } from "react-router-dom";
 import NotFoundPage from "../../pages/NotFoundPage";
 import Logout from "./Logout";
 
-import AdminCityList from "../../pages/AdminCityList";
-import AdminCityPage from "../../pages/AdminCityPage";
+import AdminCityList from "../../pages/admin/AdminCityList";
+import AdminCityPage from "../../pages/admin/AdminCityPage";
 
-import AdminCompetitionList from "../../pages/AdminCompetitionList";
-import AdminCompetitionPage from "../../pages/AdminCompetitionPage";
-import AdminCompetitionSegmentPage from "../../pages/AdminCompetitionSegmentPage";
+import AdminCompetitionList from "../../pages/admin/AdminCompetitionList";
+import AdminCompetitionPage from "../../pages/admin/AdminCompetitionPage";
+import AdminCompetitionSegmentPage from "../../pages/admin/AdminCompetitionSegmentPage";
 
-import AdminCountryList from "../../pages/AdminCountryList";
-import AdminCountryPage from "../../pages/AdminCountryPage";
+import AdminCountryList from "../../pages/admin/AdminCountryList";
+import AdminCountryPage from "../../pages/admin/AdminCountryPage";
 
-import AdminNeutralGameList from "../../pages/AdminNeutralGameList";
-import AdminNeutralGamePage from "../../pages/AdminNeutralGamePage";
+import AdminNeutralGameList from "../../pages/admin/AdminNeutralGameList";
+import AdminNeutralGamePage from "../../pages/admin/AdminNeutralGamePage";
 
-import AdminGameList from "../../pages/AdminGameList";
-import AdminGamePage from "../../pages/AdminGamePage";
-import AdminNewGamePage from "../../pages/AdminNewGamePage";
+import AdminGameList from "../../pages/admin/AdminGameList";
+import AdminGamePage from "../../pages/admin/AdminGamePage";
+import AdminNewGamePage from "../../pages/admin/AdminNewGamePage";
 
-import AdminGroundList from "../../pages/AdminGroundList";
-import AdminGroundPage from "../../pages/AdminGroundPage";
+import AdminGroundList from "../../pages/admin/AdminGroundList";
+import AdminGroundPage from "../../pages/admin/AdminGroundPage";
 
-import AdminNewsList from "../../pages/AdminNewsList";
-import AdminNewsPostPage from "../../pages/AdminNewsPostPage";
+import AdminNewsList from "../../pages/admin/AdminNewsList";
+import AdminNewsPostPage from "../../pages/admin/AdminNewsPostPage";
 
-import AdminPersonList from "../../pages/AdminPersonList";
+import AdminPersonList from "../../pages/admin/AdminPersonList";
 
-import AdminSocialList from "../../pages/AdminSocialList";
-import AdminSocialPage from "../../pages/AdminSocialPage";
+import AdminSocialList from "../../pages/admin/AdminSocialList";
+import AdminSocialPage from "../../pages/admin/AdminSocialPage";
 
-import AdminSponsorList from "../../pages/AdminSponsorList";
-import AdminSponsorPage from "../../pages/AdminSponsorPage";
+import AdminSponsorList from "../../pages/admin/AdminSponsorList";
+import AdminSponsorPage from "../../pages/admin/AdminSponsorPage";
 
-import AdminTeamList from "../../pages/AdminTeamList";
-import AdminTeamPage from "../../pages/AdminTeamPage";
-import AdminNewTeamPage from "../../pages/AdminNewTeamPage";
+import AdminTeamList from "../../pages/admin/AdminTeamList";
+import AdminTeamPage from "../../pages/admin/AdminTeamPage";
+import AdminNewTeamPage from "../../pages/admin/AdminNewTeamPage";
 
 class AdminRouter extends Component {
 	render() {

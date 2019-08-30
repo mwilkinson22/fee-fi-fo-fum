@@ -9,12 +9,12 @@ import { createEditorState } from "medium-draft";
 import { convertToRaw } from "draft-js";
 
 //Components
-import BasicForm from "../components/admin/BasicForm";
-import LoadingPage from "../components/LoadingPage";
-import HelmetBuilder from "../components/HelmetBuilder";
+import BasicForm from "../../components/admin/BasicForm";
+import LoadingPage from "../../components/LoadingPage";
+import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
-import NewsPostEditor from "../components/news/NewsPostEditor";
+import NewsPostEditor from "../../components/news/NewsPostEditor";
 
 //Actions
 import {

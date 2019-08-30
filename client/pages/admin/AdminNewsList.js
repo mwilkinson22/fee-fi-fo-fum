@@ -5,8 +5,8 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Components
-import NewsPostCard from "../components/news/NewsPostCard";
-import LoadingPage from "../components/LoadingPage";
+import NewsPostCard from "../../components/news/NewsPostCard";
+import LoadingPage from "../../components/LoadingPage";
 
 //Actions
 import { fetchPostList } from "~/client/actions/newsActions";

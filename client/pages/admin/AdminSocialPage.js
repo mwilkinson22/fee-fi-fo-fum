@@ -7,10 +7,10 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
-import BasicForm from "../components/admin/BasicForm";
-import NotFoundPage from "./NotFoundPage";
-import LoadingPage from "../components/LoadingPage";
-import DeleteButtons from "../components/admin/fields/DeleteButtons";
+import BasicForm from "../../components/admin/BasicForm";
+import NotFoundPage from "../NotFoundPage";
+import LoadingPage from "../../components/LoadingPage";
+import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions

@@ -5,37 +5,37 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Components
-import LoadingPage from "../components/LoadingPage";
+import LoadingPage from "../../components/LoadingPage";
 
 //Actions
-import { fetchAllGrounds } from "~/client/actions/groundActions";
+import { fetchCities } from "~/client/actions/locationActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
-class AdminGroundList extends Component {
+class AdminCityList extends Component {
 	constructor(props) {
 		super(props);
 
-		const { groundList, fetchAllGrounds } = props;
+		const { cities, fetchCities } = props;
 
-		if (!groundList) {
-			fetchAllGrounds();
+		if (!cities) {
+			fetchCities();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { groundList } = nextProps;
-		return { groundList };
+		const { cities } = nextProps;
+		return { cities };
 	}
 
 	renderList() {
-		const grounds = _.chain(this.state.groundList)
+		const cities = _.chain(this.state.cities)
 			.sortBy("name")
-			.map(({ _id, slug, name, address }) => (
+			.map(({ _id, slug, name, _country }) => (
 				<li key={_id}>
-					<Link to={`/admin/grounds/${slug}`}>
-						{name}, {address._city.name}
+					<Link to={`/admin/cities/${slug}`}>
+						{name}, {_country.name}
 					</Link>
 				</li>
 			))
@@ -43,31 +43,31 @@ class AdminGroundList extends Component {
 
 		return (
 			<div className="card form-card">
-				<ul className="plain-list">{grounds}</ul>
+				<ul className="plain-list">{cities}</ul>
 			</div>
 		);
 	}
 
 	render() {
-		const { groundList } = this.state;
+		const { cities } = this.state;
 		let content;
-		if (!groundList) {
+		if (!cities) {
 			content = <LoadingPage />;
 		} else {
 			content = this.renderList();
 		}
 		return (
-			<div className="admin-ground-list">
-				<HelmetBuilder title="Grounds" />
+			<div className="admin-city-list">
+				<HelmetBuilder title="Cities" />
 				<section className="page-header">
 					<div className="container">
-						<h1>Grounds</h1>
+						<h1>Cities</h1>
 					</div>
 				</section>
 				<section className="list">
 					<div className="container">
-						<Link className="nav-card card" to={`/admin/grounds/new`}>
-							Add a New Ground
+						<Link className="nav-card card" to={`/admin/cities/new`}>
+							Add a New City
 						</Link>
 						{content}
 					</div>
@@ -77,12 +77,12 @@ class AdminGroundList extends Component {
 	}
 }
 
-function mapStateToProps({ grounds }) {
-	const { groundList } = grounds;
-	return { groundList };
+function mapStateToProps({ locations }) {
+	const { cities } = locations;
+	return { cities };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchAllGrounds }
-)(AdminGroundList);
+	{ fetchCities }
+)(AdminCityList);

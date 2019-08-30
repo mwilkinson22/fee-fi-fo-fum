@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import HelmetBuilder from "../components/HelmetBuilder";
-import AdminGameOverview from "../components/admin/games/AdminGameOverview";
+import HelmetBuilder from "../../components/HelmetBuilder";
+import AdminGameOverview from "../../components/admin/games/AdminGameOverview";
 
 export default class AdminNewGamePage extends Component {
 	constructor(props) {

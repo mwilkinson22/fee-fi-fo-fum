@@ -7,9 +7,9 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
-import BasicForm from "../components/admin/BasicForm";
-import LoadingPage from "../components/LoadingPage";
-import HelmetBuilder from "../components/HelmetBuilder";
+import BasicForm from "../../components/admin/BasicForm";
+import LoadingPage from "../../components/LoadingPage";
+import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 
@@ -19,7 +19,7 @@ import {
 	updateNeutralGames,
 	createNeutralGames,
 	deleteNeutralGame
-} from "../actions/neutralGamesActions";
+} from "../../actions/neutralGamesActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 
 class AdminNeutralGamePage extends BasicForm {

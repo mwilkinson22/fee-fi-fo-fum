@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Components
-import LoadingPage from "../components/LoadingPage";
+import LoadingPage from "../../components/LoadingPage";
 
 //Actions
 import { fetchCountries } from "~/client/actions/locationActions";

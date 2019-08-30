@@ -1,16 +1,16 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeam } from "../actions/teamsActions";
-import LoadingPage from "../components/LoadingPage";
-import HelmetBuilder from "../components/HelmetBuilder";
-import NotFoundPage from "../pages/NotFoundPage";
+import { fetchTeam } from "../../actions/teamsActions";
+import LoadingPage from "../../components/LoadingPage";
+import HelmetBuilder from "../../components/HelmetBuilder";
+import NotFoundPage from "../NotFoundPage";
 import { NavLink, Link, Switch, Route } from "react-router-dom";
 
 //Pages
-import AdminTeamOverview from "../components/admin/teams/AdminTeamOverview";
-import AdminTeamSquads from "../components/admin/teams/AdminTeamSquads";
-import TeamBanner from "../components/teams/TeamBanner";
+import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
+import AdminTeamSquads from "../../components/admin/teams/AdminTeamSquads";
+import TeamBanner from "../../components/teams/TeamBanner";
 
 class AdminTeamPage extends Component {
 	constructor(props) {

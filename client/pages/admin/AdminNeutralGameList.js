@@ -2,11 +2,11 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
-import LoadingPage from "../components/LoadingPage";
-import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../actions/neutralGamesActions";
+import LoadingPage from "../../components/LoadingPage";
+import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../../actions/neutralGamesActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
-import NeutralGameList from "../components/admin/neutralGames/NeutralGameList";
-import HelmetBuilder from "../components/HelmetBuilder";
+import NeutralGameList from "../../components/admin/neutralGames/NeutralGameList";
+import HelmetBuilder from "../../components/HelmetBuilder";
 
 class AdminNeutralGameList extends Component {
 	constructor(props) {

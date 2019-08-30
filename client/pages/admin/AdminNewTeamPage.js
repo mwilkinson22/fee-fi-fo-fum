@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import HelmetBuilder from "../components/HelmetBuilder";
+import HelmetBuilder from "../../components/HelmetBuilder";
 import { Link } from "react-router-dom";
 
 //Pages
-import AdminTeamOverview from "../components/admin/teams/AdminTeamOverview";
+import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
 
 export default class AdminTeamPage extends Component {
 	render() {
