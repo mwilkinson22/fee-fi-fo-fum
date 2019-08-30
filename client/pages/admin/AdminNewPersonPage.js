@@ -3,6 +3,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 import { Link } from "react-router-dom";
 
 //Pages
+import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
 
 export default class AdminNewPersonPage extends Component {
 	render() {
@@ -17,7 +18,9 @@ export default class AdminNewPersonPage extends Component {
 					</div>
 					<h1>Add New Person</h1>
 				</section>
-				<section />
+				<section>
+					<AdminPersonOverview />
+				</section>
 			</div>
 		);
 	}

@@ -10,6 +10,7 @@ import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 
 //Pages
+import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
 
 //Actions
 import { fetchPeopleList, fetchPerson } from "../../actions/peopleActions";
@@ -78,16 +79,10 @@ class AdminTeamPage extends Component {
 		return (
 			<div>
 				<HelmetBuilder title={this.state.person.name.full} />
-				{/*<Switch>*/}
-				{/*	<Route*/}
-				{/*		exact*/}
-				{/*		path="/admin/people/:slug/squads/:squad"*/}
-				{/*		component={AdminTeamSquads}*/}
-				{/*	/>*/}
-				{/*	<Route exact path="/admin/people/:slug/squads" component={AdminTeamSquads} />*/}
-				{/*	<Route path="/admin/people/:slug" exact component={AdminTeamOverview} />*/}
-				{/*	<Route path="/" component={NotFoundPage} />*/}
-				{/*</Switch>*/}
+				<Switch>
+					<Route path="/admin/people/:slug" exact component={AdminPersonOverview} />
+					<Route path="/" component={NotFoundPage} />
+				</Switch>
 			</div>
 		);
 	}
