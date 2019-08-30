@@ -86,26 +86,6 @@ const personSchema = new Schema(
 	}
 );
 
-personSchema.statics.searchByName = async function(
-	str,
-	exact = false,
-	extraParams = {},
-	limit = 20
-) {
-	const match = { $match: { fullname: exact ? str : new RegExp(str, "ig") } };
-
-	const results = await this.aggregate([
-		// Project the concatenated full name along with the original doc
-		{ $match: extraParams },
-		{ $project: { fullname: { $concat: ["$name.first", " ", "$name.last"] } } },
-		match,
-		{ $sort: { fullname: 1 } },
-		{ $limit: limit }
-	]);
-
-	return results;
-};
-
 personSchema.statics.generateSlug = async function(firstName, lastName) {
 	const coreSlugText = (firstName + " " + lastName)
 		.replace(/\s/g, "-")
