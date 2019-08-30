@@ -30,6 +30,8 @@ import AdminGroundPage from "../../pages/AdminGroundPage";
 import AdminNewsList from "../../pages/AdminNewsList";
 import AdminNewsPostPage from "../../pages/AdminNewsPostPage";
 
+import AdminPersonList from "../../pages/AdminPersonList";
+
 import AdminSocialList from "../../pages/AdminSocialList";
 import AdminSocialPage from "../../pages/AdminSocialPage";
 
@@ -91,6 +93,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/news/post/new" component={AdminNewsPostPage} />
 					<Route path="/admin/news/post/:slug" component={AdminNewsPostPage} />
 					<Route path="/admin/news/" exact component={AdminNewsList} />
+
+					<Route path="/admin/people/" exact component={AdminPersonList} />
 
 					<Route path="/admin/social/new" exact component={AdminSocialPage} />
 					<Route path="/admin/social/:id" exact component={AdminSocialPage} />
