@@ -119,11 +119,10 @@ class PersonPage extends Component {
 		const { playerDetails, dateOfBirth, nickname, _hometown, _represents, _sponsor } = person;
 		const data = {};
 		if (dateOfBirth) {
-			const dob = new Date(person.dateOfBirth);
 			const today = new Date();
-			const age = Math.abs(today.getTime() - dob.getTime());
+			const age = Math.abs(today.getTime() - dateOfBirth.getTime());
 
-			data["Date of Birth"] = dob.toString("dS MMMM yyyy");
+			data["Date of Birth"] = dateOfBirth.toString("dS MMMM yyyy");
 			data["Age"] = Math.floor(age / (1000 * 3600 * 24 * 365));
 		}
 
