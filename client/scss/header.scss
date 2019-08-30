@@ -178,6 +178,7 @@ header {
 			}
 			.root-nav-list {
 				display: flex;
+				flex-wrap: wrap;
 				align-items: center;
 				.nav-section {
 					display: inline-block;
