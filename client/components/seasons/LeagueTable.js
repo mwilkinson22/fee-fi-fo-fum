@@ -110,7 +110,9 @@ class LeagueTable extends Component {
 			newState.isLoadingGames = false;
 			games.local = _.chain(games.local)
 				.map(id => {
-					const { isAway, _opposition, score, scoreOverride, date } = fullGames[id];
+					const { isAway, _opposition, score, scoreOverride, date, title } = fullGames[
+						id
+					];
 
 					if (!score && (!scoreOverride || Object.keys(scoreOverride).length < 2)) {
 						return null;
@@ -119,6 +121,7 @@ class LeagueTable extends Component {
 					//Return in the same format as a neutral game, for ease of parsing
 					const _homeTeam = isAway ? _opposition._id : localTeam;
 					const _awayTeam = isAway ? localTeam : _opposition._id;
+
 					let homePoints, awayPoints;
 					if (score) {
 						homePoints = score[_homeTeam];
@@ -133,7 +136,9 @@ class LeagueTable extends Component {
 						_awayTeam,
 						homePoints,
 						awayPoints,
-						date
+						date,
+						//Include title for Magic filtering
+						title
 					};
 				})
 				.filter(_.identity)
@@ -190,6 +195,20 @@ class LeagueTable extends Component {
 		return games;
 	}
 
+	gameIsMagicWeekend(game) {
+		const { games } = this.state;
+		const magicWeekendGame = _.find(games, { title: "Magic Weekend" });
+
+		if (!magicWeekendGame) {
+			return true;
+		} else {
+			const fromDate = new Date(magicWeekendGame.date).addDays(-2);
+			const toDate = new Date(magicWeekendGame.date).addDays(2);
+
+			return game.date > fromDate && game.date < toDate;
+		}
+	}
+
 	createRowForTeam(id) {
 		const { teamList } = this.props;
 		const { columns, instance } = this.state;
@@ -232,10 +251,7 @@ class LeagueTable extends Component {
 			.value();
 
 		if (queries.magic == "0") {
-			games = _.reject(
-				games,
-				({ date }) => date < new Date("2019-05-27") && date > new Date("2019-05-24")
-			);
+			games = _.reject(games, g => this.gameIsMagicWeekend(g));
 		}
 
 		if (queries.loopFixtures == "0") {
@@ -243,10 +259,7 @@ class LeagueTable extends Component {
 				.orderBy("date")
 				.groupBy(({ _homeTeam, _awayTeam }) => [_homeTeam, _awayTeam].sort().join(""))
 				.map(games => {
-					const magicGame = _.find(
-						games,
-						({ date }) => date < new Date("2019-05-27") && date > new Date("2019-05-24")
-					);
+					const magicGame = _.find(games, g => this.gameIsMagicWeekend(g));
 
 					if (games.length === 2 || (magicGame && games.length === 3)) {
 						//No Loop Fixtures

@@ -22,6 +22,7 @@ class TeamImage extends Component {
 				className={`team-image ${className || ""}`}
 				alt={name.long}
 				title={name.long}
+				key={team._id + new Date().getTime()}
 			/>
 		);
 	}
