@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { fetchNeutralGames } from "../../actions/neutralGamesActions";
@@ -223,8 +224,55 @@ class LeagueTable extends Component {
 		//If we have an empty object, no teams are defined and we can create them on the fly
 		const createNewRows = Object.keys(rows).length === 0;
 
+		let { games } = this.state;
+		const { location } = this.props;
+		const queries = _.chain(location.search.substr(1).split("&"))
+			.map(q => q.split("="))
+			.fromPairs()
+			.value();
+
+		if (queries.magic == "0") {
+			games = _.reject(
+				games,
+				({ date }) => date < new Date("2019-05-27") && date > new Date("2019-05-24")
+			);
+		}
+
+		if (queries.loopFixtures == "0") {
+			games = _.chain(games)
+				.orderBy("date")
+				.groupBy(({ _homeTeam, _awayTeam }) => [_homeTeam, _awayTeam].sort().join(""))
+				.map(games => {
+					const magicGame = _.find(
+						games,
+						({ date }) => date < new Date("2019-05-27") && date > new Date("2019-05-24")
+					);
+
+					if (games.length === 2 || (magicGame && games.length === 3)) {
+						//No Loop Fixtures
+						return games;
+					} else {
+						let gamesToReturn = _.chain(games)
+							//Remove Magic
+							.filter(g => !magicGame || magicGame._id !== g._id)
+							//Group
+							.groupBy("_homeTeam")
+							.map("0")
+							.value();
+
+						if (magicGame) {
+							gamesToReturn.push(magicGame);
+						}
+
+						return gamesToReturn;
+					}
+				})
+				.flatten()
+				.value();
+		}
+
 		//Add basic details
-		_.each(this.state.games, game => {
+		_.each(games, game => {
 			let home;
 			let away;
 
@@ -374,7 +422,9 @@ function mapStateToProps({ config, games, teams, competitions }) {
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchNeutralGames, fetchGames, fetchGameList, fetchCompetitionSegments }
-)(LeagueTable);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchNeutralGames, fetchGames, fetchGameList, fetchCompetitionSegments }
+	)(LeagueTable)
+);
