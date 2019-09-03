@@ -141,7 +141,7 @@ class AdminPersonOverview extends BasicForm {
 	}
 
 	render() {
-		const { redirect, isLoading, options, isNew } = this.state;
+		const { redirect, isLoading, options, isNew, person } = this.state;
 
 		if (redirect) {
 			return <Redirect to={redirect} />;
@@ -169,7 +169,8 @@ class AdminPersonOverview extends BasicForm {
 								options: [
 									{ label: "Male", value: "M" },
 									{ label: "Female", value: "F" }
-								]
+								],
+								readOnly: !isNew
 							},
 							{
 								name: "_hometown",
@@ -186,9 +187,9 @@ class AdminPersonOverview extends BasicForm {
 						];
 
 						const roleFields = [
-							{ name: "isPlayer", type: "Boolean" },
-							{ name: "isCoach", type: "Boolean" },
-							{ name: "isReferee", type: "Boolean" }
+							{ name: "isPlayer", type: "Boolean", readOnly: person.isPlayer },
+							{ name: "isCoach", type: "Boolean", readOnly: person.isCoach },
+							{ name: "isReferee", type: "Boolean", readOnly: person.isReferee }
 						];
 
 						const socialFields = [
