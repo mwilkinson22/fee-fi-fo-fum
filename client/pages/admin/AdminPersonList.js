@@ -11,6 +11,10 @@ import LoadingPage from "../../components/LoadingPage";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
+//Constants
+import { imagePath } from "~/client/extPaths";
+const iconPath = `${imagePath}people/icons/`;
+
 class AdminPersonList extends Component {
 	constructor(props) {
 		super(props);
@@ -42,10 +46,11 @@ class AdminPersonList extends Component {
 			if (filteredPeople.length) {
 				content = _.chain(filteredPeople)
 					.sortBy(["name.last", "name.first"])
-					.map(({ _id, slug, name }) => (
-						<li key={_id}>
-							<Link to={`/admin/people/${slug}`}>
-								{name.first} {name.last}
+					.map(person => (
+						<li key={person._id}>
+							<Link to={`/admin/people/${person.slug}`}>
+								{this.renderPersonIcons(person)}
+								{person.name.first} {person.name.last}
 							</Link>
 						</li>
 					))
@@ -72,6 +77,29 @@ class AdminPersonList extends Component {
 				<ul className="plain-list">{content}</ul>
 			</div>
 		);
+	}
+
+	renderPersonIcons(person) {
+		const icons = [
+			person.gender == "M"
+				? { file: "male", title: "Male" }
+				: { file: "female", title: "Female" },
+			person.isPlayer
+				? { file: "ball", title: "Player" }
+				: { file: "ball-grey", title: "Not a Player" },
+			person.isCoach
+				? { file: "clipboard", title: "Coach" }
+				: { file: "clipboard-grey", title: "Not a Coach" },
+			person.isReferee
+				? { file: "whistle", title: "Referee" }
+				: { file: "whistle-grey", title: "Not a Referee" }
+		];
+
+		return icons.map(({ file, title }) => (
+			<span key={file}>
+				<img src={`${iconPath}${file}.svg`} alt={title} title={title} />
+			</span>
+		));
 	}
 
 	render() {

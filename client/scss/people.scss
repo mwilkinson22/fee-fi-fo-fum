@@ -393,4 +393,26 @@ a .person-image {
 		padding: 4pt 10pt;
 		border-bottom: solid thin #333;
 	}
+
+	.plain-list {
+		li {
+			a {
+				display: flex;
+				align-items: center;
+				span {
+					height: 14pt;
+					width: 16pt;
+					margin-right: 4pt;
+					display: flex;
+					align-content: center;
+					justify-content: center;
+
+					img {
+						max-height: 100%;
+						max-width: 100%;
+					}
+				}
+			}
+		}
+	}
 }
