@@ -1,4 +1,10 @@
-import { FETCH_ALL_TEAM_TYPES, FETCH_ALL_TEAMS, UPDATE_TEAM, FETCH_TEAM } from "../actions/types";
+import {
+	FETCH_ALL_TEAM_TYPES,
+	FETCH_ALL_TEAMS,
+	UPDATE_TEAM,
+	FETCH_TEAM,
+	SET_ACTIVE_TEAM_TYPE
+} from "../actions/types";
 
 export default function(state = { fullTeams: {} }, action) {
 	switch (action.type) {
@@ -21,6 +27,12 @@ export default function(state = { fullTeams: {} }, action) {
 			return {
 				...state,
 				teamTypes: action.payload
+			};
+
+		case SET_ACTIVE_TEAM_TYPE:
+			return {
+				...state,
+				activeTeamType: action.payload
 			};
 		default:
 			return state;

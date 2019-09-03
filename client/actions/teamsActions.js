@@ -1,4 +1,10 @@
-import { FETCH_ALL_TEAM_TYPES, FETCH_ALL_TEAMS, UPDATE_TEAM, FETCH_TEAM } from "./types";
+import {
+	FETCH_ALL_TEAM_TYPES,
+	FETCH_ALL_TEAMS,
+	UPDATE_TEAM,
+	FETCH_TEAM,
+	SET_ACTIVE_TEAM_TYPE
+} from "./types";
 import { toast } from "react-toastify";
 
 export const fetchTeamList = () => async (dispatch, getState, api) => {
@@ -14,6 +20,10 @@ export const fetchTeam = id => async (dispatch, getState, api) => {
 export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
 	const res = await api.get("/teamTypes");
 	dispatch({ type: FETCH_ALL_TEAM_TYPES, payload: res.data });
+};
+
+export const setActiveTeamType = _id => async dispatch => {
+	dispatch({ type: SET_ACTIVE_TEAM_TYPE, payload: _id });
 };
 
 export const createTeam = values => async (dispatch, getState, api) => {

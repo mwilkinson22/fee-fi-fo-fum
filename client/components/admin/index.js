@@ -20,7 +20,7 @@ import AdminCountryPage from "../../pages/admin/AdminCountryPage";
 import AdminNeutralGameList from "../../pages/admin/AdminNeutralGameList";
 import AdminNeutralGamePage from "../../pages/admin/AdminNeutralGamePage";
 
-import AdminGameList from "../../pages/admin/AdminGameList";
+import GameList from "../../pages/GameList";
 import AdminGamePage from "../../pages/admin/AdminGamePage";
 import AdminNewGamePage from "../../pages/admin/AdminNewGamePage";
 
@@ -57,15 +57,15 @@ class AdminRouter extends Component {
 					<Route path="/admin/neutralGames/:year" component={AdminNeutralGameList} />
 					<Route path="/admin/neutralGames/" component={AdminNeutralGameList} />
 
-					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
-					<Route path="/admin/games/:year/" exact component={AdminGameList} />
-					<Route path="/admin/games/" exact component={AdminGameList} />
-
 					<Route path="/admin/game/new" component={AdminNewGamePage} />
 					<Route path="/admin/game/:slug" component={AdminGamePage} />
-					<Route path="/admin/games/:year/:teamType" exact component={AdminGameList} />
-					<Route path="/admin/games/:year/" exact component={AdminGameList} />
-					<Route path="/admin/games/" exact component={AdminGameList} />
+					<Route
+						path="/admin/games/:year/:teamType"
+						exact
+						component={GameList.component}
+					/>
+					<Route path="/admin/games/:year/" exact component={GameList.component} />
+					<Route path="/admin/games/" exact component={GameList.component} />
 
 					<Route path="/admin/cities/new" exact component={AdminCityPage} />
 					<Route path="/admin/cities/:slug" exact component={AdminCityPage} />

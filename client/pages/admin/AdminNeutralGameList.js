@@ -1,9 +1,10 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, Redirect } from "react-router-dom";
 import LoadingPage from "../../components/LoadingPage";
 import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../../actions/neutralGamesActions";
+import { setActiveTeamType } from "../../actions/teamsActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 import NeutralGameList from "../../components/admin/neutralGames/NeutralGameList";
 import HelmetBuilder from "../../components/HelmetBuilder";
@@ -30,7 +31,15 @@ class AdminNeutralGameList extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { competitionSegmentList, neutralGames, teamList, teamTypes, match } = nextProps;
+		const {
+			competitionSegmentList,
+			neutralGames,
+			teamList,
+			teamTypes,
+			match,
+			activeTeamType,
+			setActiveTeamType
+		} = nextProps;
 		if (!competitionSegmentList || !neutralGames || !teamList) {
 			return {};
 		}
@@ -56,6 +65,31 @@ class AdminNeutralGameList extends Component {
 			.uniqBy("_id")
 			.sortBy("sortOrder")
 			.value();
+
+		if (match.params.teamType) {
+			const filteredTeamType = _.find(
+				newState.teamTypes,
+				t => t.slug === match.params.teamType
+			);
+			if (filteredTeamType) {
+				newState.teamType = filteredTeamType;
+			}
+		}
+
+		//If no valid team type is found, we redirect to either the last active one, or just the first in the list
+		if (!newState.teamType) {
+			const teamTypeRedirect =
+				_.find(newState.teamTypes, t => t._id == activeTeamType) || newState.teamTypes[0];
+
+			newState.teamTypeRedirect = teamTypeRedirect.slug;
+			newState.teamType = activeTeamType;
+		} else {
+			//In case we've been redirected, clear out this value
+			newState.teamTypeRedirect = undefined;
+			if (activeTeamType != newState.teamType._id) {
+				setActiveTeamType(newState.teamType._id);
+			}
+		}
 
 		newState.teamType =
 			_.find(newState.teamTypes, t => t.slug == match.params.teamType) ||
@@ -125,10 +159,14 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { year, games } = this.state;
+		const { year, games, teamTypeRedirect } = this.state;
 
 		if (!year) {
 			return <LoadingPage />;
+		}
+
+		if (teamTypeRedirect) {
+			return <Redirect to={`/admin/neutralGames/${year}/${teamTypeRedirect}`} />;
 		}
 
 		const gamesToEdit = _.filter(
@@ -176,17 +214,18 @@ class AdminNeutralGameList extends Component {
 
 function mapStateToProps({ games, teams, competitions }) {
 	const { neutralGames } = games;
-	const { teamList, teamTypes } = teams;
+	const { teamList, teamTypes, activeTeamType } = teams;
 	const { competitionSegmentList } = competitions;
 	return {
 		neutralGames,
 		teamList,
 		competitionSegmentList,
-		teamTypes
+		teamTypes,
+		activeTeamType
 	};
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchCompetitionSegments, fetchNeutralGames, crawlAndUpdateNeutralGames }
+	{ fetchCompetitionSegments, fetchNeutralGames, crawlAndUpdateNeutralGames, setActiveTeamType }
 )(AdminNeutralGameList);

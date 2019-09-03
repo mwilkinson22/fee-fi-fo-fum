@@ -1,4 +1,5 @@
 import "babel-polyfill";
+import _ from "lodash";
 import express from "express";
 import compression from "compression";
 import { matchRoutes } from "react-router-config";
@@ -9,7 +10,12 @@ import "datejs";
 
 import { getCoreConfig } from "./client/actions/configActions";
 import { fetchUser } from "./client/actions/userActions";
-import { fetchTeam, fetchAllTeamTypes, fetchTeamList } from "./client/actions/teamsActions";
+import {
+	fetchTeam,
+	fetchAllTeamTypes,
+	setActiveTeamType,
+	fetchTeamList
+} from "./client/actions/teamsActions";
 
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";
@@ -77,9 +83,19 @@ app.all("/api*", (req, res) => {
 //Render
 app.get("*", async (req, res) => {
 	const store = createStore(req);
+
+	//Get Basic Config
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(fetchUser());
+
+	//Team Types
 	await store.dispatch(fetchAllTeamTypes());
+	const activeTeamType = _.chain(store.getState().teams.teamTypes)
+		.sortBy("sortOrder")
+		.value()[0]._id;
+	await store.dispatch(setActiveTeamType(activeTeamType));
+
+	//Get teams
 	await store.dispatch(fetchTeamList());
 	await store.dispatch(fetchTeam(keys.localTeam));
 

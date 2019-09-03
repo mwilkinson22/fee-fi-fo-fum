@@ -1,73 +1,132 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+
+//Components
+import HelmetBuilder from "../components/HelmetBuilder";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import GameCard from "../components/games/GameCard";
-import { NavLink } from "react-router-dom";
+import AdminGameCard from "~/client/components/games/AdminGameCard";
+
+//Actions
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { setActiveTeamType } from "../actions/teamsActions";
+
+//Helpers
 import { validateGameDate } from "../../helpers/gameHelper";
-import HelmetBuilder from "../components/HelmetBuilder";
 
 class GameList extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, match, fetchGameList } = props;
+		const { gameList, fetchGameList } = props;
 
 		if (!gameList) {
 			fetchGameList();
 		}
 
-		const listType = match.path.split("/")[2]; //Fixtures or Results
-
-		this.state = { listType };
+		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
-		const { gameList, fullGames, teamTypes, match, fetchGames } = nextProps;
-		const path = match.path.split("/");
-		//Fixtures or Results?
-		newState.listType = path[2];
+		const {
+			gameList,
+			fullGames,
+			teamTypes,
+			match,
+			fetchGames,
+			activeTeamType,
+			setActiveTeamType
+		} = nextProps;
 
+		//Determine Admin Status
+		newState.isAdmin = Boolean(match.path.match(/^\/admin/));
+
+		//Fixtures or Results
+		if (newState.isAdmin) {
+			newState.listType =
+				!match.params.year || match.params.year === "fixtures" ? "fixtures" : "results";
+		} else {
+			newState.listType = match.path.split("/")[2];
+		}
+
+		//Without the basic game list, continue to load
 		if (!gameList) {
 			return {};
 		}
 
-		//Team Type
+		//Get Years
+		const now = new Date();
+		newState.years = _.chain(gameList)
+			.reject(game => game.date > now)
+			.map(game => game.date.getFullYear())
+			.uniq()
+			.sort()
+			.reverse()
+			.value();
+		if (newState.isAdmin) {
+			newState.years = ["fixtures", ...newState.years];
+		}
+
+		//Get Active Year
+		newState.year = match.params.year || newState.years[0];
+
+		//Get Valid Team Types for this year
+		newState.teamTypes = _.chain(gameList)
+			.filter(game => validateGameDate(game, newState.listType, newState.year))
+			.map("_teamType")
+			.uniq()
+			.map(id => teamTypes[id])
+			.sortBy("sortOrder")
+			.value();
+
+		//Get Team Type from URL
 		if (match.params.teamType) {
-			const filteredTeamType = _.find(teamTypes, t => t.slug === match.params.teamType);
+			const filteredTeamType = _.find(
+				newState.teamTypes,
+				t => t.slug === match.params.teamType
+			);
 			if (filteredTeamType) {
-				newState.teamType = filteredTeamType._id;
+				newState.teamType = filteredTeamType;
 			}
 		}
 
-		if (!newState.teamType) {
-			newState.teamType = _.chain(teamTypes)
-				.values()
-				.minBy("sortOrder")
-				.value()._id;
+		//If no valid teamTypes are found (i.e. no games), then just pick the first one from the db
+		if (!newState.teamTypes.length) {
+			newState.teamType = _.sortBy(teamTypes, "sortOrder")[0];
 		}
 
-		//Years
-		const now = new Date();
-		if (newState.listType === "results") {
-			//Get Years
-			newState.years = _.chain(gameList)
-				.reject(game => game.date > now)
-				.map(game => game.date.getFullYear())
-				.uniq()
-				.sort()
-				.reverse()
-				.value();
+		//If no valid team type is found, we redirect to either the last active one, or just the first in the list
+		if (!newState.teamType) {
+			const teamTypeRedirect =
+				_.find(newState.teamTypes, t => t._id == activeTeamType) || newState.teamTypes[0];
 
-			//Get Active Year
-			newState.year = match.params.year || newState.years[0];
+			newState.teamTypeRedirect = teamTypeRedirect.slug;
+			newState.teamType = activeTeamType;
+		} else {
+			//In case we've been redirected, clear out this value
+			newState.teamTypeRedirect = undefined;
+			if (activeTeamType != newState.teamType._id) {
+				setActiveTeamType(newState.teamType._id);
+			}
+		}
+
+		//Create Root URL
+		if (newState.isAdmin) {
+			newState.rootUrl = `${newState.isAdmin ? "/admin" : ""}/games/${newState.year}`;
+		} else if (newState.listType === "fixtures") {
+			newState.rootUrl = `/games/fixtures`;
+		} else {
+			newState.rootUrl = `/games/results/${newState.year}`;
 		}
 
 		//Games
 		const gameIds = _.chain(gameList)
-			.filter(game => game._teamType === newState.teamType)
+			.filter(game => game._teamType == newState.teamType._id)
 			.filter(game => validateGameDate(game, newState.listType, newState.year))
 			.orderBy(["date"], [newState.listType === "results" ? "desc" : "asc"])
 			.map(game => game._id)
@@ -85,195 +144,230 @@ class GameList extends Component {
 	}
 
 	generatePageHeader() {
-		const { listType, years } = this.state;
-		if (listType === "fixtures") {
+		const { listType, years, teamType, isAdmin } = this.state;
+
+		//For non-admin fixtures, we simply return text
+		if (!isAdmin && listType === "fixtures") {
 			return "Fixtures";
+		}
+
+		//Otherwise we dynamically render a select
+		let options;
+		if (isAdmin) {
+			options = _.map(years, year => {
+				return (
+					<option key={year} value={year}>
+						{year === "fixtures" ? "All Fixtures" : `${year} Results`}
+					</option>
+				);
+			});
 		} else {
-			const options = _.map(years, year => {
+			options = _.map(years, year => {
 				return (
 					<option key={year} value={year}>
 						{year}
 					</option>
 				);
 			});
-			return [
-				<select
-					key="year-selector"
-					onChange={ev => this.props.history.push(`/games/results/${ev.target.value}`)}
-					value={this.state.year}
-				>
-					{options}
-				</select>,
-				<span key="results-header"> Results</span>
-			];
 		}
+
+		//Create Select
+		let rootUrl;
+		if (isAdmin) {
+			rootUrl = `/admin/games`;
+		} else {
+			rootUrl = `/games/results`;
+		}
+		const content = [
+			<select
+				key="year-selector"
+				onChange={ev =>
+					this.props.history.push(`${rootUrl}/${ev.target.value}/${teamType.slug}`)
+				}
+				value={this.state.year}
+			>
+				{options}
+			</select>
+		];
+
+		if (!isAdmin) {
+			content.push(<span key="results-header"> Results</span>);
+		}
+
+		return content;
 	}
 
 	generateTeamTypeMenu() {
-		const { listType, year } = this.state;
-		const { teamTypes } = this.props;
-		const coreUrl = listType === "fixtures" ? `/games/fixtures` : `/games/results/${year}`;
-		const submenu = _.chain(this.props.gameList)
-			.filter(game => validateGameDate(game, listType, year))
-			.map(game => game._teamType)
-			.uniq()
-			.map(id => teamTypes[id])
-			.sortBy("sortOrder")
-			.map(teamType => {
-				const { name, slug } = teamType;
-				return (
-					<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
-						{name}
-					</NavLink>
-				);
-			})
-			.value();
+		const { teamTypes, rootUrl } = this.state;
 
-		const dummyLinkUrls = [coreUrl];
-		if (listType === "results") {
-			dummyLinkUrls.push("/games/results");
-		}
-		const dummyLinks = dummyLinkUrls.map(url => {
+		//Render Submenu Entries
+		const submenu = teamTypes.map(teamType => {
+			const { name, slug } = teamType;
 			return (
-				<NavLink
-					key={url}
-					exact={true}
-					className="hidden"
-					to={url}
-					activeClassName="active"
-				/>
+				<NavLink key={slug} to={`${rootUrl}/${slug}`} activeClassName="active">
+					{name}
+				</NavLink>
 			);
 		});
 
-		return (
-			<div className="sub-menu">
-				{dummyLinks}
-				{submenu}
-			</div>
-		);
+		return <div className="sub-menu">{submenu}</div>;
 	}
 
 	populateGameList() {
-		const { filteredGames } = this.state;
+		const { filteredGames, isAdmin } = this.state;
 		if (!filteredGames) {
 			return <LoadingPage />;
 		} else {
 			let isFirst = true;
 			const renderedGames = filteredGames.map(game => {
-				const includeCountdown = isFirst;
-				isFirst = false;
-				return <GameCard key={game._id} game={game} includeCountdown={includeCountdown} />;
+				if (isAdmin) {
+					return <AdminGameCard key={game._id} game={game} />;
+				} else {
+					const includeCountdown = isFirst;
+					isFirst = false;
+					return (
+						<GameCard key={game._id} game={game} includeCountdown={includeCountdown} />
+					);
+				}
 			});
 
 			const result = renderedGames.length ? renderedGames : <h3>No games found</h3>;
-			return <div className="container game-list">{result}</div>;
+			return <div className={`container ${isAdmin ? "admin-" : ""}game-list`}>{result}</div>;
 		}
 	}
 
 	render() {
-		const { listType, games, year, teamType } = this.state;
-		const { gameList } = this.props;
+		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin } = this.state;
+		const { gameList, teamList, localTeam } = this.props;
+
+		if (teamTypeRedirect) {
+			return <Redirect to={`${rootUrl}/${teamTypeRedirect}`} />;
+		}
+
 		if (!teamType || !gameList || !games) {
 			return <LoadingPage />;
+		}
+
+		//Render Page Title
+		const titleArray = [teamList[localTeam].name.long];
+		if (teamType.sortOrder > 1) {
+			titleArray.push(teamType.name);
+		}
+		if (listType === "fixtures") {
+			titleArray.push("Fixtures");
 		} else {
-			const canonical =
-				listType === "fixtures" ? `/fixtures/${teamType}` : `/results/${year}/${teamType}`;
-			const pageTitle =
-				listType === "fixtures"
-					? "Huddersfield Giants Fixtures"
-					: `Huddersfield Giants ${year} Results`;
-			return (
-				<div>
-					<HelmetBuilder title={pageTitle} canonical={canonical} />
-					<section className="page-header">
-						<div className="container">
-							<h1>{this.generatePageHeader()}</h1>
-							{this.generateTeamTypeMenu()}
-							<GameFilters
-								games={games}
-								onFilterChange={filteredGames => this.setState({ filteredGames })}
-							/>
-						</div>
-					</section>
-					{this.populateGameList()}
-				</div>
+			titleArray.push(`${year} Results`);
+		}
+		const pageTitle = titleArray.join(" ");
+
+		//New Game Link
+		let newGameLink;
+		if (isAdmin) {
+			newGameLink = (
+				<Link to="/admin/game/new" className="card nav-card">
+					Add New Game
+				</Link>
 			);
 		}
+
+		return (
+			<div>
+				<HelmetBuilder title={pageTitle} canonical={`${rootUrl}/${teamType.slug}`} />
+				<section className="page-header">
+					<div className="container">
+						<h1>{this.generatePageHeader()}</h1>
+						{this.generateTeamTypeMenu()}
+						{newGameLink}
+						<GameFilters
+							games={games}
+							onFilterChange={filteredGames => this.setState({ filteredGames })}
+						/>
+					</div>
+				</section>
+				{this.populateGameList()}
+			</div>
+		);
 	}
 }
 
-function mapStateToProps({ games, teams }) {
+function mapStateToProps({ games, teams, config }) {
+	const { localTeam } = config;
 	const { gameList, fullGames } = games;
-	const { teamTypes } = teams;
+	const { teamList, teamTypes, activeTeamType } = teams;
 	return {
+		localTeam,
 		gameList,
 		fullGames,
-		teamTypes
+		teamList,
+		teamTypes,
+		activeTeamType
 	};
 }
 
 export async function loadData(store, path) {
-	const splitPath = path.split("/");
+	if (!path.match(/^\/admin/)) {
+		const splitPath = path.split("/");
 
-	//Get List Type
-	const listType = splitPath[2];
+		//Get List Type
+		const listType = splitPath[2];
 
-	//Get Game List
-	await store.dispatch(fetchGameList());
-	const { gameList } = store.getState().games;
+		//Get Game List
+		await store.dispatch(fetchGameList());
+		const { gameList } = store.getState().games;
 
-	//Get Year
-	let year;
-	if (listType === "results") {
-		if (splitPath.length > 3) {
-			year = splitPath[3];
-		} else {
-			year = _.chain(gameList)
-				.reject(game => game.date > new Date())
-				.map(game => game.date.getFullYear())
-				.max()
-				.value();
+		//Get Year
+		let year;
+		if (listType === "results") {
+			if (splitPath.length > 3) {
+				year = splitPath[3];
+			} else {
+				year = _.chain(gameList)
+					.reject(game => game.date > new Date())
+					.map(game => game.date.getFullYear())
+					.max()
+					.value();
+			}
 		}
-	}
 
-	//Get Team Type
-	const { teamTypes } = store.getState().teams;
-	const teamTypeIndex = listType === "fixtures" ? 3 : 4;
-	let teamType;
-	if (splitPath.length > teamTypeIndex) {
-		const teamTypeFromSlug = _.filter(
-			teamTypes,
-			teamType => teamType.slug === splitPath[teamTypeIndex]
-		);
-		if (teamTypeFromSlug.length) {
-			teamType = teamTypeFromSlug[0]._id;
+		//Get Team Type
+		const { teamTypes } = store.getState().teams;
+		const teamTypeIndex = listType === "fixtures" ? 3 : 4;
+		let teamType;
+		if (splitPath.length > teamTypeIndex) {
+			const teamTypeFromSlug = _.filter(
+				teamTypes,
+				teamType => teamType.slug === splitPath[teamTypeIndex]
+			);
+			if (teamTypeFromSlug.length) {
+				teamType = teamTypeFromSlug[0]._id;
+			}
 		}
-	}
 
-	if (!teamType) {
-		teamType = _.chain(gameList)
+		if (!teamType) {
+			teamType = _.chain(gameList)
+				.filter(game => validateGameDate(game, listType, year))
+				.map(game => game._teamType)
+				.uniq()
+				.map(id => teamTypes[id])
+				.minBy("sortOrder")
+				.value()._id;
+		}
+
+		//Games To Load
+		const games = _.chain(gameList)
+			.filter(game => game._teamType === teamType)
 			.filter(game => validateGameDate(game, listType, year))
-			.map(game => game._teamType)
-			.uniq()
-			.map(id => teamTypes[id])
-			.minBy("sortOrder")
-			.value()._id;
+			.map(game => game._id)
+			.value();
+
+		return store.dispatch(fetchGames(games));
 	}
-
-	//Games To Load
-	const games = _.chain(gameList)
-		.filter(game => game._teamType === teamType)
-		.filter(game => validateGameDate(game, listType, year))
-		.map(game => game._id)
-		.value();
-
-	return store.dispatch(fetchGames(games));
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGames, fetchGameList }
+		{ fetchGames, fetchGameList, setActiveTeamType }
 	)(GameList),
 	loadData
 };

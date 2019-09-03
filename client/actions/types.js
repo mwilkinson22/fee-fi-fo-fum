@@ -31,6 +31,7 @@ export const DELETE_COUNTRY = "delete_country";
 //Teams
 export const FETCH_ALL_TEAMS = "fetch_all_teams";
 export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
+export const SET_ACTIVE_TEAM_TYPE = "set_active_team_type";
 export const FETCH_TEAM = "fetch_team";
 export const UPDATE_TEAM = "update_team";
 
