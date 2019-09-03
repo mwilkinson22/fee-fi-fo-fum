@@ -3,9 +3,9 @@ import React, { Component } from "react";
 
 export default class Radio extends Component {
 	render() {
-		const { name, options } = this.props;
+		const { name, options, readOnly } = this.props;
 		return (
-			<div key={name} className="radio-fields">
+			<div key={name} className={`radio-fields ${readOnly ? "read-only" : ""}`}>
 				{_.map(options, option => {
 					const id = `${name}-${option.value}`;
 					return [
