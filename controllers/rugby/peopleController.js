@@ -69,8 +69,6 @@ async function getPlayingYears(id) {
 		.value();
 }
 
-async function getUpdatedPlayer(id, res) {}
-
 //Getters
 export async function getList(req, res) {
 	const people = await Person.find(
@@ -97,6 +95,17 @@ export async function getPerson(req, res) {
 	}
 
 	res.send(person);
+}
+
+//Create
+export async function createPerson(req, res) {
+	const { name } = req.body;
+	req.body.slug = await Person.generateSlug(name.first, name.last);
+	const person = new Person(req.body);
+	await person.save();
+
+	req.params.id = person._id;
+	await getPerson(req, res);
 }
 
 //Update

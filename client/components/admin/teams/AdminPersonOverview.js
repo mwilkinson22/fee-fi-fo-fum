@@ -8,7 +8,7 @@ import * as Yup from "yup";
 
 //Actions
 import { fetchCities, fetchCountries } from "~/client/actions/locationActions";
-import { updatePerson } from "~/client/actions/peopleActions";
+import { updatePerson, createPerson } from "~/client/actions/peopleActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -38,7 +38,9 @@ class AdminPersonOverview extends BasicForm {
 					.label("Last Name")
 			}),
 			nickname: Yup.string().label("Nickname"),
-			gender: Yup.mixed().label("Gender"),
+			gender: Yup.mixed()
+				.required()
+				.label("Gender"),
 			dateOfBirth: Yup.date().label("Date of Birth"),
 			_hometown: Yup.mixed().label("Hometown"),
 			_represents: Yup.mixed().label("Represents"),
@@ -133,7 +135,7 @@ class AdminPersonOverview extends BasicForm {
 
 	async onSubmit(fValues) {
 		const { person, isNew } = this.state;
-		const { updatePerson } = this.props;
+		const { updatePerson, createPerson } = this.props;
 
 		const values = _.chain(fValues)
 			.cloneDeep()
@@ -153,8 +155,8 @@ class AdminPersonOverview extends BasicForm {
 			.value();
 
 		if (isNew) {
-			// await createPerson(values);
-			// await this.setState({ redirect: `/admin/people/` });
+			const newSlug = await createPerson(values);
+			await this.setState({ redirect: `/admin/people/${newSlug}` });
 		} else {
 			updatePerson(person._id, values);
 		}
@@ -207,9 +209,21 @@ class AdminPersonOverview extends BasicForm {
 						];
 
 						const roleFields = [
-							{ name: "isPlayer", type: "Boolean", readOnly: person.isPlayer },
-							{ name: "isCoach", type: "Boolean", readOnly: person.isCoach },
-							{ name: "isReferee", type: "Boolean", readOnly: person.isReferee }
+							{
+								name: "isPlayer",
+								type: "Boolean",
+								readOnly: person && person.isPlayer
+							},
+							{
+								name: "isCoach",
+								type: "Boolean",
+								readOnly: person && person.isCoach
+							},
+							{
+								name: "isReferee",
+								type: "Boolean",
+								readOnly: person && person.isReferee
+							}
 						];
 
 						const socialFields = [
@@ -261,5 +275,5 @@ function mapStateToProps({ people, locations }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchCities, fetchCountries, updatePerson }
+	{ fetchCities, fetchCountries, updatePerson, createPerson }
 )(AdminPersonOverview);

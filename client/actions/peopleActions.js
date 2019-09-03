@@ -6,6 +6,13 @@ export const fetchPeopleList = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_PEOPLE_LIST, payload: res.data });
 };
 
+export const createPerson = data => async (dispatch, getState, api) => {
+	const res = await api.post(`/people/`, data);
+	dispatch({ type: FETCH_PERSON, payload: res.data });
+	toast.success("Player updated");
+	return res.data.slug;
+};
+
 export const updatePerson = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/people/${id}`, data);
 	dispatch({ type: FETCH_PERSON, payload: res.data });
