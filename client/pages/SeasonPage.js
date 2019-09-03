@@ -2,17 +2,18 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { Redirect, NavLink } from "react-router-dom";
 
 //Components
 import HelmetBuilder from "../components/HelmetBuilder";
 import LoadingPage from "../components/LoadingPage";
 import NotFoundPage from "~/client/pages/NotFoundPage";
+import SeasonOverview from "~/client/components/seasons/SeasonOverview";
+import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
 
 //Actions
 import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
-import SeasonOverview from "~/client/components/seasons/SeasonOverview";
-import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
+import { setActiveTeamType } from "~/client/actions/teamsActions";
 
 //Constants
 import { earliestGiantsData } from "~/config/keys";
@@ -31,7 +32,15 @@ class SeasonPage extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = { isLoadingGameList: false };
-		const { match, teamTypes: teamTypesList, gameList, fullGames, fetchGames } = nextProps;
+		const {
+			match,
+			teamTypes: teamTypesList,
+			gameList,
+			fullGames,
+			fetchGames,
+			activeTeamType,
+			setActiveTeamType
+		} = nextProps;
 
 		//Ensure the game list is loaded
 		if (!gameList) {
@@ -73,9 +82,28 @@ class SeasonPage extends Component {
 			newState.teamTypes = teamTypes;
 		}
 
-		//Get Active TeamType
-		const filteredTeamType = teamTypes.find(({ slug }) => slug == match.params.teamType);
-		newState.teamType = filteredTeamType ? filteredTeamType._id : teamTypes[0]._id;
+		//Get Team Type from URL
+		if (match.params.teamType) {
+			const filteredTeamType = _.find(teamTypes, t => t.slug === match.params.teamType);
+			if (filteredTeamType) {
+				newState.teamType = filteredTeamType;
+			}
+		}
+
+		//If no valid team type is found, we redirect to either the last active one, or just the first in the list
+		if (!newState.teamType) {
+			const teamTypeRedirect =
+				_.find(teamTypes, t => t._id == activeTeamType) || teamTypes[0];
+
+			newState.teamTypeRedirect = teamTypeRedirect.slug;
+			newState.teamType = activeTeamType;
+		} else {
+			//In case we've been redirected, clear out this value
+			newState.teamTypeRedirect = undefined;
+			if (activeTeamType != newState.teamType._id) {
+				setActiveTeamType(newState.teamType._id);
+			}
+		}
 
 		//Get Page
 		newState.page = match.params.page || "overview";
@@ -83,12 +111,13 @@ class SeasonPage extends Component {
 		//On initial pageload, if something changes, or while games are loading, check for games to load
 		if (
 			newState.year != prevState.year ||
-			newState.teamType != prevState.teamType ||
+			!prevState.teamType ||
+			newState.teamType._id != prevState.teamType._id ||
 			prevState.isLoadingGames
 		) {
 			const gamesRequired = results.filter(
 				({ date, _teamType }) =>
-					date.getFullYear() == newState.year && _teamType == newState.teamType
+					date.getFullYear() == newState.year && _teamType == newState.teamType._id
 			);
 
 			const gamesToLoad = gamesRequired.filter(g => !fullGames[g._id]).map(g => g._id);
@@ -138,29 +167,11 @@ class SeasonPage extends Component {
 			})
 			.value();
 
-		const dummyLinkUrls = ["/seasons/", coreUrl];
-		const dummyLinks = dummyLinkUrls.map(url => {
-			return (
-				<NavLink
-					key={url}
-					className="hidden"
-					exact={true}
-					to={url}
-					activeClassName="active"
-				/>
-			);
-		});
-
-		return (
-			<div className="sub-menu">
-				{dummyLinks}
-				{submenu}
-			</div>
-		);
+		return <div className="sub-menu">{submenu}</div>;
 	}
 	generatePageMenu() {
-		const { teamTypes, teamType, year } = this.state;
-		const coreUrl = `/seasons/${year}/${teamTypes.find(t => t._id == teamType).slug}`;
+		const { teamType, year } = this.state;
+		const coreUrl = `/seasons/${year}/${teamType.slug}`;
 		const pages = [
 			{ slug: "overview", name: "Overview" },
 			{ slug: "player-stats", name: "Player Stats" }
@@ -174,22 +185,9 @@ class SeasonPage extends Component {
 			);
 		});
 
-		const dummyLinkUrls = ["/seasons/", `/seasons/${year}`, coreUrl];
-		const dummyLinks = dummyLinkUrls.map(url => {
-			return (
-				<NavLink
-					key={url}
-					className="hidden"
-					exact={true}
-					to={url}
-					activeClassName="active"
-				/>
-			);
-		});
-
 		return (
 			<div className="sub-menu page-menu">
-				{dummyLinks}
+				<NavLink className="hidden" exact={true} to={coreUrl} activeClassName="active" />
 				{submenu}
 			</div>
 		);
@@ -197,19 +195,17 @@ class SeasonPage extends Component {
 
 	generateHelmet() {
 		const { year, teamType, page } = this.state;
-		const { teamTypes } = this.props;
-		const teamTypeObject = _.find(teamTypes, t => t._id === teamType);
-		const specifyTeamTypeInMeta = _.minBy(_.values(teamTypes), "sortOrder")._id !== teamType;
+		const specifyTeamTypeInMeta = teamType.sortOrder > 1;
 
 		//Title
 		let title = `${year} Huddersfield Giants`;
 		if (specifyTeamTypeInMeta) {
-			title += ` ${teamTypeObject.name}`;
+			title += ` ${teamType.name}`;
 		}
 		title += " Season";
 
 		//Canonical
-		let canonical = `/season/${year}/${teamTypeObject.slug}/${page}`;
+		let canonical = `/season/${year}/${teamType.slug}/${page}`;
 
 		//Render
 		return <HelmetBuilder title={title} canonical={canonical} />;
@@ -237,7 +233,11 @@ class SeasonPage extends Component {
 	}
 
 	render() {
-		const { isLoadingGameList } = this.state;
+		const { isLoadingGameList, year, teamTypeRedirect } = this.state;
+
+		if (teamTypeRedirect) {
+			return <Redirect to={`/seasons/${year}/${teamTypeRedirect}`} />;
+		}
 
 		if (isLoadingGameList) {
 			return <LoadingPage />;
@@ -267,14 +267,14 @@ async function loadData(store) {
 function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	const { gameList, fullGames } = games;
-	const { fullTeams, teamTypes } = teams;
-	return { localTeam, gameList, fullGames, fullTeams, teamTypes };
+	const { fullTeams, teamTypes, activeTeamType } = teams;
+	return { localTeam, gameList, fullGames, fullTeams, teamTypes, activeTeamType };
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGameList, fetchGames }
+		{ fetchGameList, fetchGames, setActiveTeamType }
 	)(SeasonPage),
 	loadData
 };
