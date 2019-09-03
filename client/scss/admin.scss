@@ -216,6 +216,13 @@
 			background: $claret;
 			left: 12pt;
 		}
+
+		&.read-only {
+			pointer-events: none;
+			.boolean-slider {
+				opacity: 0.5;
+			}
+		}
 	}
 
 	.image-selector-field-wrapper {
