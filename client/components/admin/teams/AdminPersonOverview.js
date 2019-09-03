@@ -45,7 +45,8 @@ class AdminPersonOverview extends BasicForm {
 			instagram: Yup.mixed().label("Instagram"),
 			isPlayer: Yup.boolean().label("Player"),
 			isCoach: Yup.boolean().label("Coach"),
-			isReferee: Yup.boolean().label("Referee")
+			isReferee: Yup.boolean().label("Referee"),
+			image: Yup.boolean().label("Image")
 		});
 
 		this.state = {
@@ -100,6 +101,7 @@ class AdminPersonOverview extends BasicForm {
 			_represents: "",
 			twitter: "",
 			instagram: "",
+			image: "",
 			isPlayer: false,
 			isCoach: false,
 			isReferee: false
@@ -197,6 +199,15 @@ class AdminPersonOverview extends BasicForm {
 							{ name: "instagram", type: "text" }
 						];
 
+						const imageFields = [
+							{
+								name: "image",
+								type: "Image",
+								path: "images/people/full/",
+								acceptSVG: false
+							}
+						];
+
 						return (
 							<Form>
 								<div className="form-card grid">
@@ -205,6 +216,8 @@ class AdminPersonOverview extends BasicForm {
 									{this.renderFieldGroup(roleFields)}
 									<h6>Social Media</h6>
 									{this.renderFieldGroup(socialFields)}
+									<h6>Images</h6>
+									{this.renderFieldGroup(imageFields)}
 									<div className="buttons">
 										<button type="clear">Clear</button>
 										<button type="submit" className="confirm">
