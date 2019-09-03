@@ -8,6 +8,7 @@ import * as Yup from "yup";
 
 //Actions
 import { fetchCities, fetchCountries } from "~/client/actions/locationActions";
+import { updatePerson } from "~/client/actions/peopleActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -46,7 +47,7 @@ class AdminPersonOverview extends BasicForm {
 			isPlayer: Yup.boolean().label("Player"),
 			isCoach: Yup.boolean().label("Coach"),
 			isReferee: Yup.boolean().label("Referee"),
-			image: Yup.boolean().label("Image")
+			image: Yup.string().label("Image")
 		});
 
 		this.state = {
@@ -130,15 +131,32 @@ class AdminPersonOverview extends BasicForm {
 		return defaults;
 	}
 
-	async onSubmit(values) {
-		const { person } = this.state;
+	async onSubmit(fValues) {
+		const { person, isNew } = this.state;
+		const { updatePerson } = this.props;
 
-		console.log(values);
-		if (person) {
-			// updatePerson(person._id, values);
-		} else {
+		const values = _.chain(fValues)
+			.cloneDeep()
+			.mapValues((val, key) => {
+				if (val === "") {
+					return null;
+				}
+
+				switch (key) {
+					case "_hometown":
+					case "_represents":
+						return val.value;
+					default:
+						return val;
+				}
+			})
+			.value();
+
+		if (isNew) {
 			// await createPerson(values);
 			// await this.setState({ redirect: `/admin/people/` });
+		} else {
+			updatePerson(person._id, values);
 		}
 	}
 
@@ -243,5 +261,5 @@ function mapStateToProps({ people, locations }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchCities, fetchCountries }
+	{ fetchCities, fetchCountries, updatePerson }
 )(AdminPersonOverview);

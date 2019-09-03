@@ -47,4 +47,5 @@ module.exports = app => {
 
 	//Putters
 	app.put("/api/people/setExternalNames", peopleController.setExternalNames);
+	app.put("/api/people/:id", peopleController.updatePerson);
 };

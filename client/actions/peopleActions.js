@@ -6,6 +6,12 @@ export const fetchPeopleList = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_PEOPLE_LIST, payload: res.data });
 };
 
+export const updatePerson = (id, data) => async (dispatch, getState, api) => {
+	const res = await api.put(`/people/${id}`, data);
+	dispatch({ type: FETCH_PERSON, payload: res.data });
+	toast.success("Player updated");
+};
+
 export const fetchPerson = id => async (dispatch, getState, api) => {
 	let payload;
 	const res = await api.get(`/people/${id}`).catch(e => {
