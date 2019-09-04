@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import Login from "./Login";
 import { Switch, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 //Pages
 import NotFoundPage from "../../pages/NotFoundPage";
@@ -46,8 +47,9 @@ import AdminNewTeamPage from "../../pages/admin/AdminNewTeamPage";
 
 class AdminRouter extends Component {
 	render() {
+		let content;
 		if (this.props.authUser) {
-			return (
+			content = (
 				<Switch>
 					<Route path="/admin/neutralGame/:id" component={AdminNeutralGamePage} />
 					<Route
@@ -117,8 +119,14 @@ class AdminRouter extends Component {
 				</Switch>
 			);
 		} else {
-			return <Login />;
+			content = <Login />;
 		}
+		return (
+			<div>
+				{content}
+				<ToastContainer position="bottom-right" />
+			</div>
+		);
 	}
 }
 function mapStateToProps({ config }) {

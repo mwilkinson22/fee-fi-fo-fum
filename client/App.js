@@ -9,7 +9,6 @@ import { renderRoutes } from "react-router-config";
 import { fetchUser } from "./actions/userActions";
 
 //Components
-import { ToastContainer } from "react-toastify";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import HelmetBuilder from "./components/HelmetBuilder";
@@ -54,7 +53,6 @@ class App extends Component {
 					<Header />
 					<HelmetBuilder title="" canonical="/" />
 					{renderRoutes(route.routes)}
-					<ToastContainer position="bottom-right" />
 				</ScrollToTop>
 			</div>
 		);
