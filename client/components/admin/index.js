@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import Login from "./Login";
 import { Switch, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Slide } from "react-toastify";
 
 //Pages
 import NotFoundPage from "../../pages/NotFoundPage";
@@ -124,7 +124,12 @@ class AdminRouter extends Component {
 		return (
 			<div>
 				{content}
-				<ToastContainer position="bottom-right" />
+				<ToastContainer
+					position="bottom-right"
+					pauseOnFocusLoss={false}
+					className="toast-container"
+					transition={Slide}
+				/>
 			</div>
 		);
 	}

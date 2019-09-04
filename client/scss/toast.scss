@@ -1,0 +1,28 @@
+@import "../../node_modules/react-toastify/dist/ReactToastify.css";
+
+.Toastify {
+	.Toastify__toast {
+		font-family: inherit;
+		text-align: center;
+		font-size: 1.2em;
+		font-weight: 600;
+		box-shadow: 0 0 4pt rgba(black, 0.7);
+		border-radius: 4pt 0;
+
+		&--success {
+			background: #1a6f39;
+		}
+
+		&--error {
+			background: #990000;
+		}
+
+		& .Toastify__toast-body {
+			padding: 4pt 8pt;
+		}
+
+		& .Toastify__progress-bar {
+			background: white;
+		}
+	}
+}
