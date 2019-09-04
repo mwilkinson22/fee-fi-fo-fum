@@ -15,4 +15,7 @@ module.exports = app => {
 
 	//Post
 	app.post("/api/people", requireAdmin, peopleController.createPerson);
+
+	//Delete
+	app.delete("/api/people/:_id", requireAdmin, peopleController.deletePerson);
 };

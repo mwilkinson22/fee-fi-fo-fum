@@ -1,4 +1,4 @@
-import { FETCH_PEOPLE_LIST, FETCH_PERSON } from "./types";
+import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchPeopleList = () => async (dispatch, getState, api) => {
@@ -17,6 +17,17 @@ export const updatePerson = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/people/${id}`, data);
 	dispatch({ type: FETCH_PERSON, payload: res.data });
 	toast.success("Player updated");
+};
+
+export const deletePerson = (id, onSuccess) => async (dispatch, getState, api) => {
+	const res = await api.delete(`/people/${id}`);
+	if (res.data) {
+		await onSuccess();
+		dispatch({ type: DELETE_PERSON, payload: id });
+		toast.success(`Person deleted`);
+		return true;
+	}
+	return false;
 };
 
 export const fetchPerson = id => async (dispatch, getState, api) => {

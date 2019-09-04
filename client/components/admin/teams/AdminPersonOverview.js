@@ -8,11 +8,12 @@ import * as Yup from "yup";
 
 //Actions
 import { fetchCities, fetchCountries } from "~/client/actions/locationActions";
-import { updatePerson, createPerson } from "~/client/actions/peopleActions";
+import { updatePerson, createPerson, deletePerson } from "~/client/actions/peopleActions";
 
 //Components
 import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
+import DeleteButtons from "../fields/DeleteButtons";
 
 class AdminPersonOverview extends BasicForm {
 	constructor(props) {
@@ -59,6 +60,7 @@ class AdminPersonOverview extends BasicForm {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { fullPeople, slugMap, match, countries, cities } = nextProps;
+
 		const newState = {
 			isNew: !(match && match.params.slug),
 			isLoading: false
@@ -162,6 +164,12 @@ class AdminPersonOverview extends BasicForm {
 		}
 	}
 
+	async onDelete() {
+		const { deletePerson } = this.props;
+		const { person } = this.state;
+		await deletePerson(person._id, () => this.setState({ redirect: "/admin/people" }));
+	}
+
 	render() {
 		const { redirect, isLoading, options, isNew, person } = this.state;
 
@@ -240,6 +248,15 @@ class AdminPersonOverview extends BasicForm {
 							}
 						];
 
+						let deleteButtons;
+						if (!isNew) {
+							deleteButtons = (
+								<div className="form-card grid">
+									<DeleteButtons onDelete={() => this.onDelete()} />
+								</div>
+							);
+						}
+
 						return (
 							<Form>
 								<div className="form-card grid">
@@ -257,6 +274,7 @@ class AdminPersonOverview extends BasicForm {
 										</button>
 									</div>
 								</div>
+								{deleteButtons}
 							</Form>
 						);
 					}}
@@ -275,5 +293,5 @@ function mapStateToProps({ people, locations }) {
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchCities, fetchCountries, updatePerson, createPerson }
+	{ fetchCities, fetchCountries, updatePerson, createPerson, deletePerson }
 )(AdminPersonOverview);

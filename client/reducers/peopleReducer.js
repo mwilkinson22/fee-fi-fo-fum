@@ -1,4 +1,4 @@
-import { FETCH_PEOPLE_LIST, FETCH_PERSON } from "../actions/types";
+import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON } from "../actions/types";
 
 export default function(state = { fullPeople: {} }, action) {
 	switch (action.type) {
@@ -13,6 +13,15 @@ export default function(state = { fullPeople: {} }, action) {
 
 		case FETCH_PEOPLE_LIST:
 			return { ...state, ...action.payload };
+
+		case DELETE_PERSON:
+			const { [action.payload]: oldFull, ...fullPeople } = state.fullPeople;
+			const { [action.payload]: oldList, ...peopleList } = state.peopleList;
+			return {
+				...state,
+				fullPeople,
+				peopleList
+			};
 
 		default:
 			return state;
