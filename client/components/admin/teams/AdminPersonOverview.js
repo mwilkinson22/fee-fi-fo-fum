@@ -230,7 +230,11 @@ class AdminPersonOverview extends BasicForm {
 							{
 								name: "isReferee",
 								type: "Boolean",
-								readOnly: person && person.isReferee
+								readOnly:
+									person &&
+									person.isReferee &&
+									person.reffedGames &&
+									person.reffedGames.length
 							}
 						];
 

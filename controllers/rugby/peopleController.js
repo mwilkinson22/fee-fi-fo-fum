@@ -105,6 +105,11 @@ export async function getPerson(req, res) {
 		person.playerStatYears = await getPlayingYears(id);
 	}
 
+	//Get Reffed Games
+	if (person.isReferee) {
+		person.reffedGames = await getReffedGames(id);
+	}
+
 	res.send(person);
 }
 
