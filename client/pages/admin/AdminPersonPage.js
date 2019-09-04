@@ -92,7 +92,7 @@ class AdminTeamPage extends Component {
 		if (person === undefined || isLoading) {
 			return <LoadingPage />;
 		} else if (!person) {
-			return <NotFoundPage message="Team not found" />;
+			return <NotFoundPage message="Person not found" />;
 		} else {
 			return (
 				<div className="admin-person-page admin-page">
