@@ -50,7 +50,8 @@ class AdminPersonOverview extends BasicForm {
 			isPlayer: Yup.boolean().label("Player"),
 			isCoach: Yup.boolean().label("Coach"),
 			isReferee: Yup.boolean().label("Referee"),
-			image: Yup.string().label("Image")
+			image: Yup.string().label("Image"),
+			description: Yup.string().label("Description")
 		});
 
 		this.state = {
@@ -109,7 +110,8 @@ class AdminPersonOverview extends BasicForm {
 			image: "",
 			isPlayer: false,
 			isCoach: false,
-			isReferee: false
+			isReferee: false,
+			description: ""
 		};
 
 		if (person) {
@@ -123,6 +125,8 @@ class AdminPersonOverview extends BasicForm {
 							return person[key].toString("yyyy-MM-dd");
 						case "name":
 							return _.pick(person[key], ["first", "last"]);
+						case "description":
+							return person[key].join("\n");
 						default:
 							return person[key];
 					}
@@ -147,6 +151,8 @@ class AdminPersonOverview extends BasicForm {
 				}
 
 				switch (key) {
+					case "description":
+						return _.filter(val.split("\n"), _.identity);
 					case "_hometown":
 					case "_represents":
 						return val.value;
@@ -213,6 +219,10 @@ class AdminPersonOverview extends BasicForm {
 								type: "Select",
 								isClearable: true,
 								options: options._represents
+							},
+							{
+								name: "description",
+								type: "textarea"
 							}
 						];
 
