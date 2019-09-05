@@ -11,6 +11,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 
 //Pages
 import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
+import AdminPlayerDetails from "~/client/components/admin/teams/AdminPlayerDetails";
 
 //Actions
 import { fetchPeopleList, fetchPerson } from "../../actions/peopleActions";
@@ -52,19 +53,22 @@ class AdminTeamPage extends Component {
 	}
 
 	getSubmenu() {
-		const { slug } = this.state.person;
-		const submenuItems = {
-			Overview: ""
-		};
-		const submenu = _.map(submenuItems, (url, title) => {
+		const { person } = this.state;
+
+		const submenuItems = [{ label: "Overview", slug: "" }];
+		if (person.isPlayer) {
+			submenuItems.push({ label: "Player Details", slug: "player" });
+		}
+
+		const submenu = submenuItems.map(({ label, slug }) => {
 			return (
 				<NavLink
-					key={url}
-					exact={url.length === 0}
-					to={`/admin/people/${slug}/${url}`}
+					key={slug}
+					exact={slug.length === 0}
+					to={`/admin/people/${person.slug}/${slug}`}
 					activeClassName="active"
 				>
-					{title}
+					{label}
 				</NavLink>
 			);
 		});
@@ -80,6 +84,7 @@ class AdminTeamPage extends Component {
 			<div>
 				<HelmetBuilder title={this.state.person.name.full} />
 				<Switch>
+					<Route path="/admin/people/:slug/player" component={AdminPlayerDetails} />
 					<Route path="/admin/people/:slug" exact component={AdminPersonOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>

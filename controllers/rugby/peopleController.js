@@ -130,7 +130,10 @@ export async function updatePerson(req, res) {
 	const person = await validatePerson(id, res);
 
 	if (person) {
-		await person.updateOne(req.body);
+		const values = _.mapValues(req.body, val => {
+			return val === "" ? null : val;
+		});
+		await person.updateOne(values);
 
 		await getPerson(req, res);
 	}

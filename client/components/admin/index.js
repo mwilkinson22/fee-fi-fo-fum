@@ -99,7 +99,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/news/" exact component={AdminNewsList} />
 
 					<Route path="/admin/people/new" exact component={AdminNewPersonPage} />
-					<Route path="/admin/people/:slug" exact component={AdminPersonPage} />
+					<Route path="/admin/people/:slug" component={AdminPersonPage} />
 					<Route path="/admin/people/" exact component={AdminPersonList} />
 
 					<Route path="/admin/social/new" exact component={AdminSocialPage} />
