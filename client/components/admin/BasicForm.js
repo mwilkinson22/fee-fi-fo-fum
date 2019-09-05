@@ -126,6 +126,8 @@ export default class BasicForm extends Component {
 							{...mainProps}
 						/>
 					);
+				case "textarea":
+					return <textarea className="form-textarea" rows={10} {...mainProps} />;
 				default:
 					return <input {...mainProps} type={type} />;
 			}

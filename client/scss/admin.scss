@@ -68,12 +68,20 @@
 		}
 	}
 
-	input {
+	input,
+	.form-textarea {
+		font-family: inherit;
 		padding: 2pt 4pt;
 		font-size: 12pt;
 		outline: none;
-		border: none;
-		border-bottom: solid thin #ddd;
+		border: solid thin #ddd;
+		resize: vertical;
+	}
+
+	input {
+		border-top: none;
+		border-left: none;
+		border-right: none;
 
 		&[type="color"] {
 			padding: 0 1pt;
