@@ -17,9 +17,11 @@ import playerPositions from "~/constants/playerPositions";
 class AdminPlayerDetails extends BasicForm {
 	constructor(props) {
 		super(props);
-
 		const validationSchema = Yup.object().shape({
-			contractedUntil: Yup.number().label("Contracted Until"),
+			contractedUntil: Yup.number()
+				.min(1895)
+				.max(Number(new Date().getFullYear()) + 20)
+				.label("Contracted Until"),
 			position1: Yup.mixed().label("Main Position"),
 			position2: Yup.mixed().label("Secondary Position"),
 			position3: Yup.mixed().label("Third Position"),
