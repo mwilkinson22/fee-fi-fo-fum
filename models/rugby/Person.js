@@ -21,7 +21,7 @@ const personSchema = new Schema(
 		instagram: { type: String, default: null },
 		slug: { type: String, unique: true, required: true },
 		image: { type: String, default: null },
-		description: { type: String, default: null },
+		description: [{ type: String, default: null }],
 		_sponsor: { type: Schema.Types.ObjectId, ref: "sponsors", default: null },
 
 		//Players

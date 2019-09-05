@@ -2,7 +2,6 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import LoadingPage from "../components/LoadingPage";
-import Parser from "html-react-parser";
 import { layoutImagePath } from "../extPaths";
 import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
@@ -198,7 +197,9 @@ class PersonPage extends Component {
 		if (person.description) {
 			return (
 				<div className="description" key="description">
-					{Parser(person.description)}
+					{person.description.map(para => (
+						<p>{para}</p>
+					))}
 				</div>
 			);
 		} else {
