@@ -54,8 +54,7 @@ class AdminGameSquads extends Component {
 							_id: squadMember._player._id,
 							number: squadMember.number,
 							name,
-							mainPosition: squadMember._player.playerDetails.mainPosition,
-							otherPositions: squadMember._player.playerDetails.otherPositions,
+							playingPositions: squadMember._player.playingPositions,
 							inPregame: Boolean(
 								_.find(availablePlayers, p => p == squadMember._player._id)
 							),

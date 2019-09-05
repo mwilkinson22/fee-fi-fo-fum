@@ -70,7 +70,7 @@ const teamSchema = new Schema({
 teamSchema.query.fullTeam = function() {
 	return this.populate({
 		path: "squads.players._player",
-		select: "name position playerDetails slug isPlayer isCoach image twitter gender"
+		select: "name position playingPositions slug isPlayer isCoach image twitter gender"
 	});
 };
 

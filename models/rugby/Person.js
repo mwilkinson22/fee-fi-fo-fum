@@ -26,11 +26,8 @@ const personSchema = new Schema(
 		isPlayer: { type: Boolean, default: false },
 		isCoach: { type: Boolean, default: false },
 		isReferee: { type: Boolean, default: false },
-		playerDetails: {
-			contractEnds: { type: Number, default: null },
-			mainPosition: { type: String, enum: positionEnums },
-			otherPositions: [{ type: String, enum: positionEnums }]
-		},
+		contractedUntil: { type: Number, default: null },
+		playingPositions: [{ type: String, default: null, enum: positionEnums }],
 		coachDetails: [
 			{
 				_team: { type: Schema.Types.ObjectId, ref: "teams", required: true },

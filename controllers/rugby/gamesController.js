@@ -103,7 +103,7 @@ async function addEligiblePlayers(games) {
 	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
 		path: "squads.players._player",
 		select:
-			"name playerDetails nickname displayNicknameInCanvases squadNameWhenDuplicate image slug gender _sponsor twitter",
+			"name playingPositions nickname displayNicknameInCanvases squadNameWhenDuplicate image slug gender _sponsor twitter",
 		populate: {
 			path: "_sponsor",
 			select: "name twitter"

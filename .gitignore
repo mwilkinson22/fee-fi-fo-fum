@@ -5,7 +5,6 @@ node_modules
 .idea
 
 config/dev.js
-routes/dataImport
 
 build
 public

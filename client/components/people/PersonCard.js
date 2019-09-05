@@ -25,10 +25,10 @@ export default class PersonCard extends Component {
 		} else {
 			switch (personType) {
 				case "player":
-					if (person.playerDetails.mainPosition) {
+					if (person.playingPositions && person.playingPositions.length) {
 						this.additionalData = (
 							<div className="additional-data positions">
-								{playerPositions[person.playerDetails.mainPosition].name}
+								{playerPositions[person.playingPositions[0]].name}
 							</div>
 						);
 					}

@@ -57,14 +57,9 @@ class SquadSelectorCard extends Component {
 
 		if (position === undefined) {
 			//Available menu
-			const { mainPosition, otherPositions } = squadMember;
-			let positions = [mainPosition];
-			if (otherPositions) {
-				positions.push(...otherPositions);
-			}
-			positions = _.filter(positions, _.identity);
-			if (positions.length) {
-				return <span>{positions.join(", ")}</span>;
+			const { playingPositions } = squadMember;
+			if (playingPositions && playingPositions.length) {
+				return <span>{playingPositions.join(", ")}</span>;
 			} else {
 				return null;
 			}
@@ -122,8 +117,7 @@ SquadSelectorCard.propTypes = {
 		inPregame: PropTypes.bool.isRequired,
 		number: PropTypes.number,
 		name: PropTypes.string.isRequired,
-		mainPosition: PropTypes.string,
-		otherPositions: PropTypes.arrayOf(PropTypes.string)
+		playingPositions: PropTypes.arrayOf(PropTypes.string)
 	}).isRequired,
 	teamColours: PropTypes.shape({
 		main: PropTypes.array,

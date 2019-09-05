@@ -81,19 +81,14 @@ class PersonPage extends Component {
 
 	getPositions() {
 		const { person } = this.state;
-		if (person.isPlayer) {
-			const { mainPosition, otherPositions } = person.playerDetails;
-			const allPositions = _.chain(mainPosition)
-				.concat(otherPositions)
-				.filter(_.identity)
-				.map(position => {
-					return (
-						<div key={position} className="position">
-							{playerPositions[position].name}
-						</div>
-					);
-				})
-				.value();
+		if (person.isPlayer && person.playingPositions && person.playingPositions.length) {
+			const allPositions = person.playingPositions.map(position => {
+				return (
+					<div key={position} className="position">
+						{playerPositions[position].name}
+					</div>
+				);
+			});
 			return <div className="positions">{allPositions}</div>;
 		} else {
 			return null;
@@ -116,7 +111,7 @@ class PersonPage extends Component {
 
 	getInfoTable() {
 		const { person } = this.state;
-		const { playerDetails, dateOfBirth, nickname, _hometown, _represents, _sponsor } = person;
+		const { contractedUntil, dateOfBirth, nickname, _hometown, _represents, _sponsor } = person;
 		const data = {};
 		if (dateOfBirth) {
 			const today = new Date();
@@ -138,8 +133,8 @@ class PersonPage extends Component {
 			data["Represents"] = _represents.name;
 		}
 
-		if (playerDetails.contractEnds && playerDetails.contractEnds >= new Date().getFullYear()) {
-			data["Contracted Until"] = playerDetails.contractEnds;
+		if (contractedUntil && contractedUntil >= new Date().getFullYear()) {
+			data["Contracted Until"] = contractedUntil;
 		}
 
 		if (_sponsor) {

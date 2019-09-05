@@ -84,7 +84,7 @@ async function getReffedGames(_id) {
 export async function getList(req, res) {
 	const people = await Person.find(
 		{},
-		"name isPlayer isCoach isReferee playerDetails coachDetails slug image gender twitter"
+		"name isPlayer isCoach isReferee playingPositions coachDetails slug image gender twitter"
 	).lean();
 	const { list, slugMap } = await getListsAndSlugs(people, collectionName);
 	res.send({ peopleList: list, slugMap });
