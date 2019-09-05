@@ -36,12 +36,10 @@ const personSchema = new Schema(
 				to: { type: Date, default: null }
 			}
 		],
-		refereeDetails: [
-			{
-				from: { type: Date, required: true },
-				to: { type: Date, default: null }
-			}
-		],
+		refereeDetails: {
+			from: { type: Date, default: null },
+			to: { type: Date, default: null }
+		},
 		additionalPlayerStats: [
 			{
 				_team: { type: Schema.Types.ObjectId, ref: "teams" },
