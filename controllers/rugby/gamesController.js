@@ -583,8 +583,6 @@ export async function setMotm(req, res) {
 
 //Crawlers
 export async function fetchExternalGame(req, res) {
-	const Person = mongoose.model("people");
-	await Person.updateMany({}, { $unset: { rflSiteId: 1 } }, { multi: true, $multi: true });
 	const { _id } = req.params;
 	const game = await validateGame(_id, res, Game.findById(_id).crawl());
 	if (game) {
