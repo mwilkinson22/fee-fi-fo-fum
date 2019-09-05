@@ -12,6 +12,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 //Pages
 import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
 import AdminPlayerDetails from "~/client/components/admin/teams/AdminPlayerDetails";
+import AdminRefereeDetails from "~/client/components/admin/teams/AdminRefereeDetails";
 
 //Actions
 import { fetchPeopleList, fetchPerson } from "../../actions/peopleActions";
@@ -59,6 +60,9 @@ class AdminTeamPage extends Component {
 		if (person.isPlayer) {
 			submenuItems.push({ label: "Player Details", slug: "player" });
 		}
+		if (person.isReferee) {
+			submenuItems.push({ label: "Referee Details", slug: "referee" });
+		}
 
 		const submenu = submenuItems.map(({ label, slug }) => {
 			return (
@@ -84,6 +88,7 @@ class AdminTeamPage extends Component {
 			<div>
 				<HelmetBuilder title={this.state.person.name.full} />
 				<Switch>
+					<Route path="/admin/people/:slug/referee" component={AdminRefereeDetails} />
 					<Route path="/admin/people/:slug/player" component={AdminPlayerDetails} />
 					<Route path="/admin/people/:slug" exact component={AdminPersonOverview} />
 					<Route path="/" component={NotFoundPage} />
