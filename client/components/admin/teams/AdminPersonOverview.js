@@ -9,6 +9,7 @@ import * as Yup from "yup";
 //Actions
 import { fetchCities, fetchCountries } from "~/client/actions/locationActions";
 import { updatePerson, createPerson, deletePerson } from "~/client/actions/peopleActions";
+import { fetchSponsors } from "~/client/actions/sponsorActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -19,7 +20,14 @@ class AdminPersonOverview extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const { cities, fetchCities, countries, fetchCountries } = props;
+		const {
+			cities,
+			fetchCities,
+			countries,
+			fetchCountries,
+			sponsorList,
+			fetchSponsors
+		} = props;
 
 		if (!cities) {
 			fetchCities();
@@ -27,6 +35,10 @@ class AdminPersonOverview extends BasicForm {
 
 		if (!countries) {
 			fetchCountries();
+		}
+
+		if (!sponsorList) {
+			fetchSponsors();
 		}
 
 		const validationSchema = Yup.object().shape({
@@ -39,7 +51,7 @@ class AdminPersonOverview extends BasicForm {
 					.label("Last Name")
 			}),
 			nickname: Yup.string().label("Nickname"),
-			gender: Yup.mixed()
+			gender: Yup.string()
 				.required()
 				.label("Gender"),
 			dateOfBirth: Yup.date().label("Date of Birth"),
@@ -51,7 +63,8 @@ class AdminPersonOverview extends BasicForm {
 			isCoach: Yup.boolean().label("Coach"),
 			isReferee: Yup.boolean().label("Referee"),
 			image: Yup.string().label("Image"),
-			description: Yup.string().label("Description")
+			description: Yup.string().label("Description"),
+			_sponsor: Yup.mixed().label("Sponsor")
 		});
 
 		this.state = {
@@ -60,25 +73,38 @@ class AdminPersonOverview extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPeople, slugMap, match, countries, cities } = nextProps;
+		const { fullPeople, slugMap, match, countries, cities, sponsorList } = nextProps;
 
 		const newState = {
 			isNew: !(match && match.params.slug),
 			isLoading: false
 		};
 
-		if (!countries || !cities) {
+		if (!countries || !cities || !sponsorList) {
 			newState.isLoading = true;
 			return newState;
 		}
 
 		if (!prevState.options) {
 			newState.options = {
-				_hometown: _.map(cities, c => ({
-					label: `${c.name}, ${c._country.name}`,
-					value: c._id
-				})),
-				_represents: _.map(countries, ({ name, _id }) => ({ label: name, value: _id }))
+				_hometown: _.chain(cities)
+					.map(c => ({
+						label: `${c.name}, ${c._country.name}`,
+						value: c._id
+					}))
+					.sortBy("label")
+					.value(),
+				_represents: _.chain(countries)
+					.map(({ name, _id }) => ({
+						label: name,
+						value: _id
+					}))
+					.sortBy("label")
+					.value(),
+				_sponsor: _.chain(sponsorList)
+					.map(({ name, _id }) => ({ label: name, value: _id }))
+					.sortBy("label")
+					.value()
 			};
 		}
 
@@ -111,7 +137,8 @@ class AdminPersonOverview extends BasicForm {
 			isPlayer: false,
 			isCoach: false,
 			isReferee: false,
-			description: ""
+			description: "",
+			_sponsor: ""
 		};
 
 		if (person) {
@@ -120,6 +147,7 @@ class AdminPersonOverview extends BasicForm {
 					switch (key) {
 						case "_hometown":
 						case "_represents":
+						case "_sponsor":
 							return options[key].find(o => o.value == person[key]._id);
 						case "dateOfBirth":
 							return person[key].toString("yyyy-MM-dd");
@@ -155,6 +183,7 @@ class AdminPersonOverview extends BasicForm {
 						return _.filter(val.split("\n"), _.identity);
 					case "_hometown":
 					case "_represents":
+					case "_sponsor":
 						return val.value;
 					default:
 						return val;
@@ -219,6 +248,12 @@ class AdminPersonOverview extends BasicForm {
 								type: "Select",
 								isClearable: true,
 								options: options._represents
+							},
+							{
+								name: "_sponsor",
+								type: "Select",
+								isClearable: true,
+								options: options._sponsor
 							},
 							{
 								name: "description",
@@ -299,13 +334,14 @@ class AdminPersonOverview extends BasicForm {
 }
 
 //Add Redux Support
-function mapStateToProps({ people, locations }) {
+function mapStateToProps({ people, locations, sponsors }) {
 	const { fullPeople, slugMap } = people;
 	const { cities, countries } = locations;
-	return { fullPeople, slugMap, cities, countries };
+	const { sponsorList } = sponsors;
+	return { fullPeople, slugMap, cities, countries, sponsorList };
 }
 // export default form;
 export default connect(
 	mapStateToProps,
-	{ fetchCities, fetchCountries, updatePerson, createPerson, deletePerson }
+	{ fetchCities, fetchCountries, updatePerson, createPerson, deletePerson, fetchSponsors }
 )(AdminPersonOverview);
