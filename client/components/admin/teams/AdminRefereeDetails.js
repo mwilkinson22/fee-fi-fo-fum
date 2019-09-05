@@ -43,7 +43,9 @@ class AdminRefereeDetails extends BasicForm {
 			to: ""
 		};
 		return _.mapValues(defaults, (val, key) =>
-			refereeDetails[key] ? new Date(refereeDetails[key]).toString("yyyy-MM-dd") : ""
+			refereeDetails && refereeDetails[key]
+				? new Date(refereeDetails[key]).toString("yyyy-MM-dd")
+				: ""
 		);
 	}
 
@@ -55,7 +57,6 @@ class AdminRefereeDetails extends BasicForm {
 	}
 
 	render() {
-		console.log(this.getDefaults());
 		return (
 			<div className="container">
 				<Formik
