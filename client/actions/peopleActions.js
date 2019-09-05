@@ -9,14 +9,14 @@ export const fetchPeopleList = () => async (dispatch, getState, api) => {
 export const createPerson = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/people/`, data);
 	dispatch({ type: FETCH_PERSON, payload: res.data });
-	toast.success("Player updated");
+	toast.success("Person created");
 	return res.data.slug;
 };
 
 export const updatePerson = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/people/${id}`, data);
 	dispatch({ type: FETCH_PERSON, payload: res.data });
-	toast.success("Player updated");
+	toast.success("Person Updated");
 };
 
 export const deletePerson = (id, onSuccess) => async (dispatch, getState, api) => {
