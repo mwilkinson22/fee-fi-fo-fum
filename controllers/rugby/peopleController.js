@@ -69,6 +69,31 @@ async function getPlayingYears(id) {
 		.value();
 }
 
+async function getPlayedGames(_id) {
+	const playedGames = await Game.find(
+		{
+			$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }]
+		},
+		"playerStats._player playerStats._team pregameSquads"
+	).lean();
+
+	return playedGames.map(game => {
+		const playerStatEntry = game.playerStats.find(({ _player }) => _player == _id);
+		const pregameOnly = !playerStatEntry;
+
+		let forLocalTeam;
+		if (pregameOnly) {
+			forLocalTeam = Boolean(
+				game.pregameSquads.find(s => s._team == localTeam).squad.find(p => p == _id)
+			);
+		} else {
+			forLocalTeam = playerStatEntry._team == localTeam;
+		}
+
+		return { _id: game._id, pregameOnly, forLocalTeam };
+	});
+}
+
 async function getReffedGames(_id) {
 	const reffedGames = await Game.find(
 		{
@@ -103,6 +128,11 @@ export async function getPerson(req, res) {
 	//Get Stat Years
 	if (person.isPlayer) {
 		person.playerStatYears = await getPlayingYears(id);
+	}
+
+	//Get Played Games
+	if (person.isPlayer) {
+		person.playedGames = await getPlayedGames(id);
 	}
 
 	//Get Reffed Games
