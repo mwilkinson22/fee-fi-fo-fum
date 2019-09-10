@@ -220,8 +220,8 @@ class PersonPage extends Component {
 		if (person.description) {
 			return (
 				<div className="description" key="description">
-					{person.description.map(para => (
-						<p>{para}</p>
+					{person.description.map((para, i) => (
+						<p key={i}>{para}</p>
 					))}
 				</div>
 			);
