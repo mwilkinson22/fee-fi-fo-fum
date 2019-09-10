@@ -22,28 +22,12 @@ import TeamImage from "../teams/TeamImage";
 class PlayerStatSection extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, fetchGameList } = props;
-
-		if (!gameList) {
-			fetchGameList();
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { gameList, fullGames, teamTypes, fetchGames, person } = nextProps;
+		const { playedGames, fullGames, teamTypes, fetchGames, person } = nextProps;
 		const newState = { isLoading: false };
-
-		if (!gameList) {
-			newState.isLoading = true;
-			return newState;
-		}
-
-		//Pull played games from gameList
-		const playedGames = person.playedGames
-			.filter(g => !g.pregameOnly && g.forLocalTeam)
-			.map(g => gameList[g._id]);
 
 		//Get all active years
 		let { years } = prevState;
@@ -390,5 +374,5 @@ function mapStateToProps({ config, games, teams }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchGameList, fetchGames }
+	{ fetchGames }
 )(PlayerStatSection);

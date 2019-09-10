@@ -9,7 +9,6 @@ const Game = mongoose.model("games");
 
 //Constants
 const { localTeam } = require("../../config/keys");
-const { earliestGiantsData } = require("../../config/keys");
 
 //Helpers
 import { getListsAndSlugs } from "../genericController";
@@ -31,8 +30,7 @@ async function validatePerson(_id, res) {
 async function getPlayedGames(_id) {
 	const playedGames = await Game.find(
 		{
-			$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }],
-			date: { $gte: new Date(`${earliestGiantsData}-01-01`) }
+			$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }]
 		},
 		"playerStats._player playerStats._team pregameSquads"
 	).lean();

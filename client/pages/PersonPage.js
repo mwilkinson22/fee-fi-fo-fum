@@ -11,21 +11,26 @@ import NotFoundPage from "./NotFoundPage";
 import { Redirect } from "react-router-dom";
 import playerPositions from "~/constants/playerPositions";
 import PlayerStatSection from "../components/people/PlayerStatSection";
+const { earliestGiantsData } = require("~/config/keys");
 
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { slugMap, fetchPeopleList } = props;
+		const { slugMap, fetchPeopleList, gameList, fetchGameList } = props;
 
 		if (!slugMap) {
 			fetchPeopleList();
+		}
+
+		if (!gameList) {
+			fetchGameList();
 		}
 
 		this.state = { activeFilters: {} };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { slugMap, fullPeople, fetchPerson, match } = nextProps;
+		const { gameList, slugMap, fullPeople, fetchPerson, match } = nextProps;
 		const newState = {};
 
 		if (slugMap) {
@@ -194,8 +199,19 @@ class PersonPage extends Component {
 
 	getPlayerStatsSection() {
 		const { person } = this.state;
-		if (person.playedGames.filter(g => !g.pregameOnly && g.forLocalTeam).length) {
-			return <PlayerStatSection person={person} />;
+		const { gameList } = this.props;
+
+		if (!gameList) {
+			return <LoadingPage />;
+		}
+
+		const playedGames = person.playedGames
+			.filter(g => !g.pregameOnly && g.forLocalTeam)
+			.map(g => gameList[g._id])
+			.filter(g => Number(g.date.getFullYear()) >= earliestGiantsData);
+
+		if (playedGames.length) {
+			return <PlayerStatSection person={person} playedGames={playedGames} />;
 		}
 	}
 
@@ -261,9 +277,10 @@ class PersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ people }) {
+function mapStateToProps({ games, people }) {
+	const { gameList } = games;
 	const { slugMap, fullPeople } = people;
-	return { slugMap, fullPeople };
+	return { gameList, slugMap, fullPeople };
 }
 
 async function loadData(store, path) {
