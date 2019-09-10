@@ -219,6 +219,15 @@ export async function deletePerson(req, res) {
 			);
 		}
 
+		//Check for played games
+		const playedGames = await getPlayedGames(_id);
+		if (playedGames.length) {
+			errors.push(
+				`a player in ${playedGames.length} ${playedGames.length === 1 ? "game" : "games"}`
+			);
+			toLog.playedGames = playedGames;
+		}
+
 		//Check for reffed games
 		const reffedGames = await getReffedGames(_id);
 		if (reffedGames.length) {
