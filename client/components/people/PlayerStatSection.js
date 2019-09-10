@@ -33,54 +33,80 @@ class PlayerStatSection extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { gameList, fullGames, teamTypes, fetchGames, person } = nextProps;
-		const { playerStatYears } = person;
-		const newState = {};
-		if (gameList) {
-			//Years for selector
-			newState.years = _.chain(playerStatYears)
-				.keys()
+		const newState = { isLoading: false };
+
+		if (!gameList) {
+			newState.isLoading = true;
+			return newState;
+		}
+
+		//Pull played games from gameList
+		const playedGames = person.playedGames
+			.filter(g => !g.pregameOnly && g.forLocalTeam)
+			.map(g => gameList[g._id]);
+
+		//Get all active years
+		let { years } = prevState;
+		if (!years) {
+			years = _.chain(playedGames)
+				.map(g => g.date.getFullYear())
+				.uniq()
 				.sort()
 				.reverse()
 				.value();
+			newState.years = years;
+		}
 
-			//Active year
-			newState.year = prevState.year || _.max(newState.years);
+		//Active year
+		newState.year = prevState.year || _.max(years);
 
-			//Team Types for active year
-			newState.teamTypes = _.chain(playerStatYears[newState.year])
-				.map(id => teamTypes[id])
-				.sortBy("sortOrder")
-				.value();
+		//This year's games
+		const playedGamesThisYear = playedGames.filter(game =>
+			validateGameDate(game, "results", newState.year)
+		);
 
-			//Active Team Type
-			newState.teamType = prevState.teamType || newState.teamTypes[0]._id;
+		//On year change (or on initial load), reset the team types
+		let { teamType } = prevState;
+		newState.teamTypes = _.chain(playedGamesThisYear)
+			.uniqBy(g => g._teamType)
+			.map(g => teamTypes[g._teamType])
+			.sortBy("sortOrder")
+			.value();
 
-			//Get Games
-			const gameIds = _.chain(gameList)
-				.filter(game => {
-					return game._teamType === newState.teamType;
+		//Check if last active team type is in the new list
+		if (!newState.teamTypes.find(t => t._id == teamType)) {
+			//If not, just pull the first from the list
+			teamType = newState.teamTypes[0]._id;
+		}
+
+		//And assign it to state
+		newState.teamType = teamType;
+
+		//Get Required Game Ids
+		const gameIds = _.chain(playedGamesThisYear)
+			.filter(game => {
+				return game._teamType == teamType;
+			})
+			.map(game => game._id)
+			.value();
+
+		//Work out games to load
+		const gamesToLoad = _.filter(gameIds, id => fullGames[id] === undefined);
+		if (gamesToLoad.length) {
+			fetchGames(gamesToLoad);
+			newState.games = undefined;
+		} else {
+			newState.games = _.chain(gameIds)
+				.map(id => fullGames[id])
+				.filter({ playerStats: [{ _player: person._id }], squadsAnnounced: true })
+				.cloneDeep()
+				.map(game => {
+					game.playerStats = _.filter(game.playerStats, stats => {
+						return stats._player == person._id;
+					});
+					return game;
 				})
-				.filter(game => validateGameDate(game, "results", newState.year))
-				.map(game => game._id)
 				.value();
-
-			const gamesToLoad = _.filter(gameIds, id => fullGames[id] === undefined);
-			if (gamesToLoad.length) {
-				fetchGames(gamesToLoad);
-				newState.games = undefined;
-			} else {
-				newState.games = _.chain(gameIds)
-					.map(id => fullGames[id])
-					.filter({ playerStats: [{ _player: person._id }], squadsAnnounced: true })
-					.cloneDeep()
-					.map(game => {
-						game.playerStats = _.filter(game.playerStats, stats => {
-							return stats._player == person._id;
-						});
-						return game;
-					})
-					.value();
-			}
 		}
 
 		return newState;

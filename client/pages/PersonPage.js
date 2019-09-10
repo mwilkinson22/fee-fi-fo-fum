@@ -192,6 +192,13 @@ class PersonPage extends Component {
 		}
 	}
 
+	getPlayerStatsSection() {
+		const { person } = this.state;
+		if (person.playedGames.filter(g => !g.pregameOnly && g.forLocalTeam).length) {
+			return <PlayerStatSection person={person} />;
+		}
+	}
+
 	getDescription() {
 		const { person } = this.state;
 		if (person.description) {
@@ -247,11 +254,7 @@ class PersonPage extends Component {
 						</div>
 					</section>
 					{this.getPersonDataSection()}
-					{_.keys(person.playerStatYears).length ? (
-						<PlayerStatSection person={person} />
-					) : (
-						""
-					)}
+					{this.getPlayerStatsSection()}
 				</div>
 			);
 		}
