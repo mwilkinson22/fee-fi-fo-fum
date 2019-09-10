@@ -9,15 +9,18 @@ export const getPlayersByYearAndGender = (teamId, year, teamType) => (dispatch, 
 	const players = [];
 
 	//Get the named teamType first
-	const teamTypeSquad = squads.find(s => s.year == year && s._teamType == teamType);
+	const teamTypeSquad = squads.find(s => s.year == year && s._teamType == teamType._id);
 	if (teamTypeSquad) {
 		players.push(...teamTypeSquad.players);
 	}
 
 	//Get Other Teamtypes of same gender
 	const { teamTypes } = getState().teams;
-	const { gender } = teamTypes[teamType];
-	const additionalTeamTypes = _.filter(teamTypes, t => t.gender == gender && t._id != teamType);
+	const { gender } = teamType;
+	const additionalTeamTypes = _.filter(
+		teamTypes,
+		t => t.gender == gender && t._id != teamType._id
+	);
 
 	if (additionalTeamTypes.length) {
 		const additionalPlayers = squads
