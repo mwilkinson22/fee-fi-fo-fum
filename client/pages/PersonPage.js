@@ -1,16 +1,23 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link, Redirect } from "react-router-dom";
+
+//Components
 import LoadingPage from "../components/LoadingPage";
-import { layoutImagePath } from "../extPaths";
-import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
-import { fetchGameList, fetchGames } from "../actions/gamesActions";
+import PlayerStatSection from "../components/people/PlayerStatSection";
 import PersonImage from "../components/people/PersonImage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
-import { Redirect } from "react-router-dom";
+
+//Actions
+import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
+import { fetchGameList, fetchGames } from "../actions/gamesActions";
+
+//Constants
+import { layoutImagePath } from "../extPaths";
 import playerPositions from "~/constants/playerPositions";
-import PlayerStatSection from "../components/people/PlayerStatSection";
 const { earliestGiantsData } = require("~/config/keys");
 
 class PersonPage extends Component {
@@ -30,7 +37,7 @@ class PersonPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { gameList, slugMap, fullPeople, fetchPerson, match } = nextProps;
+		const { slugMap, fullPeople, fetchPerson, match } = nextProps;
 		const newState = {};
 
 		if (slugMap) {
@@ -96,6 +103,21 @@ class PersonPage extends Component {
 			return <div className="positions">{allPositions}</div>;
 		} else {
 			return null;
+		}
+	}
+
+	getEditLink() {
+		const { person } = this.state;
+		const { authUser } = this.props;
+
+		if (authUser) {
+			return (
+				<div className="container">
+					<Link to={`/admin/people/${person.slug}`} className="nav-card">
+						Edit this game
+					</Link>
+				</div>
+			);
 		}
 	}
 
@@ -269,6 +291,7 @@ class PersonPage extends Component {
 							</div>
 						</div>
 					</section>
+					{this.getEditLink()}
 					{this.getPersonDataSection()}
 					{this.getPlayerStatsSection()}
 				</div>
@@ -277,10 +300,11 @@ class PersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ games, people }) {
+function mapStateToProps({ config, games, people }) {
+	const { authUser } = config;
 	const { gameList } = games;
 	const { slugMap, fullPeople } = people;
-	return { gameList, slugMap, fullPeople };
+	return { authUser, gameList, slugMap, fullPeople };
 }
 
 async function loadData(store, path) {
