@@ -268,7 +268,7 @@ class AdminPersonOverview extends BasicForm {
 							{
 								name: "isPlayer",
 								type: fieldTypes.boolean,
-								readOnly: person && person.playedGames.length
+								readOnly: person && person.playedGames && person.playedGames.length
 							},
 							{
 								name: "isCoach",
