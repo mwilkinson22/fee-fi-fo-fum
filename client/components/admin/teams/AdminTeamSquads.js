@@ -16,6 +16,9 @@ import BasicForm from "../BasicForm";
 import Table from "../../Table";
 import AdminTeamSquadBulkAdder from "./AdminTeamSquadBulkAdder";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminTeamSquads extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -99,8 +102,8 @@ class AdminTeamSquads extends BasicForm {
 				.value();
 
 			const fields = [
-				{ name: "year", type: "number" },
-				{ name: "teamType", type: "Select", options }
+				{ name: "year", type: fieldTypes.number },
+				{ name: "teamType", type: fieldTypes.select, options }
 			];
 			return (
 				<Formik

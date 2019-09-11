@@ -11,6 +11,9 @@ import BasicForm from "../BasicForm";
 //Actions
 import { setMotm } from "~/client/actions/gamesActions";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
 
@@ -66,9 +69,9 @@ class AdminGameManOfTheMatch extends BasicForm {
 					validationSchema={this.state.validationSchema}
 					render={() => {
 						const fields = [
-							{ name: "_motm", type: "Select", options: motmOptions },
-							{ name: "_fan_motm", type: "Select", options: fanMotmOptions },
-							{ name: "fan_motm_link", type: "text" }
+							{ name: "_motm", type: fieldTypes.select, options: motmOptions },
+							{ name: "_fan_motm", type: fieldTypes.select, options: fanMotmOptions },
+							{ name: "fan_motm_link", type: fieldTypes.text }
 						];
 
 						return (

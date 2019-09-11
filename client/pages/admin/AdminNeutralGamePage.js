@@ -22,6 +22,9 @@ import {
 } from "../../actions/neutralGamesActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminNeutralGamePage extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -309,27 +312,35 @@ class AdminNeutralGamePage extends BasicForm {
 							render={formikProps => {
 								const options = this.getOptions(formikProps.values);
 								const fields = [
-									{ name: "externalSync", type: "Boolean" },
-									{ name: "externalId", type: "number" },
-									{ name: "date", type: "date" },
-									{ name: "time", type: "time" },
+									{ name: "externalSync", type: fieldTypes.boolean },
+									{ name: "externalId", type: fieldTypes.number },
+									{ name: "date", type: fieldTypes.date },
+									{ name: "time", type: fieldTypes.time },
 									{
 										name: "_teamType",
-										type: "Select",
+										type: fieldTypes.select,
 										disabled: Boolean(game),
 										options: options.teamTypes,
 										clearOnChange: ["_competition"]
 									},
 									{
 										name: "_competition",
-										type: "Select",
+										type: fieldTypes.select,
 										disabled: Boolean(game),
 										options: options.competitions
 									},
-									{ name: "_homeTeam", type: "Select", options: options.teams },
-									{ name: "_awayTeam", type: "Select", options: options.teams },
-									{ name: "homePoints", type: "number" },
-									{ name: "awayPoints", type: "number" }
+									{
+										name: "_homeTeam",
+										type: fieldTypes.select,
+										options: options.teams
+									},
+									{
+										name: "_awayTeam",
+										type: fieldTypes.select,
+										options: options.teams
+									},
+									{ name: "homePoints", type: fieldTypes.number },
+									{ name: "awayPoints", type: fieldTypes.number }
 								];
 
 								return (

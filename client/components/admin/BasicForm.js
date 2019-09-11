@@ -11,6 +11,9 @@ import Radio from "./fields/Radio";
 import ImageField from "./fields/ImageField";
 import TweetComposer from "../TweetComposer";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 export default class BasicForm extends Component {
 	constructor(props) {
 		super(props);
@@ -89,6 +92,10 @@ export default class BasicForm extends Component {
 	renderField(field) {
 		const { label, type, name, disableFastField, ...props } = field;
 
+		if (!_.find(fieldTypes, t => t == type)) {
+			throw new Error(`Invalid field type supplied to renderField: ${type}`);
+		}
+
 		//Get Render Method
 		const render = formikProps => {
 			//Update default onChange method for custom Select component
@@ -107,17 +114,17 @@ export default class BasicForm extends Component {
 			};
 			//Get the final component
 			switch (type) {
-				case "Boolean":
+				case fieldTypes.boolean:
 					return <BooleanField {...mainProps} />;
-				case "Radio":
+				case fieldTypes.radio:
 					return <Radio {...mainProps} />;
-				case "Select":
+				case fieldTypes.select:
 					return (
 						<Select className="react-select" styles={selectStyling} {...mainProps} />
 					);
-				case "Image":
+				case fieldTypes.image:
 					return <ImageField {...mainProps} />;
-				case "Tweet":
+				case fieldTypes.tweet:
 					return (
 						<TweetComposer
 							initialContent={mainProps.value}
@@ -126,7 +133,7 @@ export default class BasicForm extends Component {
 							{...mainProps}
 						/>
 					);
-				case "textarea":
+				case fieldTypes.textarea:
 					return <textarea className="form-textarea" rows={10} {...mainProps} />;
 				default:
 					return <input {...mainProps} type={type} />;

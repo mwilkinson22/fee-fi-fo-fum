@@ -14,6 +14,9 @@ import { updateTeam, createTeam } from "../../../actions/teamsActions";
 import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminTeamOverview extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -187,19 +190,21 @@ class AdminTeamOverview extends BasicForm {
 		const { groundList, team } = this.state;
 		const { teamTypes } = this.props;
 		const teamFields = [
-			{ name: "name.long", type: "text" },
-			{ name: "name.short", type: "text" },
-			{ name: "nickname", type: "text" },
-			{ name: "hashtagPrefix", type: "text" }
+			{ name: "name.long", type: fieldTypes.text },
+			{ name: "name.short", type: fieldTypes.text },
+			{ name: "nickname", type: fieldTypes.text },
+			{ name: "hashtagPrefix", type: fieldTypes.text }
 		];
 
-		const groundFields = [{ name: "_defaultGround", type: "Select", options: groundList }];
+		const groundFields = [
+			{ name: "_defaultGround", type: fieldTypes.select, options: groundList }
+		];
 		_.chain(teamTypes)
 			.sortBy("sortOrder")
 			.each(({ _id }) => {
 				groundFields.push({
 					name: `_grounds.${_id}`,
-					type: "Select",
+					type: fieldTypes.select,
 					options: groundList,
 					isClearable: true
 				});
@@ -207,24 +212,24 @@ class AdminTeamOverview extends BasicForm {
 			.value();
 
 		const colourFields = [
-			{ name: "colours.main", type: "color" },
-			{ name: "colours.text", type: "color" },
-			{ name: "colours.trim1", type: "color" },
-			{ name: "colours.trim2", type: "color" },
+			{ name: "colours.main", type: fieldTypes.colour },
+			{ name: "colours.text", type: fieldTypes.colour },
+			{ name: "colours.trim1", type: fieldTypes.colour },
+			{ name: "colours.trim2", type: fieldTypes.colour },
 			{
 				name: "colours.customStatBarColour",
-				type: "Boolean",
-				controls: { name: "colours.statBarColour", type: "color" }
+				type: fieldTypes.boolean,
+				controls: { name: "colours.statBarColour", type: fieldTypes.colour }
 			},
 			{
 				name: "colours.customPitchColour",
-				type: "Boolean",
-				controls: { name: "colours.pitchColour", type: "color" }
+				type: fieldTypes.boolean,
+				controls: { name: "colours.pitchColour", type: fieldTypes.colour }
 			}
 		];
 
 		const imageField = {
-			type: "Image",
+			type: fieldTypes.image,
 			path: "images/teams/",
 			acceptSVG: true,
 			defaultUploadName: team ? team.slug : null

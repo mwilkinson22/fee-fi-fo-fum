@@ -10,6 +10,9 @@ import BasicForm from "./BasicForm";
 //Actions
 import { login } from "../../actions/userActions";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class Login extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -27,7 +30,10 @@ class Login extends BasicForm {
 	}
 
 	renderFields() {
-		const fields = [{ name: "username", type: "text" }, { name: "password", type: "password" }];
+		const fields = [
+			{ name: "username", type: fieldTypes.text },
+			{ name: "password", type: fieldTypes.password }
+		];
 
 		return (
 			<Form>

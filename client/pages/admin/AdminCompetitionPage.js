@@ -24,6 +24,7 @@ import {
 
 //Constants
 const competitionTypes = require("~/constants/competitionTypes");
+import * as fieldTypes from "~/constants/formFieldTypes";
 
 class AdminCompetitionPage extends BasicForm {
 	constructor(props) {
@@ -233,20 +234,24 @@ class AdminCompetitionPage extends BasicForm {
 							validationSchema={validationSchema}
 							render={() => {
 								const fields = [
-									{ name: "name", type: "text" },
-									{ name: "type", type: "Select", options: options.type },
-									{ name: "playerLimit", type: "number" },
-									{ name: "useAllSquads", type: "Boolean" },
+									{ name: "name", type: fieldTypes.text },
+									{
+										name: "type",
+										type: fieldTypes.select,
+										options: options.type
+									},
+									{ name: "playerLimit", type: fieldTypes.number },
+									{ name: "useAllSquads", type: fieldTypes.boolean },
 									{
 										name: "webcrawlFormat",
-										type: "Select",
+										type: fieldTypes.select,
 										options: options.webcrawlFormat,
 										isClearable: true,
 										placeholder: "None"
 									},
 									{
 										name: "webcrawlUrl",
-										type: "text"
+										type: fieldTypes.text
 									}
 								];
 

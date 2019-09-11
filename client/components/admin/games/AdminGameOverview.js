@@ -16,6 +16,9 @@ import { addGame, updateGameBasics } from "../../../actions/gamesActions";
 import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminGameOverview extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -347,58 +350,76 @@ class AdminGameOverview extends BasicForm {
 		const mainFields = [
 			{
 				name: "date",
-				type: "date",
+				type: fieldTypes.date,
 				disableFastField: true
 			},
-			{ name: "time", type: "time" },
+			{ name: "time", type: fieldTypes.time },
 			{
 				name: "_teamType",
-				type: "Select",
+				type: fieldTypes.select,
 				options: teamTypes,
 				disableFastField: true,
 				onChange: opt => this.handleDependentFieldChange(formikProps, "_teamType", opt)
 			},
 			{
 				name: "_competition",
-				type: "Select",
+				type: fieldTypes.select,
 				options: competitionSegmentList,
 				disableFastField: true,
 				onChange: opt => this.handleDependentFieldChange(formikProps, "_competition", opt)
 			},
-			{ name: "_opposition", type: "Select", options: teamList, disableFastField: true },
-			{ name: "round", type: "number" }
+			{
+				name: "_opposition",
+				type: fieldTypes.select,
+				options: teamList,
+				disableFastField: true
+			},
+			{ name: "round", type: fieldTypes.number }
 		];
 		const venueFields = [
-			{ name: "isAway", type: "Radio", options: awayOptions },
-			{ name: "_ground", type: "Select", options: groundList }
+			{ name: "isAway", type: fieldTypes.radio, options: awayOptions },
+			{ name: "_ground", type: fieldTypes.select, options: groundList }
 		];
 		const mediaFields = [
-			{ name: "customTitle", type: "text", placeholder: "Auto-generated if left blank" },
-			{ name: "customHashtags", type: "text", placeholder: "Auto-generated if left blank" },
-			{ name: "tv", type: "Radio", options: tvOptions }
+			{
+				name: "customTitle",
+				type: fieldTypes.text,
+				placeholder: "Auto-generated if left blank"
+			},
+			{
+				name: "customHashtags",
+				type: fieldTypes.text,
+				placeholder: "Auto-generated if left blank"
+			},
+			{ name: "tv", type: fieldTypes.radio, options: tvOptions }
 		];
 		const refereeFields = [
-			{ name: "_referee", type: "Select", options: referees, isClearable: true },
-			{ name: "_video_referee", type: "Select", options: referees, isClearable: true }
+			{ name: "_referee", type: fieldTypes.select, options: referees, isClearable: true },
+			{
+				name: "_video_referee",
+				type: fieldTypes.select,
+				options: referees,
+				isClearable: true
+			}
 		];
 		const imageFields = [
 			{
 				name: "images.header",
-				type: "Image",
+				type: fieldTypes.image,
 				path: "images/games/header/",
 				defaultUploadName: game ? game.slug : "",
 				acceptSVG: false
 			},
 			{
 				name: "images.midpage",
-				type: "Image",
+				type: fieldTypes.image,
 				path: "images/games/midpage/",
 				defaultUploadName: game ? game.slug : "",
 				acceptSVG: false
 			},
 			{
 				name: "images.customLogo",
-				type: "Image",
+				type: fieldTypes.image,
 				path: "images/games/logo/",
 				defaultUploadName: game ? game.slug : ""
 			}
@@ -407,8 +428,8 @@ class AdminGameOverview extends BasicForm {
 		let scoreOverrideSection;
 		if (game) {
 			let scoreOverrideFields = [
-				{ name: `scoreOverride.${localTeam}`, type: "number" },
-				{ name: `scoreOverride.${game._opposition._id}`, type: "number" }
+				{ name: `scoreOverride.${localTeam}`, type: fieldTypes.number },
+				{ name: `scoreOverride.${game._opposition._id}`, type: fieldTypes.number }
 			];
 			if (game.isAway) {
 				scoreOverrideFields = scoreOverrideFields.reverse();
@@ -422,8 +443,8 @@ class AdminGameOverview extends BasicForm {
 		let postGameSection;
 		if (game && game.status > 1) {
 			const postGameFields = [
-				{ name: "attendance", type: "number" },
-				{ name: "extraTime", type: "Boolean" }
+				{ name: "attendance", type: fieldTypes.number },
+				{ name: "extraTime", type: fieldTypes.boolean }
 			];
 			postGameSection = [
 				<h6 key="header">Post-Match</h6>,

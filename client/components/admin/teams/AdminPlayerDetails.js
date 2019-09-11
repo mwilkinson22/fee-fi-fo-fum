@@ -13,6 +13,7 @@ import BasicForm from "../BasicForm";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
+import * as fieldTypes from "~/constants/formFieldTypes";
 
 class AdminPlayerDetails extends BasicForm {
 	constructor(props) {
@@ -121,26 +122,26 @@ class AdminPlayerDetails extends BasicForm {
 						const mainFields = [
 							{
 								name: "position1",
-								type: "Select",
+								type: fieldTypes.select,
 								isClearable: true,
 								options: positions
 							},
 							{
 								name: "position2",
-								type: "Select",
+								type: fieldTypes.select,
 								isClearable: true,
 								options: positions
 							},
 							{
 								name: "position3",
-								type: "Select",
+								type: fieldTypes.select,
 								isClearable: true,
 								options: positions
 							},
-							{ name: "contractedUntil", type: "number" },
-							{ name: "displayNicknameInCanvases", type: "Boolean" },
-							{ name: "squadNameWhenDuplicate", type: "text" },
-							{ name: "externalName", type: "text" }
+							{ name: "contractedUntil", type: fieldTypes.number },
+							{ name: "displayNicknameInCanvases", type: fieldTypes.boolean },
+							{ name: "squadNameWhenDuplicate", type: fieldTypes.text },
+							{ name: "externalName", type: fieldTypes.text }
 						];
 
 						return (

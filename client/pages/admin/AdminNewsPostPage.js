@@ -29,6 +29,7 @@ import { fetchGameList } from "~/client/actions/gamesActions";
 
 //Constants
 import newsCategories from "~/constants/newsCategories";
+import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
 import { convertToEditorState } from "~/helpers/newsHelper";
@@ -38,14 +39,7 @@ class AdminNewsPostPage extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const {
-			postList,
-			fetchPostList,
-			userList,
-			fetchUserList,
-			gameList,
-			fetchGameList
-		} = props;
+		const { postList, fetchPostList, userList, fetchUserList, gameList, fetchGameList } = props;
 
 		if (!postList) {
 			fetchPostList();
@@ -83,14 +77,7 @@ class AdminNewsPostPage extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			fullPosts,
-			match,
-			slugMap,
-			fetchNewsPost,
-			userList,
-			gameList
-		} = nextProps;
+		const { fullPosts, match, slugMap, fetchNewsPost, userList, gameList } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
@@ -284,17 +271,21 @@ class AdminNewsPostPage extends BasicForm {
 							onSubmit={values => this.handleSubmit(values)}
 							render={formikProps => {
 								const mainFields = [
-									{ name: "title", type: "text" },
-									{ name: "subtitle", type: "text" },
-									{ name: "_author", type: "Select", options: users },
-									{ name: "category", type: "Select", options: categories },
-									{ name: "slug", type: "text" }
+									{ name: "title", type: fieldTypes.text },
+									{ name: "subtitle", type: fieldTypes.text },
+									{ name: "_author", type: fieldTypes.select, options: users },
+									{
+										name: "category",
+										type: fieldTypes.select,
+										options: categories
+									},
+									{ name: "slug", type: fieldTypes.text }
 								];
 								if (!isNew) {
 									mainFields.push(
-										{ name: "isPublished", type: "Boolean" },
-										{ name: "dateCreated", type: "date" },
-										{ name: "timeCreated", type: "time" }
+										{ name: "isPublished", type: fieldTypes.boolean },
+										{ name: "dateCreated", type: fieldTypes.date },
+										{ name: "timeCreated", type: fieldTypes.time }
 									);
 								}
 								return (
@@ -303,7 +294,7 @@ class AdminNewsPostPage extends BasicForm {
 											{this.renderFieldGroup([
 												{
 													name: "image",
-													type: "Image",
+													type: fieldTypes.image,
 													path: "images/news/headers/",
 													acceptSVG: false,
 													defaultUploadName:

@@ -11,6 +11,9 @@ import { updatePerson } from "~/client/actions/peopleActions";
 //Components
 import BasicForm from "../BasicForm";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminRefereeDetails extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -65,8 +68,8 @@ class AdminRefereeDetails extends BasicForm {
 					initialValues={this.getDefaults()}
 					render={() => {
 						const fields = [
-							{ name: "from", type: "date" },
-							{ name: "to", type: "date" }
+							{ name: "from", type: fieldTypes.date },
+							{ name: "to", type: fieldTypes.date }
 						];
 
 						return (

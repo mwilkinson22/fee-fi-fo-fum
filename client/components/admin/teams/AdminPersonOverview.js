@@ -16,6 +16,9 @@ import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 import DeleteButtons from "../fields/DeleteButtons";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminPersonOverview extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -224,13 +227,13 @@ class AdminPersonOverview extends BasicForm {
 					initialValues={this.getDefaults()}
 					render={() => {
 						const mainFields = [
-							{ name: "name.first", type: "text" },
-							{ name: "name.last", type: "text" },
-							{ name: "nickname", type: "text" },
-							{ name: "dateOfBirth", type: "date" },
+							{ name: "name.first", type: fieldTypes.text },
+							{ name: "name.last", type: fieldTypes.text },
+							{ name: "nickname", type: fieldTypes.text },
+							{ name: "dateOfBirth", type: fieldTypes.date },
 							{
 								name: "gender",
-								type: "Radio",
+								type: fieldTypes.radio,
 								options: [
 									{ label: "Male", value: "M" },
 									{ label: "Female", value: "F" }
@@ -239,42 +242,42 @@ class AdminPersonOverview extends BasicForm {
 							},
 							{
 								name: "_hometown",
-								type: "Select",
+								type: fieldTypes.select,
 								isClearable: true,
 								options: options._hometown
 							},
 							{
 								name: "_represents",
-								type: "Select",
+								type: fieldTypes.select,
 								isClearable: true,
 								options: options._represents
 							},
 							{
 								name: "_sponsor",
-								type: "Select",
+								type: fieldTypes.select,
 								isClearable: true,
 								options: options._sponsor
 							},
 							{
 								name: "description",
-								type: "textarea"
+								type: fieldTypes.textarea
 							}
 						];
 
 						const roleFields = [
 							{
 								name: "isPlayer",
-								type: "Boolean",
+								type: fieldTypes.boolean,
 								readOnly: person && person.playedGames.length
 							},
 							{
 								name: "isCoach",
-								type: "Boolean",
+								type: fieldTypes.boolean,
 								readOnly: person && person.isCoach
 							},
 							{
 								name: "isReferee",
-								type: "Boolean",
+								type: fieldTypes.boolean,
 								readOnly:
 									person &&
 									person.isReferee &&
@@ -284,14 +287,14 @@ class AdminPersonOverview extends BasicForm {
 						];
 
 						const socialFields = [
-							{ name: "twitter", type: "text" },
-							{ name: "instagram", type: "text" }
+							{ name: "twitter", type: fieldTypes.text },
+							{ name: "instagram", type: fieldTypes.text }
 						];
 
 						const imageFields = [
 							{
 								name: "image",
-								type: "Image",
+								type: fieldTypes.image,
 								path: "images/people/full/",
 								acceptSVG: false
 							}

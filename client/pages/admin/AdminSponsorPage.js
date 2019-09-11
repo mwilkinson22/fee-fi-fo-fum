@@ -21,6 +21,9 @@ import {
 	deleteSponsor
 } from "~/client/actions/sponsorActions";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminCountryPage extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -147,12 +150,12 @@ class AdminCountryPage extends BasicForm {
 							validationSchema={validationSchema}
 							render={({ values }) => {
 								const fields = [
-									{ name: "name", type: "text" },
-									{ name: "url", type: "text" },
-									{ name: "twitter", type: "text" },
+									{ name: "name", type: fieldTypes.text },
+									{ name: "url", type: fieldTypes.text },
+									{ name: "twitter", type: fieldTypes.text },
 									{
 										name: "image",
-										type: "Image",
+										type: fieldTypes.image,
 										path: "images/sponsors/",
 										acceptSVG: true,
 										defaultUploadName: sponsor ? sponsor._id : values.name

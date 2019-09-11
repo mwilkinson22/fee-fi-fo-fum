@@ -24,6 +24,9 @@ import {
 //Helpers
 import { validateSlug } from "~/helpers/adminHelper";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminCountryPage extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -153,12 +156,12 @@ class AdminCountryPage extends BasicForm {
 							validationSchema={validationSchema}
 							render={() => {
 								const fields = [
-									{ name: "name", type: "text" },
-									{ name: "demonym", type: "text" }
+									{ name: "name", type: fieldTypes.text },
+									{ name: "demonym", type: fieldTypes.text }
 								];
 
 								if (!isNew) {
-									fields.push({ name: "slug", type: "text" });
+									fields.push({ name: "slug", type: fieldTypes.text });
 								}
 
 								return (

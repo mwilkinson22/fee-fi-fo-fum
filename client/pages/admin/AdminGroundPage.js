@@ -22,6 +22,9 @@ import {
 } from "~/client/actions/groundActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminGroundPage extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -184,20 +187,24 @@ class AdminGroundPage extends BasicForm {
 							validationSchema={validationSchema}
 							render={() => {
 								const mainFields = [
-									{ name: "name", type: "text" },
-									{ name: "addThe", type: "Boolean" }
+									{ name: "name", type: fieldTypes.text },
+									{ name: "addThe", type: fieldTypes.boolean }
 								];
 								const addressFields = [
-									{ name: "address.street", type: "text" },
-									{ name: "address.street2", type: "text" },
-									{ name: "address._city", type: "Select", options: cityOptions },
-									{ name: "address.postcode", type: "text" },
-									{ name: "address.googlePlaceId", type: "text" }
+									{ name: "address.street", type: fieldTypes.text },
+									{ name: "address.street2", type: fieldTypes.text },
+									{
+										name: "address._city",
+										type: fieldTypes.select,
+										options: cityOptions
+									},
+									{ name: "address.postcode", type: fieldTypes.text },
+									{ name: "address.googlePlaceId", type: fieldTypes.text }
 								];
 
 								const travelFields = [
-									{ name: "parking.stadium", type: "Boolean" },
-									{ name: "parking.roadside", type: "Boolean" }
+									{ name: "parking.stadium", type: fieldTypes.boolean },
+									{ name: "parking.roadside", type: fieldTypes.boolean }
 								];
 
 								return (
@@ -213,7 +220,7 @@ class AdminGroundPage extends BasicForm {
 											{this.renderFieldGroup([
 												{
 													name: "image",
-													type: "Image",
+													type: fieldTypes.image,
 													path: "images/grounds/",
 													acceptSVG: true,
 													defaultUploadName: ground.slug

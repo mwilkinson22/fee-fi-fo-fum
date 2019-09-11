@@ -13,6 +13,9 @@ import LoadingPage from "../../components/LoadingPage";
 import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 //Actions
 import {
 	fetchCountries,
@@ -172,11 +175,15 @@ class AdminCityPage extends BasicForm {
 							validationSchema={validationSchema}
 							render={() => {
 								const fields = [
-									{ name: "name", type: "text" },
-									{ name: "_country", type: "Select", options: countries }
+									{ name: "name", type: fieldTypes.text },
+									{
+										name: "_country",
+										type: fieldTypes.select,
+										options: countries
+									}
 								];
 								if (!isNew) {
-									fields.push({ name: "slug", type: "text" });
+									fields.push({ name: "slug", type: fieldTypes.text });
 								}
 
 								return (

@@ -19,6 +19,7 @@ import AdminGameEventList from "./AdminGameEventList";
 //Constants
 import gameEvents from "~/constants/gameEvents";
 import { defaultSocialProfile } from "~/config/keys";
+import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
@@ -185,14 +186,21 @@ class AdminGameEvent extends BasicForm {
 		const { isPosting, profiles } = this.state;
 		const { event, postTweet } = formikProps.values;
 		const eventTypes = this.getEventTypes();
-		let fields = [{ name: "event", type: "Select", options: eventTypes, isSearchable: false }];
+		let fields = [
+			{ name: "event", type: fieldTypes.select, options: eventTypes, isSearchable: false }
+		];
 
 		if (event.value && gameEvents[event.value].isPlayerEvent) {
 			const players = convertTeamToSelect(game, teamList);
-			fields.push({ name: "player", type: "Select", options: players, isSearchable: false });
+			fields.push({
+				name: "player",
+				type: fieldTypes.select,
+				options: players,
+				isSearchable: false
+			});
 		}
 
-		fields.push({ name: "postTweet", type: "Boolean" });
+		fields.push({ name: "postTweet", type: fieldTypes.boolean });
 
 		if (postTweet) {
 			const variables = _.chain(game.playerStats)
@@ -223,13 +231,13 @@ class AdminGameEvent extends BasicForm {
 			fields.push(
 				{
 					name: "tweet",
-					type: "Tweet",
+					type: fieldTypes.tweet,
 					variables,
 					caretPoint: 0,
 					variableInstruction: "Players"
 				},
-				{ name: "replyTweet", type: "text" },
-				{ name: "_profile", type: "Select", options: profiles }
+				{ name: "replyTweet", type: fieldTypes.text },
+				{ name: "_profile", type: fieldTypes.select, options: profiles }
 			);
 		}
 		return (

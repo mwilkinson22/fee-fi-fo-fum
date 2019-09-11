@@ -22,6 +22,9 @@ import {
 	twitterTest
 } from "~/client/actions/socialActions";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 class AdminProfilePage extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -201,15 +204,15 @@ class AdminProfilePage extends BasicForm {
 							validationSchema={validationSchema}
 							render={({ values }) => {
 								const mainFields = [
-									{ name: "name", type: "text" },
-									{ name: "archived", type: "Boolean" },
-									{ name: "iftttKey", type: "text" }
+									{ name: "name", type: fieldTypes.text },
+									{ name: "archived", type: fieldTypes.boolean },
+									{ name: "iftttKey", type: fieldTypes.text }
 								];
 								const twitterFields = [
-									{ name: "twitter.consumer_key", type: "text" },
-									{ name: "twitter.consumer_secret", type: "text" },
-									{ name: "twitter.access_token", type: "text" },
-									{ name: "twitter.access_token_secret", type: "text" }
+									{ name: "twitter.consumer_key", type: fieldTypes.text },
+									{ name: "twitter.consumer_secret", type: fieldTypes.text },
+									{ name: "twitter.access_token", type: fieldTypes.text },
+									{ name: "twitter.access_token_secret", type: fieldTypes.text }
 								];
 
 								return (

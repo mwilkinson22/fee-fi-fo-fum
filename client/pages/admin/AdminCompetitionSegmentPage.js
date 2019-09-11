@@ -24,6 +24,7 @@ import {
 
 //Constants
 const competitionTypes = require("~/constants/competitionTypes");
+import * as fieldTypes from "~/constants/formFieldTypes";
 
 class AdminCompetitionPage extends BasicForm {
 	constructor(props) {
@@ -297,25 +298,29 @@ class AdminCompetitionPage extends BasicForm {
 							validationSchema={validationSchema}
 							render={() => {
 								const fields = [
-									{ name: "name", type: "text" },
+									{ name: "name", type: fieldTypes.text },
 									{
 										name: "_teamType",
-										type: "Select",
+										type: fieldTypes.select,
 										options: options._teamType,
 										isDisabled: !isNew
 									},
-									{ name: "type", type: "Select", options: options.type },
-									{ name: "hashtagPrefix", type: "text" },
-									{ name: "appendCompetitionName", type: "Boolean" },
-									{ name: "externalCompId", type: "number" },
-									{ name: "externalDivId", type: "number" },
-									{ name: "externalReportPage", type: "text" }
+									{
+										name: "type",
+										type: fieldTypes.select,
+										options: options.type
+									},
+									{ name: "hashtagPrefix", type: fieldTypes.text },
+									{ name: "appendCompetitionName", type: fieldTypes.boolean },
+									{ name: "externalCompId", type: fieldTypes.number },
+									{ name: "externalDivId", type: fieldTypes.number },
+									{ name: "externalReportPage", type: fieldTypes.text }
 								];
 
 								if (!isNew) {
 									fields.push({
 										name: "_pointsCarriedFrom",
-										type: "Select",
+										type: fieldTypes.select,
 										options: options._pointsCarriedFrom
 									});
 								}

@@ -11,6 +11,9 @@ import BasicForm from "../BasicForm";
 //Actions
 import { setManOfSteelPoints } from "~/client/actions/gamesActions";
 
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
 
@@ -81,7 +84,11 @@ class AdminGameManOfSteel extends BasicForm {
 					render={() => {
 						const fields = [];
 						for (let i = 3; i > 0; i--) {
-							fields.push({ name: `manOfSteel.${i}`, type: "Select", options });
+							fields.push({
+								name: `manOfSteel.${i}`,
+								type: fieldTypes.select,
+								options
+							});
 						}
 
 						return (
