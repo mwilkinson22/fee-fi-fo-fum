@@ -81,12 +81,11 @@ class AdminGameEvent extends BasicForm {
 			return newState;
 		}
 
-		newState.profiles = _.sortBy(
-			_.map(profiles, ({ name, _id }) => ({ label: name, value: _id })),
-			"label"
-		);
-
-		console.log(newState.profiles);
+		newState.profiles = _.chain(profiles)
+			.reject("archived")
+			.map(({ name, _id }) => ({ label: name, value: _id }))
+			.sortBy("label")
+			.value();
 
 		return newState;
 	}
@@ -182,7 +181,7 @@ class AdminGameEvent extends BasicForm {
 	}
 
 	renderFields(formikProps) {
-		const { localTeam, game, peopleList, teamList } = this.props;
+		const { localTeam, game, teamList } = this.props;
 		const { isPosting, profiles } = this.state;
 		const { event, postTweet } = formikProps.values;
 		const eventTypes = this.getEventTypes();

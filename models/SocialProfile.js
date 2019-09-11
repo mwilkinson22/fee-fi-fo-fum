@@ -9,7 +9,8 @@ const socialProfileSchema = new Schema({
 		access_token: { type: String, required: true },
 		access_token_secret: { type: String, required: true }
 	},
-	iftttKey: { type: String, required: true }
+	iftttKey: { type: String, required: true },
+	archived: { type: Boolean, default: false }
 });
 
 mongoose.model("socialProfiles", socialProfileSchema);

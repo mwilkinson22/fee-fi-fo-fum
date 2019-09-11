@@ -89,10 +89,13 @@ class AdminGameSquadImage extends Component {
 		const { profiles } = this.props;
 		const { _profile } = this.state;
 
-		let options = _.map(profiles, ({ name, _id }) => ({
-			value: _id,
-			label: name
-		}));
+		const options = _.chain(profiles)
+			.reject("archived")
+			.map(({ name, _id }) => ({
+				value: _id,
+				label: name
+			}))
+			.value();
 
 		return (
 			<Select

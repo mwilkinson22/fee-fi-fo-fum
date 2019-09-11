@@ -58,6 +58,7 @@ class AdminProfilePage extends BasicForm {
 			name: Yup.string()
 				.required()
 				.label("Name"),
+			archived: Yup.boolean().label("Archived"),
 			twitter: Yup.object().shape({
 				consumer_key: Yup.string()
 					.required()
@@ -91,6 +92,7 @@ class AdminProfilePage extends BasicForm {
 		if (isNew) {
 			return {
 				name: "",
+				archived: true,
 				twitter: {
 					consumer_key: "",
 					consumer_secret: "",
@@ -200,6 +202,7 @@ class AdminProfilePage extends BasicForm {
 							render={({ values }) => {
 								const mainFields = [
 									{ name: "name", type: "text" },
+									{ name: "archived", type: "Boolean" },
 									{ name: "iftttKey", type: "text" }
 								];
 								const twitterFields = [

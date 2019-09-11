@@ -40,6 +40,10 @@
 				}
 			}
 
+			&.archived a {
+				color: #aaa !important;
+			}
+
 			&:not(:last-child) {
 				border-bottom: solid thin #ddd;
 			}

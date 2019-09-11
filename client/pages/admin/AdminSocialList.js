@@ -32,8 +32,8 @@ class AdminSocialList extends Component {
 	renderList() {
 		const profiles = _.chain(this.state.profiles)
 			.sortBy("name")
-			.map(({ _id, name }) => (
-				<li key={_id}>
+			.map(({ _id, name, archived }) => (
+				<li key={_id} className={archived ? "archived" : ""}>
 					<Link to={`/admin/social/${_id}`}>{name}</Link>
 				</li>
 			))
