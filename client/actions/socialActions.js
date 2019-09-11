@@ -15,7 +15,7 @@ export const fetchProfiles = () => async (dispatch, getState, api) => {
 
 export const updateProfile = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/socialProfiles/${id}`, data);
-	dispatch({ type: FETCH_SOCIAL_PROFILES, payload: res.data });
+	dispatch({ type: FETCH_SOCIAL_PROFILE, payload: res.data });
 	toast.success(`Profile Updated`);
 };
 

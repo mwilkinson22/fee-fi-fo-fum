@@ -108,13 +108,12 @@ class AdminProfilePage extends BasicForm {
 		const { createProfile, updateProfile } = this.props;
 		const { profile, isNew } = this.state;
 
-		let newSlug;
 		if (isNew) {
-			newSlug = await createProfile(values);
+			const newId = await createProfile(values);
+			await this.setState({ redirect: `/admin/social/${newId}` });
 		} else {
-			newSlug = await updateProfile(profile._id, values);
+			await updateProfile(profile._id, values);
 		}
-		await this.setState({ redirect: `/admin/social/${newSlug}` });
 	}
 
 	async handleDelete() {
