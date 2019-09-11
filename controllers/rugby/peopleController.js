@@ -6,6 +6,8 @@ import mongoose from "mongoose";
 const collectionName = "people";
 const Person = mongoose.model(collectionName);
 const Game = mongoose.model("games");
+const Team = mongoose.model("teams");
+const TeamTypes = mongoose.model("teamTypes");
 
 //Constants
 const { localTeam } = require("../../config/keys");
@@ -52,6 +54,32 @@ async function getPlayedGames(_id) {
 	});
 }
 
+async function getSquadEntries(_id) {
+	let teamTypes = await TeamTypes.find({}, "sortOrder").lean();
+	teamTypes = _.keyBy(teamTypes, "_id");
+
+	const squadEntries = await Team.find(
+		{
+			"squads.players._player": _id
+		},
+		"squads name"
+	).lean();
+
+	return _.chain(squadEntries)
+		.map(t => {
+			const team = {
+				name: t.name.long,
+				_id: t._id
+			};
+			return t.squads
+				.filter(squad => squad.players.find(({ _player }) => _player == _id))
+				.map(({ year, _teamType }) => ({ team, year, _teamType }));
+		})
+		.flatten()
+		.orderBy(["year", t => teamTypes[t._teamType].sortOrder], ["desc", "asc"])
+		.value();
+}
+
 async function getReffedGames(_id) {
 	const reffedGames = await Game.find(
 		{
@@ -86,6 +114,11 @@ export async function getPerson(req, res) {
 	//Get Played Games
 	if (person.isPlayer) {
 		person.playedGames = await getPlayedGames(id);
+	}
+
+	//Get Squad Entries
+	if (person.isPlayer) {
+		person.squadEntries = await getSquadEntries(id);
 	}
 
 	//Get Reffed Games
