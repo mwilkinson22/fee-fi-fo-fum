@@ -99,7 +99,7 @@ export default class BasicForm extends Component {
 		//Get Render Method
 		const render = formikProps => {
 			//Update default onChange method for custom Select component
-			if (["Select", "Tweet", "Image"].indexOf(type) > -1) {
+			if ([fieldTypes.select, fieldTypes.image, fieldTypes.tweet].indexOf(type) > -1) {
 				formikProps.field.onChange = option => {
 					formikProps.form.setFieldTouched(field.name, true);
 					formikProps.form.setFieldValue(field.name, option || "");
