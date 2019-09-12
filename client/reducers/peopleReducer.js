@@ -9,11 +9,7 @@ export default function(state = { fullPeople: {} }, action) {
 			return {
 				...state,
 				fullPeople: { ...state.fullPeople, [action.payload.id]: action.payload },
-				peopleList: { ...state.peopleList, [action.payload.id]: action.payload },
-				slugMap: {
-					...state.slugMap,
-					[action.payload.slug]: { redirect: false, id: action.payload._id }
-				}
+				peopleList: { ...state.peopleList, [action.payload.id]: action.payload }
 			};
 
 		case FETCH_PEOPLE_LIST:

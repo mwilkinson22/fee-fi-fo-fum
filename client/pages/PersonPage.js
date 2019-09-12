@@ -23,9 +23,9 @@ const { earliestGiantsData } = require("~/config/keys");
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { slugMap, fetchPeopleList, gameList, fetchGameList } = props;
+		const { peopleList, fetchPeopleList, gameList, fetchGameList } = props;
 
-		if (!slugMap) {
+		if (!peopleList) {
 			fetchPeopleList();
 		}
 
@@ -37,20 +37,32 @@ class PersonPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { slugMap, fullPeople, fetchPerson, match, localTeam } = nextProps;
-		const newState = {};
+		const { peopleList, redirects, fullPeople, fetchPerson, match, localTeam } = nextProps;
+		const newState = { redirect: null };
 
 		//Ensure Slugmap is loaded
-		if (slugMap) {
-			//Check slug exists
-			if (!slugMap[match.params.slug]) {
-				newState.person = false;
-			} else {
-				const { id } = slugMap[match.params.slug];
-				if (!fullPeople[id]) {
-					fetchPerson(id);
+		if (peopleList) {
+			let person = _.find(peopleList, g => g.slug == match.params.slug);
+
+			if (!person) {
+				const redirectId = redirects[match.params.slug];
+				person = peopleList[redirectId];
+
+				if (person) {
+					const role = person.isCoach ? "coaches" : "players";
+					newState.redirect = `/${role}/${person.slug}`;
 				} else {
-					const person = fullPeople[id];
+					newState.person = false;
+				}
+
+				return newState;
+			} else {
+				const { _id } = person;
+
+				if (!fullPeople[_id]) {
+					fetchPerson(_id);
+				} else {
+					const person = fullPeople[_id];
 
 					//Ensure they have a connection to the Giants
 					const localTeamSquads =
@@ -309,13 +321,13 @@ class PersonPage extends Component {
 
 	render() {
 		const { match } = this.props;
-		const { person } = this.state;
+		const { person, redirect } = this.state;
 		const role = match.url.split("/")[1]; //players or coaches
 
-		if (person === undefined) {
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		} else if (person === undefined) {
 			return <LoadingPage />;
-		} else if (person && person.redirect) {
-			return <Redirect to={`/${role}/${person.slug}`} />;
 		} else if (!person) {
 			return <NotFoundPage message="Person not found" />;
 		} else {
@@ -352,17 +364,32 @@ class PersonPage extends Component {
 function mapStateToProps({ config, games, people }) {
 	const { authUser, localTeam } = config;
 	const { gameList } = games;
-	const { slugMap, fullPeople } = people;
-	return { authUser, localTeam, gameList, slugMap, fullPeople };
+	const { fullPeople, redirects, peopleList } = people;
+	return { authUser, localTeam, gameList, fullPeople, redirects, peopleList };
 }
 
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
 
 	await store.dispatch(fetchPeopleList());
-	const { id } = store.getState().people.slugMap[slug];
 
-	return store.dispatch(fetchPerson(id));
+	const { peopleList, redirects } = store.getState().people;
+
+	//Look for a slug match
+	let person = _.find(peopleList, p => p.slug == slug);
+
+	if (!person) {
+		//If that fails, try a redirect
+		const redirectId = redirects[slug];
+		person = peopleList[redirectId];
+
+		//If we've still got nothing, 404
+		if (!person) {
+			return null;
+		}
+	}
+
+	return store.dispatch(fetchPerson(person._id));
 }
 
 export default {

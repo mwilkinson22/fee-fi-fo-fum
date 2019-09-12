@@ -20,9 +20,9 @@ import { fetchPeopleList, fetchPerson } from "../../actions/peopleActions";
 class AdminTeamPage extends Component {
 	constructor(props) {
 		super(props);
-		const { slugMap, fetchPeopleList } = props;
+		const { peopleList, fetchPeopleList } = props;
 
-		if (!slugMap) {
+		if (!peopleList) {
 			fetchPeopleList();
 		}
 
@@ -30,24 +30,29 @@ class AdminTeamPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, slugMap, fullPeople, fetchPerson } = nextProps;
+		const { match, peopleList, fullPeople, fetchPerson } = nextProps;
+		const { slug } = match.params;
 		const newState = { isLoading: false };
 
-		if (!slugMap) {
+		if (!peopleList) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		if (slugMap[match.params.slug]) {
-			const { id } = slugMap[match.params.slug];
-			if (!fullPeople[id]) {
-				fetchPerson(id);
-				newState.isLoading = true;
-			} else {
-				newState.person = fullPeople[id];
-			}
-		} else {
+		//Get Person Id
+		const person = _.find(peopleList, p => p.slug == slug);
+
+		if (!person) {
 			newState.person = false;
+			return newState;
+		}
+
+		const { _id } = person;
+		if (!fullPeople[_id]) {
+			fetchPerson(_id);
+			newState.isLoading = true;
+		} else {
+			newState.person = fullPeople[_id];
 		}
 
 		return newState;
@@ -123,8 +128,8 @@ class AdminTeamPage extends Component {
 }
 
 function mapStateToProps({ people }) {
-	const { fullPeople, slugMap } = people;
-	return { fullPeople, slugMap };
+	const { fullPeople, peopleList } = people;
+	return { fullPeople, peopleList };
 }
 export default connect(
 	mapStateToProps,

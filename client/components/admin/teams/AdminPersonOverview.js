@@ -76,7 +76,7 @@ class AdminPersonOverview extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPeople, slugMap, match, countries, cities, sponsorList } = nextProps;
+		const { fullPeople, match, countries, cities, sponsorList } = nextProps;
 
 		const newState = {
 			isNew: !(match && match.params.slug),
@@ -113,8 +113,7 @@ class AdminPersonOverview extends BasicForm {
 
 		if (!newState.isNew) {
 			const { slug } = match.params;
-			const { id } = slugMap[slug];
-			newState.person = fullPeople[id];
+			newState.person = _.find(fullPeople, p => p.slug == slug);
 		}
 
 		return newState;
@@ -338,10 +337,10 @@ class AdminPersonOverview extends BasicForm {
 
 //Add Redux Support
 function mapStateToProps({ people, locations, sponsors }) {
-	const { fullPeople, slugMap } = people;
+	const { fullPeople } = people;
 	const { cities, countries } = locations;
 	const { sponsorList } = sponsors;
-	return { fullPeople, slugMap, cities, countries, sponsorList };
+	return { fullPeople, cities, countries, sponsorList };
 }
 // export default form;
 export default connect(

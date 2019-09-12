@@ -27,13 +27,12 @@ class AdminRefereeDetails extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullPeople, slugMap, match } = nextProps;
+		const { fullPeople, match } = nextProps;
 
 		const newState = {};
 
 		const { slug } = match.params;
-		const { id } = slugMap[slug];
-		newState.person = fullPeople[id];
+		newState.person = _.find(fullPeople, p => p.slug == slug);
 
 		return newState;
 	}
@@ -94,8 +93,8 @@ class AdminRefereeDetails extends BasicForm {
 
 //Add Redux Support
 function mapStateToProps({ people }) {
-	const { fullPeople, slugMap } = people;
-	return { fullPeople, slugMap };
+	const { fullPeople } = people;
+	return { fullPeople };
 }
 // export default form;
 export default connect(

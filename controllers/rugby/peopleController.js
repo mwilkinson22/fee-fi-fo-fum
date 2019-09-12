@@ -105,8 +105,11 @@ export async function getList(req, res) {
 		{},
 		"name isPlayer isCoach isReferee playingPositions coachDetails slug image gender twitter"
 	).lean();
-	const { list, slugMap } = await getListsAndSlugs(people, collectionName);
-	res.send({ peopleList: list, slugMap });
+
+	const peopleList = _.keyBy(people, "_id");
+	const redirects = await getListsAndSlugs(people, collectionName);
+
+	res.send({ peopleList, redirects });
 }
 
 export async function getPerson(req, res) {
