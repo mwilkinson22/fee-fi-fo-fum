@@ -114,7 +114,7 @@ async function processBulkSquadAdd(data, teamTypeId) {
 
 			await person.save();
 		} else {
-			person = await Person.findById(nameSelect.value);
+			person = await Person.findByIdAndUpdate(nameSelect.value, { isPlayer: true });
 		}
 
 		results.push({
