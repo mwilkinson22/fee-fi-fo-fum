@@ -207,12 +207,16 @@ class AdminTeamSquads extends BasicForm {
 						.sortBy(player => player.number || 99999)
 						.map(squadMember => {
 							const player = squadMember._player;
-							const { name } = player;
+							const { name, slug } = player;
 							const values = formikProps.values[player._id];
 
 							//Get Core Fields
 							const data = {};
-							data.name = `${name.first} ${name.last}`;
+							data.name = (
+								<Link to={`/admin/people/${slug}`}>
+									{name.first} {name.last}
+								</Link>
+							);
 							data.number = (
 								<Field
 									component="input"
