@@ -176,6 +176,12 @@ class AdminGamePregameImage extends Component {
 			}))
 			.value();
 
+		console.log("------------");
+		console.log(_profile);
+		console.log(profiles);
+		console.log(_.find(options, ({ value }) => value == _profile));
+		console.log("------------");
+
 		return (
 			<Select
 				styles={selectStyling}
