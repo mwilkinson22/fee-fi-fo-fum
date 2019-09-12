@@ -37,16 +37,31 @@ class PersonPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { slugMap, fullPeople, fetchPerson, match } = nextProps;
+		const { slugMap, fullPeople, fetchPerson, match, localTeam } = nextProps;
 		const newState = {};
 
+		//Ensure Slugmap is loaded
 		if (slugMap) {
-			const { id } = slugMap[match.params.slug];
-			if (!fullPeople[id]) {
-				fetchPerson(id);
+			//Check slug exists
+			if (!slugMap[match.params.slug]) {
+				newState.person = false;
 			} else {
-				const person = fullPeople[id];
-				newState.person = person;
+				const { id } = slugMap[match.params.slug];
+				if (!fullPeople[id]) {
+					fetchPerson(id);
+				} else {
+					const person = fullPeople[id];
+
+					//Ensure they have a connection to the Giants
+					const localTeamSquads =
+						person.squadEntries &&
+						person.squadEntries.find(s => s.team._id == localTeam);
+					if (localTeamSquads) {
+						newState.person = person;
+					} else {
+						newState.person = false;
+					}
+				}
 			}
 		}
 
@@ -261,14 +276,8 @@ class PersonPage extends Component {
 			return <LoadingPage />;
 		} else if (person && person.redirect) {
 			return <Redirect to={`/${role}/${person.slug}`} />;
-		} else if (
-			!person ||
-			(role === "players" && !person.isPlayer) ||
-			(role === "coaches" && !person.isCoach)
-		) {
-			return (
-				<NotFoundPage message={`${role === "players" ? "Player" : "Coach"} not found`} />
-			);
+		} else if (!person) {
+			return <NotFoundPage message="Person not found" />;
 		} else {
 			return (
 				<div className={`person-page`}>
@@ -301,10 +310,10 @@ class PersonPage extends Component {
 }
 
 function mapStateToProps({ config, games, people }) {
-	const { authUser } = config;
+	const { authUser, localTeam } = config;
 	const { gameList } = games;
 	const { slugMap, fullPeople } = people;
-	return { authUser, gameList, slugMap, fullPeople };
+	return { authUser, localTeam, gameList, slugMap, fullPeople };
 }
 
 async function loadData(store, path) {
