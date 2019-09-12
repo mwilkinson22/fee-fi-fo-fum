@@ -33,9 +33,10 @@ async function getUpdatedPost(_id, res) {
 async function processList(req = null) {
 	const query = req ? generateQuery(req.user) : {};
 	const posts = await NewsPost.find(query).forList();
+	const postList = _.keyBy(posts, "_id");
 
-	const { list, slugMap } = await getListsAndSlugs(posts, collectionName);
-	return { postList: list, slugMap };
+	const redirects = await getListsAndSlugs(posts, collectionName);
+	return { postList, redirects };
 }
 
 //Get basic list of posts

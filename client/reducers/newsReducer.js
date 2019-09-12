@@ -40,8 +40,8 @@ export default function(state = { fullPosts: {} }, action) {
 				postList: {
 					...fixDates(action.payload.postList)
 				},
-				slugMap: {
-					...action.payload.slugMap
+				redirects: {
+					...action.payload.redirects
 				}
 			};
 		}

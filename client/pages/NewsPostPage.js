@@ -47,32 +47,38 @@ class NewsPostPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { postList, fullPosts, match, slugMap, fetchNewsPost } = nextProps;
+		const { postList, fullPosts, match, redirects, fetchNewsPost } = nextProps;
 		const { slug } = match.params;
+		const newState = { redirect: null };
 
-		if (slugMap[slug].redirect) {
-			//TODO
-			return {};
-		} else {
-			const id = slugMap[slug].id;
-			const post = fullPosts[id];
+		if (postList) {
+			let post = _.find(postList, p => p.slug == slug);
+
 			if (!post) {
-				fetchNewsPost(id);
-				return { post: undefined };
+				const redirectId = redirects[match.params.slug];
+				post = postList[redirectId];
+
+				if (post) {
+					newState.redirect = `/news/post/${post.slug}`;
+				} else {
+					newState.post = false;
+				}
 			} else {
-				post.editorState = convertToEditorState(post.content);
-				return {
-					post,
-					recentPosts: _.chain(postList)
-						.values()
-						.sortBy("dateCreated")
-						.reverse()
-						.filter(post => post.id !== id)
+				const { _id } = post;
+				newState.post = fullPosts[_id];
+				if (!newState.post) {
+					fetchNewsPost(_id);
+				} else {
+					newState.post.editorState = convertToEditorState(newState.post.content);
+					newState.recentPosts = _.chain(postList)
+						.orderBy(["dateCreated"], ["desc"])
+						.reject(post => post.id == _id)
 						.chunk(5)
-						.value()[0]
-				};
+						.value()[0];
+				}
 			}
 		}
+		return newState;
 	}
 
 	getUrl() {
@@ -214,13 +220,13 @@ class NewsPostPage extends Component {
 	}
 
 	render() {
-		const { post } = this.state;
-		if (post === undefined) {
+		const { post, redirect } = this.state;
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		} else if (post === undefined) {
 			return <LoadingPage />;
 		} else if (!post) {
 			return <NotFoundPage message="Post not found" />;
-		} else if (post.redirect) {
-			return <Redirect to={`/news/post/${post.slug}`} />;
 		} else {
 			return (
 				<FacebookProvider appId="1610338439232779">
@@ -243,21 +249,30 @@ class NewsPostPage extends Component {
 
 function mapStateToProps({ config, news }) {
 	const { authUser } = config;
-	const { fullPosts, postList, slugMap } = news;
+	const { fullPosts, postList, redirects } = news;
 
-	return { fullPosts, postList, slugMap, authUser };
+	return { fullPosts, postList, redirects, authUser };
 }
 
 async function loadData(store, path) {
 	const slug = path.split("/")[3];
-	await store.dispatch(fetchPostList());
-	const slugMap = store.getState().news.slugMap[slug];
 
-	if (slugMap.redirect) {
-		//TODO
-	} else {
-		return store.dispatch(fetchNewsPost(slugMap.id));
+	await store.dispatch(fetchPostList());
+
+	const { postList, redirects } = store.getState().news;
+
+	let post = _.find(postList, p => p.slug == slug);
+
+	if (!post) {
+		const redirectId = redirects[slug];
+		post = postList[redirectId];
+
+		if (!post) {
+			return null;
+		}
 	}
+
+	return store.dispatch(fetchNewsPost(post._id));
 }
 
 export default {

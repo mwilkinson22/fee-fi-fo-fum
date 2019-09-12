@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const SlugRedirect = mongoose.model("slugRedirect");
 
 export async function getListsAndSlugs(data, collectionName) {
-	if (collectionName == "games" || collectionName == "people") {
+	if (collectionName == "games" || collectionName == "people" || collectionName == "newsPosts") {
 		const slugRedirects = await SlugRedirect.find({ collectionName });
 
 		const redirects = _.chain(slugRedirects)

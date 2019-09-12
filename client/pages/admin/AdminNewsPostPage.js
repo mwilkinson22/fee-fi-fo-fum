@@ -77,7 +77,7 @@ class AdminNewsPostPage extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPosts, match, slugMap, fetchNewsPost, userList, gameList } = nextProps;
+		const { fullPosts, match, fetchNewsPost, userList, gameList, postList } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
@@ -90,26 +90,20 @@ class AdminNewsPostPage extends BasicForm {
 		}
 
 		//Check we have the info we need
-		if (!slugMap || !userList || !gameList) {
+		if (!postList || !userList || !gameList) {
 			return newState;
 		}
 
 		//Get Post
 		if (!newState.isNew) {
-			if (!slugMap[slug]) {
+			const post = _.find(postList, p => p.slug == slug);
+			if (!post) {
 				newState.post = false;
-			} else if (slugMap[slug].redirect) {
-				//TODO
-				return {};
-			} else if (slugMap) {
-				const id = slugMap[slug].id;
-				const post = fullPosts[id];
-				if (!post && !prevState.isLoading) {
-					fetchNewsPost(id);
-					newState.isLoading = true;
-				} else if (post) {
-					newState.post = post;
-					newState.isLoading = false;
+			} else {
+				const { _id } = post;
+				newState.post = fullPosts[_id];
+				if (!newState.post) {
+					fetchNewsPost(_id);
 				}
 			}
 		}
@@ -328,10 +322,10 @@ class AdminNewsPostPage extends BasicForm {
 
 function mapStateToProps({ config, games, news, users }) {
 	const { authUser } = config;
-	const { postList, slugMap, fullPosts } = news;
+	const { postList, fullPosts } = news;
 	const { userList } = users;
 	const { gameList } = games;
-	return { authUser, postList, slugMap, fullPosts, userList, gameList };
+	return { authUser, postList, fullPosts, userList, gameList };
 }
 
 export default connect(
