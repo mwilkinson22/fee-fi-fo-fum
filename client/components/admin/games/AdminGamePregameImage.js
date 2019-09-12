@@ -18,13 +18,18 @@ import TweetComposer from "~/client/components/TweetComposer";
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
 
-//Constants
-import { defaultSocialProfile } from "~/config/keys";
-
 class AdminGamePregameImage extends Component {
 	constructor(props) {
 		super(props);
-		const { game, fullTeams, fetchTeam, localTeam, profiles, fetchProfiles } = props;
+		const {
+			game,
+			fullTeams,
+			fetchTeam,
+			localTeam,
+			profiles,
+			fetchProfiles,
+			defaultProfile
+		} = props;
 
 		if (!fullTeams[localTeam]) {
 			fetchTeam(localTeam);
@@ -36,13 +41,9 @@ class AdminGamePregameImage extends Component {
 			fetchProfiles();
 		}
 
-		const keys = require("~/config/keys");
-		console.log(keys);
-		console.log(process.env);
-
 		const { hashtags } = game;
 		this.state = {
-			_profile: defaultSocialProfile,
+			_profile: defaultProfile,
 			game,
 			highlightNewPlayers: true,
 			team: game.pregameSquads.length > 1 ? "both" : _.values(game.pregameSquads)[0]._team,
@@ -373,7 +374,8 @@ class AdminGamePregameImage extends Component {
 function mapStateToProps({ config, teams, social }) {
 	const { fullTeams, teamList } = teams;
 	const { localTeam } = config;
-	return { fullTeams, localTeam, teamList, profiles: social };
+	const { profiles, defaultProfile } = social;
+	return { fullTeams, localTeam, teamList, profiles, defaultProfile };
 }
 
 export default connect(

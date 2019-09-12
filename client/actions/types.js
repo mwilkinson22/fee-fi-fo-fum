@@ -69,4 +69,5 @@ export const FETCH_USERS = "fetch_users";
 //Social
 export const FETCH_SOCIAL_PROFILES = "fetch_social_profiles";
 export const FETCH_SOCIAL_PROFILE = "fetch_social_profile";
+export const SET_DEFAULT_SOCIAL_PROFILE = "set_default_social_profile";
 export const DELETE_SOCIAL_PROFILE = "delete_social_profile";

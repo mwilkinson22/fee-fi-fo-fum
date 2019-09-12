@@ -18,7 +18,6 @@ import AdminGameEventList from "./AdminGameEventList";
 
 //Constants
 import gameEvents from "~/constants/gameEvents";
-import { defaultSocialProfile } from "~/config/keys";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
@@ -92,11 +91,12 @@ class AdminGameEvent extends BasicForm {
 	}
 
 	getDefaults() {
+		const { defaultProfile } = this.props;
 		const { hashtags } = this.props.game;
 		const { profiles } = this.state;
 
 		return {
-			_profile: profiles.find(p => p.value == defaultSocialProfile) || profiles[0],
+			_profile: profiles.find(p => p.value == defaultProfile) || profiles[0],
 			event: {
 				label: "None",
 				value: "none"
@@ -304,7 +304,8 @@ function mapStateToProps({ config, people, teams, social }) {
 	const { localTeam } = config;
 	const { peopleList } = people;
 	const { teamList, fullTeams } = teams;
-	return { localTeam, peopleList, teamList, fullTeams, profiles: social };
+	const { profiles, defaultProfile } = social;
+	return { localTeam, peopleList, teamList, fullTeams, profiles, defaultProfile };
 }
 
 // export default form;

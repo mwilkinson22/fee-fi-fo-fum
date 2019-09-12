@@ -15,13 +15,18 @@ import { fetchTeam } from "../../../actions/teamsActions";
 import { getSquadImage, postGameEvent } from "../../../actions/gamesActions";
 import TweetComposer from "~/client/components/TweetComposer";
 
-//Constants
-import { defaultSocialProfile } from "~/config/keys";
-
 class AdminGameSquadImage extends Component {
 	constructor(props) {
 		super(props);
-		const { game, fullTeams, fetchTeam, localTeam, profiles, fetchProfiles } = props;
+		const {
+			game,
+			fullTeams,
+			fetchTeam,
+			localTeam,
+			profiles,
+			fetchProfiles,
+			defaultProfile
+		} = props;
 
 		if (!fullTeams[localTeam]) {
 			fetchTeam(localTeam);
@@ -34,10 +39,6 @@ class AdminGameSquadImage extends Component {
 			fetchProfiles();
 		}
 
-		const keys = require("~/config/keys");
-		console.log(keys);
-		console.log(process.env);
-
 		const { hashtags } = game;
 
 		//Get Initial Tweets
@@ -48,7 +49,7 @@ class AdminGameSquadImage extends Component {
 		}`;
 
 		this.state = {
-			_profile: defaultSocialProfile,
+			_profile: defaultProfile,
 			game,
 			tweet
 		};
@@ -223,7 +224,8 @@ class AdminGameSquadImage extends Component {
 function mapStateToProps({ config, teams, social }) {
 	const { fullTeams } = teams;
 	const { localTeam } = config;
-	return { fullTeams, localTeam, profiles: social };
+	const { profiles, defaultProfile } = social;
+	return { fullTeams, localTeam, profiles, defaultProfile };
 }
 
 export default connect(

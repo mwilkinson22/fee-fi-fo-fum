@@ -1,4 +1,9 @@
-import { DELETE_SOCIAL_PROFILE, FETCH_SOCIAL_PROFILE, FETCH_SOCIAL_PROFILES } from "./types";
+import {
+	DELETE_SOCIAL_PROFILE,
+	FETCH_SOCIAL_PROFILE,
+	FETCH_SOCIAL_PROFILES,
+	SET_DEFAULT_SOCIAL_PROFILE
+} from "./types";
 import { toast } from "react-toastify";
 
 export const createProfile = data => async (dispatch, getState, api) => {
@@ -6,6 +11,10 @@ export const createProfile = data => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_SOCIAL_PROFILE, payload: res.data });
 	toast.success(`Profile Created`);
 	return res.data._id;
+};
+
+export const setDefaultProfile = id => async (dispatch, getState, api) => {
+	dispatch({ type: SET_DEFAULT_SOCIAL_PROFILE, payload: id });
 };
 
 export const fetchProfiles = () => async (dispatch, getState, api) => {

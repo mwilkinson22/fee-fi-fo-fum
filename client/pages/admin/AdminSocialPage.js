@@ -252,7 +252,8 @@ class AdminProfilePage extends BasicForm {
 }
 
 function mapStateToProps({ social }) {
-	return { profiles: social };
+	const { profiles } = social;
+	return { profiles };
 }
 
 export default connect(
