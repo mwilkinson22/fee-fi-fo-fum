@@ -80,7 +80,7 @@ export async function deleteCity(req, res) {
 		const Ground = mongoose.model("grounds");
 		const Person = mongoose.model("people");
 
-		const grounds = await Ground.find({ "address._city": _id }, "slug").lean();
+		const grounds = await Ground.find({ "address._city": _id }, "name").lean();
 		const people = await Person.find({ _hometown: _id }, "slug").lean();
 
 		if (grounds.length || people.length) {

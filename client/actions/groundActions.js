@@ -10,7 +10,7 @@ export const createGround = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/grounds`, values);
 	dispatch({ type: FETCH_GROUND, payload: res.data });
 	toast.success(`New ground saved`);
-	return res.data.slug;
+	return res.data._id;
 };
 
 export const updateGround = (id, values) => async (dispatch, getState, api) => {

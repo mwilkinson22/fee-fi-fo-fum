@@ -32,9 +32,9 @@ class AdminGroundList extends Component {
 	renderList() {
 		const grounds = _.chain(this.state.groundList)
 			.sortBy("name")
-			.map(({ _id, slug, name, address }) => (
+			.map(({ _id, name, address }) => (
 				<li key={_id}>
-					<Link to={`/admin/grounds/${slug}`}>
+					<Link to={`/admin/grounds/${_id}`}>
 						{name}, {address._city.name}
 					</Link>
 				</li>

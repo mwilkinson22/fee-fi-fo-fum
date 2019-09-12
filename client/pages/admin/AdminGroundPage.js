@@ -73,7 +73,9 @@ class AdminGroundPage extends BasicForm {
 		const { groundList, match, cities } = nextProps;
 		const newState = { isLoading: false };
 
-		newState.isNew = !match.params.slug;
+		const { _id } = match.params;
+
+		newState.isNew = !_id;
 
 		if (!newState.isNew && !prevState.isDeleted) {
 			newState.redirect = false;
@@ -84,7 +86,7 @@ class AdminGroundPage extends BasicForm {
 			return newState;
 		}
 
-		newState.ground = _.find(groundList, ({ slug }) => slug == match.params.slug) || false;
+		newState.ground = groundList[_id] || false;
 		newState.cityOptions = cities.map(city => ({
 			label: `${city.name}, ${city._country.name}`,
 			value: city._id
@@ -130,8 +132,8 @@ class AdminGroundPage extends BasicForm {
 		values.address._city = values.address._city.value;
 
 		if (isNew) {
-			const newSlug = await createGround(values);
-			await this.setState({ redirect: `/admin/grounds/${newSlug}` });
+			const newId = await createGround(values);
+			await this.setState({ redirect: `/admin/grounds/${newId}` });
 		} else {
 			await updateGround(ground._id, values);
 		}

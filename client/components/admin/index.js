@@ -91,7 +91,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/countries" exact component={AdminCountryList} />
 
 					<Route path="/admin/grounds/new" component={AdminGroundPage} />
-					<Route path="/admin/grounds/:slug" component={AdminGroundPage} />
+					<Route path="/admin/grounds/:_id" component={AdminGroundPage} />
 					<Route path="/admin/grounds" exact component={AdminGroundList} />
 
 					<Route path="/admin/news/post/new" component={AdminNewsPostPage} />

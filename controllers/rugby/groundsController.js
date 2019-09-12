@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const collectionName = "grounds";
 const Ground = mongoose.model(collectionName);
 
-//Helpers
-import { getListsAndSlugs } from "../genericController";
+//Modules
+import _ from "lodash";
 
 async function validateGround(_id, res) {
 	if (!_id) {
@@ -23,19 +23,14 @@ async function validateGround(_id, res) {
 //Getters
 export async function getGroundsList(req, res) {
 	const grounds = await Ground.find({}).forList();
+	const groundList = _.keyBy(grounds, "_id");
 
-	const { list, slugMap } = await getListsAndSlugs(grounds, collectionName);
-
-	res.send({ groundList: list, slugMap });
+	res.send({ groundList });
 }
 
 //POSTers
 export async function createGround(req, res) {
-	const slug = await Ground.generateSlug(req.body);
-	const ground = new Ground({
-		...req.body,
-		slug
-	});
+	const ground = new Ground(req.body);
 	await ground.save();
 	const savedGround = await Ground.findById(ground._id).forList();
 	res.send(savedGround);

@@ -21,8 +21,7 @@ const groundSchema = new Schema({
 		}
 	],
 	addThe: { type: Boolean, default: false },
-	image: { type: String, default: null },
-	slug: { type: String, required: true, unique: true }
+	image: { type: String, default: null }
 });
 
 groundSchema.query.forList = function() {
@@ -33,33 +32,6 @@ groundSchema.query.forList = function() {
 			select: "name"
 		}
 	});
-};
-
-//Methods
-groundSchema.statics.generateSlug = async function({ name }) {
-	const coreSlugText = name
-		.toLowerCase()
-		.replace(/\s/gi, "-")
-		.replace(/(?![_\w-])./gi, "");
-
-	let slugExists = await this.findOne({
-		slug: coreSlugText
-	});
-
-	if (!slugExists) {
-		return coreSlugText;
-	} else {
-		let i = 2;
-		let slug;
-		while (slugExists) {
-			slug = coreSlugText + "-" + i++;
-			slugExists = await this.findOne({
-				slug
-			});
-		}
-
-		return slug;
-	}
 };
 
 mongoose.model("grounds", groundSchema);
