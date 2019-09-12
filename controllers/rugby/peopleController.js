@@ -13,7 +13,7 @@ const TeamTypes = mongoose.model("teamTypes");
 const { localTeam } = require("../../config/keys");
 
 //Helpers
-import { getListsAndSlugs } from "../genericController";
+import { getRedirects } from "../genericController";
 
 async function validatePerson(_id, res) {
 	if (!_id) {
@@ -107,7 +107,7 @@ export async function getList(req, res) {
 	).lean();
 
 	const peopleList = _.keyBy(people, "_id");
-	const redirects = await getListsAndSlugs(people, collectionName);
+	const redirects = await getRedirects(people, collectionName);
 
 	res.send({ peopleList, redirects });
 }

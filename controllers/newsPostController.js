@@ -6,7 +6,7 @@ const NewsPost = mongoose.model(collectionName);
 const SlugRedirect = mongoose.model("slugRedirect");
 
 //Helpers
-import { getListsAndSlugs } from "./genericController";
+import { getRedirects } from "./genericController";
 
 //Config
 function generateQuery(user, obj = {}) {
@@ -35,7 +35,7 @@ async function processList(req = null) {
 	const posts = await NewsPost.find(query).forList();
 	const postList = _.keyBy(posts, "_id");
 
-	const redirects = await getListsAndSlugs(posts, collectionName);
+	const redirects = await getRedirects(posts, collectionName);
 	return { postList, redirects };
 }
 

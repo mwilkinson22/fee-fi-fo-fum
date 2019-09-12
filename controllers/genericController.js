@@ -3,7 +3,7 @@ import _ from "lodash";
 import mongoose from "mongoose";
 const SlugRedirect = mongoose.model("slugRedirect");
 
-export async function getListsAndSlugs(data, collectionName) {
+export async function getRedirects(data, collectionName) {
 	if (collectionName == "games" || collectionName == "people" || collectionName == "newsPosts") {
 		const slugRedirects = await SlugRedirect.find({ collectionName });
 

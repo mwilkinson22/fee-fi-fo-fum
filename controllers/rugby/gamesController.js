@@ -6,7 +6,7 @@ const Team = mongoose.model("teams");
 
 //Modules
 import _ from "lodash";
-import { getListsAndSlugs } from "../genericController";
+import { getRedirects } from "../genericController";
 import { parse } from "node-html-parser";
 import axios from "axios";
 import twitter from "~/services/twitter";
@@ -186,7 +186,7 @@ async function processList() {
 		.lean();
 	const gameList = _.keyBy(games, "_id");
 
-	const redirects = await getListsAndSlugs(gameList, collectionName);
+	const redirects = await getRedirects(gameList, collectionName);
 	return { gameList, redirects };
 }
 
