@@ -36,6 +36,10 @@ class AdminGamePregameImage extends Component {
 			fetchProfiles();
 		}
 
+		const keys = require("~/config/keys");
+		console.log(keys);
+		console.log(process.env);
+
 		const { hashtags } = game;
 		this.state = {
 			_profile: defaultSocialProfile,
@@ -175,12 +179,6 @@ class AdminGamePregameImage extends Component {
 				label: name
 			}))
 			.value();
-
-		console.log("------------");
-		console.log(_profile);
-		console.log(profiles);
-		console.log(_.find(options, ({ value }) => value == _profile));
-		console.log("------------");
 
 		return (
 			<Select
