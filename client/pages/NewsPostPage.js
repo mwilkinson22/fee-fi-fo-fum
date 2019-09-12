@@ -29,6 +29,7 @@ import AuthorImage from "../components/news/AuthorImage";
 import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 
 //Helpers
+import { matchSlugToItem } from "~/helpers/routeHelper";
 import { convertToEditorState } from "~/helpers/newsHelper";
 
 class NewsPostPage extends Component {
@@ -52,19 +53,14 @@ class NewsPostPage extends Component {
 		const newState = { redirect: null };
 
 		if (postList) {
-			let post = _.find(postList, p => p.slug == slug);
+			const { item, redirect } = matchSlugToItem(slug, postList, redirects);
 
-			if (!post) {
-				const redirectId = redirects[match.params.slug];
-				post = postList[redirectId];
-
-				if (post) {
-					newState.redirect = `/news/post/${post.slug}`;
-				} else {
-					newState.post = false;
-				}
+			if (redirect) {
+				newState.redirect = `/news/post/${item.slug}`;
+			} else if (!item) {
+				newState.post = false;
 			} else {
-				const { _id } = post;
+				const { _id } = item;
 				newState.post = fullPosts[_id];
 				if (!newState.post) {
 					fetchNewsPost(_id);
@@ -261,18 +257,11 @@ async function loadData(store, path) {
 
 	const { postList, redirects } = store.getState().news;
 
-	let post = _.find(postList, p => p.slug == slug);
+	const { item } = matchSlugToItem(slug, postList, redirects);
 
-	if (!post) {
-		const redirectId = redirects[slug];
-		post = postList[redirectId];
-
-		if (!post) {
-			return null;
-		}
+	if (item) {
+		return store.dispatch(fetchNewsPost(item._id));
 	}
-
-	return store.dispatch(fetchNewsPost(post._id));
 }
 
 export default {

@@ -33,6 +33,7 @@ import { imagePath } from "../extPaths";
 import { Redirect } from "react-router-dom";
 
 //Helpers
+import { matchSlugToItem } from "~/helpers/routeHelper";
 import { getLastGame } from "~/helpers/gameHelper";
 import TeamImage from "~/client/components/teams/TeamImage";
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
@@ -69,22 +70,14 @@ class GamePage extends Component {
 		} = nextProps;
 
 		if (gameList && fullTeams[localTeam]) {
-			let game = _.find(gameList, g => g.slug == match.params.slug);
+			const { item, redirect } = matchSlugToItem(match.params.slug, gameList, redirects);
 
-			//If no match, check for redirects
-			if (!game) {
-				const redirectId = redirects[match.params.slug];
-				game = gameList[redirectId];
-
-				if (game) {
-					newState.redirect = game.slug;
-				} else {
-					newState.game = false;
-				}
-
-				return newState;
+			if (redirect) {
+				newState.redirect = `/games/${item.slug}`;
+			} else if (!item) {
+				newState.game = false;
 			} else {
-				const { _id } = game;
+				const { _id } = item;
 				const previousId = getLastGame(_id, gameList);
 
 				//Get Previous Id
@@ -443,7 +436,7 @@ class GamePage extends Component {
 		const { postList } = this.props;
 		const { game, redirect } = this.state;
 		if (redirect) {
-			return <Redirect to={`/games/${redirect}`} />;
+			return <Redirect to={redirect} />;
 		} else if (game === undefined) {
 			return <LoadingPage />;
 		} else if (!game) {
@@ -496,26 +489,16 @@ async function loadData(store, path) {
 
 	const { gameList, redirects } = store.getState().games;
 
-	//Look for a straightforward slug match
-	let game = _.find(gameList, g => g.slug == slug);
+	const { item } = matchSlugToItem(slug, gameList, redirects);
 
-	if (!game) {
-		//If that fails, check for a redirect
-		const redirectId = redirects[slug];
-		game = gameList[redirectId];
-
-		//If we've still got nothing, then stop here, 404
-		if (!game) {
-			return null;
+	if (item) {
+		const gamesToLoad = [item._id];
+		const previousId = getLastGame(item._id, gameList);
+		if (previousId) {
+			gamesToLoad.push(previousId);
 		}
+		return store.dispatch(fetchGames(gamesToLoad));
 	}
-
-	const gamesToLoad = [game._id];
-	const previousId = getLastGame(game._id, gameList);
-	if (previousId) {
-		gamesToLoad.push(previousId);
-	}
-	return store.dispatch(fetchGames(gamesToLoad));
 }
 
 export default {

@@ -20,6 +20,9 @@ import { layoutImagePath } from "../extPaths";
 import playerPositions from "~/constants/playerPositions";
 const { earliestGiantsData } = require("~/config/keys");
 
+//Helpers
+import { matchSlugToItem } from "~/helpers/routeHelper";
+
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
@@ -38,26 +41,20 @@ class PersonPage extends Component {
 
 	static getDerivedStateFromProps(nextProps) {
 		const { peopleList, redirects, fullPeople, fetchPerson, match, localTeam } = nextProps;
+		const { slug } = match.params;
 		const newState = { redirect: null };
 
 		//Ensure Slugmap is loaded
 		if (peopleList) {
-			let person = _.find(peopleList, g => g.slug == match.params.slug);
+			const { item, redirect } = matchSlugToItem(slug, peopleList, redirects);
 
-			if (!person) {
-				const redirectId = redirects[match.params.slug];
-				person = peopleList[redirectId];
-
-				if (person) {
-					const role = person.isCoach ? "coaches" : "players";
-					newState.redirect = `/${role}/${person.slug}`;
-				} else {
-					newState.person = false;
-				}
-
-				return newState;
+			if (redirect) {
+				const role = item.isCoach ? "coaches" : "players";
+				newState.redirect = `/${role}/${person.slug}`;
+			} else if (!item) {
+				newState.person = false;
 			} else {
-				const { _id } = person;
+				const { _id } = item;
 
 				if (!fullPeople[_id]) {
 					fetchPerson(_id);
@@ -375,21 +372,11 @@ async function loadData(store, path) {
 
 	const { peopleList, redirects } = store.getState().people;
 
-	//Look for a slug match
-	let person = _.find(peopleList, p => p.slug == slug);
+	const { item } = matchSlugToItem(slug, peopleList, redirects);
 
-	if (!person) {
-		//If that fails, try a redirect
-		const redirectId = redirects[slug];
-		person = peopleList[redirectId];
-
-		//If we've still got nothing, 404
-		if (!person) {
-			return null;
-		}
+	if (item) {
+		return store.dispatch(fetchPerson(item._id));
 	}
-
-	return store.dispatch(fetchPerson(person._id));
 }
 
 export default {
