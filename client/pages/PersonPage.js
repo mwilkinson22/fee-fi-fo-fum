@@ -129,7 +129,7 @@ class PersonPage extends Component {
 			return (
 				<div className="container">
 					<Link to={`/admin/people/${person.slug}`} className="nav-card">
-						Edit this game
+						Edit {person.name.first}
 					</Link>
 				</div>
 			);
