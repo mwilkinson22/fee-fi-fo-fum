@@ -257,17 +257,17 @@ a .person-image {
 						width: 400vw;
 					}
 
-					.positions {
-						padding-bottom: 4pt;
-					}
 					h1 {
 						text-align: left;
 						font-size: 4em;
 						line-height: 1.1;
-						border-bottom: solid 2pt $gold;
 						span {
 							display: block;
 						}
+					}
+					.positions {
+						border-top: solid 2pt $gold;
+						padding: 8pt 0 4pt;
 					}
 
 					.social {

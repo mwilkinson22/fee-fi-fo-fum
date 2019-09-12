@@ -107,14 +107,30 @@ class PersonPage extends Component {
 
 	getPositions() {
 		const { person } = this.state;
+		const rolesAndPositions = [];
+		if (person.isCoach) {
+			rolesAndPositions.push("Coach");
+		}
+
+		if (person.isReferee) {
+			rolesAndPositions.push("Referee");
+		}
+
 		if (person.isPlayer && person.playingPositions && person.playingPositions.length) {
-			const allPositions = person.playingPositions.map(position => {
+			person.playingPositions.forEach(position => {
+				rolesAndPositions.push(playerPositions[position].name);
+			});
+		}
+
+		if (rolesAndPositions.length) {
+			const allPositions = rolesAndPositions.map(position => {
 				return (
 					<div key={position} className="position">
-						{playerPositions[position].name}
+						{position}
 					</div>
 				);
 			});
+
 			return <div className="positions">{allPositions}</div>;
 		} else {
 			return null;
@@ -257,6 +273,10 @@ class PersonPage extends Component {
 	getPlayerStatsSection() {
 		const { person } = this.state;
 		const { gameList } = this.props;
+
+		if (!person.playedGames) {
+			return null;
+		}
 
 		if (!gameList) {
 			return <LoadingPage />;
