@@ -1,6 +1,5 @@
 //Mongoose
 import mongoose from "mongoose";
-import { getListsAndSlugs } from "../genericController";
 const collectionName = "teams";
 const Team = mongoose.model(collectionName);
 const TeamTypes = mongoose.model("teamTypes");
@@ -9,9 +8,6 @@ const Game = mongoose.model("games");
 
 //Modules
 const _ = require("lodash");
-
-//Helpers
-import { getPlayedGames } from "./peopleController";
 
 async function getUpdatedTeam(id, res) {
 	//To be called after post/put methods
@@ -49,10 +45,9 @@ function processBasics(values) {
 
 //Getters
 export async function getList(req, res) {
-	const teams = await Team.find({}, "name colours images slug").lean();
-
-	const { list, slugMap } = await getListsAndSlugs(teams, collectionName);
-	res.send({ teamList: list, slugMap });
+	const teams = await Team.find({}, "name colours images").lean();
+	const teamList = _.keyBy(teams, "_id");
+	res.send({ teamList });
 }
 
 export async function getTeam(req, res) {
@@ -68,11 +63,7 @@ export async function getTeamTypes(req, res) {
 
 export async function createTeam(req, res) {
 	//Handle Plain Text Fields
-	const slug = await Team.generateSlug(req.body);
-	const values = processBasics({
-		...req.body,
-		slug
-	});
+	const values = processBasics(req.body);
 	const team = new Team(values);
 	await team.save();
 	await getUpdatedTeam(team._id, res);

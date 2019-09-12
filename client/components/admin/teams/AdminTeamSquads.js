@@ -38,10 +38,9 @@ class AdminTeamSquads extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, fullTeams, slugMap, teamTypes } = nextProps;
-		const { slug } = match.params;
-		const { id } = slugMap[slug];
-		const team = fullTeams[id];
+		const { match, fullTeams, teamTypes } = nextProps;
+		const { _id } = match.params;
+		const team = fullTeams[_id];
 		return {
 			team,
 			teamTypes
@@ -79,7 +78,7 @@ class AdminTeamSquads extends BasicForm {
 				styles={selectStyling}
 				options={options}
 				onChange={opt => {
-					this.props.history.push(`/admin/teams/${team.slug}/squads/${opt.value}`);
+					this.props.history.push(`/admin/teams/${team._id}/squads/${opt.value}`);
 					this.setState({ newSquadData: undefined });
 				}}
 				defaultValue={_.find(options, option => option.value === match.params.squad)}
@@ -153,7 +152,7 @@ class AdminTeamSquads extends BasicForm {
 					<div className="error">
 						This squad already exists.{" "}
 						<Link
-							to={`/admin/teams/${team.slug}/squads/${teamExists._id}`}
+							to={`/admin/teams/${team._id}/squads/${teamExists._id}`}
 							onClick={() => this.setState({ newSquadError: undefined })}
 						>
 							Click here
@@ -286,7 +285,7 @@ class AdminTeamSquads extends BasicForm {
 				break;
 			default:
 				if (!squads[squad]) {
-					return <Redirect to={`/admin/teams/${team.slug}/squads`} />;
+					return <Redirect to={`/admin/teams/${team._id}/squads`} />;
 				} else {
 					pageType = "edit";
 				}
@@ -322,8 +321,8 @@ class AdminTeamSquads extends BasicForm {
 
 //Add Redux Support
 function mapStateToProps({ teams }) {
-	const { slugMap, fullTeams, teamTypes } = teams;
-	return { slugMap, fullTeams, teamTypes };
+	const { fullTeams, teamTypes } = teams;
+	return { fullTeams, teamTypes };
 }
 
 // export default form;

@@ -17,7 +17,7 @@ import AdminRefereeDetails from "~/client/components/admin/teams/AdminRefereeDet
 //Actions
 import { fetchPeopleList, fetchPerson } from "../../actions/peopleActions";
 
-class AdminTeamPage extends Component {
+class AdminPersonPage extends Component {
 	constructor(props) {
 		super(props);
 		const { peopleList, fetchPeopleList } = props;
@@ -134,4 +134,4 @@ function mapStateToProps({ people }) {
 export default connect(
 	mapStateToProps,
 	{ fetchPerson, fetchPeopleList }
-)(AdminTeamPage);
+)(AdminPersonPage);

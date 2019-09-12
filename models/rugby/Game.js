@@ -135,13 +135,17 @@ getGameVirtuals(gameSchema);
 gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType }) {
 	//Get Team
 	const Team = mongoose.model("teams");
-	const team = await Team.findById(_opposition, "slug");
+	const team = await Team.findById(_opposition, "name.short");
+	const teamSlug = team.name.short
+		.toLowerCase()
+		.replace(/\s+/gi, "-")
+		.replace(/[^-a-z]/gi, "");
 
 	//Get Team Type
 	const TeamType = mongoose.model("teamTypes");
 	const teamType = await TeamType.findById(_teamType, "slug");
 
-	const coreSlugText = `${team.slug}${
+	const coreSlugText = `${teamSlug}${
 		teamType.slug == "first" ? "-" : `-${teamType.slug}-`
 	}${date.toString("yyyy-MM-dd")}`;
 

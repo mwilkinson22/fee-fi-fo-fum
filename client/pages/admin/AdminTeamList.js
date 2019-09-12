@@ -9,10 +9,10 @@ class AdminTeamList extends Component {
 		return _.chain(this.props.teamList)
 			.sortBy("name.long")
 			.map(team => {
-				const { slug, name, colours } = team;
+				const { _id, name, colours } = team;
 				return (
-					<li key={team._id}>
-						<Link to={`/admin/teams/${slug}`}>
+					<li key={_id}>
+						<Link to={`/admin/teams/${_id}`}>
 							<div
 								className="team-wrapper card"
 								style={{

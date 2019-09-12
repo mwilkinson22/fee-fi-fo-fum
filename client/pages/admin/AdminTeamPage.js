@@ -21,15 +21,14 @@ class AdminTeamPage extends Component {
 	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
 
-		const { match, slugMap, fullTeams, fetchTeam } = nextProps;
+		const { match, teamList, fullTeams, fetchTeam } = nextProps;
 
-		if (slugMap[match.params.slug]) {
-			const { id } = slugMap[match.params.slug];
-			if (!fullTeams[id]) {
-				fetchTeam(id);
-				newState.team = undefined;
-			} else {
-				newState.team = fullTeams[id];
+		const { _id } = match.params;
+
+		if (teamList[_id]) {
+			newState.team = fullTeams[_id];
+			if (!newState.team) {
+				fetchTeam(_id);
 			}
 		} else {
 			newState.team = false;
@@ -39,7 +38,7 @@ class AdminTeamPage extends Component {
 	}
 
 	getSubmenu() {
-		const { slug } = this.state.team;
+		const { _id } = this.state.team;
 		const submenuItems = {
 			Overview: "",
 			Squads: "squads",
@@ -50,7 +49,7 @@ class AdminTeamPage extends Component {
 				<NavLink
 					key={url}
 					exact={url.length === 0}
-					to={`/admin/teams/${slug}/${url}`}
+					to={`/admin/teams/${_id}/${url}`}
 					activeClassName="active"
 				>
 					{title}
@@ -71,11 +70,11 @@ class AdminTeamPage extends Component {
 				<Switch>
 					<Route
 						exact
-						path="/admin/teams/:slug/squads/:squad"
+						path="/admin/teams/:_id/squads/:squad"
 						component={AdminTeamSquads}
 					/>
-					<Route exact path="/admin/teams/:slug/squads" component={AdminTeamSquads} />
-					<Route path="/admin/teams/:slug" exact component={AdminTeamOverview} />
+					<Route exact path="/admin/teams/:_id/squads" component={AdminTeamSquads} />
+					<Route path="/admin/teams/:_id" exact component={AdminTeamOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</div>
@@ -108,8 +107,8 @@ class AdminTeamPage extends Component {
 }
 
 function mapStateToProps({ teams }) {
-	const { fullTeams, slugMap } = teams;
-	return { fullTeams, slugMap };
+	const { fullTeams, teamList } = teams;
+	return { fullTeams, teamList };
 }
 export default connect(
 	mapStateToProps,

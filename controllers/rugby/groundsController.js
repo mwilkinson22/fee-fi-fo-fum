@@ -58,7 +58,7 @@ export async function deleteGround(req, res) {
 		const Team = mongoose.model("teams");
 		const teams = await Team.find(
 			{ $or: [{ _defaultGround: _id }, { "_grounds._ground": _id }] },
-			"name slug"
+			"name"
 		).lean();
 
 		if (games.length || teams.length) {

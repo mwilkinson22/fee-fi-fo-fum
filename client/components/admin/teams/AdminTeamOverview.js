@@ -78,13 +78,11 @@ class AdminTeamOverview extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullTeams, slugMap, match, groundList } = nextProps;
+		const { fullTeams, match, groundList } = nextProps;
 		const newState = {};
 
-		if (match && match.params.slug) {
-			const { slug } = match.params;
-			const { id } = slugMap[slug];
-			newState.team = fullTeams[id];
+		if (match && match.params._id) {
+			newState.team = fullTeams[match.params._id];
 		}
 
 		if (groundList) {
@@ -298,8 +296,8 @@ class AdminTeamOverview extends BasicForm {
 //Add Redux Support
 function mapStateToProps({ grounds, teams }) {
 	const { groundList } = grounds;
-	const { fullTeams, slugMap, teamTypes } = teams;
-	return { fullTeams, slugMap, groundList, teamTypes };
+	const { fullTeams, teamTypes } = teams;
+	return { fullTeams, groundList, teamTypes };
 }
 // export default form;
 export default connect(

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 //Pages
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
 
-export default class AdminTeamPage extends Component {
+export default class AdminNewTeamPage extends Component {
 	render() {
 		return (
 			<div className="admin-team-page admin-page">

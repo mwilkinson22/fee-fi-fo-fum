@@ -111,7 +111,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/sponsors/" exact component={AdminSponsorList} />
 
 					<Route path="/admin/teams/new" component={AdminNewTeamPage} />
-					<Route path="/admin/teams/:slug" component={AdminTeamPage} />
+					<Route path="/admin/teams/:_id" component={AdminTeamPage} />
 					<Route path="/admin/teams/" exact component={AdminTeamList} />
 
 					<Route path="/admin/logout" component={Logout} />
