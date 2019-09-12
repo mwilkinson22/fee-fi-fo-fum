@@ -50,7 +50,7 @@ class PersonPage extends Component {
 
 			if (redirect) {
 				const role = item.isCoach ? "coaches" : "players";
-				newState.redirect = `/${role}/${person.slug}`;
+				newState.redirect = `/${role}/${item.slug}`;
 			} else if (!item) {
 				newState.person = false;
 			} else {
