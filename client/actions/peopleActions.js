@@ -57,3 +57,8 @@ export const setExternalNames = values => async (dispatch, getState, api) => {
 	toast.success(`External names for ${values.length} people updated`);
 	return true;
 };
+
+export const parsePlayerList = data => async (dispatch, getState, api) => {
+	const res = await api.post(`/people/parsePlayerList`, data);
+	return res.data;
+};

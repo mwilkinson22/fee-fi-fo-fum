@@ -7,7 +7,7 @@ import Select from "react-select";
 import selectStyling from "~/constants/selectStyling";
 
 //Actions
-import { fetchPeopleList } from "../../../actions/peopleActions";
+import { parsePlayerList } from "../../../actions/peopleActions";
 import { appendTeamSquad, createTeamSquad } from "../../../actions/teamsActions";
 
 //Components
@@ -18,29 +18,9 @@ class AdminTeamSquadBulkAdder extends Component {
 	constructor(props) {
 		super(props);
 
-		const { peopleList, fetchPeopleList } = this.props;
-
-		if (!peopleList) {
-			fetchPeopleList();
-		}
-
 		this.state = {
 			textList: "",
 			delimiter: ""
-		};
-	}
-
-	static getDerivedStateFromProps(nextProps) {
-		const { peopleList, gender } = nextProps;
-
-		return {
-			peopleList: _.chain(peopleList)
-				.filter(p => p.gender === gender)
-				.map(p => ({
-					id: p._id,
-					name: `${p.name.first} ${p.name.last}`
-				}))
-				.value()
 		};
 	}
 
@@ -69,81 +49,66 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	async parseList() {
-		const { textList, delimiter, peopleList } = this.state;
-		const lines = _.filter(textList.split("\n"), line => line.trim().length);
+		const { gender, parsePlayerList } = this.props;
+		const { textList, delimiter } = this.state;
+		const lines = textList.split("\n").filter(line => line.trim().length);
 
 		if (lines.length === 0) {
 			this.setState({
 				parsedList: undefined
 			});
 		} else {
-			const parsedList = _.chain(lines)
-				.map(line => {
-					const result = { original: line.trim() };
+			this.setState({
+				isLoading: true
+			});
+			//Get an object with original, name and number
+			const parsedLines = lines.map(line => {
+				const result = { original: line.trim() };
 
-					//Split the line using delimiter
-					let splitLine;
-					if (delimiter.length) {
-						splitLine = line.trim().split(delimiter);
-					} else {
-						splitLine = line.trim().split(/(?=[A-Za-z])(.+)/);
-					}
+				//Split the line using delimiter
+				let splitLine;
+				if (delimiter.length) {
+					splitLine = line.trim().split(delimiter);
+				} else {
+					splitLine = line.trim().split(/(?=[A-Za-z])(.+)/);
+				}
 
-					//Get Name and Number
-					if (splitLine.length > 1) {
-						result.number = splitLine[0].replace(/\D/gi, "");
-						result.name = splitLine[1];
-					} else {
-						result.name = splitLine[0];
-					}
+				//Get Name and Number
+				if (splitLine.length > 1) {
+					result.number = splitLine[0].replace(/\D/gi, "");
+					result.name = splitLine[1];
+				} else {
+					result.name = splitLine[0];
+				}
 
-					//Get exact matches
-					result.exact = _.chain(peopleList)
-						.filter(p => p.name.toLowerCase() === result.name.toLowerCase())
-						.map(p => {
-							return { label: p.name, value: p.id };
-						})
-						.sortBy("label")
-						.value();
+				return result;
+			});
 
-					//Get Approx matches
-					if (result.exact.length === 0) {
-						result.approx = _.chain(peopleList)
-							.filter(p => {
-								//Remove all non alphanumeric
-								let match =
-									p.name.toLowerCase().replace(/[^A-Za-z]/gi, "") ==
-									result.name.toLowerCase().replace(/[^A-Za-z]/gi, "");
+			//Send it off to the server to get matches
+			const serverResults = await parsePlayerList({
+				gender,
+				names: parsedLines.map(p => p.name)
+			});
 
-								//Try with first initial and last name
-								if (!match) {
-									const firstInitial = result.name.substr(0, 1);
-									const lastName = result.name.split(" ").pop();
-									const regex = new RegExp(
-										`^${firstInitial}.+ ${lastName}$`,
-										"ig"
-									);
-									if (p.name.match(regex)) {
-										match = true;
-									}
-								}
-
-								return match;
-							})
-							.map(p => {
-								return { label: p.name, value: p.id };
-							})
-							.sortBy("label")
-							.value();
-					}
-
-					return result;
+			//Add in the results
+			const parsedList = _.chain(parsedLines)
+				.map((parsedLine, i) => {
+					console.log(parsedLine.name, serverResults[i]);
+					const { exact, results } = serverResults[i];
+					const options = results.map(({ name, extraText, _id }) => ({
+						value: _id,
+						label: `${name}${extraText ? ` (${extraText})` : ""}`
+					}));
+					return {
+						...parsedLine,
+						[exact ? "exact" : "approx"]: options
+					};
 				})
 				.filter(_.identity)
 				.sortBy(p => Number(p.number) || 9999)
 				.value();
 
-			this.setState({ parsedList });
+			this.setState({ parsedList, isLoading: false });
 		}
 	}
 
@@ -160,7 +125,7 @@ class AdminTeamSquadBulkAdder extends Component {
 				};
 
 				//Name Select
-				if (exact.length) {
+				if (exact && exact.length) {
 					values.nameSelect = exact[0];
 				} else if (approx && approx.length) {
 					values.nameSelect = approx[0];
@@ -201,7 +166,7 @@ class AdminTeamSquadBulkAdder extends Component {
 
 						//Set Colour Code
 						let className;
-						if (exact.length) {
+						if (exact && exact.length) {
 							className = "exact";
 						} else if (approx && approx.length) {
 							className = "approx";
@@ -217,7 +182,7 @@ class AdminTeamSquadBulkAdder extends Component {
 							{ value: "new", label: "Create new player" },
 							{ value: "skip", label: "Skip this player" }
 						];
-						if (exact.length) {
+						if (exact && exact.length) {
 							selectOptions.push({
 								label: "Exact matches",
 								options: exact
@@ -313,44 +278,45 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	render() {
-		const { peopleList, parsedList } = this.state;
+		const { parsedList, isLoading } = this.state;
 		const { squad, teamType, year } = this.props;
-		if (!peopleList) {
-			return <LoadingPage />;
-		} else {
-			const parsed = parsedList ? this.renderParsedList() : null;
-			return (
-				<div>
-					<div className="form-card grid">
-						<h6>
-							{squad
-								? "Add Extra Players"
-								: `Add Players to ${year} ${teamType.name}`}
-						</h6>
-						{!squad && this.addNewSquadHeader()}
-						<textarea
-							id=""
-							rows="20"
-							value={this.state.textList}
-							onChange={ev => this.setState({ textList: ev.target.value })}
-						/>
-						<label>Delimiter</label>
-						<input
-							type="text"
-							placeholder="Defaults to regex"
-							value={this.state.delimiter}
-							onChange={ev => this.setState({ delimiter: ev.target.value })}
-						/>
-						<div className="buttons">
-							<button type="button" onClick={() => this.parseList()}>
-								Parse Names
-							</button>
-						</div>
-					</div>
-					{parsed}
-				</div>
-			);
+
+		let content;
+		if (isLoading) {
+			content = <LoadingPage />;
+		} else if (parsedList) {
+			content = this.renderParsedList();
 		}
+
+		return (
+			<div>
+				<div className="form-card grid">
+					<h6>
+						{squad ? "Add Extra Players" : `Add Players to ${year} ${teamType.name}`}
+					</h6>
+					{!squad && this.addNewSquadHeader()}
+					<textarea
+						id=""
+						rows="20"
+						value={this.state.textList}
+						onChange={ev => this.setState({ textList: ev.target.value })}
+					/>
+					<label>Delimiter</label>
+					<input
+						type="text"
+						placeholder="Defaults to regex"
+						value={this.state.delimiter}
+						onChange={ev => this.setState({ delimiter: ev.target.value })}
+					/>
+					<div className="buttons">
+						<button type="button" onClick={() => this.parseList()}>
+							Parse Names
+						</button>
+					</div>
+				</div>
+				{content}
+			</div>
+		);
 	}
 }
 
@@ -362,5 +328,5 @@ function mapStateToProps({ people, teams }) {
 
 export default connect(
 	mapStateToProps,
-	{ fetchPeopleList, appendTeamSquad, createTeamSquad }
+	{ parsePlayerList, appendTeamSquad, createTeamSquad }
 )(AdminTeamSquadBulkAdder);

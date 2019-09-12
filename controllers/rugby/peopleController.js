@@ -55,7 +55,7 @@ async function getPlayedGames(_id) {
 }
 
 async function getSquadEntries(_id) {
-	let teamTypes = await TeamTypes.find({}, "sortOrder").lean();
+	let teamTypes = await TeamTypes.find({}, "sortOrder name").lean();
 	teamTypes = _.keyBy(teamTypes, "_id");
 
 	const squadEntries = await Team.find(
@@ -73,10 +73,10 @@ async function getSquadEntries(_id) {
 			};
 			return t.squads
 				.filter(squad => squad.players.find(({ _player }) => _player == _id))
-				.map(({ year, _teamType }) => ({ team, year, _teamType }));
+				.map(({ year, _teamType }) => ({ team, year, _teamType: teamTypes[_teamType] }));
 		})
 		.flatten()
-		.orderBy(["year", t => teamTypes[t._teamType].sortOrder], ["desc", "asc"])
+		.orderBy(["year", "teamTypes.sortOrder"], ["desc", "asc"])
 		.value();
 }
 
@@ -160,6 +160,86 @@ export async function setExternalNames(req, res) {
 		await Person.findByIdAndUpdate(obj._player, { externalName: obj.name });
 	}
 	res.send({});
+}
+
+//Parser
+export async function parsePlayerList(req, res) {
+	const { names, gender } = req.body;
+
+	//Regex to normalise names
+	const regEx = new RegExp("[^a-zA-Z]", "gi");
+
+	//Get full people list
+	let people = await Person.find({ gender }, "name isPlayer isCoach isReferee").lean();
+	people = people.map(p => {
+		const name = `${p.name.first} ${p.name.last}`;
+		return {
+			...p,
+			name,
+			filteredName: name.replace(regEx, "").toLowerCase()
+		};
+	});
+
+	//Get Matches
+	const matches = [];
+	for (const unfilteredName of names) {
+		const name = unfilteredName.replace(regEx, "").toLowerCase();
+
+		const exact = people.filter(p => p.filteredName === name);
+		if (exact.length) {
+			matches.push({ exact: exact.length == 1 && exact[0].isPlayer, results: exact });
+		} else {
+			//Create a Regex that matches first initial and last name
+			const firstInitial = name.substr(0, 1);
+			const lastName = unfilteredName
+				.split(" ")
+				.pop()
+				.replace(regEx, "")
+				.toLowerCase();
+			const approxRegex = new RegExp(`^${firstInitial}.+ ${lastName}$`, "ig");
+
+			//Find anyone who matches the regex
+			const approx = people.filter(p => p.name.match(approxRegex));
+			matches.push({ exact: false, results: approx });
+		}
+	}
+
+	//Use isCoach or isReferee to generate extra text
+	const extraText = _.chain(matches)
+		.map("results")
+		.flatten()
+		.uniqBy("_id")
+		.keyBy("_id")
+		.mapValues(({ isCoach, isReferee }) => (isCoach ? "Coach" : isReferee ? "Referee" : null))
+		.value();
+
+	//Then cycle players to add additional info
+	for (const id in extraText) {
+		if (!extraText[id]) {
+			const squadEntries = await getSquadEntries(id);
+			if (squadEntries.length) {
+				const { team, year, _teamType } = squadEntries[0];
+				extraText[id] = `${year} ${team.name} ${
+					_teamType.sortOrder > 1 ? _teamType.name : ""
+				}`.trim();
+			}
+		}
+	}
+
+	//And finally map the extra text into results
+	res.send(
+		matches.map(match => {
+			const results = match.results.map(({ _id, name }) => ({
+				_id,
+				name,
+				extraText: extraText[_id]
+			}));
+			return {
+				...match,
+				results
+			};
+		})
+	);
 }
 
 //Deleter
