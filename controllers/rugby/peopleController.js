@@ -73,7 +73,15 @@ async function getSquadEntries(_id) {
 			};
 			return t.squads
 				.filter(squad => squad.players.find(({ _player }) => _player == _id))
-				.map(({ year, _teamType }) => ({ team, year, _teamType: teamTypes[_teamType] }));
+				.map(({ year, _teamType, players }) => {
+					const { number } = players.find(({ _player }) => _player == _id);
+					return {
+						team,
+						year,
+						number,
+						_teamType: teamTypes[_teamType]
+					};
+				});
 		})
 		.flatten()
 		.orderBy(["year", "teamTypes.sortOrder"], ["desc", "asc"])

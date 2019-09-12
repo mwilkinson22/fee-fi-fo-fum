@@ -151,9 +151,29 @@ class PersonPage extends Component {
 	}
 
 	getInfoTable() {
+		const { localTeam } = this.props;
 		const { person } = this.state;
-		const { contractedUntil, dateOfBirth, nickname, _hometown, _represents, _sponsor } = person;
+		const {
+			contractedUntil,
+			dateOfBirth,
+			nickname,
+			_hometown,
+			_represents,
+			_sponsor,
+			squadEntries
+		} = person;
 		const data = {};
+
+		if (squadEntries) {
+			const year = new Date().getFullYear();
+			const lastSquadEntry = squadEntries.find(
+				s => s.team._id == localTeam && s.year >= year && s.number
+			);
+			if (lastSquadEntry) {
+				data["Squad Number"] = lastSquadEntry.number;
+			}
+		}
+
 		if (dateOfBirth) {
 			const today = new Date();
 			const age = Math.abs(today.getTime() - dateOfBirth.getTime());
