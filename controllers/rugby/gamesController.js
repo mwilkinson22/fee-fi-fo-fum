@@ -67,9 +67,7 @@ async function processBasics(values) {
 	//Handle Score Override
 	values.scoreOverride = _.chain(values.scoreOverride)
 		.map((points, _team) => ({ points, _team }))
-		.each(a => console.log("A", a))
 		.reject(({ points }) => points === null || points === "")
-		.each(a => console.log("B", a))
 		.value();
 
 	//Check for empty images

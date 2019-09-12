@@ -167,7 +167,6 @@ class AdminGameCrawler extends Component {
 
 				const playerResults = crawlData.results[team][name];
 				if (playerResults && playerResults.stats) {
-					console.log(playerResults);
 					const { stats } = playerResults;
 
 					//Fix Goals

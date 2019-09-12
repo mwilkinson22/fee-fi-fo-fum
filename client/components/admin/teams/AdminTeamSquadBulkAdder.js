@@ -93,7 +93,6 @@ class AdminTeamSquadBulkAdder extends Component {
 			//Add in the results
 			const parsedList = _.chain(parsedLines)
 				.map((parsedLine, i) => {
-					console.log(parsedLine.name, serverResults[i]);
 					const { exact, results } = serverResults[i];
 					const options = results.map(({ name, extraText, _id }) => ({
 						value: _id,
