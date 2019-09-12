@@ -92,6 +92,62 @@ class AdminPlayerDetails extends BasicForm {
 		});
 	}
 
+	renderPlayerHistory() {
+		const { person } = this.state;
+		const content = [<h6 key="header">Player History</h6>];
+
+		//Get games
+		if (person.playedGames) {
+			const pregameOnly = _.chain(person.playedGames)
+				.groupBy("pregameOnly")
+				.value();
+			const gamesPlayedString = [];
+			if (pregameOnly.false) {
+				gamesPlayedString.push(
+					`Played in ${pregameOnly.false.length} ${
+						pregameOnly.false.length == 1 ? "game" : "games"
+					}`
+				);
+			}
+			if (pregameOnly.true) {
+				gamesPlayedString.push(
+					`Named in ${pregameOnly.true.length} pregame ${
+						pregameOnly.true.length == 1 ? "squad" : "squads"
+					}`
+				);
+			}
+
+			content.push(
+				<strong className="full-span" key="game-count">
+					{gamesPlayedString.map((a, i) => (i == 0 ? a : a.toLowerCase())).join(" and ")}
+				</strong>
+			);
+		}
+
+		if (person.squadEntries) {
+			_.chain(person.squadEntries)
+				.groupBy("year")
+				.orderBy([s => s[0].year], ["desc"])
+				.each(squads => {
+					const year = squads[0].year;
+					content.push(<label key={`${year}-squads`}>{year}</label>);
+					const list = squads.map((s, i) => (
+						<li key={i}>
+							{s.number ? `#${s.number} - ` : ""}
+							{s.team.name} {s._teamType.name}
+						</li>
+					));
+
+					content.push(<ul key={`${year}-squads-list`}>{list}</ul>);
+				})
+				.value();
+		}
+
+		if (content.length > 1) {
+			return <div className="form-card grid">{content}</div>;
+		}
+	}
+
 	async onSubmit(fValues) {
 		const { person } = this.state;
 		const { updatePerson } = this.props;
@@ -155,6 +211,7 @@ class AdminPlayerDetails extends BasicForm {
 										</button>
 									</div>
 								</div>
+								{this.renderPlayerHistory()}
 							</Form>
 						);
 					}}
