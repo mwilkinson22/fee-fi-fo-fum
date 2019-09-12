@@ -35,8 +35,8 @@ export default function(state = { fullGames: {} }, action) {
 				gameList: {
 					...fixDates(action.payload.gameList)
 				},
-				slugMap: {
-					...action.payload.slugMap
+				redirects: {
+					...action.payload.redirects
 				}
 			};
 

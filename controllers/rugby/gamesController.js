@@ -184,9 +184,10 @@ async function processList() {
 	const games = await Game.find({})
 		.forList()
 		.lean();
+	const gameList = _.keyBy(games, "_id");
 
-	const { list, slugMap } = await getListsAndSlugs(games, collectionName);
-	return { gameList: list, slugMap };
+	const redirects = await getListsAndSlugs(gameList, collectionName);
+	return { gameList, redirects };
 }
 
 //Getters

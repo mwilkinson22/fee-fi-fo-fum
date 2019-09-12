@@ -4,17 +4,28 @@ import mongoose from "mongoose";
 const SlugRedirect = mongoose.model("slugRedirect");
 
 export async function getListsAndSlugs(data, collectionName) {
-	const slugRedirects = await SlugRedirect.find({ collectionName });
+	if (collectionName == "games") {
+		const slugRedirects = await SlugRedirect.find({ collectionName });
 
-	const oldSlugs = _.chain(slugRedirects)
-		.keyBy("oldSlug")
-		.mapValues(slug => ({ redirect: true, slug: slug.itemId }))
-		.value();
+		const redirects = _.chain(slugRedirects)
+			.keyBy("oldSlug")
+			.mapValues("itemId")
+			.value();
 
-	const activeSlugs = _.chain(data)
-		.keyBy("slug")
-		.mapValues(item => ({ redirect: false, id: item._id }))
-		.value();
+		return redirects;
+	} else {
+		const slugRedirects = await SlugRedirect.find({ collectionName });
 
-	return { list: _.keyBy(data, "_id"), slugMap: { ...oldSlugs, ...activeSlugs } };
+		const oldSlugs = _.chain(slugRedirects)
+			.keyBy("oldSlug")
+			.mapValues(slug => ({ redirect: true, slug: slug.itemId }))
+			.value();
+
+		const activeSlugs = _.chain(data)
+			.keyBy("slug")
+			.mapValues(item => ({ redirect: false, id: item._id }))
+			.value();
+
+		return { list: _.keyBy(data, "_id"), slugMap: { ...oldSlugs, ...activeSlugs } };
+	}
 }

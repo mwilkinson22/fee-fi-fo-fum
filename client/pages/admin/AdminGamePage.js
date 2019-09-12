@@ -23,8 +23,8 @@ import selectStyling from "~/constants/selectStyling";
 class AdminGamePage extends Component {
 	constructor(props) {
 		super(props);
-		const { slugMap, fetchGameList } = props;
-		if (!slugMap) {
+		const { gameList, fetchGameList } = props;
+		if (!gameList) {
 			fetchGameList();
 		}
 
@@ -32,24 +32,26 @@ class AdminGamePage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, slugMap, gameList, fullGames, fetchGames } = nextProps;
+		const { match, gameList, fullGames, fetchGames } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
-		if (!slugMap) {
+		if (!gameList) {
 			return newState;
-		}
-		if (!slugMap[slug]) {
-			newState.game = false;
 		}
 
 		//Get Game Id
-		const id = slugMap[slug].id;
+		const game = _.find(gameList, g => g.slug == slug);
+
+		if (!game) {
+			newState.game = false;
+			return newState;
+		}
 
 		//Get Previous Game Id
-		const lastGameId = (newState.lastGameId = getLastGame(id, gameList));
+		const lastGameId = (newState.lastGameId = getLastGame(game._id, gameList));
 
 		//Get Games To Load
-		const gamesRequired = [id];
+		const gamesRequired = [game._id];
 		if (lastGameId) {
 			gamesRequired.push(lastGameId);
 		}
@@ -60,7 +62,7 @@ class AdminGamePage extends Component {
 			newState.game = undefined;
 			newState.lastGame = undefined;
 		} else {
-			newState.game = fullGames[id];
+			newState.game = fullGames[game._id];
 			newState.lastGame = lastGameId ? fullGames[lastGameId] : false;
 
 			//Check for man of steel
@@ -323,10 +325,10 @@ class AdminGamePage extends Component {
 }
 
 function mapStateToProps({ config, games, teams }) {
-	const { fullGames, slugMap, gameList } = games;
+	const { fullGames, gameList } = games;
 	const { teamTypes, teamList } = teams;
 	const { localTeam } = config;
-	return { localTeam, fullGames, teamList, slugMap, gameList, teamTypes };
+	return { localTeam, fullGames, teamList, gameList, teamTypes };
 }
 export default connect(
 	mapStateToProps,

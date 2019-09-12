@@ -42,9 +42,9 @@ class GamePage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { slugMap, fetchGameList, postList, fetchPostList } = props;
+		const { gameList, fetchGameList, postList, fetchPostList } = props;
 
-		if (!slugMap) {
+		if (!gameList) {
 			fetchGameList();
 		}
 
@@ -56,34 +56,58 @@ class GamePage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = {};
+		const newState = { redirect: null };
 
-		const { match, slugMap, gameList, fullGames, fetchGames, fullTeams, localTeam } = nextProps;
+		const {
+			match,
+			redirects,
+			gameList,
+			fullGames,
+			fetchGames,
+			fullTeams,
+			localTeam
+		} = nextProps;
 
-		if (slugMap && fullTeams[localTeam]) {
-			const { id } = slugMap[match.params.slug];
-			const previousId = getLastGame(id, gameList);
+		if (gameList && fullTeams[localTeam]) {
+			let game = _.find(gameList, g => g.slug == match.params.slug);
 
-			//Get Previous Id
-			const gamesRequired = [id];
-			if (previousId) {
-				gamesRequired.push(previousId);
-			}
+			//If no match, check for redirects
+			if (!game) {
+				const redirectId = redirects[match.params.slug];
+				game = gameList[redirectId];
 
-			//Check for missing games
-			const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
+				if (game) {
+					newState.redirect = game.slug;
+				} else {
+					newState.game = false;
+				}
 
-			if (gamesToLoad.length) {
-				fetchGames(gamesToLoad);
-				newState.game = undefined;
+				return newState;
 			} else {
-				newState.game = fullGames[id];
-				newState.previousGame = fullGames[previousId];
-				newState.isFixture = newState.game.date >= new Date();
+				const { _id } = game;
+				const previousId = getLastGame(_id, gameList);
 
-				//Update Stat Table on game change
-				if (newState.game != prevState.game) {
-					newState.statTableTeam = "both";
+				//Get Previous Id
+				const gamesRequired = [_id];
+				if (previousId) {
+					gamesRequired.push(previousId);
+				}
+
+				//Check for missing games
+				const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
+
+				if (gamesToLoad.length) {
+					fetchGames(gamesToLoad);
+					newState.game = undefined;
+				} else {
+					newState.game = fullGames[_id];
+					newState.previousGame = fullGames[previousId];
+					newState.isFixture = newState.game.date >= new Date();
+
+					//Update Stat Table on game change
+					if (newState.game != prevState.game) {
+						newState.statTableTeam = "both";
+					}
 				}
 			}
 		}
@@ -417,11 +441,11 @@ class GamePage extends Component {
 
 	render() {
 		const { postList } = this.props;
-		const { game } = this.state;
-		if (game === undefined) {
+		const { game, redirect } = this.state;
+		if (redirect) {
+			return <Redirect to={`/games/${redirect}`} />;
+		} else if (game === undefined) {
 			return <LoadingPage />;
-		} else if (game.redirect) {
-			return <Redirect to={`/games/${game.slug}`} />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
 		} else if (!postList) {
@@ -454,11 +478,11 @@ class GamePage extends Component {
 }
 
 function mapStateToProps({ games, config, teams, news }) {
-	const { fullGames, slugMap, gameList } = games;
+	const { fullGames, redirects, gameList } = games;
 	const { localTeam, authUser } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
-	return { fullGames, slugMap, postList, localTeam, authUser, gameList, fullTeams };
+	return { fullGames, redirects, postList, localTeam, authUser, gameList, fullTeams };
 }
 
 async function loadData(store, path) {
@@ -469,9 +493,25 @@ async function loadData(store, path) {
 		store.dispatch(fetchGameList()),
 		store.dispatch(fetchTeam(localTeam))
 	]);
-	const { id } = store.getState().games.slugMap[slug];
-	const gamesToLoad = [id];
-	const previousId = getLastGame(id, store.getState().games.gameList);
+
+	const { gameList, redirects } = store.getState().games;
+
+	//Look for a straightforward slug match
+	let game = _.find(gameList, g => g.slug == slug);
+
+	if (!game) {
+		//If that fails, check for a redirect
+		const redirectId = redirects[slug];
+		game = gameList[redirectId];
+
+		//If we've still got nothing, then stop here, 404
+		if (!game) {
+			return null;
+		}
+	}
+
+	const gamesToLoad = [game._id];
+	const previousId = getLastGame(game._id, gameList);
 	if (previousId) {
 		gamesToLoad.push(previousId);
 	}
