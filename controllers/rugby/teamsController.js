@@ -5,11 +5,14 @@ const collectionName = "teams";
 const Team = mongoose.model(collectionName);
 const TeamTypes = mongoose.model("teamTypes");
 const Person = mongoose.model("people");
+const Game = mongoose.model("games");
 
 //Modules
 const _ = require("lodash");
 
 //Helpers
+import { getPlayedGames } from "./peopleController";
+
 async function getUpdatedTeam(id, res) {
 	//To be called after post/put methods
 	const team = await Team.findById([id]).fullTeam();
@@ -181,30 +184,123 @@ export async function updateSquad(req, res) {
 				error: `No squad with id ${squadId} found for ${team.name.long}`
 			});
 		} else {
-			squad.players = _.chain(req.body)
-				.map((data, _player) => {
-					const { number, onLoan, from, to, deletePlayer } = data;
-					if (deletePlayer) {
-						return null;
-					}
-					return {
-						number: number === "" ? null : number,
-						onLoan,
-						from: from === "" ? null : new Date(from),
-						to: to === "" ? null : new Date(to),
-						_player
-					};
-				})
-				.filter(_.identity)
+			//Check for players scheduled for deletion
+			//Ensure their presence in the squad isn't required for a game
+			const playersToDelete = _.chain(req.body)
+				.map((p, _id) => ({ ...p, _id }))
+				.filter("deletePlayer")
+				.map("_id")
 				.value();
 
-			//Remove Empty Squad
-			if (!squad.players.length) {
-				team.squads = _.reject(team.squads, s => s._id == squadId);
+			//Get "Date" filter for games
+			const date = {
+				$gte: new Date(`${squad.year}-01-01`),
+				$lt: new Date(`${squad.year + 1}-01-01`)
+			};
+
+			//In case any playyers cannot be deleted, we'll populate this array
+			const undeleteables = [];
+
+			//Check each player for dependent games
+			for (const _player of playersToDelete) {
+				const games = await Game.find(
+					{
+						$or: [
+							{ "playerStats._player": _player },
+							{ "pregameSquads.squad": _player }
+						],
+						date
+					},
+					"date _competition slug"
+				).populate({
+					path: "_competition",
+					select: "_parentCompetition _teamType",
+					populate: { path: "_parentCompetition" }
+				});
+
+				if (!games.length) {
+					continue;
+				}
+
+				const competitions = _.chain(games)
+					.uniqBy("_competition._id")
+					.map(({ _competition }) => ({
+						_id: _competition._id,
+						_teamType: _competition._teamType,
+						useAllSquads: _competition._parentCompetition.useAllSquads
+					}))
+					.filter(
+						c => c.useAllSquads || c._teamType.toString() == squad._teamType.toString()
+					)
+					.value();
+
+				//If there are any competitions with useAllSquads set to false,
+				//then we know the player cannot be deleted
+				let dependentCompetitions = competitions
+					.filter(c => !c.useAllSquads)
+					.map(c => c._id);
+				let dependentGames;
+				if (dependentCompetitions) {
+					dependentGames = games.filter(g =>
+						dependentCompetitions.find(c => c == g._competition._id)
+					);
+				} else {
+					//If we get to this point, it means a player has only featured in
+					//games that uses all squads. In this case, we need to confirm they
+					//appear in at least one other relevant squad
+					const otherSquads = team.squads.filter(
+						s =>
+							s._id != squadId &&
+							s.year == squad.year &&
+							s.players.find(p => p._player == _player)
+					);
+					if (!otherSquads.length) {
+						dependentGames = games;
+					}
+				}
+
+				if (dependentGames.length) {
+					const player = await Person.findById(_player, "name").lean();
+					undeleteables.push({
+						player: `${player.name.first} ${player.name.last}`,
+						games: dependentGames.map(g => g.slug)
+					});
+				}
 			}
 
-			await team.save();
-			await getUpdatedTeam(_id, res);
+			if (undeleteables.length) {
+				res.status(419).send({
+					error: `Could not delete ${undeleteables.length} ${
+						undeleteables.length == 1 ? "player" : "players"
+					}`,
+					toLog: undeleteables
+				});
+			} else {
+				squad.players = _.chain(req.body)
+					.map((data, _player) => {
+						const { number, onLoan, from, to, deletePlayer } = data;
+						if (deletePlayer) {
+							return null;
+						}
+						return {
+							number: number === "" ? null : number,
+							onLoan,
+							from: from === "" ? null : new Date(from),
+							to: to === "" ? null : new Date(to),
+							_player
+						};
+					})
+					.filter(_.identity)
+					.value();
+
+				//Remove Empty Squad
+				if (!squad.players.length) {
+					team.squads = _.reject(team.squads, s => s._id == squadId);
+				}
+
+				await team.save();
+				await getUpdatedTeam(_id, res);
+			}
 		}
 	}
 }
