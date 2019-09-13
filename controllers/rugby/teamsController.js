@@ -9,6 +9,18 @@ const Game = mongoose.model("games");
 //Modules
 const _ = require("lodash");
 
+//Helpers
+async function validateTeam(_id, res, promise = null) {
+	//This allows us to populate specific fields if necessary
+	const team = await (promise || Team.findById(_id));
+	if (team) {
+		return team;
+	} else {
+		res.status(404).send(`No team found with id ${_id}`);
+		return false;
+	}
+}
+
 async function getUpdatedTeam(id, res) {
 	//To be called after post/put methods
 	const team = await Team.findById([id]).fullTeam();
@@ -43,24 +55,9 @@ function processBasics(values) {
 	});
 }
 
-//Getters
-export async function getList(req, res) {
-	const teams = await Team.find({}, "name colours images").lean();
-	const teamList = _.keyBy(teams, "_id");
-	res.send({ teamList });
-}
-
-export async function getTeam(req, res) {
-	const { id } = req.params;
-	const team = await Team.findById(id).fullTeam();
-	res.send({ [team._id]: team });
-}
-
-export async function getTeamTypes(req, res) {
-	const teamTypes = await TeamTypes.find({}).sort({ sortOrder: 1 });
-	res.send(_.keyBy(teamTypes, "_id"));
-}
-
+/*
+ * FULL TEAM METHODS
+ */
 export async function createTeam(req, res) {
 	//Handle Plain Text Fields
 	const values = processBasics(req.body);
@@ -71,14 +68,65 @@ export async function createTeam(req, res) {
 
 export async function updateTeam(req, res) {
 	const { _id } = req.params;
-	const team = await Team.findById(_id);
-	if (!team) {
-		res.status(404).send(`No team with id ${_id} was found`);
-	} else {
+	const team = await validateTeam(_id, res);
+	if (team) {
 		//Handle Plain Text Fields
 		const values = processBasics(req.body);
 		await Team.updateOne({ _id }, values);
 		await getUpdatedTeam(_id, res);
+	}
+}
+
+export async function getList(req, res) {
+	const teams = await Team.find({}, "name colours images").lean();
+	const teamList = _.keyBy(teams, "_id");
+	res.send({ teamList });
+}
+
+export async function getTeam(req, res) {
+	const { id } = req.params;
+	const team = await validateTeam(id, res, Team.findById(id).fullTeam());
+	if (team) {
+		res.send({ [team._id]: team });
+	}
+}
+
+/*
+ * SQUAD METHODS
+ */
+export async function createSquad(req, res) {
+	const { _id } = req.params;
+	const team = await validateTeam(_id, res);
+	if (team) {
+		const { players, _teamType, year } = req.body;
+		const processedPlayers = await processBulkSquadAdd(players, _teamType);
+		const newSquad = {
+			year,
+			_teamType,
+			players: processedPlayers
+		};
+
+		team.squads.push(newSquad);
+		await team.save();
+		await getUpdatedTeam(_id, res);
+	}
+}
+
+export async function appendSquad(req, res) {
+	const { _id, squadId } = req.params;
+	const team = await validateTeam(_id, res);
+	if (team) {
+		const squad = _.find(team.squads, squad => squad._id == squadId);
+		if (!squad) {
+			res.status(404).send({
+				error: `No squad with id ${squadId} found for ${team.name.long}`
+			});
+		} else {
+			const newSquad = await processBulkSquadAdd(req.body, squad._teamType);
+			squad.players.push(...newSquad);
+			await team.save();
+			await getUpdatedTeam(_id, res);
+		}
 	}
 }
 
@@ -123,52 +171,10 @@ async function processBulkSquadAdd(data, teamTypeId) {
 	return results;
 }
 
-export async function createSquad(req, res) {
-	const { _id } = req.params;
-	const team = await Team.findById(_id);
-	if (!team) {
-		res.status(404).send(`No team with id ${_id} was found`);
-	} else {
-		const { players, _teamType, year } = req.body;
-		const processedPlayers = await processBulkSquadAdd(players, _teamType);
-		const newSquad = {
-			year,
-			_teamType,
-			players: processedPlayers
-		};
-
-		team.squads.push(newSquad);
-		await team.save();
-		await getUpdatedTeam(_id, res);
-	}
-}
-
-export async function appendSquad(req, res) {
-	const { _id, squadId } = req.params;
-	const team = await Team.findById(_id);
-	if (!team) {
-		res.status(404).send(`No team with id ${_id} was found`);
-	} else {
-		const squad = _.find(team.squads, squad => squad._id == squadId);
-		if (!squad) {
-			res.status(404).send({
-				error: `No squad with id ${squadId} found for ${team.name.long}`
-			});
-		} else {
-			const newSquad = await processBulkSquadAdd(req.body, squad._teamType);
-			squad.players.push(...newSquad);
-			await team.save();
-			await getUpdatedTeam(_id, res);
-		}
-	}
-}
-
 export async function updateSquad(req, res) {
 	const { _id, squadId } = req.params;
-	const team = await Team.findById(_id);
-	if (!team) {
-		res.status(404).send(`No team with id ${_id} was found`);
-	} else {
+	const team = await validateTeam(_id, res);
+	if (team) {
 		const squad = _.find(team.squads, squad => squad._id == squadId);
 		if (!squad) {
 			res.status(404).send({
@@ -294,4 +300,12 @@ export async function updateSquad(req, res) {
 			}
 		}
 	}
+}
+
+/*
+ * TEAM TYPES METHODS
+ */
+export async function getTeamTypes(req, res) {
+	const teamTypes = await TeamTypes.find({}).sort({ sortOrder: 1 });
+	res.send(_.keyBy(teamTypes, "_id"));
 }
