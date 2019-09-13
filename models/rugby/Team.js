@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+import coachTypes from "~/constants/coachTypes";
 
 const teamSchema = new Schema({
 	name: {
@@ -63,13 +64,25 @@ const teamSchema = new Schema({
 		main: { type: String, required: true },
 		light: { type: String, default: null },
 		dark: { type: String, default: null }
-	}
+	},
+	coaches: [
+		{
+			_person: { type: Schema.Types.ObjectId, ref: "people", required: true },
+			from: { type: Date, required: true },
+			to: { type: Date, default: null },
+			role: { type: String, required: true, enum: Object.keys(coachTypes) },
+			_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true }
+		}
+	]
 });
 
 teamSchema.query.fullTeam = function() {
 	return this.populate({
 		path: "squads.players._player",
 		select: "name position playingPositions isPlayer isCoach image twitter gender"
+	}).populate({
+		path: "coaches._person",
+		select: "name"
 	});
 };
 
