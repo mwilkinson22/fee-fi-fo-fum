@@ -70,6 +70,7 @@ class AdminTeamCurrentCoaches extends BasicForm {
 	}
 
 	render() {
+		const { teamTypes } = this.props;
 		const { team, roles } = this.state;
 
 		return (
@@ -88,57 +89,76 @@ class AdminTeamCurrentCoaches extends BasicForm {
 						{ key: "deleteCoach", label: "Delete" }
 					];
 
-					const rows = _.chain(team.coaches)
-						.orderBy(["from", "to"], ["desc", "desc"])
-						.map(coach => {
-							const { name, slug } = coach._person;
+					const content = _.chain(team.coaches)
+						.groupBy("_teamType")
+						.map((coaches, _teamType) => ({ coaches, _teamType }))
+						.sortBy(({ _teamType }) => teamTypes[_teamType].sortOrder)
+						.map(({ _teamType, coaches }) => {
+							const rows = _.chain(coaches)
+								.orderBy(["from", "to"], ["desc", "desc"])
+								.map(coach => {
+									const { name, slug } = coach._person;
 
-							//Get Core Fields
-							const data = {};
-							data.name = (
-								<Link to={`/admin/people/${slug}`}>
-									{name.first} {name.last}
-								</Link>
-							);
-							data.role = (
-								<Select
-									styles={selectStyling}
-									options={roles}
-									onChange={opt =>
-										formikProps.setFieldValue(`${coach._id}.role`, opt)
-									}
-									defaultValue={formikProps.values[coach._id].role}
-								/>
-							);
-							data.from = (
-								<Field
-									component="input"
-									type="date"
-									name={`${coach._id}.from`}
-									required={true}
-								/>
-							);
-							data.to = (
-								<Field component="input" type="date" name={`${coach._id}.to`} />
-							);
-							data.deleteCoach = (
-								<Field type="checkbox" name={`${coach._id}.deleteCoach`} />
-							);
+									//Get Core Fields
+									const data = {};
+									data.name = (
+										<Link to={`/admin/people/${slug}`}>
+											{name.first} {name.last}
+										</Link>
+									);
+									data.role = (
+										<Select
+											styles={selectStyling}
+											options={roles}
+											onChange={opt =>
+												formikProps.setFieldValue(`${coach._id}.role`, opt)
+											}
+											defaultValue={formikProps.values[coach._id].role}
+										/>
+									);
+									data.from = (
+										<Field
+											component="input"
+											type="date"
+											name={`${coach._id}.from`}
+											required={true}
+										/>
+									);
+									data.to = (
+										<Field
+											component="input"
+											type="date"
+											name={`${coach._id}.to`}
+										/>
+									);
+									data.deleteCoach = (
+										<Field type="checkbox" name={`${coach._id}.deleteCoach`} />
+									);
 
-							return {
-								key: coach._id || Math.random(),
-								data: _.mapValues(data, content => ({ content }))
-							};
+									return {
+										key: coach._id || Math.random(),
+										data: _.mapValues(data, content => ({ content }))
+									};
+								})
+								.value();
+
+							return [
+								<h6 key={_teamType + "header"}>{teamTypes[_teamType].name}</h6>,
+								<Table
+									key={_teamType + "rows"}
+									rows={rows}
+									columns={columns}
+									defaultSortable={false}
+								/>
+							];
 						})
+
 						.value();
 
 					return (
 						<Form>
 							<div className="form-card">
-								<h6>Current Coaches</h6>
-								<Table rows={rows} columns={columns} defaultSortable={false} />
-							</div>
-							<div className="form-card">
+								{content}
 								<div className="buttons">
 									<button type="clear">Clear</button>
 									<button type="submit">Submit</button>
