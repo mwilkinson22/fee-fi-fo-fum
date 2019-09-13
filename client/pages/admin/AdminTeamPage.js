@@ -8,6 +8,7 @@ import NotFoundPage from "../NotFoundPage";
 import { NavLink, Link, Switch, Route } from "react-router-dom";
 
 //Pages
+import AdminTeamCoaches from "../../components/admin/teams/AdminTeamCoaches";
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
 import AdminTeamSquads from "../../components/admin/teams/AdminTeamSquads";
 import TeamBanner from "../../components/teams/TeamBanner";
@@ -42,7 +43,7 @@ class AdminTeamPage extends Component {
 		const submenuItems = {
 			Overview: "",
 			Squads: "squads",
-			Shirts: "shirts"
+			Coaches: "coaches"
 		};
 		const submenu = _.map(submenuItems, (url, title) => {
 			return (
@@ -65,9 +66,10 @@ class AdminTeamPage extends Component {
 
 	getContent() {
 		return (
-			<div>
+			<div className="container">
 				<HelmetBuilder title={this.state.team.name.long} />
 				<Switch>
+					<Route exact path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
 					<Route
 						exact
 						path="/admin/teams/:_id/squads/:squad"

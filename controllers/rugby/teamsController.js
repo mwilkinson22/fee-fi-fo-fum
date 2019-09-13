@@ -84,8 +84,8 @@ export async function getList(req, res) {
 }
 
 export async function getTeam(req, res) {
-	const { id } = req.params;
-	const team = await validateTeam(id, res, Team.findById(id).fullTeam());
+	const { _id } = req.params;
+	const team = await validateTeam(_id, res, Team.findById(_id).fullTeam());
 	if (team) {
 		res.send({ [team._id]: team });
 	}
@@ -299,6 +299,33 @@ export async function updateSquad(req, res) {
 				await getUpdatedTeam(_id, res);
 			}
 		}
+	}
+}
+
+/*
+ * COACH METHODS
+ */
+export async function updateCoaches(req, res) {
+	const { _id } = req.params;
+	const team = await validateTeam(_id, res);
+	if (team) {
+		team.coaches = _.chain(req.body)
+			.map((values, _id) => {
+				const { deleteCoach, ...valuesToSave } = values;
+				if (deleteCoach) {
+					return null;
+				} else {
+					return {
+						...valuesToSave,
+						_id
+					};
+				}
+			})
+			.filter(_.identity)
+			.value();
+
+		await team.save();
+		await getTeam(req, res);
 	}
 }
 

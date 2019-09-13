@@ -47,6 +47,12 @@ export const updateTeamSquad = (team_id, squad_id, data) => async (dispatch, get
 	}
 };
 
+export const updateCoaches = (team_id, data) => async (dispatch, getState, api) => {
+	const res = await api.put(`/teams/${team_id}/coaches`, data);
+	toast.success("Coaches updated");
+	dispatch({ type: UPDATE_TEAM, payload: res.data });
+};
+
 export const appendTeamSquad = (team_id, squad_id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/teams/${team_id}/squad/${squad_id}/append`, data);
 	toast.success("Squad updated");

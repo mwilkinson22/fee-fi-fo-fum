@@ -82,7 +82,7 @@ teamSchema.query.fullTeam = function() {
 		select: "name position playingPositions isPlayer isCoach image twitter gender"
 	}).populate({
 		path: "coaches._person",
-		select: "name"
+		select: "name slug"
 	});
 };
 
