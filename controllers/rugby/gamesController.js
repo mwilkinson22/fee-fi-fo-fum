@@ -14,6 +14,7 @@ import twitter from "~/services/twitter";
 //Constants
 const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
+import coachTypes from "~/constants/coachTypes";
 
 //Helpers
 import { parseExternalGame, postToIfttt } from "~/helpers/gameHelper";
@@ -98,15 +99,18 @@ async function processBasics(values) {
 async function addEligiblePlayers(games) {
 	//Get All Full Teams
 	const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
-	let teams = await Team.find({ _id: { $in: teamIds } }, "squads").populate({
-		path: "squads.players._player",
-		select:
-			"name playingPositions nickname displayNicknameInCanvases squadNameWhenDuplicate image slug gender _sponsor twitter",
-		populate: {
-			path: "_sponsor",
-			select: "name twitter"
-		}
-	});
+	let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
+		.populate({
+			path: "squads.players._player",
+			select:
+				"name playingPositions nickname displayNicknameInCanvases squadNameWhenDuplicate image slug gender _sponsor twitter",
+			populate: {
+				path: "_sponsor",
+				select: "name twitter"
+			}
+		})
+		.populate({ path: "coaches._person", select: "name slug" });
+
 	teams = _.keyBy(teams, "_id");
 
 	//Check to see if any games are valid for more than one teamType
@@ -120,7 +124,8 @@ async function addEligiblePlayers(games) {
 	//Loop each game
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
-		const year = new Date(game.date).getFullYear();
+		const date = new Date(game.date);
+		const year = date.getFullYear();
 
 		//TEMP
 		//Get Score Override
@@ -130,6 +135,29 @@ async function addEligiblePlayers(games) {
 				.mapValues("points")
 				.value();
 		}
+
+		//Get Coaches
+		game.coaches = _.chain([localTeam, game._opposition._id])
+			.map(id => [id, teams[id].coaches])
+			.fromPairs()
+			.mapValues(coaches => {
+				return _.chain(coaches)
+					.filter(c => {
+						return (
+							c._teamType.toString() == game._teamType.toString() &&
+							new Date(c.from) < date &&
+							(c.to == null || new Date(c.to) > date)
+						);
+					})
+					.orderBy(
+						[({ role }) => coachTypes.findIndex(({ key }) => role == key)],
+						["asc"]
+					)
+					.uniqBy("_person._id")
+					.map(({ _person, role }) => ({ _person, role }))
+					.value();
+			})
+			.value();
 
 		//Get Valid Team Types
 		const { useAllSquads } = game._competition._parentCompetition;
