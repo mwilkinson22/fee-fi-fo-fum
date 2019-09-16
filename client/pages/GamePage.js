@@ -322,8 +322,8 @@ class GamePage extends Component {
 		}
 
 		//Process game stats into rows
-		const { isAway, _opposition, playerStats, eligiblePlayers } = game;
-		const rows = _.chain(playerStats)
+		const { isAway, _opposition, eligiblePlayers } = game;
+		const rows = _.chain(filteredGame.playerStats)
 			.map(p => ({ ...p, isAway: p._team == _opposition._id ? !isAway : isAway }))
 			.orderBy(["isAway", "position"], ["asc", "asc"])
 			.map((p, sortValue) => {
