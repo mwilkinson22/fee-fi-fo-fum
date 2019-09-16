@@ -1,10 +1,16 @@
+//Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { NavLink } from "react-router-dom";
+
+//Components
 import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
-import _ from "lodash";
 import HelmetBuilder from "../components/HelmetBuilder";
-import { NavLink } from "react-router-dom";
+
+//Constants
+import coachTypes from "~/constants/coachTypes";
 
 class SquadListPage extends Component {
 	constructor(props) {
@@ -32,7 +38,7 @@ class SquadListPage extends Component {
 		newState.teamTypes = _.chain(team.squads)
 			.filter(squad => squad.year == newState.year)
 			.map(squad => teamTypes[squad._teamType])
-			.sortBy("sortOrder")
+			.orderBy("sortOrder")
 			.value();
 
 		//Get Active TeamType
@@ -49,6 +55,35 @@ class SquadListPage extends Component {
 			.flatten()
 			.sortBy(({ number, _player }) => number || _player.name.last)
 			.value();
+
+		//Get Coaches
+		const now = new Date();
+		const currentYear = Number(now.getFullYear());
+		if (team.coaches) {
+			const coaches = _.chain(team.coaches)
+				.filter(c => c._teamType == newState.teamType)
+				.orderBy(
+					[({ role }) => coachTypes.findIndex(({ key }) => role == key), "from"],
+					["asc", "asc"]
+				)
+				.value();
+			if (currentYear == newState.year) {
+				//Just get currently active
+				newState.coaches = coaches.filter(c => {
+					return new Date(c.from) < now && (c.to == null || new Date(c.to) > now);
+				});
+			} else {
+				//Get all for the year in question
+				const year = Number(newState.year);
+				newState.coaches = coaches.filter(c => {
+					return (
+						new Date(c.from) < new Date(`${year + 1}-01-01`) &&
+						(c.to == null || new Date(c.to) > new Date(`${year}-01-01`))
+					);
+				});
+			}
+			newState.coaches = _.uniqBy(newState.coaches, "_person._id");
+		}
 
 		return newState;
 	}
@@ -110,8 +145,8 @@ class SquadListPage extends Component {
 	}
 
 	generateSquadList() {
-		const { squad } = this.state;
-		const players = _.map(squad, player => {
+		const { squad, coaches } = this.state;
+		const playerCards = _.map(squad, player => {
 			return (
 				<PersonCard
 					person={player._player}
@@ -121,7 +156,28 @@ class SquadListPage extends Component {
 				/>
 			);
 		});
-		return <div className="person-card-grouping">{players}</div>;
+		let coachCards;
+		if (coaches && coaches.length) {
+			coachCards = coaches.map(coach => {
+				return (
+					<PersonCard
+						person={coach._person}
+						personType="coach"
+						key={coach._id}
+						additionalData={`${
+							coachTypes.find(({ key }) => key == coach.role).name
+						} Coach`}
+					/>
+				);
+			});
+		}
+
+		return (
+			<div className="person-card-grouping">
+				{playerCards}
+				{coachCards}
+			</div>
+		);
 	}
 
 	generateHelmet() {
