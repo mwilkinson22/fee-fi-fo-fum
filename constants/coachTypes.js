@@ -1,5 +1,14 @@
-export default {
-	H: "Head",
-	A: "Assistant",
-	I: "Interim"
-};
+export default [
+	{
+		key: "H",
+		name: "Head"
+	},
+	{
+		key: "I",
+		name: "Interim"
+	},
+	{
+		key: "A",
+		name: "Assistant"
+	}
+];

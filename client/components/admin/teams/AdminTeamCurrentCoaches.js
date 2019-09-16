@@ -21,7 +21,7 @@ class AdminTeamCurrentCoaches extends BasicForm {
 	constructor(props) {
 		super(props);
 
-		const roles = _.map(coachTypes, (name, key) => ({ value: key, label: name }));
+		const roles = _.map(coachTypes, ({ name, key }) => ({ value: key, label: name }));
 
 		this.state = { roles };
 	}

@@ -70,7 +70,7 @@ const teamSchema = new Schema({
 			_person: { type: Schema.Types.ObjectId, ref: "people", required: true },
 			from: { type: Date, required: true },
 			to: { type: Date, default: null },
-			role: { type: String, required: true, enum: Object.keys(coachTypes) },
+			role: { type: String, required: true, enum: coachTypes.map(c => c.key) },
 			_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true }
 		}
 	]
@@ -79,10 +79,10 @@ const teamSchema = new Schema({
 teamSchema.query.fullTeam = function() {
 	return this.populate({
 		path: "squads.players._player",
-		select: "name position playingPositions isPlayer isCoach image twitter gender"
+		select: "name position playingPositions isPlayer isCoach image twitter gender slug"
 	}).populate({
 		path: "coaches._person",
-		select: "name slug"
+		select: "name slug image gender"
 	});
 };
 
