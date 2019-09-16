@@ -3,11 +3,12 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PersonImage from "./PersonImage";
 import playerPositions from "~/constants/playerPositions";
+import coachTypes from "~/constants/coachTypes";
 
 export default class PersonCard extends Component {
 	constructor(props) {
 		super(props);
-		const { person } = props;
+		const { person, coachingRole } = props;
 		const roles = ["referee", "coach", "player"];
 		let { personType } = props;
 		if (!personType || roles.indexOf(personType) < 0) {
@@ -19,17 +20,28 @@ export default class PersonCard extends Component {
 				personType = "player";
 			}
 		}
+		this.personType = personType;
 
 		if (props.additionalData) {
 			this.additionalData = props.additionalData;
 		} else {
 			switch (personType) {
+				case "coach":
+					if (coachingRole) {
+						this.additionalData = (
+							<div className="additional-data coaching-role">
+								{coachTypes.find(({ key }) => key == coachingRole).name} Coach
+							</div>
+						);
+					}
+					break;
 				case "player":
 					if (person.playingPositions && person.playingPositions.length) {
+						const positions = person.playingPositions.map(pos => (
+							<span key={pos}>{playerPositions[pos].name}</span>
+						));
 						this.additionalData = (
-							<div className="additional-data positions">
-								{playerPositions[person.playingPositions[0]].name}
-							</div>
+							<div className="additional-data positions">{positions}</div>
 						);
 					}
 					break;
@@ -66,7 +78,7 @@ export default class PersonCard extends Component {
 		});
 		return (
 			<Link className="person-card-wrapper" to={`/players/${slug}`}>
-				<div className="person-card">
+				<div className={`person-card ${this.personType}`}>
 					<div className="trim">{number}</div>
 					<div className="main">
 						<h4 className={`name ${longName ? "long" : ""}`}>

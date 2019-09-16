@@ -164,9 +164,7 @@ class SquadListPage extends Component {
 						person={coach._person}
 						personType="coach"
 						key={coach._id}
-						additionalData={`${
-							coachTypes.find(({ key }) => key == coach.role).name
-						} Coach`}
+						coachingRole={coach.role}
 					/>
 				);
 			});

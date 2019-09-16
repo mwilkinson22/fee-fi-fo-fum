@@ -65,8 +65,21 @@ a .person-image {
 					display: block;
 				}
 			}
+			.additional-data {
+				font-weight: 600;
+				color: #eee;
+			}
 			.positions {
-				color: #ddd;
+				span {
+					display: inline-block;
+					&:not(:first-child) {
+						font-weight: 400;
+					}
+					&:not(:last-child)::after {
+						content: ",";
+						margin-right: 2pt;
+					}
+				}
 			}
 			@media #{$mobile-only} {
 				font-size: 10pt;
