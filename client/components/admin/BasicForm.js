@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { Field, FastField, ErrorMessage } from "formik";
-import Select from "react-select";
+import Select, { Async } from "react-select";
 import selectStyling from "~/constants/selectStyling";
 
 //Components
@@ -99,7 +99,14 @@ export default class BasicForm extends Component {
 		//Get Render Method
 		const render = formikProps => {
 			//Update default onChange method for custom Select component
-			if ([fieldTypes.select, fieldTypes.image, fieldTypes.tweet].indexOf(type) > -1) {
+			if (
+				[
+					fieldTypes.select,
+					fieldTypes.asyncSelect,
+					fieldTypes.image,
+					fieldTypes.tweet
+				].indexOf(type) > -1
+			) {
 				formikProps.field.onChange = option => {
 					formikProps.form.setFieldTouched(field.name, true);
 					formikProps.form.setFieldValue(field.name, option || "");
@@ -121,6 +128,15 @@ export default class BasicForm extends Component {
 				case fieldTypes.select:
 					return (
 						<Select className="react-select" styles={selectStyling} {...mainProps} />
+					);
+				case fieldTypes.asyncSelect:
+					return (
+						<Async
+							className="react-select"
+							cacheOptions
+							styles={selectStyling}
+							{...mainProps}
+						/>
 					);
 				case fieldTypes.image:
 					return <ImageField {...mainProps} />;
