@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { updateTeamSquad } from "../../../actions/teamsActions";
 
 //Components
+import AdminTeamAddCoach from "~/client/components/admin/teams/AdminTeamAddCoach";
 import AdminTeamCurrentCoaches from "~/client/components/admin/teams/AdminTeamCurrentCoaches";
 
 //Constants
@@ -30,7 +31,13 @@ class AdminTeamCoaches extends Component {
 	}
 
 	render() {
-		return <div>{this.getCurrentCoaches()}</div>;
+		const { team } = this.state;
+		return (
+			<div>
+				<AdminTeamAddCoach team={team} />
+				{this.getCurrentCoaches()}
+			</div>
+		);
 	}
 }
 

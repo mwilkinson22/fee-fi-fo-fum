@@ -305,6 +305,16 @@ export async function updateSquad(req, res) {
 /*
  * COACH METHODS
  */
+export async function addCoach(req, res) {
+	const { _id } = req.params;
+	const team = await validateTeam(_id, res);
+	if (team) {
+		team.coaches.push(req.body);
+		await team.save();
+		await getTeam(req, res);
+	}
+}
+
 export async function updateCoaches(req, res) {
 	const { _id } = req.params;
 	const team = await validateTeam(_id, res);

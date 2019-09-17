@@ -75,7 +75,6 @@ class AdminTeamCurrentCoaches extends BasicForm {
 
 		return (
 			<Formik
-				key="currentCoaches"
 				onSubmit={values => this.handleSubmit(values)}
 				initialValues={this.getInitialValues()}
 				enableReinitialize={true}
@@ -113,7 +112,9 @@ class AdminTeamCurrentCoaches extends BasicForm {
 											onChange={opt =>
 												formikProps.setFieldValue(`${coach._id}.role`, opt)
 											}
-											defaultValue={formikProps.values[coach._id].role}
+											defaultValue={roles.find(
+												({ value }) => value == coach.role
+											)}
 										/>
 									);
 									data.from = (

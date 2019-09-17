@@ -17,6 +17,7 @@ module.exports = app => {
 	app.put("/api/teams/:_id", requireAdmin, teamsController.updateTeam);
 
 	//Post
+	app.post("/api/teams/:_id/coaches", requireAdmin, teamsController.addCoach);
 	app.post("/api/teams/:_id/squad/", requireAdmin, teamsController.createSquad);
 	app.post("/api/teams/", requireAdmin, teamsController.createTeam);
 };
