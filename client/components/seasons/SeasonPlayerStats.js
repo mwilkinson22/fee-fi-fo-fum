@@ -116,6 +116,7 @@ class SeasonPlayerStats extends Component {
 
 	renderStatTables() {
 		const { players, statType, processedStats } = this.state;
+
 		const rows = processedStats.map(({ _player, stats }) => {
 			//Generate first column
 			const p = players[_player];
@@ -139,10 +140,18 @@ class SeasonPlayerStats extends Component {
 				};
 			});
 
+			const games = {
+				content: _.chain(stats)
+					.map("gameCount")
+					.max()
+					.value()
+			};
+
 			return {
 				key: _player,
 				data: {
 					first,
+					games,
 					...statData
 				}
 			};
@@ -153,6 +162,7 @@ class SeasonPlayerStats extends Component {
 				firstColumnHeader="Player"
 				showTotal={false}
 				showAverage={false}
+				addGames={statType !== "best"}
 			/>
 		);
 	}

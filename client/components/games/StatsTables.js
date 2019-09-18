@@ -15,7 +15,7 @@ class StatsTables extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { rows } = nextProps;
+		const { rows, addGames } = nextProps;
 
 		const statTypes = _.chain(rows)
 			.map(row => _.keys(row.data))
@@ -32,7 +32,7 @@ class StatsTables extends Component {
 			activeTab = tabs[0];
 		}
 
-		return { statTypes, rows, activeTab };
+		return { statTypes, rows, activeTab, addGames };
 	}
 
 	handleTableHeaderClick(inputKey = null, enforcedDirection = null) {
@@ -73,7 +73,7 @@ class StatsTables extends Component {
 	}
 
 	renderColumns() {
-		const { statTypes, activeTab } = this.state;
+		const { statTypes, activeTab, addGames } = this.state;
 		const { firstColumnHeader } = this.props;
 		const columnsFromStatType = statTypes[activeTab].map(key => {
 			const stat = playerStatTypes[key];
@@ -84,15 +84,25 @@ class StatsTables extends Component {
 			};
 		});
 
-		return [
+		const columns = [
 			{
 				key: "first",
 				label: firstColumnHeader,
 				defaultAscSort: true,
 				dataUsesTh: true
-			},
-			...columnsFromStatType
+			}
 		];
+
+		if (addGames) {
+			columns.push({
+				key: "games",
+				label: "Games"
+			});
+		}
+
+		columns.push(...columnsFromStatType);
+
+		return columns;
 	}
 
 	renderFoot() {
@@ -191,10 +201,12 @@ StatsTables.propTypes = {
 	firstColumnHeader: PropTypes.string,
 	rows: Table.propTypes.rows,
 	showAverage: PropTypes.bool,
-	showTotal: PropTypes.bool
+	showTotal: PropTypes.bool,
+	addGames: PropTypes.bool
 };
 
 StatsTables.defaultProps = {
+	addGames: false,
 	firstColumnHeader: "",
 	showAverage: true,
 	showTotal: true
