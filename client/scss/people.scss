@@ -237,6 +237,7 @@ a .person-image {
 			.container {
 				display: flex;
 				align-items: stretch;
+				min-height: 100%;
 				.overlay {
 					background: darken($claret, 5%);
 					position: relative;
@@ -300,6 +301,7 @@ a .person-image {
 					max-height: 40vh;
 					margin-right: 5%;
 					pointer-events: none;
+					align-self: flex-end;
 				}
 			}
 		}
