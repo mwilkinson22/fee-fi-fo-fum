@@ -651,6 +651,15 @@
 			.row {
 				display: flex;
 				align-items: center;
+				&.extra {
+					.header {
+						@include header;
+						text-align: center;
+						padding-top: 4pt;
+						width: 100%;
+						border-top: 1pt solid;
+					}
+				}
 				.player {
 					position: relative;
 					.name-bar {
@@ -701,8 +710,11 @@
 				.row {
 					flex-direction: column;
 					order: 1 !important;
-					.interchange-header {
-						display: none;
+					width: 100%;
+					&.extra {
+						.header {
+							padding: 10pt 0;
+						}
 					}
 					&:not(:last-child) {
 						margin-bottom: 6pt;
@@ -741,17 +753,10 @@
 								margin-right: 6%;
 							}
 						}
-						&:last-child {
-							//Interchanges
+						&.extra {
+							//Interchanges and coaches
 							flex-wrap: wrap;
 							padding: 10pt;
-							.interchange-header {
-								@include header;
-								text-align: center;
-								border-top: 1pt solid;
-								padding-top: 4pt;
-								width: 100%;
-							}
 						}
 						a.player {
 							.name-bar {

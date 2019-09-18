@@ -68,7 +68,11 @@ class MatchSquadList extends Component {
 					if (rowIndex > -1 || position == squad.length) {
 						const order = position == squad.length ? 999 : rowIndex + 1;
 						rows.push(
-							<div className="row" key={order} style={{ order }}>
+							<div
+								className={`row ${position < 13 ? "main" : "extra"}`}
+								key={order}
+								style={{ order }}
+							>
 								{row}
 							</div>
 						);
@@ -76,9 +80,9 @@ class MatchSquadList extends Component {
 						if (position == 13) {
 							row.push(
 								<div
-									className="interchange-header"
+									className="header"
 									key="ih"
-									style={{ color: team.colours.text }}
+									style={{ color: team.colours.trim1 }}
 								>
 									Interchanges
 								</div>
