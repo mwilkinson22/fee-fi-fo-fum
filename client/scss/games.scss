@@ -549,6 +549,7 @@
 				align-items: center;
 				padding: 10pt;
 				overflow: visible;
+				.person-wrapper,
 				.player {
 					@include header;
 					white-space: nowrap;
@@ -660,7 +661,7 @@
 						border-top: 1pt solid;
 					}
 				}
-				.player {
+				.person-wrapper {
 					position: relative;
 					.name-bar {
 						display: flex;
@@ -730,10 +731,15 @@
 						margin: 0 2pt;
 						color: inherit !important;
 						background: inherit !important;
-					}
-					.name-bar,
-					.name {
 						border: none !important;
+					}
+					.name-bar {
+						border: none !important;
+					}
+					.coach {
+						.number::after {
+							content: " - ";
+						}
 					}
 				}
 			}
@@ -748,7 +754,7 @@
 						&:nth-child(4) {
 							//Halfbacks
 							margin: 8pt 0;
-							.player {
+							.person-wrapper {
 								margin-left: 6%;
 								margin-right: 6%;
 							}
@@ -758,7 +764,7 @@
 							flex-wrap: wrap;
 							padding: 10pt;
 						}
-						a.player {
+						a.person-wrapper {
 							.name-bar {
 								transition: box-shadow 100ms;
 							}
@@ -766,7 +772,7 @@
 								box-shadow: 0 0 6pt #ffcc00;
 							}
 						}
-						.player {
+						.person-wrapper {
 							margin: 2pt 4pt;
 							display: flex;
 							flex-direction: column;

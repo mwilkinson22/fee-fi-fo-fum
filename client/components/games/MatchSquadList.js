@@ -12,6 +12,9 @@ import PersonImage from "~/client/components/people/PersonImage";
 //Helpers
 import { getGameStarStats } from "~/helpers/gameHelper";
 
+//Constants
+import coachTypes from "~/constants/coachTypes";
+
 class MatchSquadList extends Component {
 	constructor(props) {
 		super(props);
@@ -82,7 +85,7 @@ class MatchSquadList extends Component {
 								<div
 									className="header"
 									key="ih"
-									style={{ color: team.colours.trim1 }}
+									style={{ color: team.colours.text }}
 								>
 									Interchanges
 								</div>
@@ -102,6 +105,7 @@ class MatchSquadList extends Component {
 						<div className="team-block" key={team._id} style={{ backgroundColor }}>
 							<TeamImage team={team} />
 							{rows}
+							{this.renderCoaches(team)}
 						</div>
 					);
 				}
@@ -117,34 +121,9 @@ class MatchSquadList extends Component {
 	}
 
 	renderPlayer(player, team) {
-		const { name, id, position, number, slug } = player;
+		const { id, position, slug } = player;
 		const { localTeam } = this.props;
 		const { game } = this.state;
-
-		//Get Styling
-		let nameStyle = {};
-		let numberStyle = {};
-		if (team._id == localTeam) {
-			nameStyle = {
-				background: team.colours.text,
-				border: `solid 1pt ${team.colours.text}`,
-				color: team.colours.main
-			};
-			numberStyle = {
-				background: team.colours.main,
-				border: `solid 1pt ${team.colours.main}`,
-				color: team.colours.trim1
-			};
-		} else {
-			nameStyle = {
-				background: team.colours.main,
-				color: team.colours.text
-			};
-			numberStyle = {
-				background: team.colours.text,
-				color: team.colours.main
-			};
-		}
 
 		//Get Image
 		let image;
@@ -167,29 +146,14 @@ class MatchSquadList extends Component {
 		//Render Item
 		const props = {
 			key: id,
-			className: `player ${position <= 13 ? "starting" : "interchange"}`,
+			className: `person-wrapper player ${position <= 13 ? "starting" : "interchange"}`,
 			style: {
 				background: "transparent",
 				color: team.colours.text
 			}
 		};
 
-		const border = team._id != localTeam && `1pt ${team.colours.text} solid`;
-		const content = [
-			image,
-			<div
-				className={`name-bar ${border ? "with-border" : "no-border"}`}
-				key="name-bar"
-				style={{ border }}
-			>
-				<div className="number" style={numberStyle}>
-					{number || ""}
-				</div>
-				<div className="name" style={nameStyle}>
-					{name.last}
-				</div>
-			</div>
-		];
+		const content = [image, this.renderNameBar(player.name.last, player.number, team)];
 
 		//Add GameStar stats
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
@@ -230,17 +194,99 @@ class MatchSquadList extends Component {
 		}
 	}
 
+	renderCoaches(team) {
+		const { localTeam } = this.props;
+		const { coaches } = this.state.game;
+
+		if (coaches[team._id].length) {
+			const list = coaches[team._id].map(c => {
+				const { name } = c._person;
+				const role = coachTypes.find(({ key }) => key == c.role).name;
+				const content = (
+					<div className="person-wrapper">
+						{this.renderNameBar(`${name.first} ${name.last}`, role, team)}
+					</div>
+				);
+				const props = {
+					key: c._person._id,
+					className: `person-wrapper coach`,
+					style: {
+						background: "transparent",
+						color: team.colours.text
+					}
+				};
+				if (team._id == localTeam) {
+					return (
+						<Link to={`/coaches/${c._person.slug}`} {...props}>
+							{content}
+						</Link>
+					);
+				} else {
+					return <div {...props}>{content}</div>;
+				}
+			});
+
+			return (
+				<div className="row extra" style={{ order: 1000 }}>
+					<div className="header" style={{ color: team.colours.text }}>
+						Coaches
+					</div>
+					{list}
+				</div>
+			);
+		}
+	}
+
+	renderNameBar(name, role, team) {
+		const { localTeam } = this.props;
+
+		//Styling
+		const border = team._id != localTeam && `1pt ${team.colours.text} solid`;
+		let nameStyle, numberStyle;
+		if (team._id == localTeam) {
+			nameStyle = {
+				background: team.colours.text,
+				border: `solid 1pt ${team.colours.text}`,
+				color: team.colours.main
+			};
+			numberStyle = {
+				background: team.colours.main,
+				border: `solid 1pt ${team.colours.main}`,
+				color: team.colours.trim1
+			};
+		} else {
+			nameStyle = {
+				background: team.colours.main,
+				color: team.colours.text
+			};
+			numberStyle = {
+				background: team.colours.text,
+				color: team.colours.main
+			};
+		}
+
+		return (
+			<div
+				className={`name-bar ${border ? "with-border" : "no-border"}`}
+				key="name-bar"
+				style={{ border }}
+			>
+				<div className="number" style={numberStyle}>
+					{role || ""}
+				</div>
+				<div className="name" style={nameStyle}>
+					{name}
+				</div>
+			</div>
+		);
+	}
+
 	render() {
 		const teamBlocks = this.renderTeamBlocks();
 		if (!teamBlocks) {
 			return null;
 		} else {
-			return (
-				<section className="match-squads">
-					<h2>Teams</h2>
-					{teamBlocks}
-				</section>
-			);
+			return <section className="match-squads">{teamBlocks}</section>;
 		}
 	}
 }
