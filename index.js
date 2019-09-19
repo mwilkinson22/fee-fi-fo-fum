@@ -43,9 +43,6 @@ mongoose.connect(keys.mongoURI, {
 
 const app = express();
 
-//Require https
-app.use(requireHttps);
-
 //Enable bodyParser
 app.use(bodyParser.json());
 
@@ -80,6 +77,9 @@ require("./routes/newsRoutes")(app);
 app.all("/api*", (req, res) => {
 	res.status("404").send("404 - Invalid API path");
 });
+
+//Require https
+app.use(requireHttps);
 
 //Render
 app.get("*", async (req, res) => {
