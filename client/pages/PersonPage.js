@@ -61,11 +61,15 @@ class PersonPage extends Component {
 				} else {
 					const person = fullPeople[_id];
 
-					//Ensure they have a connection to the Giants
-					const localTeamSquads =
+					//Ensure they have a connection to the local team
+					const isInLocalSquad =
 						person.squadEntries &&
 						person.squadEntries.find(s => s.team._id == localTeam);
-					if (localTeamSquads) {
+					// console.log(person.coachingRoles);
+					const hasCoachedLocalSquad =
+						person.coachingRoles &&
+						person.coachingRoles.find(c => c._team == localTeam);
+					if (isInLocalSquad || hasCoachedLocalSquad) {
 						newState.person = person;
 					} else {
 						newState.person = false;
