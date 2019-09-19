@@ -88,6 +88,16 @@ async function getSquadEntries(_id) {
 		.value();
 }
 
+async function getCoachingRoles(_id) {
+	const coachingRoles = await Team.find({ "coaches._person": _id }, "coaches").lean();
+
+	return coachingRoles.map(team =>
+		team.coaches
+			.filter(({ _person }) => _person == _id)
+			.map(({ _person, ...coach }) => ({ ...coach, _team: team._id }))
+	);
+}
+
 async function getReffedGames(_id) {
 	const reffedGames = await Game.find(
 		{
@@ -130,6 +140,11 @@ export async function getPerson(req, res) {
 	//Get Squad Entries
 	if (person.isPlayer) {
 		person.squadEntries = await getSquadEntries(id);
+	}
+
+	//Get Coaching Roles
+	if (person.isCoach) {
+		person.coachingRoles = await getCoachingRoles(id);
 	}
 
 	//Get Reffed Games
@@ -303,6 +318,13 @@ export async function deletePerson(req, res) {
 				`a player in ${playedGames.length} ${playedGames.length === 1 ? "game" : "games"}`
 			);
 			toLog.playedGames = playedGames;
+		}
+
+		const coachingRoles = await getCoachingRoles(_id);
+		if (coachingRoles.length) {
+			const teamCount = _.uniqBy(coachingRoles, "_team").length;
+			errors.push(`a coach for ${teamCount} ${teamCount === 1 ? "team" : "teams"}`);
+			toLog.coachingRoles = coachingRoles;
 		}
 
 		//Check for reffed games
