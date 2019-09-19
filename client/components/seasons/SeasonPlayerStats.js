@@ -134,9 +134,10 @@ class SeasonPlayerStats extends Component {
 			//Stat Columns
 			const statData = _.mapValues(stats, (data, key) => {
 				const value = data[statType];
+				const nullValue = playerStatTypes[key].moreIsBetter ? -1 : 10000000000;
 				return {
 					content: PlayerStatsHelper.toString(key, value),
-					sortValue: value || (playerStatTypes[key].moreIsBetter ? 0 : 1000000)
+					sortValue: value != null ? value : nullValue
 				};
 			});
 

@@ -111,7 +111,7 @@ class Table extends Component {
 			});
 		}
 		if (sortBy && !sortBy.asc) {
-			rows = _.reverse(rows);
+			rows = rows.reverse();
 		}
 		return (
 			<tbody>
