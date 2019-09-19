@@ -91,11 +91,13 @@ async function getSquadEntries(_id) {
 async function getCoachingRoles(_id) {
 	const coachingRoles = await Team.find({ "coaches._person": _id }, "coaches").lean();
 
-	return coachingRoles.map(team =>
+	const filteredCoachingRoles = coachingRoles.map(team =>
 		team.coaches
 			.filter(({ _person }) => _person == _id)
 			.map(({ _person, ...coach }) => ({ ...coach, _team: team._id }))
 	);
+
+	return _.flatten(filteredCoachingRoles);
 }
 
 async function getReffedGames(_id) {
