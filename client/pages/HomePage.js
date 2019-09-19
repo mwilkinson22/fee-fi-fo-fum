@@ -82,9 +82,11 @@ class HomePage extends Component {
 				.value();
 
 			if (gamesToLoad.length === 0) {
+				newState.isLoadingGames = false;
 				newState.games = _.map(games.boxes, game => fullGames[game]);
-			} else {
+			} else if (!prevState.isLoadingGames) {
 				fetchGames(gamesToLoad);
+				newState.isLoadingGames = true;
 			}
 		}
 
@@ -135,7 +137,7 @@ class HomePage extends Component {
 		};
 	}
 
-	generateNewsPosts() {
+	renderNewsPosts() {
 		const { postList } = this.state;
 		if (!postList) {
 			return <LoadingPage />;
@@ -152,9 +154,9 @@ class HomePage extends Component {
 		}
 	}
 
-	generateGames() {
-		const { games } = this.state;
-		if (!games) {
+	renderGames() {
+		const { games, isLoadingGames } = this.state;
+		if (isLoadingGames) {
 			return <LoadingPage />;
 		} else {
 			const titles = ["Last Game", "Next Game", "Next Home Game"];
@@ -170,6 +172,20 @@ class HomePage extends Component {
 		}
 	}
 
+	renderLeagueTable() {
+		const { isLoadingGames } = this.state;
+		if (isLoadingGames) {
+			return <LoadingPage />;
+		} else {
+			return (
+				<div>
+					<h2>League Table</h2>
+					<LeagueTable competition={leagueTableCompetition} year={leagueTableYear} />
+				</div>
+			);
+		}
+	}
+
 	render() {
 		const { competitionSegmentList } = this.state;
 
@@ -179,17 +195,11 @@ class HomePage extends Component {
 
 		return (
 			<div className="homepage">
-				<section className="latest-news">{this.generateNewsPosts()}</section>
+				<section className="latest-news">{this.renderNewsPosts()}</section>
 				<section className="games-and-table">
 					<div className="container">
-						{this.generateGames()}
-						<div>
-							<h2>League Table</h2>
-							<LeagueTable
-								competition={leagueTableCompetition}
-								year={leagueTableYear}
-							/>
-						</div>
+						{this.renderGames()}
+						{this.renderLeagueTable()}
 					</div>
 				</section>
 				<section className="latest-league-table" />
