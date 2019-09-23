@@ -76,10 +76,8 @@ class PlayerStatSection extends Component {
 
 		//Work out games to load
 		const gamesToLoad = _.filter(gameIds, id => fullGames[id] === undefined);
-		if (gamesToLoad.length) {
-			fetchGames(gamesToLoad);
-			newState.games = undefined;
-		} else {
+		if (!gamesToLoad.length) {
+			newState.isLoading = false;
 			newState.games = _.chain(gameIds)
 				.map(id => fullGames[id])
 				.filter({ playerStats: [{ _player: person._id }], squadsAnnounced: true })
@@ -91,6 +89,10 @@ class PlayerStatSection extends Component {
 					return game;
 				})
 				.value();
+		} else if (!prevState.isLoading) {
+			fetchGames(gamesToLoad);
+			newState.isLoading = true;
+			newState.games = undefined;
 		}
 
 		return newState;

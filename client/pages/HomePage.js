@@ -23,7 +23,7 @@ class HomePage extends Component {
 			fetchPostList,
 			gameList,
 			fetchGameList,
-			competitionSegments,
+			competitionSegmentList,
 			fetchCompetitionSegments,
 			neutralGames,
 			fetchNeutralGames
@@ -34,7 +34,7 @@ class HomePage extends Component {
 		if (!gameList) {
 			fetchGameList();
 		}
-		if (!competitionSegments) {
+		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
 		}
 		if (!neutralGames) {
@@ -54,11 +54,7 @@ class HomePage extends Component {
 			fetchGames,
 			competitionSegmentList
 		} = nextProps;
-		const newState = { competitionSegmentList };
-
-		if (!competitionSegmentList) {
-			return {};
-		}
+		const newState = { competitionSegmentList, neutralGames };
 
 		//Posts
 		if (postList) {
@@ -71,22 +67,24 @@ class HomePage extends Component {
 		}
 
 		//Games
-		if (gameList && !prevState.games) {
-			const games = HomePage.getGameIds(gameList, neutralGames, competitionSegmentList);
+		if (competitionSegmentList && neutralGames) {
+			if (gameList && !prevState.games) {
+				const games = HomePage.getGameIds(gameList, neutralGames, competitionSegmentList);
 
-			const gamesToLoad = _.chain(games)
-				.values()
-				.flatten()
-				.uniq()
-				.reject(id => fullGames[id])
-				.value();
+				const gamesToLoad = _.chain(games)
+					.values()
+					.flatten()
+					.uniq()
+					.reject(id => fullGames[id])
+					.value();
 
-			if (gamesToLoad.length === 0) {
-				newState.isLoadingGames = false;
-				newState.games = _.map(games.boxes, game => fullGames[game]);
-			} else if (!prevState.isLoadingGames) {
-				fetchGames(gamesToLoad);
-				newState.isLoadingGames = true;
+				if (gamesToLoad.length === 0) {
+					newState.isLoadingGames = false;
+					newState.games = _.map(games.boxes, game => fullGames[game]);
+				} else if (!prevState.isLoadingGames) {
+					fetchGames(gamesToLoad);
+					newState.isLoadingGames = true;
+				}
 			}
 		}
 
@@ -131,6 +129,7 @@ class HomePage extends Component {
 			gameList,
 			neutralGames
 		).local;
+
 		return {
 			boxes: boxGameIds,
 			table: tableGameIds
@@ -173,8 +172,8 @@ class HomePage extends Component {
 	}
 
 	renderLeagueTable() {
-		const { isLoadingGames } = this.state;
-		if (isLoadingGames) {
+		const { isLoadingGames, competitionSegmentList, neutralGames } = this.state;
+		if (isLoadingGames || !competitionSegmentList || !neutralGames) {
 			return <LoadingPage />;
 		} else {
 			return (
@@ -209,18 +208,12 @@ class HomePage extends Component {
 }
 
 async function loadData(store) {
-	await Promise.all([
+	return Promise.all([
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchCompetitionSegments()),
 		store.dispatch(fetchGameList()),
 		store.dispatch(fetchNeutralGames())
 	]);
-	const { gameList, neutralGames } = store.getState().games;
-	const { competitionSegmentList } = store.getState().competitions;
-	const gamesToLoad = _.values(
-		HomePage.getGameIds(gameList, neutralGames, competitionSegmentList)
-	);
-	return store.dispatch(fetchGames(_.flatten(gamesToLoad)));
 }
 
 function mapStateToProps({ news, games, competitions }) {

@@ -31,7 +31,7 @@ class GameList extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
 		const {
 			gameList,
@@ -133,11 +133,13 @@ class GameList extends Component {
 			.value();
 		const gamesToLoad = _.reject(gameIds, game => fullGames[game]);
 
-		if (gamesToLoad.length) {
-			fetchGames(gamesToLoad);
-			newState.games = undefined;
-		} else {
+		if (!gamesToLoad.length) {
 			newState.games = _.map(gameIds, id => fullGames[id]);
+			newState.isLoadingGames = false;
+		} else if (!prevState.isLoadingGames) {
+			fetchGames(gamesToLoad);
+			newState.isLoadingGames = true;
+			newState.games = undefined;
 		}
 
 		return newState;
@@ -214,8 +216,8 @@ class GameList extends Component {
 	}
 
 	populateGameList() {
-		const { filteredGames, isAdmin } = this.state;
-		if (!filteredGames) {
+		const { games, filteredGames, isAdmin } = this.state;
+		if (!games || !filteredGames) {
 			return <LoadingPage />;
 		} else {
 			let isFirst = true;
@@ -244,7 +246,7 @@ class GameList extends Component {
 			return <Redirect to={`${rootUrl}/${teamTypeRedirect}`} />;
 		}
 
-		if (!teamType || !gameList || !games) {
+		if (!teamType || !gameList) {
 			return <LoadingPage />;
 		}
 
@@ -279,7 +281,7 @@ class GameList extends Component {
 						{this.generateTeamTypeMenu()}
 						{newGameLink}
 						<GameFilters
-							games={games}
+							games={games || []}
 							onFilterChange={filteredGames => this.setState({ filteredGames })}
 						/>
 					</div>
@@ -306,61 +308,8 @@ function mapStateToProps({ games, teams, config }) {
 
 export async function loadData(store, path) {
 	if (!path.match(/^\/admin/)) {
-		const splitPath = path.split("/");
-
-		//Get List Type
-		const listType = splitPath[2];
-
 		//Get Game List
-		await store.dispatch(fetchGameList());
-		const { gameList } = store.getState().games;
-
-		//Get Year
-		let year;
-		if (listType === "results") {
-			if (splitPath.length > 3) {
-				year = splitPath[3];
-			} else {
-				year = _.chain(gameList)
-					.reject(game => game.date > new Date())
-					.map(game => game.date.getFullYear())
-					.max()
-					.value();
-			}
-		}
-
-		//Get Team Type
-		const { teamTypes } = store.getState().teams;
-		const teamTypeIndex = listType === "fixtures" ? 3 : 4;
-		let teamType;
-		if (splitPath.length > teamTypeIndex) {
-			const teamTypeFromSlug = _.filter(
-				teamTypes,
-				teamType => teamType.slug === splitPath[teamTypeIndex]
-			);
-			if (teamTypeFromSlug.length) {
-				teamType = teamTypeFromSlug[0]._id;
-			}
-		}
-
-		if (!teamType) {
-			teamType = _.chain(gameList)
-				.filter(game => validateGameDate(game, listType, year))
-				.map(game => game._teamType)
-				.uniq()
-				.map(id => teamTypes[id])
-				.minBy("sortOrder")
-				.value()._id;
-		}
-
-		//Games To Load
-		const games = _.chain(gameList)
-			.filter(game => game._teamType === teamType)
-			.filter(game => validateGameDate(game, listType, year))
-			.map(game => game._id)
-			.value();
-
-		return store.dispatch(fetchGames(games));
+		return store.dispatch(fetchGameList());
 	}
 }
 
