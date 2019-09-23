@@ -6,16 +6,12 @@ import { renderRoutes } from "react-router-config";
 import serialize from "serialize-javascript";
 import { Helmet } from "react-helmet";
 import Routes from "../../client/Routes";
-import GAListener from "~/client/components/GAListener";
-import { gaTracking } from "~/config/keys";
 
 export default (req, store, context) => {
 	const content = renderToString(
 		<Provider store={store}>
 			<StaticRouter location={req.path} context={context}>
-				<GAListener trackingId={gaTracking}>
-					<div>{renderRoutes(Routes)}</div>
-				</GAListener>
+				<div>{renderRoutes(Routes)}</div>
 			</StaticRouter>
 		</Provider>
 	);

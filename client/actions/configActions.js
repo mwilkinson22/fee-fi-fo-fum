@@ -1,5 +1,5 @@
 import { GET_CORE_CONFIG } from "./types";
-import { localTeam } from "../../config/keys";
+import { localTeam, gaTracking } from "../../config/keys";
 
 export const getCoreConfig = req => async dispatch => {
 	const { headers, useragent, protocol, originalUrl } = req;
@@ -22,7 +22,10 @@ export const getCoreConfig = req => async dispatch => {
 		baseUrl: protocol + "://" + req.get("host"),
 
 		//Initial Path
-		initialPath: originalUrl
+		initialPath: originalUrl,
+
+		//Set Analytics Key
+		gaTracking
 	};
 
 	//Check for device

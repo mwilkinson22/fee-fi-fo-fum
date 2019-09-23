@@ -9,12 +9,14 @@ import { renderRoutes } from "react-router-config";
 import { fetchUser } from "./actions/userActions";
 
 //Components
+import GAListener from "~/client/components/GAListener";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import HelmetBuilder from "./components/HelmetBuilder";
 
 //Action Type Sanity Check
 import * as actionTypes from "./actions/types";
+
 const duplicatedTypes = _.chain(actionTypes)
 	.groupBy()
 	.filter(arr => arr.length > 1)
@@ -42,26 +44,28 @@ class App extends Component {
 	}
 
 	render() {
-		const { route, browser } = this.props;
+		const { route, browser, gaTracking } = this.props;
 		let className = "";
 		if (browser) {
 			className = `browser-${browser.toLowerCase().replace(/(?![A-Za-z0-9-_])./gi, "-")}`;
 		}
 		return (
-			<div className={className}>
-				<ScrollToTop>
-					<Header />
-					<HelmetBuilder title="" canonical="/" />
-					{renderRoutes(route.routes)}
-				</ScrollToTop>
-			</div>
+			<GAListener trackingId={gaTracking}>
+				<div className={className}>
+					<ScrollToTop>
+						<Header />
+						<HelmetBuilder title="" canonical="/" />
+						{renderRoutes(route.routes)}
+					</ScrollToTop>
+				</div>
+			</GAListener>
 		);
 	}
 }
 
 function mapStateToProps({ config }) {
-	const { browser } = config;
-	return { browser };
+	const { browser, gaTracking } = config;
+	return { browser, gaTracking };
 }
 
 export default {
