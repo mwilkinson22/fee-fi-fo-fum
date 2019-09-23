@@ -25,7 +25,7 @@ class AdminPlayerDetails extends BasicForm {
 				.label("Contracted Until"),
 			position1: Yup.mixed().label("Main Position"),
 			position2: Yup.mixed().label("Secondary Position"),
-			position3: Yup.mixed().label("Third Position"),
+			otherPositions: Yup.mixed().label("Other Positions"),
 			displayNicknameInCanvases: Yup.boolean().label("Display Nickname In Canvases"),
 			squadNameWhenDuplicate: Yup.string().label("Squad Name (when duplicate is found)"),
 			externalName: Yup.string().label("External Name")
@@ -63,7 +63,7 @@ class AdminPlayerDetails extends BasicForm {
 			contractedUntil: "",
 			position1: "",
 			position2: "",
-			position3: "",
+			otherPositions: [],
 			displayNicknameInCanvases: false,
 			squadNameWhenDuplicate: "",
 			externalName: ""
@@ -74,12 +74,21 @@ class AdminPlayerDetails extends BasicForm {
 			switch (key) {
 				case "position1":
 				case "position2":
-				case "position3":
 					i = Number(key.replace(/\D/gi, "")) - 1;
 					if (person.playingPositions) {
 						return (
 							_.find(positions, ({ value }) => value == person.playingPositions[i]) ||
 							defaultValue
+						);
+					} else {
+						return defaultValue;
+					}
+				case "otherPositions":
+					if (person.playingPositions) {
+						const [first, second, ...otherPositions] = person.playingPositions;
+
+						return otherPositions.map(pos =>
+							_.find(positions, ({ value }) => value == pos)
 						);
 					} else {
 						return defaultValue;
@@ -153,7 +162,7 @@ class AdminPlayerDetails extends BasicForm {
 		const values = _.cloneDeep(fValues);
 
 		values.playingPositions = [];
-		for (let i = 1; i <= 3; i++) {
+		for (let i = 1; i <= 2; i++) {
 			const option = values[`position${i}`];
 			if (option && option.value) {
 				values.playingPositions.push(option.value);
@@ -161,6 +170,8 @@ class AdminPlayerDetails extends BasicForm {
 
 			delete values[`position${i}`];
 		}
+		values.playingPositions.push(...values.otherPositions.map(o => o.value));
+		delete values.otherPositions;
 
 		updatePerson(person._id, values);
 	}
@@ -188,8 +199,9 @@ class AdminPlayerDetails extends BasicForm {
 								options: positions
 							},
 							{
-								name: "position3",
+								name: "otherPositions",
 								type: fieldTypes.select,
+								isMulti: true,
 								isClearable: true,
 								options: positions
 							},
