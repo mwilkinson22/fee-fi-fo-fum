@@ -1,13 +1,19 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link, NavLink, Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+
+//Components
 import LoadingPage from "../../components/LoadingPage";
+import NeutralGameList from "../../components/admin/neutralGames/NeutralGameList";
+import HelmetBuilder from "../../components/HelmetBuilder";
+import SubMenu from "../../components/SubMenu";
+
+//Actions
 import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../../actions/neutralGamesActions";
 import { setActiveTeamType } from "../../actions/teamsActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
-import NeutralGameList from "../../components/admin/neutralGames/NeutralGameList";
-import HelmetBuilder from "../../components/HelmetBuilder";
 
 class AdminNeutralGameList extends Component {
 	constructor(props) {
@@ -127,35 +133,19 @@ class AdminNeutralGameList extends Component {
 
 	generateTeamTypeMenu() {
 		const { teamTypes, year } = this.state;
-		const coreUrl = `/admin/neutralGames/${year}`;
-		const submenu = _.map(teamTypes, teamType => {
-			const { name, slug } = teamType;
-			return (
-				<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
-					{name}
-				</NavLink>
-			);
-		});
 
-		const dummyLinkUrls = ["/admin/neutralGames", coreUrl];
-		const dummyLinks = dummyLinkUrls.map(url => {
-			return (
-				<NavLink
-					key={url}
-					exact={true}
-					className="hidden"
-					to={url}
-					activeClassName="active"
-				/>
-			);
-		});
+		const dummyLinks = ["", year.toString()].map(slug => ({
+			slug,
+			isExact: true,
+			isDummy: true,
+			label: slug
+		}));
+		const links = teamTypes.map(({ name, slug }) => ({
+			slug: `${year}/${slug}`,
+			label: name
+		}));
 
-		return (
-			<div className="sub-menu">
-				{dummyLinks}
-				{submenu}
-			</div>
-		);
+		return <SubMenu items={[...dummyLinks, ...links]} rootUrl={"/admin/neutralGames/"} />;
 	}
 
 	render() {

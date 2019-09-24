@@ -2,9 +2,9 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
 
 //Components
+import SubMenu from "~/client/components/SubMenu";
 import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
 import HelmetBuilder from "../components/HelmetBuilder";
@@ -111,37 +111,19 @@ class SquadListPage extends Component {
 
 	generateTeamTypeMenu() {
 		const { teamTypes, year } = this.state;
-		const coreUrl = `/squads/${year}`;
-		const submenu = _.chain(teamTypes)
-			.map(teamType => {
-				const { name, slug } = teamType;
-				return (
-					<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
-						{name}
-					</NavLink>
-				);
-			})
-			.value();
 
-		const dummyLinkUrls = ["/squads/", coreUrl];
-		const dummyLinks = dummyLinkUrls.map(url => {
-			return (
-				<NavLink
-					key={url}
-					exact={true}
-					className="hidden"
-					to={url}
-					activeClassName="active"
-				/>
-			);
-		});
+		const dummyLinks = ["", year.toString()].map(slug => ({
+			slug,
+			isExact: true,
+			isDummy: true,
+			label: slug
+		}));
+		const links = teamTypes.map(({ name, slug }) => ({
+			slug: `${year}/${slug}`,
+			label: name
+		}));
 
-		return (
-			<div className="sub-menu">
-				{dummyLinks}
-				{submenu}
-			</div>
-		);
+		return <SubMenu items={[...dummyLinks, ...links]} rootUrl={"/squads/"} />;
 	}
 
 	generateSquadList() {

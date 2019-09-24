@@ -2,9 +2,10 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Redirect, NavLink } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 
 //Components
+import SubMenu from "~/client/components/SubMenu";
 import HelmetBuilder from "../components/HelmetBuilder";
 import LoadingPage from "../components/LoadingPage";
 import NotFoundPage from "~/client/pages/NotFoundPage";
@@ -155,41 +156,23 @@ class SeasonPage extends Component {
 
 	generateTeamTypeMenu() {
 		const { teamTypes, year } = this.state;
-		const coreUrl = `/seasons/${year}`;
-		const submenu = _.chain(teamTypes)
-			.map(teamType => {
-				const { name, slug } = teamType;
-				return (
-					<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
-						{name}
-					</NavLink>
-				);
-			})
-			.value();
-
-		return <div className="sub-menu">{submenu}</div>;
+		const list = teamTypes.map(({ name, slug }) => ({ label: name, slug }));
+		return <SubMenu items={list} rootUrl={`/seasons/${year}/`} />;
 	}
+
 	generatePageMenu() {
 		const { teamType, year } = this.state;
-		const coreUrl = `/seasons/${year}/${teamType.slug}`;
 		const pages = [
-			{ slug: "overview", name: "Overview" },
-			{ slug: "player-stats", name: "Player Stats" }
+			{ slug: "overview", label: "Overview" },
+			{ slug: "player-stats", label: "Player Stats" }
 		];
-		const submenu = pages.map(teamType => {
-			const { name, slug } = teamType;
-			return (
-				<NavLink key={slug} to={`${coreUrl}/${slug}`} activeClassName="active">
-					{name}
-				</NavLink>
-			);
-		});
 
 		return (
-			<div className="sub-menu page-menu">
-				<NavLink className="hidden" exact={true} to={coreUrl} activeClassName="active" />
-				{submenu}
-			</div>
+			<SubMenu
+				items={pages}
+				rootUrl={`/seasons/${year}/${teamType.slug}/`}
+				className="page-menu"
+			/>
 		);
 	}
 

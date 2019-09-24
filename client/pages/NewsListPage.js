@@ -1,13 +1,21 @@
+//Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchPostList } from "../actions/newsActions";
-import LoadingPage from "../components/LoadingPage";
-import NewsPostPreview from "../components/news/NewsPostCard";
-import _ from "lodash";
 import { NavLink } from "react-router-dom";
-import HelmetBuilder from "../components/HelmetBuilder";
-import newsCategories from "../../constants/newsCategories";
+
+//Components
+import SubMenu from "~/client/components/SubMenu";
+import LoadingPage from "../components/LoadingPage";
 import NotFoundPage from "./NotFoundPage";
+import NewsPostPreview from "../components/news/NewsPostCard";
+import HelmetBuilder from "../components/HelmetBuilder";
+
+//Actions
+import { fetchPostList } from "../actions/newsActions";
+
+//Constants
+import newsCategories from "../../constants/newsCategories";
 
 class NewsListPage extends Component {
 	constructor(props) {
@@ -46,23 +54,14 @@ class NewsListPage extends Component {
 	}
 
 	generateHeader() {
-		const categories = _.concat([{ name: "All", slug: "all" }], newsCategories);
-		const subMenu = categories.map(category => {
-			return (
-				<NavLink
-					key={category.slug}
-					to={`/news/category/${category.slug}`}
-					activeClassName="active"
-				>
-					{category.name}
-				</NavLink>
-			);
-		});
+		const categories = [{ name: "All", slug: "all" }, ...newsCategories].map(
+			({ slug, name }) => ({ slug, label: name })
+		);
 		return (
 			<section className="page-header">
 				<div className="container">
 					<h1>News</h1>
-					<div className="sub-menu">{subMenu}</div>
+					<SubMenu items={categories} rootUrl={"/news/category/"} />
 				</div>
 			</section>
 		);

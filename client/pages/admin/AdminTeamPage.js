@@ -1,17 +1,20 @@
-import _ from "lodash";
+//Modules
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchTeam } from "../../actions/teamsActions";
-import LoadingPage from "../../components/LoadingPage";
-import HelmetBuilder from "../../components/HelmetBuilder";
-import NotFoundPage from "../NotFoundPage";
-import { NavLink, Link, Switch, Route } from "react-router-dom";
+import { Link, Switch, Route } from "react-router-dom";
 
-//Pages
+//Components
 import AdminTeamCoaches from "../../components/admin/teams/AdminTeamCoaches";
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
 import AdminTeamSquads from "../../components/admin/teams/AdminTeamSquads";
+import LoadingPage from "../../components/LoadingPage";
+import HelmetBuilder from "../../components/HelmetBuilder";
+import NotFoundPage from "../NotFoundPage";
 import TeamBanner from "../../components/teams/TeamBanner";
+import SubMenu from "../../components/SubMenu";
+
+//Actions
+import { fetchTeam } from "../../actions/teamsActions";
 
 class AdminTeamPage extends Component {
 	constructor(props) {
@@ -40,28 +43,13 @@ class AdminTeamPage extends Component {
 
 	getSubmenu() {
 		const { _id } = this.state.team;
-		const submenuItems = {
-			Overview: "",
-			Squads: "squads",
-			Coaches: "coaches"
-		};
-		const submenu = _.map(submenuItems, (url, title) => {
-			return (
-				<NavLink
-					key={url}
-					exact={url.length === 0}
-					to={`/admin/teams/${_id}/${url}`}
-					activeClassName="active"
-				>
-					{title}
-				</NavLink>
-			);
-		});
-		return (
-			<div className="sub-menu" key="menu">
-				{submenu}
-			</div>
-		);
+		const items = [
+			{ label: "Overview", slug: "", isExact: true },
+			{ label: "Squads", slug: "squads" },
+			{ label: "Coaches", slug: "coaches" }
+		];
+
+		return <SubMenu items={items} rootUrl={`/admin/teams/${_id}/`} />;
 	}
 
 	getContent() {

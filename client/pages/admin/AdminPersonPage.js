@@ -2,9 +2,10 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { NavLink, Link, Switch, Route } from "react-router-dom";
+import { Link, Switch, Route } from "react-router-dom";
 
 //Components
+import SubMenu from "~/client/components/SubMenu";
 import LoadingPage from "../../components/LoadingPage";
 import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
@@ -61,7 +62,7 @@ class AdminPersonPage extends Component {
 	getSubmenu() {
 		const { person } = this.state;
 
-		const submenuItems = [{ label: "Overview", slug: "" }];
+		const submenuItems = [{ label: "Overview", slug: "", isExact: true }];
 		if (person.isPlayer) {
 			submenuItems.push({ label: "Player Details", slug: "player" });
 		}
@@ -69,22 +70,8 @@ class AdminPersonPage extends Component {
 			submenuItems.push({ label: "Referee Details", slug: "referee" });
 		}
 
-		const submenu = submenuItems.map(({ label, slug }) => {
-			return (
-				<NavLink
-					key={slug}
-					exact={slug.length === 0}
-					to={`/admin/people/${person.slug}/${slug}`}
-					activeClassName="active"
-				>
-					{label}
-				</NavLink>
-			);
-		});
 		return (
-			<div className="sub-menu" key="menu">
-				{submenu}
-			</div>
+			<SubMenu items={submenuItems} rootUrl={`/admin/people/${person.slug}/`} key="menu" />
 		);
 	}
 

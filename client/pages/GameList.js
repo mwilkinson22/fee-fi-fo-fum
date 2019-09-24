@@ -3,9 +3,10 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 //Components
+import SubMenu from "~/client/components/SubMenu";
 import HelmetBuilder from "../components/HelmetBuilder";
 import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
@@ -202,17 +203,9 @@ class GameList extends Component {
 	generateTeamTypeMenu() {
 		const { teamTypes, rootUrl } = this.state;
 
-		//Render Submenu Entries
-		const submenu = teamTypes.map(teamType => {
-			const { name, slug } = teamType;
-			return (
-				<NavLink key={slug} to={`${rootUrl}/${slug}`} activeClassName="active">
-					{name}
-				</NavLink>
-			);
-		});
+		const list = teamTypes.map(({ name, slug }) => ({ slug, label: name }));
 
-		return <div className="sub-menu">{submenu}</div>;
+		return <SubMenu items={list} rootUrl={rootUrl} />;
 	}
 
 	populateGameList() {
