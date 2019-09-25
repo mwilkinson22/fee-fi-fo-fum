@@ -65,7 +65,9 @@ class AdminPersonOverview extends BasicForm {
 			isPlayer: Yup.boolean().label("Player"),
 			isCoach: Yup.boolean().label("Coach"),
 			isReferee: Yup.boolean().label("Referee"),
-			image: Yup.string().label("Image"),
+			images: Yup.object().shape({
+				main: Yup.string().label("Image")
+			}),
 			description: Yup.string().label("Description"),
 			_sponsor: Yup.mixed().label("Sponsor")
 		});
@@ -135,7 +137,9 @@ class AdminPersonOverview extends BasicForm {
 			_represents: "",
 			twitter: "",
 			instagram: "",
-			image: "",
+			images: {
+				main: ""
+			},
 			isPlayer: false,
 			isCoach: false,
 			isReferee: false,
@@ -153,6 +157,8 @@ class AdminPersonOverview extends BasicForm {
 							return options[key].find(o => o.value == person[key]._id);
 						case "dateOfBirth":
 							return person[key].toString("yyyy-MM-dd");
+						case "images":
+							return _.mapValues(person.images, image => image || "");
 						case "name":
 							return _.pick(person[key], ["first", "last"]);
 						case "description":
@@ -293,7 +299,7 @@ class AdminPersonOverview extends BasicForm {
 
 						const imageFields = [
 							{
-								name: "image",
+								name: "images.main",
 								type: fieldTypes.image,
 								path: "images/people/full/",
 								acceptSVG: false

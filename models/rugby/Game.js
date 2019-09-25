@@ -243,10 +243,10 @@ gameSchema.query.eventImage = function() {
 		extraTime: 1,
 		events: 1
 	})
-		.populate({ path: "pregameSquads.squad", select: "name image gender" })
+		.populate({ path: "pregameSquads.squad", select: "name images gender" })
 		.populate({
 			path: "playerStats._player",
-			select: "name nickname displayNicknameInCanvases squadNameWhenDuplicate image gender"
+			select: "name nickname displayNicknameInCanvases squadNameWhenDuplicate images gender"
 		})
 		.populate({
 			path: "_ground",

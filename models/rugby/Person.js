@@ -20,7 +20,12 @@ const personSchema = new Schema(
 		twitter: { type: String, default: null },
 		instagram: { type: String, default: null },
 		slug: { type: String, unique: true, required: true },
-		image: { type: String, default: null },
+		images: {
+			main: { type: String, default: null },
+			player: { type: String, default: null },
+			coach: { type: String, default: null },
+			midpage: { type: String, default: null }
+		},
 		description: [{ type: String, default: null }],
 		_sponsor: { type: Schema.Types.ObjectId, ref: "sponsors", default: null },
 

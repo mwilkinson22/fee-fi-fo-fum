@@ -65,7 +65,7 @@ class PersonPage extends Component {
 					const isInLocalSquad =
 						person.squadEntries &&
 						person.squadEntries.find(s => s.team._id == localTeam);
-					// console.log(person.coachingRoles);
+
 					const hasCoachedLocalSquad =
 						person.coachingRoles &&
 						person.coachingRoles.find(c => c._team == localTeam);
@@ -325,6 +325,16 @@ class PersonPage extends Component {
 		const { person, redirect } = this.state;
 		const role = match.url.split("/")[1]; //players or coaches
 
+		let imageVariant = "main";
+		if (role === "players") {
+			imageVariant = "player";
+		}
+		if (role === "coaches") {
+			imageVariant = "coach";
+		}
+
+		console.log(imageVariant);
+
 		if (redirect) {
 			return <Redirect to={redirect} />;
 		} else if (person === undefined) {
@@ -341,7 +351,7 @@ class PersonPage extends Component {
 					<section className="header">
 						<div className="background" />
 						<div className="container">
-							<PersonImage person={person} />
+							<PersonImage person={person} variant={imageVariant} />
 							<div className="overlay">
 								<h1>
 									{person.name.first}

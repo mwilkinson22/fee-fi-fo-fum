@@ -115,7 +115,7 @@ async function getReffedGames(_id) {
 export async function getList(req, res) {
 	const people = await Person.find(
 		{},
-		"name isPlayer isCoach isReferee playingPositions coachDetails slug image gender twitter"
+		"name isPlayer isCoach isReferee playingPositions coachDetails slug images gender twitter"
 	).lean();
 
 	const peopleList = _.keyBy(people, "_id");

@@ -188,18 +188,22 @@ export default class PlayerEventImage extends Canvas {
 			squadNumber = number;
 			firstName = _player.name.first;
 			lastName = _player.name.last;
-			if (_player.image && _team == localTeam) {
-				image = await this.googleToCanvas(`images/people/full/${_player.image}`);
+			if ((_player.images.player || _player.images.main) && _team == localTeam) {
+				image = await this.googleToCanvas(
+					`images/people/full/${_player.images.player || _player.images.main}`
+				);
 				isPlayerImage = true;
 			} else if (this.teamBadges) {
 				image = this.teamBadges[_team];
 				isPlayerImage = false;
 			}
 		} else {
-			const player = await Person.findById(player, "name image").lean();
+			const player = await Person.findById(player, "name images").lean();
 			firstName = player.name.first;
 			lastName = player.name.last;
-			image = await this.googleToCanvas(`images/people/full/${player.image}`);
+			image = await this.googleToCanvas(
+				`images/people/full/${player.images.player || player.images.main}`
+			);
 			isPlayerImage = true;
 		}
 

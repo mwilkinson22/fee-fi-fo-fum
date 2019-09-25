@@ -199,12 +199,14 @@ export default class PregameImage extends Canvas {
 	async drawPlayer(singleTeam) {
 		const { ctx, game, options, cWidth, cHeight } = this;
 		const { squad } = _.find(game.pregameSquads, s => s._team == localTeam);
-		const squadWithImages = _.filter(squad, s => s.image);
+		const squadWithImages = _.filter(squad, s => s.images.player || s.images.main);
 		const playerForImage =
 			_.find(squadWithImages, p => p._id == options.playerForImage) ||
 			_.sample(squadWithImages);
 
-		const playerImage = await this.googleToCanvas("images/people/full/" + playerForImage.image);
+		const playerImage = await this.googleToCanvas(
+			"images/people/full/" + (playerForImage.images.player || playerForImage.images.main)
+		);
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
 		if (singleTeam) {

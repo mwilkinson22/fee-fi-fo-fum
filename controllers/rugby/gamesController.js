@@ -103,7 +103,7 @@ async function addEligiblePlayers(games) {
 		.populate({
 			path: "squads.players._player",
 			select:
-				"name playingPositions nickname displayNicknameInCanvases squadNameWhenDuplicate image slug gender _sponsor twitter",
+				"name playingPositions nickname displayNicknameInCanvases squadNameWhenDuplicate images.main images.player slug gender _sponsor twitter",
 			populate: {
 				path: "_sponsor",
 				select: "name twitter"

@@ -126,12 +126,17 @@ class AdminGamePregameImage extends Component {
 				thisLocalSquad.squad.map(id => {
 					//Get Player Object
 					const squadMember = _.find(squadNumbers, ({ _player }) => _player._id == id);
-					const { image } = squadMember._player;
+					const { images } = squadMember._player;
 
 					//Get Data
 					const { number } = squadMember;
 					const label = `${number ? number + ". " : ""}${squadMember._player.name.full}`;
-					const option = { label, value: id, number, image };
+					const option = {
+						label,
+						value: id,
+						number,
+						image: images.player || images.main
+					};
 
 					//Push to object
 					const isNew = _.find(newState.playersToHighlight, p => p == id);

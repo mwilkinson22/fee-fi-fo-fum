@@ -79,10 +79,11 @@ const teamSchema = new Schema({
 teamSchema.query.fullTeam = function() {
 	return this.populate({
 		path: "squads.players._player",
-		select: "name position playingPositions isPlayer isCoach image twitter gender slug"
+		select:
+			"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug"
 	}).populate({
 		path: "coaches._person",
-		select: "name slug image gender"
+		select: "name slug images.main images.coach gender"
 	});
 };
 

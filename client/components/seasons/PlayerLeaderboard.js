@@ -141,7 +141,7 @@ class PlayerLeaderboard extends Component {
 				<div className="leaderboard">
 					<div className="leader">
 						<Link to={`/players/${playerForImage.slug}`}>
-							<PersonImage person={playerForImage} />
+							<PersonImage person={playerForImage} variant="player" />
 						</Link>
 					</div>
 					<div className="list">
