@@ -66,7 +66,10 @@ class AdminPersonOverview extends BasicForm {
 			isCoach: Yup.boolean().label("Coach"),
 			isReferee: Yup.boolean().label("Referee"),
 			images: Yup.object().shape({
-				main: Yup.string().label("Image")
+				main: Yup.string().label("Main Image"),
+				player: Yup.string().label("Player Image"),
+				coach: Yup.string().label("Coach Image"),
+				midpage: Yup.string().label("Midpage Image")
 			}),
 			description: Yup.string().label("Description"),
 			_sponsor: Yup.mixed().label("Sponsor")
@@ -138,7 +141,10 @@ class AdminPersonOverview extends BasicForm {
 			twitter: "",
 			instagram: "",
 			images: {
-				main: ""
+				main: "",
+				coach: "",
+				player: "",
+				midpage: ""
 			},
 			isPlayer: false,
 			isCoach: false,
@@ -297,14 +303,12 @@ class AdminPersonOverview extends BasicForm {
 							{ name: "instagram", type: fieldTypes.text }
 						];
 
-						const imageFields = [
-							{
-								name: "images.main",
-								type: fieldTypes.image,
-								path: "images/people/full/",
-								acceptSVG: false
-							}
-						];
+						const imageFields = ["main", "player", "coach", "midpage"].map(type => ({
+							name: `images.${type}`,
+							type: fieldTypes.image,
+							path: `images/people/${type === "midpage" ? "midpage" : "full"}/`,
+							acceptSVG: false
+						}));
 
 						let deleteButtons;
 						if (!isNew) {
