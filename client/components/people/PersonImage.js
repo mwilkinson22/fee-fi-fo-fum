@@ -10,7 +10,13 @@ class PersonImage extends Component {
 		const { first, last } = name;
 
 		//Get the correct image
-		const image = images[variant] || images.main || `blank-${gender}.png`;
+		let image;
+		if (images) {
+			image = images[variant] || images.main;
+		}
+		if (!image) {
+			image = `blank-${gender}.png`;
+		}
 
 		//Get URL
 		let src = personImagePath + image;

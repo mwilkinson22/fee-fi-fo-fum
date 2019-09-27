@@ -52,12 +52,12 @@ class MatchSquadList extends Component {
 						({ _player }) => _player._id == p._player
 					);
 					const { position } = p;
-					const { id, name, image, slug, gender } = _player;
+					const { id, name, images, slug, gender } = _player;
 					const player = {
 						id,
 						name,
 						number,
-						image,
+						images,
 						position,
 						slug,
 						gender
@@ -138,7 +138,7 @@ class MatchSquadList extends Component {
 		} else {
 			image = (
 				<div className="image" key={id}>
-					<PersonImage person={player} />
+					<PersonImage person={player} variant="player" />
 				</div>
 			);
 		}
