@@ -81,7 +81,7 @@ export default class Canvas {
 		}
 	}
 
-	async googleToCanvas(file) {
+	async googleToCanvas(file, withSharp) {
 		const fileType = file
 			.split(".")
 			.pop()
@@ -94,11 +94,19 @@ export default class Canvas {
 					if (err) {
 						reject(err);
 					}
+					if (withSharp) {
+						result = await withSharp(result);
+						result = await result.toBuffer();
+					}
 					const image = await loadImage(result);
 					resolve(image);
 				});
 			});
 		} else {
+			if (withSharp) {
+				buffer = await withSharp(buffer);
+				buffer = await buffer.toBuffer();
+			}
 			const image = await loadImage(buffer);
 			return image;
 		}
