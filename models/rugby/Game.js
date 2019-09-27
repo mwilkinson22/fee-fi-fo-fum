@@ -250,7 +250,7 @@ gameSchema.query.eventImage = function() {
 		})
 		.populate({
 			path: "_ground",
-			select: "name address._city",
+			select: "name address._city image",
 			populate: { path: "address._city", select: "name" }
 		})
 		.populate({

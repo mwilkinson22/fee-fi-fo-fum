@@ -14,6 +14,9 @@ import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import HelmetBuilder from "./components/HelmetBuilder";
 
+//Constants
+import { imagePath } from "~/client/extPaths";
+
 //Action Type Sanity Check
 import * as actionTypes from "./actions/types";
 
@@ -44,7 +47,7 @@ class App extends Component {
 	}
 
 	render() {
-		const { route, browser, gaTracking } = this.props;
+		const { route, browser, gaTracking, socialMediaImage } = this.props;
 		let className = "";
 		if (browser) {
 			className = `browser-${browser.toLowerCase().replace(/(?![A-Za-z0-9-_])./gi, "-")}`;
@@ -54,7 +57,11 @@ class App extends Component {
 				<div className={className}>
 					<ScrollToTop>
 						<Header />
-						<HelmetBuilder title="" canonical="/" />
+						<HelmetBuilder
+							title=""
+							canonical="/"
+							cardImage={socialMediaImage || imagePath + "layout/twitter-card.jpg"}
+						/>
 						{renderRoutes(route.routes)}
 					</ScrollToTop>
 				</div>
@@ -64,8 +71,8 @@ class App extends Component {
 }
 
 function mapStateToProps({ config }) {
-	const { browser, gaTracking } = config;
-	return { browser, gaTracking };
+	const { browser, gaTracking, socialMediaImage } = config;
+	return { browser, gaTracking, socialMediaImage };
 }
 
 export default {

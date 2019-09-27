@@ -62,6 +62,7 @@ export const FETCH_LEAGUE_TABLE = "fetch_league_table";
 
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
+export const SET_SOCIAL_MEDIA_IMAGE = "set_social_media_image";
 
 //Users
 export const FETCH_USERS = "fetch_users";

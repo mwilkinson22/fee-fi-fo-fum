@@ -21,6 +21,25 @@ class HelmetBuilder extends Component {
 		}
 		const url = baseUrl + canonical;
 
+		//Set Author
+		if (!author) {
+			author = "FeeFiFoFumRL";
+		}
+
+		//Set Meta
+		const meta = [
+			{ property: "og:type", content: "website" },
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", property: "og:title", content: title },
+			{ name: "twitter:creator", content: `@${author}` },
+			{ name: "twitter:site", content: "@FeeFiFoFumRL" },
+			{ property: "twitter:description", content: description },
+			{ property: "og:url", content: url }
+		];
+		if (cardImage) {
+			meta.push({ name: "twitter:image", property: "og:image", content: cardImage });
+		}
+
 		return (
 			<Helmet
 				key={url}
@@ -29,16 +48,7 @@ class HelmetBuilder extends Component {
 					{ rel: "canonical", href: url },
 					{ rel: "shortcut icon", href: `${imagePath}favicon.png` }
 				]}
-				meta={[
-					{ name: "twitter:card", content: "summary_large_image" },
-					{ name: "twitter:title", property: "og:title", content: title },
-					{ name: "twitter:site", content: "@GiantsFanzine" },
-					{ name: "twitter:creator", content: `@${author}` },
-					{ property: "og:type", content: "website" },
-					{ name: "twitter:image", property: "og:image", content: cardImage },
-					{ property: "twitter:description", content: description },
-					{ property: "og:url", content: url }
-				]}
+				meta={meta}
 			/>
 		);
 	}
@@ -55,7 +65,7 @@ HelmetBuilder.propTypes = {
 HelmetBuilder.defaultProps = {
 	author: "GiantsFanzine",
 	canonical: null,
-	cardImage: imagePath + "layout/twitter-card.jpg",
+	cardImage: null,
 	description: "Huddersfield Giants news, stats and reports"
 };
 

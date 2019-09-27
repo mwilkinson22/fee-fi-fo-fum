@@ -1,4 +1,4 @@
-import { GET_CORE_CONFIG } from "./types";
+import { GET_CORE_CONFIG, SET_SOCIAL_MEDIA_IMAGE } from "./types";
 import { localTeam, gaTracking } from "../../config/keys";
 
 export const getCoreConfig = req => async dispatch => {
@@ -38,4 +38,8 @@ export const getCoreConfig = req => async dispatch => {
 	}
 
 	dispatch({ type: GET_CORE_CONFIG, payload: config });
+};
+
+export const setSocialMediaCard = img => async dispatch => {
+	dispatch({ type: SET_SOCIAL_MEDIA_IMAGE, payload: img });
 };

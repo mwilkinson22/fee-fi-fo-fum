@@ -24,12 +24,13 @@ import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
 import PageSwitch from "../components/PageSwitch";
 
 //Actions
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { setSocialMediaCard } from "../actions/configActions";
+import { fetchGames, fetchGameList, getGameSocialMediaImage } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
 import { fetchPostList } from "~/client/actions/newsActions";
 
 //Constants
-import { imagePath } from "../extPaths";
+import { imagePath, gameImagePath } from "../extPaths";
 import { Redirect } from "react-router-dom";
 
 //Helpers
@@ -497,7 +498,21 @@ async function loadData(store, path) {
 		if (previousId) {
 			gamesToLoad.push(previousId);
 		}
-		return store.dispatch(fetchGames(gamesToLoad));
+
+		await store.dispatch(fetchGames(gamesToLoad));
+
+		//Get Social Image
+		const { images } = store.getState().games.fullGames[item._id];
+
+		let socialImage;
+		if (images.header) {
+			socialImage = gameImagePath + "header/" + images.header;
+		} else if (images.midpage) {
+			socialImage = gameImagePath + "midpage/" + images.midpage;
+		} else {
+			socialImage = await store.dispatch(getGameSocialMediaImage(item._id));
+		}
+		await store.dispatch(setSocialMediaCard(socialImage));
 	}
 }
 

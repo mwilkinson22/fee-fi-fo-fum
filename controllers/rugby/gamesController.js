@@ -20,6 +20,7 @@ import coachTypes from "~/constants/coachTypes";
 import { parseExternalGame, postToIfttt } from "~/helpers/gameHelper";
 
 //Images
+import GameSocialCardImage from "~/images/GameSocialCardImage";
 import PregameImage from "~/images/PregameImage";
 import SquadImage from "~/images/SquadImage";
 import GameEventImage from "~/images/GameEventImage";
@@ -664,6 +665,18 @@ async function generatePlayerEventImage(player, event, basicGame) {
 	await image.drawGameData();
 	await image.drawGameEvent(event);
 	return image;
+}
+
+export async function generateSocialMediaCard(req, res) {
+	const { _id } = req.params;
+	const basicGame = await validateGame(_id, res, Game.findById(_id).eventImage());
+
+	if (basicGame) {
+		const [game] = await addEligiblePlayers([basicGame]);
+		const imageClass = new GameSocialCardImage(game);
+		const image = await imageClass.render();
+		res.send(image);
+	}
 }
 
 export async function fetchEventImage(req, res) {
