@@ -673,7 +673,7 @@ export async function fetchEventImage(req, res) {
 		res.status(400).send("No event type specified");
 	} else if (!gameEvents[event] || event === "none") {
 		res.status(400).send(`Invalid event type - '${event}'`);
-	} else if (!player) {
+	} else if (gameEvents[event].isPlayerImage && !player) {
 		res.status(400).send("No player selected");
 	} else {
 		const game = await Game.findById(_id).eventImage();
