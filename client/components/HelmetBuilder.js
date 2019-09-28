@@ -34,11 +34,9 @@ class HelmetBuilder extends Component {
 			{ name: "twitter:creator", content: `@${author}` },
 			{ name: "twitter:site", content: "@FeeFiFoFumRL" },
 			{ property: "twitter:description", content: description },
+			{ name: "twitter:image", property: "og:image", content: cardImage },
 			{ property: "og:url", content: url }
 		];
-		if (cardImage) {
-			meta.push({ name: "twitter:image", property: "og:image", content: cardImage });
-		}
 
 		return (
 			<Helmet
@@ -65,7 +63,7 @@ HelmetBuilder.propTypes = {
 HelmetBuilder.defaultProps = {
 	author: "GiantsFanzine",
 	canonical: null,
-	cardImage: null,
+	cardImage: imagePath + "layout/twitter-card.jpg",
 	description: "Huddersfield Giants news, stats and reports"
 };
 

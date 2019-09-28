@@ -121,8 +121,3 @@ export const previewPlayerEventImage = (id, values) => async (dispatch, getState
 	const res = await api.put(`/games/${id}/event/imagePreview`, values);
 	return res.data;
 };
-
-export const getGameSocialMediaImage = id => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/${id}/images/social`);
-	return res.data;
-};

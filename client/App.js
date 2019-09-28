@@ -14,9 +14,6 @@ import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import HelmetBuilder from "./components/HelmetBuilder";
 
-//Constants
-import { imagePath } from "~/client/extPaths";
-
 //Action Type Sanity Check
 import * as actionTypes from "./actions/types";
 
@@ -57,11 +54,7 @@ class App extends Component {
 				<div className={className}>
 					<ScrollToTop>
 						<Header />
-						<HelmetBuilder
-							title=""
-							canonical="/"
-							cardImage={socialMediaImage || imagePath + "layout/twitter-card.jpg"}
-						/>
+						<HelmetBuilder title="" canonical="/" />
 						{renderRoutes(route.routes)}
 					</ScrollToTop>
 				</div>

@@ -18,6 +18,7 @@ import coachTypes from "~/constants/coachTypes";
 
 //Helpers
 import { parseExternalGame, postToIfttt } from "~/helpers/gameHelper";
+import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
 //Images
 import GameSocialCardImage from "~/images/GameSocialCardImage";
@@ -197,7 +198,7 @@ async function addEligiblePlayers(games) {
 	return games;
 }
 
-async function getUpdatedGame(id, res) {
+async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	//Get Full Game
 	let game = await Game.findById(id).fullGame();
 	game = await addEligiblePlayers([game]);
@@ -205,6 +206,10 @@ async function getUpdatedGame(id, res) {
 
 	//Get Game For List
 	const list = await processList();
+
+	if (refreshSocialImage) {
+		updateSocialMediaCard(id);
+	}
 
 	res.send({ id, fullGames, ...list });
 }
@@ -244,7 +249,7 @@ export async function addGame(req, res) {
 	values.slug = await Game.generateSlug(values);
 	const game = new Game(values);
 	await game.save();
-	await getUpdatedGame(game._id, res);
+	await getUpdatedGame(game._id, res, true);
 }
 
 //Updaters
@@ -256,7 +261,7 @@ export async function updateGameBasics(req, res) {
 
 		await Game.updateOne({ _id }, values);
 
-		await getUpdatedGame(_id, res);
+		await getUpdatedGame(_id, res, true);
 	}
 }
 
@@ -290,7 +295,7 @@ export async function markSquadsAsAnnounced(req, res) {
 	if (game) {
 		game.squadsAnnounced = req.body.announced;
 		await game.save();
-		await getUpdatedGame(_id, res);
+		await getUpdatedGame(_id, res, true);
 	}
 }
 
@@ -361,7 +366,7 @@ export async function setSquads(req, res) {
 			.value();
 
 		await Game.bulkWrite(bulkOperation);
-		await getUpdatedGame(_id, res);
+		await getUpdatedGame(_id, res, true);
 	}
 }
 
@@ -490,7 +495,7 @@ export async function handleEvent(req, res) {
 		await game.save();
 
 		//Return Updated Game
-		await getUpdatedGame(_id, res);
+		await getUpdatedGame(_id, res, true);
 	}
 }
 
@@ -545,7 +550,7 @@ export async function deleteEvent(req, res) {
 			await game.save();
 
 			//Return Updated Game
-			await getUpdatedGame(_id, res);
+			await getUpdatedGame(_id, res, true);
 		}
 	}
 }
@@ -576,7 +581,7 @@ export async function setStats(req, res) {
 				}
 			);
 		}
-		await getUpdatedGame(_id, res);
+		await getUpdatedGame(_id, res, true);
 	}
 }
 
@@ -667,16 +672,12 @@ async function generatePlayerEventImage(player, event, basicGame) {
 	return image;
 }
 
-export async function generateSocialMediaCard(req, res) {
-	const { _id } = req.params;
-	const basicGame = await validateGame(_id, res, Game.findById(_id).eventImage());
-
-	if (basicGame) {
-		const [game] = await addEligiblePlayers([basicGame]);
-		const imageClass = new GameSocialCardImage(game);
-		const image = await imageClass.render();
-		res.send(image);
-	}
+async function updateSocialMediaCard(id) {
+	const gameForImage = await Game.findById(id).eventImage();
+	const imageClass = new GameSocialCardImage(gameForImage);
+	const image = await imageClass.render();
+	const result = await uploadBase64ImageToGoogle(image, "images/games/social/", false, id, "jpg");
+	return result;
 }
 
 export async function fetchEventImage(req, res) {

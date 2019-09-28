@@ -445,9 +445,23 @@ class GamePage extends Component {
 		} else if (!postList) {
 			return <LoadingPage />;
 		} else {
+			//Get Helmet Image
+			let cardImage;
+			if (game.images.header) {
+				cardImage = gameImagePath + "header/" + game.images.header;
+			} else if (game.images.midpage) {
+				cardImage = gameImagePath + "midpage/" + game.images.midpage;
+			} else {
+				cardImage = gameImagePath + "social/" + game._id + ".jpg";
+			}
+
 			return (
 				<div className="game-page">
-					<HelmetBuilder title={this.getPageTitle()} canonical={`/games/${game.slug}`} />
+					<HelmetBuilder
+						title={this.getPageTitle()}
+						canonical={`/games/${game.slug}`}
+						cardImage={cardImage}
+					/>
 					<section className="header">
 						<GameHeaderImage game={game} className="game-header-image" />
 						<div className="game-details">
@@ -499,20 +513,7 @@ async function loadData(store, path) {
 			gamesToLoad.push(previousId);
 		}
 
-		await store.dispatch(fetchGames(gamesToLoad));
-
-		//Get Social Image
-		const { images } = store.getState().games.fullGames[item._id];
-
-		let socialImage;
-		if (images.header) {
-			socialImage = gameImagePath + "header/" + images.header;
-		} else if (images.midpage) {
-			socialImage = gameImagePath + "midpage/" + images.midpage;
-		} else {
-			socialImage = await store.dispatch(getGameSocialMediaImage(item._id));
-		}
-		await store.dispatch(setSocialMediaCard(socialImage));
+		return store.dispatch(fetchGames(gamesToLoad));
 	}
 }
 

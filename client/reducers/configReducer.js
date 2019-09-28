@@ -1,4 +1,4 @@
-import { FETCH_USER, GET_CORE_CONFIG, LOGOUT, SET_SOCIAL_MEDIA_IMAGE } from "../actions/types";
+import { FETCH_USER, GET_CORE_CONFIG, LOGOUT } from "../actions/types";
 
 export default function(state = {}, action) {
 	switch (action.type) {
@@ -10,9 +10,6 @@ export default function(state = {}, action) {
 
 		case GET_CORE_CONFIG:
 			return { ...state, ...action.payload };
-
-		case SET_SOCIAL_MEDIA_IMAGE:
-			return { ...state, socialMediaImage: action.payload };
 
 		default:
 			return state;
