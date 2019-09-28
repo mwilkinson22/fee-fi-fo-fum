@@ -68,3 +68,35 @@ export async function uploadImageToGoogle(file, path, webPConvert = true, nameOv
 
 	return uploadedImage;
 }
+
+export async function uploadBase64ImageToGoogle(base64, path, webPConvert, name, format) {
+	//Strip base64 prefix
+	const buffer = Buffer.from(base64.split("base64,").pop(), "base64");
+
+	//Ensure valid format
+	let originalname, mimeType;
+	switch (format) {
+		case "jpeg":
+		case "jpg":
+			originalname = `${name}.jpg`;
+			mimeType = "image/jpeg";
+			break;
+		case "png":
+			originalname = `${name}.png`;
+			mimeType = "image/png";
+			break;
+		default:
+			throw new Error("Invalid format supplied");
+	}
+
+	//Convert
+	const file = {
+		originalname,
+		mimeType,
+		buffer
+	};
+
+	//Pass on to main function
+	const uploadedImage = await uploadImageToGoogle(file, path, webPConvert);
+	return uploadedImage;
+}
