@@ -4,6 +4,9 @@ node_modules
 #webstorm project settings
 .idea
 
+#vscode config
+jsconfig.json
+
 config/dev.js
 
 build
