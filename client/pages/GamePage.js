@@ -461,6 +461,7 @@ class GamePage extends Component {
 						title={this.getPageTitle()}
 						canonical={`/games/${game.slug}`}
 						cardImage={cardImage}
+						cardType="summary_large_image"
 					/>
 					<section className="header">
 						<GameHeaderImage game={game} className="game-header-image" />

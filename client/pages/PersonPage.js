@@ -16,7 +16,7 @@ import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
 
 //Constants
-import { layoutImagePath } from "../extPaths";
+import { layoutImagePath, imagePath, personImagePath } from "../extPaths";
 import playerPositions from "~/constants/playerPositions";
 const { earliestGiantsData } = require("~/config/keys");
 
@@ -333,8 +333,6 @@ class PersonPage extends Component {
 			imageVariant = "coach";
 		}
 
-		console.log(imageVariant);
-
 		if (redirect) {
 			return <Redirect to={redirect} />;
 		} else if (person === undefined) {
@@ -342,11 +340,23 @@ class PersonPage extends Component {
 		} else if (!person) {
 			return <NotFoundPage message="Person not found" />;
 		} else {
+			//Determine Meta Info
+			let cardImage;
+			let cardType = "summary";
+			if (person.images.midpage) {
+				cardImage = imagePath + "people/midpage/" + person.images.midpage;
+				cardType = "summary_large_image";
+			} else if (person.images[imageVariant] || person.images.main) {
+				cardImage = personImagePath + (person.images[imageVariant] || person.images.main);
+			}
+
 			return (
 				<div className={`person-page`}>
 					<HelmetBuilder
 						title={`${person.name.first} ${person.name.last}`}
 						canonical={`/${person.isCoach ? "coaches" : "players"}/${person.slug}`}
+						cardImage={cardImage}
+						cardType={cardType}
 					/>
 					<section className="header">
 						<div className="background" />

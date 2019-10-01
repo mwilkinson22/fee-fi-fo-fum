@@ -4,9 +4,20 @@ import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { imagePath } from "../extPaths";
 
+const defaultImage = imagePath + "layout/twitter-card.jpg";
+
 class HelmetBuilder extends Component {
 	render() {
-		let { title, canonical, author, cardImage, description, baseUrl, initialPath } = this.props;
+		let {
+			title,
+			canonical,
+			author,
+			cardImage,
+			cardType,
+			description,
+			baseUrl,
+			initialPath
+		} = this.props;
 
 		//Set Title
 		title = (title ? title + " - " : "") + "Fee Fi Fo Fum";
@@ -29,12 +40,12 @@ class HelmetBuilder extends Component {
 		//Set Meta
 		const meta = [
 			{ property: "og:type", content: "website" },
-			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:card", content: cardType },
 			{ name: "twitter:title", property: "og:title", content: title },
 			{ name: "twitter:creator", content: `@${author}` },
 			{ name: "twitter:site", content: "@FeeFiFoFumRL" },
 			{ property: "twitter:description", content: description },
-			{ name: "twitter:image", property: "og:image", content: cardImage },
+			{ name: "twitter:image", property: "og:image", content: cardImage || defaultImage },
 			{ property: "og:url", content: url }
 		];
 
@@ -53,17 +64,19 @@ class HelmetBuilder extends Component {
 }
 
 HelmetBuilder.propTypes = {
-	title: PropTypes.string.isRequired,
-	canonical: PropTypes.string,
 	author: PropTypes.string,
+	canonical: PropTypes.string,
+	cardType: PropTypes.oneOf(["summary", "summary_large_image", "app", "player"]),
 	cardImage: PropTypes.string,
-	description: PropTypes.string
+	description: PropTypes.string,
+	title: PropTypes.string.isRequired
 };
 
 HelmetBuilder.defaultProps = {
 	author: "GiantsFanzine",
 	canonical: null,
-	cardImage: imagePath + "layout/twitter-card.jpg",
+	cardImage: defaultImage,
+	cardType: "summary",
 	description: "Huddersfield Giants news, stats and reports"
 };
 
