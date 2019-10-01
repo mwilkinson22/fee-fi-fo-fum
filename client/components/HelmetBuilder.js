@@ -4,7 +4,8 @@ import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { imagePath } from "../extPaths";
 
-const defaultImage = imagePath + "layout/twitter-card.jpg";
+const defaultCardImage = imagePath + "layout/twitter-card.jpg";
+const defaultLargeCardImage = imagePath + "layout/twitter-card-large.jpg";
 
 class HelmetBuilder extends Component {
 	render() {
@@ -37,6 +38,10 @@ class HelmetBuilder extends Component {
 			author = "FeeFiFoFumRL";
 		}
 
+		if (!cardImage) {
+			cardImage = cardType === "summary" ? defaultCardImage : defaultLargeCardImage;
+		}
+
 		//Set Meta
 		const meta = [
 			{ property: "og:type", content: "website" },
@@ -45,7 +50,7 @@ class HelmetBuilder extends Component {
 			{ name: "twitter:creator", content: `@${author}` },
 			{ name: "twitter:site", content: "@FeeFiFoFumRL" },
 			{ property: "twitter:description", content: description },
-			{ name: "twitter:image", property: "og:image", content: cardImage || defaultImage },
+			{ name: "twitter:image", property: "og:image", content: cardImage },
 			{ property: "og:url", content: url }
 		];
 
@@ -75,8 +80,8 @@ HelmetBuilder.propTypes = {
 HelmetBuilder.defaultProps = {
 	author: "GiantsFanzine",
 	canonical: null,
-	cardImage: defaultImage,
-	cardType: "summary",
+	cardImage: defaultCardImage,
+	cardType: "summary_large_image",
 	description: "Huddersfield Giants news, stats and reports"
 };
 
