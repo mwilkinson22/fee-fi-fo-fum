@@ -32,6 +32,9 @@ import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 import { matchSlugToItem } from "~/helpers/routeHelper";
 import { convertToEditorState } from "~/helpers/newsHelper";
 
+//Constants
+import { newsHeaderPath } from "~/client/extPaths";
+
 class NewsPostPage extends Component {
 	constructor(props) {
 		super(props);
@@ -65,6 +68,12 @@ class NewsPostPage extends Component {
 				if (!newState.post) {
 					fetchNewsPost(_id);
 				} else {
+					//Get Meta Description
+					const { blocks } = JSON.parse(newState.post.content);
+					//We do the regex to ensure punctuation at the end of each line
+					newState.post.preview = blocks
+						.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
+						.join(" \n");
 					newState.post.editorState = convertToEditorState(newState.post.content);
 					newState.recentPosts = _.chain(postList)
 						.orderBy(["dateCreated"], ["desc"])
@@ -230,10 +239,9 @@ class NewsPostPage extends Component {
 						<HelmetBuilder
 							title={post.title}
 							canonical={`/news/post/${post.slug}`}
-							cardImage={post.image}
-							description={
-								post.content.replace(/<[^>]*>/g, "").substring(0, 500) + "..."
-							}
+							cardImage={newsHeaderPath + post.image}
+							cardType="summary_large_image"
+							description={post.preview.substring(0, 500) + "..."}
 						/>
 						{this.formatPost()}
 					</div>
