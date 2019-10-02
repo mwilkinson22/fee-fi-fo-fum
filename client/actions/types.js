@@ -57,9 +57,6 @@ export const FETCH_GROUND = "fetch_ground";
 export const DELETE_GROUND = "delete_ground";
 export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 
-//Seasons
-export const FETCH_LEAGUE_TABLE = "fetch_league_table";
-
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
 
