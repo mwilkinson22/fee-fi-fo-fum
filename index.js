@@ -1,4 +1,4 @@
-import "babel-polyfill";
+import "@babel/polyfill";
 import _ from "lodash";
 import express from "express";
 import compression from "compression";

@@ -1,4 +1,4 @@
-import "babel-polyfill";
+import "@babel/polyfill";
 import { polyfill } from "es6-promise"; //IE Support
 import React from "react";
 import ReactDOM from "react-dom";

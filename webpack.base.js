@@ -20,14 +20,18 @@ module.exports = {
 				]
 			},
 			{
-				test: /\.(js|node)?$/,
+				test: /\.m?js$/,
 				loader: "babel-loader",
 				exclude: /node_modules/,
 				options: {
 					presets: [
-						"react",
-						"stage-0",
-						["env", { targets: { browsers: ["last 2 versions"] } }]
+						"@babel/preset-react",
+						[
+							"@babel/preset-env",
+							{
+								targets: { browsers: ["last 2 versions"], ie: 11 }
+							}
+						]
 					]
 				}
 			},
