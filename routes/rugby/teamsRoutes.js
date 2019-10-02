@@ -1,10 +1,10 @@
 //Controllers
-const teamsController = require("../../controllers/rugby/teamsController");
+import * as teamsController from "../../controllers/rugby/teamsController";
 
 //Middleware
-const requireAdmin = require("../../middlewares/requireAdmin");
+import requireAdmin from "../../middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	//Getters
 	app.get("/api/teamTypes", teamsController.getTeamTypes);
 	app.get("/api/teams/", teamsController.getList);

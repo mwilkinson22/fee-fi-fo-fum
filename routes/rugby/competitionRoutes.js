@@ -4,7 +4,7 @@ import * as competitionController from "../../controllers/rugby/competitionContr
 //Middleware
 import requireAdmin from "~/middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	//Get
 	app.get("/api/competitions/segments", competitionController.getSegments);
 	app.get("/api/competitions", competitionController.getCompetitions);

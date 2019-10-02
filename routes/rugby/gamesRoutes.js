@@ -4,7 +4,7 @@ import * as gamesController from "../../controllers/rugby/gamesController";
 //Middleware
 import requireAdmin from "../../middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	//Getters
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
 	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);

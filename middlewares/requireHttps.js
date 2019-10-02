@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
 	if (process.env.NODE_ENV !== "development") {
 		//Check for www
 		let host = req.get("host"); // localhost:3000, feefifofum.co.uk, www.feefifofum.co.uk;

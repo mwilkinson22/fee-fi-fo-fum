@@ -8,7 +8,7 @@ import * as userController from "../controllers/userController";
 import requireAdmin from "../middlewares/requireAdmin";
 import requireAuth from "../middlewares/requireAuth";
 
-module.exports = app => {
+export default app => {
 	//Create New User
 	app.post("/api/users", requireAdmin, userController.createNewUser);
 

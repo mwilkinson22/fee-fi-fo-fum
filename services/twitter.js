@@ -2,7 +2,7 @@ import Twitter from "twit";
 import mongoose from "mongoose";
 const SocialProfile = mongoose.model("socialProfiles");
 
-module.exports = async (_profile, keys = null) => {
+export default async (_profile, keys = null) => {
 	if (!keys) {
 		const profile = await SocialProfile.findById(_profile).lean();
 		keys = profile.twitter;

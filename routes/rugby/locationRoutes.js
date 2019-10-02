@@ -4,7 +4,7 @@ import * as locationController from "../../controllers/rugby/locationController"
 //Middleware
 import requireAdmin from "~/middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	//Getters
 	app.get("/api/cities", locationController.getCities);
 	app.get("/api/countries", locationController.getCountries);

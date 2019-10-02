@@ -36,6 +36,13 @@ import "./models/SlugRedirect";
 import "./models/rugby";
 import "./models/NewsPost";
 
+//API Routes
+import fileRoutes from "./routes/fileRoutes";
+import usersRoutes from "./routes/usersRoutes";
+import socialRoutes from "./routes/socialRoutes";
+import rugbyRoutes from "./routes/rugby";
+import newsRoutes from "./routes/newsRoutes";
+
 mongoose.connect(keys.mongoURI, {
 	useNewUrlParser: true,
 	useCreateIndex: true
@@ -69,11 +76,11 @@ import "./client/scss/styles.scss";
 app.use(express.static("public"));
 
 // API Routes
-require("./routes/fileRoutes")(app);
-require("./routes/usersRoutes")(app);
-require("./routes/socialRoutes")(app);
-require("./routes/rugby")(app);
-require("./routes/newsRoutes")(app);
+fileRoutes(app);
+usersRoutes(app);
+socialRoutes(app);
+rugbyRoutes(app);
+newsRoutes(app);
 app.all("/api*", (req, res) => {
 	res.status("404").send("404 - Invalid API path");
 });

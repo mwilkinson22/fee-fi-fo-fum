@@ -1,6 +1,6 @@
 import * as groundsController from "../../controllers/rugby/groundsController";
 
-module.exports = app => {
+export default app => {
 	app.get("/api/grounds", groundsController.getGroundsList);
 	app.post("/api/grounds", groundsController.createGround);
 	app.put("/api/grounds/:_id", groundsController.updateGround);

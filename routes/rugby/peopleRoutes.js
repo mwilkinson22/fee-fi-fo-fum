@@ -4,7 +4,7 @@ import * as peopleController from "../../controllers/rugby/peopleController";
 //Middleware
 import requireAdmin from "../../middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	//Getters
 	app.get("/api/people/:id", peopleController.getPerson);
 	app.get("/api/people", peopleController.getList);

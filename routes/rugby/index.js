@@ -1,11 +1,19 @@
-module.exports = app => {
-	require("./competitionRoutes")(app);
-	require("./gamesRoutes")(app);
-	require("./groundRoutes")(app);
-	require("./locationRoutes")(app);
-	require("./neutralGamesRoutes")(app);
-	require("./peopleRoutes")(app);
-	require("./seasonRoutes")(app);
-	require("./sponsorRoutes")(app);
-	require("./teamsRoutes")(app);
+import competitionRoutes from "./competitionRoutes";
+import gamesRoutes from "./gamesRoutes";
+import groundRoutes from "./groundRoutes";
+import locationRoutes from "./locationRoutes";
+import neutralGamesRoutes from "./neutralGamesRoutes";
+import peopleRoutes from "./peopleRoutes";
+import sponsorRoutes from "./sponsorRoutes";
+import teamsRoutes from "./teamsRoutes";
+
+export default app => {
+	competitionRoutes(app);
+	gamesRoutes(app);
+	groundRoutes(app);
+	locationRoutes(app);
+	neutralGamesRoutes(app);
+	peopleRoutes(app);
+	sponsorRoutes(app);
+	teamsRoutes(app);
 };

@@ -4,7 +4,7 @@ import * as neutralGamesController from "../../controllers/rugby/neutralGamesCon
 //Middleware
 import requireAdmin from "../../middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	//Getters
 	app.get("/api/neutralGames/crawl", requireAdmin, neutralGamesController.crawl);
 	app.get(

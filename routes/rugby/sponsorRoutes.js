@@ -4,7 +4,7 @@ import * as sponsorController from "../../controllers/rugby/sponsorController";
 //Middleware & Utils
 import requireAdmin from "../../middlewares/requireAdmin";
 
-module.exports = app => {
+export default app => {
 	app.get("/api/sponsors", requireAdmin, sponsorController.getSponsors);
 
 	app.put("/api/sponsors/:_id", requireAdmin, sponsorController.updateSponsor);
