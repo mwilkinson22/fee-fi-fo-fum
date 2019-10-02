@@ -1,13 +1,32 @@
+//Modules
 import "@babel/polyfill";
 import _ from "lodash";
 import express from "express";
 import compression from "compression";
 import { matchRoutes } from "react-router-config";
-import Routes from "./client/Routes";
 import renderer from "./helpers/server/renderer";
 import createStore from "./helpers/server/createStore";
 import "datejs";
+import mongoose from "mongoose";
+import cookieSession from "cookie-session";
+import passport from "passport";
+import bodyParser from "body-parser";
+import useragent from "express-useragent";
 
+//Models
+import "./models/User";
+import "./models/SocialProfile";
+import "./models/Sponsor";
+import "./models/IdLink";
+import "./models/SlugRedirect";
+import "./models/rugby";
+import "./models/NewsPost";
+
+//Frontend
+import Routes from "./client/Routes";
+import "./client/scss/styles.scss";
+
+//Actions
 import { getCoreConfig } from "./client/actions/configActions";
 import { setDefaultProfile } from "./client/actions/socialActions";
 import { fetchUser } from "./client/actions/userActions";
@@ -18,23 +37,12 @@ import {
 	fetchTeamList
 } from "./client/actions/teamsActions";
 
-import mongoose from "mongoose";
-import cookieSession from "cookie-session";
-import passport from "passport";
-import bodyParser from "body-parser";
-import useragent from "express-useragent";
+//Constants
 import keys from "./config/keys";
 
+//Middlewares & Services
 import requireHttps from "~/middlewares/requireHttps";
-
-//Add Mongoose Models
-import "./models/User";
-import "./models/SocialProfile";
-import "./models/Sponsor";
-import "./models/IdLink";
-import "./models/SlugRedirect";
-import "./models/rugby";
-import "./models/NewsPost";
+import "./services/passport";
 
 //API Routes
 import fileRoutes from "./routes/fileRoutes";
@@ -43,24 +51,19 @@ import socialRoutes from "./routes/socialRoutes";
 import rugbyRoutes from "./routes/rugby";
 import newsRoutes from "./routes/newsRoutes";
 
+//Configure Mongoose
 mongoose.connect(keys.mongoURI, {
 	useNewUrlParser: true,
 	useCreateIndex: true
 });
 
+//Render App with middleware
 const app = express();
-
-//Enable bodyParser
 app.use(bodyParser.json());
-
-//Enable compression
 app.use(compression({ level: 9 }));
-
-//Set up useragent detection
 app.use(useragent.express());
 
 //Set up passport
-import "./services/passport";
 app.use(
 	cookieSession({
 		maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -69,8 +72,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-
-import "./client/scss/styles.scss";
 
 //Set up static routes
 app.use(express.static("public"));
@@ -85,7 +86,7 @@ app.all("/api*", (req, res) => {
 	res.status("404").send("404 - Invalid API path");
 });
 
-//Require https
+//Require https for all frontend content
 app.use(requireHttps);
 
 //Render
