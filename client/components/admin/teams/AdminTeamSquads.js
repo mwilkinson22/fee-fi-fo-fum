@@ -128,6 +128,7 @@ class AdminTeamSquads extends BasicForm {
 			const teamTypeObject = teamTypes[teamType.value];
 			return (
 				<AdminTeamSquadBulkAdder
+					squad="new"
 					teamId={team._id}
 					gender={teamTypeObject.gender}
 					year={year}
@@ -297,14 +298,15 @@ class AdminTeamSquads extends BasicForm {
 		if (pageType === "new") {
 			content = this.renderNewSquadFields();
 		} else if (pageType === "edit") {
-			const { _teamType } = squads[squad] || {};
+			const { _teamType, year } = squads[squad] || {};
 			content = [
 				this.renderCurrentSquad(),
 				<AdminTeamSquadBulkAdder
 					key="bulk"
 					squad={squad}
 					teamId={team._id}
-					gender={teamTypes[_teamType].gender}
+					teamType={teamTypes[_teamType]}
+					year={year}
 				/>
 			];
 		}

@@ -1,6 +1,7 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import Select from "react-select";
@@ -24,6 +25,24 @@ class AdminTeamSquadBulkAdder extends Component {
 		};
 	}
 
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { fullTeams, teamId, year, teamType, squad } = nextProps;
+		const newState = { squad };
+
+		//On page change
+		if (newState.squad !== prevState.squad) {
+			//Get Years To Copy
+			const { squads } = fullTeams[teamId];
+			newState.squadsToCopy = _.chain(squads)
+				.filter(s => s._teamType == teamType._id && s.year != year)
+				.orderBy(["year"], ["desc"])
+				.map(({ _id, year }) => [_id, year])
+				.fromPairs()
+				.value();
+		}
+		return newState;
+	}
+
 	handleSubmit(players) {
 		const {
 			appendTeamSquad,
@@ -37,7 +56,7 @@ class AdminTeamSquadBulkAdder extends Component {
 
 		players = _.map(players, ({ nameSelect, ...p }) => ({ ...p, _id: nameSelect.value }));
 
-		if (squad) {
+		if (squad !== "new") {
 			appendTeamSquad(teamId, squad, players);
 			this.setState({
 				textList: "",
@@ -51,7 +70,7 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	async parseList() {
-		const { gender, parsePlayerList } = this.props;
+		const { teamType, parsePlayerList } = this.props;
 		const { textList, delimiter } = this.state;
 		const lines = textList.split("\n").filter(line => line.trim().length);
 
@@ -88,7 +107,7 @@ class AdminTeamSquadBulkAdder extends Component {
 
 			//Send it off to the server to get matches
 			const serverResults = await parsePlayerList({
-				gender,
+				gender: teamType.gender,
 				names: parsedLines.map(p => p.name)
 			});
 
@@ -268,19 +287,55 @@ class AdminTeamSquadBulkAdder extends Component {
 	}
 
 	addNewSquadHeader() {
-		const { resetSquadData } = this.props;
-		return (
-			<div>
-				<div className="buttons">
-					<button onClick={() => resetSquadData()}>Reset Squad Data</button>
+		const { resetSquadData, squad } = this.props;
+		if (squad === "new") {
+			return (
+				<div>
+					<div className="buttons">
+						<button onClick={() => resetSquadData()}>Reset Squad Data</button>
+					</div>
 				</div>
-			</div>
-		);
+			);
+		}
+	}
+
+	renderCopyDropdown() {
+		const { squadsToCopy } = this.state;
+		if (squadsToCopy && Object.keys(squadsToCopy).length) {
+			const options = _.map(squadsToCopy, (year, _id) => (
+				<option key={_id} value={_id}>
+					{year}
+				</option>
+			));
+			return (
+				<select
+					className="full-span"
+					value="header"
+					onChange={ev => this.copySquadToTextArea(ev.target.value)}
+				>
+					<option value="header">Copy Other Squad</option>
+					{options}
+				</select>
+			);
+		}
+	}
+
+	copySquadToTextArea(id) {
+		const { teamId, fullTeams } = this.props;
+		const playersToCopy = fullTeams[teamId].squads.find(s => s._id == id).players;
+
+		const textList = _.chain(playersToCopy)
+			.sortBy(p => p.number || p._player.name.first)
+			.map(({ _player }) => `${_player.name.first} ${_player.name.last}`)
+			.value()
+			.join("\n");
+
+		this.setState({ textList });
 	}
 
 	render() {
 		const { parsedList, isLoading } = this.state;
-		const { squad, teamType, year } = this.props;
+		const { teamType, year } = this.props;
 
 		let content;
 		if (isLoading) {
@@ -293,9 +348,10 @@ class AdminTeamSquadBulkAdder extends Component {
 			<div>
 				<div className="form-card grid">
 					<h6>
-						{squad ? "Add Extra Players" : `Add Players to ${year} ${teamType.name}`}
+						Add Players to {year} {teamType.name}
 					</h6>
-					{!squad && this.addNewSquadHeader()}
+					{this.addNewSquadHeader()}
+					{this.renderCopyDropdown()}
 					<textarea
 						id=""
 						rows="20"
@@ -326,6 +382,14 @@ function mapStateToProps({ people, teams }) {
 	const { fullTeams } = teams;
 	return { peopleList, fullTeams };
 }
+
+AdminTeamSquadBulkAdder.propTypes = {
+	squad: PropTypes.string.isRequired,
+	teamId: PropTypes.string.isRequired,
+	teamType: PropTypes.object.isRequired,
+	year: PropTypes.number.isRequired,
+	resetSquadData: PropTypes.func
+};
 
 export default connect(
 	mapStateToProps,
