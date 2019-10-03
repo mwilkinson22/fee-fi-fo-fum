@@ -21,6 +21,9 @@ async function validateTeam(_id, res, promise = null) {
 	}
 }
 
+//Constants
+import { localTeam } from "~/config/keys";
+
 async function getUpdatedTeam(id, res) {
 	//To be called after post/put methods
 	const team = await Team.findById([id]).fullTeam();
@@ -203,8 +206,22 @@ export async function updateSquad(req, res) {
 				const games = await Game.find(
 					{
 						$or: [
-							{ "playerStats._player": _player },
-							{ "pregameSquads.squad": _player }
+							{
+								playerStats: {
+									$elemMatch: {
+										_player,
+										_team: localTeam
+									}
+								}
+							},
+							{
+								pregameSquads: {
+									$elemMatch: {
+										squad: _player,
+										_team: localTeam
+									}
+								}
+							}
 						],
 						date
 					},
