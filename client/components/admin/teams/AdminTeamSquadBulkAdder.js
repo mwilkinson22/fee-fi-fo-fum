@@ -35,6 +35,8 @@ class AdminTeamSquadBulkAdder extends Component {
 			teamType
 		} = this.props;
 
+		players = _.map(players, ({ nameSelect, ...p }) => ({ ...p, _id: nameSelect.value }));
+
 		if (squad) {
 			appendTeamSquad(teamId, squad, players);
 			this.setState({

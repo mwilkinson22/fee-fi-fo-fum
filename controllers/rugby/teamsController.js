@@ -133,13 +133,13 @@ export async function appendSquad(req, res) {
 async function processBulkSquadAdd(data, teamTypeId) {
 	const results = [];
 	for (const row of _.values(data)) {
-		const { number, onLoan, from, to, nameSelect, nameString } = row;
+		const { number, onLoan, from, to, _id, nameString } = row;
 		let person;
 
 		//Create New Player
-		if (nameSelect.value === "skip") {
+		if (_id === "skip") {
 			continue;
-		} else if (nameSelect.value === "new") {
+		} else if (_id === "new") {
 			//Generate Slug
 			const slug = await Person.generateSlug(nameString.first, nameString.last);
 
@@ -156,7 +156,7 @@ async function processBulkSquadAdd(data, teamTypeId) {
 
 			await person.save();
 		} else {
-			person = await Person.findByIdAndUpdate(nameSelect.value, { isPlayer: true });
+			person = await Person.findByIdAndUpdate(_id, { isPlayer: true });
 		}
 
 		results.push({
