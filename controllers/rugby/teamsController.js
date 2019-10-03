@@ -126,7 +126,14 @@ export async function appendSquad(req, res) {
 			});
 		} else {
 			const newSquad = await processBulkSquadAdd(req.body, squad._teamType);
-			squad.players.push(...newSquad);
+
+			//Prevent duplicates
+			const newSquadWithoutDuplicates = newSquad.filter(
+				({ _player }) =>
+					!squad.players.find(p => p._player.toString() == _player.toString())
+			);
+
+			squad.players.push(...newSquadWithoutDuplicates);
 			await team.save();
 			await getUpdatedTeam(_id, res);
 		}
@@ -171,7 +178,7 @@ async function processBulkSquadAdd(data, teamTypeId) {
 		});
 	}
 
-	return results;
+	return _.uniqBy(results, "_player");
 }
 
 export async function updateSquad(req, res) {
