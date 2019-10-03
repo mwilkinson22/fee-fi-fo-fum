@@ -122,6 +122,10 @@ class Header extends Component {
 					headerLink: "/admin/teams"
 				},
 				{
+					header: "Team Types",
+					headerLink: "/admin/team-types"
+				},
+				{
 					header: "Logout",
 					headerLink: "/admin/logout"
 				}

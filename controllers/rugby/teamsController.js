@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 const collectionName = "teams";
 const Team = mongoose.model(collectionName);
-const TeamTypes = mongoose.model("teamTypes");
+const TeamType = mongoose.model("teamTypes");
 const Person = mongoose.model("people");
 const Game = mongoose.model("games");
 
@@ -18,6 +18,27 @@ async function validateTeam(_id, res, promise = null) {
 	} else {
 		res.status(404).send(`No team found with id ${_id}`);
 		return false;
+	}
+}
+
+async function validateTeamType(_id, res) {
+	//This allows us to populate specific fields if necessary
+	const teamType = await TeamType.findById(_id);
+	if (teamType) {
+		return teamType;
+	} else {
+		res.status(404).send(`No Team Type found with id ${_id}`);
+		return false;
+	}
+}
+
+async function validateTeamTypeSlug(slug, res, id = null) {
+	const slugs = await TeamType.find({ _id: { $ne: id } }, "slug").lean();
+	const isValid = !slugs.find(s => s.slug == slug);
+	if (!isValid) {
+		res.status(409).send(`Could not save. Slug '${slug}' is already in use`);
+	} else {
+		return true;
 	}
 }
 
@@ -154,7 +175,7 @@ async function processBulkSquadAdd(data, teamTypeId) {
 			const slug = await Person.generateSlug(nameString.first, nameString.last);
 
 			//Get Gender
-			const teamType = await TeamTypes.findById(teamTypeId);
+			const teamType = await TeamType.findById(teamTypeId);
 			const { gender } = teamType;
 
 			person = new Person({
@@ -367,6 +388,79 @@ export async function updateCoaches(req, res) {
  * TEAM TYPES METHODS
  */
 export async function getTeamTypes(req, res) {
-	const teamTypes = await TeamTypes.find({}).sort({ sortOrder: 1 });
+	const teamTypes = await TeamType.find({}).sort({ sortOrder: 1 });
 	res.send(_.keyBy(teamTypes, "_id"));
+}
+
+export async function createTeamType(req, res) {
+	const slugIsValid = await validateTeamTypeSlug(req.body.slug, res);
+	if (slugIsValid) {
+		const teamType = new TeamType(req.body);
+		await teamType.save();
+		res.send(teamType);
+	}
+}
+
+export async function updateTeamType(req, res) {
+	const { _id } = req.params;
+
+	const teamType = await validateTeamType(_id, res);
+	if (teamType) {
+		const slugIsValid = await validateTeamTypeSlug(req.body.slug, res, _id);
+		if (slugIsValid) {
+			await TeamType.findByIdAndUpdate({ _id }, req.body);
+			const newTeamType = await TeamType.findById(_id);
+			res.send(newTeamType);
+		}
+	}
+}
+
+export async function deleteTeamType(req, res) {
+	const { _id } = req.params;
+	const teamType = await validateTeamType(_id, res);
+	if (teamType) {
+		const errors = [];
+		const toLog = {};
+
+		const Game = mongoose.model("games");
+		const games = await Game.find({ _teamType: _id }, "slug").lean();
+		if (games.length) {
+			toLog.games = games;
+			errors.push(`${games.length} ${games.length === 1 ? "games" : "games"}`);
+		}
+
+		const Team = mongoose.model("teams");
+		const squads = await Team.find({ "squads._teamType": _id }, "name").lean();
+		if (squads.length) {
+			toLog.squads = squads;
+			errors.push(`squads for ${squads.length} ${squads.length === 1 ? "team" : "teams"}`);
+		}
+
+		const CompetitionSegments = mongoose.model("competitionSegments");
+		const segments = await CompetitionSegments.find({ _teamType: _id }, "name").lean();
+		if (segments.length) {
+			toLog.competitionSegments = segments;
+			errors.push(
+				`${segments.length} competition ${segments.length === 1 ? "segment" : "segments"}`
+			);
+		}
+
+		if (errors.length) {
+			let errorList;
+			if (errors.length === 1) {
+				errorList = errors[0];
+			} else {
+				const lastError = errors.pop();
+				errorList = `${errors.join(", ")} & ${lastError}`;
+			}
+			res.status(409).send({
+				error: `Cannot delete Team Type, as it is required for ${errorList}`,
+				toLog
+			});
+			return false;
+		} else {
+			await teamType.remove();
+			res.send({});
+		}
+	}
 }

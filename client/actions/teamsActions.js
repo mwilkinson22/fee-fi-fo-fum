@@ -3,7 +3,9 @@ import {
 	FETCH_ALL_TEAMS,
 	UPDATE_TEAM,
 	FETCH_TEAM,
-	SET_ACTIVE_TEAM_TYPE
+	SET_ACTIVE_TEAM_TYPE,
+	FETCH_TEAM_TYPE,
+	DELETE_TEAM_TYPE
 } from "./types";
 import { toast } from "react-toastify";
 
@@ -15,11 +17,6 @@ export const fetchTeamList = () => async (dispatch, getState, api) => {
 export const fetchTeam = id => async (dispatch, getState, api) => {
 	const res = await api.get(`/team/${id}`);
 	dispatch({ type: FETCH_TEAM, payload: res.data });
-};
-
-export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
-	const res = await api.get("/teamTypes");
-	dispatch({ type: FETCH_ALL_TEAM_TYPES, payload: res.data });
 };
 
 export const setActiveTeamType = _id => async dispatch => {
@@ -69,4 +66,37 @@ export const createTeamSquad = (team_id, data) => async (dispatch, getState, api
 	const res = await api.post(`/teams/${team_id}/squad`, data);
 	toast.success("Squad created");
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
+};
+
+export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {
+	const res = await api.get("/teamTypes");
+	dispatch({ type: FETCH_ALL_TEAM_TYPES, payload: res.data });
+};
+
+export const createTeamType = data => async (dispatch, getState, api) => {
+	const res = await api.post("/teamTypes", data);
+	if (res.data) {
+		toast.success(`Team Type created`);
+		dispatch({ type: FETCH_TEAM_TYPE, payload: res.data });
+		return res.data.slug;
+	}
+};
+
+export const updateTeamType = (id, data) => async (dispatch, getState, api) => {
+	const res = await api.put(`/teamTypes/${id}`, data);
+	if (res.data) {
+		toast.success(`Team Type updated`);
+		dispatch({ type: FETCH_TEAM_TYPE, payload: res.data });
+		return res.data.slug;
+	}
+};
+
+export const deleteTeamType = id => async (dispatch, getState, api) => {
+	const res = await api.delete(`/teamTypes/${id}`);
+	if (res.data) {
+		toast.success(`Team Type deleted`);
+		dispatch({ type: DELETE_TEAM_TYPE, payload: id });
+		return true;
+	}
+	return false;
 };
