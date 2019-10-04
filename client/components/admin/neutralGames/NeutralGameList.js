@@ -84,10 +84,15 @@ class NeutralGameList extends Component {
 										case "_homeTeam":
 										case "_awayTeam":
 											result.content = (
-												<TeamImage
-													team={teamList[game[key]]}
-													variant="dark"
-												/>
+												<div>
+													<TeamImage
+														team={teamList[game[key]]}
+														variant="dark"
+													/>
+													<span className="team-name">
+														{teamList[game[key]].name.short}
+													</span>
+												</div>
 											);
 											break;
 										case "homePoints":

@@ -1302,6 +1302,12 @@
 			max-height: 30pt;
 		}
 	}
+	.team-name {
+		display: block;
+		font-size: 9pt;
+		text-transform: uppercase;
+		font-weight: bold;
+	}
 
 	input {
 		border: solid thin #333;
