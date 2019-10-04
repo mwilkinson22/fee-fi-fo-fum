@@ -225,11 +225,11 @@ class LeagueTable extends Component {
 					case "team-badge":
 						value = <TeamImage team={team} variant="dark" />; //In case of rowClass, we overwrite this later
 						break;
-					case "Pts":
-						value = teamHasAdjustment ? teamHasAdjustment.adjustment : 0;
-						break;
 					default:
-						value = 0;
+						value =
+							teamHasAdjustment && teamHasAdjustment[key] != null
+								? teamHasAdjustment[key]
+								: 0;
 				}
 				return [key, value];
 			})

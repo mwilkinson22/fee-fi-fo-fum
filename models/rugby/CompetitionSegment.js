@@ -49,8 +49,13 @@ const competitionSegmentSchema = new Schema(
 				],
 				adjustments: [
 					{
-						_team: { type: Schema.Types.ObjectId, ref: "teams" },
-						adjustment: Number
+						_team: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+						W: { type: Number, default: 0, required: true },
+						D: { type: Number, default: 0, required: true },
+						L: { type: Number, default: 0, required: true },
+						Pts: { type: Number, default: 0, required: true },
+						F: { type: Number, default: 0, required: true },
+						A: { type: Number, default: 0, required: true }
 					}
 				],
 				usesPregameSquads: { type: Boolean, default: true },
