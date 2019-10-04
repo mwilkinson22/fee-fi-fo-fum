@@ -677,6 +677,7 @@ async function updateSocialMediaCard(id) {
 	const imageClass = new GameSocialCardImage(gameForImage);
 	const image = await imageClass.render();
 	const result = await uploadBase64ImageToGoogle(image, "images/games/social/", false, id, "jpg");
+	await Game.findByIdAndUpdate(id, { $inc: { socialImageVersion: 1 } });
 	return result;
 }
 

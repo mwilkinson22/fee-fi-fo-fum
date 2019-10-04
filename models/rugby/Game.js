@@ -54,6 +54,7 @@ const gameSchema = new Schema(
 			default: []
 		},
 		tv: { type: String, enum: [false, "bbc", "sky"], default: null },
+		socialImageVersion: { type: Number, default: 1 },
 
 		//Game Day Fields
 		events: {

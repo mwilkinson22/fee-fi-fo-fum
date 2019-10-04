@@ -452,7 +452,8 @@ class GamePage extends Component {
 			} else if (game.images.midpage) {
 				cardImage = gameImagePath + "midpage/" + game.images.midpage;
 			} else {
-				cardImage = gameImagePath + "social/" + game._id + ".jpg";
+				cardImage =
+					gameImagePath + "social/" + game._id + ".jpg?v=" + game.socialImageVersion;
 			}
 
 			return (
