@@ -63,13 +63,8 @@ class AdminGameOverview extends BasicForm {
 		};
 
 		if (!game || (!prevState.game || game._id != prevState.game._id)) {
-			let date, scoreOverride;
-			if (game) {
-				scoreOverride = Yup.object().shape({
-					[localTeam]: Yup.string().label(teamList[localTeam].name.short),
-					[game._opposition._id]: Yup.string().label(game._opposition.name.short)
-				});
-			}
+			let date;
+
 			if (game && game.status > 0) {
 				const year = new Date(game.date).getFullYear();
 				date = Yup.date()
@@ -82,7 +77,8 @@ class AdminGameOverview extends BasicForm {
 					.required()
 					.label("Date");
 			}
-			newState.validationSchema = Yup.object().shape({
+
+			const rawValidationSchema = {
 				date,
 				time: Yup.string()
 					.required()
@@ -122,9 +118,17 @@ class AdminGameOverview extends BasicForm {
 				attendance: Yup.number()
 					.label("Attendance")
 					.nullable(),
-				extraTime: Yup.boolean().label("Game went to Extra Time"),
-				scoreOverride
-			});
+				extraTime: Yup.boolean().label("Game went to Extra Time")
+			};
+
+			if (game) {
+				rawValidationSchema.scoreOverride = Yup.object().shape({
+					[localTeam]: Yup.string().label(teamList[localTeam].name.short),
+					[game._opposition._id]: Yup.string().label(game._opposition.name.short)
+				});
+			}
+
+			newState.validationSchema = Yup.object().shape(rawValidationSchema);
 		}
 		return newState;
 	}
