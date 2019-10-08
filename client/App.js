@@ -44,7 +44,7 @@ class App extends Component {
 	}
 
 	render() {
-		const { route, browser, gaTracking, socialMediaImage } = this.props;
+		const { route, browser, gaTracking } = this.props;
 		let className = "";
 		if (browser) {
 			className = `browser-${browser.toLowerCase().replace(/(?![A-Za-z0-9-_])./gi, "-")}`;
@@ -64,8 +64,8 @@ class App extends Component {
 }
 
 function mapStateToProps({ config }) {
-	const { browser, gaTracking, socialMediaImage } = config;
-	return { browser, gaTracking, socialMediaImage };
+	const { browser, gaTracking } = config;
+	return { browser, gaTracking };
 }
 
 export default {
