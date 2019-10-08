@@ -15,9 +15,9 @@ async function apiCall(path, successMessage) {
 	}
 
 	if (error) {
-		console.log("Error", error);
+		console.error("Error", error);
 	} else {
-		console.log(successMessage);
+		console.info(successMessage);
 	}
 }
 

@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
 			}
 			toast.error(`${status} ${statusText}${errorMessage ? ": " + errorMessage : ""}`);
 			if (error.response.data.toLog) {
-				console.log(error.response.data.toLog);
+				console.info(error.response.data.toLog);
 				toast.error("See console log for more details");
 			}
 		} else {
