@@ -133,7 +133,8 @@ class Header extends Component {
 					headerLink: "/admin/social",
 					subMenuRootLink: "/admin/",
 					subMenu: {
-						Social: "social"
+						Social: "social",
+						Users: "users"
 					}
 				});
 			}
