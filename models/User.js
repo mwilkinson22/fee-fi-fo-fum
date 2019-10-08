@@ -5,16 +5,16 @@ const bcrypt = require("bcryptjs");
 const userSchema = new Schema(
 	{
 		username: { type: String, unique: true },
-		password: String,
+		password: { type: String, required: true },
 		name: {
-			first: String,
-			last: String
+			first: { type: String, required: true },
+			last: { type: String, required: true }
 		},
-		frontendName: String,
-		twitter: String,
-		image: String,
-		email: String,
-		isAdmin: Boolean
+		frontendName: { type: String, required: false },
+		twitter: { type: String, default: null },
+		image: { type: String, default: null },
+		email: { type: String, required: true },
+		isAdmin: { type: Boolean, default: false }
 	},
 	{
 		toJSON: {
