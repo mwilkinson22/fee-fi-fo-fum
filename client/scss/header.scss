@@ -171,6 +171,20 @@ header {
 			.nav-wrapper.admin,
 			.nav-wrapper.admin .submenu {
 				background: #111;
+				li {
+					font-size: 10pt;
+					.nav-menu-header {
+						padding: 0 4pt;
+						margin: 4pt 0;
+						&.with-submenu {
+							padding-right: 2pt;
+						}
+					}
+
+					&:nth-last-child(n + 3) .nav-menu-header {
+						border-right: solid thin $gold;
+					}
+				}
 				.nav-section:last-child {
 					flex-grow: 1;
 					text-align: right;

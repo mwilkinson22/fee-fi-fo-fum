@@ -34,7 +34,7 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
-		const { localTeam, fullTeams } = this.props;
+		const { localTeam, fullTeams, authUser } = this.props;
 		const navMenus = [
 			[
 				{
@@ -71,8 +71,8 @@ class Header extends Component {
 				}
 			]
 		];
-		if (this.props.authUser) {
-			navMenus.push([
+		if (authUser) {
+			const adminMenu = [
 				{
 					header: "Admin",
 					headerLink: "/admin",
@@ -110,10 +110,6 @@ class Header extends Component {
 					headerLink: "/admin/people"
 				},
 				{
-					header: "Social",
-					headerLink: "/admin/social"
-				},
-				{
 					header: "Sponsors",
 					headerLink: "/admin/sponsors"
 				},
@@ -129,11 +125,34 @@ class Header extends Component {
 					header: "Logout",
 					headerLink: "/admin/logout"
 				}
-			]);
+			];
+
+			if (authUser.isAdmin) {
+				adminMenu.push({
+					header: "Settings",
+					headerLink: "/admin/social",
+					subMenuRootLink: "/admin/",
+					subMenu: {
+						Social: "social"
+					}
+				});
+			}
+
+			navMenus.push(adminMenu);
 		}
 
 		return navMenus.map((navMenu, i) => {
-			const items = navMenu.map(section => {
+			const items = _.sortBy(navMenu, s => {
+				switch (s.header) {
+					case "Logout":
+						return "ZZZZZZ";
+					case "Home":
+					case "Admin":
+						return -1;
+					default:
+						return s.header;
+				}
+			}).map(section => {
 				const activeClassName = "active-nav-link";
 				const sectionHeader = (
 					<NavLink
