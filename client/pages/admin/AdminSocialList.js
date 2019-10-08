@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 //Components
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
+import NotFoundPage from "../NotFoundPage";
 
 //Actions
 import { fetchProfiles } from "~/client/actions/socialActions";
@@ -48,6 +49,11 @@ class AdminSocialList extends Component {
 
 	render() {
 		const { profiles } = this.state;
+		const { authUser } = this.props;
+		if (!authUser.isAdmin) {
+			return <NotFoundPage />;
+		}
+
 		let content;
 		if (!profiles) {
 			content = <LoadingPage />;
@@ -55,7 +61,7 @@ class AdminSocialList extends Component {
 			content = this.renderList();
 		}
 		return (
-			<div className="admin-country-list">
+			<div className="admin-social-list">
 				<HelmetBuilder title="Social Profiles" />
 				<section className="page-header">
 					<div className="container">
@@ -75,9 +81,10 @@ class AdminSocialList extends Component {
 	}
 }
 
-function mapStateToProps({ social }) {
+function mapStateToProps({ config, social }) {
+	const { authUser } = config;
 	const { profiles } = social;
-	return { profiles };
+	return { authUser, profiles };
 }
 
 export default connect(

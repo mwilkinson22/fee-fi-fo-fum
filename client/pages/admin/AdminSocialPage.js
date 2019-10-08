@@ -176,6 +176,11 @@ class AdminProfilePage extends BasicForm {
 			twitterTestResults
 		} = this.state;
 
+		const { authUser } = this.props;
+		if (!authUser.isAdmin) {
+			return <NotFoundPage />;
+		}
+
 		if (redirect) {
 			return <Redirect to={redirect} />;
 		}
@@ -251,9 +256,10 @@ class AdminProfilePage extends BasicForm {
 	}
 }
 
-function mapStateToProps({ social }) {
+function mapStateToProps({ config, social }) {
+	const { authUser } = config;
 	const { profiles } = social;
-	return { profiles };
+	return { authUser, profiles };
 }
 
 export default connect(
