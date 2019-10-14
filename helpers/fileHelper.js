@@ -14,7 +14,7 @@ export async function uploadToGoogle({ originalname, buffer, mimeType }, path = 
 			reject(err);
 		});
 		stream.on("finish", () => {
-			resolve(`https://storage.cloud.google.com/${googleBucketName}/${path}${originalname}`);
+			resolve(`https://storage.googleapis.com/${googleBucketName}/${path}${originalname}`);
 		});
 		stream.end(buffer);
 	});
