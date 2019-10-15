@@ -71,7 +71,12 @@ const gameSchema = new Schema(
 					tweet_text: { type: String, default: null },
 					tweet_image: { type: String, default: null },
 					inDatabase: { type: Boolean, default: false },
-					_profile: { type: Schema.Types.ObjectId, ref: "socialProfiles" }
+					_profile: {
+						type: Schema.Types.ObjectId,
+						ref: "socialProfiles",
+						required: true
+					},
+					_user: { type: Schema.Types.ObjectId, ref: "users", required: true }
 				}
 			],
 			default: []

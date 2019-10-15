@@ -389,7 +389,8 @@ export async function handleEvent(req, res) {
 
 		//Create Event Object
 		const eventObject = {
-			event
+			event,
+			_user: req.user._id
 		};
 
 		//Update Database for Player Events
