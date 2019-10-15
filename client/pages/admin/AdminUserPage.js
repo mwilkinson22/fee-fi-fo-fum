@@ -10,13 +10,14 @@ import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 import AdminUserOverview from "~/client/components/admin/users/AdminUserOverview";
+import AdminUserPasswordChange from "~/client/components/admin/users/AdminUserPasswordChange";
+import AdminUserTransferSiteOwnership from "~/client/components/admin/users/AdminUserTransferSiteOwnership";
 
 //Actions
 import { fetchUserList, createUser, updateUser, deleteUser } from "~/client/actions/userActions";
 
 //Constants
 import LoadingPage from "~/client/components/LoadingPage";
-import AdminUserPasswordChange from "~/client/components/admin/users/AdminUserPasswordChange";
 
 class AdminTeamTypePage extends BasicForm {
 	constructor(props) {
@@ -35,7 +36,7 @@ class AdminTeamTypePage extends BasicForm {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { authUser, userList, match } = nextProps;
-		const newState = {};
+		const newState = { authUser };
 
 		//Create Or Edit
 		newState.isNew = !match.params._id;
@@ -63,13 +64,18 @@ class AdminTeamTypePage extends BasicForm {
 	}
 
 	renderSubMenu() {
-		const { user } = this.state;
-		const { authUser } = this.props;
+		const { user, authUser } = this.state;
 		if (user) {
 			const menu = [
 				{ label: "Overview", slug: "", isExact: true },
 				{ label: "Change Password", slug: "password" }
 			];
+
+			console.log(authUser);
+
+			if (authUser.isSiteOwner && authUser._id != user._id) {
+				menu.push({ label: "Transfer Ownership", slug: "ownership" });
+			}
 
 			return <SubMenu items={menu} rootUrl={`/admin/users/${user._id}`} />;
 		}
@@ -79,6 +85,10 @@ class AdminTeamTypePage extends BasicForm {
 		const { user } = this.state;
 		return (
 			<Switch>
+				<Route
+					path="/admin/users/:_id/ownership"
+					render={() => <AdminUserTransferSiteOwnership user={user} />}
+				/>
 				<Route
 					path="/admin/users/:_id/password"
 					render={() => <AdminUserPasswordChange user={user} />}

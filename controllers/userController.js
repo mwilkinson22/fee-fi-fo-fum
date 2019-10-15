@@ -1,5 +1,6 @@
 //Modules
 import _ from "lodash";
+import passport from "passport";
 import mongoose from "mongoose";
 
 //Mongoose
@@ -71,10 +72,13 @@ export async function updateUser(req, res) {
 
 export async function transferSiteOwner(req, res) {
 	const { id } = req.params;
+	const { password } = req.body;
 	const user = await validateUser(id, res);
-	if (user) {
+	if (!req.user.validatePassword(password)) {
+		res.status("403").send("Incorrect password supplied");
+	} else if (user) {
 		await User.updateMany({}, { isSiteOwner: false }, { multi: true });
-		await user.updateOne({ isSiteOwner: true });
+		await user.updateOne({ isSiteOwner: true, isAdmin: true });
 		await getUserList(req, res);
 	}
 }

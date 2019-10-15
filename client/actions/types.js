@@ -66,6 +66,7 @@ export const GET_CORE_CONFIG = "get_core_config";
 export const FETCH_USER = "fetch_user";
 export const FETCH_USERS = "fetch_users";
 export const DELETE_USER = "delete_user";
+export const TRANSFER_SITE_OWNER = "transfer_site_owner";
 
 //Social
 export const FETCH_SOCIAL_PROFILES = "fetch_social_profiles";

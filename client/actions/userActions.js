@@ -1,4 +1,11 @@
-import { FETCH_USER, FETCH_USERS, FETCH_CURRENT_USER, LOGOUT, DELETE_USER } from "./types";
+import {
+	FETCH_USER,
+	FETCH_USERS,
+	FETCH_CURRENT_USER,
+	LOGOUT,
+	DELETE_USER,
+	TRANSFER_SITE_OWNER
+} from "./types";
 import { toast } from "react-toastify";
 
 export const fetchCurrentUser = () => async (dispatch, getState, api) => {
@@ -21,12 +28,14 @@ export const updateUser = (id, data) => async (dispatch, getState, api) => {
 	toast.success(`User updated`);
 };
 
-export const transferSiteOwnership = id => async (dispatch, getState, api) => {
-	const res = await api.put(`/users/ownership/${id}`);
+export const transferSiteOwnership = (id, password) => async (dispatch, getState, api) => {
+	const res = await api.put(`/users/ownership/${id}`, { password });
 	if (res.data) {
 		dispatch({ type: FETCH_USERS, payload: res.data });
-		await fetchCurrentUser();
+		dispatch({ type: TRANSFER_SITE_OWNER, payload: true });
+		return true;
 	}
+	return false;
 };
 
 export const deleteUser = id => async (dispatch, getState, api) => {
