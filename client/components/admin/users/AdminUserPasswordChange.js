@@ -16,7 +16,7 @@ import { updateUser } from "~/client/actions/userActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import { validatePasswordFields } from "~/helpers/adminHelper";
 
-class AdminTeamTypePage extends BasicForm {
+class AdminUserPasswordChange extends BasicForm {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -72,7 +72,7 @@ class AdminTeamTypePage extends BasicForm {
 	}
 }
 
-AdminTeamTypePage.propTypes = {
+AdminUserPasswordChange.propTypes = {
 	user: PropTypes.object
 };
 
@@ -84,4 +84,4 @@ function mapStateToProps({ config }) {
 export default connect(
 	mapStateToProps,
 	{ updateUser }
-)(AdminTeamTypePage);
+)(AdminUserPasswordChange);
