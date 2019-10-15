@@ -1,5 +1,5 @@
 //Auth
-export const FETCH_USER = "fetch_user";
+export const FETCH_CURRENT_USER = "fetch_current_user";
 export const LOGOUT = "logout";
 
 //Competitions
@@ -63,7 +63,9 @@ export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 export const GET_CORE_CONFIG = "get_core_config";
 
 //Users
+export const FETCH_USER = "fetch_user";
 export const FETCH_USERS = "fetch_users";
+export const DELETE_USER = "delete_user";
 
 //Social
 export const FETCH_SOCIAL_PROFILES = "fetch_social_profiles";

@@ -137,6 +137,11 @@ class Header extends Component {
 						Users: "users"
 					}
 				});
+			} else {
+				adminMenu.push({
+					header: "Account",
+					headerLink: `/admin/users/${authUser._id}`
+				});
 			}
 
 			navMenus.push(adminMenu);

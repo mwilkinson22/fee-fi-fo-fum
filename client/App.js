@@ -5,9 +5,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { renderRoutes } from "react-router-config";
 
-//Actions
-import { fetchUser } from "./actions/userActions";
-
 //Components
 import GAListener from "~/client/components/GAListener";
 import Header from "./components/Header";
@@ -69,8 +66,5 @@ function mapStateToProps({ config }) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchUser }
-	)(App)
+	component: connect(mapStateToProps)(App)
 };

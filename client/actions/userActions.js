@@ -1,8 +1,34 @@
-import { FETCH_USER, FETCH_USERS, LOGOUT } from "./types";
+import { FETCH_USER, FETCH_USERS, FETCH_CURRENT_USER, LOGOUT, DELETE_USER } from "./types";
+import { toast } from "react-toastify";
 
-export const fetchUser = () => async (dispatch, getState, api) => {
-	const res = await api.get("/current_user");
+export const fetchCurrentUser = () => async (dispatch, getState, api) => {
+	const res = await api.get("/users/current");
+	dispatch({ type: FETCH_CURRENT_USER, payload: res.data });
+};
+
+export const createUser = data => async (dispatch, getState, api) => {
+	const res = await api.post(`/users`, data);
+	if (res.data) {
+		dispatch({ type: FETCH_USER, payload: res.data });
+		toast.success(`User created`);
+		return res.data._id;
+	}
+};
+
+export const updateUser = (id, data) => async (dispatch, getState, api) => {
+	const res = await api.put(`/users/${id}`, data);
 	dispatch({ type: FETCH_USER, payload: res.data });
+	toast.success(`User updated`);
+};
+
+export const deleteUser = id => async (dispatch, getState, api) => {
+	const res = await api.delete(`/users/${id}`);
+	if (res.data) {
+		dispatch({ type: DELETE_USER, payload: id });
+		toast.success(`User deleted`);
+		return true;
+	}
+	return false;
 };
 
 export const fetchUserList = () => async (dispatch, getState, api) => {
@@ -12,7 +38,7 @@ export const fetchUserList = () => async (dispatch, getState, api) => {
 
 export const login = data => async (dispatch, getState, api) => {
 	const res = await api.post("/login", data);
-	dispatch({ type: FETCH_USER, payload: res.data });
+	dispatch({ type: FETCH_CURRENT_USER, payload: res.data });
 };
 
 export const logout = () => async (dispatch, getState, api) => {

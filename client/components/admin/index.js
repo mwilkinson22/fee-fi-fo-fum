@@ -50,6 +50,7 @@ import AdminTeamTypePage from "../../pages/admin/AdminTeamTypePage";
 import AdminNewTeamPage from "../../pages/admin/AdminNewTeamPage";
 
 import AdminUserList from "../../pages/admin/AdminUserList";
+import AdminUserPage from "../../pages/admin/AdminUserPage";
 
 class AdminRouter extends Component {
 	render() {
@@ -124,6 +125,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/team-types/:slug" exact component={AdminTeamTypePage} />
 					<Route path="/admin/team-types/" exact component={AdminTeamTypeList} />
 
+					<Route path="/admin/users/new" component={AdminUserPage} />
+					<Route path="/admin/users/:_id" component={AdminUserPage} />
 					<Route path="/admin/users/" exact component={AdminUserList} />
 
 					<Route path="/admin/logout" component={Logout} />

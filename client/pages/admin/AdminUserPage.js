@@ -1,0 +1,277 @@
+//Modules
+import _ from "lodash";
+import React from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+
+//Components
+import BasicForm from "../../components/admin/BasicForm";
+import NotFoundPage from "../NotFoundPage";
+import DeleteButtons from "../../components/admin/fields/DeleteButtons";
+import HelmetBuilder from "~/client/components/HelmetBuilder";
+
+//Actions
+import { fetchUserList, createUser, updateUser, deleteUser } from "~/client/actions/userActions";
+
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+import { validatePasswordFields } from "~/helpers/adminHelper";
+import LoadingPage from "~/client/components/LoadingPage";
+
+class AdminTeamTypePage extends BasicForm {
+	constructor(props) {
+		super(props);
+		const { userList, fetchUserList, authUser, match } = props;
+
+		//Non-admins can only edit their own profile
+		//So we only call userList when an admin user is accessing another profile
+		//Otherwise, we can simply use authUser
+		if (!userList && authUser.isAdmin && match.params._id != authUser._id) {
+			fetchUserList();
+		}
+
+		this.state = {};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { authUser, userList, match } = nextProps;
+		const newState = {};
+
+		//Create Or Edit
+		newState.isNew = !match.params._id;
+
+		//Remove redirect after creation/deletion
+		if (prevState.redirect == match.url) {
+			newState.redirect = false;
+		}
+
+		//Get current user
+		if (!newState.isNew) {
+			if (authUser && authUser._id == match.params._id) {
+				//Current user accessing their own page. Simple match to current user
+				newState.user = authUser;
+			} else if (!authUser.isAdmin) {
+				//If none admin users are trying to access others, we simply 404
+				newState.user = false;
+			} else if (userList) {
+				//If an admin is accessing another page and userList has loaded
+				//we pull it here
+				newState.user = userList[match.params._id] || false;
+			}
+		}
+
+		//Create Validation Schema
+		if (newState.isNew || newState.user) {
+			let rawValidationSchema = {
+				username: Yup.string()
+					.required()
+					.matches(
+						/^[a-zA-Z0-9_-]+$/,
+						"Login ID can only consist of letters, numbers, hyphens and underscores"
+					)
+					.label("Login ID"),
+				name: Yup.object().shape({
+					first: Yup.string()
+						.required()
+						.label("First Name"),
+					last: Yup.string()
+						.required()
+						.label("Last Name")
+				}),
+				frontendName: Yup.string().label("Frontend Name"),
+				twitter: Yup.string().label("Twitter Handle"),
+				image: Yup.string().label("Image"),
+				email: Yup.string()
+					.email()
+					.required()
+					.label("Email Address"),
+				isAdmin: Yup.boolean().label("Admin Rights?")
+			};
+
+			if (newState.isNew) {
+				rawValidationSchema = {
+					...rawValidationSchema,
+					...validatePasswordFields()
+				};
+			}
+
+			newState.validationSchema = Yup.object().shape(rawValidationSchema);
+		}
+
+		return newState;
+	}
+
+	getDefaults() {
+		const { user, isNew } = this.state;
+
+		const defaults = {
+			username: Math.random().toString(),
+			name: {
+				first: "",
+				last: ""
+			},
+			frontendName: "",
+			twitter: "",
+			image: "",
+			email: "",
+			isAdmin: false
+		};
+
+		if (isNew) {
+			return { ...defaults, password: "", password2: "" };
+		} else {
+			return _.mapValues(defaults, (def, key) => user[key] || def);
+		}
+	}
+
+	async handleSubmit(fValues) {
+		const { createUser, updateUser } = this.props;
+		const { user, isNew } = this.state;
+		const values = _.cloneDeep(fValues);
+		delete values.password2;
+
+		if (isNew) {
+			const newId = await createUser(values);
+			await this.setState({ redirect: `/admin/users/${newId}` });
+		} else {
+			if (!values.password) {
+				delete values.password;
+			}
+			await updateUser(user._id, values);
+		}
+	}
+
+	async handleDelete() {
+		const { deleteUser } = this.props;
+		const { user } = this.state;
+		const success = await deleteUser(user._id);
+		if (success) {
+			this.setState({ isDeleted: true, redirect: "/admin/users" });
+		}
+	}
+
+	renderDeleteButtons() {
+		const { isNew, user } = this.state;
+		const { authUser } = this.props;
+		if (!isNew && authUser.isAdmin && user._id !== authUser._id) {
+			return (
+				<div className="form-card">
+					<DeleteButtons onDelete={() => this.handleDelete()} />
+				</div>
+			);
+		}
+	}
+
+	render() {
+		const { authUser } = this.props;
+		const { redirect, user, isNew, validationSchema } = this.state;
+
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		}
+
+		if (!isNew && user === false) {
+			return <NotFoundPage message="User not found" />;
+		}
+
+		if (!isNew && !user) {
+			return <LoadingPage />;
+		}
+
+		const title = isNew ? "Add New User" : user.username;
+		return (
+			<div className="admin-user-page">
+				<HelmetBuilder title={title} />
+				<section className="page-header">
+					<div className="container">
+						<h1>{title}</h1>
+					</div>
+				</section>
+				<section className="form">
+					<div className="container">
+						<Formik
+							onSubmit={values => this.handleSubmit(values)}
+							initialValues={this.getDefaults()}
+							validationSchema={validationSchema}
+							render={() => {
+								const loginFields = [
+									{
+										name: "username",
+										type: fieldTypes.text,
+										readOnly: !authUser.isAdmin
+									}
+								];
+								if (isNew) {
+									loginFields.push(
+										{ name: "password", type: fieldTypes.password },
+										{ name: "password2", type: fieldTypes.password }
+									);
+								}
+								if (authUser.isAdmin) {
+									loginFields.push({
+										name: "isAdmin",
+										type: fieldTypes.boolean,
+										readOnly: user && user._id == authUser._id
+									});
+								}
+
+								const personalFields = [
+									{ name: "name.first", type: fieldTypes.text },
+									{ name: "name.last", type: fieldTypes.text },
+									{
+										name: "frontendName",
+										type: fieldTypes.text,
+										placeholder: "Defaults to First + Last Name"
+									},
+									{
+										name: "image",
+										type: fieldTypes.image,
+										acceptSVG: false,
+										path: "images/users/"
+									}
+								];
+
+								const contactFields = [
+									{ name: "email", type: fieldTypes.text },
+									{ name: "twitter", type: fieldTypes.text }
+								];
+
+								return (
+									<Form>
+										<div className="card form-card grid">
+											{this.renderFieldGroup(loginFields)}
+											<h6>Personal</h6>
+											{this.renderFieldGroup(personalFields)}
+											<h6>Contact Info</h6>
+											{this.renderFieldGroup(contactFields)}
+											<div className="buttons">
+												<button type="reset">Reset</button>
+												<button type="submit">
+													{isNew ? "Add" : "Update"} User
+												</button>
+											</div>
+										</div>
+										{this.renderDeleteButtons()}
+									</Form>
+								);
+							}}
+						/>
+					</div>
+				</section>
+			</div>
+		);
+	}
+}
+
+function mapStateToProps({ config, users }) {
+	const { authUser } = config;
+	const { userList } = users;
+	return { authUser, userList };
+}
+
+export default connect(
+	mapStateToProps,
+	{ fetchUserList, createUser, updateUser, deleteUser }
+)(AdminTeamTypePage);

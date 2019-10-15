@@ -80,6 +80,13 @@
 		outline: none;
 		border: solid thin #ddd;
 		resize: vertical;
+
+		&:read-only {
+			background: #ddd;
+			color: #555;
+			user-select: none;
+			cursor: default;
+		}
 	}
 
 	input {

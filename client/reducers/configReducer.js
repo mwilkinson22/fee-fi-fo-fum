@@ -1,8 +1,8 @@
-import { FETCH_USER, GET_CORE_CONFIG, LOGOUT } from "../actions/types";
+import { FETCH_CURRENT_USER, GET_CORE_CONFIG, LOGOUT } from "../actions/types";
 
 export default function(state = {}, action) {
 	switch (action.type) {
-		case FETCH_USER:
+		case FETCH_CURRENT_USER:
 			return { ...state, authUser: action.payload || false };
 
 		case LOGOUT:

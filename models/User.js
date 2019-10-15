@@ -10,11 +10,12 @@ const userSchema = new Schema(
 			first: { type: String, required: true },
 			last: { type: String, required: true }
 		},
-		frontendName: { type: String, required: false },
+		frontendName: { type: String, default: null },
 		twitter: { type: String, default: null },
 		image: { type: String, default: null },
 		email: { type: String, required: true },
-		isAdmin: { type: Boolean, default: false }
+		isAdmin: { type: Boolean, default: false },
+		isSiteOwner: { type: Boolean, default: false }
 	},
 	{
 		toJSON: {
@@ -31,7 +32,7 @@ userSchema.virtual("name.full").get(function() {
 });
 
 //password hashing
-userSchema.methods.generateHash = password => {
+userSchema.statics.generateHash = password => {
 	return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
@@ -41,8 +42,8 @@ userSchema.methods.validatePassword = function(password) {
 };
 
 //For List
-userSchema.query.forList = function() {
-	return this.select("username name frontendName");
+userSchema.query.noPassword = function() {
+	return this.select({ password: 0 });
 };
 
 mongoose.model("users", userSchema);

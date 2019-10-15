@@ -29,7 +29,7 @@ import "./client/scss/styles.scss";
 //Actions
 import { getCoreConfig } from "./client/actions/configActions";
 import { setDefaultProfile } from "./client/actions/socialActions";
-import { fetchUser } from "./client/actions/userActions";
+import { fetchCurrentUser } from "./client/actions/userActions";
 import {
 	fetchTeam,
 	fetchAllTeamTypes,
@@ -96,7 +96,7 @@ app.get("*", async (req, res) => {
 	//Get Basic Config
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(setDefaultProfile(keys.defaultSocialProfile));
-	await store.dispatch(fetchUser());
+	await store.dispatch(fetchCurrentUser());
 
 	//Team Types
 	await store.dispatch(fetchAllTeamTypes());
