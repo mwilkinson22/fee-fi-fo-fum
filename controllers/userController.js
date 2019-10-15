@@ -69,6 +69,16 @@ export async function updateUser(req, res) {
 	}
 }
 
+export async function transferSiteOwner(req, res) {
+	const { id } = req.params;
+	const user = await validateUser(id, res);
+	if (user) {
+		await User.updateMany({}, { isSiteOwner: false }, { multi: true });
+		await user.updateOne({ isSiteOwner: true });
+		await getUserList(req, res);
+	}
+}
+
 //Deleters
 export async function deleteUser(req, res) {
 	const { id } = req.params;

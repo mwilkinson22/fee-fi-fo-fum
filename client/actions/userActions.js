@@ -21,6 +21,14 @@ export const updateUser = (id, data) => async (dispatch, getState, api) => {
 	toast.success(`User updated`);
 };
 
+export const transferSiteOwnership = id => async (dispatch, getState, api) => {
+	const res = await api.put(`/users/ownership/${id}`);
+	if (res.data) {
+		dispatch({ type: FETCH_USERS, payload: res.data });
+		await fetchCurrentUser();
+	}
+};
+
 export const deleteUser = id => async (dispatch, getState, api) => {
 	const res = await api.delete(`/users/${id}`);
 	if (res.data) {

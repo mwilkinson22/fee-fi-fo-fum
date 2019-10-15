@@ -7,10 +7,14 @@ import * as userController from "../controllers/userController";
 //Middleware
 import requireAuth from "../middlewares/requireAuth";
 import requireAdmin from "../middlewares/requireAdmin";
+import requireSiteOwner from "~/middlewares/requireSiteOwner";
 
 export default app => {
 	//Create New User
 	app.post("/api/users", requireAdmin, userController.createUser);
+
+	//Transfer Site Ownership
+	app.put("/api/users/ownership/:id", requireSiteOwner, userController.transferSiteOwner);
 
 	//Update User
 	app.put("/api/users/:id", requireAuth, userController.updateUser);

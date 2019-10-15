@@ -6,6 +6,7 @@ import { Switch, Route } from "react-router-dom";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
+import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 import AdminUserOverview from "~/client/components/admin/users/AdminUserOverview";
@@ -15,6 +16,7 @@ import { fetchUserList, createUser, updateUser, deleteUser } from "~/client/acti
 
 //Constants
 import LoadingPage from "~/client/components/LoadingPage";
+import AdminUserPasswordChange from "~/client/components/admin/users/AdminUserPasswordChange";
 
 class AdminTeamTypePage extends BasicForm {
 	constructor(props) {
@@ -60,14 +62,26 @@ class AdminTeamTypePage extends BasicForm {
 		return newState;
 	}
 
+	renderSubMenu() {
+		const { user } = this.state;
+		const { authUser } = this.props;
+		if (user) {
+			const menu = [
+				{ label: "Overview", slug: "", isExact: true },
+				{ label: "Change Password", slug: "password" }
+			];
+
+			return <SubMenu items={menu} rootUrl={`/admin/users/${user._id}`} />;
+		}
+	}
+
 	renderContent() {
 		const { user } = this.state;
 		return (
 			<Switch>
 				<Route
 					path="/admin/users/:_id/password"
-					exact
-					render={() => <AdminUserOverview user={user} />}
+					render={() => <AdminUserPasswordChange user={user} />}
 				/>
 				<Route
 					path="/admin/users/:_id/"
@@ -97,6 +111,7 @@ class AdminTeamTypePage extends BasicForm {
 				<section className="page-header">
 					<div className="container">
 						<h1>{title}</h1>
+						{this.renderSubMenu()}
 					</div>
 				</section>
 				<section className="form">
