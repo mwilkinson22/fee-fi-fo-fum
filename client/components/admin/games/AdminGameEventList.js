@@ -1,10 +1,10 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 //Components
-import LoadingPage from "~/client/components/LoadingPage";
 import PopUpDialog from "~/client/components/PopUpDialog";
 
 //Constants
@@ -40,7 +40,7 @@ class AdminGameEventList extends Component {
 		return newState;
 	}
 
-	renderRow({ _id, event, _player, tweet_text, tweet_image, tweet_id, _profile, date }) {
+	renderRow({ _id, event, _player, _user, tweet_text, tweet_image, tweet_id, _profile, date }) {
 		const { playerList } = this.state;
 		const { onReply } = this.props;
 
@@ -73,6 +73,8 @@ class AdminGameEventList extends Component {
 			replySection = <div className="action empty" key="no-reply" />;
 		}
 
+		const title = `Posted by ${_user.username}`;
+
 		return [
 			replySection,
 			<div
@@ -82,12 +84,13 @@ class AdminGameEventList extends Component {
 			>
 				🛇
 			</div>,
-			<div key="profile" className="profile">
+			<div key="profile" className="profile" title={title}>
 				{_profile ? _profile.name : "-"}
 			</div>,
 			<div
 				key="date"
 				className="date"
+				title={title}
 				onClick={() => this.setState({ visibleEventImage: _id })}
 			>
 				{new Date(date).toString("ddS MMM HH:mm:ss")}
@@ -95,6 +98,7 @@ class AdminGameEventList extends Component {
 			<div
 				key="event-type"
 				className="event-type"
+				title={title}
 				onClick={() => this.setState({ visibleEventImage: _id })}
 			>
 				{gameEvents[event].label}
@@ -103,6 +107,7 @@ class AdminGameEventList extends Component {
 			<div
 				key="tweet-text"
 				className="tweet-text"
+				title={title}
 				onClick={() => this.setState({ visibleEventImage: _id })}
 			>
 				{tweet_text}

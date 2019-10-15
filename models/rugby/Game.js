@@ -190,6 +190,10 @@ gameSchema.query.fullGame = function() {
 			select: "name"
 		})
 		.populate({
+			path: "events._user",
+			select: "username"
+		})
+		.populate({
 			path: "_ground",
 			populate: {
 				path: "address._city"
