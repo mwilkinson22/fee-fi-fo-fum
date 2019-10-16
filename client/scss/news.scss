@@ -8,6 +8,7 @@
 	background-size: cover;
 	padding-top: 30%;
 	display: grid;
+
 	&:hover p {
 		color: #444;
 	}
@@ -36,6 +37,10 @@
 			display: flex;
 			justify-content: space-between;
 		}
+	}
+
+	&.unpublished .post-meta {
+		background: rgba(black, 0.75);
 	}
 }
 

@@ -32,7 +32,8 @@ newsPostSchema.query.forList = function() {
 		_game: 1,
 		_people: 1,
 		_teams: 1,
-		tags: 1
+		tags: 1,
+		isPublished: 1
 	}).lean();
 };
 

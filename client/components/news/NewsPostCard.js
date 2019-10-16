@@ -32,7 +32,7 @@ class NewsPostCard extends Component {
 		}
 		return (
 			<div
-				className="post-preview"
+				className={`post-preview ${!post.isPublished ? "unpublished" : ""}`}
 				style={{
 					backgroundImage: image ? `url('${newsHeaderPath}${image}')` : null
 				}}
