@@ -523,6 +523,8 @@ button,
 	}
 }
 
+@import "../../node_modules/megadraft/lib/styles/megadraft";
+@import "toast";
 @import "header";
 @import "admin";
 @import "loading";
@@ -533,5 +535,3 @@ button,
 @import "seasons";
 @import "people";
 @import "tweet-composer";
-@import "../../node_modules/medium-draft/lib/index.css";
-@import "toast";

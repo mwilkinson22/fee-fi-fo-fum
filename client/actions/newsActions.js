@@ -56,6 +56,8 @@ export const updateNewsPost = (id, values) => async (dispatch, getState, api) =>
 	const res = await api.put(`/news/post/${id}`, values);
 	dispatch({ type: UPDATE_POST, payload: res.data });
 	toast.success("Post updated");
+	const { _id, fullPosts } = res.data;
+	return fullPosts[_id].slug;
 };
 
 export const deleteNewsPost = id => async (dispatch, getState, api) => {

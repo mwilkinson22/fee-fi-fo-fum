@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { FacebookProvider, Comments } from "react-facebook";
-import { Editor } from "medium-draft";
+import { MegadraftEditor, editorStateFromRaw } from "megadraft";
 import {
 	FacebookShareButton,
 	FacebookIcon,
@@ -30,10 +30,11 @@ import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 
 //Helpers
 import { matchSlugToItem } from "~/helpers/routeHelper";
-import { convertToEditorState } from "~/helpers/newsHelper";
 
 //Constants
 import { newsHeaderPath } from "~/client/extPaths";
+import newsDecorators from "~/constants/newsDecorators";
+import newsPlugins from "~/constants/newsPlugins";
 
 class NewsPostPage extends Component {
 	constructor(props) {
@@ -74,7 +75,10 @@ class NewsPostPage extends Component {
 					newState.post.preview = blocks
 						.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
 						.join(" \n");
-					newState.post.editorState = convertToEditorState(newState.post.content);
+					newState.post.editorState = editorStateFromRaw(
+						JSON.parse(newState.post.content),
+						newsDecorators
+					);
 					newState.recentPosts = _.chain(postList)
 						.orderBy(["dateCreated"], ["desc"])
 						.reject(post => post.id == _id)
@@ -203,10 +207,11 @@ class NewsPostPage extends Component {
 							</div>
 						</div>
 						<div className="post-content">
-							<Editor
+							<MegadraftEditor
 								editorState={post.editorState}
-								editorEnabled={false}
+								readOnly={true}
 								onChange={() => {}}
+								plugins={newsPlugins}
 							/>
 						</div>
 					</div>

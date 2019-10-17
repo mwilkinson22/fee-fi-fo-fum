@@ -2,10 +2,9 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { Link, Redirect, Prompt } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { createEditorState } from "medium-draft";
 import { convertToRaw } from "draft-js";
 
 //Components
@@ -29,10 +28,11 @@ import { fetchGameList } from "~/client/actions/gamesActions";
 
 //Constants
 import newsCategories from "~/constants/newsCategories";
+import newsDecorators from "~/constants/newsDecorators";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { convertToEditorState } from "~/helpers/newsHelper";
+import { editorStateFromRaw } from "megadraft";
 import { validateSlug } from "~/helpers/adminHelper";
 
 class AdminNewsPostPage extends BasicForm {
@@ -73,7 +73,7 @@ class AdminNewsPostPage extends BasicForm {
 			isPublished: Yup.boolean().label("Published?")
 		});
 
-		this.state = { validationSchema };
+		this.state = { validationSchema, unsavedChanges: false };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -134,7 +134,7 @@ class AdminNewsPostPage extends BasicForm {
 				category: "",
 				slug: "",
 				image: "",
-				content: createEditorState()
+				content: editorStateFromRaw(null, newsDecorators)
 			};
 		} else {
 			const { title, subtitle, dateCreated, isPublished, slug } = post;
@@ -148,7 +148,7 @@ class AdminNewsPostPage extends BasicForm {
 				timeCreated: dateCreated.toString("HH:mm:ss"),
 				isPublished,
 				category: categories.find(({ value }) => value == post.category) || "",
-				content: convertToEditorState(post.content)
+				content: editorStateFromRaw(JSON.parse(post.content), newsDecorators)
 			};
 		}
 	}
@@ -163,13 +163,21 @@ class AdminNewsPostPage extends BasicForm {
 		values.category = values.category.value;
 		values.content = JSON.stringify(convertToRaw(values.content.getCurrentContent()));
 
+		let newSlug;
 		if (post) {
 			values.dateCreated = new Date(`${values.dateCreated} ${values.timeCreated}`);
 			delete values.timeCreated;
-			await updateNewsPost(post._id, values);
+			newSlug = await updateNewsPost(post._id, values);
 		} else {
-			const slug = await createNewsPost(values);
-			this.setState({ redirect: `/admin/news/post/${slug}` });
+			newSlug = await createNewsPost(values);
+		}
+
+		if (newSlug) {
+			const newState = { unsavedChanges: false };
+			if (!post || newSlug != post.slug) {
+				newState.redirect = `/admin/news/post/${newSlug}`;
+			}
+			this.setState(newState);
 		}
 	}
 
@@ -211,7 +219,10 @@ class AdminNewsPostPage extends BasicForm {
 				<div className="form-card">
 					<NewsPostEditor
 						editorState={formikProps.values.content}
-						onChange={c => formikProps.setFieldValue("content", c)}
+						onChange={c => {
+							formikProps.setFieldValue("content", c);
+							this.setState({ unsavedChanges: true });
+						}}
 					/>
 				</div>
 			);
@@ -226,7 +237,8 @@ class AdminNewsPostPage extends BasicForm {
 			categories,
 			isLoading,
 			redirect,
-			validationSchema
+			validationSchema,
+			unsavedChanges
 		} = this.state;
 		if (redirect) {
 			return <Redirect to={redirect} />;
@@ -247,6 +259,10 @@ class AdminNewsPostPage extends BasicForm {
 		}
 		return (
 			<div>
+				<Prompt
+					when={unsavedChanges}
+					message="You have unsaved changes. Are you sure you want to navigate away?"
+				/>
 				<HelmetBuilder title={title} />
 				<section className="page-header">
 					<div className="container">

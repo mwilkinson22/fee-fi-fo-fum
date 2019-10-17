@@ -1,6 +1,32 @@
-.md-RichEditor-root {
-	background: transparent !important;
-	padding: 0 !important;
+.megadraft-editor {
+	.DraftEditor-root {
+		background: transparent !important;
+		padding: 0 !important;
+		font-family: inherit !important;
+		font-size: inherit !important;
+		line-height: 1.4em;
+		letter-spacing: 0;
+	}
+
+	.paragraph {
+		margin-bottom: 20pt;
+		& + .paragraph {
+			margin-top: 0;
+		}
+
+		.editor__link {
+			font-weight: bold;
+			color: $claret;
+		}
+	}
+
+	.news-inline-image {
+		max-width: 100%;
+		max-height: 100vh;
+		left: 0;
+		right: 0;
+		margin: auto;
+	}
 }
 
 .post-preview {
@@ -27,8 +53,6 @@
 			color: $gold;
 			font-size: 14pt;
 			margin-bottom: 6pt;
-		}
-		.title {
 		}
 		h6 {
 			padding-top: 6pt;
