@@ -96,11 +96,11 @@ class SeasonPage extends Component {
 			const teamTypeRedirect =
 				_.find(teamTypes, t => t._id == activeTeamType) || teamTypes[0];
 
-			newState.teamTypeRedirect = teamTypeRedirect.slug;
+			newState.redirect = `${teamTypeRedirect.slug}/overview`;
 			newState.teamType = activeTeamType;
 		} else {
 			//In case we've been redirected, clear out this value
-			newState.teamTypeRedirect = undefined;
+			newState.redirect = undefined;
 			if (activeTeamType != newState.teamType._id) {
 				setActiveTeamType(newState.teamType._id);
 			}
@@ -108,6 +108,11 @@ class SeasonPage extends Component {
 
 		//Get Page
 		newState.page = match.params.page || "overview";
+
+		//If we have a teamtype but no page (i.e. /seasons/2019/first/), redirect to the page
+		if (!match.params.page && newState.teamType) {
+			newState.redirect = `${newState.teamType.slug}/overview`;
+		}
 
 		//On initial pageload, if something changes, or while games are loading, check for games to load
 		if (
@@ -216,10 +221,10 @@ class SeasonPage extends Component {
 	}
 
 	render() {
-		const { isLoadingGameList, year, teamTypeRedirect } = this.state;
+		const { isLoadingGameList, year, redirect } = this.state;
 
-		if (teamTypeRedirect) {
-			return <Redirect to={`/seasons/${year}/${teamTypeRedirect}`} />;
+		if (redirect) {
+			return <Redirect to={`/seasons/${year}/${redirect}`} />;
 		}
 
 		if (isLoadingGameList) {
