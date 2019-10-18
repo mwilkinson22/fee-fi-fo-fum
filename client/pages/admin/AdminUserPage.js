@@ -71,8 +71,6 @@ class AdminTeamTypePage extends BasicForm {
 				{ label: "Change Password", slug: "password" }
 			];
 
-			console.log(authUser);
-
 			if (authUser.isSiteOwner && authUser._id != user._id) {
 				menu.push({ label: "Transfer Ownership", slug: "ownership" });
 			}
