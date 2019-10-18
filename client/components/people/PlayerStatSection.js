@@ -304,9 +304,7 @@ class PlayerStatSection extends Component {
 					return {
 						content: PlayerStatsHelper.toString(key, val),
 						sortValue: val,
-						title: `${playerStatTypes[key].plural} against ${
-							game._opposition.name.short
-						}`
+						title: `${playerStatTypes[key].plural} against ${game._opposition.name.short}`
 					};
 				})
 				.pickBy(_.identity)
@@ -315,7 +313,7 @@ class PlayerStatSection extends Component {
 				first: {
 					content: (
 						<Link to={`/games/${slug}`} className="fixture-box">
-							<TeamImage team={_opposition} />
+							<TeamImage team={_opposition} variant="dark" />
 							<div className="date mobile">{new Date(date).toString("dS MMM")}</div>
 							<div className="date desktop">
 								{new Date(date).toString("ddd dS MMMM")}
