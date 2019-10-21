@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import mongoose from "mongoose";
 
 //Mongoose
@@ -25,4 +26,9 @@ export async function getCurrent(req, res) {
 	});
 
 	res.send(awards);
+}
+
+export async function getAwards(req, res) {
+	const awards = await Award.find({}).lean();
+	res.send(_.keyBy(awards, "_id"));
 }
