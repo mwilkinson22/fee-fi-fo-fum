@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import awardReducer from "./awardReducer";
 import competitionReducer from "./competitionReducer";
 import configReducer from "./configReducer";
 import gamesReducer from "./gamesReducer";
@@ -12,6 +13,7 @@ import sponsorReducer from "./sponsorReducer";
 import userReducer from "./userReducer";
 
 export default combineReducers({
+	awards: awardReducer,
 	competitions: competitionReducer,
 	config: configReducer,
 	games: gamesReducer,

@@ -14,6 +14,7 @@ import bodyParser from "body-parser";
 import useragent from "express-useragent";
 
 //Models
+import "./models/Award";
 import "./models/User";
 import "./models/SocialProfile";
 import "./models/Sponsor";
@@ -27,6 +28,7 @@ import Routes from "./client/Routes";
 import "./client/scss/styles.scss";
 
 //Actions
+import { fetchCurrentAwards } from "./client/actions/awardActions";
 import { getCoreConfig } from "./client/actions/configActions";
 import { setDefaultProfile } from "./client/actions/socialActions";
 import { fetchCurrentUser } from "./client/actions/userActions";
@@ -45,6 +47,7 @@ import requireHttps from "~/middlewares/requireHttps";
 import "./services/passport";
 
 //API Routes
+import awardRoutes from "./routes/awardRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import usersRoutes from "./routes/usersRoutes";
 import socialRoutes from "./routes/socialRoutes";
@@ -77,6 +80,7 @@ app.use(passport.session());
 app.use(express.static("public"));
 
 // API Routes
+awardRoutes(app);
 fileRoutes(app);
 usersRoutes(app);
 socialRoutes(app);
@@ -97,6 +101,7 @@ app.get("*", async (req, res) => {
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(setDefaultProfile(keys.defaultSocialProfile));
 	await store.dispatch(fetchCurrentUser());
+	await store.dispatch(fetchCurrentAwards());
 
 	//Team Types
 	await store.dispatch(fetchAllTeamTypes());

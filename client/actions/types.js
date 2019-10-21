@@ -2,6 +2,9 @@
 export const FETCH_CURRENT_USER = "fetch_current_user";
 export const LOGOUT = "logout";
 
+//Awards
+export const FETCH_CURRENT_AWARDS = "fetch_current_awards";
+
 //Competitions
 export const FETCH_ALL_COMPETITIONS = "fetch_all_competitions";
 export const FETCH_ALL_COMPETITION_SEGMENTS = "fetch_all_competition_segments";

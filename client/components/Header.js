@@ -34,7 +34,7 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
-		const { localTeam, fullTeams, authUser } = this.props;
+		const { localTeam, fullTeams, authUser, currentAwards } = this.props;
 		const navMenus = [
 			[
 				{
@@ -71,12 +71,21 @@ class Header extends Component {
 				}
 			]
 		];
+
+		if (currentAwards && currentAwards.length) {
+			navMenus[0].push({ header: "Awards", headerLink: "/awards" });
+		}
+
 		if (authUser) {
 			const adminMenu = [
 				{
 					header: "Admin",
 					headerLink: "/admin",
 					exactNav: true
+				},
+				{
+					header: "Awards",
+					headerLink: "/admin/awards"
 				},
 				{
 					header: "Competitions",
@@ -255,10 +264,11 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ awards, config, teams }) {
+	const { currentAwards } = awards;
 	const { authUser, localTeam } = config;
 	const { fullTeams } = teams;
-	return { authUser, localTeam, fullTeams };
+	return { currentAwards, authUser, localTeam, fullTeams };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));
