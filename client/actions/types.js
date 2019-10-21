@@ -3,7 +3,9 @@ export const FETCH_CURRENT_USER = "fetch_current_user";
 export const LOGOUT = "logout";
 
 //Awards
+export const FETCH_AWARD = "fetch_award";
 export const FETCH_AWARDS = "fetch_awards";
+export const DELETE_AWARD = "delete_award";
 export const FETCH_CURRENT_AWARDS = "fetch_current_awards";
 
 //Competitions

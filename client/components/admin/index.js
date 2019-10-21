@@ -8,6 +8,7 @@ import { ToastContainer, Slide } from "react-toastify";
 import NotFoundPage from "../../pages/NotFoundPage";
 import Logout from "./Logout";
 
+import AdminAwardPage from "../../pages/admin/AdminAwardPage";
 import AdminAwardList from "../../pages/admin/AdminAwardList";
 
 import AdminCityList from "../../pages/admin/AdminCityList";
@@ -78,6 +79,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/" exact component={GameList.component} />
 					<Route path="/admin/games/" exact component={GameList.component} />
 
+					<Route path="/admin/awards/:_id" exact component={AdminAwardPage} />
 					<Route path="/admin/awards" exact component={AdminAwardList} />
 
 					<Route path="/admin/cities/new" exact component={AdminCityPage} />

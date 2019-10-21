@@ -4,8 +4,8 @@ const { Schema } = mongoose;
 const awardSchema = new Schema({
 	year: { type: Number, required: true, unique: true },
 	name: { type: String, default: null },
-	votingBegins: { type: Date, default: null },
-	votingEnds: { type: Date, default: null },
+	votingBegins: { type: Date, required: true },
+	votingEnds: { type: Date, required: true },
 	categories: [
 		{
 			name: { type: String, required: true },
@@ -28,7 +28,7 @@ const awardSchema = new Schema({
 	],
 	votes: [
 		{
-			ip: { type: String, required: true, unique: true },
+			ip: { type: String, required: true },
 			choices: [
 				{
 					categoryId: { type: mongoose.Types.ObjectId },
