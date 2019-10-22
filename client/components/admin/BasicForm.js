@@ -24,6 +24,7 @@ export default class BasicForm extends Component {
 		return name
 			.split(".")
 			.join(".fields.")
+			.replace(/\.fields\.\d+\./, ".innerType.")
 			.split(".")
 			.reduce(function(prev, curr) {
 				return prev ? prev[curr] : null;
