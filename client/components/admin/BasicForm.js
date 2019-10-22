@@ -93,7 +93,9 @@ export default class BasicForm extends Component {
 		const { label, type, name, disableFastField, ...props } = field;
 
 		if (!_.find(fieldTypes, t => t == type)) {
-			throw new Error(`Invalid field type supplied to renderField: ${type}`);
+			throw new Error(
+				`Invalid field type '${type}' supplied to renderField for field '${label}' `
+			);
 		}
 
 		//Get Render Method
