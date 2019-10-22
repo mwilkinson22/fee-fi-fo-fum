@@ -79,7 +79,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/games/:year/" exact component={GameList.component} />
 					<Route path="/admin/games/" exact component={GameList.component} />
 
-					<Route path="/admin/awards/:_id" exact component={AdminAwardPage} />
+					<Route path="/admin/awards/:_id" component={AdminAwardPage} />
 					<Route path="/admin/awards" exact component={AdminAwardList} />
 
 					<Route path="/admin/cities/new" exact component={AdminCityPage} />

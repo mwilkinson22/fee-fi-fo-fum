@@ -12,15 +12,8 @@ const awardSchema = new Schema({
 			awardType: { type: String, required: true, enum: ["game", "player", "custom"] },
 			nominees: [
 				{
-					//Only one of the following three will be used, corresponding to "awardType" above
-					gameId: { type: Schema.Types.ObjectId, ref: "games", default: null },
-					playerId: { type: Schema.Types.ObjectId, ref: "people", default: null },
-					name: { type: String, default: null },
-
-					//A list of stat keys for player and game awards
+					nominee: { type: Schema.Types.Mixed, required: true },
 					stats: [String],
-
-					//To be used by all types
 					description: { type: String, default: null }
 				}
 			]
@@ -31,8 +24,8 @@ const awardSchema = new Schema({
 			ip: { type: String, required: true },
 			choices: [
 				{
-					categoryId: { type: mongoose.Types.ObjectId },
-					choice: { type: mongoose.Types.ObjectId }
+					categoryId: { type: Schema.Types.ObjectId },
+					choice: { type: Schema.Types.ObjectId }
 				}
 			]
 		}

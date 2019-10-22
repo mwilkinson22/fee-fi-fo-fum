@@ -9,6 +9,7 @@ class DeleteButtons extends Component {
 
 	render() {
 		const { promptClicked } = this.state;
+		const { deleteText } = this.props;
 		let buttons;
 		if (promptClicked) {
 			buttons = [
@@ -23,7 +24,10 @@ class DeleteButtons extends Component {
 					type="button"
 					className="delete"
 					key="confirm"
-					onClick={this.props.onDelete}
+					onClick={() => {
+						this.setState({ promptClicked: false });
+						this.props.onDelete();
+					}}
 				>
 					Confirm
 				</button>
@@ -35,7 +39,7 @@ class DeleteButtons extends Component {
 					className="delete"
 					onClick={() => this.setState({ promptClicked: true })}
 				>
-					Delete
+					{deleteText}
 				</button>
 			);
 		}
@@ -44,7 +48,12 @@ class DeleteButtons extends Component {
 }
 
 DeleteButtons.propTypes = {
-	onDelete: PropTypes.func.isRequired
+	onDelete: PropTypes.func.isRequired,
+	deleteText: PropTypes.string
+};
+
+DeleteButtons.defaultProps = {
+	deleteText: "Delete"
 };
 
 export default DeleteButtons;

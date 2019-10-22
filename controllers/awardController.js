@@ -20,12 +20,17 @@ async function validateAward(_id, res) {
 	}
 }
 
-async function getUpdatedAward(_id, res) {
+async function getUpdatedAward(_id, res = null) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
 	}
 	const award = await Award.findById(_id).lean();
-	res.send(award);
+
+	if (res) {
+		res.send(award);
+	} else {
+		return award;
+	}
 }
 
 //Getters
@@ -67,6 +72,17 @@ export async function createAward(req, res) {
 	res.send(updatedAward);
 }
 
+export async function addCategory(req, res) {
+	const { _id } = req.params;
+	let award = await validateAward(_id, res);
+	if (award) {
+		const index = award.categories.push(req.body);
+		await award.save();
+		const categoryId = award.categories[index - 1]._id;
+		res.send({ award, categoryId });
+	}
+}
+
 //Updaters
 export async function updateAward(req, res) {
 	const { _id } = req.params;
@@ -77,6 +93,18 @@ export async function updateAward(req, res) {
 	}
 }
 
+export async function updateCategory(req, res) {
+	const { awardId, categoryId } = req.params;
+	let award = await validateAward(awardId, res);
+	if (award) {
+		await Award.update(
+			{ _id: awardId, "categories._id": categoryId },
+			{ $set: { "categories.$": { ...req.body, _id: categoryId } } }
+		);
+		await getUpdatedAward(awardId, res);
+	}
+}
+
 //Deleters
 export async function deleteAward(req, res) {
 	const { _id } = req.params;
@@ -84,5 +112,15 @@ export async function deleteAward(req, res) {
 	if (award) {
 		await award.remove();
 		res.send({});
+	}
+}
+
+export async function deleteCategory(req, res) {
+	const { awardId, categoryId } = req.params;
+	let award = await validateAward(awardId, res);
+	if (award) {
+		award.categories.pull({ _id: categoryId });
+		await award.save();
+		await getUpdatedAward(awardId, res);
 	}
 }

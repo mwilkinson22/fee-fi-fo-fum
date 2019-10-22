@@ -15,10 +15,16 @@
 		.error,
 		.buttons,
 		.md-RichEditor-root,
+		hr,
 		.full-span {
 			grid-column: 1 / -1;
 			max-width: 100%;
 		}
+	}
+	hr {
+		width: 100%;
+		border: none;
+		border-bottom: thin dotted #bbb;
 	}
 
 	&.no-labels {

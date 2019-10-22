@@ -10,7 +10,8 @@ import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 
 //Pages
-import AdminAwardsOverview from "~/client/components/admin/awards/AdminAwardOverview";
+import AdminAwardOverview from "~/client/components/admin/awards/AdminAwardOverview";
+import AdminAwardCategories from "~/client/components/admin/awards/AdminAwardCategories";
 
 //Actions
 import { fetchAwards } from "../../actions/awardActions";
@@ -74,13 +75,21 @@ class AdminAwardPage extends Component {
 		const { isNew } = this.state;
 
 		if (isNew) {
-			return <AdminAwardsOverview match={match} />;
+			return <AdminAwardOverview match={match} />;
 		} else {
 			return (
 				<div>
 					<HelmetBuilder title={this.getTitle()} />
 					<Switch>
-						<Route path="/admin/awards/:_id" exact component={AdminAwardsOverview} />
+						<Route
+							path="/admin/awards/:_id/categories/:categoryId"
+							component={AdminAwardCategories}
+						/>
+						<Route
+							path="/admin/awards/:_id/categories"
+							component={AdminAwardCategories}
+						/>
+						<Route path="/admin/awards/:_id" exact component={AdminAwardOverview} />
 						<Route path="/" component={NotFoundPage} />
 					</Switch>
 				</div>

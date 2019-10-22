@@ -1,0 +1,247 @@
+//Modules
+import _ from "lodash";
+import React from "react";
+import { connect } from "react-redux";
+import { Formik, Form, FieldArray } from "formik";
+import { Redirect, withRouter } from "react-router-dom";
+import * as Yup from "yup";
+
+//Actions
+import { addCategory, updateCategory, deleteCategory } from "~/client/actions/awardActions";
+
+//Components
+import BasicForm from "../BasicForm";
+import DeleteButtons from "../fields/DeleteButtons";
+
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
+class AdminAwardCategories extends BasicForm {
+	constructor(props) {
+		super(props);
+
+		this.state = {};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { award, category, location } = nextProps;
+		const newState = { award, category };
+
+		//Clear out redirect
+		if (prevState.redirect && prevState.redirect == location.pathname) {
+			newState.redirect = null;
+		}
+
+		const validationSchema = {
+			name: Yup.string()
+				.required()
+				.label("Name"),
+			awardType: Yup.string()
+				.required()
+				.label("Type"),
+			nominees: Yup.array()
+				.of(
+					Yup.object().shape({
+						description: Yup.string().label("Description"),
+						nominee: Yup.mixed()
+							.required()
+							.label("Nominee")
+					})
+				)
+				.min("2", "Please provide at least two nominees")
+		};
+
+		newState.validationSchema = Yup.object().shape(validationSchema);
+		return newState;
+	}
+
+	getDefaults() {
+		const { category } = this.state;
+		const { options } = this.props;
+
+		if (category) {
+			const nominees = category.nominees.map(n => {
+				let { nominee } = n;
+				switch (category.awardType) {
+					case "player":
+						nominee = options[category.awardType].find(({ value }) => value == nominee);
+						break;
+					case "game":
+						nominee = _.chain(options[category.awardType])
+							.map("options")
+							.flatten()
+							.find(({ value }) => value == nominee)
+							.value();
+				}
+				return {
+					...n,
+					nominee
+				};
+			});
+			return {
+				name: category.name,
+				awardType: category.awardType,
+				nominees
+			};
+		} else {
+			return {
+				name: "",
+				awardType: "",
+				nominees: [{ description: "", nominee: "" }, { description: "", nominee: "" }]
+			};
+		}
+	}
+
+	async onSubmit(fValues) {
+		const { award, category, addCategory, updateCategory } = this.props;
+		const values = _.cloneDeep(fValues);
+		values.nominees = values.nominees.map(n => {
+			n.nominee = n.nominee.value || n.nominee;
+			return n;
+		});
+
+		if (category) {
+			updateCategory(award._id, category._id, values);
+		} else {
+			const newId = await addCategory(award._id, values);
+			this.setState({ redirect: `/admin/awards/${award._id}/categories/${newId}` });
+		}
+	}
+
+	async onDelete() {
+		const { award, category, deleteCategory } = this.props;
+
+		deleteCategory(award._id, category._id, () =>
+			this.setState({ redirect: `/admin/awards/${award._id}/categories` })
+		);
+	}
+
+	renderMainForm({ values }) {
+		const { awardType } = values;
+		const { category } = this.state;
+		const { options } = this.props;
+
+		const nomineeField = {};
+
+		if (awardType == "custom") {
+			nomineeField.type = fieldTypes.text;
+		} else {
+			nomineeField.type = fieldTypes.select;
+			nomineeField.options = options[awardType];
+		}
+
+		const fields = values.nominees.map((nominee, i) => {
+			const baseName = `nominees.${i}`;
+			///nominee, stats, description;
+			const fields = [
+				{ name: `${baseName}.nominee`, ...nomineeField },
+				{ name: `${baseName}.description`, type: fieldTypes.textarea, rows: 2 }
+			];
+			return [
+				<hr key={`hr${i}`} />,
+				this.renderFieldGroup(fields),
+				<FieldArray
+					key={`remove ${i}`}
+					name="nominees"
+					render={({ remove }) => (
+						<DeleteButtons onDelete={() => remove(i)} deleteText="Remove Nominee" />
+					)}
+				/>
+			];
+		});
+
+		return (
+			<div className="form-card grid">
+				{this.renderFieldGroup([{ name: "name", type: fieldTypes.text }])}
+				<FieldArray
+					name="nominees"
+					render={({ push }) => (
+						<div className="buttons">
+							<button
+								type="button"
+								onClick={() => push({ description: "", nominee: "" })}
+							>
+								Add Nominee
+							</button>
+						</div>
+					)}
+				/>
+				{fields}
+				<div className="buttons">
+					<button type="reset">Reset</button>
+					<button type="submit">{category ? "Update" : "Add"} Category</button>
+				</div>
+			</div>
+		);
+	}
+
+	renderDeleteButtons() {
+		const { category } = this.props;
+		if (category) {
+			return (
+				<div className="form-card grid">
+					<DeleteButtons deleteText="Remove Category" onDelete={() => this.onDelete()} />
+				</div>
+			);
+		}
+	}
+
+	render() {
+		const { redirect } = this.state;
+		if (redirect) {
+			return <Redirect to={redirect} />;
+		}
+		return (
+			<div className="container">
+				<Formik
+					validationSchema={this.state.validationSchema}
+					onSubmit={values => this.onSubmit(values)}
+					initialValues={this.getDefaults()}
+					enableReinitialize={true}
+					render={formikProps => {
+						let content;
+
+						//First of all we need an award type, which cannot be changed
+						if (!formikProps.values.awardType) {
+							const field = this.renderFieldGroup([
+								{
+									name: "awardType",
+									type: fieldTypes.radio,
+									options: [
+										{ label: "Game", value: "game" },
+										{ label: "Player", value: "player" },
+										{ label: "Custom", value: "custom" }
+									]
+								}
+							]);
+							content = <div className="form-card grid">{field}</div>;
+						} else {
+							//Otherwise, render the full form
+							content = this.renderMainForm(formikProps);
+						}
+
+						return (
+							<Form>
+								{content}
+								{this.renderDeleteButtons()}
+							</Form>
+						);
+					}}
+				/>
+			</div>
+		);
+	}
+}
+
+//Add Redux Support
+function mapStateToProps({ awards }) {
+	const { awardsList } = awards;
+	return { awardsList };
+}
+// export default form;
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ addCategory, updateCategory, deleteCategory }
+	)(AdminAwardCategories)
+);
