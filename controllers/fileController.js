@@ -41,8 +41,8 @@ export async function uploadFile(req, res) {
 
 		//Upload
 		let result;
-		if (isImage) {
-			result = await uploadImageToGoogle(req.file, path, convertImageToWebP);
+		if (isImage === "true") {
+			result = await uploadImageToGoogle(req.file, path, convertImageToWebP === "true");
 		} else {
 			result = await uploadToGoogle(req.file, path);
 		}
