@@ -3,12 +3,13 @@ const { Schema } = mongoose;
 
 const awardSchema = new Schema({
 	year: { type: Number, required: true, unique: true },
-	name: { type: String, default: null },
+	socialCard: { type: String, default: null },
 	votingBegins: { type: Date, required: true },
 	votingEnds: { type: Date, required: true },
 	categories: [
 		{
 			name: { type: String, required: true },
+			description: { type: String, default: null },
 			awardType: { type: String, required: true, enum: ["game", "player", "custom"] },
 			nominees: [
 				{

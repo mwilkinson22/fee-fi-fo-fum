@@ -41,7 +41,7 @@ class AdminAwardOverview extends BasicForm {
 				)
 				.required()
 				.label("Year"),
-			name: Yup.string().label("Name"),
+			socialCard: Yup.string().label("Social Media Card"),
 			votingBeginsDate: Yup.date()
 				.required()
 				.label("Voting Begins (Date)"),
@@ -66,7 +66,7 @@ class AdminAwardOverview extends BasicForm {
 		//Set basics for new teams:
 		let defaults = {
 			year: "",
-			name: "",
+			socialCard: "",
 			votingBeginsDate: "",
 			votingBeginsTime: "",
 			votingEndsDate: "",
@@ -182,11 +182,18 @@ class AdminAwardOverview extends BasicForm {
 					render={({ values }) => {
 						const fields = [
 							{ name: "year", type: fieldTypes.number },
-							{ name: "name", type: fieldTypes.text },
 							{ name: "votingBeginsDate", type: fieldTypes.date },
 							{ name: "votingBeginsTime", type: fieldTypes.time },
 							{ name: "votingEndsDate", type: fieldTypes.date },
-							{ name: "votingEndsTime", type: fieldTypes.time }
+							{ name: "votingEndsTime", type: fieldTypes.time },
+							{
+								name: "socialCard",
+								type: fieldTypes.image,
+								path: "images/awards/socialCards/",
+								allowSVG: false,
+								convertToWebP: false,
+								defaultUploadName: values.year.toString()
+							}
 						];
 
 						let deleteButtons;

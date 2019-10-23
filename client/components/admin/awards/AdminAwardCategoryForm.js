@@ -39,6 +39,7 @@ class AdminAwardCategories extends BasicForm {
 			awardType: Yup.string()
 				.required()
 				.label("Type"),
+			description: Yup.string().label("Description"),
 			nominees: Yup.array()
 				.of(
 					Yup.object().shape({
@@ -102,12 +103,14 @@ class AdminAwardCategories extends BasicForm {
 			return {
 				name: category.name,
 				awardType: category.awardType,
+				description: category.description,
 				nominees
 			};
 		} else {
 			return {
 				name: "",
 				awardType: "",
+				description: "",
 				nominees: [
 					{ description: "", nominee: "", stats: [] },
 					{ description: "", nominee: "", stats: [] }
@@ -190,7 +193,10 @@ class AdminAwardCategories extends BasicForm {
 
 		return (
 			<div className="form-card grid">
-				{this.renderFieldGroup([{ name: "name", type: fieldTypes.text }])}
+				{this.renderFieldGroup([
+					{ name: "name", type: fieldTypes.text },
+					{ name: "description", type: fieldTypes.textarea }
+				])}
 				<FieldArray
 					name="nominees"
 					render={({ push }) => (
