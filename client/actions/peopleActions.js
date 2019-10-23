@@ -1,4 +1,4 @@
-import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON } from "./types";
+import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchPeopleList = () => async (dispatch, getState, api) => {
@@ -48,8 +48,12 @@ export const fetchPerson = id => async (dispatch, getState, api) => {
 	if (payload === undefined) {
 		payload = res.data;
 	}
-
 	dispatch({ type: FETCH_PERSON, payload });
+};
+
+export const fetchPeople = ids => async (dispatch, getState, api) => {
+	const res = await api.get(`/people/multi/${ids.join(",")}`);
+	dispatch({ type: FETCH_PEOPLE, payload: res.data });
 };
 
 export const setExternalNames = values => async (dispatch, getState, api) => {

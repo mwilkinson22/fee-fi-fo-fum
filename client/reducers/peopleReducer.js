@@ -1,4 +1,4 @@
-import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON } from "../actions/types";
+import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE } from "../actions/types";
 
 export default function(state = { fullPeople: {} }, action) {
 	switch (action.type) {
@@ -12,10 +12,19 @@ export default function(state = { fullPeople: {} }, action) {
 				peopleList: { ...state.peopleList, [action.payload.id]: action.payload }
 			};
 
+		case FETCH_PEOPLE:
+			return {
+				...state,
+				fullPeople: {
+					...state.fullPeople,
+					...action.payload
+				}
+			};
+
 		case FETCH_PEOPLE_LIST:
 			return { ...state, ...action.payload };
 
-		case DELETE_PERSON:
+		case DELETE_PERSON: {
 			const { [action.payload]: oldFull, ...fullPeople } = state.fullPeople;
 			const { [action.payload]: oldList, ...peopleList } = state.peopleList;
 			return {
@@ -23,6 +32,7 @@ export default function(state = { fullPeople: {} }, action) {
 				fullPeople,
 				peopleList
 			};
+		}
 
 		default:
 			return state;

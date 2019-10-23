@@ -29,12 +29,45 @@ async function validatePerson(_id, res) {
 	}
 }
 
+async function getFullPeople(ids) {
+	//Get Core Data
+	const doc = await Person.find({ _id: { $in: ids } })
+		.populate({ path: "_hometown", populate: { path: "_country" } })
+		.populate({ path: "_represents" })
+		.populate({ path: "_sponsor" });
+	const people = JSON.parse(JSON.stringify(doc));
+
+	for (const person of people) {
+		//Get Played Games
+		if (person.isPlayer) {
+			person.playedGames = await getPlayedGames(person._id);
+		}
+
+		//Get Squad Entries
+		if (person.isPlayer) {
+			person.squadEntries = await getSquadEntries(person._id);
+		}
+
+		//Get Coaching Roles
+		if (person.isCoach) {
+			person.coachingRoles = await getCoachingRoles(person._id);
+		}
+
+		//Get Reffed Games
+		if (person.isReferee) {
+			person.reffedGames = await getReffedGames(person._id);
+		}
+	}
+
+	return people;
+}
+
 async function getPlayedGames(_id) {
 	const playedGames = await Game.find(
 		{
 			$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }]
 		},
-		"playerStats._player playerStats._team pregameSquads"
+		"playerStats._player playerStats._team pregameSquads date"
 	).lean();
 
 	return playedGames.map(game => {
@@ -127,34 +160,23 @@ export async function getList(req, res) {
 export async function getPerson(req, res) {
 	const { id } = req.params;
 
-	//Get Core Data
-	const doc = await Person.findById(id)
-		.populate({ path: "_hometown", populate: { path: "_country" } })
-		.populate({ path: "_represents" })
-		.populate({ path: "_sponsor" });
-	const person = JSON.parse(JSON.stringify(doc));
+	const people = await getFullPeople([id]);
 
-	//Get Played Games
-	if (person.isPlayer) {
-		person.playedGames = await getPlayedGames(id);
+	res.send(people[0]);
+}
+
+export async function getPeople(req, res) {
+	const { ids } = req.params;
+	const peopleIds = ids.split(",");
+	const limit = 20;
+
+	if (peopleIds > limit) {
+		res.status(413).send(`Cannot fetch more than ${limit} people at one time`);
+	} else {
+		const person = await getFullPeople(ids.split(","));
+
+		res.send(_.keyBy(person, "_id"));
 	}
-
-	//Get Squad Entries
-	if (person.isPlayer) {
-		person.squadEntries = await getSquadEntries(id);
-	}
-
-	//Get Coaching Roles
-	if (person.isCoach) {
-		person.coachingRoles = await getCoachingRoles(id);
-	}
-
-	//Get Reffed Games
-	if (person.isReferee) {
-		person.reffedGames = await getReffedGames(id);
-	}
-
-	res.send(person);
 }
 
 //Create
