@@ -12,6 +12,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 //Pages
 import AdminAwardOverview from "~/client/components/admin/awards/AdminAwardOverview";
 import AdminAwardCategories from "~/client/components/admin/awards/AdminAwardCategories";
+import AdminAwardVotes from "~/client/components/admin/awards/AdminAwardVotes";
 
 //Actions
 import { fetchAwards } from "../../actions/awardActions";
@@ -81,6 +82,7 @@ class AdminAwardPage extends Component {
 				<div>
 					<HelmetBuilder title={this.getTitle()} />
 					<Switch>
+						<Route path="/admin/awards/:_id/voting/" component={AdminAwardVotes} />
 						<Route
 							path="/admin/awards/:_id/categories/:categoryId"
 							component={AdminAwardCategories}

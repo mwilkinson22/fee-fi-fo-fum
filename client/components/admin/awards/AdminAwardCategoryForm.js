@@ -43,9 +43,12 @@ class AdminAwardCategories extends BasicForm {
 				.of(
 					Yup.object().shape({
 						description: Yup.string().label("Description"),
-						nominee: Yup.mixed()
+						nominee: Yup.string()
 							.required()
-							.label("Nominee")
+							.label("Nominee"),
+						stats: Yup.array()
+							.of(Yup.string())
+							.label("Stats")
 					})
 				)
 				.min("2", "Please provide at least two nominees")
@@ -60,23 +63,41 @@ class AdminAwardCategories extends BasicForm {
 		const { options } = this.props;
 
 		if (category) {
+			//Normalise Nominee Options
+			let nomineeOptions;
+			switch (category.awardType) {
+				case "player":
+					nomineeOptions = options.player;
+					break;
+				case "game":
+					nomineeOptions = _.chain(options.game)
+						.map("options")
+						.flatten()
+						.value();
+			}
+
+			//Flatten Stat Options
+			const statOptions = _.chain(options.stats)
+				.map("options")
+				.flatten()
+				.value();
+
 			const nominees = category.nominees.map(n => {
-				let { nominee } = n;
+				//Get Nominee Option
+				let { nominee, stats } = n;
 				switch (category.awardType) {
 					case "player":
-						nominee = options[category.awardType].find(({ value }) => value == nominee);
-						break;
 					case "game":
-						nominee = _.chain(options[category.awardType])
-							.map("options")
-							.flatten()
-							.find(({ value }) => value == nominee)
-							.value();
+						nominee = nomineeOptions.find(({ value }) => value == nominee);
+						break;
 				}
-				return {
-					...n,
-					nominee
-				};
+
+				//Get Stats
+				if (stats && stats.length) {
+					stats = stats.map(s => statOptions.find(({ value }) => value == s));
+				}
+
+				return { ...n, nominee, stats };
 			});
 			return {
 				name: category.name,
@@ -87,7 +108,10 @@ class AdminAwardCategories extends BasicForm {
 			return {
 				name: "",
 				awardType: "",
-				nominees: [{ description: "", nominee: "" }, { description: "", nominee: "" }]
+				nominees: [
+					{ description: "", nominee: "", stats: [] },
+					{ description: "", nominee: "", stats: [] }
+				]
 			};
 		}
 	}
@@ -95,8 +119,13 @@ class AdminAwardCategories extends BasicForm {
 	async onSubmit(fValues) {
 		const { award, category, addCategory, updateCategory } = this.props;
 		const values = _.cloneDeep(fValues);
+
+		//Fix Nominees
 		values.nominees = values.nominees.map(n => {
 			n.nominee = n.nominee.value || n.nominee;
+			if (n.stats && n.stats.length) {
+				n.stats = n.stats.map(s => s.value);
+			}
 			return n;
 		});
 
@@ -137,6 +166,15 @@ class AdminAwardCategories extends BasicForm {
 				{ name: `${baseName}.nominee`, ...nomineeField },
 				{ name: `${baseName}.description`, type: fieldTypes.textarea, rows: 2 }
 			];
+
+			if (awardType !== "custom") {
+				fields.push({
+					name: `${baseName}.stats`,
+					type: fieldTypes.select,
+					options: options.stats,
+					isMulti: true
+				});
+			}
 			return [
 				<hr key={`hr${i}`} />,
 				this.renderFieldGroup(fields),
@@ -169,7 +207,9 @@ class AdminAwardCategories extends BasicForm {
 				{fields}
 				<div className="buttons">
 					<button type="reset">Reset</button>
-					<button type="submit">{category ? "Update" : "Add"} Category</button>
+					<button type="submit" disabled={values.nominees.length < 2}>
+						{category ? "Update" : "Add"} Category
+					</button>
 				</div>
 			</div>
 		);

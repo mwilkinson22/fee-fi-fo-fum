@@ -1,0 +1,26 @@
+.award-category-sorter-row {
+	display: flex;
+	align-items: center;
+	.name {
+		flex-grow: 1;
+	}
+
+	@media #{$mobile-only} {
+		flex-wrap: wrap;
+		justify-content: center;
+		text-align: center;
+		.name {
+			order: 1;
+			width: 100%;
+		}
+		button {
+			order: 2;
+			width: 50%;
+		}
+	}
+	@media #{$desktop-and-tablet} {
+		.name {
+			padding-left: 10pt;
+		}
+	}
+}

@@ -12,6 +12,7 @@ import LoadingPage from "../../LoadingPage";
 
 //Constants
 import selectStyling from "~/constants/selectStyling";
+import playerStatTypes from "~/constants/playerStatTypes";
 
 //Actions
 import { fetchGameList } from "~/client/actions/gamesActions";
@@ -64,6 +65,17 @@ class AdminAwardCategories extends BasicForm {
 
 		if (gameList && !prevState.options) {
 			newState.options = {};
+
+			//Get Stats
+			newState.options.stats = _.chain(playerStatTypes)
+				.mapValues((stat, value) => ({
+					value,
+					label: stat.plural,
+					group: stat.type
+				}))
+				.groupBy("group")
+				.map((options, label) => ({ label, options: _.sortBy(options, "label") }))
+				.value();
 
 			//Get Player Options
 			const squads = fullTeams[localTeam].squads.filter(

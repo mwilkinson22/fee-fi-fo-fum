@@ -3,7 +3,7 @@ import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { Formik, Form } from "formik";
+import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 
 //Actions
@@ -53,7 +53,8 @@ class AdminAwardOverview extends BasicForm {
 				.label("Voting Ends (Date)"),
 			votingEndsTime: Yup.date()
 				.required()
-				.label("Voting Ends (Time)")
+				.label("Voting Ends (Time)"),
+			categories: Yup.array().of(Yup.string().required())
 		});
 
 		return newState;
@@ -85,9 +86,54 @@ class AdminAwardOverview extends BasicForm {
 						return award[key] || "";
 				}
 			});
+
+			if (award.categories && award.categories.length) {
+				defaults.categories = award.categories.map(({ _id }) => _id);
+			}
 		}
 
 		return defaults;
+	}
+
+	renderCategorySorter(values) {
+		const { award } = this.state;
+		if (values.categories) {
+			return (
+				<div className="form-card">
+					<h6>Categories</h6>
+					<ul className="plain-list">
+						<FieldArray
+							name="categories"
+							render={({ move }) => {
+								return values.categories.map((id, i) => (
+									<li key={id} className="award-category-sorter-row">
+										<button
+											type="button"
+											className="down"
+											disabled={i == values.categories.length - 1}
+											onClick={() => move(i, i + 1)}
+										>
+											&#9660;
+										</button>
+										<button
+											type="button"
+											className="up"
+											disabled={i == 0}
+											onClick={() => move(i, i - 1)}
+										>
+											&#9650;
+										</button>
+										<div className="name">
+											{award.categories.find(c => c._id == id).name}
+										</div>
+									</li>
+								));
+							}}
+						/>
+					</ul>
+				</div>
+			);
+		}
 	}
 
 	async onSubmit(fValues) {
@@ -133,7 +179,7 @@ class AdminAwardOverview extends BasicForm {
 					validationSchema={this.state.validationSchema}
 					onSubmit={values => this.onSubmit(values)}
 					initialValues={this.getDefaults()}
-					render={() => {
+					render={({ values }) => {
 						const fields = [
 							{ name: "year", type: fieldTypes.number },
 							{ name: "name", type: fieldTypes.text },
@@ -156,6 +202,9 @@ class AdminAwardOverview extends BasicForm {
 							<Form>
 								<div className="form-card grid">
 									{this.renderFieldGroup(fields)}
+								</div>
+								{this.renderCategorySorter(values)}
+								<div className="form-card grid">
 									<div className="buttons">
 										<button type="clear">Clear</button>
 										<button type="submit" className="confirm">

@@ -88,7 +88,20 @@ export async function updateAward(req, res) {
 	const { _id } = req.params;
 	const award = await validateAward(_id, res);
 	if (award) {
-		await award.updateOne(req.body);
+		const { categories, ...data } = req.body;
+
+		//Reorder categories
+		if (categories && categories.length) {
+			data.categories = _.chain(categories)
+				.map(id => award.categories.find(c => c._id == id))
+				.filter(_.identity)
+				.value();
+			await award.save();
+		}
+
+		//Update core data
+		await award.updateOne(data);
+
 		await getUpdatedAward(_id, res);
 	}
 }
@@ -97,7 +110,7 @@ export async function updateCategory(req, res) {
 	const { awardId, categoryId } = req.params;
 	let award = await validateAward(awardId, res);
 	if (award) {
-		await Award.update(
+		await Award.updateOne(
 			{ _id: awardId, "categories._id": categoryId },
 			{ $set: { "categories.$": { ...req.body, _id: categoryId } } }
 		);

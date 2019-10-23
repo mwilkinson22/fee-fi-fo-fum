@@ -25,7 +25,7 @@ const awardSchema = new Schema({
 			choices: [
 				{
 					categoryId: { type: Schema.Types.ObjectId },
-					choice: { type: Schema.Types.ObjectId }
+					choice: { type: Schema.Types.Mixed }
 				}
 			]
 		}
