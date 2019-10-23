@@ -38,7 +38,8 @@ export async function getCurrent(req, res) {
 	const forwarded = req.headers["x-forwarded-for"];
 	const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
 	const now = new Date();
-	let awards = await Award.find({
+	const currentAwards = await Award.findOne({
+		year: now.getFullYear(),
 		votingBegins: {
 			$lte: now
 		},
@@ -47,13 +48,13 @@ export async function getCurrent(req, res) {
 		}
 	}).lean();
 
-	awards.map(award => {
-		const { votes, ...data } = award;
+	if (currentAwards) {
+		const { votes, ...data } = currentAwards;
 		const hasVoted = Boolean(votes.find(vote => vote.ip === ip));
-		return { ...data, hasVoted };
-	});
-
-	res.send(awards);
+		res.send({ ...data, hasVoted });
+	} else {
+		res.send(false);
+	}
 }
 
 export async function getAwards(req, res) {

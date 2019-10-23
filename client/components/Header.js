@@ -72,7 +72,7 @@ class Header extends Component {
 			]
 		];
 
-		if (currentAwards && currentAwards.length) {
+		if (currentAwards) {
 			navMenus[0].push({ header: "Awards", headerLink: "/awards" });
 		}
 
