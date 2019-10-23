@@ -62,12 +62,13 @@ export default function(state = { fullGames: {} }, action) {
 				}
 			};
 
-		case DELETE_NEUTRAL_GAME:
+		case DELETE_NEUTRAL_GAME: {
 			const { [action.payload]: removed, ...neutralGames } = state.neutralGames;
 			return {
 				...state,
 				neutralGames
 			};
+		}
 
 		case CRAWL_LOCAL_GAMES:
 			return {

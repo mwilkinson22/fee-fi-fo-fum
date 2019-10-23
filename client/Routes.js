@@ -2,6 +2,7 @@ import React from "react";
 import App from "./App";
 import { Redirect } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import AwardPage from "./pages/AwardPage";
 import GamePage from "./pages/GamePage";
 import GameList from "./pages/GameList";
 import PersonPage from "./pages/PersonPage";
@@ -12,6 +13,13 @@ import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import AdminRouter from "./components/admin";
 import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
+
+const awardRoutes = [
+	{
+		...AwardPage,
+		path: "/awards"
+	}
+];
 
 const gameRoutes = [
 	{
@@ -130,6 +138,7 @@ export default [
 	{
 		...App,
 		routes: [
+			...awardRoutes,
 			...gameRoutes,
 			...personRoutes,
 			...squadRoutes,
