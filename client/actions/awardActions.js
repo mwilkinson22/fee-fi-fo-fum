@@ -1,8 +1,8 @@
 import { FETCH_CURRENT_AWARDS, FETCH_AWARDS, FETCH_AWARD, DELETE_AWARD } from "./types";
 import { toast } from "react-toastify";
 
-export const fetchCurrentAwards = () => async (dispatch, getState, api) => {
-	const res = await api.get(`/awards/current`);
+export const fetchCurrentAwards = ip => async (dispatch, getState, api) => {
+	const res = await api.get(`/awards/current?ip=${ip}`);
 	dispatch({ type: FETCH_CURRENT_AWARDS, payload: res.data });
 };
 

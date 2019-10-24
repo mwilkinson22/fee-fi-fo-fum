@@ -8,11 +8,7 @@ const Award = mongoose.model("awards");
 //Helpers
 function getIpAddress(req) {
 	const forwarded = req.headers["x-forwarded-for"];
-	const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
-	console.log("REQ.IP", req.ip);
-	console.log("IP ADDRESS", ip);
-	console.log("BASED ON FORWARDED?", Boolean(forwarded));
-	return ip;
+	return forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
 }
 
 async function validateAward(_id, res) {
@@ -55,8 +51,10 @@ export async function getCurrent(req, res) {
 		}
 	}).lean();
 
+	const ip = req.query.ip || getIpAddress(req);
+
 	if (currentAwards) {
-		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === getIpAddress(req));
+		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === ip);
 		res.send(currentAwards);
 	} else {
 		res.send(false);
