@@ -10,10 +10,13 @@
 		}
 	}
 
-	.form-card {
+	.form-card.intro {
 		text-align: center;
-		&.intro {
-			font-size: 1.4em;
+		font-size: 1.4em;
+		.edit-link {
+			color: $claret;
+			font-weight: bold;
+			cursor: pointer;
 		}
 	}
 
@@ -31,6 +34,7 @@
 
 	.award-category {
 		user-select: none;
+		text-align: center;
 		h2 {
 			padding: 10pt 4pt;
 			color: $gold;
@@ -89,6 +93,7 @@
 					position: relative;
 					height: 140pt;
 					overflow: hidden;
+					transition: all 200ms;
 					&.player {
 						background-image: url("#{$layoutImages}john-smiths.jpg");
 						background-position: center;

@@ -72,10 +72,11 @@ class AwardsVotingForm extends Component {
 		return defaults;
 	}
 
-	handleSubmit(values) {
-		const { submitVotes } = this.props;
+	async handleSubmit(values) {
+		const { submitVotes, onComplete } = this.props;
 		const { currentAwards } = this.state;
-		submitVotes(currentAwards._id, values);
+		await submitVotes(currentAwards._id, values);
+		onComplete();
 	}
 
 	getPlayerElements(nomineeObject) {
@@ -221,6 +222,39 @@ class AwardsVotingForm extends Component {
 		);
 	}
 
+	renderChosenValues(values) {
+		const { currentAwards } = this.state;
+		const { fullGames, fullPeople } = this.props;
+
+		return _.map(values, (val, cat) => {
+			const category = currentAwards.categories.find(({ _id }) => cat == _id);
+
+			let valueName;
+			if (val == "") {
+				//No value set
+				valueName = "-";
+			} else {
+				switch (category.awardType) {
+					case "player":
+						valueName = fullPeople[val].name.full;
+						break;
+					case "game": {
+						const { _opposition, date } = fullGames[val];
+						valueName = `${_opposition.name.short} (${date.toString("dS MMMM")})`;
+						break;
+					}
+					default:
+						valueName = val;
+				}
+			}
+
+			return [
+				<label key={`${cat}-label`}>{category.name}</label>,
+				<span key={`${cat}-value`}>{valueName}</span>
+			];
+		});
+	}
+
 	render() {
 		const { currentAwards, validationSchema } = this.state;
 		return (
@@ -255,10 +289,13 @@ class AwardsVotingForm extends Component {
 					return (
 						<Form>
 							{categories}
-							<div className="form-card">
+							<div className="form-card grid">
+								{this.renderChosenValues(values)}
 								<div className="buttons">
-									<button type="clear">Reset</button>
-									<button type="submit">Submit </button>
+									<button type="reset">Reset</button>
+									<button type="submit" className="success">
+										Submit Votes
+									</button>
 								</div>
 							</div>
 						</Form>

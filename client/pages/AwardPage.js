@@ -20,18 +20,16 @@ import { fetchPeople } from "~/client/actions/peopleActions";
 class AwardPage extends Component {
 	constructor(props) {
 		super(props);
-		const { currentAwards } = this.props;
-
-		//Check we actually need to display anything
-		const loadData = currentAwards && !currentAwards.votes;
-
-		this.state = { loadData, currentAwards };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { currentAwards, fullPeople, fetchPeople, fullGames, fetchGames } = nextProps;
-		const { loadData, finishedLoading } = prevState;
-		const newState = { isLoading: false };
+		const { finishedLoading } = prevState;
+		const newState = { isLoading: false, currentAwards };
+
+		//Check we actually need to display anything
+		const loadData = currentAwards && (!currentAwards.votes || prevState.editingEnabled);
 
 		if (!loadData) {
 			return newState;
@@ -108,18 +106,30 @@ class AwardPage extends Component {
 	}
 
 	renderContent() {
-		const { currentAwards } = this.state;
+		const { currentAwards, editingEnabled } = this.state;
 		let content;
 
 		if (!currentAwards) {
 			content = (
 				<div className="form-card intro">There are currently no awards open for voting</div>
 			);
-		} else if (currentAwards.votes) {
+		} else if (currentAwards.votes && !editingEnabled) {
 			content = (
 				<div className="form-card intro">
-					You have already voted in these awards, check out our social media for the
-					results!
+					<p>
+						Thank you for voting. Please give us a follow on our social media to be the
+						first to find out the winners!
+					</p>
+					<p>
+						Changed your mind?&nbsp;
+						<span
+							className="edit-link"
+							onClick={() => this.setState({ editingEnabled: true })}
+						>
+							Click Here
+						</span>{" "}
+						to edit your selections
+					</p>
 				</div>
 			);
 		} else {
@@ -137,7 +147,7 @@ class AwardPage extends Component {
 						Awards! Vote in each category below and make sure to follow our social media
 						to see the results!
 					</div>
-					<AwardsVotingForm />
+					<AwardsVotingForm onComplete={() => this.setState({ editingEnabled: false })} />
 				</div>
 			);
 		}
