@@ -2,7 +2,9 @@
 .form-card {
 	background: #fff;
 	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
-	padding: 20pt;
+	&:not(.no-padding) {
+		padding: 20pt;
+	}
 	margin-bottom: 20pt;
 }
 

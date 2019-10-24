@@ -7,6 +7,8 @@ import { connect } from "react-redux";
 import Countdown from "../components/games/Countdown";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
+import AwardsVotingForm from "../components/awards/AwardsVotingForm";
+import AwardsStatueImage from "../components/awards/AwardsStatueImage";
 
 //Constants
 import { imagePath } from "../extPaths";
@@ -15,16 +17,13 @@ import { imagePath } from "../extPaths";
 import { fetchGames } from "~/client/actions/gamesActions";
 import { fetchPeople } from "~/client/actions/peopleActions";
 
-class SquadListPage extends Component {
+class AwardPage extends Component {
 	constructor(props) {
 		super(props);
-		const { webP, currentAwards } = this.props;
-
-		//Get Statue Image
-		this.statueSrc = `${imagePath}awards/statue.${webP ? "webp" : "png"}`;
+		const { currentAwards } = this.props;
 
 		//Check we actually need to display anything
-		const loadData = currentAwards && !currentAwards.hasVoted;
+		const loadData = currentAwards && !currentAwards.votes;
 
 		this.state = { loadData, currentAwards };
 	}
@@ -77,12 +76,15 @@ class SquadListPage extends Component {
 					.filter(n => n.stats && n.stats.length)
 					.uniqBy("nominee")
 					//Get the ids of all local played games this year
-					.map(({ nominee }) => fullPeople[nominee].playedGames)
-					.filter(
-						g =>
-							!g.pregameOnly &&
-							g.forLocalTeam &&
-							new Date(g.date).getFullYear() == currentAwards.year
+					.map(({ nominee }) =>
+						fullPeople[nominee].playedGames
+							.filter(
+								g =>
+									!g.pregameOnly &&
+									g.forLocalTeam &&
+									new Date(g.date).getFullYear() == currentAwards.year
+							)
+							.map(g => g._id)
 					)
 					.flatten()
 					.value();
@@ -108,15 +110,14 @@ class SquadListPage extends Component {
 	renderContent() {
 		const { currentAwards } = this.state;
 		let content;
-		console.log(currentAwards);
 
 		if (!currentAwards) {
 			content = (
-				<div className="form-card">There are currently no awards open for voting</div>
+				<div className="form-card intro">There are currently no awards open for voting</div>
 			);
-		} else if (currentAwards.hasVoted) {
+		} else if (currentAwards.votes) {
 			content = (
-				<div className="form-card">
+				<div className="form-card intro">
 					You have already voted in these awards, check out our social media for the
 					results!
 				</div>
@@ -131,11 +132,12 @@ class SquadListPage extends Component {
 							onFinish={() => this.setState({ currentAwards: undefined })}
 						/>
 					</div>
-					<div className="form-card">
+					<div className="form-card intro">
 						Welcome to the voting page for the {currentAwards.year} Fee Fi Fo Fum Fan
 						Awards! Vote in each category below and make sure to follow our social media
 						to see the results!
 					</div>
+					<AwardsVotingForm />
 				</div>
 			);
 		}
@@ -160,7 +162,7 @@ class SquadListPage extends Component {
 				<section className="page-header">
 					<div className="container">
 						<h1 className="award-page">
-							<img src={this.statueSrc} alt="5Fs Statue" />
+							<AwardsStatueImage />
 							{year.trim()} Awards
 						</h1>
 					</div>
@@ -175,17 +177,16 @@ class SquadListPage extends Component {
 	}
 }
 
-function mapStateToProps({ awards, config, games, people }) {
+function mapStateToProps({ awards, games, people }) {
 	const { currentAwards } = awards;
-	const { webP } = config;
 	const { fullGames } = games;
 	const { fullPeople } = people;
-	return { currentAwards, webP, fullPeople, fullGames };
+	return { currentAwards, fullPeople, fullGames };
 }
 
 export default {
 	component: connect(
 		mapStateToProps,
 		{ fetchGames, fetchPeople }
-	)(SquadListPage)
+	)(AwardPage)
 };

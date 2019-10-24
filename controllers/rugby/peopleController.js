@@ -83,7 +83,7 @@ async function getPlayedGames(_id) {
 			forLocalTeam = playerStatEntry._team == localTeam;
 		}
 
-		return { _id: game._id, pregameOnly, forLocalTeam };
+		return { _id: game._id, pregameOnly, forLocalTeam, date: game.date };
 	});
 }
 

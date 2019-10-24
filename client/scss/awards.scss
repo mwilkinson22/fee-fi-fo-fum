@@ -1,22 +1,25 @@
 .award-page {
-	h1 {
+	h1,
+	h2 {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		img {
-			max-height: 2em;
+			height: 60pt;
 			margin-right: 10pt;
 		}
 	}
 
 	.form-card {
 		text-align: center;
-		font-size: 1.4em;
+		&.intro {
+			font-size: 1.4em;
+		}
 	}
 
 	.countdown-wrapper {
 		text-align: center;
-		font-size: 2em;
+		font-size: 1.5em;
 		.game-countdown {
 			.value {
 				background: $claret;
@@ -24,6 +27,151 @@
 			}
 		}
 		margin-bottom: 20pt;
+	}
+
+	.award-category {
+		user-select: none;
+		h2 {
+			padding: 10pt 4pt;
+			color: $gold;
+			background: darken($claret, 5%);
+			@media #{$mobile-only} {
+				flex-direction: column;
+			}
+		}
+		.category-description {
+			padding: 10pt 10%;
+		}
+		.nominees {
+			display: grid;
+
+			@media #{$desktop-and-tablet} {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.nominee {
+				background: #eee;
+				cursor: pointer;
+				padding-bottom: 10pt;
+
+				&:hover {
+					background: #e4e4e4;
+				}
+
+				h4 {
+					margin: 0pt 10pt;
+					padding: 8pt 0;
+					color: $claret;
+					font-size: 1.2em;
+					&:not(:last-child) {
+						border-bottom: solid 2pt $claret;
+					}
+					.alt-colour {
+						color: black;
+					}
+					span {
+						display: inline-block;
+
+						&.subtitle {
+							display: block;
+							color: black;
+							font-family: "Titillium Web";
+							font-size: 0.8em;
+						}
+					}
+				}
+
+				.nominee-description {
+					padding: 10pt;
+				}
+
+				.image {
+					position: relative;
+					height: 140pt;
+					overflow: hidden;
+					&.player {
+						background-image: url("#{$layoutImages}john-smiths.jpg");
+						background-position: center;
+						background-size: cover;
+					}
+					img {
+						position: absolute;
+						left: 0;
+						right: 0;
+						margin: auto;
+						&.player-image {
+							max-width: 80%;
+							max-height: 120%;
+							top: 4pt;
+						}
+						&.game-image {
+							object-fit: cover;
+							top: 0;
+							bottom: 0;
+							width: 100%;
+							height: 100%;
+						}
+					}
+					@media #{$mobile-only} {
+						display: none;
+					}
+				}
+
+				.head-to-head-table {
+					margin: 10pt 20pt;
+				}
+
+				.player-stats {
+					div {
+						display: block;
+						width: 100%;
+						.value,
+						.label {
+							@include header;
+							margin-top: 2pt;
+						}
+						.value {
+							color: $claret;
+						}
+						.average {
+							font-weight: 600;
+							display: block;
+							margin-bottom: 2pt;
+						}
+					}
+				}
+
+				&.selected {
+					pointer-events: none;
+					background: $claret;
+					color: white;
+					h4 {
+						color: $gold;
+						&:not(:last-child) {
+							border-bottom: solid 2pt $gold;
+						}
+						.alt-colour,
+						.subtitle {
+							color: white;
+						}
+					}
+					.player-stats {
+						.value {
+							color: $gold;
+						}
+					}
+				}
+			}
+
+			&.has-value {
+				.nominee:not(.selected):not(:hover) {
+					.image {
+						filter: grayscale(75%);
+						opacity: 0.8;
+					}
+				}
+			}
+		}
 	}
 }
 

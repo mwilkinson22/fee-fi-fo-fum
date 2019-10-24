@@ -23,7 +23,13 @@ class GameHeaderImage extends Component {
 
 		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
 
-		return <img src={useWebp ? webp : image} className={className} alt={alt} />;
+		return (
+			<img
+				src={useWebp ? webp : image}
+				className={`game-header-image ${className || ""}`}
+				alt={alt}
+			/>
+		);
 	}
 }
 

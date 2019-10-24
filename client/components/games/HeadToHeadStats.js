@@ -10,9 +10,6 @@ import HeadToHeadStatsTable from "./HeadToHeadStatsTable";
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
 
-//Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
-
 class HeadToHeadStats extends Component {
 	constructor(props) {
 		super(props);

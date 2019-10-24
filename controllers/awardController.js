@@ -49,9 +49,8 @@ export async function getCurrent(req, res) {
 	}).lean();
 
 	if (currentAwards) {
-		const { votes, ...data } = currentAwards;
-		const hasVoted = Boolean(votes.find(vote => vote.ip === ip));
-		res.send({ ...data, hasVoted });
+		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === ip);
+		res.send(currentAwards);
 	} else {
 		res.send(false);
 	}
