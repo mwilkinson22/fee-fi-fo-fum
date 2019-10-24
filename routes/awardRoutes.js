@@ -13,6 +13,7 @@ export default app => {
 		requireAdmin,
 		awardController.updateCategory
 	);
+	app.put("/api/awards/:_id/votes", awardController.submitVotes);
 	app.put("/api/awards/:_id", requireAdmin, awardController.updateAward);
 
 	app.delete(

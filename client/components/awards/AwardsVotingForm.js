@@ -2,13 +2,11 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import PropTypes from "prop-types";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 //Components
 import AwardsStatueImage from "./AwardsStatueImage";
-import LoadingPage from "../LoadingPage";
 import PersonImage from "../people/PersonImage";
 import GameImage from "../games/GameHeaderImage";
 import HeadToHeadStatsTable from "../games/HeadToHeadStatsTable";
@@ -18,6 +16,9 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
+
+//Actions
+import { submitVotes } from "~/client/actions/awardActions";
 
 class AwardsVotingForm extends Component {
 	constructor(props) {
@@ -72,7 +73,9 @@ class AwardsVotingForm extends Component {
 	}
 
 	handleSubmit(values) {
-		console.log(values);
+		const { submitVotes } = this.props;
+		const { currentAwards } = this.state;
+		submitVotes(currentAwards._id, values);
 	}
 
 	getPlayerElements(nomineeObject) {
@@ -273,4 +276,7 @@ function mapStateToProps({ awards, games, people }) {
 	return { currentAwards, fullPeople, fullGames, gameList };
 }
 
-export default connect(mapStateToProps)(AwardsVotingForm);
+export default connect(
+	mapStateToProps,
+	{ submitVotes }
+)(AwardsVotingForm);

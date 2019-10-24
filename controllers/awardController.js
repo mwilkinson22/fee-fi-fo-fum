@@ -6,6 +6,11 @@ import mongoose from "mongoose";
 const Award = mongoose.model("awards");
 
 //Helpers
+function getIpAddress(req) {
+	const forwarded = req.headers["x-forwarded-for"];
+	return forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+}
+
 async function validateAward(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -35,8 +40,6 @@ async function getUpdatedAward(_id, res = null) {
 
 //Getters
 export async function getCurrent(req, res) {
-	const forwarded = req.headers["x-forwarded-for"];
-	const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
 	const now = new Date();
 	const currentAwards = await Award.findOne({
 		year: now.getFullYear(),
@@ -49,7 +52,7 @@ export async function getCurrent(req, res) {
 	}).lean();
 
 	if (currentAwards) {
-		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === ip);
+		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === getIpAddress(req));
 		res.send(currentAwards);
 	} else {
 		res.send(false);
@@ -115,6 +118,31 @@ export async function updateCategory(req, res) {
 			{ $set: { "categories.$": { ...req.body, _id: categoryId } } }
 		);
 		await getUpdatedAward(awardId, res);
+	}
+}
+
+export async function submitVotes(req, res) {
+	const { _id } = req.params;
+	const award = await validateAward(_id, res);
+	if (award) {
+		//Check to see if we've already voted
+		const ip = getIpAddress(req);
+		const currentVote = award.votes.find(v => v.ip === ip);
+
+		//Process data
+		const choices = _.map(req.body, (choice, categoryId) => ({ choice, categoryId }));
+
+		if (currentVote) {
+			await Award.updateOne(
+				{ _id, "votes._id": currentVote._id },
+				{ $set: { "votes.$.choices": choices } }
+			);
+		} else {
+			award.votes.push({ ip, choices });
+			await award.save();
+		}
+
+		await getCurrent(req, res);
 	}
 }
 

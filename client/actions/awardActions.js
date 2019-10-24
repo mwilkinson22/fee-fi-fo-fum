@@ -62,3 +62,9 @@ export const deleteCategory = (award_id, category_id, cb) => async (dispatch, ge
 		dispatch({ type: FETCH_AWARD, payload: res.data });
 	}
 };
+
+export const submitVotes = (award_id, votes) => async (dispatch, getState, api) => {
+	const res = await api.put(`/awards/${award_id}/votes`, votes);
+	res.data.votedInThisSession = true;
+	dispatch({ type: FETCH_CURRENT_AWARDS, payload: res.data });
+};
