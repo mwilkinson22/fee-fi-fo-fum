@@ -9,6 +9,7 @@ const Award = mongoose.model("awards");
 function getIpAddress(req) {
 	const forwarded = req.headers["x-forwarded-for"];
 	const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+	console.log("REQ.IP", req.ip);
 	console.log("IP ADDRESS", ip);
 	console.log("BASED ON FORWARDED?", Boolean(forwarded));
 	return ip;

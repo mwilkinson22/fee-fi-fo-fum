@@ -98,6 +98,11 @@ app.get("*", async (req, res) => {
 	const store = createStore(req);
 
 	//Get Basic Config
+	const forwarded = req.headers["x-forwarded-for"];
+	const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+	console.log("INDEX REQ.IP", req.ip);
+	console.log("INDEX IP ADDRESS", ip);
+	console.log("INDEX BASED ON FORWARDED?", Boolean(forwarded));
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(setDefaultProfile(keys.defaultSocialProfile));
 	await store.dispatch(fetchCurrentUser());
