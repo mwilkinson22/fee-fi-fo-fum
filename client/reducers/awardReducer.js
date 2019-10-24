@@ -10,8 +10,6 @@ const fixDates = award => ({
 export default function(state = {}, action) {
 	switch (action.type) {
 		case FETCH_CURRENT_AWARDS:
-			//Here
-			console.log(action.payload);
 			return {
 				...state,
 				currentAwards: action.payload

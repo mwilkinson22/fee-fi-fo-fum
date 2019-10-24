@@ -255,6 +255,13 @@ class AwardsVotingForm extends Component {
 		});
 	}
 
+	renderErrors(errors, touched) {
+		const errorCount = _.filter(errors, (err, key) => touched[key]);
+		if (errorCount.length) {
+			return <span className="error">Please select an option for each category</span>;
+		}
+	}
+
 	render() {
 		const { currentAwards, validationSchema } = this.state;
 		return (
@@ -263,7 +270,7 @@ class AwardsVotingForm extends Component {
 				initialValues={this.getDefaults()}
 				validationSchema={validationSchema}
 				onSubmit={values => this.handleSubmit(values)}
-				render={({ values }) => {
+				render={({ values, errors, touched }) => {
 					const categories = currentAwards.categories.map(c => {
 						const { _id, name, awardType, description, nominees } = c;
 						return (
@@ -291,6 +298,7 @@ class AwardsVotingForm extends Component {
 							{categories}
 							<div className="form-card grid">
 								{this.renderChosenValues(values)}
+								{this.renderErrors(errors, touched)}
 								<div className="buttons">
 									<button type="reset">Reset</button>
 									<button type="submit" className="success">

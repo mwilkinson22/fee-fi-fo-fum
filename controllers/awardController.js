@@ -52,7 +52,6 @@ export async function getCurrent(req, res) {
 	}).lean();
 
 	const ip = req.query.ip || getIpAddress(req);
-	console.log("GET CURRENT AWARDS FOR ", ip);
 	if (currentAwards) {
 		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === ip);
 		res.send(currentAwards);
@@ -143,7 +142,6 @@ export async function submitVotes(req, res) {
 			award.votes.push({ ip, choices });
 			await award.save();
 		}
-		console.log("SUBMITVOTES FOR", ip);
 
 		await getCurrent(req, res);
 	}
