@@ -241,7 +241,7 @@ class Header extends Component {
 					<Link to="/">
 						<img
 							className="main-header-logo"
-							src={`${layoutImagePath}branding/long-no-tagline.svg`}
+							src={`${layoutImagePath}branding/long-no-tagline.png`}
 							alt="Fee Fi Fo Fum Logo"
 						/>
 					</Link>
