@@ -24,8 +24,7 @@ import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
 import PageSwitch from "../components/PageSwitch";
 
 //Actions
-import { setSocialMediaCard } from "../actions/configActions";
-import { fetchGames, fetchGameList, getGameSocialMediaImage } from "../actions/gamesActions";
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
 import { fetchPostList } from "~/client/actions/newsActions";
 
@@ -88,10 +87,12 @@ class GamePage extends Component {
 				}
 
 				//Check for missing games
-				const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
+				const gamesToLoad = gamesRequired.filter(
+					id => !fullGames[id] || !fullGames[id].pageData
+				);
 
 				if (gamesToLoad.length) {
-					fetchGames(gamesToLoad);
+					fetchGames(gamesToLoad, "gamePage");
 					newState.game = undefined;
 				} else {
 					newState.game = fullGames[_id];
@@ -515,7 +516,7 @@ async function loadData(store, path) {
 			gamesToLoad.push(previousId);
 		}
 
-		return store.dispatch(fetchGames(gamesToLoad));
+		return store.dispatch(fetchGames(gamesToLoad, "gamePage"));
 	}
 }
 

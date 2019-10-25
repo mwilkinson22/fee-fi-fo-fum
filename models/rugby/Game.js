@@ -180,18 +180,62 @@ gameSchema.query.forList = function() {
 	return this.select("date _teamType slug _competition _opposition");
 };
 
-gameSchema.query.fullGame = function() {
-	return this.populate({
-		path: "_opposition",
-		select: "name colours hashtagPrefix images"
-	})
+gameSchema.query.fullGame = function(forGamePage, forAdmin) {
+	let model;
+
+	//Select
+	if (forAdmin) {
+		model = this;
+	} else {
+		//Things to remove for gamepage
+		let propsToRemove = ["events", "externalId", "externalSync", "extraTime"];
+
+		//Things to remove for basics
+		if (!forGamePage) {
+			propsToRemove.push(
+				"_referee",
+				"_video_referee",
+				"_motm",
+				"_fan_motm",
+				"fan_motm_link",
+				"attendance",
+				"manOfSteel"
+			);
+		}
+
+		//Get required fields
+		model = this.select(propsToRemove.map(p => `-${p}`).join(" "));
+	}
+
+	//Populate
+	if (forAdmin) {
+		model = model
+			.populate({
+				path: "events._profile",
+				select: "name"
+			})
+			.populate({
+				path: "events._user",
+				select: "username"
+			});
+	}
+
+	if (forGamePage) {
+		model = model
+			.populate({
+				path: "_referee",
+				select: "name"
+			})
+			.populate({
+				path: "_video_referee",
+				select: "name"
+			});
+	}
+
+	return model
 		.populate({
-			path: "events._profile",
-			select: "name"
-		})
-		.populate({
-			path: "events._user",
-			select: "username"
+			path: "_opposition",
+			select: "name colours hashtagPrefix images"
 		})
 		.populate({
 			path: "_ground",
@@ -207,14 +251,6 @@ gameSchema.query.fullGame = function() {
 				path: "_parentCompetition",
 				select: "name useAllSquads"
 			}
-		})
-		.populate({
-			path: "_referee",
-			select: "name"
-		})
-		.populate({
-			path: "_video_referee",
-			select: "name"
 		});
 };
 

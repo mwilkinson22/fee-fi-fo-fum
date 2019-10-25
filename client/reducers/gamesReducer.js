@@ -9,6 +9,7 @@ import {
 	DELETE_NEUTRAL_GAME
 } from "../actions/types";
 import { fixDates } from "../../helpers/gameHelper";
+import _ from "lodash";
 
 export default function(state = { fullGames: {} }, action) {
 	if (!action || !action.payload) {

@@ -98,110 +98,134 @@ async function processBasics(values) {
 	return values;
 }
 
-async function addEligiblePlayers(games) {
-	//Get All Full Teams
-	const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
-	let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
-		.populate({
-			path: "squads.players._player",
-			select:
-				"name playingPositions nickname displayNicknameInCanvases squadNameWhenDuplicate images.main images.player slug gender _sponsor twitter",
-			populate: {
-				path: "_sponsor",
-				select: "name twitter"
-			}
-		})
-		.populate({ path: "coaches._person", select: "name slug" });
-
-	teams = _.keyBy(teams, "_id");
-
-	//Check to see if any games are valid for more than one teamType
-	let teamTypes;
-	if (games.filter(g => g._competition._parentCompetition.useAllSquads).length) {
-		const TeamType = mongoose.model("teamTypes");
-		const results = await TeamType.find({}, "_id gender");
-		teamTypes = _.keyBy(results, "_id");
-	}
-
-	//Loop each game
+async function getExtraGameInfo(games, forGamePage, forAdmin) {
+	//Convert to JSON and fix scoreOverride
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
-		const date = new Date(game.date);
-		const year = date.getFullYear();
-
-		//TEMP
-		//Get Score Override
-		if (game.scoreOverride) {
+		if (game.scoreOverride && game.scoreOverride.length) {
 			game.scoreOverride = _.chain(game.scoreOverride)
 				.keyBy("_team")
 				.mapValues("points")
 				.value();
 		}
-
-		//Get Coaches
-		game.coaches = _.chain([localTeam, game._opposition._id])
-			.map(id => [id, teams[id].coaches])
-			.fromPairs()
-			.mapValues(coaches => {
-				return _.chain(coaches)
-					.filter(c => {
-						return (
-							c._teamType.toString() == game._teamType.toString() &&
-							new Date(c.from) < date &&
-							(c.to == null || new Date(c.to) > date)
-						);
-					})
-					.orderBy(
-						[({ role }) => coachTypes.findIndex(({ key }) => role == key)],
-						["asc"]
-					)
-					.uniqBy("_person._id")
-					.map(({ _person, role }) => ({ _person, role }))
-					.value();
-			})
-			.value();
-
-		//Get Valid Team Types
-		const { useAllSquads } = game._competition._parentCompetition;
-		let validTeamTypes;
-		if (useAllSquads) {
-			const { gender } = teamTypes[game._teamType];
-			validTeamTypes = _.filter(teamTypes, t => t.gender == gender).map(t =>
-				t._id.toString()
-			);
-		} else {
-			validTeamTypes = [game._teamType];
-		}
-
-		//Loop local and opposition teams
-		game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
-			.map(id => {
-				const team = teams[id];
-				const squad = _.chain(team.squads)
-					.filter(
-						squad =>
-							squad.year == year &&
-							validTeamTypes.indexOf(squad._teamType.toString()) > -1
-					)
-					.map(s => s.players)
-					.flatten()
-					.uniqBy(p => p._player._id)
-					.value();
-				return [id, squad];
-			})
-			.fromPairs()
-			.value();
-
 		return game;
 	});
 
+	if (forGamePage) {
+		//Work out required player fields
+		const playerSelect = ["name", "nickname", "images.main", "images.player", "slug", "gender"];
+		let adminPlayerPopulate = {};
+		if (forAdmin) {
+			playerSelect.push(
+				"playingPositions",
+				"displayNicknameInCanvases",
+				"squadNameWhenDuplicate",
+				"_sponsor",
+				"twitter"
+			);
+			adminPlayerPopulate.populate = {
+				path: "_sponsor",
+				select: "name twitter"
+			};
+		}
+
+		//Get All Full Teams
+		const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
+
+		let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
+			.populate({
+				path: "squads.players._player",
+				select: playerSelect.join(" "),
+				...adminPlayerPopulate
+			})
+			.populate({ path: "coaches._person", select: "name slug" });
+
+		teams = _.keyBy(teams, "_id");
+
+		//Check to see if any games are valid for more than one teamType
+		let teamTypes;
+		if (games.filter(g => g._competition._parentCompetition.useAllSquads).length) {
+			const TeamType = mongoose.model("teamTypes");
+			const results = await TeamType.find({}, "_id gender");
+			teamTypes = _.keyBy(results, "_id");
+		}
+
+		//Loop each game
+		games = games.map(g => {
+			const game = JSON.parse(JSON.stringify(g));
+			const date = new Date(game.date);
+			const year = date.getFullYear();
+
+			//Get Coaches
+			game.coaches = _.chain([localTeam, game._opposition._id])
+				.map(id => [id, teams[id].coaches])
+				.fromPairs()
+				.mapValues(coaches => {
+					return _.chain(coaches)
+						.filter(c => {
+							return (
+								c._teamType.toString() == game._teamType.toString() &&
+								new Date(c.from) < date &&
+								(c.to == null || new Date(c.to) > date)
+							);
+						})
+						.orderBy(
+							[({ role }) => coachTypes.findIndex(({ key }) => role == key)],
+							["asc"]
+						)
+						.uniqBy("_person._id")
+						.map(({ _person, role }) => ({ _person, role }))
+						.value();
+				})
+				.value();
+
+			//Get Valid Team Types
+			const { useAllSquads } = game._competition._parentCompetition;
+			let validTeamTypes;
+			if (useAllSquads) {
+				const { gender } = teamTypes[game._teamType];
+				validTeamTypes = _.filter(teamTypes, t => t.gender == gender).map(t =>
+					t._id.toString()
+				);
+			} else {
+				validTeamTypes = [game._teamType];
+			}
+
+			//Loop local and opposition teams
+			game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
+				.map(id => {
+					const team = teams[id];
+					const squad = _.chain(team.squads)
+						.filter(
+							squad =>
+								squad.year == year &&
+								validTeamTypes.indexOf(squad._teamType.toString()) > -1
+						)
+						.map(s => s.players)
+						.flatten()
+						.uniqBy(p => p._player._id)
+						.value();
+					return [id, squad];
+				})
+				.fromPairs()
+				.value();
+
+			//Add variables to help govern reloading
+			game.pageData = true;
+			game.adminData = forAdmin;
+
+			return game;
+		});
+	}
 	return games;
 }
 
 async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	//Get Full Game
 	let game = await Game.findById(id).fullGame();
-	game = await addEligiblePlayers([game]);
+
+	//This only gets called after an admin action, so it's safe to assume we want the full admin data
+	game = await getExtraGameInfo([game], true, true);
 	const fullGames = _.keyBy(game, "_id");
 
 	//Get Game For List
@@ -229,16 +253,25 @@ export async function getList(req, res) {
 	const list = await processList();
 	res.send(list);
 }
-
-export async function getGames(req, res) {
+export async function getBasicGames(req, res) {
+	getGames(req, res, false, false);
+}
+export async function getGamesForGamePage(req, res) {
+	getGames(req, res, true, false);
+}
+export async function getGamesForAdmin(req, res) {
+	getGames(req, res, true, true);
+}
+async function getGames(req, res, forGamePage, forAdmin) {
 	const { ids } = req.params;
+
 	let games = await Game.find({
 		_id: {
 			$in: ids.split(",")
 		}
-	}).fullGame();
+	}).fullGame(forGamePage, forAdmin);
 
-	games = await addEligiblePlayers(games);
+	games = await getExtraGameInfo(games, forGamePage, forAdmin);
 
 	res.send(_.keyBy(games, "_id"));
 }
@@ -631,7 +664,7 @@ export async function fetchExternalGame(req, res) {
 
 //Image Generators
 async function generatePregameImage(game, options = {}) {
-	const [gameWithSquads] = await addEligiblePlayers([game]);
+	const [gameWithSquads] = await getExtraGameInfo([game], true, true);
 	return new PregameImage(gameWithSquads, options);
 }
 
@@ -648,7 +681,7 @@ export async function fetchPregameImage(req, res) {
 }
 
 async function generateSquadImage(game, showOpposition) {
-	const [gameWithSquads] = await addEligiblePlayers([game]);
+	const [gameWithSquads] = await getExtraGameInfo([game], true, true);
 	return new SquadImage(gameWithSquads, { showOpposition });
 }
 
@@ -666,7 +699,7 @@ export async function fetchSquadImage(req, res) {
 }
 
 async function generatePlayerEventImage(player, event, basicGame) {
-	const [game] = await addEligiblePlayers([basicGame]);
+	const [game] = await getExtraGameInfo([basicGame], true, true);
 	const image = new PlayerEventImage(player, { game });
 	await image.drawGameData();
 	await image.drawGameEvent(event);

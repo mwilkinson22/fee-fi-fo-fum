@@ -2,8 +2,12 @@ import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES } from "./
 import { toast } from "react-toastify";
 import _ from "lodash";
 
-export const fetchGames = ids => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/${ids.join(",")}`);
+export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) => {
+	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
+		dataLevel = "basic";
+	}
+
+	const res = await api.get(`/games/${dataLevel}/${ids.join(",")}`);
 	dispatch({ type: FETCH_GAMES, payload: res.data });
 };
 

@@ -6,10 +6,12 @@ import requireAdmin from "../../middlewares/requireAdmin";
 
 export default app => {
 	//Getters
+	app.get("/api/games/admin/:ids", requireAdmin, gamesController.getGamesForAdmin);
+	app.get("/api/games/gamepage/:ids", gamesController.getGamesForGamePage);
+	app.get("/api/games/basic/:ids", gamesController.getBasicGames);
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
 	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
-	app.get("/api/games/:ids", gamesController.getGames);
 	app.get("/api/games", gamesController.getList);
 
 	//Crawlers

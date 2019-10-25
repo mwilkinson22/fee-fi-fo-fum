@@ -55,10 +55,10 @@ class AdminGamePage extends Component {
 		if (lastGameId) {
 			gamesRequired.push(lastGameId);
 		}
-		const gamesToLoad = _.reject(gamesRequired, id => fullGames[id]);
+		const gamesToLoad = gamesRequired.filter(id => !fullGames[id] || !fullGames[id].adminData);
 
 		if (gamesToLoad.length) {
-			fetchGames(gamesToLoad);
+			fetchGames(gamesToLoad, "admin");
 			newState.game = undefined;
 			newState.lastGame = undefined;
 		} else {
