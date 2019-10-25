@@ -18,7 +18,7 @@ class Header extends Component {
 		return ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
 				<a
-					href={`https://www.${social.toLowerCase()}.com/GiantsFanzine`}
+					href={`https://www.${social.toLowerCase()}.com/FeeFiFoFumRL`}
 					target="_blank"
 					rel="noopener noreferrer"
 					key={social}
