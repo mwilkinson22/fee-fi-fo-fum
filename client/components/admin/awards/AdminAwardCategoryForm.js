@@ -167,7 +167,7 @@ class AdminAwardCategories extends BasicForm {
 			///nominee, stats, description;
 			const fields = [
 				{ name: `${baseName}.nominee`, ...nomineeField },
-				{ name: `${baseName}.description`, type: fieldTypes.textarea, rows: 2 }
+				{ name: `${baseName}.description`, type: fieldTypes.textarea, rows: 3 }
 			];
 
 			if (awardType !== "custom") {
@@ -178,25 +178,51 @@ class AdminAwardCategories extends BasicForm {
 					isMulti: true
 				});
 			}
-			return [
-				<hr key={`hr${i}`} />,
-				this.renderFieldGroup(fields),
-				<FieldArray
-					key={`remove ${i}`}
-					name="nominees"
-					render={({ remove }) => (
-						<DeleteButtons onDelete={() => remove(i)} deleteText="Remove Nominee" />
-					)}
-				/>
-			];
+			return (
+				<div className="form-card grid" key={i}>
+					{this.renderFieldGroup(fields)}
+					<FieldArray
+						key={`remove ${i}`}
+						name="nominees"
+						render={({ move, remove }) => [
+							<div key="move" className="move-buttons">
+								<button
+									type="button"
+									className="down"
+									disabled={i == values.nominees.length - 1}
+									onClick={() => move(i, i + 1)}
+								>
+									&#9660;
+								</button>
+								<button
+									type="button"
+									className="up"
+									disabled={i == 0}
+									onClick={() => move(i, i - 1)}
+								>
+									&#9650;
+								</button>
+							</div>,
+							<DeleteButtons
+								key="delete"
+								onDelete={() => remove(i)}
+								deleteText="Remove Nominee"
+							/>
+						]}
+					/>
+				</div>
+			);
 		});
 
-		return (
-			<div className="form-card grid">
+		return [
+			<div className="form-card grid" key="head">
 				{this.renderFieldGroup([
 					{ name: "name", type: fieldTypes.text },
 					{ name: "description", type: fieldTypes.textarea }
 				])}
+			</div>,
+			...fields,
+			<div className="form-card grid" key="add">
 				<FieldArray
 					name="nominees"
 					render={({ push }) => (
@@ -210,7 +236,8 @@ class AdminAwardCategories extends BasicForm {
 						</div>
 					)}
 				/>
-				{fields}
+			</div>,
+			<div className="form-card grid" key="footer">
 				<div className="buttons">
 					<button type="reset">Reset</button>
 					<button type="submit" disabled={values.nominees.length < 2}>
@@ -218,7 +245,7 @@ class AdminAwardCategories extends BasicForm {
 					</button>
 				</div>
 			</div>
-		);
+		];
 	}
 
 	renderDeleteButtons() {
