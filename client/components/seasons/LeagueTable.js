@@ -21,15 +21,16 @@ class LeagueTable extends Component {
 			neutralGames,
 			fetchNeutralGames,
 			competitionSegmentList,
-			fetchCompetitionSegments
+			fetchCompetitionSegments,
+			year
 		} = props;
 
 		if (!gameList) {
 			fetchGameList();
 		}
 
-		if (!neutralGames) {
-			fetchNeutralGames();
+		if (!neutralGames || !neutralGames[year]) {
+			fetchNeutralGames(year);
 		}
 
 		if (!competitionSegmentList) {
@@ -56,9 +57,10 @@ class LeagueTable extends Component {
 		} = nextProps;
 		const newState = {};
 
-		if (!gameList || !neutralGames || !competitionSegmentList) {
+		if (!gameList || !neutralGames || !neutralGames[year] || !competitionSegmentList) {
 			return newState;
 		}
+
 		//Get Competition Info
 		newState.segment = competitionSegmentList[competition];
 		newState.instance = _.find(
@@ -95,7 +97,7 @@ class LeagueTable extends Component {
 			competitionSegmentList,
 			year,
 			gameList,
-			neutralGames,
+			neutralGames[year],
 			fromDate,
 			toDate
 		);

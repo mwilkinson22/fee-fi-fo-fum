@@ -6,7 +6,8 @@ import {
 	CRAWL_LOCAL_GAMES,
 	CRAWL_NEUTRAL_GAMES,
 	UPDATE_NEUTRAL_GAMES,
-	DELETE_NEUTRAL_GAME
+	DELETE_NEUTRAL_GAME,
+	FETCH_NEUTRAL_GAME_YEARS
 } from "../actions/types";
 import { fixDates } from "../../helpers/gameHelper";
 import _ from "lodash";
@@ -48,10 +49,18 @@ export default function(state = { fullGames: {} }, action) {
 				...action.payload
 			};
 
+		case FETCH_NEUTRAL_GAME_YEARS:
+			return {
+				...state,
+				neutralGameYears: action.payload
+			};
 		case FETCH_NEUTRAL_GAMES:
 			return {
 				...state,
-				neutralGames: fixDates(action.payload)
+				neutralGames: {
+					...state.neutralGames,
+					[action.year]: fixDates(action.payload)
+				}
 			};
 
 		case UPDATE_NEUTRAL_GAMES:
@@ -59,7 +68,10 @@ export default function(state = { fullGames: {} }, action) {
 				...state,
 				neutralGames: {
 					...state.neutralGames,
-					...fixDates(action.payload)
+					[action.year]: {
+						...state.neutralGames[action.year],
+						...fixDates(action.payload)
+					}
 				}
 			};
 

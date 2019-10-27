@@ -16,13 +16,18 @@ import LeagueTable from "../seasons/LeagueTable";
 class TeamForm extends Component {
 	constructor(props) {
 		super(props);
-		const { neutralGames, fetchNeutralGames } = props;
+		const { neutralGames, fetchNeutralGames, game } = props;
 
-		//Load Neutral Games
+		//Load Neutral Games for game year and previous year
+		const year = game.date.getFullYear();
 		let isLoadingNeutral = false;
-		if (!neutralGames) {
+		if (!neutralGames || !neutralGames[year]) {
 			isLoadingNeutral = true;
-			fetchNeutralGames();
+			fetchNeutralGames(year);
+		}
+		if (!neutralGames || !neutralGames[year - 1]) {
+			isLoadingNeutral = true;
+			fetchNeutralGames(year - 1);
 		}
 
 		this.state = { isLoadingNeutral };
@@ -32,12 +37,13 @@ class TeamForm extends Component {
 		const { game, neutralGames, fullGames, gameList, fetchGames } = nextProps;
 		let { isLoading, gamesRequired } = prevState;
 		let newState = {};
+		const year = game.date.getFullYear();
 
 		//Wait on all games
-		if (!neutralGames) {
-			newState.isLoadingNeutral = false;
+		if (!neutralGames || !neutralGames[year] || !neutralGames[year - 1]) {
 			return newState;
 		}
+		newState.isLoadingNeutral = false;
 
 		//Only run on initial load and gamechange
 		if (!prevState.game || prevState.game._id != nextProps.game._id) {
@@ -82,8 +88,9 @@ class TeamForm extends Component {
 
 			//Last 5 neutral games
 			const oppositionId = game._opposition._id;
+			const lastTwoYearsNeutral = { ...neutralGames[year], ...neutralGames[year - 1] };
 			const lastFiveNeutral =
-				_.chain(neutralGames)
+				_.chain(lastTwoYearsNeutral)
 					.filter(g => {
 						return (
 							g.date < game.date &&

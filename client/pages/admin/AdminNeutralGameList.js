@@ -11,7 +11,11 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 import SubMenu from "../../components/SubMenu";
 
 //Actions
-import { fetchNeutralGames, crawlAndUpdateNeutralGames } from "../../actions/neutralGamesActions";
+import {
+	fetchNeutralGames,
+	fetchNeutralGameYears,
+	crawlAndUpdateNeutralGames
+} from "../../actions/neutralGamesActions";
 import { setActiveTeamType } from "../../actions/teamsActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 
@@ -21,52 +25,58 @@ class AdminNeutralGameList extends Component {
 		const {
 			competitionSegmentList,
 			fetchCompetitionSegments,
-			neutralGames,
-			fetchNeutralGames
+			neutralGameYears,
+			fetchNeutralGameYears
 		} = props;
 
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
 		}
 
-		if (!neutralGames) {
-			fetchNeutralGames();
+		if (!neutralGameYears) {
+			fetchNeutralGameYears();
 		}
 
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const {
 			competitionSegmentList,
+			neutralGameYears,
 			neutralGames,
+			fetchNeutralGames,
 			teamList,
 			teamTypes,
 			match,
 			activeTeamType,
 			setActiveTeamType
 		} = nextProps;
-		if (!competitionSegmentList || !neutralGames || !teamList) {
+
+		if (!competitionSegmentList || !neutralGameYears || !teamList) {
 			return {};
 		}
 
 		const newState = {};
 
-		//Years
-		newState.years = _.chain(neutralGames)
-			.map(g => g.date.getFullYear())
-			.uniq()
-			.sort()
-			.reverse()
-			.value();
-
-		newState.year = _.find(newState.years, y => y == match.params.year)
+		const year = _.find(neutralGameYears, y => y == match.params.year)
 			? match.params.year
-			: _.max(newState.years);
+			: _.max(neutralGameYears);
+		newState.year = year;
+
+		//Get Games
+		if ((!neutralGames || !neutralGames[year]) && !prevState.isLoadingGames) {
+			newState.isLoadingGames = true;
+			fetchNeutralGames(year);
+			return newState;
+		} else if (!neutralGames || !neutralGames[year]) {
+			return newState;
+		} else {
+			newState.isLoadingGames = false;
+		}
 
 		//Team Types
-		newState.teamTypes = _.chain(neutralGames)
-			.filter(g => g.date.getFullYear() == newState.year)
+		newState.teamTypes = _.chain(neutralGames[year])
 			.map(g => teamTypes[g._teamType])
 			.uniqBy("_id")
 			.sortBy("sortOrder")
@@ -102,18 +112,16 @@ class AdminNeutralGameList extends Component {
 			newState.teamTypes[0];
 
 		//Games
-		newState.games = _.chain(neutralGames)
-			.filter(
-				g => g.date.getFullYear() == newState.year && g._teamType == newState.teamType._id
-			)
+		newState.games = _.chain(neutralGames[year])
+			.filter(g => g._teamType == newState.teamType._id)
 			.value();
 
 		return newState;
 	}
 
 	generatePageHeader() {
-		const { years } = this.state;
-		const options = _.map(years, year => {
+		const { neutralGameYears } = this.props;
+		const options = _.map(neutralGameYears, year => {
 			return (
 				<option key={year} value={year}>
 					{year}
@@ -149,9 +157,9 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { year, games, teamTypeRedirect } = this.state;
+		const { year, games, teamTypeRedirect, isLoadingGames } = this.state;
 
-		if (!year) {
+		if (!year || isLoadingGames) {
 			return <LoadingPage />;
 		}
 
@@ -203,19 +211,27 @@ class AdminNeutralGameList extends Component {
 }
 
 function mapStateToProps({ games, teams, competitions }) {
-	const { neutralGames } = games;
+	const { neutralGames, neutralGameYears } = games;
 	const { teamList, teamTypes, activeTeamType } = teams;
 	const { competitionSegmentList } = competitions;
 	return {
 		neutralGames,
+		neutralGameYears,
 		teamList,
 		competitionSegmentList,
 		teamTypes,
+		fetchNeutralGameYears,
 		activeTeamType
 	};
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchCompetitionSegments, fetchNeutralGames, crawlAndUpdateNeutralGames, setActiveTeamType }
+	{
+		fetchCompetitionSegments,
+		fetchNeutralGames,
+		fetchNeutralGameYears,
+		crawlAndUpdateNeutralGames,
+		setActiveTeamType
+	}
 )(AdminNeutralGameList);

@@ -37,8 +37,8 @@ class HomePage extends Component {
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
 		}
-		if (!neutralGames) {
-			fetchNeutralGames();
+		if (!neutralGames || !neutralGames[leagueTableYear]) {
+			fetchNeutralGames(leagueTableYear);
 		}
 		this.state = {
 			postList
@@ -69,7 +69,11 @@ class HomePage extends Component {
 		//Games
 		if (competitionSegmentList && neutralGames) {
 			if (gameList && !prevState.games) {
-				const games = HomePage.getGameIds(gameList, neutralGames, competitionSegmentList);
+				const games = HomePage.getGameIds(
+					gameList,
+					neutralGames[leagueTableYear],
+					competitionSegmentList
+				);
 
 				const gamesToLoad = _.chain(games)
 					.values()
@@ -212,7 +216,7 @@ async function loadData(store) {
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchCompetitionSegments()),
 		store.dispatch(fetchGameList()),
-		store.dispatch(fetchNeutralGames())
+		store.dispatch(fetchNeutralGames(leagueTableYear))
 	]);
 }
 

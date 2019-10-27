@@ -12,7 +12,9 @@ export default app => {
 		requireAdmin,
 		neutralGamesController.crawlAndUpdate
 	);
-	app.get("/api/neutralGames", neutralGamesController.getList);
+	app.get("/api/neutralGames/fromId/:_id", requireAdmin, neutralGamesController.getListFromId);
+	app.get("/api/neutralGames/years", requireAdmin, neutralGamesController.getYears);
+	app.get("/api/neutralGames/:year/", neutralGamesController.getList);
 
 	//Put
 	app.put("/api/neutralGames", requireAdmin, neutralGamesController.updateGames);

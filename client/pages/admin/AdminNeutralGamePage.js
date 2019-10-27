@@ -15,7 +15,7 @@ import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 
 //Actions
 import {
-	fetchNeutralGames,
+	fetchNeutralGamesFromId,
 	updateNeutralGames,
 	createNeutralGames,
 	deleteNeutralGame
@@ -25,6 +25,18 @@ import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
+function getGame(id, neutralGames) {
+	if (!neutralGames) {
+		return false;
+	}
+
+	return _.chain(neutralGames)
+		.map(g => _.values(g))
+		.flatten()
+		.find(g => g._id == id)
+		.value();
+}
+
 class AdminNeutralGamePage extends BasicForm {
 	constructor(props) {
 		super(props);
@@ -32,15 +44,16 @@ class AdminNeutralGamePage extends BasicForm {
 			competitionSegmentList,
 			fetchCompetitionSegments,
 			neutralGames,
-			fetchNeutralGames
+			fetchNeutralGamesFromId,
+			match
 		} = props;
 
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
 		}
 
-		if (!neutralGames) {
-			fetchNeutralGames();
+		if (!getGame(match.params.id, neutralGames)) {
+			fetchNeutralGamesFromId(match.params.id);
 		}
 
 		this.state = {};
@@ -102,7 +115,7 @@ class AdminNeutralGamePage extends BasicForm {
 		};
 
 		if (!newState.isNew) {
-			const game = _.find(neutralGames, g => g._id === match.params.id) || false;
+			const game = getGame(match.params.id, neutralGames);
 			if (game) {
 				newState.game = _.cloneDeep(game);
 				newState.game._homeTeam = teamList[game._homeTeam];
@@ -113,6 +126,8 @@ class AdminNeutralGamePage extends BasicForm {
 					.label("Date")
 					.min(`${year}-01-01`)
 					.max(`${year}-12-31`);
+			} else {
+				return newState;
 			}
 		}
 
@@ -382,7 +397,7 @@ export default connect(
 	mapStateToProps,
 	{
 		fetchCompetitionSegments,
-		fetchNeutralGames,
+		fetchNeutralGamesFromId,
 		createNeutralGames,
 		updateNeutralGames,
 		deleteNeutralGame

@@ -20,6 +20,7 @@ export const DELETE_COMPETITION_SEGMENT = "delete_competition_segment";
 export const FETCH_GAMES = "fetch_games";
 export const FETCH_GAME_LIST = "fetch_game_list";
 export const UPDATE_GAME = "update_game";
+export const FETCH_NEUTRAL_GAME_YEARS = "fetch_neutral_game_years";
 export const FETCH_NEUTRAL_GAMES = "fetch_neutral_games";
 export const UPDATE_NEUTRAL_GAMES = "update_neutral_games";
 export const DELETE_NEUTRAL_GAME = "delete_neutral_game";

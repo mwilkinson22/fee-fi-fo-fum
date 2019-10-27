@@ -2,13 +2,24 @@ import {
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_NEUTRAL_GAMES,
 	UPDATE_NEUTRAL_GAMES,
-	DELETE_NEUTRAL_GAME
+	DELETE_NEUTRAL_GAME,
+	FETCH_NEUTRAL_GAME_YEARS
 } from "./types";
 import { toast } from "react-toastify";
 
-export const fetchNeutralGames = () => async (dispatch, getState, api) => {
-	const res = await api.get("/neutralGames");
-	dispatch({ type: FETCH_NEUTRAL_GAMES, payload: res.data });
+export const fetchNeutralGames = year => async (dispatch, getState, api) => {
+	const res = await api.get(`/neutralGames/${year}`);
+	dispatch({ type: FETCH_NEUTRAL_GAMES, payload: res.data, year });
+};
+
+export const fetchNeutralGamesFromId = id => async (dispatch, getState, api) => {
+	const res = await api.get(`/neutralGames/fromId/${id}`);
+	dispatch({ type: FETCH_NEUTRAL_GAMES, payload: res.data.games, year: res.data.year });
+};
+
+export const fetchNeutralGameYears = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/neutralGames/years`);
+	dispatch({ type: FETCH_NEUTRAL_GAME_YEARS, payload: res.data });
 };
 
 export const createNeutralGames = data => async (dispatch, getState, api) => {

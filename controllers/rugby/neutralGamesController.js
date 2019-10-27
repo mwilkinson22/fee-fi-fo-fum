@@ -1,13 +1,10 @@
 //Mongoose
 import mongoose from "mongoose";
-const collectionName = "games";
 const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 
 //Modules
 import _ from "lodash";
-import { parse } from "node-html-parser";
-import axios from "axios";
 
 //Constants
 const { localTeam } = require("../../config/keys");
@@ -16,10 +13,41 @@ const { localTeam } = require("../../config/keys");
 import { parseExternalGame } from "~/helpers/gameHelper";
 import { crawlFixtures } from "./gamesController";
 
+function queryGenerator(year) {
+	return {
+		date: { $gte: `${year}-01-01`, $lte: `${Number(year) + 1}-01-01` }
+	};
+}
+
 //Getters
 export async function getList(req, res) {
-	const games = await NeutralGame.find({});
+	const { year } = req.params;
+	const games = await NeutralGame.find(queryGenerator(year));
 	res.send(_.keyBy(games, "_id"));
+}
+
+export async function getListFromId(req, res) {
+	const { _id } = req.params;
+	const game = await NeutralGame.findById(_id);
+	if (game) {
+		const year = new Date(game.date).getFullYear();
+		const games = await NeutralGame.find(queryGenerator(year));
+		res.send({ year, games: _.keyBy(games, "_id") });
+	} else {
+		res.status(404).send(`Game with id '${_id}' not found`);
+	}
+}
+
+export async function getYears(req, res) {
+	const aggregatedYears = await NeutralGame.aggregate([
+		{ $project: { _id: 0, year: { $year: "$date" } } },
+		{ $group: { _id: "$year" } }
+	]);
+	const years = aggregatedYears
+		.map(({ _id }) => _id)
+		.sort()
+		.reverse();
+	res.send(years);
 }
 
 async function getUpdatedNeutralGames(ids, res) {
