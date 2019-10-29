@@ -9,6 +9,10 @@ export default app => {
 	app.get("/api/games/admin/:ids", requireAdmin, gamesController.getGamesForAdmin);
 	app.get("/api/games/gamepage/:ids", gamesController.getGamesForGamePage);
 	app.get("/api/games/basic/:ids", gamesController.getBasicGames);
+	app.get(
+		"/api/games/fixtureListImage/:year/:competitions",
+		gamesController.fetchFixtureListImage
+	);
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
 	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);
 	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
@@ -29,6 +33,7 @@ export default app => {
 	app.put("/api/games/:_id/manOfSteel", requireAdmin, gamesController.setManOfSteelPoints);
 
 	//Post
+	app.post("/api/games/fixtureListImage/", gamesController.postFixtureListImage);
 	app.post("/api/games", requireAdmin, gamesController.addGame);
 
 	//Deleters

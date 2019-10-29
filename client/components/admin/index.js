@@ -27,6 +27,7 @@ import AdminNeutralGamePage from "../../pages/admin/AdminNeutralGamePage";
 import GameList from "../../pages/GameList";
 import AdminGamePage from "../../pages/admin/AdminGamePage";
 import AdminNewGamePage from "../../pages/admin/AdminNewGamePage";
+import AdminFixtureListImagePage from "../../pages/admin/AdminFixtureListImagePage";
 
 import AdminGroundList from "../../pages/admin/AdminGroundList";
 import AdminGroundPage from "../../pages/admin/AdminGroundPage";
@@ -75,6 +76,11 @@ class AdminRouter extends Component {
 						path="/admin/games/:year/:teamType"
 						exact
 						component={GameList.component}
+					/>
+					<Route
+						path="/admin/games/fixture-list-image"
+						exact
+						component={AdminFixtureListImagePage}
 					/>
 					<Route path="/admin/games/:year/" exact component={GameList.component} />
 					<Route path="/admin/games/" exact component={GameList.component} />

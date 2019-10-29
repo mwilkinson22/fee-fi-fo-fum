@@ -256,13 +256,20 @@ class GameList extends Component {
 		const pageTitle = titleArray.join(" ");
 
 		//New Game Link
-		let newGameLink;
+		let adminLinks;
 		if (isAdmin) {
-			newGameLink = (
-				<Link to="/admin/game/new" className="card nav-card">
+			adminLinks = [
+				<Link to="/admin/game/new" className="card nav-card" key="Add-New">
 					Add New Game
+				</Link>,
+				<Link
+					to="/admin/games/fixture-list-image"
+					className="card nav-card"
+					key="fixture-list-image"
+				>
+					Create Fixture Image
 				</Link>
-			);
+			];
 		}
 
 		return (
@@ -272,7 +279,7 @@ class GameList extends Component {
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
 						{this.generateTeamTypeMenu()}
-						{newGameLink}
+						{adminLinks}
 						<GameFilters
 							games={games || []}
 							onFilterChange={filteredGames => this.setState({ filteredGames })}

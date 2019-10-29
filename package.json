@@ -42,6 +42,7 @@
 		"concurrently": "^4.1.0",
 		"cookie-session": "^2.0.0-beta.3",
 		"css-loader": "^2.1.1",
+		"date-easter": "^0.2.5",
 		"datejs": "^1.0.0-rc3",
 		"detect-browser": "^4.1.0",
 		"draft-js": "^0.10.5",

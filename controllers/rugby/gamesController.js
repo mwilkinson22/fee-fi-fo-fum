@@ -23,6 +23,7 @@ import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 //Images
 import GameSocialCardImage from "~/images/GameSocialCardImage";
 import PregameImage from "~/images/PregameImage";
+import FixtureListImage from "~/images/FixtureListImage";
 import SquadImage from "~/images/SquadImage";
 import GameEventImage from "~/images/GameEventImage";
 import PlayerEventImage from "~/images/PlayerEventImage";
@@ -736,6 +737,66 @@ export async function fetchEventImage(req, res) {
 			res.send(output);
 		}
 	}
+}
+
+async function generateFixtureListImage(year, competitions) {
+	const games = await Game.find({
+		date: { $gte: `${year}-01-01`, $lt: `${Number(year) + 1}-01-01` },
+		_competition: {
+			$in: competitions
+		}
+	}).fullGame();
+
+	return new FixtureListImage(games, year);
+}
+
+export async function fetchFixtureListImage(req, res) {
+	const { year, competitions } = req.params;
+
+	const imageClass = await generateFixtureListImage(year, competitions.split(","));
+	const image = await imageClass.render(false);
+	res.send(image);
+}
+
+export async function postFixtureListImage(req, res) {
+	const { year, _competitions, _profile, tweet } = req.body;
+	const twitterClient = await twitter(_profile);
+
+	//Render Image
+	const imageClass = await generateFixtureListImage(year, _competitions);
+	const image = await imageClass.render(true);
+
+	//Upload image
+	const upload = await twitterClient.post("media/upload", {
+		media_data: image
+	});
+	const { media_id_string } = upload.data;
+	const media_ids = [media_id_string];
+
+	//Post Tweet
+	let postedTweet, tweetError;
+	try {
+		postedTweet = await twitterClient.post("statuses/update", {
+			status: tweet,
+			tweet_mode: "extended",
+			media_ids
+		});
+	} catch (e) {
+		tweetError = e;
+	}
+
+	if (tweetError) {
+		res.status(tweetError.statusCode).send(`(Twitter) - ${tweetError.message}`);
+		return;
+	}
+
+	const tweetMediaObject = postedTweet.data.entities.media;
+	if (tweetMediaObject) {
+		await postToIfttt(_profile, tweet, tweetMediaObject[0].media_url);
+	}
+
+	//Post to ifttt
+	res.send(true);
 }
 
 //To Be Replaced
