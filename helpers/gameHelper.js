@@ -497,3 +497,63 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 		return { results, playersToName, url };
 	}
 }
+
+export function convertGameToCalendarString(game, options, teamTypes, localTeamName) {
+	const { _opposition, isAway, tv, _teamType } = game;
+
+	//Set Team Names
+	let str = "";
+	const oppositionName = _opposition.name[options.teamName];
+	const localName = localTeamName[options.teamName];
+
+	switch (options.teams) {
+		case "oppositionOnly":
+			str += oppositionName;
+			break;
+		case "localVs":
+		case "homeAway": {
+			const teams = [localName, oppositionName];
+			if (options.teams === "homeAway" && isAway) {
+				teams.reverse();
+			}
+			str += teams.join(" vs ");
+			break;
+		}
+	}
+
+	//Add TeamType
+	const teamType = teamTypes[_teamType];
+	if (
+		options.teamTypes === "all" ||
+		(options.teamTypes === "allButFirst" && teamType.sortOrder > 1)
+	) {
+		str += ` ${teamTypes[_teamType].name}`;
+	}
+
+	//Venue
+	if (options.venue === "short") {
+		//Set Home/Away
+		str += ` (${isAway ? "A" : "H"})`;
+	} else if (options.venue === "long") {
+		str += ` (${isAway ? "Away" : "Home"})`;
+	}
+
+	//Add TV
+	if (options.tv && tv) {
+		let tvString;
+		switch (tv) {
+			case "sky":
+				tvString = "Sky";
+				break;
+			case "bbc":
+				tvString = "BBC";
+				break;
+			default:
+				tvString = tv;
+				break;
+		}
+		str += ` - ${tvString}`;
+	}
+
+	return str;
+}

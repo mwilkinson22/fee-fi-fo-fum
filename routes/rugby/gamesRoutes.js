@@ -33,6 +33,7 @@ export default app => {
 	app.put("/api/games/:_id/manOfSteel", requireAdmin, gamesController.setManOfSteelPoints);
 
 	//Post
+	app.post("/api/games/calendar", gamesController.createCalendar);
 	app.post("/api/games/fixtureListImage/", gamesController.postFixtureListImage);
 	app.post("/api/games", requireAdmin, gamesController.addGame);
 

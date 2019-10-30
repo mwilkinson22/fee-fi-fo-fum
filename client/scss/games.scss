@@ -146,25 +146,51 @@
 	}
 }
 
-.game-list {
-	display: grid;
-	padding-bottom: 20pt;
-
-	@media #{$mobile-and-tablet} {
-		grid-gap: 10pt;
-	}
-	@media #{$desktop-only} {
-		grid-gap: 20pt;
-		grid-template-columns: 1fr 1fr;
-		.game-card:first-child,
-		.game-card:nth-child(even):last-child {
-			grid-column: 1 / -1;
+.game-list-page {
+	.extra-buttons {
+		padding-top: 10pt;
+		display: grid;
+		@media #{$desktop-only} {
+			grid-template-columns: 1fr 1fr 1fr;
 		}
-		.game-card:first-child {
-			.team-badge {
-				padding: 4%;
+		button {
+			margin: 0 8pt;
+			border-radius: 4pt;
+			max-width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			background: $claret;
+			&:hover {
+				background: darken($claret, 5%);
 			}
-			padding-top: 20%;
+			img {
+				max-height: 20pt;
+				margin-right: 4pt;
+			}
+		}
+	}
+	.game-list {
+		display: grid;
+		padding-bottom: 20pt;
+
+		@media #{$mobile-and-tablet} {
+			grid-gap: 10pt;
+		}
+		@media #{$desktop-only} {
+			grid-gap: 20pt;
+			grid-template-columns: 1fr 1fr;
+			.game-card:first-child,
+			.game-card:nth-child(even):last-child {
+				grid-column: 1 / -1;
+			}
+			.game-card:first-child {
+				.team-badge {
+					padding: 4%;
+				}
+				padding-top: 20%;
+			}
 		}
 	}
 }

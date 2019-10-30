@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const collectionName = "games";
 const Game = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
+const TeamType = mongoose.model("teamTypes");
+const ics = require("ics");
 
 //Modules
 import _ from "lodash";
@@ -17,7 +19,7 @@ import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
 //Helpers
-import { parseExternalGame, postToIfttt } from "~/helpers/gameHelper";
+import { parseExternalGame, postToIfttt, convertGameToCalendarString } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
 //Images
@@ -797,6 +799,74 @@ export async function postFixtureListImage(req, res) {
 
 	//Post to ifttt
 	res.send(true);
+}
+
+//Calendar
+export async function createCalendar(req, res) {
+	const { _competitions, options } = req.body;
+
+	//Get Team Types
+	const teamTypes = await TeamType.find({}, "name sortOrder").lean();
+
+	//Get Local Team Name
+	const localTeamName = await Team.findById(localTeam, "name").lean();
+
+	//Get Games
+	let games = await Game.find({
+		date: {
+			$gte: new Date()
+		},
+		_competition: {
+			$in: _competitions
+		}
+	}).fullGame();
+	games = JSON.parse(JSON.stringify(games));
+
+	//Create Event Data
+	const events = games.map(g => {
+		//Set Basic Variables
+		const { _ground, slug, title } = g;
+		const date = new Date(g.date);
+
+		//Determine Ground
+		const { address } = _ground;
+		const locationArr = [
+			_ground.name,
+			address.street,
+			address.street2,
+			address._city.name,
+			address._city._country.name
+		];
+		const location = _.filter(locationArr, _.identity).join(", ");
+		return {
+			title: convertGameToCalendarString(
+				g,
+				options,
+				_.keyBy(teamTypes, "_id"),
+				localTeamName.name
+			),
+			description: title,
+			start: [
+				date.getFullYear(),
+				date.getMonth() + 1,
+				date.getDate(),
+				date.getHours(),
+				date.getMinutes()
+			],
+			duration: { hours: 2 },
+			location,
+			url: `https://www.feefifofum.co.uk/games/${slug}`
+		};
+	});
+
+	//Create Events
+	const { error, value } = ics.createEvents(events);
+	if (error) {
+		res.status(500).send(error);
+	} else {
+		res.set({ "Content-Disposition": 'attachment; filename="Giants.ics"' });
+		res.send(value);
+	}
 }
 
 //To Be Replaced

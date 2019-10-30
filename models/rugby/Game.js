@@ -240,7 +240,12 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		.populate({
 			path: "_ground",
 			populate: {
-				path: "address._city"
+				path: "address._city",
+				select: "name _country",
+				populate: {
+					path: "_country",
+					select: "name"
+				}
 			}
 		})
 		.populate({

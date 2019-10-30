@@ -138,3 +138,8 @@ export const postFixtureListImage = data => async (dispatch, getState, api) => {
 		return res.data;
 	}
 };
+
+export const getCalendar = (_competitions, options) => async (dispatch, getState, api) => {
+	const res = await api.post("/games/calendar", { _competitions, options });
+	return res.data;
+};

@@ -12,13 +12,17 @@ import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
 import GameCard from "../components/games/GameCard";
 import AdminGameCard from "~/client/components/games/AdminGameCard";
+import CalendarConfig from "../components/games/CalendarConfig";
 
 //Actions
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchGames, fetchGameList, getCalendar } from "../actions/gamesActions";
 import { setActiveTeamType } from "../actions/teamsActions";
 
 //Helpers
 import { validateGameDate } from "../../helpers/gameHelper";
+
+//Constants
+import { layoutImagePath } from "../extPaths";
 
 class GameList extends Component {
 	constructor(props) {
@@ -231,6 +235,16 @@ class GameList extends Component {
 		}
 	}
 
+	renderCalendarDialog() {
+		const { showCalendarDialog } = this.state;
+
+		if (showCalendarDialog) {
+			return (
+				<CalendarConfig onDestroy={() => this.setState({ showCalendarDialog: false })} />
+			);
+		}
+	}
+
 	render() {
 		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin } = this.state;
 		const { gameList, teamList, localTeam } = this.props;
@@ -272,8 +286,24 @@ class GameList extends Component {
 			];
 		}
 
+		//Add calendar link
+		let calendarLink;
+		if (!isAdmin && listType === "fixtures" && games && games.length) {
+			calendarLink = (
+				<div className="extra-buttons">
+					<button
+						type="button"
+						onClick={() => this.setState({ showCalendarDialog: true })}
+					>
+						<img src={`${layoutImagePath}icons/calendar.png`} alt="" />
+						Add to calendar
+					</button>
+				</div>
+			);
+		}
+
 		return (
-			<div>
+			<div className="game-list-page">
 				<HelmetBuilder title={pageTitle} canonical={`${rootUrl}/${teamType.slug}`} />
 				<section className="page-header">
 					<div className="container">
@@ -284,8 +314,10 @@ class GameList extends Component {
 							games={games || []}
 							onFilterChange={filteredGames => this.setState({ filteredGames })}
 						/>
+						{calendarLink}
 					</div>
 				</section>
+				{this.renderCalendarDialog()}
 				{this.populateGameList()}
 			</div>
 		);
@@ -316,7 +348,7 @@ export async function loadData(store, path) {
 export default {
 	component: connect(
 		mapStateToProps,
-		{ fetchGames, fetchGameList, setActiveTeamType }
+		{ fetchGames, fetchGameList, getCalendar, setActiveTeamType }
 	)(GameList),
 	loadData
 };
