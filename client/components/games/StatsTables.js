@@ -155,8 +155,9 @@ class StatsTables extends Component {
 						</span>
 					);
 
-					if (["TS", "KS"].indexOf(key) > -1) {
-						//For Tackle and Kicking Success, we just show the one value regardless of settings
+					if (stat.isAverage) {
+						//For Avg Gain, Tackle and Kicking Success, we
+						//just show the one value regardless of settings
 						content.push(averageSpan);
 					} else {
 						if (showTotal) {

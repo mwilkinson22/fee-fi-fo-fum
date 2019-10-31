@@ -65,7 +65,21 @@ export default class PlayerStatsHelper {
 
 		const processedStats = this.processNestedStats(summedStats);
 
-		return processedStats;
+		//The "average" stats (Kicking Rate, Average Gain, etc) are
+		//incorrectly handled, and are an average of the averages.
+		//To remedy this, we loop through and set the average to equal
+		//the totals, which is already the correct value
+		return _.mapValues(processedStats, (values, key) => {
+			const stat = playerStatTypes[key];
+			if (stat.isAverage) {
+				return {
+					...values,
+					average: values.total
+				};
+			} else {
+				return values;
+			}
+		});
 	}
 
 	static toString(key, value, maxDecimals = 2) {
