@@ -62,6 +62,10 @@
 					background: #e4e4e4;
 				}
 
+				@media #{$mobile-only} {
+					border-bottom: dashed 1pt rgba(20, 20, 20, 0.3);
+				}
+
 				h4 {
 					margin: 0pt 10pt;
 					padding: 8pt 0;
@@ -140,8 +144,8 @@
 						}
 						.average {
 							font-weight: 600;
-							display: block;
-							margin-bottom: 2pt;
+							display: inline-block;
+							margin: 0 4pt 2pt;
 						}
 					}
 				}

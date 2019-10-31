@@ -125,20 +125,28 @@ class AwardsVotingForm extends Component {
 
 			//Get Stats
 			const summedStats = PlayerStatsHelper.sumStats(rawStats);
-			const renderedStats = nomineeObject.stats.map(key => (
-				<div key={key}>
-					<span className="value">
-						{key === "M"
-							? summedStats[key].total
-							: PlayerStatsHelper.toString(key, summedStats[key].total)}
-					</span>
-					&nbsp;
-					<span className="label">{playerStatTypes[key].plural}</span>
-					<span className="average">
-						({PlayerStatsHelper.toString(key, summedStats[key].average)} per game)
-					</span>
-				</div>
-			));
+			const renderedStats = nomineeObject.stats.map(key => {
+				let averageSpan;
+				if (!playerStatTypes[key].isAverage) {
+					averageSpan = (
+						<span className="average">
+							({PlayerStatsHelper.toString(key, summedStats[key].average)} per game)
+						</span>
+					);
+				}
+				return (
+					<div key={key}>
+						<span className="value">
+							{key === "M"
+								? summedStats[key].total
+								: PlayerStatsHelper.toString(key, summedStats[key].total)}
+						</span>
+						&nbsp;
+						<span className="label">{playerStatTypes[key].plural}</span>
+						{averageSpan}
+					</div>
+				);
+			});
 
 			elements.stats = <div className="player-stats">{renderedStats}</div>;
 		}
