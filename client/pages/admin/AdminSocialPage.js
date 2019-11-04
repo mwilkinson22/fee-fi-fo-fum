@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -38,17 +38,12 @@ class AdminProfilePage extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { profiles, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
 		newState.isNew = !match.params.id;
-
-		//Remove redirect after creation/deletion
-		if (prevState.redirect == match.url) {
-			newState.redirect = false;
-		}
 
 		//Check Everything is loaded
 		if (!newState.isNew && !profiles) {
@@ -110,23 +105,23 @@ class AdminProfilePage extends BasicForm {
 	}
 
 	async handleSubmit(values) {
-		const { createProfile, updateProfile } = this.props;
+		const { createProfile, updateProfile, history } = this.props;
 		const { profile, isNew } = this.state;
 
 		if (isNew) {
 			const newId = await createProfile(values);
-			await this.setState({ redirect: `/admin/social/${newId}` });
+			history.push(`/admin/social/${newId}`);
 		} else {
 			await updateProfile(profile._id, values);
 		}
 	}
 
 	async handleDelete() {
-		const { deleteProfile } = this.props;
+		const { deleteProfile, history } = this.props;
 		const { profile } = this.state;
 		const success = await deleteProfile(profile._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/social" });
+			history.replace("/admin/social");
 		}
 	}
 
@@ -167,22 +162,11 @@ class AdminProfilePage extends BasicForm {
 	}
 
 	render() {
-		const {
-			redirect,
-			profile,
-			isNew,
-			isLoading,
-			validationSchema,
-			twitterTestResults
-		} = this.state;
+		const { profile, isNew, isLoading, validationSchema, twitterTestResults } = this.state;
 
 		const { authUser } = this.props;
 		if (!authUser.isAdmin) {
 			return <NotFoundPage />;
-		}
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
 		}
 
 		if (isLoading) {
@@ -262,7 +246,9 @@ function mapStateToProps({ config, social }) {
 	return { authUser, profiles };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchProfiles, createProfile, updateProfile, deleteProfile, twitterTest }
-)(AdminProfilePage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchProfiles, createProfile, updateProfile, deleteProfile, twitterTest }
+	)(AdminProfilePage)
+);

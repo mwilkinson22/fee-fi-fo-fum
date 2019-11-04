@@ -3,7 +3,7 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -41,20 +41,16 @@ class AdminUserTransferSiteOwnership extends BasicForm {
 	}
 
 	async handleSubmit(values) {
-		const { transferSiteOwnership } = this.props;
+		const { transferSiteOwnership, history } = this.props;
 		const { user } = this.state;
 		const success = await transferSiteOwnership(user._id, values.password);
 		if (success) {
-			this.setState({ redirect: `/admin/users/${user._id}` });
+			history.replace(`/admin/users/${user._id}`);
 		}
 	}
 
 	render() {
-		const { redirect, validationSchema, user, authUser } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { validationSchema, user, authUser } = this.state;
 
 		if (!authUser.isSiteOwner || authUser._id == user._id) {
 			return <NotFoundPage />;
@@ -101,7 +97,9 @@ function mapStateToProps({ config }) {
 	return { authUser };
 }
 
-export default connect(
-	mapStateToProps,
-	{ transferSiteOwnership }
-)(AdminUserTransferSiteOwnership);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ transferSiteOwnership }
+	)(AdminUserTransferSiteOwnership)
+);

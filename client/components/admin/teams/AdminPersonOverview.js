@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -207,24 +207,23 @@ class AdminPersonOverview extends BasicForm {
 
 		if (isNew) {
 			const newSlug = await createPerson(values);
-			await this.setState({ redirect: `/admin/people/${newSlug}` });
+			this.props.history.push(`/admin/people/${newSlug}`);
 		} else {
 			updatePerson(person._id, values);
 		}
 	}
 
 	async onDelete() {
-		const { deletePerson } = this.props;
+		const { deletePerson, history } = this.props;
 		const { person } = this.state;
-		await deletePerson(person._id, () => this.setState({ redirect: "/admin/people" }));
+		const success = await deletePerson(person._id);
+		if (success) {
+			history.replace("/admin/people");
+		}
 	}
 
 	render() {
-		const { redirect, isLoading, options, isNew, person } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { isLoading, options, isNew, person } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -354,7 +353,9 @@ function mapStateToProps({ people, locations, sponsors }) {
 	return { fullPeople, cities, countries, sponsorList };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ fetchCities, fetchCountries, updatePerson, createPerson, deletePerson, fetchSponsors }
-)(AdminPersonOverview);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchCities, fetchCountries, updatePerson, createPerson, deletePerson, fetchSponsors }
+	)(AdminPersonOverview)
+);

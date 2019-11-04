@@ -4,7 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { Link, Redirect } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import Select from "react-select";
 import selectStyling from "~/constants/selectStyling";
 
@@ -39,11 +39,12 @@ class AdminTeamSquads extends BasicForm {
 
 	static getDerivedStateFromProps(nextProps) {
 		const { match, fullTeams, teamTypes } = nextProps;
-		const { _id } = match.params;
+		const { _id, squad } = match.params;
 		const team = fullTeams[_id];
 		return {
 			team,
-			teamTypes
+			teamTypes,
+			squad
 		};
 	}
 
@@ -55,7 +56,7 @@ class AdminTeamSquads extends BasicForm {
 
 	renderSquadSelector() {
 		const { team, teamTypes } = this.state;
-		const { match } = this.props;
+		const { match, history } = this.props;
 
 		const teamTypeOptions = _.chain(team.squads)
 			.map(squad => {
@@ -77,8 +78,10 @@ class AdminTeamSquads extends BasicForm {
 			<Select
 				styles={selectStyling}
 				options={options}
-				onChange={opt => {
-					this.props.history.push(`/admin/teams/${team._id}/squads/${opt.value}`);
+				onChange={({ value }) => {
+					if (value !== match.params.squad) {
+						history.push(`/admin/teams/${team._id}/squads/${value}`);
+					}
 					this.setState({ newSquadData: undefined });
 				}}
 				defaultValue={_.find(options, option => option.value === match.params.squad)}
@@ -271,7 +274,7 @@ class AdminTeamSquads extends BasicForm {
 
 	render() {
 		const { team } = this.state;
-		const { teamTypes, match } = this.props;
+		const { teamTypes, match, history } = this.props;
 		const squads = _.keyBy(team.squads, "_id");
 		const { squad } = match.params;
 
@@ -286,7 +289,7 @@ class AdminTeamSquads extends BasicForm {
 				break;
 			default:
 				if (!squads[squad]) {
-					return <Redirect to={`/admin/teams/${team._id}/squads`} />;
+					history.replace(`/admin/teams/${team._id}/squads`);
 				} else {
 					pageType = "edit";
 				}
@@ -328,7 +331,9 @@ function mapStateToProps({ teams }) {
 }
 
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ updateTeamSquad }
-)(AdminTeamSquads);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ updateTeamSquad }
+	)(AdminTeamSquads)
+);

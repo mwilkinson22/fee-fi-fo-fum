@@ -1,7 +1,7 @@
 //Modules
 import _ from "lodash";
 import React from "react";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -205,12 +205,12 @@ class AdminGameOverview extends BasicForm {
 	}
 
 	async onSubmit(values) {
-		const { addGame, updateGameBasics, game } = this.props;
+		const { addGame, updateGameBasics, game, history } = this.props;
 		if (game) {
 			updateGameBasics(game._id, values);
 		} else {
 			const newGame = await addGame(values);
-			this.setState({ redirect: `/admin/game/${newGame.slug}` });
+			history.push(`/admin/game/${newGame.slug}`);
 		}
 	}
 
@@ -481,10 +481,7 @@ class AdminGameOverview extends BasicForm {
 	}
 
 	render() {
-		const { redirect, validationSchema } = this.state;
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { validationSchema } = this.state;
 
 		const requireToRender = [
 			"competitionSegmentList",
@@ -493,15 +490,8 @@ class AdminGameOverview extends BasicForm {
 			"teamList",
 			"validationSchema"
 		];
-		let stopRender = false;
-		for (const prop of requireToRender) {
-			if (!this.state[prop]) {
-				stopRender = true;
-				break;
-			}
-		}
 
-		if (stopRender) {
+		if (requireToRender.filter(prop => !this.state[prop]).length) {
 			return <LoadingPage />;
 		}
 
@@ -530,13 +520,15 @@ function mapStateToProps({ teams, competitions, grounds, people, config }) {
 	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList, localTeam };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{
-		fetchCompetitionSegments,
-		fetchAllGrounds,
-		fetchPeopleList,
-		addGame,
-		updateGameBasics
-	}
-)(AdminGameOverview);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{
+			fetchCompetitionSegments,
+			fetchAllGrounds,
+			fetchPeopleList,
+			addGame,
+			updateGameBasics
+		}
+	)(AdminGameOverview)
+);

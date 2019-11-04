@@ -3,7 +3,7 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -94,14 +94,14 @@ class AdminUserOverview extends BasicForm {
 	}
 
 	async handleSubmit(fValues) {
-		const { createUser, updateUser } = this.props;
+		const { createUser, updateUser, history } = this.props;
 		const { user, isNew } = this.state;
 		const values = _.cloneDeep(fValues);
 		delete values.password2;
 
 		if (isNew) {
 			const newId = await createUser(values);
-			await this.setState({ redirect: `/admin/users/${newId}` });
+			history.push(`/admin/users/${newId}`);
 		} else {
 			if (!values.password) {
 				delete values.password;
@@ -111,11 +111,11 @@ class AdminUserOverview extends BasicForm {
 	}
 
 	async handleDelete() {
-		const { deleteUser } = this.props;
+		const { deleteUser, history } = this.props;
 		const { user } = this.state;
 		const success = await deleteUser(user._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/users" });
+			history.push("/admin/users");
 		}
 	}
 
@@ -133,11 +133,7 @@ class AdminUserOverview extends BasicForm {
 
 	render() {
 		const { authUser } = this.props;
-		const { redirect, user, isNew, validationSchema } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { user, isNew, validationSchema } = this.state;
 
 		return (
 			<Formik
@@ -219,7 +215,9 @@ function mapStateToProps({ config, users }) {
 	return { authUser, userList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ createUser, updateUser, deleteUser }
-)(AdminUserOverview);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ createUser, updateUser, deleteUser }
+	)(AdminUserOverview)
+);

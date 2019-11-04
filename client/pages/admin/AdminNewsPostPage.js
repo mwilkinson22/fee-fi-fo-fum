@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Link, Redirect, Prompt } from "react-router-dom";
+import { Link, withRouter, Prompt } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { convertToRaw } from "draft-js";
@@ -76,18 +76,13 @@ class AdminNewsPostPage extends BasicForm {
 		this.state = { validationSchema, unsavedChanges: false };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { fullPosts, match, fetchNewsPost, userList, gameList, postList } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
 		//Is New
 		newState.isNew = !slug;
-
-		//Handle Redirect
-		if (prevState.redirect == nextProps.location.pathname) {
-			newState.redirect = undefined;
-		}
 
 		//Check we have the info we need
 		if (!postList || !userList || !gameList) {
@@ -154,7 +149,7 @@ class AdminNewsPostPage extends BasicForm {
 	}
 
 	async handleSubmit(fValues) {
-		const { createNewsPost, updateNewsPost } = this.props;
+		const { createNewsPost, updateNewsPost, history } = this.props;
 		const { post } = this.state;
 
 		//Create Values
@@ -173,19 +168,18 @@ class AdminNewsPostPage extends BasicForm {
 		}
 
 		if (newSlug) {
-			const newState = { unsavedChanges: false };
+			this.setState({ unsavedChanges: false });
 			if (!post || newSlug != post.slug) {
-				newState.redirect = `/admin/news/post/${newSlug}`;
+				history.push(`/admin/news/post/${newSlug}`);
 			}
-			this.setState(newState);
 		}
 	}
 
 	async handleDelete() {
-		const { deleteNewsPost } = this.props;
+		const { deleteNewsPost, history } = this.props;
 		const { post } = this.state;
 		await deleteNewsPost(post._id);
-		this.setState({ redirect: "/admin/news/" });
+		history.replace("/admin/news");
 	}
 
 	renderViewLink() {
@@ -236,13 +230,9 @@ class AdminNewsPostPage extends BasicForm {
 			users,
 			categories,
 			isLoading,
-			redirect,
 			validationSchema,
 			unsavedChanges
 		} = this.state;
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
 
 		if (post === false && !isNew) {
 			return <NotFoundPage error={"Game not found"} />;
@@ -344,15 +334,17 @@ function mapStateToProps({ config, games, news, users }) {
 	return { authUser, postList, fullPosts, userList, gameList };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchPostList,
-		fetchNewsPost,
-		fetchUserList,
-		fetchGameList,
-		createNewsPost,
-		updateNewsPost,
-		deleteNewsPost
-	}
-)(AdminNewsPostPage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{
+			fetchPostList,
+			fetchNewsPost,
+			fetchUserList,
+			fetchGameList,
+			createNewsPost,
+			updateNewsPost,
+			deleteNewsPost
+		}
+	)(AdminNewsPostPage)
+);

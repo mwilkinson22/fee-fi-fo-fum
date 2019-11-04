@@ -3,7 +3,7 @@ import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
 import { Formik, Form, FieldArray } from "formik";
-import { Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as Yup from "yup";
 
 //Actions
@@ -23,14 +23,9 @@ class AdminAwardCategories extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const { award, category, location } = nextProps;
+	static getDerivedStateFromProps(nextProps) {
+		const { award, category } = nextProps;
 		const newState = { award, category };
-
-		//Clear out redirect
-		if (prevState.redirect && prevState.redirect == location.pathname) {
-			newState.redirect = null;
-		}
 
 		const validationSchema = {
 			name: Yup.string()
@@ -120,7 +115,7 @@ class AdminAwardCategories extends BasicForm {
 	}
 
 	async onSubmit(fValues) {
-		const { award, category, addCategory, updateCategory } = this.props;
+		const { award, category, addCategory, updateCategory, history } = this.props;
 		const values = _.cloneDeep(fValues);
 
 		//Fix Nominees
@@ -136,16 +131,17 @@ class AdminAwardCategories extends BasicForm {
 			updateCategory(award._id, category._id, values);
 		} else {
 			const newId = await addCategory(award._id, values);
-			this.setState({ redirect: `/admin/awards/${award._id}/categories/${newId}` });
+			history.push(`/admin/awards/${award._id}/categories/${newId}`);
 		}
 	}
 
 	async onDelete() {
-		const { award, category, deleteCategory } = this.props;
+		const { award, category, deleteCategory, history } = this.props;
 
-		deleteCategory(award._id, category._id, () =>
-			this.setState({ redirect: `/admin/awards/${award._id}/categories` })
-		);
+		const success = await deleteCategory(award._id, category._id);
+		if (success) {
+			history.replace(`/admin/awards/${award._id}/categories`);
+		}
 	}
 
 	renderMainForm({ values }) {
@@ -260,10 +256,6 @@ class AdminAwardCategories extends BasicForm {
 	}
 
 	render() {
-		const { redirect } = this.state;
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
 		return (
 			<div className="container">
 				<Formik

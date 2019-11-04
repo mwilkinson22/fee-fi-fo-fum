@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import Select from "react-select";
 
 //Components
@@ -34,7 +34,6 @@ class AdminAwardCategories extends BasicForm {
 		const {
 			awardsList,
 			match,
-			location,
 			fullTeams,
 			localTeam,
 			gameList,
@@ -45,11 +44,6 @@ class AdminAwardCategories extends BasicForm {
 
 		const newState = { isNew: false };
 		newState.award = awardsList[_id];
-
-		//Clear out redirect
-		if (prevState.redirect && prevState.redirect == location.pathname) {
-			newState.redirect = null;
-		}
 
 		if (newState.award && categoryId) {
 			if (categoryId === "new") {
@@ -153,20 +147,18 @@ class AdminAwardCategories extends BasicForm {
 				styles={selectStyling}
 				options={options}
 				isSearchable={false}
-				onChange={({ value }) =>
-					this.setState({ redirect: `/admin/awards/${award._id}/categories/${value}` })
-				}
+				onChange={({ value }) => {
+					if (value !== category._id) {
+						this.props.history.push(`/admin/awards/${award._id}/categories/${value}`);
+					}
+				}}
 				value={options.find(({ value }) => value == currentValue)}
 			/>
 		);
 	}
 
 	render() {
-		const { isNew, award, category, redirect, options } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { isNew, award, category, options } = this.state;
 
 		let content;
 		if (category || isNew) {
@@ -195,7 +187,9 @@ function mapStateToProps({ awards, config, games, teams }) {
 	return { awardsList, localTeam, gameList, fullTeams, teamList, teamTypes };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ fetchGameList }
-)(AdminAwardCategories);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchGameList }
+	)(AdminAwardCategories)
+);

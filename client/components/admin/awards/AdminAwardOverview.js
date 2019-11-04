@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 
@@ -138,7 +138,7 @@ class AdminAwardOverview extends BasicForm {
 
 	async onSubmit(fValues) {
 		const { award } = this.state;
-		const { updateAward, createAward } = this.props;
+		const { updateAward, createAward, history } = this.props;
 
 		const values = _.cloneDeep(fValues);
 		values.votingBegins = `${values.votingBeginsDate} ${values.votingBeginsTime}`;
@@ -152,22 +152,21 @@ class AdminAwardOverview extends BasicForm {
 			updateAward(award._id, values);
 		} else {
 			const newId = await createAward(values);
-			await this.setState({ redirect: `/admin/awards/${newId}` });
+			history.push(`/admin/awards/${newId}`);
 		}
 	}
 
 	async onDelete() {
-		const { deleteAward } = this.props;
+		const { deleteAward, history } = this.props;
 		const { award } = this.state;
-		await deleteAward(award._id, () => this.setState({ redirect: "/admin/awards" }));
+		const success = await deleteAward(award._id);
+		if (success) {
+			history.replace("/admin/awards");
+		}
 	}
 
 	render() {
-		const { redirect, isLoading, award } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { isLoading, award } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -235,7 +234,9 @@ function mapStateToProps({ awards }) {
 	return { awardsList };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ createAward, updateAward, deleteAward }
-)(AdminAwardOverview);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ createAward, updateAward, deleteAward }
+	)(AdminAwardOverview)
+);

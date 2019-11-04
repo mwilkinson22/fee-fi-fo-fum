@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -69,17 +69,13 @@ class AdminGroundPage extends BasicForm {
 		this.state = { validationSchema };
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { groundList, match, cities } = nextProps;
 		const newState = { isLoading: false };
 
 		const { _id } = match.params;
 
 		newState.isNew = !_id;
-
-		if (!newState.isNew && !prevState.isDeleted) {
-			newState.redirect = false;
-		}
 
 		if (!cities || (!newState.isNew && !groundList)) {
 			newState.isLoading = true;
@@ -126,25 +122,25 @@ class AdminGroundPage extends BasicForm {
 	}
 
 	async handleSubmit(fValues) {
-		const { createGround, updateGround } = this.props;
+		const { createGround, updateGround, history } = this.props;
 		const { ground, isNew } = this.state;
 		const values = _.cloneDeep(fValues);
 		values.address._city = values.address._city.value;
 
 		if (isNew) {
 			const newId = await createGround(values);
-			await this.setState({ redirect: `/admin/grounds/${newId}` });
+			history.push(`/admin/grounds/${newId}`);
 		} else {
 			await updateGround(ground._id, values);
 		}
 	}
 
 	async handleDelete() {
-		const { deleteGround } = this.props;
+		const { deleteGround, history } = this.props;
 		const { ground } = this.state;
 		const success = await deleteGround(ground._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/grounds" });
+			history.replace("/admin/grounds");
 		}
 	}
 
@@ -159,11 +155,7 @@ class AdminGroundPage extends BasicForm {
 	}
 
 	render() {
-		const { redirect, ground, isNew, isLoading, validationSchema, cityOptions } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { ground, isNew, isLoading, validationSchema, cityOptions } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -252,7 +244,9 @@ function mapStateToProps({ grounds, locations }) {
 	return { cities, groundList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround }
-)(AdminGroundPage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround }
+	)(AdminGroundPage)
+);

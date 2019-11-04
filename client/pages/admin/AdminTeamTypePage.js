@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -28,17 +28,12 @@ class AdminTeamTypePage extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { teamTypes, match } = nextProps;
 		const newState = {};
 
 		//Create Or Edit
 		newState.isNew = !match.params.slug;
-
-		//Remove redirect after creation/deletion
-		if (prevState.redirect == match.url) {
-			newState.redirect = false;
-		}
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
@@ -81,7 +76,7 @@ class AdminTeamTypePage extends BasicForm {
 	}
 
 	async handleSubmit(values) {
-		const { createTeamType, updateTeamType } = this.props;
+		const { createTeamType, updateTeamType, history } = this.props;
 		const { teamType, isNew } = this.state;
 		let newSlug;
 
@@ -91,16 +86,16 @@ class AdminTeamTypePage extends BasicForm {
 			newSlug = await updateTeamType(teamType._id, values);
 		}
 		if (newSlug) {
-			await this.setState({ redirect: `/admin/team-types/${newSlug}` });
+			history.push(`/admin/team-types/${newSlug}`);
 		}
 	}
 
 	async handleDelete() {
-		const { deleteTeamType } = this.props;
+		const { deleteTeamType, history } = this.props;
 		const { teamType } = this.state;
 		const success = await deleteTeamType(teamType._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/team-types" });
+			history.replace("/admin/team-types");
 		}
 	}
 
@@ -115,11 +110,7 @@ class AdminTeamTypePage extends BasicForm {
 	}
 
 	render() {
-		const { redirect, teamType, isNew, validationSchema } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { teamType, isNew, validationSchema } = this.state;
 
 		if (!isNew && teamType === false) {
 			return <NotFoundPage message="Team Type not found" />;
@@ -185,7 +176,9 @@ function mapStateToProps({ teams }) {
 	return { teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{ createTeamType, updateTeamType, deleteTeamType }
-)(AdminTeamTypePage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ createTeamType, updateTeamType, deleteTeamType }
+	)(AdminTeamTypePage)
+);

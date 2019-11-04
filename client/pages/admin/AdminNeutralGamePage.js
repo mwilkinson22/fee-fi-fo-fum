@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -138,7 +138,7 @@ class AdminNeutralGamePage extends BasicForm {
 
 	handleSubmit(values) {
 		const { game } = this.state;
-		const { createNeutralGames, updateNeutralGames } = this.props;
+		const { createNeutralGames, updateNeutralGames, history } = this.props;
 
 		//Fix Date
 		values.date = `${values.date} ${values.time}`;
@@ -160,16 +160,16 @@ class AdminNeutralGamePage extends BasicForm {
 		} else {
 			createNeutralGames([values]);
 		}
-		this.setState({
-			redirect: `${new Date(values.date).getFullYear()}/${values._teamType}`
-		});
+		history.push(
+			`/admin/neutralGames/${new Date(values.date).getFullYear()}/${values._teamType}`
+		);
 	}
 
 	handleDelete() {
 		const { game } = this.state;
-		const { deleteNeutralGame } = this.props;
+		const { deleteNeutralGame, history } = this.props;
 		deleteNeutralGame(game._id);
-		this.setState({ redirect: `${game.date.getFullYear()}/${game._teamType}` });
+		history.replace(`/admin/neutralGames/${game.date.getFullYear()}/${game._teamType}`);
 	}
 
 	generatePageTitle() {
@@ -300,11 +300,7 @@ class AdminNeutralGamePage extends BasicForm {
 	}
 
 	render() {
-		const { game, isNew, redirect, validationSchema } = this.state;
-
-		if (redirect) {
-			return <Redirect to={`/admin/neutralGames/${redirect}`} />;
-		}
+		const { game, isNew, validationSchema } = this.state;
 
 		if (game === undefined && !isNew) {
 			return <LoadingPage />;
@@ -393,13 +389,15 @@ function mapStateToProps({ config, games, teams, competitions }) {
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchCompetitionSegments,
-		fetchNeutralGamesFromId,
-		createNeutralGames,
-		updateNeutralGames,
-		deleteNeutralGame
-	}
-)(AdminNeutralGamePage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{
+			fetchCompetitionSegments,
+			fetchNeutralGamesFromId,
+			createNeutralGames,
+			updateNeutralGames,
+			deleteNeutralGame
+		}
+	)(AdminNeutralGamePage)
+);

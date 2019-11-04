@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -63,11 +63,6 @@ class AdminCompetitionPage extends BasicForm {
 
 		//Create Or Edit
 		newState.isNew = !match.params._id;
-
-		//Remove redirect after creation/deletion
-		if (prevState.redirect == match.url) {
-			newState.redirect = false;
-		}
 
 		//Check Everything is loaded
 		if (!newState.isNew && (!competitionList || !competitionSegmentList)) {
@@ -161,7 +156,7 @@ class AdminCompetitionPage extends BasicForm {
 	}
 
 	async handleSubmit(fValues) {
-		const { createCompetitionSegment, updateCompetitionSegment, match } = this.props;
+		const { createCompetitionSegment, updateCompetitionSegment, match, history } = this.props;
 		const { segment, isNew } = this.state;
 		const values = _.chain(fValues)
 			.cloneDeep()
@@ -172,21 +167,18 @@ class AdminCompetitionPage extends BasicForm {
 		if (isNew) {
 			values._parentCompetition = match.params.parent;
 			const newId = await createCompetitionSegment(values);
-			await this.setState({ redirect: `/admin/competitions/segments/${newId}` });
+			history.push(`/admin/competitions/segments/${newId}`);
 		} else {
 			await updateCompetitionSegment(segment._id, values);
 		}
 	}
 
 	async handleDelete() {
-		const { deleteCompetitionSegment } = this.props;
+		const { deleteCompetitionSegment, history } = this.props;
 		const { segment } = this.state;
 		const success = await deleteCompetitionSegment(segment._id);
 		if (success) {
-			this.setState({
-				isDeleted: true,
-				redirect: `/admin/competitions/${segment._parentCompetition._id}`
-			});
+			history.replace(`/admin/competitions/${segment._parentCompetition._id}`);
 		}
 	}
 
@@ -263,19 +255,7 @@ class AdminCompetitionPage extends BasicForm {
 	}
 
 	render() {
-		const {
-			redirect,
-			segment,
-			isNew,
-			parent,
-			isLoading,
-			validationSchema,
-			options
-		} = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { segment, isNew, parent, isLoading, validationSchema, options } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -355,13 +335,15 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionList, competitionSegmentList, teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchCompetitions,
-		fetchCompetitionSegments,
-		createCompetitionSegment,
-		updateCompetitionSegment,
-		deleteCompetitionSegment
-	}
-)(AdminCompetitionPage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{
+			fetchCompetitions,
+			fetchCompetitionSegments,
+			createCompetitionSegment,
+			updateCompetitionSegment,
+			deleteCompetitionSegment
+		}
+	)(AdminCompetitionPage)
+);

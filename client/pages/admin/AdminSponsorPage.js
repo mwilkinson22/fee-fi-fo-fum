@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -44,11 +44,6 @@ class AdminCountryPage extends BasicForm {
 		//Create Or Edit
 		newState.isNew = !match.params.id;
 
-		//Remove redirect after creation/deletion
-		if (prevState.redirect == match.url) {
-			newState.redirect = false;
-		}
-
 		//Check Everything is loaded
 		if (!newState.isNew && !sponsorList) {
 			newState.isLoading = true;
@@ -89,23 +84,23 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	async handleSubmit(values) {
-		const { createSponsor, updateSponsor } = this.props;
+		const { createSponsor, updateSponsor, history } = this.props;
 		const { sponsor, isNew } = this.state;
 
 		if (isNew) {
 			const newId = await createSponsor(values);
-			await this.setState({ redirect: `/admin/sponsors/${newId}` });
+			history.push(`/admin/sponsors/${newId}`);
 		} else {
 			await updateSponsor(sponsor._id, values);
 		}
 	}
 
 	async handleDelete() {
-		const { deleteSponsor } = this.props;
+		const { deleteSponsor, history } = this.props;
 		const { sponsor } = this.state;
 		const success = await deleteSponsor(sponsor._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/sponsors" });
+			history.replace("/admin/sponsors");
 		}
 	}
 
@@ -120,11 +115,7 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	render() {
-		const { redirect, sponsor, isNew, isLoading, validationSchema } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { sponsor, isNew, isLoading, validationSchema } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -190,12 +181,14 @@ function mapStateToProps({ sponsors }) {
 	return { sponsorList };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchSponsors,
-		createSponsor,
-		updateSponsor,
-		deleteSponsor
-	}
-)(AdminCountryPage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{
+			fetchSponsors,
+			createSponsor,
+			updateSponsor,
+			deleteSponsor
+		}
+	)(AdminCountryPage)
+);

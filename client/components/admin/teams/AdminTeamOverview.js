@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -173,14 +173,14 @@ class AdminTeamOverview extends BasicForm {
 	}
 
 	async onSubmit(values) {
-		const { updateTeam, createTeam } = this.props;
+		const { updateTeam, createTeam, history } = this.props;
 		const { team } = this.state;
 
 		if (team) {
 			updateTeam(team._id, values);
 		} else {
 			await createTeam(values);
-			await this.setState({ redirect: `/admin/teams/` });
+			history.push(`/admin/teams/`);
 		}
 	}
 
@@ -270,11 +270,7 @@ class AdminTeamOverview extends BasicForm {
 	}
 
 	render() {
-		const { groundList, redirect } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { groundList } = this.state;
 
 		if (!groundList) {
 			return <LoadingPage />;
@@ -300,7 +296,9 @@ function mapStateToProps({ grounds, teams }) {
 	return { fullTeams, groundList, teamTypes };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ fetchAllGrounds, updateTeam, createTeam }
-)(AdminTeamOverview);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchAllGrounds, updateTeam, createTeam }
+	)(AdminTeamOverview)
+);

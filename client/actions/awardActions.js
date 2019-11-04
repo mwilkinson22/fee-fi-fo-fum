@@ -45,21 +45,21 @@ export const updateCategory = (award_id, category_id, data) => async (dispatch, 
 	}
 };
 
-export const deleteAward = (id, cb) => async (dispatch, getState, api) => {
+export const deleteAward = id => async (dispatch, getState, api) => {
 	const res = await api.delete(`/awards/${id}`);
 	if (res.data) {
-		cb();
 		dispatch({ type: DELETE_AWARD, payload: id });
 		toast.success("Award deleted");
+		return true;
 	}
 };
 
-export const deleteCategory = (award_id, category_id, cb) => async (dispatch, getState, api) => {
+export const deleteCategory = (award_id, category_id) => async (dispatch, getState, api) => {
 	const res = await api.delete(`/awards/${award_id}/category/${category_id}`);
 	if (res.data) {
-		cb();
 		toast.success("Category deleted");
 		dispatch({ type: FETCH_AWARD, payload: res.data });
+		return true;
 	}
 };
 

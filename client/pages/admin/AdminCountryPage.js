@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -40,17 +40,12 @@ class AdminCountryPage extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { countries, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
 		newState.isNew = !match.params.slug;
-
-		//Remove redirect after creation/deletion
-		if (prevState.redirect == match.url) {
-			newState.redirect = false;
-		}
 
 		//Check Everything is loaded
 		if (!newState.isNew && !countries) {
@@ -94,7 +89,7 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	async handleSubmit(values) {
-		const { createCountry, updateCountry } = this.props;
+		const { createCountry, updateCountry, history } = this.props;
 		const { country, isNew } = this.state;
 
 		let newSlug;
@@ -103,15 +98,15 @@ class AdminCountryPage extends BasicForm {
 		} else {
 			newSlug = await updateCountry(country._id, values);
 		}
-		await this.setState({ redirect: `/admin/countries/${newSlug}` });
+		history.push(`/admin/countries/${newSlug}`);
 	}
 
 	async handleDelete() {
-		const { deleteCountry } = this.props;
+		const { deleteCountry, history } = this.props;
 		const { country } = this.state;
 		const success = await deleteCountry(country._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/countries" });
+			history.replace("/admin/countries");
 		}
 	}
 
@@ -126,11 +121,7 @@ class AdminCountryPage extends BasicForm {
 	}
 
 	render() {
-		const { redirect, country, isNew, isLoading, validationSchema } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { country, isNew, isLoading, validationSchema } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -192,7 +183,9 @@ function mapStateToProps({ locations }) {
 	return { countries };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchCountries, createCountry, updateCountry, deleteCountry }
-)(AdminCountryPage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchCountries, createCountry, updateCountry, deleteCountry }
+	)(AdminCountryPage)
+);

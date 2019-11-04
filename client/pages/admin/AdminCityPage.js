@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -45,17 +45,12 @@ class AdminCityPage extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { countries, cities, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create or Edit
 		newState.isNew = !match.params.slug;
-
-		//Remove redirect after creation/deletion
-		if (prevState.redirect == match.url) {
-			newState.redirect = false;
-		}
 
 		//Check Everything is loaded
 		if (!countries || (!newState.isNew && !cities)) {
@@ -110,7 +105,7 @@ class AdminCityPage extends BasicForm {
 	}
 
 	async handleSubmit(fValues) {
-		const { createCity, updateCity } = this.props;
+		const { createCity, updateCity, history } = this.props;
 		const { city, isNew } = this.state;
 
 		const values = _.cloneDeep(fValues);
@@ -119,18 +114,19 @@ class AdminCityPage extends BasicForm {
 		let newSlug;
 		if (isNew) {
 			newSlug = await createCity(values);
+			history.replace(`/admin/cities/${newSlug}`);
 		} else {
 			newSlug = await updateCity(city._id, values);
+			history.push(`/admin/cities/${newSlug}`);
 		}
-		await this.setState({ redirect: `/admin/cities/${newSlug}` });
 	}
 
 	async handleDelete() {
-		const { deleteCity } = this.props;
+		const { deleteCity, history } = this.props;
 		const { city } = this.state;
 		const success = await deleteCity(city._id);
 		if (success) {
-			this.setState({ isDeleted: true, redirect: "/admin/cities" });
+			history.replace(`/admin/cities/`);
 		}
 	}
 
@@ -145,11 +141,7 @@ class AdminCityPage extends BasicForm {
 	}
 
 	render() {
-		const { redirect, city, countries, isNew, isLoading, validationSchema } = this.state;
-
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		}
+		const { city, countries, isNew, isLoading, validationSchema } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -214,7 +206,9 @@ function mapStateToProps({ locations }) {
 	return { countries, cities };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchCountries, fetchCities, createCity, updateCity, deleteCity }
-)(AdminCityPage);
+export default withRouter(
+	connect(
+		mapStateToProps,
+		{ fetchCountries, fetchCities, createCity, updateCity, deleteCity }
+	)(AdminCityPage)
+);
