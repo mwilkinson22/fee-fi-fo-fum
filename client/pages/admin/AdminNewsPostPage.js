@@ -141,7 +141,7 @@ class AdminNewsPostPage extends BasicForm {
 				image: post.image || "",
 				dateCreated: dateCreated.toString("yyyy-MM-dd"),
 				timeCreated: dateCreated.toString("HH:mm:ss"),
-				isPublished,
+				isPublished: isPublished || false,
 				category: categories.find(({ value }) => value == post.category) || "",
 				content: editorStateFromRaw(JSON.parse(post.content), newsDecorators)
 			};
