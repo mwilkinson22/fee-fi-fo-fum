@@ -13,10 +13,12 @@
 		& + .paragraph {
 			margin-top: 0;
 		}
-
-		.editor__link {
-			font-weight: bold;
-			color: $claret;
+	}
+	.editor__link {
+		font-weight: bold;
+		color: $claret;
+		&:hover {
+			color: lighten($claret, 20%);
 		}
 	}
 
