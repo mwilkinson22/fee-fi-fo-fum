@@ -14,25 +14,28 @@ import TweetComposer from "~/client/components/TweetComposer";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import selectStyling from "~/constants/selectStyling";
 
-export function renderFieldGroup(fields, validationSchema, fastFieldByDefault = true) {
-	return fields.map(field => renderField(field, validationSchema, fastFieldByDefault));
-}
-export function renderField(field, validationSchema, fastFieldByDefault = true) {
-	if (!validationSchema || !validationSchema.describe()) {
-		throw new Error("Yup Validation Schema required");
-	}
-
-	const validationSchemaFields = validationSchema.describe().fields;
-
-	//Pull meta data from yup
-	const yupField = field.name
+export function extractYupData(name, validationSchema) {
+	return name
 		.split(".")
 		.join(".fields.")
 		.replace(/\.fields\.\d+\./, ".innerType.")
 		.split(".")
-		.reduce(function(prev, curr) {
-			return prev ? prev[curr] : null;
-		}, validationSchemaFields || self);
+		.reduce(
+			(prev, curr) => (prev ? prev[curr] : null),
+			validationSchema.describe().fields || self
+		);
+}
+
+export function renderFieldGroup(fields, validationSchema, fastFieldByDefault, onChange) {
+	return fields.map(field => renderField(field, validationSchema, fastFieldByDefault, onChange));
+}
+export function renderField(field, validationSchema, fastFieldByDefault, onChange) {
+	if (!validationSchema || !validationSchema.describe()) {
+		throw new Error("Yup Validation Schema required");
+	}
+
+	//Pull meta data from yup
+	const yupField = extractYupData(field.name, validationSchema);
 
 	//Get Label
 	field.label = field.label || yupField.label || field.name;
@@ -56,7 +59,7 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 	}
 
 	//Render Field Input
-	const input = renderInput(field);
+	const input = renderInput(field, onChange);
 
 	return [
 		<label key={`${field.name}-label`} className={field.required ? "required" : ""}>
@@ -69,7 +72,7 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 	];
 }
 
-export function renderInput(field) {
+export function renderInput(field, customOnChange) {
 	const { label, type, name, fastField, ...props } = field;
 
 	if (!_.find(fieldTypes, t => t == type)) {
@@ -91,6 +94,16 @@ export function renderInput(field) {
 					formikProps.form.setFieldValue(field.name, option || "");
 				};
 				break;
+		}
+
+		//Wire in custom onChange
+		//Mainly used to set unsavedChanges
+		if (customOnChange) {
+			const originalOnChange = formikProps.field.onChange;
+			formikProps.field.onChange = option => {
+				originalOnChange(option);
+				customOnChange(option);
+			};
 		}
 
 		//We load in formikProps.field first, so we can overwrite
