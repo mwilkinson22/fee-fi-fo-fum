@@ -1,16 +1,14 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
-import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 
 //Actions
 import { fetchCities } from "~/client/actions/locationActions";
@@ -25,7 +23,7 @@ import HelmetBuilder from "~/client/components/HelmetBuilder";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminGroundPage extends BasicForm {
+class AdminGroundPage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -75,14 +73,21 @@ class AdminGroundPage extends BasicForm {
 
 		const { _id } = match.params;
 
+		//Check whether an _id param has been passed
 		newState.isNew = !_id;
 
+		//Await cities and (in edit mode) the groundList
 		if (!cities || (!newState.isNew && !groundList)) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		newState.ground = groundList[_id] || false;
+		//Get the ground object
+		if (!newState.isNew) {
+			newState.ground = groundList[_id] || false;
+		}
+
+		//Render options for the city selector
 		newState.cityOptions = cities.map(city => ({
 			label: `${city.name}, ${city._country.name}`,
 			value: city._id
@@ -91,9 +96,11 @@ class AdminGroundPage extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { ground, isNew, cityOptions } = this.state;
-		let values = {
+
+		//First we declare the defaults, for new items or those without certain fields
+		const defaultValues = {
 			name: "",
 			addThe: false,
 			address: {
@@ -110,61 +117,105 @@ class AdminGroundPage extends BasicForm {
 			image: ""
 		};
 
-		if (!isNew) {
-			values = _.pick(_.cloneDeep(ground), Object.keys(values));
-			values.address.street2 = values.address.street2 || ""; //Nullable
-			values.image = values.image || ""; //Nullable
+		if (isNew) {
+			//For new grounds, we simply return the defaults
+			return defaultValues;
+		} else {
+			//If we have a ground, pull the corresponding values
+			const values = _.mapValues(defaultValues, (defaultValue, key) =>
+				ground.hasOwnProperty(key) ? ground[key] : defaultValue
+			);
+
+			//Convert potential null values to empty strings
+			values.address.street2 = values.address.street2 || "";
+			values.image = values.image || "";
+
+			//Convert City ObjectId to dropdown Option
 			values.address._city = cityOptions.find(
 				({ value }) => value == ground.address._city._id
 			);
-		}
-		return values;
-	}
 
-	async handleSubmit(fValues) {
-		const { createGround, updateGround, history } = this.props;
-		const { ground, isNew } = this.state;
-		const values = _.cloneDeep(fValues);
-		values.address._city = values.address._city.value;
-
-		if (isNew) {
-			const newId = await createGround(values);
-			history.push(`/admin/grounds/${newId}`);
-		} else {
-			await updateGround(ground._id, values);
+			return values;
 		}
 	}
 
-	async handleDelete() {
-		const { deleteGround, history } = this.props;
-		const { ground } = this.state;
-		const success = await deleteGround(ground._id);
-		if (success) {
-			history.replace("/admin/grounds");
-		}
-	}
-
-	renderDeleteButtons() {
-		if (!this.state.isNew) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
+	getFieldGroups() {
+		const { cityOptions, ground } = this.state;
+		return [
+			{
+				fields: [
+					{ name: "name", type: fieldTypes.text },
+					{ name: "addThe", type: fieldTypes.boolean }
+				]
+			},
+			{
+				label: "Address",
+				fields: [
+					{ name: "address.street", type: fieldTypes.text },
+					{ name: "address.street2", type: fieldTypes.text },
+					{
+						name: "address._city",
+						type: fieldTypes.select,
+						options: cityOptions
+					},
+					{ name: "address.postcode", type: fieldTypes.text },
+					{ name: "address.googlePlaceId", type: fieldTypes.text }
+				]
+			},
+			{
+				label: "Travel",
+				fields: [
+					{ name: "parking.stadium", type: fieldTypes.boolean },
+					{ name: "parking.roadside", type: fieldTypes.boolean }
+				]
+			},
+			{
+				label: "Image",
+				fields: [
+					{
+						name: "image",
+						type: fieldTypes.image,
+						path: "images/grounds/",
+						acceptSVG: true,
+						defaultUploadName: ground ? ground.slug : null
+					}
+				]
+			}
+		];
 	}
 
 	render() {
-		const { ground, isNew, isLoading, validationSchema, cityOptions } = this.state;
+		const { ground, isNew, isLoading, validationSchema } = this.state;
+		const { createGround, updateGround, deleteGround } = this.props;
 
+		//Wait for cities and groundlist to load
 		if (isLoading) {
 			return <LoadingPage />;
 		}
+
+		//404
 		if (!isNew && ground === false) {
 			return <NotFoundPage message="Ground not found" />;
 		}
 
+		//Get Page Title
 		const title = isNew ? "Add New Ground" : `${ground.addThe ? "The " : ""}${ground.name}`;
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createGround(values),
+				redirectOnSubmit: id => `/admin/grounds/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteGround(ground._id),
+				onSubmit: values => updateGround(ground._id, values),
+				redirectOnDelete: "/admin/grounds/"
+			};
+		}
+
 		return (
 			<div className="admin-ground-page">
 				<HelmetBuilder title={title} />
@@ -175,61 +226,13 @@ class AdminGroundPage extends BasicForm {
 				</section>
 				<section className="form">
 					<div className="container">
-						<Formik
-							onSubmit={values => this.handleSubmit(values)}
-							initialValues={this.getDefaults()}
+						<BasicForm
+							fieldGroups={this.getFieldGroups()}
+							initialValues={this.getInitialValues()}
+							isNew={isNew}
+							itemType="Ground"
 							validationSchema={validationSchema}
-							render={() => {
-								const mainFields = [
-									{ name: "name", type: fieldTypes.text },
-									{ name: "addThe", type: fieldTypes.boolean }
-								];
-								const addressFields = [
-									{ name: "address.street", type: fieldTypes.text },
-									{ name: "address.street2", type: fieldTypes.text },
-									{
-										name: "address._city",
-										type: fieldTypes.select,
-										options: cityOptions
-									},
-									{ name: "address.postcode", type: fieldTypes.text },
-									{ name: "address.googlePlaceId", type: fieldTypes.text }
-								];
-
-								const travelFields = [
-									{ name: "parking.stadium", type: fieldTypes.boolean },
-									{ name: "parking.roadside", type: fieldTypes.boolean }
-								];
-
-								return (
-									<Form>
-										{this.renderDeleteButtons()}
-										<div className="card form-card grid">
-											{this.renderFieldGroup(mainFields)}
-											<h6>Address</h6>
-											{this.renderFieldGroup(addressFields)}
-											<h6>Travel</h6>
-											{this.renderFieldGroup(travelFields)}
-											<h6>Image</h6>
-											{this.renderFieldGroup([
-												{
-													name: "image",
-													type: fieldTypes.image,
-													path: "images/grounds/",
-													acceptSVG: true,
-													defaultUploadName: ground.slug
-												}
-											])}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">
-													{isNew ? "Add" : "Update"} Ground
-												</button>
-											</div>
-										</div>
-									</Form>
-								);
-							}}
+							{...formProps}
 						/>
 					</div>
 				</section>
