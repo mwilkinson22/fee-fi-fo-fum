@@ -12,7 +12,7 @@ import DeleteButtons from "./fields/DeleteButtons";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { extractYupData, renderFieldGroup as rFG } from "~/helpers/formHelper";
+import { extractYupData, renderFieldGroup } from "~/helpers/formHelper";
 
 class BasicForm extends Component {
 	constructor(props) {
@@ -33,6 +33,7 @@ class BasicForm extends Component {
 
 		//Validate field groups
 		_.chain(nextProps.fieldGroups)
+			.filter("fields")
 			.map("fields")
 			.flatten()
 			.each(field => {
@@ -61,12 +62,6 @@ class BasicForm extends Component {
 			.value();
 
 		return newState;
-	}
-
-	//TO BE DELETED
-	renderFieldGroup(fields, disableFastField = false) {
-		const { validationSchema } = this.state;
-		return rFG(fields, validationSchema, !disableFastField);
 	}
 
 	processValues(values, fields, parentPath = []) {
@@ -138,7 +133,7 @@ class BasicForm extends Component {
 		}
 	}
 
-	renderFields() {
+	renderFields(values) {
 		const { fastFieldByDefault } = this.props;
 		const { fieldGroups, unsavedChanges, validationSchema } = this.state;
 
@@ -147,11 +142,22 @@ class BasicForm extends Component {
 			extraOnChange = () => this.setState({ unsavedChanges: true });
 		}
 
-		return fieldGroups.map(({ label, fields }) => {
-			return [
-				label ? <h6 key="label">{label}</h6> : null,
-				rFG(fields, validationSchema, fastFieldByDefault, extraOnChange)
-			];
+		return fieldGroups.map(({ label, fields, render }) => {
+			let content;
+
+			if (render) {
+				//Custom Render
+				content = render(values);
+			} else if (fields) {
+				//Standard fields
+				content = renderFieldGroup(
+					fields,
+					validationSchema,
+					fastFieldByDefault,
+					extraOnChange
+				);
+			}
+			return [label ? <h6 key="label">{label}</h6> : null, content];
 		});
 	}
 
@@ -200,7 +206,14 @@ class BasicForm extends Component {
 
 	render() {
 		const { itemType } = this.props;
-		const { initialValues, isNew, isSubmitting, validationSchema, unsavedChanges } = this.state;
+		const {
+			appendMainFields,
+			initialValues,
+			isNew,
+			isSubmitting,
+			validationSchema,
+			unsavedChanges
+		} = this.state;
 
 		return (
 			<Formik
@@ -208,7 +221,7 @@ class BasicForm extends Component {
 				initialValues={initialValues}
 				onSubmit={values => this.handleSubmit(values)}
 				validationSchema={validationSchema}
-				render={({ errors }) => {
+				render={({ errors, values }) => {
 					return (
 						<Form>
 							<Prompt
@@ -216,8 +229,8 @@ class BasicForm extends Component {
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className="form-card grid">
-								{this.renderFields()}
-								{this.renderErrors(errors)}
+								{this.renderFields(values)}
+								{appendMainFields}
 								<div className="buttons">
 									<button type="reset">Reset</button>
 									<button
@@ -248,7 +261,8 @@ BasicForm.propTypes = {
 					name: PropTypes.string.isRequired,
 					type: PropTypes.oneOf(_.values(fieldTypes))
 				})
-			).isRequired
+			),
+			render: PropTypes.func //values => <FieldArray />
 		})
 	).isRequired,
 	initialValues: PropTypes.object.isRequired,
