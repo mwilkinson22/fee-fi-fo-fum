@@ -93,7 +93,7 @@ class BasicForm extends Component {
 	}
 
 	async handleSubmit(fValues) {
-		const { history, onSubmit, redirectOnSubmit } = this.props;
+		const { alterValuesBeforeSubmit, history, onSubmit, redirectOnSubmit } = this.props;
 		const { fieldGroups } = this.state;
 
 		//Disable the submit button
@@ -107,7 +107,12 @@ class BasicForm extends Component {
 			.value();
 
 		//Process values (pull value from select fields, convert empty strings to null, etc)
-		const values = this.processValues(_.cloneDeep(fValues), fields);
+		let values = this.processValues(_.cloneDeep(fValues), fields);
+
+		//Custom callback to manipulate values before submitting
+		if (alterValuesBeforeSubmit) {
+			values = alterValuesBeforeSubmit(values);
+		}
 
 		//Submit
 		const result = await onSubmit(values);
@@ -252,6 +257,7 @@ class BasicForm extends Component {
 }
 
 BasicForm.propTypes = {
+	alterValuesBeforeSubmit: PropTypes.func,
 	fastFieldByDefault: PropTypes.bool,
 	fieldGroups: PropTypes.arrayOf(
 		PropTypes.shape({
