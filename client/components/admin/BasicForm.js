@@ -76,14 +76,13 @@ class BasicForm extends Component {
 			.value();
 	}
 
-	processValues(values, fields, parentPath = []) {
-		return _.mapValues(values, (val, key) => {
+	processValues(values, fields, parentPath = [], isArray = false) {
+		const callback = (val, key) => {
 			let newValue;
 			if (typeof val !== "object") {
 				newValue = val;
 			} else if (Array.isArray(val)) {
-				//multi select
-				newValue = val.length ? val.map(({ value }) => value) : null;
+				newValue = this.processValues(val, fields, [...parentPath, key], true);
 			} else {
 				//First we determine whether there is a field by this name
 				const field = fields[[...parentPath, key].join(".")];
@@ -100,8 +99,14 @@ class BasicForm extends Component {
 				}
 			}
 
-			return newValue === "" ? null : newValue;
-		});
+			return newValue && newValue.length === 0 ? null : newValue;
+		};
+
+		if (isArray) {
+			return _.map(values, callback);
+		} else {
+			return _.mapValues(values, callback);
+		}
 	}
 
 	async handleSubmit(fValues) {
@@ -319,6 +324,7 @@ BasicForm.propTypes = {
 						type: PropTypes.oneOf(_.values(fieldTypes))
 					})
 				),
+				//IMPORTANT! Fields produced by render will not go through processFields
 				render: PropTypes.func //values => <FieldArray />
 			})
 		)
