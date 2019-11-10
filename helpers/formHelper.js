@@ -26,10 +26,15 @@ export function extractYupData(name, validationSchema) {
 		);
 }
 
-export function renderFieldGroup(fields, validationSchema, fastFieldByDefault, onChange) {
+export function renderFieldGroup(
+	fields,
+	validationSchema,
+	fastFieldByDefault = true,
+	onChange = null
+) {
 	return fields.map(field => renderField(field, validationSchema, fastFieldByDefault, onChange));
 }
-export function renderField(field, validationSchema, fastFieldByDefault, onChange) {
+export function renderField(field, validationSchema, fastFieldByDefault = true, onChange = null) {
 	if (!validationSchema || !validationSchema.describe()) {
 		throw new Error("Yup Validation Schema required");
 	}
