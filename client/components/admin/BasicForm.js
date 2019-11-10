@@ -220,6 +220,21 @@ class BasicForm extends Component {
 			unsavedChanges
 		} = this.state;
 
+		let submitButtonText;
+		if (isSubmitting) {
+			if (isNew) {
+				submitButtonText = "Adding";
+			} else {
+				submitButtonText = "Updating";
+			}
+		} else {
+			if (isNew) {
+				submitButtonText = "Add";
+			} else {
+				submitButtonText = "Update";
+			}
+		}
+
 		return (
 			<Formik
 				enableReinitialize={true}
@@ -243,7 +258,7 @@ class BasicForm extends Component {
 										className="confirm"
 										disabled={isSubmitting || Object.keys(errors).length}
 									>
-										{isNew ? "Add" : "Update"} {itemType}
+										{submitButtonText} {itemType}
 									</button>
 								</div>
 							</div>
