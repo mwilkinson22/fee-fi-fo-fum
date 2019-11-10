@@ -212,27 +212,9 @@ class BasicForm extends Component {
 		}
 	}
 
-	renderDeleteButtons() {
-		const { onDelete } = this.props;
-		if (onDelete) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
-	}
-
-	render() {
+	renderSubmitButtons(errors) {
 		const { itemType } = this.props;
-		const {
-			appendMainFields,
-			initialValues,
-			isNew,
-			isSubmitting,
-			validationSchema,
-			unsavedChanges
-		} = this.state;
+		const { isNew, isSubmitting, unsavedChanges } = this.state;
 
 		let submitButtonText;
 		if (isSubmitting) {
@@ -250,6 +232,36 @@ class BasicForm extends Component {
 		}
 
 		return (
+			<div className="buttons">
+				<button type="reset" disabled={!unsavedChanges}>
+					Reset
+				</button>
+				<button
+					type="submit"
+					className="confirm"
+					disabled={isSubmitting || Object.keys(errors).length}
+				>
+					{submitButtonText} {itemType}
+				</button>
+			</div>
+		);
+	}
+
+	renderDeleteButtons() {
+		const { onDelete } = this.props;
+		if (onDelete) {
+			return (
+				<div className="form-card">
+					<DeleteButtons onDelete={() => this.handleDelete()} />
+				</div>
+			);
+		}
+	}
+
+	render() {
+		const { appendMainFields, initialValues, validationSchema, unsavedChanges } = this.state;
+
+		return (
 			<Formik
 				enableReinitialize={true}
 				initialValues={initialValues}
@@ -265,16 +277,7 @@ class BasicForm extends Component {
 							<div className="form-card grid">
 								{this.renderFields(values)}
 								{appendMainFields}
-								<div className="buttons">
-									<button type="reset">Reset</button>
-									<button
-										type="submit"
-										className="confirm"
-										disabled={isSubmitting || Object.keys(errors).length}
-									>
-										{submitButtonText} {itemType}
-									</button>
-								</div>
+								{this.renderSubmitButtons(errors)}
 							</div>
 							{this.renderDeleteButtons()}
 						</Form>
