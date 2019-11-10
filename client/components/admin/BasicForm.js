@@ -93,7 +93,13 @@ class BasicForm extends Component {
 	}
 
 	async handleSubmit(fValues) {
-		const { alterValuesBeforeSubmit, history, onSubmit, redirectOnSubmit } = this.props;
+		const {
+			alterValuesBeforeSubmit,
+			history,
+			onSubmit,
+			redirectOnSubmit,
+			testMode
+		} = this.props;
 		const { fieldGroups } = this.state;
 
 		//Disable the submit button
@@ -115,26 +121,34 @@ class BasicForm extends Component {
 		}
 
 		//Submit
-		const result = await onSubmit(values);
+		if (testMode) {
+			console.info("Test outcome: ", values);
+		} else {
+			const result = await onSubmit(values);
 
-		//Revert State
-		this.setState({ isSubmitting: false, unsavedChanges: false });
+			//Revert State
+			this.setState({ isSubmitting: false, unsavedChanges: false });
 
-		//Redirect
-		if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
-			history.push(redirectOnSubmit(result));
-		} else if (typeof redirectOnSubmit === "string") {
-			history.push(redirectOnSubmit);
+			//Redirect
+			if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
+				history.push(redirectOnSubmit(result));
+			} else if (typeof redirectOnSubmit === "string") {
+				history.push(redirectOnSubmit);
+			}
 		}
+
+		this.setState({ isSubmitting: false, unsavedChanges: false });
 	}
 
 	async handleDelete() {
-		const { history, onDelete, redirectOnDelete } = this.props;
+		const { history, onDelete, redirectOnDelete, testMode } = this.props;
 
-		const success = await onDelete();
+		if (!testMode) {
+			const success = await onDelete();
 
-		if (success && redirectOnDelete) {
-			history.replace(redirectOnDelete);
+			if (success && redirectOnDelete) {
+				history.replace(redirectOnDelete);
+			}
 		}
 	}
 
@@ -294,12 +308,14 @@ BasicForm.propTypes = {
 	redirectOnDelete: PropTypes.string,
 	//Either a simple string, or a callback passing in form values and action result
 	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+	testMode: PropTypes.bool,
 	validationSchema: PropTypes.object.isRequired
 };
 
 BasicForm.defaultProps = {
 	fastFieldByDefault: true,
-	redirectOnDelete: `/admin/`
+	redirectOnDelete: `/admin/`,
+	testMode: false
 };
 
 export default withRouter(BasicForm);
