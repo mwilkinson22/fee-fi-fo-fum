@@ -298,6 +298,7 @@ class BasicForm extends Component {
 							/>
 							<div className="form-card grid">
 								{this.renderFields(values)}
+								{this.renderErrors(errors)}
 								{this.renderSubmitButtons(errors)}
 							</div>
 							{this.renderDeleteButtons()}
