@@ -118,7 +118,7 @@ class BasicForm extends Component {
 		const result = await onSubmit(values);
 
 		//Revert State
-		this.setState({ isSubmitting: true, unsavedChanges: false });
+		this.setState({ isSubmitting: false, unsavedChanges: false });
 
 		//Redirect
 		if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
