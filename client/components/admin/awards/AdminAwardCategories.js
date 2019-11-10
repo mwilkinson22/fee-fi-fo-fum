@@ -1,13 +1,12 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import Select from "react-select";
 
 //Components
 import AdminAwardCategoryForm from "./AdminAwardCategoryForm";
-import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 
 //Constants
@@ -17,7 +16,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 //Actions
 import { fetchGameList } from "~/client/actions/gamesActions";
 
-class AdminAwardCategories extends BasicForm {
+class AdminAwardCategories extends Component {
 	constructor(props) {
 		super(props);
 
@@ -41,10 +40,12 @@ class AdminAwardCategories extends BasicForm {
 			teamList
 		} = nextProps;
 		const { _id, categoryId } = match.params;
-
 		const newState = { isNew: false };
+
+		//Get current award
 		newState.award = awardsList[_id];
 
+		//Get the current category
 		if (newState.award && categoryId) {
 			if (categoryId === "new") {
 				newState.isNew = true;
@@ -54,13 +55,18 @@ class AdminAwardCategories extends BasicForm {
 					newState.award.categories.find(c => c._id == categoryId) || false;
 			}
 		} else {
+			//Either an invalid category, or (more likely) /awards/:_id/categories
+			//For the former, we handle 404 in the render method
 			newState.category = undefined;
 		}
 
+		//Render the options for the form
+		//We do this here to prevent the same logic being repeated on category change
 		if (gameList && !prevState.options) {
 			newState.options = {};
 
 			//Get Stats
+			//A list of all stats, grouped by stat type (scoring/attack/defence)
 			newState.options.stats = _.chain(playerStatTypes)
 				.mapValues((stat, value) => ({
 					value,
@@ -71,7 +77,8 @@ class AdminAwardCategories extends BasicForm {
 				.map((options, label) => ({ label, options: _.sortBy(options, "label") }))
 				.value();
 
-			//Get Player Options
+			//A simple list of players across all squads, including those
+			//signed for the following year (for "most anticipated")
 			const squads = fullTeams[localTeam].squads.filter(
 				s => s.year == newState.award.year || s.year == newState.award.year + 1
 			);
@@ -84,7 +91,7 @@ class AdminAwardCategories extends BasicForm {
 				.sortBy("label")
 				.value();
 
-			//Get Game Options
+			//A list of all games, grouped by team type
 			newState.options.game = _.chain(gameList)
 				.filter(g => g.date.getFullYear() == newState.award.year)
 				.orderBy([({ _teamType }) => teamTypes[_teamType].sortOrder, "date"])
@@ -110,31 +117,18 @@ class AdminAwardCategories extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
-		const { award } = this.state;
-
-		//Set basics for new teams:
-		let defaults = {};
-
-		if (award) {
-			defaults = _.mapValues(defaults, (val, key) => {
-				switch (key) {
-					default:
-						return award[key] || "";
-				}
-			});
-		}
-
-		return defaults;
-	}
-
 	renderCategorySelect() {
 		const { award, category, isNew } = this.state;
+
+		//New category creation
 		const options = [{ label: "Add a category", value: "new" }];
+
+		//Pull dropdown options from current categories
 		award.categories.forEach(c => {
 			options.push({ label: c.name, value: c._id });
 		});
 
+		//Display currently selected category
 		let currentValue;
 		if (isNew) {
 			currentValue = "new";
@@ -147,11 +141,9 @@ class AdminAwardCategories extends BasicForm {
 				styles={selectStyling}
 				options={options}
 				isSearchable={false}
-				onChange={({ value }) => {
-					if (value !== category._id) {
-						this.props.history.push(`/admin/awards/${award._id}/categories/${value}`);
-					}
-				}}
+				onChange={({ value }) =>
+					this.props.history.replace(`/admin/awards/${award._id}/categories/${value}`)
+				}
 				value={options.find(({ value }) => value == currentValue)}
 			/>
 		);

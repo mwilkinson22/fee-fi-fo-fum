@@ -1,9 +1,9 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Formik, Form, FieldArray } from "formik";
+import { FieldArray } from "formik";
 import * as Yup from "yup";
 
 //Actions
@@ -11,13 +11,11 @@ import { createAward, updateAward, deleteAward } from "~/client/actions/awardAct
 
 //Components
 import BasicForm from "../BasicForm";
-import LoadingPage from "../../LoadingPage";
-import DeleteButtons from "../fields/DeleteButtons";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminAwardOverview extends BasicForm {
+class AdminAwardOverview extends Component {
 	constructor(props) {
 		super(props);
 
@@ -27,9 +25,11 @@ class AdminAwardOverview extends BasicForm {
 	static getDerivedStateFromProps(nextProps) {
 		const { awardsList, match } = nextProps;
 
+		//Get current award object
 		const award = awardsList[match.params._id];
 		const newState = { award };
 
+		//Set Validation Schema
 		newState.validationSchema = Yup.object().shape({
 			year: Yup.number()
 				.min(1895)
@@ -60,11 +60,11 @@ class AdminAwardOverview extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { award } = this.state;
 
-		//Set basics for new teams:
-		let defaults = {
+		//First we declare the defaults, for new items or those without certain fields
+		const defaultValues = {
 			year: "",
 			socialCard: "",
 			votingBeginsDate: "",
@@ -74,32 +74,75 @@ class AdminAwardOverview extends BasicForm {
 		};
 
 		if (award) {
-			defaults = _.mapValues(defaults, (val, key) => {
+			//First, get the current values (fall back to defaults)
+			const values = _.mapValues(defaultValues, (defaultValue, key) => {
 				switch (key) {
+					//Split Date field into date and time
 					case "votingBeginsDate":
-					case "votingEndsDate":
-						return award[key.replace("Date", "")].toString("yyyy-MM-dd");
+					case "votingEndsDate": {
+						//Get root votingBegins/Ends property
+						const date = award[key.replace("Date", "")];
+						return date ? date.toString("yyyy-MM-dd") : defaultValue;
+					}
 					case "votingBeginsTime":
-					case "votingEndsTime":
-						return award[key.replace("Time", "")].toString("HH:mm");
-					default:
-						return award[key] || "";
+					case "votingEndsTime": {
+						//Get root votingBegins/Ends property
+						const time = award[key.replace("Time", "")];
+						return time ? time.toString("HH:mm") : defaultValue;
+					}
+					default: {
+						//Otherwise, return either the current value or the default
+						const value = award.hasOwnProperty(key) ? award[key] : defaultValue;
+						return value != null ? value : "";
+					}
 				}
 			});
 
+			//Get an array of category IDs, for reordering
 			if (award.categories && award.categories.length) {
-				defaults.categories = award.categories.map(({ _id }) => _id);
+				values.categories = award.categories.map(({ _id }) => _id);
 			}
-		}
 
-		return defaults;
+			return values;
+		} else {
+			//"New" page, just return defaults
+			return defaultValues;
+		}
+	}
+
+	getFieldGroups() {
+		return [
+			{
+				fields: [
+					{ name: "year", type: fieldTypes.number },
+					{ name: "votingBeginsDate", type: fieldTypes.date },
+					{ name: "votingBeginsTime", type: fieldTypes.time },
+					{ name: "votingEndsDate", type: fieldTypes.date },
+					{ name: "votingEndsTime", type: fieldTypes.time },
+					{
+						name: "socialCard",
+						type: fieldTypes.image,
+						path: "images/awards/socialCards/",
+						allowSVG: false,
+						convertToWebP: false
+					}
+				]
+			},
+			{
+				render: values => {
+					if (values.categories && values.categories.length) {
+						return this.renderCategorySorter(values);
+					}
+				}
+			}
+		];
 	}
 
 	renderCategorySorter(values) {
 		const { award } = this.state;
 		if (values.categories) {
 			return (
-				<div className="form-card">
+				<div className="full-span" key="category-sorter-wrapper">
 					<h6>Categories</h6>
 					<ul className="plain-list">
 						<FieldArray
@@ -136,6 +179,16 @@ class AdminAwardOverview extends BasicForm {
 		}
 	}
 
+	alterValuesBeforeSubmit(values) {
+		//Convert date/time fields back to one value
+		values.votingBegins = `${values.votingBeginsDate} ${values.votingBeginsTime}`;
+		values.votingEnds = `${values.votingEndsDate} ${values.votingEndsTime}`;
+		delete values.votingBeginsDate;
+		delete values.votingBeginsTime;
+		delete values.votingEndsDate;
+		delete values.votingEndsTime;
+	}
+
 	async onSubmit(fValues) {
 		const { award } = this.state;
 		const { updateAward, createAward, history } = this.props;
@@ -156,72 +209,35 @@ class AdminAwardOverview extends BasicForm {
 		}
 	}
 
-	async onDelete() {
-		const { deleteAward, history } = this.props;
-		const { award } = this.state;
-		const success = await deleteAward(award._id);
-		if (success) {
-			history.replace("/admin/awards");
-		}
-	}
-
 	render() {
-		const { isLoading, award } = this.state;
+		const { createAward, updateAward, deleteAward } = this.props;
+		const { award, validationSchema } = this.state;
 
-		if (isLoading) {
-			return <LoadingPage />;
+		//Handle props specifically for create/update
+		let formProps;
+		if (award) {
+			formProps = {
+				onDelete: () => deleteAward(award._id),
+				onSubmit: values => updateAward(award._id, values),
+				redirectOnDelete: "/admin/awards/"
+			};
+		} else {
+			formProps = {
+				onSubmit: values => createAward(values),
+				redirectOnSubmit: id => `/admin/awards/${id}`
+			};
 		}
 
 		return (
 			<div className="container">
-				<Formik
-					validationSchema={this.state.validationSchema}
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					render={({ values }) => {
-						const fields = [
-							{ name: "year", type: fieldTypes.number },
-							{ name: "votingBeginsDate", type: fieldTypes.date },
-							{ name: "votingBeginsTime", type: fieldTypes.time },
-							{ name: "votingEndsDate", type: fieldTypes.date },
-							{ name: "votingEndsTime", type: fieldTypes.time },
-							{
-								name: "socialCard",
-								type: fieldTypes.image,
-								path: "images/awards/socialCards/",
-								allowSVG: false,
-								convertToWebP: false,
-								defaultUploadName: values.year.toString()
-							}
-						];
-
-						let deleteButtons;
-						if (award) {
-							deleteButtons = (
-								<div className="form-card grid">
-									<DeleteButtons onDelete={() => this.onDelete()} />
-								</div>
-							);
-						}
-
-						return (
-							<Form>
-								<div className="form-card grid">
-									{this.renderFieldGroup(fields)}
-								</div>
-								{this.renderCategorySorter(values)}
-								<div className="form-card grid">
-									<div className="buttons">
-										<button type="clear">Clear</button>
-										<button type="submit" className="confirm">
-											{award ? "Update" : "Add"} Awards
-										</button>
-									</div>
-								</div>
-								{deleteButtons}
-							</Form>
-						);
-					}}
+				<BasicForm
+					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+					fieldGroups={this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isNew={!award}
+					itemType={"Awards"}
+					validationSchema={validationSchema}
+					{...formProps}
 				/>
 			</div>
 		);
