@@ -189,26 +189,6 @@ class AdminAwardOverview extends Component {
 		delete values.votingEndsTime;
 	}
 
-	async onSubmit(fValues) {
-		const { award } = this.state;
-		const { updateAward, createAward, history } = this.props;
-
-		const values = _.cloneDeep(fValues);
-		values.votingBegins = `${values.votingBeginsDate} ${values.votingBeginsTime}`;
-		values.votingEnds = `${values.votingEndsDate} ${values.votingEndsTime}`;
-		delete values.votingBeginsDate;
-		delete values.votingBeginsTime;
-		delete values.votingEndsDate;
-		delete values.votingEndsTime;
-
-		if (award) {
-			updateAward(award._id, values);
-		} else {
-			const newId = await createAward(values);
-			history.push(`/admin/awards/${newId}`);
-		}
-	}
-
 	render() {
 		const { createAward, updateAward, deleteAward } = this.props;
 		const { award, validationSchema } = this.state;

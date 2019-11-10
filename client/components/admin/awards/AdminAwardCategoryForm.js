@@ -1,8 +1,8 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form, FieldArray } from "formik";
+import { FieldArray } from "formik";
 import { withRouter } from "react-router-dom";
 import * as Yup from "yup";
 
@@ -16,7 +16,7 @@ import DeleteButtons from "../fields/DeleteButtons";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminAwardCategories extends BasicForm {
+class AdminAwardCategories extends Component {
 	constructor(props) {
 		super(props);
 
@@ -24,9 +24,10 @@ class AdminAwardCategories extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { award, category } = nextProps;
-		const newState = { award, category };
+		//Check for URL update
+		const newState = _.pick(nextProps, ["award", "category"]);
 
+		//Get validation schema
 		const validationSchema = {
 			name: Yup.string()
 				.required()
@@ -54,12 +55,23 @@ class AdminAwardCategories extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { category } = this.state;
 		const { options } = this.props;
 
-		if (category) {
-			//Normalise Nominee Options
+		if (!category) {
+			return {
+				name: "",
+				awardType: "",
+				description: "",
+				nominees: [
+					{ description: "", nominee: "", stats: [] },
+					{ description: "", nominee: "", stats: [] }
+				]
+			};
+		} else {
+			//options.game is grouped by teamType, so
+			//we flatten that here to make it easier to find the value
 			let nomineeOptions;
 			switch (category.awardType) {
 				case "player":
@@ -72,14 +84,17 @@ class AdminAwardCategories extends BasicForm {
 						.value();
 			}
 
-			//Flatten Stat Options
+			//Stat options are grouped regardless of award type,
+			//So we flatten those too
 			const statOptions = _.chain(options.stats)
 				.map("options")
 				.flatten()
 				.value();
 
+			//Get all current nominees
 			const nominees = category.nominees.map(n => {
-				//Get Nominee Option
+				//For player and game awards, pull the
+				//corresponding dropdown option
 				let { nominee, stats } = n;
 				switch (category.awardType) {
 					case "player":
@@ -88,67 +103,85 @@ class AdminAwardCategories extends BasicForm {
 						break;
 				}
 
-				//Get Stats
+				//Get Stat options
 				if (stats && stats.length) {
 					stats = stats.map(s => statOptions.find(({ value }) => value == s));
+				} else {
+					stats = [];
 				}
 
 				return { ...n, nominee, stats };
 			});
+
 			return {
 				name: category.name,
 				awardType: category.awardType,
 				description: category.description,
 				nominees
 			};
-		} else {
-			return {
-				name: "",
-				awardType: "",
-				description: "",
-				nominees: [
-					{ description: "", nominee: "", stats: [] },
-					{ description: "", nominee: "", stats: [] }
-				]
-			};
 		}
 	}
 
-	async onSubmit(fValues) {
-		const { award, category, addCategory, updateCategory, history } = this.props;
-		const values = _.cloneDeep(fValues);
-
-		//Fix Nominees
-		values.nominees = values.nominees.map(n => {
-			n.nominee = n.nominee.value || n.nominee;
-			if (n.stats && n.stats.length) {
-				n.stats = n.stats.map(s => s.value);
-			}
-			return n;
-		});
-
-		if (category) {
-			updateCategory(award._id, category._id, values);
-		} else {
-			const newId = await addCategory(award._id, values);
-			history.push(`/admin/awards/${award._id}/categories/${newId}`);
+	getFieldGroups(values) {
+		//If the award type isn't set yet, we do so before defining the fields
+		if (!values.awardType) {
+			return [
+				{
+					fields: [
+						{
+							name: "awardType",
+							type: fieldTypes.radio,
+							options: [
+								{ label: "Game", value: "game" },
+								{ label: "Player", value: "player" },
+								{ label: "Custom", value: "custom" }
+							]
+						}
+					]
+				}
+			];
 		}
+
+		//Main Category Fields
+		const mainFieldGroup = {
+			fields: [
+				{ name: "name", type: fieldTypes.text },
+				{ name: "description", type: fieldTypes.textarea }
+			]
+		};
+
+		//Get all the current nominees
+		const nomineeGroups = this.getNomineeFields(values);
+
+		//And finally a group to add new nominees
+		const addNomineeGroup = {
+			render: () => (
+				<FieldArray
+					name="nominees"
+					key="add-nominee"
+					render={({ push }) => [
+						<div className="buttons" key="buttons">
+							<button
+								type="button"
+								onClick={() => push({ description: "", nominee: "" })}
+							>
+								Add Nominee
+							</button>
+						</div>,
+						<hr key="hr" />
+					]}
+				/>
+			)
+		};
+
+		return [mainFieldGroup, ...nomineeGroups, addNomineeGroup];
 	}
 
-	async onDelete() {
-		const { award, category, deleteCategory, history } = this.props;
-
-		const success = await deleteCategory(award._id, category._id);
-		if (success) {
-			history.replace(`/admin/awards/${award._id}/categories`);
-		}
-	}
-
-	renderMainForm({ values }) {
-		const { awardType } = values;
-		const { category } = this.state;
+	getNomineeFields(values) {
 		const { options } = this.props;
-
+		const { awardType, nominees } = values;
+		//Create a standard, reusable field to
+		//select each nominee
 		const nomineeField = {};
 
 		if (awardType == "custom") {
@@ -158,140 +191,122 @@ class AdminAwardCategories extends BasicForm {
 			nomineeField.options = options[awardType];
 		}
 
-		const fields = values.nominees.map((nominee, i) => {
-			const baseName = `nominees.${i}`;
-			///nominee, stats, description;
-			const fields = [
-				{ name: `${baseName}.nominee`, ...nomineeField },
-				{ name: `${baseName}.description`, type: fieldTypes.textarea, rows: 3 }
-			];
+		//Each nominee is rendered as two 'groups',
+		//one for main fields, one for the FieldArray
+		//and then we flatten the result
+		return _.flatten(
+			nominees.map((nominee, i) => {
+				//Name of the value object
+				//in which other fields are contained
+				const baseName = `nominees.${i}`;
 
-			if (awardType !== "custom") {
-				fields.push({
-					name: `${baseName}.stats`,
-					type: fieldTypes.select,
-					options: options.stats,
-					isMulti: true
-				});
-			}
-			return (
-				<div className="form-card grid" key={i}>
-					{this.renderFieldGroup(fields)}
-					<FieldArray
-						key={`remove ${i}`}
-						name="nominees"
-						render={({ move, remove }) => [
-							<div key="move" className="move-buttons">
-								<button
-									type="button"
-									className="down"
-									disabled={i == values.nominees.length - 1}
-									onClick={() => move(i, i + 1)}
-								>
-									&#9660;
-								</button>
-								<button
-									type="button"
-									className="up"
-									disabled={i == 0}
-									onClick={() => move(i, i - 1)}
-								>
-									&#9650;
-								</button>
-							</div>,
-							<DeleteButtons
-								key="delete"
-								onDelete={() => remove(i)}
-								deleteText="Remove Nominee"
-							/>
-						]}
-					/>
-				</div>
-			);
-		});
+				//Nominee selector & description
+				const fields = [
+					{ name: `${baseName}.nominee`, ...nomineeField },
+					{ name: `${baseName}.description`, type: fieldTypes.textarea, rows: 3 }
+				];
 
+				//Stats field, when necessary
+				if (awardType !== "custom") {
+					fields.push({
+						name: `${baseName}.stats`,
+						type: fieldTypes.select,
+						options: options.stats,
+						isMulti: true
+					});
+				}
+
+				//Render array fields
+				const arrayFields = this.renderArrayFields(i, nominees);
+
+				//Return field groups
+				return [
+					{
+						label: `Nominee ${i + 1}`,
+						fields
+					},
+					{
+						render: () => arrayFields
+					}
+				];
+			})
+		);
+	}
+
+	renderArrayFields(i, nominees) {
 		return [
-			<div className="form-card grid" key="head">
-				{this.renderFieldGroup([
-					{ name: "name", type: fieldTypes.text },
-					{ name: "description", type: fieldTypes.textarea }
-				])}
-			</div>,
-			...fields,
-			<div className="form-card grid" key="add">
-				<FieldArray
-					name="nominees"
-					render={({ push }) => (
-						<div className="buttons">
-							<button
-								type="button"
-								onClick={() => push({ description: "", nominee: "" })}
-							>
-								Add Nominee
-							</button>
-						</div>
-					)}
-				/>
-			</div>,
-			<div className="form-card grid" key="footer">
-				<div className="buttons">
-					<button type="reset">Reset</button>
-					<button type="submit" disabled={values.nominees.length < 2}>
-						{category ? "Update" : "Add"} Category
-					</button>
-				</div>
-			</div>
+			<FieldArray
+				key={`array-fields-${i}`}
+				name="nominees"
+				render={({ move, remove }) => [
+					<div key="move" className="move-buttons">
+						<button
+							type="button"
+							className="down"
+							disabled={i == nominees.length - 1}
+							onClick={() => move(i, i + 1)}
+						>
+							&#9660;
+						</button>
+						<button
+							type="button"
+							className="up"
+							disabled={i == 0}
+							onClick={() => move(i, i - 1)}
+						>
+							&#9650;
+						</button>
+					</div>,
+					<DeleteButtons
+						key="delete"
+						onDelete={() => remove(i)}
+						deleteText="Remove Nominee"
+					/>
+				]}
+			/>,
+			<hr key={`hr${i}`} />
 		];
 	}
 
-	renderDeleteButtons() {
-		const { category } = this.props;
-		if (category) {
-			return (
-				<div className="form-card grid">
-					<DeleteButtons deleteText="Remove Category" onDelete={() => this.onDelete()} />
-				</div>
-			);
-		}
+	alterValuesBeforeSubmit(values) {
+		//Convert stats back to keys
+		values.nominees.map(n => {
+			if (n.stats && n.stats.length) {
+				n.stats = n.stats.map(s => s.value);
+			}
+			return n;
+		});
 	}
 
 	render() {
+		const { addCategory, updateCategory, deleteCategory } = this.props;
+		const { award, category, validationSchema } = this.state;
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (category) {
+			formProps = {
+				onDelete: () => deleteCategory(award._id, category._id),
+				onSubmit: values => updateCategory(award._id, category._id, values),
+				redirectOnDelete: `/admin/awards/${award._id}/categories`
+			};
+		} else {
+			formProps = {
+				onSubmit: values => addCategory(award._id, values),
+				redirectOnSubmit: id => `/admin/awards/${award._id}/categories/${id}`
+			};
+		}
+
 		return (
 			<div className="container">
-				<Formik
-					validationSchema={this.state.validationSchema}
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					enableReinitialize={true}
-					render={formikProps => {
-						let content;
-
-						//First of all we need an award type, which cannot be changed
-						if (!formikProps.values.awardType) {
-							const field = this.renderFieldGroup([
-								{
-									name: "awardType",
-									type: fieldTypes.radio,
-									options: [
-										{ label: "Game", value: "game" },
-										{ label: "Player", value: "player" },
-										{ label: "Custom", value: "custom" }
-									]
-								}
-							]);
-							content = <div className="form-card grid">{field}</div>;
-						} else {
-							//Otherwise, render the full form
-							content = this.renderMainForm(formikProps);
-						}
-
-						return (
-							<Form>
-								{content}
-								{this.renderDeleteButtons()}
-							</Form>
-						);
-					}}
+				<BasicForm
+					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+					fieldGroups={values => this.getFieldGroups(values)}
+					initialValues={this.getInitialValues()}
+					isNew={!category}
+					itemType="Category"
+					validationSchema={validationSchema}
+					{...formProps}
 				/>
 			</div>
 		);
