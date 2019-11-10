@@ -31,8 +31,22 @@ class BasicForm extends Component {
 			"validationSchema"
 		]);
 
-		//Validate field groups
-		_.chain(nextProps.fieldGroups)
+		return newState;
+	}
+
+	getFieldGroups(values) {
+		const { fieldGroups } = this.props;
+		if (typeof fieldGroups === "function") {
+			return fieldGroups(values);
+		} else {
+			return fieldGroups;
+		}
+	}
+
+	validateFieldGroups(values) {
+		const fieldGroups = this.getFieldGroups(values);
+
+		_.chain(fieldGroups)
 			.filter("fields")
 			.map("fields")
 			.flatten()
@@ -60,8 +74,6 @@ class BasicForm extends Component {
 				}
 			})
 			.value();
-
-		return newState;
 	}
 
 	processValues(values, fields, parentPath = []) {
@@ -100,7 +112,8 @@ class BasicForm extends Component {
 			redirectOnSubmit,
 			testMode
 		} = this.props;
-		const { fieldGroups } = this.state;
+
+		const fieldGroups = this.getFieldGroups(fValues);
 
 		//Disable the submit button
 		this.setState({ isSubmitting: true });
@@ -117,7 +130,7 @@ class BasicForm extends Component {
 
 		//Custom callback to manipulate values before submitting
 		if (alterValuesBeforeSubmit) {
-			values = alterValuesBeforeSubmit(values);
+			alterValuesBeforeSubmit(values);
 		}
 
 		//Submit
@@ -154,12 +167,16 @@ class BasicForm extends Component {
 
 	renderFields(values) {
 		const { fastFieldByDefault } = this.props;
-		const { fieldGroups, unsavedChanges, validationSchema } = this.state;
+		const { unsavedChanges, validationSchema } = this.state;
+		const fieldGroups = this.getFieldGroups(values);
 
 		let extraOnChange;
 		if (!unsavedChanges) {
 			extraOnChange = () => this.setState({ unsavedChanges: true });
 		}
+
+		//Validate
+		this.validateFieldGroups(values);
 
 		return fieldGroups.map(({ label, fields, render }) => {
 			let content;
@@ -291,18 +308,21 @@ class BasicForm extends Component {
 BasicForm.propTypes = {
 	alterValuesBeforeSubmit: PropTypes.func,
 	fastFieldByDefault: PropTypes.bool,
-	fieldGroups: PropTypes.arrayOf(
-		PropTypes.shape({
-			label: PropTypes.string,
-			fields: PropTypes.arrayOf(
-				PropTypes.shape({
-					name: PropTypes.string.isRequired,
-					type: PropTypes.oneOf(_.values(fieldTypes))
-				})
-			),
-			render: PropTypes.func //values => <FieldArray />
-		})
-	).isRequired,
+	fieldGroups: PropTypes.oneOfType([
+		PropTypes.func,
+		PropTypes.arrayOf(
+			PropTypes.shape({
+				label: PropTypes.string,
+				fields: PropTypes.arrayOf(
+					PropTypes.shape({
+						name: PropTypes.string.isRequired,
+						type: PropTypes.oneOf(_.values(fieldTypes))
+					})
+				),
+				render: PropTypes.func //values => <FieldArray />
+			})
+		)
+	]).isRequired,
 	initialValues: PropTypes.object.isRequired,
 	isNew: PropTypes.bool.isRequired,
 	itemType: PropTypes.string.isRequired,
