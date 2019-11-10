@@ -281,7 +281,7 @@ class BasicForm extends Component {
 	}
 
 	render() {
-		const { appendMainFields, initialValues, validationSchema, unsavedChanges } = this.state;
+		const { initialValues, validationSchema, unsavedChanges } = this.state;
 
 		return (
 			<Formik
@@ -298,7 +298,6 @@ class BasicForm extends Component {
 							/>
 							<div className="form-card grid">
 								{this.renderFields(values)}
-								{appendMainFields}
 								{this.renderSubmitButtons(errors)}
 							</div>
 							{this.renderDeleteButtons()}
