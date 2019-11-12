@@ -12,15 +12,13 @@ import DeleteButtons from "./fields/DeleteButtons";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
+import { nestedObjectToDot } from "~/helpers/genericHelper";
 import { extractYupData, renderFieldGroup } from "~/helpers/formHelper";
 
 class BasicForm extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			isSubmitting: false,
-			unsavedChanges: false
-		};
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -120,9 +118,6 @@ class BasicForm extends Component {
 
 		const fieldGroups = this.getFieldGroups(fValues);
 
-		//Disable the submit button
-		this.setState({ isSubmitting: true });
-
 		//Get flat field list
 		const fields = _.chain(fieldGroups)
 			.map("fields")
@@ -144,9 +139,6 @@ class BasicForm extends Component {
 		} else {
 			const result = await onSubmit(values);
 
-			//Revert State
-			this.setState({ isSubmitting: false, unsavedChanges: false });
-
 			//Redirect
 			if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
 				history.push(redirectOnSubmit(result));
@@ -154,8 +146,6 @@ class BasicForm extends Component {
 				history.push(redirectOnSubmit);
 			}
 		}
-
-		this.setState({ isSubmitting: false, unsavedChanges: false });
 	}
 
 	async handleDelete() {
@@ -172,13 +162,8 @@ class BasicForm extends Component {
 
 	renderFields(values) {
 		const { fastFieldByDefault } = this.props;
-		const { unsavedChanges, validationSchema } = this.state;
+		const { validationSchema } = this.state;
 		const fieldGroups = this.getFieldGroups(values);
-
-		let extraOnChange;
-		if (!unsavedChanges) {
-			extraOnChange = () => this.setState({ unsavedChanges: true });
-		}
 
 		//Validate
 		this.validateFieldGroups(values);
@@ -191,35 +176,27 @@ class BasicForm extends Component {
 				content = render(values);
 			} else if (fields) {
 				//Standard fields
-				content = renderFieldGroup(
-					fields,
-					validationSchema,
-					fastFieldByDefault,
-					extraOnChange
-				);
+				content = renderFieldGroup(fields, validationSchema, fastFieldByDefault);
 			}
 			return [label ? <h6 key="label">{label}</h6> : null, content];
 		});
 	}
 
-	renderErrors(nestedErrors) {
+	renderErrors(nestedErrors, nestedTouched) {
 		const { validationSchema } = this.props;
 
-		if (Object.keys(nestedErrors).length) {
-			//Convert from { address : { city: "" } } to { address.city: "" }
-			const errors = {};
-			(function recurse(obj, current) {
-				for (var key in obj) {
-					var value = obj[key];
-					var newKey = current ? current + "." + key : key;
-					if (value && typeof value === "object") {
-						recurse(value, newKey);
-					} else {
-						errors[newKey] = value;
-					}
-				}
-			})(nestedErrors);
+		//Convert from { address : { city: "" } } to { address.city: "" }
+		const touched = nestedObjectToDot(nestedTouched);
 
+		//Only log the touched errors
+		const errors = {};
+		_.each(nestedObjectToDot(nestedErrors), (err, key) => {
+			if (touched[key]) {
+				errors[key] = err;
+			}
+		});
+
+		if (Object.keys(errors).length) {
 			const errorList = Object.keys(errors).map(name => {
 				const yupField = extractYupData(name, validationSchema);
 				const label = yupField && yupField.label ? yupField.label : name;
@@ -234,9 +211,9 @@ class BasicForm extends Component {
 		}
 	}
 
-	renderSubmitButtons(errors) {
+	renderSubmitButtons(isValid, isSubmitting) {
 		const { itemType } = this.props;
-		const { isNew, isSubmitting, unsavedChanges } = this.state;
+		const { isNew } = this.state;
 
 		let submitButtonText;
 		if (isSubmitting) {
@@ -253,15 +230,17 @@ class BasicForm extends Component {
 			}
 		}
 
+		const disableButtons = !isValid || isSubmitting;
+
 		return (
 			<div className="buttons">
-				<button type="reset" disabled={!unsavedChanges}>
+				<button type="reset" disabled={disableButtons}>
 					Reset
 				</button>
 				<button
 					type="submit"
-					className="confirm"
-					disabled={isSubmitting || Object.keys(errors).length}
+					className={disableButtons ? "" : "confirm"}
+					disabled={disableButtons}
 				>
 					{submitButtonText} {itemType}
 				</button>
@@ -281,25 +260,28 @@ class BasicForm extends Component {
 	}
 
 	render() {
-		const { initialValues, validationSchema, unsavedChanges } = this.state;
+		const { initialValues, validationSchema } = this.state;
 
 		return (
 			<Formik
 				enableReinitialize={true}
+				isInitialValid={false}
 				initialValues={initialValues}
 				onSubmit={values => this.handleSubmit(values)}
 				validationSchema={validationSchema}
-				render={({ errors, values }) => {
+				render={({ errors, values, touched, isValid, isSubmitting }) => {
 					return (
 						<Form>
 							<Prompt
-								when={unsavedChanges}
+								//As long as isInitialValid = false,
+								//the isValid property will mean the form has changes
+								when={isValid}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className="form-card grid">
 								{this.renderFields(values)}
-								{this.renderErrors(errors)}
-								{this.renderSubmitButtons(errors)}
+								{this.renderErrors(errors, touched)}
+								{this.renderSubmitButtons(isValid, isSubmitting)}
 							</div>
 							{this.renderDeleteButtons()}
 						</Form>
