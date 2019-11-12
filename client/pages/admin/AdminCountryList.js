@@ -32,9 +32,9 @@ class AdminCountryList extends Component {
 	renderList() {
 		const countries = _.chain(this.state.countries)
 			.sortBy("name")
-			.map(({ _id, slug, name }) => (
+			.map(({ _id, name }) => (
 				<li key={_id}>
-					<Link to={`/admin/countries/${slug}`}>{name}</Link>
+					<Link to={`/admin/countries/${_id}`}>{name}</Link>
 				</li>
 			))
 			.value();

@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
@@ -21,13 +21,10 @@ import {
 	deleteCountry
 } from "~/client/actions/locationActions";
 
-//Helpers
-import { validateSlug } from "~/helpers/adminHelper";
-
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminCountryPage extends BasicForm {
+class AdminCountryPage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -45,7 +42,7 @@ class AdminCountryPage extends BasicForm {
 		const newState = { isLoading: false };
 
 		//Create Or Edit
-		newState.isNew = !match.params.slug;
+		newState.isNew = !match.params._id;
 
 		//Check Everything is loaded
 		if (!newState.isNew && !countries) {
@@ -54,28 +51,24 @@ class AdminCountryPage extends BasicForm {
 		}
 
 		//Create Validation Schema
-		const rawValidationSchema = {
+		newState.validationSchema = Yup.object().shape({
 			name: Yup.string()
 				.required()
 				.label("Name"),
 			demonym: Yup.string()
 				.required()
 				.label("Demonym")
-		};
-		if (match.params.slug) {
-			rawValidationSchema.slug = validateSlug();
-		}
-		newState.validationSchema = Yup.object().shape(rawValidationSchema);
+		});
 
 		//Get Current Country
 		if (!newState.isNew) {
-			newState.country = _.find(countries, ({ slug }) => slug == match.params.slug) || false;
+			newState.country = countries.find(({ _id }) => _id == match.params._id) || false;
 		}
 
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { country, isNew } = this.state;
 
 		if (isNew) {
@@ -88,39 +81,19 @@ class AdminCountryPage extends BasicForm {
 		}
 	}
 
-	async handleSubmit(values) {
-		const { createCountry, updateCountry, history } = this.props;
-		const { country, isNew } = this.state;
-
-		let newSlug;
-		if (isNew) {
-			newSlug = await createCountry(values);
-		} else {
-			newSlug = await updateCountry(country._id, values);
-		}
-		history.push(`/admin/countries/${newSlug}`);
-	}
-
-	async handleDelete() {
-		const { deleteCountry, history } = this.props;
-		const { country } = this.state;
-		const success = await deleteCountry(country._id);
-		if (success) {
-			history.replace("/admin/countries");
-		}
-	}
-
-	renderDeleteButtons() {
-		if (!this.state.isNew) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
+	getFieldGroups() {
+		return [
+			{
+				fields: [
+					{ name: "name", type: fieldTypes.text },
+					{ name: "demonym", type: fieldTypes.text }
+				]
+			}
+		];
 	}
 
 	render() {
+		const { createCountry, updateCountry, deleteCountry } = this.props;
 		const { country, isNew, isLoading, validationSchema } = this.state;
 
 		if (isLoading) {
@@ -130,7 +103,24 @@ class AdminCountryPage extends BasicForm {
 			return <NotFoundPage message="Country not found" />;
 		}
 
+		//Get Page Title
 		const title = isNew ? "Add New Country" : country.name;
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createCountry(values),
+				redirectOnSubmit: id => `/admin/countries/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteCountry(country._id),
+				onSubmit: values => updateCountry(country._id, values),
+				redirectOnDelete: "/admin/countries/"
+			};
+		}
+
 		return (
 			<div className="admin-country-page">
 				<HelmetBuilder title={title} />
@@ -141,35 +131,13 @@ class AdminCountryPage extends BasicForm {
 				</section>
 				<section className="form">
 					<div className="container">
-						<Formik
-							onSubmit={values => this.handleSubmit(values)}
-							initialValues={this.getDefaults()}
+						<BasicForm
+							fieldGroups={this.getFieldGroups()}
+							initialValues={this.getInitialValues()}
+							isNew={isNew}
+							itemType="Country"
 							validationSchema={validationSchema}
-							render={() => {
-								const fields = [
-									{ name: "name", type: fieldTypes.text },
-									{ name: "demonym", type: fieldTypes.text }
-								];
-
-								if (!isNew) {
-									fields.push({ name: "slug", type: fieldTypes.text });
-								}
-
-								return (
-									<Form>
-										<div className="card form-card grid">
-											{this.renderFieldGroup(fields)}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">
-													{isNew ? "Add" : "Update"} Country
-												</button>
-											</div>
-										</div>
-										{this.renderDeleteButtons()}
-									</Form>
-								);
-							}}
+							{...formProps}
 						/>
 					</div>
 				</section>
