@@ -3,8 +3,7 @@ const { Schema } = mongoose;
 
 const citySchema = new Schema({
 	name: { type: String, required: true },
-	_country: { type: Schema.Types.ObjectId, ref: "countries" },
-	slug: { type: String, unique: true, required: true }
+	_country: { type: Schema.Types.ObjectId, ref: "countries" }
 });
 
 citySchema.statics.generateSlug = async function({ name, _country }) {

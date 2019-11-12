@@ -22,7 +22,7 @@ export const createCity = data => async (dispatch, getState, api) => {
 	const res = await api.post("/cities", data);
 	dispatch({ type: FETCH_CITY, payload: res.data });
 	toast.success("New City Created");
-	return res.data.slug;
+	return res.data._id;
 };
 
 export const createCountry = data => async (dispatch, getState, api) => {
@@ -36,7 +36,6 @@ export const updateCity = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/cities/${id}`, data);
 	dispatch({ type: FETCH_CITY, payload: res.data });
 	toast.success("City Updated");
-	return res.data.slug;
 };
 
 export const updateCountry = (id, data) => async (dispatch, getState, api) => {

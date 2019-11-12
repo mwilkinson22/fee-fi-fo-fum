@@ -1,16 +1,14 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
-import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Constants
@@ -25,10 +23,7 @@ import {
 	deleteCity
 } from "~/client/actions/locationActions";
 
-//Helpers
-import { validateSlug } from "~/helpers/adminHelper";
-
-class AdminCityPage extends BasicForm {
+class AdminCityPage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -50,7 +45,7 @@ class AdminCityPage extends BasicForm {
 		const newState = { isLoading: false };
 
 		//Create or Edit
-		newState.isNew = !match.params.slug;
+		newState.isNew = !match.params._id;
 
 		//Check Everything is loaded
 		if (!countries || (!newState.isNew && !cities)) {
@@ -59,26 +54,21 @@ class AdminCityPage extends BasicForm {
 		}
 
 		//Create Validation Schema
-		const rawValidationSchema = {
+		newState.validationSchema = Yup.object().shape({
 			name: Yup.string()
 				.required()
 				.label("Name"),
 			_country: Yup.mixed()
 				.required()
 				.label("Country")
-		};
-		if (match.params.slug) {
-			rawValidationSchema.slug = validateSlug();
-		}
-
-		newState.validationSchema = Yup.object().shape(rawValidationSchema);
+		});
 
 		//Get Current City
 		if (!newState.isNew) {
-			newState.city = _.find(cities, ({ slug }) => slug == match.params.slug) || false;
+			newState.city = cities.find(({ _id }) => _id == match.params._id) || false;
 		}
 
-		//Get Country Options
+		//Get Country Dropdown Options
 		newState.countries = _.sortBy(
 			countries.map(c => ({ label: c.name, value: c._id })),
 			"label"
@@ -87,70 +77,67 @@ class AdminCityPage extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { city, countries, isNew } = this.state;
 
 		if (isNew) {
 			return {
 				name: "",
-				country: ""
+				_country: ""
 			};
 		} else {
 			return {
 				name: city.name,
-				_country: countries.find(c => c.value == city._country._id),
-				slug: city.slug
+				_country: countries.find(c => c.value == city._country._id)
 			};
 		}
 	}
 
-	async handleSubmit(fValues) {
-		const { createCity, updateCity, history } = this.props;
-		const { city, isNew } = this.state;
-
-		const values = _.cloneDeep(fValues);
-		values._country = values._country.value;
-
-		let newSlug;
-		if (isNew) {
-			newSlug = await createCity(values);
-			history.replace(`/admin/cities/${newSlug}`);
-		} else {
-			newSlug = await updateCity(city._id, values);
-			history.push(`/admin/cities/${newSlug}`);
-		}
-	}
-
-	async handleDelete() {
-		const { deleteCity, history } = this.props;
-		const { city } = this.state;
-		const success = await deleteCity(city._id);
-		if (success) {
-			history.replace(`/admin/cities/`);
-		}
-	}
-
-	renderDeleteButtons() {
-		if (!this.state.isNew) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
+	getFieldGroups() {
+		const { countries } = this.state;
+		return [
+			{
+				fields: [
+					{ name: "name", type: fieldTypes.text },
+					{
+						name: "_country",
+						type: fieldTypes.select,
+						options: countries
+					}
+				]
+			}
+		];
 	}
 
 	render() {
-		const { city, countries, isNew, isLoading, validationSchema } = this.state;
+		const { createCity, updateCity, deleteCity } = this.props;
+		const { city, isNew, isLoading, validationSchema } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
 		}
 		if (!isNew && city === false) {
-			return <NotFoundPage message="Country not found" />;
+			return <NotFoundPage message="City not found" />;
 		}
 
+		//Get Page Title
 		const title = isNew ? "Add New City" : city.name;
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createCity(values),
+				redirectOnSubmit: id => `/admin/cities/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteCity(city._id),
+				onSubmit: values => updateCity(city._id, values),
+				redirectOnDelete: "/admin/cities/"
+			};
+		}
+
 		return (
 			<div className="admin-city-page">
 				<HelmetBuilder title={title} />
@@ -161,38 +148,13 @@ class AdminCityPage extends BasicForm {
 				</section>
 				<section className="form">
 					<div className="container">
-						<Formik
-							onSubmit={values => this.handleSubmit(values)}
-							initialValues={this.getDefaults()}
+						<BasicForm
+							fieldGroups={this.getFieldGroups()}
+							initialValues={this.getInitialValues()}
+							isNew={isNew}
+							itemType="City"
 							validationSchema={validationSchema}
-							render={() => {
-								const fields = [
-									{ name: "name", type: fieldTypes.text },
-									{
-										name: "_country",
-										type: fieldTypes.select,
-										options: countries
-									}
-								];
-								if (!isNew) {
-									fields.push({ name: "slug", type: fieldTypes.text });
-								}
-
-								return (
-									<Form>
-										<div className="card form-card grid">
-											{this.renderFieldGroup(fields)}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">
-													{isNew ? "Add" : "Update"} City
-												</button>
-											</div>
-										</div>
-										{this.renderDeleteButtons()}
-									</Form>
-								);
-							}}
+							{...formProps}
 						/>
 					</div>
 				</section>

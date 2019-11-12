@@ -89,7 +89,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/awards" exact component={AdminAwardList} />
 
 					<Route path="/admin/cities/new" exact component={AdminCityPage} />
-					<Route path="/admin/cities/:slug" exact component={AdminCityPage} />
+					<Route path="/admin/cities/:_id" exact component={AdminCityPage} />
 					<Route path="/admin/cities" exact component={AdminCityList} />
 
 					<Route
