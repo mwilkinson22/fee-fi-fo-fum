@@ -275,7 +275,8 @@ class BasicForm extends Component {
 							<Prompt
 								//As long as isInitialValid = false,
 								//the isValid property will mean the form has changes
-								when={isValid}
+								//the !isSubmitting prevents prompts on redirectOnSubmit
+								when={!isSubmitting && isValid}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className="form-card grid">
