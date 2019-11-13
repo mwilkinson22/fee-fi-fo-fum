@@ -97,7 +97,7 @@ class BasicForm extends Component {
 				}
 			}
 
-			return newValue && newValue.length === 0 ? null : newValue;
+			return newValue == null || newValue.length === 0 ? null : newValue;
 		};
 
 		if (isArray) {
