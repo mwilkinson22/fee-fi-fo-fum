@@ -102,7 +102,8 @@ class AdminRouter extends Component {
 						exact
 						component={AdminCompetitionSegmentPage}
 					/>
-					<Route path="/admin/competitions/:_id" exact component={AdminCompetitionPage} />
+					<Route path="/admin/competitions/new" component={AdminCompetitionPage} />
+					<Route path="/admin/competitions/:_id" component={AdminCompetitionPage} />
 					<Route path="/admin/competitions" exact component={AdminCompetitionList} />
 
 					<Route path="/admin/countries/new" exact component={AdminCountryPage} />
