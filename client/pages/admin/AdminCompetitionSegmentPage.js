@@ -1,32 +1,20 @@
 //Modules
-import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
+import { Switch, Route, Link } from "react-router-dom";
 
 //Components
-import BasicForm from "../../components/admin/BasicForm";
+import AdminCompetitionSegmentOverview from "../../components/admin/competitions/AdminCompetitionSegmentOverview";
+import AdminCompetitionInstanceList from "../../components/admin/competitions/AdminCompetitionInstanceList";
+import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
-import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
-import {
-	fetchCompetitions,
-	fetchCompetitionSegments,
-	createCompetitionSegment,
-	updateCompetitionSegment,
-	deleteCompetitionSegment
-} from "~/client/actions/competitionActions";
+import { fetchCompetitions, fetchCompetitionSegments } from "~/client/actions/competitionActions";
 
-//Constants
-const competitionTypes = require("~/constants/competitionTypes");
-import * as fieldTypes from "~/constants/formFieldTypes";
-
-class AdminCompetitionPage extends BasicForm {
+class AdminCompetitionSegmentPage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -34,8 +22,7 @@ class AdminCompetitionPage extends BasicForm {
 			competitionList,
 			fetchCompetitions,
 			competitionSegmentList,
-			fetchCompetitionSegments,
-			teamTypes
+			fetchCompetitionSegments
 		} = props;
 
 		if (!competitionList) {
@@ -46,216 +33,98 @@ class AdminCompetitionPage extends BasicForm {
 			fetchCompetitionSegments();
 		}
 
-		const options = {
-			type: competitionTypes.sort().map(a => ({ value: a, label: a })),
-			_teamType: _.chain(teamTypes)
-				.sortBy("sortOrder")
-				.map(t => ({ value: t._id, label: t.name }))
-				.value()
-		};
-
-		this.state = { options };
+		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { competitionList, competitionSegmentList, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
 		newState.isNew = !match.params._id;
 
-		//Check Everything is loaded
-		if (!newState.isNew && (!competitionList || !competitionSegmentList)) {
+		//Check if everything is loaded.
+		//We always need the segment list (to load the active
+		//segment, and for "Points Carried From").
+		//We only need the competition list to validate the parent of new segments
+		if (!competitionSegmentList || (newState.isNew && !competitionList)) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		//Create Validation Schema
-		const validationObject = {
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			type: Yup.mixed()
-				.required()
-				.label("Type"),
-			_teamType: Yup.mixed()
-				.required()
-				.label("Team Type"),
-			hashtagPrefix: Yup.string()
-				.required()
-				.label("Hashtag Prefix"),
-			appendCompetitionName: Yup.boolean().label("Append Competition Name?"),
-			externalCompId: Yup.number().label("External Competition Id"),
-			externalDivId: Yup.number().label("External Division Id"),
-			externalReportPage: Yup.string().label("External Report Page")
-		};
-		if (!newState.isNew) {
-			validationObject._pointsCarriedFrom = Yup.mixed().label("Points Carried From");
-		}
-		newState.validationSchema = Yup.object().shape(validationObject);
-
-		//Get Current Segment
-		if (!newState.isNew) {
-			newState.segment = competitionSegmentList[match.params._id] || false;
-		}
-
 		//Ensure parent competition is valid
-		if (newState.isNew && !prevState.parent) {
+		if (newState.isNew) {
 			newState.parent = competitionList[match.params.parent];
-		}
-
-		//Render pointsCarriedFrom options
-		if (!newState.isNew && !prevState.options._pointsCarriedFrom) {
-			newState.options = prevState.options;
-			newState.options._pointsCarriedFrom = _.chain(competitionSegmentList)
-				//Remove active segment
-				.reject(c => !newState.isNew && c._id == match.params._id)
-				//Same parent competition
-				.filter(c => c._parentCompetition._id == newState.segment._parentCompetition._id)
-				//Same team type
-				.filter(c => c._teamType == newState.segment._teamType)
-				//Leagues
-				.filter(c => c.type == "League")
-				//Sort
-				.sortBy("name")
-				//Convert to options
-				.map(c => ({ value: c._id, label: c.name }))
-				.value();
+		} else {
+			newState.segment = competitionSegmentList[match.params._id] || false;
+			newState.parent = newState.segment && newState.segment._parentCompetition;
 		}
 
 		return newState;
 	}
 
-	getDefaults() {
-		const { segment, isNew, options } = this.state;
-
-		let defaults = {
-			name: "",
-			type: "",
-			_teamType: "",
-			hashtagPrefix: "",
-			_pointsCarriedFrom: "",
-			appendCompetitionName: false,
-			externalCompId: "",
-			externalDivId: "",
-			externalReportPage: ""
-		};
-		if (!isNew) {
-			defaults = _.mapValues(defaults, (v, key) =>
-				segment[key] == null ? "" : segment[key]
-			);
-		}
-
-		return _.mapValues(defaults, (v, key) => {
-			if (options[key]) {
-				return options[key].find(({ value }) => value == v) || "";
-			} else {
-				return v != undefined ? v : "";
-			}
-		});
-	}
-
-	async handleSubmit(fValues) {
-		const { createCompetitionSegment, updateCompetitionSegment, match, history } = this.props;
-		const { segment, isNew } = this.state;
-		const values = _.chain(fValues)
-			.cloneDeep()
-			.mapValues(v => (v.value === undefined ? v : v.value))
-			.mapValues(v => (v !== "" ? v : null))
-			.value();
-
-		if (isNew) {
-			values._parentCompetition = match.params.parent;
-			const newId = await createCompetitionSegment(values);
-			history.push(`/admin/competitions/segments/${newId}`);
-		} else {
-			await updateCompetitionSegment(segment._id, values);
-		}
-	}
-
-	async handleDelete() {
-		const { deleteCompetitionSegment, history } = this.props;
-		const { segment } = this.state;
-		const success = await deleteCompetitionSegment(segment._id);
-		if (success) {
-			history.replace(`/admin/competitions/${segment._parentCompetition._id}`);
-		}
-	}
-
 	renderHeader() {
 		let { parent, segment, isNew } = this.state;
-		if (!parent) {
-			parent = segment._parentCompetition;
-		}
+
+		//Get Title
 		const title = isNew ? `Add New Competition - ${parent.name}` : segment.name;
+
+		//Render submenu for existing segments
+		let submenu;
+		if (segment) {
+			const items = [{ label: "Overview", slug: "", isExact: true }];
+			if (segment.multipleInstances) {
+				items.push({ label: "Instances", slug: "instances" });
+			} else if (segment.instances.length) {
+				items.push({ label: "Instance", slug: `instances/${segment.instances[0]}` });
+			} else {
+				items.push({ label: "Instance", slug: "instances/new" });
+			}
+
+			submenu = (
+				<SubMenu items={items} rootUrl={`/admin/competitions/segments/${segment._id}/`} />
+			);
+		}
 
 		return (
 			<section className="page-header">
 				<HelmetBuilder title={title} />
 				<div className="container">
-					<Link className="nav-card" to={`/admin/competitions/${parent._id}`}>
+					<Link className="nav-card" to={`/admin/competitions/${parent._id}/segments`}>
 						Return to {parent.name}
 					</Link>
-					<h1>{title}</h1>
+					<h1>{title} (Segment)</h1>
+					{submenu}
 				</div>
 			</section>
 		);
 	}
 
-	renderDeleteButtons() {
-		if (!this.state.isNew) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
-	}
-
-	renderInstanceMenu() {
-		const { isNew, segment } = this.state;
-		if (!isNew) {
-			const content = _.chain(segment.instances)
-				.sortBy("year")
-				.reverse()
-				.map(i => {
-					const titleArr = [
-						i.year,
-						i.sponsor,
-						segment._parentCompetition.name,
-						segment.name
-					];
-					return {
-						...i,
-						title: _.filter(titleArr, _.identity).join(" ")
-					};
-				})
-				.map(i => (
-					<li key={i._id}>
-						<Link to={`/admin/competitions/segments/${segment._id}/instances/${i._id}`}>
-							{i.title}
-						</Link>
-					</li>
-				))
-				.value();
-
-			return (
-				<div className="card form-card">
-					<h2>Instances</h2>
-					<Link
-						to={`/admin/competitions/segments/${segment._id}/instances/new/`}
-						className={`card nav-card`}
-					>
-						Create New Instance
-					</Link>
-					<ul className="plain-list">{content}</ul>
-				</div>
-			);
-		}
+	renderContent() {
+		return (
+			<Switch>
+				<Route
+					path="/admin/competitions/segments/:_id/instances"
+					component={AdminCompetitionInstanceList}
+					exact
+				/>
+				<Route
+					path="/admin/competitions/segments/new/:parent"
+					exact
+					component={AdminCompetitionSegmentOverview}
+				/>
+				<Route
+					path="/admin/competitions/segments/:_id"
+					exact
+					component={AdminCompetitionSegmentOverview}
+				/>
+				<Route path="/" component={NotFoundPage} />
+			</Switch>
+		);
 	}
 
 	render() {
-		const { segment, isNew, parent, isLoading, validationSchema, options } = this.state;
+		const { segment, isNew, parent, isLoading } = this.state;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -270,80 +139,18 @@ class AdminCompetitionPage extends BasicForm {
 		return (
 			<div className="admin-competition-segment-page">
 				{this.renderHeader()}
-				<section className="form">
-					<div className="container">
-						<Formik
-							onSubmit={values => this.handleSubmit(values)}
-							initialValues={this.getDefaults()}
-							validationSchema={validationSchema}
-							render={() => {
-								const fields = [
-									{ name: "name", type: fieldTypes.text },
-									{
-										name: "_teamType",
-										type: fieldTypes.select,
-										options: options._teamType,
-										isDisabled: !isNew
-									},
-									{
-										name: "type",
-										type: fieldTypes.select,
-										options: options.type
-									},
-									{ name: "hashtagPrefix", type: fieldTypes.text },
-									{ name: "appendCompetitionName", type: fieldTypes.boolean },
-									{ name: "externalCompId", type: fieldTypes.number },
-									{ name: "externalDivId", type: fieldTypes.number },
-									{ name: "externalReportPage", type: fieldTypes.text }
-								];
-
-								if (!isNew) {
-									fields.push({
-										name: "_pointsCarriedFrom",
-										type: fieldTypes.select,
-										options: options._pointsCarriedFrom
-									});
-								}
-
-								return (
-									<Form>
-										<div className="card form-card grid">
-											{this.renderFieldGroup(fields)}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">
-													{isNew ? "Add" : "Update"} Competition Segment
-												</button>
-											</div>
-										</div>
-										{this.renderDeleteButtons()}
-										{this.renderInstanceMenu()}
-									</Form>
-								);
-							}}
-						/>
-					</div>
-				</section>
+				{this.renderContent()}
 			</div>
 		);
 	}
 }
 
-function mapStateToProps({ competitions, teams }) {
+function mapStateToProps({ competitions }) {
 	const { competitionList, competitionSegmentList } = competitions;
-	const { teamTypes } = teams;
-	return { competitionList, competitionSegmentList, teamTypes };
+	return { competitionList, competitionSegmentList };
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchCompetitions,
-			fetchCompetitionSegments,
-			createCompetitionSegment,
-			updateCompetitionSegment,
-			deleteCompetitionSegment
-		}
-	)(AdminCompetitionPage)
-);
+export default connect(mapStateToProps, {
+	fetchCompetitions,
+	fetchCompetitionSegments
+})(AdminCompetitionSegmentPage);

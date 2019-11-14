@@ -4,32 +4,28 @@ const competitionTypes = require("../../constants/competitionTypes");
 
 const competitionSegmentSchema = new Schema(
 	{
-		_parentCompetition: {
-			type: Schema.Types.ObjectId,
-			ref: "competitions"
-		},
-		type: { type: String, enum: competitionTypes },
-		name: String,
-		_teamType: {
-			type: Schema.Types.ObjectId,
-			ref: "teamTypes"
-		},
-		appendCompetitionName: Boolean,
-		hashtagPrefix: String,
+		_parentCompetition: { type: Schema.Types.ObjectId, ref: "competitions", required: true },
+		type: { type: String, enum: competitionTypes, required: true },
+		name: { type: String, required: true },
+		_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true },
+		appendCompetitionName: { type: Boolean, default: false },
+		hashtagPrefix: { type: String, required: true },
 		_pointsCarriedFrom: {
 			type: Schema.Types.ObjectId,
-			ref: "competitionSegments"
+			ref: "competitionSegments",
+			default: null
 		},
+		multipleInstances: { type: Boolean, required: true },
 		instances: [
 			{
-				year: Number,
-				sponsor: String,
-				image: String,
+				year: { type: Number },
+				sponsor: { type: String, default: null },
+				image: { type: String, default: null },
 				specialRounds: [
 					{
-						round: Number,
-						name: String,
-						hashtag: [String],
+						round: { type: Number, required: true },
+						name: { type: String, required: true },
+						hashtag: [{ type: String }],
 						overwriteBaseHashtag: {
 							type: Boolean,
 							default: false

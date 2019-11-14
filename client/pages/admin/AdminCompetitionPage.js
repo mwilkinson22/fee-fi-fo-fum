@@ -1,7 +1,7 @@
 //Modules
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Link } from "react-router-dom";
 
 //Components
 import AdminCompetitionOverview from "../../components/admin/competitions/AdminCompetitionOverview";
@@ -71,7 +71,10 @@ class AdminCompetitionPage extends Component {
 			<section className="page-header">
 				<HelmetBuilder title={title} />
 				<div className="container">
-					<h1>{title}</h1>
+					<Link className="nav-card" to={`/admin/competitions/`}>
+						Return to Competitions list
+					</Link>
+					<h1>{title} (Competition)</h1>
 				</div>
 				{submenu}
 			</section>
@@ -84,7 +87,6 @@ class AdminCompetitionPage extends Component {
 				<Route
 					path="/admin/competitions/:_id/segments"
 					component={AdminCompetitionSegmentList}
-					exact
 				/>
 				<Route path="/admin/competitions/new" exact component={AdminCompetitionOverview} />
 				<Route path="/admin/competitions/:_id" exact component={AdminCompetitionOverview} />

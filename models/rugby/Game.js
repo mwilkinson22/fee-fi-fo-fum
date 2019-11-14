@@ -251,7 +251,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		.populate({
 			path: "_competition",
 			select:
-				"name _parentCompetition appendCompetitionName instances instance type hashtagPrefix",
+				"name _parentCompetition appendCompetitionName instances instance type hashtagPrefix multipleInstances",
 			populate: {
 				path: "_parentCompetition",
 				select: "name useAllSquads"
@@ -267,7 +267,7 @@ gameSchema.query.crawl = function() {
 		})
 		.populate({
 			path: "_competition",
-			select: "externalReportPage _parentCompetition instances",
+			select: "externalReportPage _parentCompetition instances multipleInstances",
 			populate: {
 				path: "_parentCompetition",
 				select: "webcrawlUrl webcrawlFormat"
@@ -306,7 +306,7 @@ gameSchema.query.eventImage = function() {
 		})
 		.populate({
 			path: "_competition",
-			select: "name _parentCompetition instances instance hashtagPrefix",
+			select: "name _parentCompetition instances instance hashtagPrefix multipleInstances",
 			populate: {
 				path: "_parentCompetition",
 				select: "name useAllSquads"

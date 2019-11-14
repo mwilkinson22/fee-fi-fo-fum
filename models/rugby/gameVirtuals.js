@@ -3,23 +3,37 @@ import _ from "lodash";
 //Helper Functions
 function getInstance(doc) {
 	const { date, _competition } = doc;
-	if (!date || !_competition || !_competition._parentCompetition) {
+	if (
+		!date ||
+		!_competition ||
+		!_competition._parentCompetition ||
+		_competition.multipleInstances == null ||
+		!_competition.instances.length
+	) {
 		return null;
 	}
-	const year = new Date(date).getFullYear();
 
-	const instance = _.chain(_competition.instances)
-		.find(instance => instance.year === null || instance.year == year)
-		.pick([
-			"image",
-			"specialRounds",
-			"specialRounds",
-			"sponsor",
-			"manOfSteelPoints",
-			"scoreOnly",
-			"usesPregameSquads"
-		])
-		.value();
+	let instance;
+	if (_competition.multipleInstances) {
+		const year = new Date(date).getFullYear();
+		instance = _competition.instances.find(i => i.year == year);
+	} else {
+		instance = _competition.instances[0];
+	}
+
+	if (!instance) {
+		return null;
+	}
+
+	instance = _.pick(instance, [
+		"image",
+		"specialRounds",
+		"specialRounds",
+		"sponsor",
+		"manOfSteelPoints",
+		"scoreOnly",
+		"usesPregameSquads"
+	]);
 
 	//Custom Title
 	const { sponsor } = instance;
