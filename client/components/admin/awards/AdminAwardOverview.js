@@ -37,7 +37,7 @@ class AdminAwardOverview extends Component {
 				.test(
 					"is-taken",
 					"Awards for this year are already in place",
-					year => award || !_.find(awardsList, a => a.year == year)
+					year => award.year == year || !_.find(awardsList, a => a.year == year)
 				)
 				.required()
 				.label("Year"),
@@ -231,8 +231,5 @@ function mapStateToProps({ awards }) {
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ createAward, updateAward, deleteAward }
-	)(AdminAwardOverview)
+	connect(mapStateToProps, { createAward, updateAward, deleteAward })(AdminAwardOverview)
 );
