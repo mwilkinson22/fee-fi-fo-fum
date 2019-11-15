@@ -112,7 +112,7 @@ class BasicForm extends Component {
 		}
 	}
 
-	async handleSubmit(fValues) {
+	async handleSubmit(fValues, formikProps) {
 		const {
 			alterValuesBeforeSubmit,
 			history,
@@ -150,6 +150,9 @@ class BasicForm extends Component {
 			} else if (typeof redirectOnSubmit === "string") {
 				history.push(redirectOnSubmit);
 			}
+
+			//Required in case the submit is unsuccesful
+			formikProps.setSubmitting(false);
 		}
 	}
 
@@ -272,7 +275,7 @@ class BasicForm extends Component {
 				enableReinitialize={true}
 				isInitialValid={false}
 				initialValues={initialValues}
-				onSubmit={values => this.handleSubmit(values)}
+				onSubmit={(values, formikProps) => this.handleSubmit(values, formikProps)}
 				validationSchema={validationSchema}
 				render={({ errors, values, touched, isValid, isSubmitting }) => {
 					return (
