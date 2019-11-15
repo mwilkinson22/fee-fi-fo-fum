@@ -60,11 +60,14 @@ class AdminCompetitionInstanceList extends Component {
 				);
 			})
 			.value();
-		return (
-			<div className="card form-card">
-				<ul className="plain-list">{list}</ul>
-			</div>
-		);
+
+		if (list.length) {
+			return (
+				<div className="card form-card">
+					<ul className="plain-list">{list}</ul>
+				</div>
+			);
+		}
 	}
 
 	render() {
