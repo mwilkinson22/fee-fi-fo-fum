@@ -83,7 +83,12 @@ class BasicForm extends Component {
 				newValue = this.processValues(val, fields, [...parentPath, key], true);
 			} else {
 				//First we determine whether there is a field by this name
-				const field = fields[[...parentPath, key].join(".")];
+				let field;
+				if (isArray) {
+					field = fields[parentPath.join(".")];
+				} else {
+					field = fields[[...parentPath, key].join(".")];
+				}
 
 				if (
 					field &&
