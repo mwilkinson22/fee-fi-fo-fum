@@ -24,7 +24,7 @@ export default function(state = {}, action) {
 				}
 			};
 
-		case DELETE_COMPETITION:
+		case DELETE_COMPETITION: {
 			const {
 				[action.payload]: oldCompetitionId,
 				...competitionList
@@ -33,6 +33,7 @@ export default function(state = {}, action) {
 				...state,
 				competitionList
 			};
+		}
 
 		case FETCH_ALL_COMPETITION_SEGMENTS:
 			return {
@@ -49,7 +50,7 @@ export default function(state = {}, action) {
 				}
 			};
 
-		case DELETE_COMPETITION_SEGMENT:
+		case DELETE_COMPETITION_SEGMENT: {
 			const {
 				[action.payload]: oldSegmentId,
 				...competitionSegmentList
@@ -58,6 +59,7 @@ export default function(state = {}, action) {
 				...state,
 				competitionSegmentList
 			};
+		}
 
 		default:
 			return state;

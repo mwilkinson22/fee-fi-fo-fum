@@ -76,7 +76,7 @@ class AdminCompetitionSegmentPage extends Component {
 			if (segment.multipleInstances) {
 				items.push({ label: "Instances", slug: "instances" });
 			} else if (segment.instances.length) {
-				items.push({ label: "Instance", slug: `instances/${segment.instances[0]}` });
+				items.push({ label: "Instance", slug: `instances/${segment.instances[0]._id}` });
 			} else {
 				items.push({ label: "Instance", slug: "instances/new" });
 			}

@@ -18,7 +18,7 @@ const competitionSegmentSchema = new Schema(
 		multipleInstances: { type: Boolean, required: true },
 		instances: [
 			{
-				year: { type: Number },
+				year: { type: Number, default: null },
 				sponsor: { type: String, default: null },
 				image: { type: String, default: null },
 				specialRounds: [

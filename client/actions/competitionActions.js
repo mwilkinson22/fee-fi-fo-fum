@@ -61,3 +61,33 @@ export const deleteCompetitionSegment = id => async (dispatch, getState, api) =>
 		return true;
 	}
 };
+
+export const createCompetitionInstance = (segment, data) => async (dispatch, getState, api) => {
+	const res = await api.post(`/competitions/segments/${segment}/instance`, data);
+	if (res.data) {
+		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data.segment });
+		toast.success(`Competition created`);
+		return res.data.instanceId;
+	}
+};
+
+export const updateCompetitionInstance = (segment, instance, data) => async (
+	dispatch,
+	getState,
+	api
+) => {
+	const res = await api.put(`/competitions/segments/${segment}/instance/${instance}`, data);
+	if (res.data) {
+		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
+		toast.success(`Competition updated`);
+	}
+};
+
+export const deleteCompetitionInstance = (segment, instance) => async (dispatch, getState, api) => {
+	const res = await api.delete(`/competitions/segments/${segment}/instance/${instance}`);
+	if (res.data) {
+		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
+		toast.success(`Competition deleted`);
+		return true;
+	}
+};

@@ -10,14 +10,29 @@ export default app => {
 	app.get("/api/competitions", competitionController.getCompetitions);
 
 	//Post
+	app.post(
+		"/api/competitions/segments/:segmentId/instance",
+		requireAdmin,
+		competitionController.createInstance
+	);
 	app.post("/api/competitions/segments", requireAdmin, competitionController.createSegment);
 	app.post("/api/competitions", requireAdmin, competitionController.createCompetition);
 
 	//Put
+	app.put(
+		"/api/competitions/segments/:segmentId/instance/:instanceId",
+		requireAdmin,
+		competitionController.updateInstance
+	);
 	app.put("/api/competitions/segments/:_id", requireAdmin, competitionController.updateSegment);
 	app.put("/api/competitions/:_id", requireAdmin, competitionController.updateCompetition);
 
 	//Delete
+	app.delete(
+		"/api/competitions/segments/:segmentId/instance/:instanceId",
+		requireAdmin,
+		competitionController.deleteInstance
+	);
 	app.delete(
 		"/api/competitions/segments/:_id",
 		requireAdmin,
