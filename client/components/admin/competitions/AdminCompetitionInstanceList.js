@@ -85,7 +85,7 @@ class AdminCompetitionInstanceList extends Component {
 						to={`/admin/competitions/segments/${match.params._id}/instances/new`}
 						className={`card nav-card`}
 					>
-						Create New Segment
+						Create New Instance
 					</Link>
 					{this.renderList()}
 				</div>

@@ -92,8 +92,10 @@ class AdminCompetitionInstanceOverview extends Component {
 		return newState;
 	}
 	getInitialValues() {
-		const { instance, segment, teams, isNew } = this.state;
+		let { instance, segment, teams, isNew } = this.state;
+		const { match } = this.props;
 
+		//Define default values
 		const defaultValues = {
 			teams: [],
 			sponsor: "",
@@ -107,12 +109,26 @@ class AdminCompetitionInstanceOverview extends Component {
 			defaultValues.year = "";
 		}
 
-		if (isNew) {
+		//Check if we have an instance to copy, for new items
+		const instanceToCopy = segment.instances.find(({ _id }) => _id == match.params.copyFromId);
+
+		if (isNew && !instanceToCopy) {
+			//If it's new, and there's no instance to copy, return the default values
 			return defaultValues;
 		} else {
+			//If it's new and there's an instance to copy, we
+			//pull the values from instanceToCopy. If it's not new,
+			//we pull the values from the existing segment
+
+			instance = instanceToCopy || instance;
 			return _.mapValues(defaultValues, (defaultValue, key) => {
 				let value;
 				switch (key) {
+					case "year":
+						if (!instanceToCopy) {
+							value = instance[key];
+						}
+						break;
 					case "teams":
 						if (instance.teams) {
 							value = _.chain(teams)

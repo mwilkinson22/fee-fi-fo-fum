@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Switch, Route, Link, withRouter } from "react-router-dom";
@@ -69,9 +68,23 @@ class AdminCompetitionInstancePage extends Component {
 		}
 		const title = titleArr.join(" ");
 
-		//Render submenu for existing segments
+		//Render copy link for existing instances,
+		//where multiple instances are allowed
+		let copyLink;
+		if (!isNew && segment.multipleInstances) {
+			copyLink = (
+				<Link
+					to={`/admin/competitions/segments/${segment._id}/instances/new/${instance._id}`}
+					className={`card nav-card`}
+				>
+					Copy Instance
+				</Link>
+			);
+		}
+
+		//Render submenu for existing instances
 		let submenu;
-		if (instance) {
+		if (!isNew) {
 			const items = [{ label: "Overview", slug: "", isExact: true }];
 
 			submenu = (
@@ -94,6 +107,7 @@ class AdminCompetitionInstancePage extends Component {
 					>
 						Return to {segment.name}
 					</Link>
+					{copyLink}
 					<h1>{title} (instance)</h1>
 					{submenu}
 				</div>
@@ -105,6 +119,11 @@ class AdminCompetitionInstancePage extends Component {
 		const root = "/admin/competitions/segments/:segmentId/instances";
 		return (
 			<Switch>
+				<Route
+					path={`${root}/new/:copyFromId`}
+					exact
+					component={AdminCompetitionInstanceOverview}
+				/>
 				<Route path={`${root}/new`} exact component={AdminCompetitionInstanceOverview} />
 				<Route
 					path={`${root}/:instanceId`}
