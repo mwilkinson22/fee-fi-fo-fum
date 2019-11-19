@@ -14,12 +14,13 @@ export default function(state = {}, action) {
 				userList: action.payload
 			};
 
-		case DELETE_USER:
+		case DELETE_USER: {
 			const { [action.payload]: oldId, ...userList } = state.userList;
 			return {
 				...state,
 				userList
 			};
+		}
 		default:
 			return state;
 	}

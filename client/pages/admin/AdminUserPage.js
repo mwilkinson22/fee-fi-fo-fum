@@ -1,11 +1,10 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Switch, Route } from "react-router-dom";
 
 //Components
-import BasicForm from "../../components/admin/BasicForm";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
@@ -14,12 +13,12 @@ import AdminUserPasswordChange from "~/client/components/admin/users/AdminUserPa
 import AdminUserTransferSiteOwnership from "~/client/components/admin/users/AdminUserTransferSiteOwnership";
 
 //Actions
-import { fetchUserList, createUser, updateUser, deleteUser } from "~/client/actions/userActions";
+import { fetchUserList } from "~/client/actions/userActions";
 
 //Constants
 import LoadingPage from "~/client/components/LoadingPage";
 
-class AdminTeamTypePage extends BasicForm {
+class AdminTeamTypePage extends Component {
 	constructor(props) {
 		super(props);
 		const { userList, fetchUserList, authUser, match } = props;
@@ -81,6 +80,9 @@ class AdminTeamTypePage extends BasicForm {
 
 	renderContent() {
 		const { user } = this.state;
+		//We use render and pass in the user to save us repeating the
+		//more complex logic on access rights.
+		//Child components must pass the user prop into state
 		return (
 			<Switch>
 				<Route
@@ -136,7 +138,4 @@ function mapStateToProps({ config, users }) {
 	return { authUser, userList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchUserList, createUser, updateUser, deleteUser }
-)(AdminTeamTypePage);
+export default connect(mapStateToProps, { fetchUserList })(AdminTeamTypePage);

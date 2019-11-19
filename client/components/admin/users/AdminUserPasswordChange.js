@@ -1,9 +1,8 @@
 //Modules
 import _ from "lodash";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
-import React from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
@@ -16,7 +15,7 @@ import { updateUser } from "~/client/actions/userActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import { validatePasswordFields } from "~/helpers/adminHelper";
 
-class AdminUserPasswordChange extends BasicForm {
+class AdminUserPasswordChange extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -31,8 +30,19 @@ class AdminUserPasswordChange extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		return { password: "", password2: "" };
+	}
+
+	getFieldGroups() {
+		return [
+			{
+				fields: [
+					{ name: "password", type: fieldTypes.password },
+					{ name: "password2", type: fieldTypes.password }
+				]
+			}
+		];
 	}
 
 	async handleSubmit(values) {
@@ -42,31 +52,17 @@ class AdminUserPasswordChange extends BasicForm {
 	}
 
 	render() {
-		const { validationSchema } = this.state;
+		const { updateUser } = this.props;
+		const { user, validationSchema } = this.state;
 
 		return (
-			<Formik
-				onSubmit={values => this.handleSubmit(values)}
-				initialValues={this.getDefaults()}
+			<BasicForm
+				fieldGroups={this.getFieldGroups()}
+				initialValues={this.getInitialValues()}
+				isNew={false}
+				itemType="Password"
+				onSubmit={({ password }) => updateUser(user._id, { password })}
 				validationSchema={validationSchema}
-				render={() => {
-					const fields = [
-						{ name: "password", type: fieldTypes.password },
-						{ name: "password2", type: fieldTypes.password }
-					];
-
-					return (
-						<Form>
-							<div className="card form-card grid">
-								<h6>Change Password</h6>
-								{this.renderFieldGroup(fields)}
-								<div className="buttons">
-									<button type="submit">Change Password</button>
-								</div>
-							</div>
-						</Form>
-					);
-				}}
 			/>
 		);
 	}
@@ -81,7 +77,4 @@ function mapStateToProps({ config }) {
 	return { authUser };
 }
 
-export default connect(
-	mapStateToProps,
-	{ updateUser }
-)(AdminUserPasswordChange);
+export default connect(mapStateToProps, { updateUser })(AdminUserPasswordChange);

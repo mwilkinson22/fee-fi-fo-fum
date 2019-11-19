@@ -25,6 +25,13 @@ export const createUser = data => async (dispatch, getState, api) => {
 export const updateUser = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/users/${id}`, data);
 	dispatch({ type: FETCH_USER, payload: res.data });
+
+	//Update auth user
+	const currentUser = getState().config.authUser;
+	if (id === currentUser._id) {
+		dispatch({ type: FETCH_CURRENT_USER, payload: res.data });
+	}
+
 	toast.success(`User updated`);
 };
 

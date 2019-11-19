@@ -1,7 +1,6 @@
 //Modules
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
@@ -13,7 +12,7 @@ import { login } from "../../actions/userActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class Login extends BasicForm {
+class Login extends Component {
 	constructor(props) {
 		super(props);
 
@@ -29,42 +28,41 @@ class Login extends BasicForm {
 		this.state = { validationSchema };
 	}
 
-	renderFields() {
-		const fields = [
-			{ name: "username", type: fieldTypes.text },
-			{ name: "password", type: fieldTypes.password }
-		];
+	getInitialValues() {
+		return {
+			username: "",
+			password: ""
+		};
+	}
 
-		return (
-			<Form>
-				<div className="form-card login-card">
-					{this.renderFieldGroup(fields)}
-					<div className="buttons">
-						<button type="submit">Log In</button>
-					</div>
-				</div>
-			</Form>
-		);
+	getFieldGroups() {
+		return [
+			{
+				fields: [
+					{ name: "username", type: fieldTypes.text },
+					{ name: "password", type: fieldTypes.password }
+				]
+			}
+		];
 	}
 
 	render() {
+		const { login } = this.props;
+		const { validationSchema } = this.state;
 		return (
 			<div className="container">
 				<h1>Login</h1>
-				<Formik
-					onSubmit={values => this.props.login(values)}
-					initialValues={{
-						username: "",
-						password: ""
-					}}
-					validationSchema={this.state.validationSchema}
-					render={formikProps => this.renderFields(formikProps)}
+				<BasicForm
+					fieldGroups={this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isNew={false}
+					itemType="Password"
+					onSubmit={values => login(values)}
+					submitButtonText="Log In"
+					validationSchema={validationSchema}
 				/>
 			</div>
 		);
 	}
 }
-export default connect(
-	null,
-	{ login }
-)(Login);
+export default connect(null, { login })(Login);

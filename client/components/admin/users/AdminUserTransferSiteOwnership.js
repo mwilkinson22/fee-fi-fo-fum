@@ -1,7 +1,6 @@
 //Modules
-import _ from "lodash";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Formik, Form } from "formik";
@@ -17,7 +16,7 @@ import { transferSiteOwnership } from "~/client/actions/userActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 
-class AdminUserTransferSiteOwnership extends BasicForm {
+class AdminUserTransferSiteOwnership extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -36,8 +35,28 @@ class AdminUserTransferSiteOwnership extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
-		return { password: "", password2: "" };
+	getInitialValues() {
+		return { password: "" };
+	}
+
+	getFieldGroups() {
+		return [
+			{
+				render: () => [
+					<div className="error" key="warning">
+						<strong>WARNING</strong>
+					</div>,
+					<p className="full-span" key="warning-msg">
+						{
+							"Clicking submit will transfer ownership of the site to the this user. You will remain an admin but will not be able to undo this without the new owner's permission. Please enter your password before proceeding"
+						}
+					</p>
+				]
+			},
+			{
+				fields: [{ name: "password", type: fieldTypes.password }]
+			}
+		];
 	}
 
 	async handleSubmit(values) {
@@ -50,6 +69,7 @@ class AdminUserTransferSiteOwnership extends BasicForm {
 	}
 
 	render() {
+		const { transferSiteOwnership } = this.props;
 		const { validationSchema, user, authUser } = this.state;
 
 		if (!authUser.isSiteOwner || authUser._id == user._id) {
@@ -57,32 +77,15 @@ class AdminUserTransferSiteOwnership extends BasicForm {
 		}
 
 		return (
-			<Formik
-				onSubmit={values => this.handleSubmit(values)}
-				initialValues={this.getDefaults()}
+			<BasicForm
+				fieldGroups={this.getFieldGroups()}
+				initialValues={this.getInitialValues()}
+				isNew={false}
+				itemType="Ownership"
+				onSubmit={values => transferSiteOwnership(user._id, values.password)}
+				redirectOnSubmit={() => `/admin/users/${user._id}`}
+				submitButtonText="Transfer Ownership"
 				validationSchema={validationSchema}
-				render={() => {
-					const field = [{ name: "password", type: fieldTypes.password }];
-
-					return (
-						<Form>
-							<div className="card form-card grid">
-								<div className="error">
-									<strong>WARNING</strong>
-								</div>
-								<p className="full-span">
-									{
-										"Clicking submit will transfer ownership of the site to the this user. You will remain an admin but will not be able to undo this without the new owner's permission. Please enter your password before proceeding"
-									}
-								</p>
-								{this.renderFieldGroup(field)}
-								<div className="buttons">
-									<button type="submit">Transfer Ownership</button>
-								</div>
-							</div>
-						</Form>
-					);
-				}}
 			/>
 		);
 	}
@@ -98,8 +101,5 @@ function mapStateToProps({ config }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ transferSiteOwnership }
-	)(AdminUserTransferSiteOwnership)
+	connect(mapStateToProps, { transferSiteOwnership })(AdminUserTransferSiteOwnership)
 );

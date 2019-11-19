@@ -1,15 +1,12 @@
 //Modules
 import _ from "lodash";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../BasicForm";
-import DeleteButtons from "../fields/DeleteButtons";
 
 //Actions
 import { createUser, updateUser, deleteUser } from "~/client/actions/userActions";
@@ -18,7 +15,7 @@ import { createUser, updateUser, deleteUser } from "~/client/actions/userActions
 import * as fieldTypes from "~/constants/formFieldTypes";
 import { validatePasswordFields } from "~/helpers/adminHelper";
 
-class AdminUserOverview extends BasicForm {
+class AdminUserOverview extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -70,10 +67,10 @@ class AdminUserOverview extends BasicForm {
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { user, isNew } = this.state;
 
-		const defaults = {
+		const defaultValues = {
 			username: "",
 			name: {
 				first: "",
@@ -87,10 +84,68 @@ class AdminUserOverview extends BasicForm {
 		};
 
 		if (isNew) {
-			return { ...defaults, password: "", password2: "" };
+			return { ...defaultValues, password: "", password2: "" };
 		} else {
-			return _.mapValues(defaults, (def, key) => user[key] || def);
+			return _.mapValues(defaultValues, (def, key) => user[key] || def);
 		}
+	}
+
+	getFieldGroups() {
+		const { authUser } = this.props;
+		const { isNew, user } = this.state;
+
+		//Core Login Fields
+		const loginFields = [
+			{
+				name: "username",
+				type: fieldTypes.text,
+				readOnly: !authUser.isAdmin
+			}
+		];
+		if (isNew) {
+			loginFields.push(
+				{ name: "password", type: fieldTypes.password },
+				{ name: "password2", type: fieldTypes.password }
+			);
+		}
+		if (authUser.isAdmin) {
+			loginFields.push({
+				name: "isAdmin",
+				type: fieldTypes.boolean,
+				readOnly: user && user._id == authUser._id
+			});
+		}
+
+		return [
+			{
+				fields: loginFields
+			},
+			{
+				label: "Personal",
+				fields: [
+					{ name: "name.first", type: fieldTypes.text },
+					{ name: "name.last", type: fieldTypes.text },
+					{
+						name: "frontendName",
+						type: fieldTypes.text,
+						placeholder: "Defaults to First + Last Name"
+					},
+					{
+						name: "image",
+						type: fieldTypes.image,
+						acceptSVG: false,
+						path: "images/users/"
+					}
+				]
+			},
+			{
+				label: "Contact Info",
+				fields: [
+					{ name: "email", type: fieldTypes.text },
+					{ name: "twitter", type: fieldTypes.text }
+				]
+			}
+		];
 	}
 
 	async handleSubmit(fValues) {
@@ -110,96 +165,33 @@ class AdminUserOverview extends BasicForm {
 		}
 	}
 
-	async handleDelete() {
-		const { deleteUser, history } = this.props;
-		const { user } = this.state;
-		const success = await deleteUser(user._id);
-		if (success) {
-			history.push("/admin/users");
-		}
-	}
-
-	renderDeleteButtons() {
-		const { isNew, user } = this.state;
-		const { authUser } = this.props;
-		if (!isNew && authUser.isAdmin && user._id !== authUser._id) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
-	}
-
 	render() {
-		const { authUser } = this.props;
+		const { createUser, updateUser, deleteUser } = this.props;
 		const { user, isNew, validationSchema } = this.state;
 
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createUser(values),
+				redirectOnSubmit: id => `/admin/users/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteUser(user._id),
+				onSubmit: values => updateUser(user._id, values),
+				redirectOnDelete: "/admin/users/"
+			};
+		}
+
 		return (
-			<Formik
-				onSubmit={values => this.handleSubmit(values)}
-				initialValues={this.getDefaults()}
+			<BasicForm
+				fieldGroups={this.getFieldGroups()}
+				initialValues={this.getInitialValues()}
+				isNew={isNew}
+				itemType="User"
 				validationSchema={validationSchema}
-				render={() => {
-					const loginFields = [
-						{
-							name: "username",
-							type: fieldTypes.text,
-							readOnly: !authUser.isAdmin
-						}
-					];
-					if (isNew) {
-						loginFields.push(
-							{ name: "password", type: fieldTypes.password },
-							{ name: "password2", type: fieldTypes.password }
-						);
-					}
-					if (authUser.isAdmin) {
-						loginFields.push({
-							name: "isAdmin",
-							type: fieldTypes.boolean,
-							readOnly: user && user._id == authUser._id
-						});
-					}
-
-					const personalFields = [
-						{ name: "name.first", type: fieldTypes.text },
-						{ name: "name.last", type: fieldTypes.text },
-						{
-							name: "frontendName",
-							type: fieldTypes.text,
-							placeholder: "Defaults to First + Last Name"
-						},
-						{
-							name: "image",
-							type: fieldTypes.image,
-							acceptSVG: false,
-							path: "images/users/"
-						}
-					];
-
-					const contactFields = [
-						{ name: "email", type: fieldTypes.text },
-						{ name: "twitter", type: fieldTypes.text }
-					];
-
-					return (
-						<Form>
-							<div className="card form-card grid">
-								{this.renderFieldGroup(loginFields)}
-								<h6>Personal</h6>
-								{this.renderFieldGroup(personalFields)}
-								<h6>Contact Info</h6>
-								{this.renderFieldGroup(contactFields)}
-								<div className="buttons">
-									<button type="reset">Reset</button>
-									<button type="submit">{isNew ? "Add" : "Update"} User</button>
-								</div>
-							</div>
-							{this.renderDeleteButtons()}
-						</Form>
-					);
-				}}
+				{...formProps}
 			/>
 		);
 	}
@@ -215,9 +207,4 @@ function mapStateToProps({ config, users }) {
 	return { authUser, userList };
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{ createUser, updateUser, deleteUser }
-	)(AdminUserOverview)
-);
+export default connect(mapStateToProps, { createUser, updateUser, deleteUser })(AdminUserOverview);
