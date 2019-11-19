@@ -18,6 +18,11 @@ import { extractYupData, renderFieldGroup } from "~/helpers/formHelper";
 class BasicForm extends Component {
 	constructor(props) {
 		super(props);
+
+		if (props.testMode) {
+			console.info("Form loaded in test mode");
+		}
+
 		this.state = {};
 	}
 
@@ -169,12 +174,18 @@ class BasicForm extends Component {
 	}
 
 	renderFields(values) {
-		const { fastFieldByDefault } = this.props;
+		const { fastFieldByDefault, testMode } = this.props;
 		const { validationSchema } = this.state;
 		const fieldGroups = this.getFieldGroups(values);
 
 		//Validate
 		this.validateFieldGroups(values);
+
+		//Log in test mode
+		if (testMode) {
+			console.info("Values", values);
+			console.info("Field Groups", fieldGroups);
+		}
 
 		return fieldGroups.map(({ label, fields, render }) => {
 			let content;
