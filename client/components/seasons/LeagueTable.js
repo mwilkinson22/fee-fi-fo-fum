@@ -34,21 +34,23 @@ class LeagueTable extends Component {
 			fetchCompetitionSegments,
 			year,
 			teamList,
-			fetchTeamList
+			fetchTeamList,
+			loadGames
 		} = props;
 
-		if (!gameList) {
-			fetchGameList();
+		if (loadGames) {
+			if (!gameList) {
+				fetchGameList();
+			}
+
+			if (!neutralGames || !neutralGames[year]) {
+				fetchNeutralGames(year);
+			}
 		}
 
 		if (!teamList) {
 			fetchTeamList();
 		}
-
-		if (!neutralGames || !neutralGames[year]) {
-			fetchNeutralGames(year);
-		}
-
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
 		}
@@ -70,14 +72,14 @@ class LeagueTable extends Component {
 			localTeam,
 			fromDate,
 			toDate,
-			teamList
+			teamList,
+			styleOverride,
+			loadGames
 		} = nextProps;
 		const newState = {};
 
 		if (
-			!gameList ||
-			!neutralGames ||
-			!neutralGames[year] ||
+			(loadGames && (!gameList || !neutralGames || !neutralGames[year])) ||
 			!competitionSegmentList ||
 			!teamList
 		) {
@@ -90,6 +92,13 @@ class LeagueTable extends Component {
 			newState.segment.instances,
 			instance => instance.year == year || instance.year === null
 		);
+
+		//Get Styling
+		newState.customStyling =
+			(styleOverride && styleOverride.customStyling) || newState.instance.customStyling;
+		newState.leagueTableColours =
+			(styleOverride && styleOverride.leagueTableColours) ||
+			newState.instance.leagueTableColours;
 
 		//Set Columns
 		const logo = newState.instance.image ? (
@@ -114,61 +123,68 @@ class LeagueTable extends Component {
 			{ key: "Pts", label: "Pts", title: "Points" }
 		];
 
-		//Set segment as variable, to enable for point inheritance
-		const games = LeagueTable.getGames(
-			competition,
-			competitionSegmentList,
-			year,
-			gameList,
-			neutralGames[year],
-			fromDate,
-			toDate
-		);
+		if (loadGames) {
+			//Set segment as variable, to enable for point inheritance
+			const games = LeagueTable.getGames(
+				competition,
+				competitionSegmentList,
+				year,
+				gameList,
+				neutralGames[year],
+				fromDate,
+				toDate
+			);
 
-		const gamesToLoad = _.reject(games.local, id => fullGames[id]);
-		if (gamesToLoad.length) {
-			if (!prevState.isLoadingGames) {
-				fetchGames(gamesToLoad);
-				newState.isLoadingGames = true;
+			const gamesToLoad = _.reject(games.local, id => fullGames[id]);
+			if (gamesToLoad.length) {
+				if (!prevState.isLoadingGames) {
+					fetchGames(gamesToLoad);
+					newState.isLoadingGames = true;
+				}
+			} else {
+				newState.isLoadingGames = false;
+				games.local = _.chain(games.local)
+					.map(id => {
+						const {
+							isAway,
+							_opposition,
+							score,
+							scoreOverride,
+							date,
+							title
+						} = fullGames[id];
+
+						if (!score && (!scoreOverride || Object.keys(scoreOverride).length < 2)) {
+							return null;
+						}
+
+						//Return in the same format as a neutral game, for ease of parsing
+						const _homeTeam = isAway ? _opposition._id : localTeam;
+						const _awayTeam = isAway ? localTeam : _opposition._id;
+
+						let homePoints, awayPoints;
+						if (score) {
+							homePoints = score[_homeTeam];
+							awayPoints = score[_awayTeam];
+						} else {
+							homePoints = scoreOverride[_homeTeam];
+							awayPoints = scoreOverride[_awayTeam];
+						}
+
+						return {
+							_homeTeam,
+							_awayTeam,
+							homePoints,
+							awayPoints,
+							date,
+							//Include title for Magic filtering
+							title
+						};
+					})
+					.filter(_.identity)
+					.value();
+				newState.games = [...games.local, ...games.neutral];
 			}
-		} else {
-			newState.isLoadingGames = false;
-			games.local = _.chain(games.local)
-				.map(id => {
-					const { isAway, _opposition, score, scoreOverride, date, title } = fullGames[
-						id
-					];
-
-					if (!score && (!scoreOverride || Object.keys(scoreOverride).length < 2)) {
-						return null;
-					}
-
-					//Return in the same format as a neutral game, for ease of parsing
-					const _homeTeam = isAway ? _opposition._id : localTeam;
-					const _awayTeam = isAway ? localTeam : _opposition._id;
-
-					let homePoints, awayPoints;
-					if (score) {
-						homePoints = score[_homeTeam];
-						awayPoints = score[_awayTeam];
-					} else {
-						homePoints = scoreOverride[_homeTeam];
-						awayPoints = scoreOverride[_awayTeam];
-					}
-
-					return {
-						_homeTeam,
-						_awayTeam,
-						homePoints,
-						awayPoints,
-						date,
-						//Include title for Magic filtering
-						title
-					};
-				})
-				.filter(_.identity)
-				.value();
-			newState.games = [...games.local, ...games.neutral];
 		}
 
 		return newState;
@@ -357,7 +373,7 @@ class LeagueTable extends Component {
 	}
 
 	formatRowsForTable(rows) {
-		const { instance } = this.state;
+		const { leagueTableColours } = this.state;
 		const { localTeam, teamList } = this.props;
 		let { highlightTeams } = this.props;
 		if (!highlightTeams) {
@@ -382,10 +398,7 @@ class LeagueTable extends Component {
 			.map((row, pos) => {
 				row.data.position.content = pos + 1;
 				row.className = "";
-				const rowClass = _.find(
-					instance.leagueTableColours,
-					p => p.position.indexOf(pos + 1) > -1
-				);
+				const rowClass = _.find(leagueTableColours, p => p.position.indexOf(pos + 1) > -1);
 				if (highlightTeams.indexOf(row.key) > -1) {
 					row.className += "highlight ";
 				}
@@ -400,9 +413,10 @@ class LeagueTable extends Component {
 	}
 
 	render() {
-		const { games, instance, columns } = this.state;
+		const { loadGames, className } = this.props;
+		const { games, instance, columns, customStyling } = this.state;
 
-		if (!games) {
+		if (loadGames && !games) {
 			return <LoadingPage />;
 		}
 
@@ -415,33 +429,41 @@ class LeagueTable extends Component {
 		}
 
 		//Process
-		this.addGamesToRows(rows);
+		if (loadGames) {
+			this.addGamesToRows(rows);
+		}
 
 		//Return Table
 		return (
 			<Table
-				className="league-table"
+				className={`league-table ${className}`}
 				columns={columns}
 				rows={this.formatRowsForTable(rows)}
 				defaultSortable={false}
 				keyAsClassName={true}
-				headerStyling={instance.customStyling}
+				headerStyling={customStyling}
 			/>
 		);
 	}
 }
 
 LeagueTable.propTypes = {
+	className: PropTypes.string,
 	competition: PropTypes.string.isRequired,
-	year: PropTypes.number.isRequired,
-	highlightTeams: PropTypes.arrayOf(PropTypes.string),
 	fromDate: PropTypes.instanceOf(Date),
-	toDate: PropTypes.instanceOf(Date)
+	highlightTeams: PropTypes.arrayOf(PropTypes.string),
+	loadGames: PropTypes.bool, //Only false when we need a preview while editing the table style
+	styleOverride: PropTypes.object,
+	toDate: PropTypes.instanceOf(Date),
+	year: PropTypes.number.isRequired
 };
 
 LeagueTable.defaultProps = {
-	highlightTeams: null,
+	className: "",
 	fromDate: null,
+	highlightTeams: null,
+	loadGames: true,
+	styleOverride: null,
 	toDate: null
 };
 
