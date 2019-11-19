@@ -1,16 +1,13 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
-import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
@@ -25,7 +22,7 @@ import {
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminProfilePage extends BasicForm {
+class AdminProfilePage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -43,12 +40,17 @@ class AdminProfilePage extends BasicForm {
 		const newState = { isLoading: false };
 
 		//Create Or Edit
-		newState.isNew = !match.params.id;
+		newState.isNew = !match.params._id;
 
 		//Check Everything is loaded
 		if (!newState.isNew && !profiles) {
 			newState.isLoading = true;
 			return newState;
+		}
+
+		//Get Current Profile
+		if (!newState.isNew) {
+			newState.profile = profiles[match.params._id] || false;
 		}
 
 		//Create Validation Schema
@@ -76,63 +78,69 @@ class AdminProfilePage extends BasicForm {
 				.label("IFTTT Key")
 		});
 
-		//Get Current Profile
-		if (!newState.isNew) {
-			newState.profile = profiles[match.params.id] || false;
-		}
-
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { profile, isNew } = this.state;
 
-		if (isNew) {
-			return {
-				name: "",
-				archived: true,
-				twitter: {
-					consumer_key: "",
-					consumer_secret: "",
-					access_token: "",
-					access_token_secret: ""
-				},
-				iftttKey: ""
-			};
-		} else {
-			return profile;
-		}
-	}
-
-	async handleSubmit(values) {
-		const { createProfile, updateProfile, history } = this.props;
-		const { profile, isNew } = this.state;
+		const defaultValues = {
+			name: "",
+			archived: false,
+			twitter: {
+				consumer_key: "",
+				consumer_secret: "",
+				access_token: "",
+				access_token_secret: ""
+			},
+			iftttKey: ""
+		};
 
 		if (isNew) {
-			const newId = await createProfile(values);
-			history.push(`/admin/social/${newId}`);
+			return defaultValues;
 		} else {
-			await updateProfile(profile._id, values);
-		}
-	}
-
-	async handleDelete() {
-		const { deleteProfile, history } = this.props;
-		const { profile } = this.state;
-		const success = await deleteProfile(profile._id);
-		if (success) {
-			history.replace("/admin/social");
-		}
-	}
-
-	renderDeleteButtons() {
-		if (!this.state.isNew) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
+			return _.mapValues(defaultValues, (defaultValue, key) =>
+				profile[key] == null ? defaultValue : profile[key]
 			);
 		}
+	}
+
+	getFieldGroups() {
+		const { twitterTestResults } = this.state;
+		return [
+			{
+				fields: [
+					{ name: "name", type: fieldTypes.text },
+					{ name: "archived", type: fieldTypes.boolean },
+					{ name: "iftttKey", type: fieldTypes.text }
+				]
+			},
+			{
+				label: "Twitter",
+				fields: [
+					{ name: "twitter.consumer_key", type: fieldTypes.text },
+					{ name: "twitter.consumer_secret", type: fieldTypes.text },
+					{ name: "twitter.access_token", type: fieldTypes.text },
+					{ name: "twitter.access_token_secret", type: fieldTypes.text }
+				]
+			},
+			{
+				render: values => [
+					<button
+						type="button"
+						key="twitter-test-btn"
+						disabled={
+							_.filter(values.twitter, v => v == "").length ||
+							twitterTestResults == "loading"
+						}
+						onClick={() => this.twitterTest(values.twitter)}
+					>
+						Test
+					</button>,
+					this.renderTwitterTestResults()
+				]
+			}
+		];
 	}
 
 	async twitterTest(values) {
@@ -145,38 +153,53 @@ class AdminProfilePage extends BasicForm {
 		const { twitterTestResults } = this.state;
 
 		if (twitterTestResults && twitterTestResults !== "loading") {
+			let result;
 			if (twitterTestResults.authenticated) {
-				return (
-					<label>
-						{"\u2705"} Logged in as @{twitterTestResults.user}
-					</label>
-				);
+				result = `\u2705 Logged in as @${twitterTestResults.user}`;
 			} else {
-				return (
-					<label>
-						{"\u274c"} {twitterTestResults.error.message}
-					</label>
-				);
+				result = `\u274c ${twitterTestResults.error.message}`;
 			}
+			return <label key="result">{result}</label>;
 		}
 	}
 
 	render() {
-		const { profile, isNew, isLoading, validationSchema, twitterTestResults } = this.state;
+		const { profile, isNew, isLoading, validationSchema } = this.state;
+		const { authUser, createProfile, updateProfile, deleteProfile } = this.props;
 
-		const { authUser } = this.props;
+		//404 for non-admins
 		if (!authUser.isAdmin) {
 			return <NotFoundPage />;
 		}
 
+		//Await social list
 		if (isLoading) {
 			return <LoadingPage />;
 		}
+
+		//404
 		if (!isNew && profile === false) {
 			return <NotFoundPage message="Profile not found" />;
 		}
 
+		//Get Page Title
 		const title = isNew ? "Add New Profile" : profile.name;
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createProfile(values),
+				redirectOnSubmit: id => `/admin/social/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteProfile(profile._id),
+				onSubmit: values => updateProfile(profile._id, values),
+				redirectOnDelete: "/admin/social/"
+			};
+		}
+
 		return (
 			<div className="admin-profile-page">
 				<HelmetBuilder title={title} />
@@ -187,51 +210,13 @@ class AdminProfilePage extends BasicForm {
 				</section>
 				<section className="form">
 					<div className="container">
-						<Formik
-							onSubmit={values => this.handleSubmit(values)}
-							initialValues={this.getDefaults()}
+						<BasicForm
+							fieldGroups={this.getFieldGroups()}
+							initialValues={this.getInitialValues()}
+							isNew={isNew}
+							itemType="Profile"
 							validationSchema={validationSchema}
-							render={({ values }) => {
-								const mainFields = [
-									{ name: "name", type: fieldTypes.text },
-									{ name: "archived", type: fieldTypes.boolean },
-									{ name: "iftttKey", type: fieldTypes.text }
-								];
-								const twitterFields = [
-									{ name: "twitter.consumer_key", type: fieldTypes.text },
-									{ name: "twitter.consumer_secret", type: fieldTypes.text },
-									{ name: "twitter.access_token", type: fieldTypes.text },
-									{ name: "twitter.access_token_secret", type: fieldTypes.text }
-								];
-
-								return (
-									<Form>
-										<div className="card form-card grid">
-											{this.renderFieldGroup(mainFields)}
-											<h6>Twitter</h6>
-											{this.renderFieldGroup(twitterFields)}
-											<button
-												type="button"
-												disabled={
-													_.filter(values.twitter, v => v == "").length ||
-													twitterTestResults == "loading"
-												}
-												onClick={() => this.twitterTest(values.twitter)}
-											>
-												Test
-											</button>
-											{this.renderTwitterTestResults()}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">
-													{isNew ? "Add" : "Update"} Profile
-												</button>
-											</div>
-										</div>
-										{this.renderDeleteButtons()}
-									</Form>
-								);
-							}}
+							{...formProps}
 						/>
 					</div>
 				</section>
@@ -246,9 +231,10 @@ function mapStateToProps({ config, social }) {
 	return { authUser, profiles };
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchProfiles, createProfile, updateProfile, deleteProfile, twitterTest }
-	)(AdminProfilePage)
-);
+export default connect(mapStateToProps, {
+	fetchProfiles,
+	createProfile,
+	updateProfile,
+	deleteProfile,
+	twitterTest
+})(AdminProfilePage);
