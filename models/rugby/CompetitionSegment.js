@@ -34,8 +34,8 @@ const competitionSegmentSchema = new Schema(
 				],
 				teams: [{ type: Schema.Types.ObjectId, ref: "teams" }],
 				customStyling: {
-					backgroundColor: { type: String, default: null },
-					color: { type: String, default: null }
+					backgroundColor: { type: String, default: "#111111" },
+					color: { type: String, default: "#FFFFFF" }
 				},
 				leagueTableColours: [
 					{

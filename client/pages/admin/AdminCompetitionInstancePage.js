@@ -7,6 +7,7 @@ import { Switch, Route, Link, withRouter } from "react-router-dom";
 import AdminCompetitionInstanceOverview from "../../components/admin/competitions/AdminCompetitionInstanceOverview";
 import AdminCompetitionInstanceSpecialRounds from "../../components/admin/competitions/AdminCompetitionInstanceSpecialRounds";
 import AdminCompetitionInstanceAdjustments from "../../components/admin/competitions/AdminCompetitionInstanceAdjustments";
+import AdminCompetitionInstanceStyle from "../../components/admin/competitions/AdminCompetitionInstanceStyle";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
@@ -93,7 +94,10 @@ class AdminCompetitionInstancePage extends Component {
 			];
 
 			if (segment.type === "League" && instance.teams.length) {
-				items.push({ label: "Adjustments", slug: "adjustments" });
+				items.push(
+					{ label: "Adjustments", slug: "adjustments" },
+					{ label: "Table Styling", slug: "style" }
+				);
 			}
 
 			submenu = (
@@ -128,6 +132,11 @@ class AdminCompetitionInstancePage extends Component {
 		const root = "/admin/competitions/segments/:segmentId/instances";
 		return (
 			<Switch>
+				<Route
+					path={`${root}/:instanceId/style`}
+					exact
+					component={AdminCompetitionInstanceStyle}
+				/>
 				<Route
 					path={`${root}/:instanceId/adjustments`}
 					exact

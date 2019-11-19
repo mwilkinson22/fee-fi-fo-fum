@@ -46,16 +46,18 @@ export function renderField(field, validationSchema, fastFieldByDefault = true, 
 	field.label = field.label || yupField.label || field.name;
 
 	//Determine Required Status
-	field.required = Boolean(yupField.tests.find(test => test.name === "required"));
+	if (yupField) {
+		field.required = Boolean(yupField.tests.find(test => test.name === "required"));
 
-	//Get Min & Max
-	const min = yupField.tests.find(test => test.name === "min");
-	const max = yupField.tests.find(test => test.name === "max");
-	if (min) {
-		field.min = min.params.min;
-	}
-	if (max) {
-		field.max = max.params.max;
+		//Get Min & Max
+		const min = yupField.tests.find(test => test.name === "min");
+		const max = yupField.tests.find(test => test.name === "max");
+		if (min) {
+			field.min = min.params.min;
+		}
+		if (max) {
+			field.max = max.params.max;
+		}
 	}
 
 	//FastField eligibility
