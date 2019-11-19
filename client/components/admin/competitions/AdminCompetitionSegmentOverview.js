@@ -139,7 +139,8 @@ class AdminCompetitionSegmentOverview extends Component {
 			{
 				name: "type",
 				type: fieldTypes.select,
-				options: options.type
+				options: options.type,
+				isDisabled: !isNew
 			},
 			{ name: "hashtagPrefix", type: fieldTypes.text },
 			{ name: "appendCompetitionName", type: fieldTypes.boolean },

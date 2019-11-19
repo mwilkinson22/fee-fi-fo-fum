@@ -55,7 +55,13 @@ class AdminCompetitionInstanceOverview extends Component {
 
 		//Create Validation Schema
 		const validationSchema = {
-			teams: Yup.array().label("Teams"),
+			teams: Yup.array()
+				.test(
+					"isLeague",
+					"At least two teams must be selected for a league",
+					value => newState.segment.type !== "League" || value.length > 1
+				)
+				.label("Teams"),
 			sponsor: Yup.string().label("Sponsor"),
 			image: Yup.string().label("Image"),
 			manOfSteelPoints: Yup.bool().label("Man of Steel Points"),
