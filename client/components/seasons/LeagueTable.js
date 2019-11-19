@@ -1,16 +1,26 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
+//Components
+import LoadingPage from "../../components/LoadingPage";
+import Table from "../Table";
+import TeamImage from "~/client/components/teams/TeamImage";
+
+//Actions
 import { fetchNeutralGames } from "../../actions/neutralGamesActions";
 import { fetchGames, fetchGameList } from "../../actions/gamesActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
-import LoadingPage from "../../components/LoadingPage";
+import { fetchTeamList } from "~/client/actions/teamsActions";
+
+//Constants
 import { competitionImagePath } from "../../extPaths";
+
+//Helpers
 import { validateGameDate } from "~/helpers/gameHelper";
-import Table from "../Table";
-import TeamImage from "~/client/components/teams/TeamImage";
 
 class LeagueTable extends Component {
 	constructor(props) {
@@ -22,11 +32,17 @@ class LeagueTable extends Component {
 			fetchNeutralGames,
 			competitionSegmentList,
 			fetchCompetitionSegments,
-			year
+			year,
+			teamList,
+			fetchTeamList
 		} = props;
 
 		if (!gameList) {
 			fetchGameList();
+		}
+
+		if (!teamList) {
+			fetchTeamList();
 		}
 
 		if (!neutralGames || !neutralGames[year]) {
@@ -53,11 +69,18 @@ class LeagueTable extends Component {
 			year,
 			localTeam,
 			fromDate,
-			toDate
+			toDate,
+			teamList
 		} = nextProps;
 		const newState = {};
 
-		if (!gameList || !neutralGames || !neutralGames[year] || !competitionSegmentList) {
+		if (
+			!gameList ||
+			!neutralGames ||
+			!neutralGames[year] ||
+			!competitionSegmentList ||
+			!teamList
+		) {
 			return newState;
 		}
 
@@ -438,8 +461,11 @@ function mapStateToProps({ config, games, teams, competitions }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchNeutralGames, fetchGames, fetchGameList, fetchCompetitionSegments }
-	)(LeagueTable)
+	connect(mapStateToProps, {
+		fetchNeutralGames,
+		fetchGames,
+		fetchGameList,
+		fetchCompetitionSegments,
+		fetchTeamList
+	})(LeagueTable)
 );
