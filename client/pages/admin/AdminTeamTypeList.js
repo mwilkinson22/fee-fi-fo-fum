@@ -24,9 +24,9 @@ class AdminTeamTypeList extends Component {
 
 		const list = _.chain(teamTypes)
 			.sortBy("sortOrder")
-			.map(({ slug, name }) => (
-				<li key={slug}>
-					<Link to={`/admin/team-types/${slug}`}>{name}</Link>
+			.map(({ _id, name }) => (
+				<li key={_id}>
+					<Link to={`/admin/team-types/${_id}`}>{name}</Link>
 				</li>
 			))
 			.value();

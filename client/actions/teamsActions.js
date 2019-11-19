@@ -78,7 +78,7 @@ export const createTeamType = data => async (dispatch, getState, api) => {
 	if (res.data) {
 		toast.success(`Team Type created`);
 		dispatch({ type: FETCH_TEAM_TYPE, payload: res.data });
-		return res.data.slug;
+		return res.data._id;
 	}
 };
 
@@ -87,7 +87,6 @@ export const updateTeamType = (id, data) => async (dispatch, getState, api) => {
 	if (res.data) {
 		toast.success(`Team Type updated`);
 		dispatch({ type: FETCH_TEAM_TYPE, payload: res.data });
-		return res.data.slug;
 	}
 };
 
