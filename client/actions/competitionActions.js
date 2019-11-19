@@ -43,21 +43,21 @@ export const fetchCompetitionSegments = () => async (dispatch, getState, api) =>
 export const createCompetitionSegment = data => async (dispatch, getState, api) => {
 	const res = await api.post("/competitions/segments", data);
 	dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
-	toast.success(`Competition created`);
+	toast.success(`Competition Segment created`);
 	return res.data._id;
 };
 
 export const updateCompetitionSegment = (id, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/competitions/segments/${id}`, data);
 	dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
-	toast.success(`Competition updated`);
+	toast.success(`Competition Segment updated`);
 };
 
 export const deleteCompetitionSegment = id => async (dispatch, getState, api) => {
 	const res = await api.delete(`/competitions/segments/${id}`);
 	if (res.data) {
 		dispatch({ type: DELETE_COMPETITION_SEGMENT, payload: id });
-		toast.success(`Competition deleted`);
+		toast.success(`Competition Segment deleted`);
 		return true;
 	}
 };
@@ -66,7 +66,7 @@ export const createCompetitionInstance = (segment, data) => async (dispatch, get
 	const res = await api.post(`/competitions/segments/${segment}/instance`, data);
 	if (res.data) {
 		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data.segment });
-		toast.success(`Competition created`);
+		toast.success(`Competition Instance created`);
 		return res.data.instanceId;
 	}
 };
@@ -79,7 +79,7 @@ export const updateCompetitionInstance = (segment, instance, data) => async (
 	const res = await api.put(`/competitions/segments/${segment}/instance/${instance}`, data);
 	if (res.data) {
 		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
-		toast.success(`Competition updated`);
+		toast.success(`Competition Instance updated`);
 	}
 };
 
@@ -87,7 +87,7 @@ export const deleteCompetitionInstance = (segment, instance) => async (dispatch,
 	const res = await api.delete(`/competitions/segments/${segment}/instance/${instance}`);
 	if (res.data) {
 		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
-		toast.success(`Competition deleted`);
+		toast.success(`Competition Instance deleted`);
 		return true;
 	}
 };

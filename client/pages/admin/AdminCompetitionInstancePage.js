@@ -6,6 +6,7 @@ import { Switch, Route, Link, withRouter } from "react-router-dom";
 //Components
 import AdminCompetitionInstanceOverview from "../../components/admin/competitions/AdminCompetitionInstanceOverview";
 import AdminCompetitionInstanceSpecialRounds from "../../components/admin/competitions/AdminCompetitionInstanceSpecialRounds";
+import AdminCompetitionInstanceAdjustments from "../../components/admin/competitions/AdminCompetitionInstanceAdjustments";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
@@ -91,6 +92,10 @@ class AdminCompetitionInstancePage extends Component {
 				{ label: "Special Rounds", slug: "special-rounds", isExact: true }
 			];
 
+			if (segment.type === "League" && instance.teams.length) {
+				items.push({ label: "Adjustments", slug: "adjustments" });
+			}
+
 			submenu = (
 				<SubMenu
 					items={items}
@@ -123,6 +128,11 @@ class AdminCompetitionInstancePage extends Component {
 		const root = "/admin/competitions/segments/:segmentId/instances";
 		return (
 			<Switch>
+				<Route
+					path={`${root}/:instanceId/adjustments`}
+					exact
+					component={AdminCompetitionInstanceAdjustments}
+				/>
 				<Route
 					path={`${root}/:instanceId/special-rounds`}
 					exact
