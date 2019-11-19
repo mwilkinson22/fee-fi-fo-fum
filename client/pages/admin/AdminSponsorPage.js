@@ -1,16 +1,13 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
-import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
@@ -24,7 +21,7 @@ import {
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminCountryPage extends BasicForm {
+class AdminCountryPage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -37,17 +34,22 @@ class AdminCountryPage extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { sponsorList, match } = nextProps;
 		const newState = { isLoading: false };
 
 		//Create Or Edit
-		newState.isNew = !match.params.id;
+		newState.isNew = !match.params._id;
 
 		//Check Everything is loaded
 		if (!newState.isNew && !sponsorList) {
 			newState.isLoading = true;
 			return newState;
+		}
+
+		//Get Current Sponsor
+		if (!newState.isNew) {
+			newState.sponsor = sponsorList[match.params._id] || false;
 		}
 
 		//Create Validation Schema
@@ -60,71 +62,78 @@ class AdminCountryPage extends BasicForm {
 			image: Yup.string().label("Logo")
 		});
 
-		//Get Current Sponsor
-		if (!newState.isNew) {
-			newState.sponsor = sponsorList[match.params.id] || false;
-		}
-
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { sponsor, isNew } = this.state;
 
+		const defaultValues = {
+			name: "",
+			url: "",
+			twitter: "",
+			image: ""
+		};
+
 		if (isNew) {
-			return {
-				name: "",
-				url: "",
-				twitter: "",
-				image: ""
-			};
+			return defaultValues;
 		} else {
-			return _.mapValues(sponsor, v => v || "");
+			return _.mapValues(defaultValues, (def, key) => sponsor[key] || def);
 		}
 	}
 
-	async handleSubmit(values) {
-		const { createSponsor, updateSponsor, history } = this.props;
-		const { sponsor, isNew } = this.state;
-
-		if (isNew) {
-			const newId = await createSponsor(values);
-			history.push(`/admin/sponsors/${newId}`);
-		} else {
-			await updateSponsor(sponsor._id, values);
-		}
-	}
-
-	async handleDelete() {
-		const { deleteSponsor, history } = this.props;
+	getFieldGroups() {
 		const { sponsor } = this.state;
-		const success = await deleteSponsor(sponsor._id);
-		if (success) {
-			history.replace("/admin/sponsors");
-		}
-	}
-
-	renderDeleteButtons() {
-		if (!this.state.isNew) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
-		}
+		return [
+			{
+				fields: [
+					{ name: "name", type: fieldTypes.text },
+					{ name: "url", type: fieldTypes.text },
+					{ name: "twitter", type: fieldTypes.text },
+					{
+						name: "image",
+						type: fieldTypes.image,
+						path: "images/sponsors/",
+						acceptSVG: true,
+						defaultUploadName: sponsor ? sponsor._id : null
+					}
+				]
+			}
+		];
 	}
 
 	render() {
+		const { createSponsor, updateSponsor, deleteSponsor } = this.props;
 		const { sponsor, isNew, isLoading, validationSchema } = this.state;
 
+		//Await Sponsors
 		if (isLoading) {
 			return <LoadingPage />;
 		}
+
+		//404
 		if (!isNew && sponsor === false) {
 			return <NotFoundPage message="Sponsor not found" />;
 		}
 
+		//Page title
 		const title = isNew ? "Add New Sponsor" : sponsor.name;
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createSponsor(values),
+				redirectOnSubmit: id => `/admin/sponsors/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteSponsor(sponsor._id),
+				onSubmit: values => updateSponsor(sponsor._id, values),
+				redirectOnDelete: "/admin/sponsors/"
+			};
+		}
+
 		return (
 			<div className="admin-sponsor-page">
 				<HelmetBuilder title={title} />
@@ -135,39 +144,13 @@ class AdminCountryPage extends BasicForm {
 				</section>
 				<section className="form">
 					<div className="container">
-						<Formik
-							onSubmit={values => this.handleSubmit(values)}
-							initialValues={this.getDefaults()}
+						<BasicForm
+							fieldGroups={this.getFieldGroups()}
+							initialValues={this.getInitialValues()}
+							isNew={isNew}
+							itemType="Sponsor"
 							validationSchema={validationSchema}
-							render={({ values }) => {
-								const fields = [
-									{ name: "name", type: fieldTypes.text },
-									{ name: "url", type: fieldTypes.text },
-									{ name: "twitter", type: fieldTypes.text },
-									{
-										name: "image",
-										type: fieldTypes.image,
-										path: "images/sponsors/",
-										acceptSVG: true,
-										defaultUploadName: sponsor ? sponsor._id : values.name
-									}
-								];
-
-								return (
-									<Form>
-										<div className="card form-card grid">
-											{this.renderFieldGroup(fields)}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">
-													{isNew ? "Add" : "Update"} Sponsor
-												</button>
-											</div>
-										</div>
-										{this.renderDeleteButtons()}
-									</Form>
-								);
-							}}
+							{...formProps}
 						/>
 					</div>
 				</section>
@@ -181,14 +164,9 @@ function mapStateToProps({ sponsors }) {
 	return { sponsorList };
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchSponsors,
-			createSponsor,
-			updateSponsor,
-			deleteSponsor
-		}
-	)(AdminCountryPage)
-);
+export default connect(mapStateToProps, {
+	fetchSponsors,
+	createSponsor,
+	updateSponsor,
+	deleteSponsor
+})(AdminCountryPage);
