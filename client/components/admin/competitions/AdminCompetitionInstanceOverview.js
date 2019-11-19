@@ -31,7 +31,7 @@ class AdminCompetitionInstanceOverview extends Component {
 		this.state = {};
 	}
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { competitionSegmentList, localTeam, match, teamList } = nextProps;
+		const { competitionSegmentList, match, teamList } = nextProps;
 		const newState = { isLoading: false };
 
 		//Check teams have loaded
@@ -83,7 +83,6 @@ class AdminCompetitionInstanceOverview extends Component {
 		//Convert teamlist to dropdown options
 		if (!prevState.teams) {
 			newState.teams = _.chain(teamList)
-				.reject(({ _id }) => _id === localTeam)
 				.map(({ _id, name }) => ({ value: _id, label: name.long }))
 				.sortBy("label")
 				.value();
@@ -228,11 +227,10 @@ class AdminCompetitionInstanceOverview extends Component {
 	}
 }
 
-function mapStateToProps({ competitions, config, teams }) {
-	const { localTeam } = config;
+function mapStateToProps({ competitions, teams }) {
 	const { competitionList, competitionSegmentList } = competitions;
 	const { teamList, teamTypes } = teams;
-	return { localTeam, competitionList, competitionSegmentList, teamList, teamTypes };
+	return { competitionList, competitionSegmentList, teamList, teamTypes };
 }
 
 export default connect(mapStateToProps, {
