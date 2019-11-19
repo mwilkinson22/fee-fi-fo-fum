@@ -231,22 +231,24 @@ class BasicForm extends Component {
 	}
 
 	renderSubmitButtons(isValid, isSubmitting) {
-		const { itemType } = this.props;
+		let { itemType, submitButtonText } = this.props;
 		const { isNew } = this.state;
 
-		let submitButtonText;
-		if (isSubmitting) {
-			if (isNew) {
-				submitButtonText = "Adding";
+		if (!submitButtonText) {
+			if (isSubmitting) {
+				if (isNew) {
+					submitButtonText = "Adding";
+				} else {
+					submitButtonText = "Updating";
+				}
 			} else {
-				submitButtonText = "Updating";
+				if (isNew) {
+					submitButtonText = "Add";
+				} else {
+					submitButtonText = "Update";
+				}
 			}
-		} else {
-			if (isNew) {
-				submitButtonText = "Add";
-			} else {
-				submitButtonText = "Update";
-			}
+			submitButtonText += ` ${itemType}`;
 		}
 
 		const disableButtons = !isValid || isSubmitting;
@@ -261,7 +263,7 @@ class BasicForm extends Component {
 					className={disableButtons ? "" : "confirm"}
 					disabled={disableButtons}
 				>
-					{submitButtonText} {itemType}
+					{submitButtonText}
 				</button>
 			</div>
 		);
@@ -339,6 +341,7 @@ BasicForm.propTypes = {
 	redirectOnDelete: PropTypes.string,
 	//Either a simple string, or a callback passing in form values and action result
 	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+	submitButtonText: PropTypes.string,
 	testMode: PropTypes.bool,
 	validationSchema: PropTypes.object.isRequired
 };
@@ -346,6 +349,7 @@ BasicForm.propTypes = {
 BasicForm.defaultProps = {
 	fastFieldByDefault: true,
 	redirectOnDelete: `/admin/`,
+	submitButtonText: null,
 	testMode: false
 };
 
