@@ -93,7 +93,7 @@ class AdminCompetitionInstancePage extends Component {
 				{ label: "Special Rounds", slug: "special-rounds", isExact: true }
 			];
 
-			if (segment.type === "League" && instance.teams.length) {
+			if (segment.type === "League" && instance.teams) {
 				items.push(
 					{ label: "Adjustments", slug: "adjustments" },
 					{ label: "Table Styling", slug: "style" }
