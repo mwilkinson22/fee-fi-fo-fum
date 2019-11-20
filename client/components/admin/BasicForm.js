@@ -59,7 +59,7 @@ class BasicForm extends Component {
 					case fieldTypes.radio:
 					case fieldTypes.select:
 					case fieldTypes.asyncSelect: {
-						if (!field.options || !field.options.length) {
+						if (!field.options) {
 							error = `Field of type ${field.type} must have an options property`;
 						}
 						break;
