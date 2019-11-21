@@ -45,10 +45,19 @@ async function validateTeamTypeSlug(slug, res, id = null) {
 //Constants
 import { localTeam } from "~/config/keys";
 
-async function getUpdatedTeam(id, res) {
+async function getUpdatedTeam(_id, res) {
 	//To be called after post/put methods
-	const team = await Team.findById([id]).fullTeam();
-	res.send({ [id]: team });
+	const fullTeam = await Team.findById([_id]).fullTeam();
+	const forList = await Team.findById([_id]).forList();
+	res.send({
+		fullTeams: {
+			[_id]: fullTeam
+		},
+		teamList: {
+			[_id]: forList
+		},
+		_id
+	});
 }
 
 /*
@@ -71,8 +80,68 @@ export async function updateTeam(req, res) {
 	}
 }
 
+export async function deleteTeam(req, res) {
+	const { _id } = req.params;
+	const team = await validateTeam(_id, res);
+	if (team) {
+		//Check if a team is required for any games
+		const Game = mongoose.model("games");
+		const games = await Game.find({ _opposition: _id }, "slug").lean();
+		const NeutralGame = mongoose.model("neutralGames");
+		const neutralGames = await NeutralGame.find(
+			{ $or: [{ _homeTeam: _id }, { _awayTeam: _id }] },
+			"date"
+		).lean();
+		const totalGames = games.length + neutralGames.length;
+
+		//Check if a team is named in a competition instance
+		const CompetitionSegment = mongoose.model("competitionSegments");
+		const segments = await CompetitionSegment.find(
+			{ "instances.teams": _id },
+			"name instances.year instances.teams"
+		).lean();
+
+		//If games or instances are found, report an error
+		if (totalGames || segments.length) {
+			let error = "Team cannot be deleted, as it is required for ";
+
+			if (totalGames) {
+				error += `${totalGames} ${totalGames === 1 ? "game" : "games"}`;
+				if (segments.length) {
+					error += " & ";
+				}
+			}
+
+			if (segments.length) {
+				error += `instances in ${segments.length} competition ${
+					segments.length === 1 ? "segment" : "segments"
+				}`;
+			}
+
+			res.status(409).send({
+				error,
+				toLog: {
+					games,
+					neutralGames,
+					segments: segments.map(segment => {
+						const instances = segment.instances
+							.filter(({ teams }) => teams && teams.find(team => team._id == _id))
+							.map(({ year }) => year);
+						return { ...segment, instances };
+					})
+				}
+			});
+		} else {
+			await team.remove();
+			res.send({});
+		}
+	}
+}
+
 export async function getList(req, res) {
-	const teams = await Team.find({}, "name colours images").lean();
+	const teams = await Team.find({})
+		.forList()
+		.lean();
 	const teamList = _.keyBy(teams, "_id");
 	res.send({ teamList });
 }
@@ -81,7 +150,7 @@ export async function getTeam(req, res) {
 	const { _id } = req.params;
 	const team = await validateTeam(_id, res, Team.findById(_id).fullTeam());
 	if (team) {
-		res.send({ [team._id]: team });
+		await getUpdatedTeam(_id, res);
 	}
 }
 

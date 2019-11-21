@@ -76,6 +76,10 @@ const teamSchema = new Schema({
 	]
 });
 
+teamSchema.query.forList = function() {
+	return this.select("name colours images");
+};
+
 teamSchema.query.fullTeam = function() {
 	return this.populate({
 		path: "squads.players._player",

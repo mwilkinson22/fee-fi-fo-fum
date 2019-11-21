@@ -24,5 +24,6 @@ export default app => {
 	app.post("/api/teams/", requireAdmin, teamsController.createTeam);
 
 	//Deleters
+	app.delete("/api/teams/:_id", teamsController.deleteTeam);
 	app.delete("/api/teamTypes/:_id", teamsController.deleteTeamType);
 };

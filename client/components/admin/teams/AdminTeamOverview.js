@@ -7,7 +7,7 @@ import * as Yup from "yup";
 
 //Actions
 import { fetchAllGrounds } from "../../../actions/groundActions";
-import { updateTeam, createTeam } from "../../../actions/teamsActions";
+import { updateTeam, createTeam, deleteTeam } from "../../../actions/teamsActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -106,7 +106,6 @@ class AdminTeamOverview extends Component {
 
 	getInitialValues() {
 		const { isNew, team, groundOptions } = this.state;
-		const { teamTypes } = this.props;
 
 		const defaultValues = {
 			name: {
@@ -280,7 +279,7 @@ class AdminTeamOverview extends Component {
 	}
 
 	render() {
-		const { createTeam, updateTeam } = this.props;
+		const { createTeam, updateTeam, deleteTeam } = this.props;
 		const { isLoading, isNew, team, validationSchema } = this.state;
 
 		//Wait for the ground list
@@ -297,7 +296,7 @@ class AdminTeamOverview extends Component {
 			};
 		} else {
 			formProps = {
-				// onDelete: () => deleteTeam(team._id),
+				onDelete: () => deleteTeam(team._id),
 				onSubmit: values => updateTeam(team._id, values),
 				redirectOnDelete: `/admin/teams/`
 			};
@@ -324,10 +323,12 @@ class AdminTeamOverview extends Component {
 //Add Redux Support
 function mapStateToProps({ grounds, teams }) {
 	const { groundList } = grounds;
-	const { fullTeams, teamTypes } = teams;
-	return { fullTeams, groundList, teamTypes };
+	const { fullTeams } = teams;
+	return { fullTeams, groundList };
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, { fetchAllGrounds, updateTeam, createTeam })(AdminTeamOverview)
+	connect(mapStateToProps, { fetchAllGrounds, updateTeam, createTeam, deleteTeam })(
+		AdminTeamOverview
+	)
 );
