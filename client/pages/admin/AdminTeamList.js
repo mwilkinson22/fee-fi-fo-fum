@@ -6,8 +6,10 @@ import TeamImage from "../../components/teams/TeamImage";
 
 class AdminTeamList extends Component {
 	renderList() {
-		return _.chain(this.props.teamList)
-			.sortBy("name.long")
+		const { localTeam, teamList } = this.props;
+		return _.chain(teamList)
+			.sortBy(({ _id, name }) => `${_id == localTeam ? 0 : 1}${name.long}`)
+			.sortBy()
 			.map(team => {
 				const { _id, name, colours } = team;
 				return (
@@ -61,9 +63,10 @@ class AdminTeamList extends Component {
 	}
 }
 
-function mapStateToProps({ teams }) {
+function mapStateToProps({ config, teams }) {
+	const { localTeam } = config;
 	const { teamList } = teams;
-	return { teamList };
+	return { localTeam, teamList };
 }
 
 export default connect(mapStateToProps)(AdminTeamList);

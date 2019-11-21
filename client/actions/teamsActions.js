@@ -27,7 +27,7 @@ export const createTeam = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/teams/`, values);
 	toast.success("Team Created");
 	dispatch({ type: UPDATE_TEAM, payload: res.data });
-	return res.data;
+	return res.data._id;
 };
 
 export const updateTeam = (id, values) => async (dispatch, getState, api) => {

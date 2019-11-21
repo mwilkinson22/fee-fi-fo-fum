@@ -1,9 +1,8 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
@@ -17,16 +16,16 @@ import LoadingPage from "../../LoadingPage";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminTeamOverview extends BasicForm {
+class AdminTeamOverview extends Component {
 	constructor(props) {
 		super(props);
-		const { groundList, fetchAllGrounds, team, teamTypes } = props;
+		const { groundList, fetchAllGrounds } = props;
+
 		if (!groundList) {
 			fetchAllGrounds();
 		}
 
-		const _grounds = _.mapValues(teamTypes, ({ name }) => Yup.string().label(name));
-
+		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
 			name: Yup.object().shape({
 				long: Yup.string()
@@ -46,7 +45,6 @@ class AdminTeamOverview extends BasicForm {
 			_defaultGround: Yup.string()
 				.required()
 				.label("Default Ground"),
-			_grounds: Yup.object().shape(_grounds),
 			images: Yup.object().shape({
 				main: Yup.string()
 					.required()
@@ -74,36 +72,43 @@ class AdminTeamOverview extends BasicForm {
 			})
 		});
 
-		this.state = { groundList, team, validationSchema };
+		this.state = { validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
 		const { fullTeams, match, groundList } = nextProps;
-		const newState = {};
+		const newState = { isLoading: false };
 
-		if (match && match.params._id) {
-			newState.team = fullTeams[match.params._id];
+		//Wait for everything to load
+		if (!groundList) {
+			return { isLoading: true };
 		}
 
-		if (groundList) {
-			newState.groundList = _.chain(groundList)
-				.map(ground => ({
-					value: ground._id,
-					label: `${ground.name}, ${ground.address._city.name}`
-				}))
-				.sortBy("label")
-				.value();
+		//Create or Edit
+		newState.isNew = !match.params._id;
+
+		//Get Current Team
+		if (!newState.isNew) {
+			newState.team = fullTeams[match.params._id] || false;
 		}
+
+		//Create Ground Options
+		newState.groundOptions = _.chain(groundList)
+			.map(ground => ({
+				value: ground._id,
+				label: `${ground.name}, ${ground.address._city.name}`
+			}))
+			.sortBy("label")
+			.value();
 
 		return newState;
 	}
 
-	getDefaults() {
-		const { team, groundList } = this.state;
+	getInitialValues() {
+		const { isNew, team, groundOptions } = this.state;
 		const { teamTypes } = this.props;
 
-		//Set basics for new teams:
-		let defaults = {
+		const defaultValues = {
 			name: {
 				short: "",
 				long: ""
@@ -111,7 +116,6 @@ class AdminTeamOverview extends BasicForm {
 			nickname: "",
 			hashtagPrefix: "",
 			_defaultGround: "",
-			_grounds: "",
 			images: {
 				main: "",
 				light: "",
@@ -129,162 +133,190 @@ class AdminTeamOverview extends BasicForm {
 			}
 		};
 
-		if (team) {
-			defaults = _.mapValues(defaults, (val, key) => {
-				if (team[key] != null) {
-					switch (key) {
-						case "_defaultGround":
-							return (
-								_.find(groundList, ground => ground.value == team._defaultGround) ||
-								""
-							);
-						case "_grounds":
-							return _.chain(teamTypes)
-								.sortBy("sortOrder")
-								.map(({ _id }) => {
-									let result = "";
-									const currentValue = team._grounds.find(
-										({ _teamType }) => _teamType == _id
-									);
-									if (currentValue) {
-										result = _.find(
-											groundList,
-											ground => ground.value == currentValue._ground
-										);
-									}
-									return [_id, result];
-								})
-								.fromPairs()
-								.value();
-						case "name":
-						case "colours":
-						case "images":
-							return _.mapValues(team[key], (v, subkey) => v || val[subkey]);
-						default:
-							return team[key];
-					}
-				} else {
-					return val;
+		if (isNew) {
+			return defaultValues;
+		} else {
+			return _.mapValues(defaultValues, (defaultValue, key) => {
+				let value;
+				switch (key) {
+					//Handle nested objects
+					case "name":
+					case "images":
+					case "colours":
+						value = _.mapValues(team[key], (currentValue, subkey) => {
+							let value;
+							switch (`${key}.${subkey}`) {
+								//If null, default to main colour
+								case `colours.pitchColour`:
+								case `colours.statBarColour`:
+									value = currentValue || team.colours.main;
+									break;
+
+								//For the colour booleans, we check if the corresponding
+								//colour is null
+								case `colours.customPitchColour`:
+								case `colours.customStatBarColour`: {
+									let colourKey = subkey.replace("custom", "");
+									colourKey =
+										colourKey.substr(0, 1).toLowerCase() + colourKey.substr(1);
+									value = Boolean(team[key][colourKey]);
+									break;
+								}
+								default:
+									value = currentValue;
+							}
+
+							return value != null ? value : defaultValue[subkey];
+						});
+						break;
+
+					//Pull default ground from options
+					case "_defaultGround":
+						value = groundOptions.find(({ value }) => value == team[key]);
+						break;
+					default:
+						value = team[key];
+						break;
 				}
+
+				return value != null ? value : defaultValue;
 			});
 		}
-
-		return defaults;
 	}
 
-	async onSubmit(values) {
-		const { updateTeam, createTeam, history } = this.props;
-		const { team } = this.state;
+	getFieldGroups(values) {
+		const { groundOptions, team } = this.state;
 
-		if (team) {
-			updateTeam(team._id, values);
-		} else {
-			await createTeam(values);
-			history.push(`/admin/teams/`);
-		}
-	}
-
-	renderFields() {
-		const { groundList, team } = this.state;
-		const { teamTypes } = this.props;
-		const teamFields = [
-			{ name: "name.long", type: fieldTypes.text },
-			{ name: "name.short", type: fieldTypes.text },
-			{ name: "nickname", type: fieldTypes.text },
-			{ name: "hashtagPrefix", type: fieldTypes.text }
-		];
-
-		const groundFields = [
-			{ name: "_defaultGround", type: fieldTypes.select, options: groundList }
-		];
-		_.chain(teamTypes)
-			.sortBy("sortOrder")
-			.each(({ _id }) => {
-				groundFields.push({
-					name: `_grounds.${_id}`,
-					type: fieldTypes.select,
-					options: groundList,
-					isClearable: true
-				});
-			})
-			.value();
-
+		//Get Colour Fields
 		const colourFields = [
 			{ name: "colours.main", type: fieldTypes.colour },
 			{ name: "colours.text", type: fieldTypes.colour },
 			{ name: "colours.trim1", type: fieldTypes.colour },
-			{ name: "colours.trim2", type: fieldTypes.colour },
-			{
-				name: "colours.customStatBarColour",
-				type: fieldTypes.boolean,
-				controls: { name: "colours.statBarColour", type: fieldTypes.colour }
-			},
-			{
-				name: "colours.customPitchColour",
-				type: fieldTypes.boolean,
-				controls: { name: "colours.pitchColour", type: fieldTypes.colour }
-			}
+			{ name: "colours.trim2", type: fieldTypes.colour }
 		];
 
+		//Add Stat Bar
+		colourFields.push({
+			name: "colours.customStatBarColour",
+			type: fieldTypes.boolean,
+			fastField: false
+		});
+		if (values.colours.customStatBarColour) {
+			colourFields.push({
+				name: "colours.statBarColour",
+				type: fieldTypes.colour,
+				fastField: false
+			});
+		}
+
+		//Add Pitch Colour
+		colourFields.push({
+			name: "colours.customPitchColour",
+			type: fieldTypes.boolean,
+			fastField: false
+		});
+		if (values.colours.customPitchColour) {
+			colourFields.push({
+				name: "colours.pitchColour",
+				type: fieldTypes.colour,
+				fastField: false
+			});
+		}
+
+		//Get Image field template
 		const imageField = {
 			type: fieldTypes.image,
 			path: "images/teams/",
 			acceptSVG: true,
 			defaultUploadName: team ? team.slug : null
 		};
-		const imageFields = [
+
+		return [
 			{
-				...imageField,
-				name: "images.main"
+				fields: [
+					{ name: "name.long", type: fieldTypes.text },
+					{ name: "name.short", type: fieldTypes.text },
+					{ name: "nickname", type: fieldTypes.text },
+					{ name: "hashtagPrefix", type: fieldTypes.text },
+					{ name: "_defaultGround", type: fieldTypes.select, options: groundOptions }
+				]
 			},
 			{
-				...imageField,
-				name: "images.dark",
-				defaultUploadName: imageField.defaultUploadName + "-dark"
+				label: "Colours",
+				fields: colourFields
 			},
 			{
-				...imageField,
-				name: "images.light",
-				defaultUploadName: imageField.defaultUploadName + "-light"
+				label: "Images",
+				fields: [
+					{
+						...imageField,
+						name: "images.main"
+					},
+					{
+						...imageField,
+						name: "images.dark",
+						defaultUploadName: imageField.defaultUploadName + "-dark"
+					},
+					{
+						...imageField,
+						name: "images.light",
+						defaultUploadName: imageField.defaultUploadName + "-light"
+					}
+				]
 			}
 		];
+	}
 
-		return (
-			<Form>
-				<div className="form-card grid">
-					<h6>Team</h6>
-					{this.renderFieldGroup(teamFields)}
-					<h6>Grounds</h6>
-					{this.renderFieldGroup(groundFields)}
-					<h6>Colours</h6>
-					{this.renderFieldGroup(colourFields)}
-					<h6>Images</h6>
-					{this.renderFieldGroup(imageFields)}
-					<div className="buttons">
-						<button type="clear">Clear</button>
-						<button type="submit">{team ? "Update" : "Add"} Team</button>
-					</div>
-				</div>
-			</Form>
-		);
+	alterValuesBeforeSubmit(values) {
+		if (!values.colours.customPitchColour) {
+			values.colours.pitchColour = null;
+		}
+		if (!values.colours.customStatBarColour) {
+			values.colours.statBarColour = null;
+		}
+
+		delete values.colours.customStatBarColour;
+		delete values.colours.customPitchColour;
 	}
 
 	render() {
-		const { groundList } = this.state;
+		const { createTeam, updateTeam } = this.props;
+		const { isLoading, isNew, team, validationSchema } = this.state;
 
-		if (!groundList) {
+		//Wait for the ground list
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createTeam(values),
+				redirectOnSubmit: id => `/admin/teams/${id}`
+			};
+		} else {
+			formProps = {
+				// onDelete: () => deleteTeam(team._id),
+				onSubmit: values => updateTeam(team._id, values),
+				redirectOnDelete: `/admin/teams/`
+			};
+		}
+
 		return (
-			<div className="container">
-				<Formik
-					validationSchema={this.state.validationSchema}
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					render={formikProps => this.renderFields(formikProps.values)}
-				/>
-			</div>
+			<section className="form">
+				<div className="container">
+					<BasicForm
+						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+						fieldGroups={values => this.getFieldGroups(values)}
+						initialValues={this.getInitialValues()}
+						isNew={isNew}
+						itemType="Team"
+						validationSchema={validationSchema}
+						{...formProps}
+					/>
+				</div>
+			</section>
 		);
 	}
 }
@@ -297,8 +329,5 @@ function mapStateToProps({ grounds, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchAllGrounds, updateTeam, createTeam }
-	)(AdminTeamOverview)
+	connect(mapStateToProps, { fetchAllGrounds, updateTeam, createTeam })(AdminTeamOverview)
 );

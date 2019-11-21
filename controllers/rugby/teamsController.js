@@ -51,41 +51,12 @@ async function getUpdatedTeam(id, res) {
 	res.send({ [id]: team });
 }
 
-function processBasics(values) {
-	return _.mapValues(values, (val, key) => {
-		switch (key) {
-			case "_defaultGround":
-				return val.value;
-			case "colours":
-				if (!val.customPitchColour) {
-					val.pitchColour = null;
-				}
-				if (!val.customStatBarColour) {
-					val.statBarColour = null;
-				}
-				return val;
-			case "_grounds":
-				return _.chain(val)
-					.map((ground, _teamType) => {
-						if (ground && ground.value) {
-							return { _ground: ground.value, _teamType };
-						}
-					})
-					.filter(_.identity)
-					.value();
-			default:
-				return val;
-		}
-	});
-}
-
 /*
  * FULL TEAM METHODS
  */
 export async function createTeam(req, res) {
 	//Handle Plain Text Fields
-	const values = processBasics(req.body);
-	const team = new Team(values);
+	const team = new Team(req.body);
 	await team.save();
 	await getUpdatedTeam(team._id, res);
 }
@@ -95,8 +66,7 @@ export async function updateTeam(req, res) {
 	const team = await validateTeam(_id, res);
 	if (team) {
 		//Handle Plain Text Fields
-		const values = processBasics(req.body);
-		await Team.updateOne({ _id }, values);
+		await Team.updateOne({ _id }, req.body);
 		await getUpdatedTeam(_id, res);
 	}
 }
