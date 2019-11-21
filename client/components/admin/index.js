@@ -63,14 +63,6 @@ class AdminRouter extends Component {
 		if (this.props.authUser) {
 			content = (
 				<Switch>
-					<Route path="/admin/neutralGame/:id" component={AdminNeutralGamePage} />
-					<Route
-						path="/admin/neutralGames/:year/:teamType"
-						component={AdminNeutralGameList}
-					/>
-					<Route path="/admin/neutralGames/:year" component={AdminNeutralGameList} />
-					<Route path="/admin/neutralGames/" component={AdminNeutralGameList} />
-
 					<Route path="/admin/game/new" component={AdminNewGamePage} />
 					<Route path="/admin/game/:slug" component={AdminGamePage} />
 					<Route
@@ -125,6 +117,15 @@ class AdminRouter extends Component {
 					<Route path="/admin/news/post/new" component={AdminNewsPostPage} />
 					<Route path="/admin/news/post/:slug" component={AdminNewsPostPage} />
 					<Route path="/admin/news/" exact component={AdminNewsList} />
+
+					<Route path="/admin/neutralGame/new" component={AdminNeutralGamePage} />
+					<Route path="/admin/neutralGame/:_id" component={AdminNeutralGamePage} />
+					<Route
+						path="/admin/neutralGames/:year/:teamType"
+						component={AdminNeutralGameList}
+					/>
+					<Route path="/admin/neutralGames/:year" component={AdminNeutralGameList} />
+					<Route path="/admin/neutralGames/" component={AdminNeutralGameList} />
 
 					<Route path="/admin/people/new" exact component={AdminNewPersonPage} />
 					<Route path="/admin/people/:slug" component={AdminPersonPage} />

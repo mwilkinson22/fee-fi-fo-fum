@@ -26,6 +26,7 @@ export const createNeutralGames = data => async (dispatch, getState, api) => {
 	const res = await api.post("/neutralGames", data);
 	toast.success("Game Created");
 	dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
+	return res.data;
 };
 
 export const updateNeutralGames = data => async (dispatch, getState, api) => {
@@ -36,8 +37,11 @@ export const updateNeutralGames = data => async (dispatch, getState, api) => {
 
 export const deleteNeutralGame = id => async (dispatch, getState, api) => {
 	const res = await api.delete(`/neutralGames/${id}`);
-	toast.success("Game Deleted");
-	dispatch({ type: DELETE_NEUTRAL_GAME, payload: res.data });
+	if (res.data) {
+		toast.success("Game Deleted");
+		dispatch({ type: DELETE_NEUTRAL_GAME, payload: id });
+		return true;
+	}
 };
 
 export const crawlNeutralGames = () => async (dispatch, getState, api) => {

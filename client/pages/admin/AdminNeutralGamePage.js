@@ -1,9 +1,8 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
@@ -11,7 +10,6 @@ import BasicForm from "../../components/admin/BasicForm";
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
-import DeleteButtons from "~/client/components/admin/fields/DeleteButtons";
 
 //Actions
 import {
@@ -25,19 +23,10 @@ import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-function getGame(id, neutralGames) {
-	if (!neutralGames) {
-		return false;
-	}
+//Helpers
+import { getNeutralGame } from "~/helpers/gameHelper";
 
-	return _.chain(neutralGames)
-		.map(g => _.values(g))
-		.flatten()
-		.find(g => g._id == id)
-		.value();
-}
-
-class AdminNeutralGamePage extends BasicForm {
+class AdminNeutralGamePage extends Component {
 	constructor(props) {
 		super(props);
 		const {
@@ -52,26 +41,58 @@ class AdminNeutralGamePage extends BasicForm {
 			fetchCompetitionSegments();
 		}
 
-		if (!getGame(match.params.id, neutralGames)) {
-			fetchNeutralGamesFromId(match.params.id);
+		//If we click through to this page from NeutralGameList
+		//then we know it is already loaded into redux. If we access
+		//the url directly, it won't be. In that case, provided
+		//we're editing a game (instead of creating one), we run
+		//fetchNeutralGamesFromId, which takes the given ID and returns
+		//all games from that year. It's a rare case but makes things easier
+		//with the nG reducer
+		if (match.params._id && !neutralGames) {
+			fetchNeutralGamesFromId(match.params._id);
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { competitionSegmentList, neutralGames, teamList, match } = nextProps;
-		if (!competitionSegmentList || !neutralGames) {
-			return {};
-		}
-
-		const newState = {};
+		const { competitionSegmentList, neutralGames, match } = nextProps;
+		const newState = { isLoading: false };
 
 		//Check for New Game
-		newState.isNew = match.params.id === "new";
+		newState.isNew = !match.params._id;
 
-		//Set Basic validation schema
-		const validationSchema = {
+		//Check everything is loaded
+		if (!competitionSegmentList || (!newState.isNew && !neutralGames)) {
+			newState.isLoading = true;
+			return newState;
+		}
+
+		if (!newState.isNew) {
+			newState.game = getNeutralGame(match.params._id, neutralGames);
+
+			if (newState.game === false) {
+				return newState;
+			}
+		}
+
+		//Determine validation for date
+		let dateValidation;
+		if (newState.isNew) {
+			dateValidation = Yup.date()
+				.required()
+				.label("Date");
+		} else {
+			const year = new Date(newState.game.date).getFullYear();
+			dateValidation = Yup.date()
+				.required()
+				.label("Date")
+				.min(`${year}-01-01`)
+				.max(`${year}-12-31`);
+		}
+
+		//Set validation schema
+		newState.validationSchema = Yup.object().shape({
 			externalSync: Yup.boolean().label("External Sync"),
 			externalId: Yup.number()
 				.when("externalSync", (externalSync, schema) => {
@@ -109,264 +130,298 @@ class AdminNeutralGamePage extends BasicForm {
 			awayPoints: Yup.number()
 				.min(0)
 				.label("Away Points"),
-			date: Yup.date()
-				.required()
-				.label("Date")
-		};
-
-		if (!newState.isNew) {
-			const game = getGame(match.params.id, neutralGames);
-			if (game) {
-				newState.game = _.cloneDeep(game);
-				newState.game._homeTeam = teamList[game._homeTeam];
-				newState.game._awayTeam = teamList[game._awayTeam];
-				const year = new Date(game.date).getFullYear();
-				validationSchema.date = Yup.date()
-					.required()
-					.label("Date")
-					.min(`${year}-01-01`)
-					.max(`${year}-12-31`);
-			} else {
-				return newState;
-			}
-		}
-
-		newState.validationSchema = Yup.object().shape(validationSchema);
+			date: dateValidation
+		});
 
 		return newState;
 	}
 
-	handleSubmit(values) {
-		const { game } = this.state;
-		const { createNeutralGames, updateNeutralGames, history } = this.props;
+	getInitialValues() {
+		const { game, isNew } = this.state;
+		const defaultValues = {
+			externalSync: false,
+			externalId: "",
+			date: "",
+			time: "",
+			_teamType: "",
+			_competition: "",
+			_homeTeam: "",
+			_awayTeam: "",
+			homePoints: "",
+			awayPoints: ""
+		};
 
-		//Fix Date
-		values.date = `${values.date} ${values.time}`;
-		delete values.time;
+		if (isNew) {
+			return defaultValues;
+		} else {
+			//As the options are created dynamically, we do this in three steps
+			//First, create a values object with placeholder dropdown options for
+			//the select fields
+			const values = _.mapValues(defaultValues, (defaultValue, key) => {
+				let value;
+				switch (key) {
+					case "date":
+						value = game.date.toString("yyyy-MM-dd");
+						break;
+					case "time":
+						value = game.date.toString("HH:mm:ss");
+						break;
+					case "_teamType":
+					case "_competition":
+					case "_homeTeam":
+					case "_awayTeam":
+						value = { value: game[key] };
+						break;
+					default:
+						value = game[key];
+						break;
+				}
 
-		values = _.mapValues(values, v => {
-			if (typeof v === "object") {
-				v = v.value;
+				return value != null ? value : defaultValue;
+			});
+
+			//We use this object to get the options we need
+			const options = this.getOptions(values);
+
+			//We then convert the select field values to use actual options
+			return _.mapValues(values, (currentValue, key) => {
+				switch (key) {
+					case "_teamType":
+					case "_competition":
+						return options[key].find(option => option.value == currentValue.value);
+					case "_homeTeam":
+					case "_awayTeam":
+						return options.teams.find(option => option.value == currentValue.value);
+					default:
+						return currentValue;
+				}
+			});
+		}
+	}
+
+	getFieldGroups(values) {
+		const { isNew } = this.state;
+		const options = this.getOptions(values);
+
+		return [
+			{
+				fields: [
+					{ name: "externalSync", type: fieldTypes.boolean },
+					{ name: "externalId", type: fieldTypes.number },
+					{ name: "date", type: fieldTypes.date },
+					{ name: "time", type: fieldTypes.time },
+					{
+						name: "_teamType",
+						type: fieldTypes.select,
+						disabled: !isNew,
+						options: options._teamType,
+						clearOnChange: ["_competition"]
+					},
+					{
+						name: "_competition",
+						type: fieldTypes.select,
+						disabled: !isNew,
+						options: options._competition
+					},
+					{
+						name: "_homeTeam",
+						type: fieldTypes.select,
+						options: options.teams
+					},
+					{
+						name: "_awayTeam",
+						type: fieldTypes.select,
+						options: options.teams
+					},
+					{ name: "homePoints", type: fieldTypes.number },
+					{ name: "awayPoints", type: fieldTypes.number }
+				]
 			}
-			if (v === "") {
-				return null;
-			} else {
-				return v;
-			}
-		});
-
-		if (game) {
-			updateNeutralGames({ [game._id]: values });
-		} else {
-			createNeutralGames([values]);
-		}
-		history.push(
-			`/admin/neutralGames/${new Date(values.date).getFullYear()}/${values._teamType}`
-		);
-	}
-
-	handleDelete() {
-		const { game } = this.state;
-		const { deleteNeutralGame, history } = this.props;
-		deleteNeutralGame(game._id);
-		history.replace(`/admin/neutralGames/${game.date.getFullYear()}/${game._teamType}`);
-	}
-
-	generatePageTitle() {
-		const { game } = this.state;
-		if (game) {
-			const { _homeTeam, _awayTeam, date } = this.state.game;
-			return `${_homeTeam.name.short} vs ${_awayTeam.name.short} - ${date.toString(
-				"ddd dS MMM yyyy"
-			)}`;
-		} else {
-			return "New Neutral Game";
-		}
-	}
-
-	generatePageHeader() {
-		const { game } = this.state;
-		let url = `/admin/neutralGames`;
-		if (game) {
-			const { date, _teamType } = game;
-			const { teamTypes } = this.props;
-			const urlYear = date.getFullYear();
-			const urlSlug = teamTypes[_teamType].slug;
-			url += `/${urlYear}/${urlSlug}`;
-		}
-		return (
-			<section className="page-header">
-				<div className="container">
-					<Link className="nav-card card" to={url}>
-						↩ Return to game list
-					</Link>
-					<h1>{this.generatePageTitle()}</h1>
-				</div>
-			</section>
-		);
-	}
-
-	getDefaults() {
-		const { game } = this.state;
-		const { teamTypes, competitionSegmentList } = this.props;
-		if (game) {
-			return {
-				externalSync: game.externalSync,
-				externalId: game.externalId || "",
-				date: game.date.toString("yyyy-MM-dd"),
-				time: game.date.toString("HH:mm:ss"),
-				_teamType: {
-					value: game._teamType,
-					label: teamTypes[game._teamType].name
-				},
-				_competition: {
-					value: game._competition,
-					label: competitionSegmentList[game._competition].name
-				},
-				_homeTeam: {
-					value: game._homeTeam._id,
-					label: game._homeTeam.name.long
-				},
-				_awayTeam: {
-					value: game._awayTeam._id,
-					label: game._awayTeam.name.long
-				},
-				homePoints: game.homePoints === null ? "" : game.homePoints,
-				awayPoints: game.awayPoints === null ? "" : game.awayPoints
-			};
-		} else {
-			return {
-				externalSync: false,
-				externalId: "",
-				date: "",
-				time: "",
-				_teamType: "",
-				_competition: "",
-				_homeTeam: "",
-				_awayTeam: "",
-				homePoints: "",
-				awayPoints: ""
-			};
-		}
+		];
 	}
 
 	getOptions(values) {
 		const { competitionSegmentList, teamTypes, teamList, localTeam } = this.props;
-		const options = {};
-		options.teamTypes = _.map(teamTypes, t => ({ label: t.name, value: t._id }));
+		const options = {
+			_teamType: [],
+			_competition: [],
+			teams: []
+		};
+
+		//Set team types
+		options._teamType = _.chain(teamTypes)
+			.sortBy("sortOrder")
+			.map(t => ({ label: t.name, value: t._id }))
+			.value();
+
+		//Pull all valid competition for the selected date and team type
 		if (values.date && values._teamType) {
-			const year = new Date(values.date).getFullYear();
-			options.competitions = _.chain(competitionSegmentList)
-				.filter(c => c._teamType == values._teamType.value)
-				.filter(c => _.find(c.instances, i => i.year == year || i.year == null))
+			const currentYear = new Date(values.date).getFullYear();
+			const currentTeamType = values._teamType.value;
+
+			options._competition = _.chain(competitionSegmentList)
+				//Filter all competitions by team type
+				.filter(({ _teamType }) => _teamType == currentTeamType)
+				//Find those with corresponding instances for this year
+				.filter(({ multipleInstances, instances }) => {
+					if (multipleInstances) {
+						return instances.find(({ year }) => year == currentYear);
+					} else {
+						return instances.length;
+					}
+				})
+				//Convert to dropdown options
 				.map(c => ({ label: c.name, value: c._id }))
 				.value();
 
+			//Remove the selected competition if it's not in the list
+			if (!options._competition.find(option => option.value == values._competition.value)) {
+				values._competition = "";
+			}
+
+			//Get available teams from selected competition
 			if (values._competition) {
-				const competition = competitionSegmentList[values._competition.value];
-				const instance = _.find(
-					competition.instances,
-					i => i.year == year || i.year == null
-				);
+				const currentCompetition = competitionSegmentList[values._competition.value];
+
+				//Get corresponding instance
+				let instance;
+				if (currentCompetition.multipleInstances) {
+					instance = currentCompetition.instances.find(({ year }) => year == currentYear);
+				} else {
+					instance = currentCompetition.instances[0];
+				}
+
+				//Look for teams
 				options.teams = _.chain(teamList)
-					.filter(team => !instance.teams || instance.teams.indexOf(team._id) > -1)
+					//Filter based on instance
+					.filter(({ _id }) => {
+						//No local team in neutral games
+						if (_id == localTeam) {
+							return false;
+						}
+
+						if (instance.teams && instance.teams.length) {
+							return instance.teams.indexOf(_id) > -1;
+						} else {
+							//No teams specified, all are valid
+							return true;
+						}
+					})
+					//Convert to dropdown options
 					.map(team => {
 						return { label: team.name.long, value: team._id };
 					})
 					.sortBy("label")
 					.value();
-			} else {
-				options.teams = [];
+
+				//Remove the selected teams if they're not in the list
+				if (!options.teams.find(option => option.value == values._homeTeam.value)) {
+					values._homeTeam = "";
+				}
+				if (!options.teams.find(option => option.value == values._awayTeam.value)) {
+					values._awayTeam = "";
+				}
 			}
-		} else {
-			options.competitions = [];
-			options.teams = [];
 		}
-
-		//Remove Local Team
-		options.teams = _.reject(options.teams, t => t.value === localTeam);
-
 		return options;
 	}
 
-	renderDeleteButtons() {
-		if (this.state.game) {
-			return (
-				<div className="form-card">
-					<DeleteButtons onDelete={() => this.handleDelete()} />
-				</div>
-			);
+	alterValuesBeforeSubmit(values) {
+		values.date = `${values.date} ${values.time}`;
+		delete values.time;
+	}
+
+	getPageTitle() {
+		const { game } = this.state;
+		const { teamList } = this.props;
+		if (game) {
+			//Get Teams
+			const home = teamList[game._homeTeam];
+			const away = teamList[game._awayTeam];
+
+			//Get Date
+			const date = game.date.toString("dddd dS MMM yyyy");
+
+			return `${home.name.short} vs ${away.name.short} - ${date}`;
+		} else {
+			return "New Neutral Game";
 		}
 	}
 
-	render() {
-		const { game, isNew, validationSchema } = this.state;
+	renderHeader() {
+		const { game } = this.state;
+		const { teamTypes } = this.props;
 
-		if (game === undefined && !isNew) {
-			return <LoadingPage />;
-		}
+		//Get the title
+		const title = this.getPageTitle();
 
-		if (!game && !isNew) {
-			return <NotFoundPage error={"Game not found"} />;
+		//Set the core url for the "return" link
+		let url = `/admin/neutralGames`;
+
+		//For existing games, we also add the year and team type
+		if (game) {
+			const { date, _teamType } = game;
+			const urlYear = date.getFullYear();
+			const urlSlug = teamTypes[_teamType].slug;
+			url += `/${urlYear}/${urlSlug}`;
 		}
 
 		return (
-			<div>
-				<HelmetBuilder title={this.generatePageTitle()} />
-				{this.generatePageHeader()}
-				<section>
-					<div className="container">
-						<Formik
-							initialValues={this.getDefaults()}
-							validationSchema={validationSchema}
-							onSubmit={values => this.handleSubmit(values)}
-							render={formikProps => {
-								const options = this.getOptions(formikProps.values);
-								const fields = [
-									{ name: "externalSync", type: fieldTypes.boolean },
-									{ name: "externalId", type: fieldTypes.number },
-									{ name: "date", type: fieldTypes.date },
-									{ name: "time", type: fieldTypes.time },
-									{
-										name: "_teamType",
-										type: fieldTypes.select,
-										disabled: Boolean(game),
-										options: options.teamTypes,
-										clearOnChange: ["_competition"]
-									},
-									{
-										name: "_competition",
-										type: fieldTypes.select,
-										disabled: Boolean(game),
-										options: options.competitions
-									},
-									{
-										name: "_homeTeam",
-										type: fieldTypes.select,
-										options: options.teams
-									},
-									{
-										name: "_awayTeam",
-										type: fieldTypes.select,
-										options: options.teams
-									},
-									{ name: "homePoints", type: fieldTypes.number },
-									{ name: "awayPoints", type: fieldTypes.number }
-								];
+			<section className="page-header">
+				<HelmetBuilder title={title} />
+				<div className="container">
+					<Link className="nav-card card" to={url}>
+						↩ Return to game list
+					</Link>
+					<h1>{title}</h1>
+				</div>
+			</section>
+		);
+	}
 
-								return (
-									<Form>
-										{this.renderDeleteButtons()}
-										<div className="form-card grid">
-											{this.renderFieldGroup(fields, true)}
-											<div className="buttons">
-												<button type="reset">Reset</button>
-												<button type="submit">Save</button>
-											</div>
-										</div>
-									</Form>
-								);
-							}}
+	render() {
+		const { createNeutralGames, updateNeutralGames, deleteNeutralGame } = this.props;
+		const { game, isLoading, isNew, validationSchema } = this.state;
+
+		//Wait for competitions and the game itself to load
+		if (isLoading) {
+			return <LoadingPage />;
+		}
+
+		//404
+		if (!isNew && game === false) {
+			return <NotFoundPage error={"Game not found"} />;
+		}
+
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createNeutralGames([values]),
+				redirectOnSubmit: games => `/admin/neutralGame/${_.values(games)[0]._id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deleteNeutralGame(game._id),
+				onSubmit: values => updateNeutralGames({ [game._id]: values }),
+				redirectOnDelete: "/admin/neutralGames/"
+			};
+		}
+
+		return (
+			<div className="admin-neutral-game-page">
+				{this.renderHeader()}
+				<section className="form">
+					<div className="container">
+						<BasicForm
+							alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+							fastFieldByDefault={false}
+							fieldGroups={values => this.getFieldGroups(values)}
+							initialValues={this.getInitialValues()}
+							isNew={isNew}
+							itemType="Game"
+							validationSchema={validationSchema}
+							{...formProps}
 						/>
 					</div>
 				</section>
@@ -390,14 +445,11 @@ function mapStateToProps({ config, games, teams, competitions }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchCompetitionSegments,
-			fetchNeutralGamesFromId,
-			createNeutralGames,
-			updateNeutralGames,
-			deleteNeutralGame
-		}
-	)(AdminNeutralGamePage)
+	connect(mapStateToProps, {
+		fetchCompetitionSegments,
+		fetchNeutralGamesFromId,
+		createNeutralGames,
+		updateNeutralGames,
+		deleteNeutralGame
+	})(AdminNeutralGamePage)
 );

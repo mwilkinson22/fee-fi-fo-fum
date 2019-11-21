@@ -9,8 +9,10 @@ import {
 	DELETE_NEUTRAL_GAME,
 	FETCH_NEUTRAL_GAME_YEARS
 } from "../actions/types";
-import { fixDates } from "../../helpers/gameHelper";
 import _ from "lodash";
+
+//Helpers
+import { fixDates, getNeutralGame } from "../../helpers/gameHelper";
 
 export default function(state = { fullGames: {} }, action) {
 	if (!action || !action.payload) {
@@ -63,23 +65,37 @@ export default function(state = { fullGames: {} }, action) {
 				}
 			};
 
-		case UPDATE_NEUTRAL_GAMES:
+		case UPDATE_NEUTRAL_GAMES: {
+			//As it stands, we can only bulk-update games from one year at a time
+			//If this changes, this will need reworking
+			const year = new Date(_.sample(action.payload).date).getFullYear();
 			return {
 				...state,
 				neutralGames: {
 					...state.neutralGames,
-					[action.year]: {
-						...state.neutralGames[action.year],
+					[year]: {
+						...state.neutralGames[year],
 						...fixDates(action.payload)
 					}
 				}
 			};
+		}
 
 		case DELETE_NEUTRAL_GAME: {
-			const { [action.payload]: removed, ...neutralGames } = state.neutralGames;
+			//Get Year
+			const game = getNeutralGame(action.payload, state.neutralGames);
+			const year = game.date.getFullYear();
+
+			//Extract Game
+			const { [action.payload]: removed, ...remainingGames } = state.neutralGames[year];
+
+			//Return State
 			return {
 				...state,
-				neutralGames
+				neutralGames: {
+					...state.neutralGames,
+					[year]: remainingGames
+				}
 			};
 		}
 

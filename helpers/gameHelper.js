@@ -61,6 +61,20 @@ function getAdjacentGame(id, gameList, next) {
 	return list.length ? list[0] : false;
 }
 
+export function getNeutralGame(id, neutralGames) {
+	if (!neutralGames) {
+		return false;
+	}
+
+	return (
+		_.chain(neutralGames)
+			.map(g => _.values(g))
+			.flatten()
+			.find(({ _id }) => _id == id)
+			.value() || false
+	);
+}
+
 export function getLastGame(id, gameList) {
 	return getAdjacentGame(id, gameList, false);
 }
