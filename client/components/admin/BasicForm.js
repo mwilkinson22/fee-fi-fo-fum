@@ -153,7 +153,7 @@ class BasicForm extends Component {
 		if (testMode) {
 			console.info("Test outcome: ", values);
 		} else {
-			const result = await onSubmit(values);
+			const result = await onSubmit(values, formikProps);
 
 			//Redirect
 			if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
