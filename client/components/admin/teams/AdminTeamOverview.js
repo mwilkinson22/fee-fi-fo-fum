@@ -144,6 +144,7 @@ class AdminTeamOverview extends Component {
 					case "colours":
 						value = _.mapValues(team[key], (currentValue, subkey) => {
 							let value;
+
 							switch (`${key}.${subkey}`) {
 								//If null, default to main colour
 								case `colours.pitchColour`:
@@ -151,22 +152,17 @@ class AdminTeamOverview extends Component {
 									value = currentValue || team.colours.main;
 									break;
 
-								//For the colour booleans, we check if the corresponding
-								//colour is null
-								case `colours.customPitchColour`:
-								case `colours.customStatBarColour`: {
-									let colourKey = subkey.replace("custom", "");
-									colourKey =
-										colourKey.substr(0, 1).toLowerCase() + colourKey.substr(1);
-									value = Boolean(team[key][colourKey]);
-									break;
-								}
 								default:
 									value = currentValue;
 							}
 
 							return value != null ? value : defaultValue[subkey];
 						});
+
+						//We've looped through the team properties above, not the default values,
+						//so we need to add in the custom colour booleans here
+						value.customPitchColour = Boolean(team.colours.pitchColour);
+						value.customStatBarColour = Boolean(team.colours.statBarColour);
 						break;
 
 					//Pull default ground from options
