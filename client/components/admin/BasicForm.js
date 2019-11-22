@@ -140,7 +140,13 @@ class BasicForm extends Component {
 
 		//Custom callback to manipulate values before submitting
 		if (alterValuesBeforeSubmit) {
-			alterValuesBeforeSubmit(values);
+			const newValues = alterValuesBeforeSubmit(values);
+			//Most of the time we just manipulate the object without
+			//returning anything from this method.
+			//When we do return, we assign the returned value here
+			if (newValues) {
+				values = newValues;
+			}
 		}
 
 		//Submit
