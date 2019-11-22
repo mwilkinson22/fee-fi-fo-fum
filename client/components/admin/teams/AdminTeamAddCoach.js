@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -17,7 +17,7 @@ import { addCoach } from "~/client/actions/teamsActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import coachTypes from "~/constants/coachTypes";
 
-class AdminTeamAddCoach extends BasicForm {
+class AdminTeamAddCoach extends Component {
 	constructor(props) {
 		super(props);
 
@@ -54,25 +54,29 @@ class AdminTeamAddCoach extends BasicForm {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { team, peopleList } = nextProps;
+
 		const newState = {
 			isLoading: false,
 			team
 		};
+
 		if (!peopleList) {
 			newState.isLoading = true;
-		} else {
-			newState.options = {
-				...prevState.options,
-				_person: _.chain(peopleList)
-					.filter("isCoach")
-					.map(({ _id, name }) => ({
-						value: _id,
-						label: `${name.first} ${name.last}`
-					}))
-					.sortBy("label")
-					.value()
-			};
+			return newState;
 		}
+
+		newState.options = {
+			...prevState.options,
+			_person: _.chain(peopleList)
+				.filter("isCoach")
+				.map(({ _id, name }) => ({
+					value: _id,
+					label: `${name.first} ${name.last}`
+				}))
+				.sortBy("label")
+				.value()
+		};
+
 		return newState;
 	}
 
@@ -86,52 +90,45 @@ class AdminTeamAddCoach extends BasicForm {
 		};
 	}
 
-	handleSubmit(fValues) {
-		const { addCoach, team } = this.props;
-		const values = _.chain(fValues)
-			.cloneDeep()
-			.mapValues(v => v.value || v)
-			.value();
-		addCoach(team._id, values);
+	getFieldGroups() {
+		const { options } = this.state;
+		return [
+			{
+				fields: [
+					{
+						name: "_person",
+						type: fieldTypes.select,
+						options: options._person
+					},
+					{ name: "_teamType", type: fieldTypes.select, options: options.teamTypes },
+					{ name: "role", type: fieldTypes.select, options: options.roles },
+					{ name: "from", type: fieldTypes.date },
+					{ name: "to", type: fieldTypes.date }
+				]
+			}
+		];
 	}
 
 	render() {
-		const { isLoading, options, validationSchema } = this.state;
+		const { addCoach } = this.props;
+		const { isLoading, team, validationSchema } = this.state;
+
+		//Await Perople List
 		if (isLoading) {
 			return <LoadingPage />;
 		}
 
 		return (
-			<Formik
-				onSubmit={values => this.handleSubmit(values)}
+			<BasicForm
+				fieldGroups={this.getFieldGroups()}
 				initialValues={this.getInitialValues()}
-				validationSchema={validationSchema}
-				enableReinitialize={true}
-				render={() => {
-					const fields = [
-						{
-							name: "_person",
-							type: fieldTypes.select,
-							options: options._person
-						},
-						{ name: "_teamType", type: fieldTypes.select, options: options.teamTypes },
-						{ name: "role", type: fieldTypes.select, options: options.roles },
-						{ name: "from", type: fieldTypes.date },
-						{ name: "to", type: fieldTypes.date }
-					];
-					return (
-						<Form>
-							<div className="form-card grid">
-								<h6>Add New Coach</h6>
-								{this.renderFieldGroup(fields)}
-								<div className="buttons">
-									<button type="clear">Clear</button>
-									<button type="submit">Add Coach</button>
-								</div>
-							</div>
-						</Form>
-					);
+				isNew={true}
+				itemType="Coach"
+				onSubmit={(values, formikProps) => {
+					addCoach(team._id, values);
+					formikProps.resetForm();
 				}}
+				validationSchema={validationSchema}
 			/>
 		);
 	}
@@ -145,7 +142,4 @@ function mapStateToProps({ people, teams }) {
 }
 
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ fetchPeopleList, addCoach }
-)(AdminTeamAddCoach);
+export default connect(mapStateToProps, { fetchPeopleList, addCoach })(AdminTeamAddCoach);

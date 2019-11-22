@@ -48,7 +48,4 @@ function mapStateToProps({ teams }) {
 }
 
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ updateTeamSquad }
-)(AdminTeamCoaches);
+export default connect(mapStateToProps, { updateTeamSquad })(AdminTeamCoaches);

@@ -1,23 +1,25 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
 import { Link } from "react-router-dom";
-import Select from "react-select";
 
 //Components
 import BasicForm from "../BasicForm";
 import Table from "../../Table";
 
 //Actions
-import { updateCoaches } from "~/client/actions/teamsActions";
+import { updateTeam } from "~/client/actions/teamsActions";
 
 //Constants
-import selectStyling from "~/constants/selectStyling";
+import * as fieldTypes from "~/constants/formFieldTypes";
 import coachTypes from "~/constants/coachTypes";
 
-class AdminTeamCurrentCoaches extends BasicForm {
+//Helpers
+import { renderInput } from "~/helpers/formHelper";
+
+class AdminTeamCurrentCoaches extends Component {
 	constructor(props) {
 		super(props);
 
@@ -27,8 +29,33 @@ class AdminTeamCurrentCoaches extends BasicForm {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { team } = nextProps;
-		return { team };
+		const { team, teamTypes } = nextProps;
+		const newState = { team };
+
+		const validationSchema = newState.team.coaches.map(coach => {
+			const label = `${coach._person.name.full} (${teamTypes[coach._teamType].name})`;
+
+			return [
+				coach._id,
+				Yup.object().shape({
+					_person: Yup.string().required(),
+					_teamType: Yup.string().required(),
+					deleteCoach: Yup.bool(),
+					from: Yup.string()
+						.required()
+						.label(`${label} - From Date`),
+					to: Yup.string()
+						.label(`${label} - To Date`)
+						.nullable(),
+					role: Yup.mixed()
+						.required()
+						.label(`${label} - Role`)
+				})
+			];
+		});
+		newState.validationSchema = Yup.object().shape(_.fromPairs(validationSchema));
+
+		return newState;
 	}
 
 	getInitialValues() {
@@ -50,137 +77,120 @@ class AdminTeamCurrentCoaches extends BasicForm {
 			.value();
 	}
 
-	handleSubmit(fValues) {
-		const { team } = this.state;
-		const { updateCoaches } = this.props;
-		const values = _.chain(fValues)
-			.cloneDeep()
-			.mapValues(fields => {
-				return _.mapValues(fields, (val, key) => {
-					if (key == "role") {
-						return val.value;
-					} else {
-						return val;
+	getFieldGroups() {
+		const { teamTypes } = this.props;
+		const { team, roles } = this.state;
+		const columns = [
+			{ key: "name", label: "Name", dataUsesTh: true },
+			{ key: "role", label: "Role" },
+			{ key: "from", label: "From" },
+			{ key: "to", label: "To" },
+			{ key: "deleteCoach", label: "Delete" }
+		];
+
+		return _.chain(team.coaches)
+			.groupBy("_teamType")
+			.map((coaches, _teamType) => ({ coaches, _teamType }))
+			.sortBy(({ _teamType }) => teamTypes[_teamType].sortOrder)
+			.map(({ _teamType, coaches }) => {
+				return {
+					label: teamTypes[_teamType].name,
+					render: values => {
+						const rows = _.chain(coaches)
+							.orderBy(["from", "to"], ["desc", "desc"])
+							.map(coach => {
+								const { name, slug } = coach._person;
+
+								//Get Core Fields
+								const disabled = values[coach._id] && values[coach._id].deleteCoach;
+								const data = {};
+								data.name = (
+									<Link to={`/admin/people/${slug}`}>
+										{name.first} {name.last}
+									</Link>
+								);
+								data.role = renderInput({
+									label: "Role",
+									type: fieldTypes.select,
+									name: `${coach._id}.role`,
+									options: roles,
+									isSearchable: false,
+									fastField: true,
+									isDisabled: disabled
+								});
+								data.from = renderInput({
+									label: "From Date",
+									type: fieldTypes.date,
+									name: `${coach._id}.from`,
+									required: true,
+									disabled
+								});
+								data.to = renderInput({
+									label: "To Date",
+									type: fieldTypes.date,
+									name: `${coach._id}.to`,
+									disabled
+								});
+								data.deleteCoach = renderInput({
+									label: "Delete",
+									name: `${coach._id}.deleteCoach`,
+									type: fieldTypes.boolean
+								});
+
+								return {
+									key: coach._id || Math.random(),
+									data: _.mapValues(data, content => ({ content }))
+								};
+							})
+							.value();
+						return (
+							<Table
+								key={_teamType + "rows"}
+								rows={rows}
+								columns={columns}
+								className="full-span"
+								defaultSortable={false}
+							/>
+						);
 					}
-				});
+				};
 			})
 			.value();
+	}
 
-		updateCoaches(team._id, values);
+	alterValuesBeforeSubmit(values) {
+		const coaches = _.chain(values)
+			.map((data, _id) => {
+				if (!data.deleteCoach) {
+					return { ...data, role: data.role.value, _id };
+				}
+			})
+			.filter(_.identity)
+			.value();
+		return { coaches };
 	}
 
 	render() {
-		const { teamTypes } = this.props;
-		const { team, roles } = this.state;
+		const { updateTeam } = this.props;
+		const { team, validationSchema } = this.state;
 
 		return (
-			<Formik
-				onSubmit={values => this.handleSubmit(values)}
+			<BasicForm
+				alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+				fieldGroups={this.getFieldGroups()}
 				initialValues={this.getInitialValues()}
-				enableReinitialize={true}
-				render={formikProps => {
-					//Table Props
-					const columns = [
-						{ key: "name", label: "Name", dataUsesTh: true },
-						{ key: "role", label: "Role" },
-						{ key: "from", label: "From" },
-						{ key: "to", label: "To" },
-						{ key: "deleteCoach", label: "Delete" }
-					];
-
-					const content = _.chain(team.coaches)
-						.groupBy("_teamType")
-						.map((coaches, _teamType) => ({ coaches, _teamType }))
-						.sortBy(({ _teamType }) => teamTypes[_teamType].sortOrder)
-						.map(({ _teamType, coaches }) => {
-							const rows = _.chain(coaches)
-								.orderBy(["from", "to"], ["desc", "desc"])
-								.map(coach => {
-									const { name, slug } = coach._person;
-
-									//Get Core Fields
-									const data = {};
-									data.name = (
-										<Link to={`/admin/people/${slug}`}>
-											{name.first} {name.last}
-										</Link>
-									);
-									data.role = (
-										<Select
-											styles={selectStyling}
-											options={roles}
-											onChange={opt =>
-												formikProps.setFieldValue(`${coach._id}.role`, opt)
-											}
-											defaultValue={roles.find(
-												({ value }) => value == coach.role
-											)}
-										/>
-									);
-									data.from = (
-										<Field
-											component="input"
-											type="date"
-											name={`${coach._id}.from`}
-											required={true}
-										/>
-									);
-									data.to = (
-										<Field
-											component="input"
-											type="date"
-											name={`${coach._id}.to`}
-										/>
-									);
-									data.deleteCoach = (
-										<Field type="checkbox" name={`${coach._id}.deleteCoach`} />
-									);
-
-									return {
-										key: coach._id || Math.random(),
-										data: _.mapValues(data, content => ({ content }))
-									};
-								})
-								.value();
-
-							return [
-								<h6 key={_teamType + "header"}>{teamTypes[_teamType].name}</h6>,
-								<Table
-									key={_teamType + "rows"}
-									rows={rows}
-									columns={columns}
-									defaultSortable={false}
-								/>
-							];
-						})
-
-						.value();
-
-					return (
-						<Form>
-							<div className="form-card">
-								{content}
-								<div className="buttons">
-									<button type="clear">Clear</button>
-									<button type="submit">Submit</button>
-								</div>
-							</div>
-						</Form>
-					);
-				}}
+				isNew={false}
+				itemType="Coaches"
+				onSubmit={values => updateTeam(team._id, values)}
+				validationSchema={validationSchema}
 			/>
 		);
 	}
 }
 
-//Add Redux Support
 function mapStateToProps({ teams }) {
 	const { teamTypes } = teams;
 	return { teamTypes };
 }
 
-// export default form;
-export default connect(
-	mapStateToProps,
-	{ updateCoaches }
-)(AdminTeamCurrentCoaches);
+export default connect(mapStateToProps, { updateTeam })(AdminTeamCurrentCoaches);

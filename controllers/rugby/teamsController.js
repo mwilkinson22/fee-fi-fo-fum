@@ -399,30 +399,6 @@ export async function addCoach(req, res) {
 	}
 }
 
-export async function updateCoaches(req, res) {
-	const { _id } = req.params;
-	const team = await validateTeam(_id, res);
-	if (team) {
-		team.coaches = _.chain(req.body)
-			.map((values, _id) => {
-				const { deleteCoach, ...valuesToSave } = values;
-				if (deleteCoach) {
-					return null;
-				} else {
-					return {
-						...valuesToSave,
-						_id
-					};
-				}
-			})
-			.filter(_.identity)
-			.value();
-
-		await team.save();
-		await getTeam(req, res);
-	}
-}
-
 /*
  * TEAM TYPES METHODS
  */
