@@ -5,6 +5,7 @@ import { Link, Switch, Route } from "react-router-dom";
 
 //Components
 import AdminTeamCoaches from "../../components/admin/teams/AdminTeamCoaches";
+import AdminTeamGrounds from "../../components/admin/teams/AdminTeamGrounds";
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
 import AdminTeamSquads from "../../components/admin/teams/AdminTeamSquads";
 import LoadingPage from "../../components/LoadingPage";
@@ -19,44 +20,98 @@ import { fetchTeam } from "../../actions/teamsActions";
 class AdminTeamPage extends Component {
 	constructor(props) {
 		super(props);
+
+		const { fullTeams, teamList, match, fetchTeam } = props;
+		const { _id } = match.params;
+
+		//Team exists, but full team is not yet loaded
+		if (_id && teamList[_id] && !fullTeams[_id]) {
+			fetchTeam(_id);
+		}
+
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const newState = {};
-
-		const { match, teamList, fullTeams, fetchTeam } = nextProps;
-
+		const { match, teamList, fullTeams } = nextProps;
 		const { _id } = match.params;
+		const newState = { isLoading: false };
 
-		if (teamList[_id]) {
-			newState.team = fullTeams[_id];
-			if (!newState.team) {
-				fetchTeam(_id);
+		//Create or edit
+		newState.isNew = !_id;
+
+		//Validate existing entries
+		if (!newState.isNew) {
+			//Check for a valid id
+			if (!teamList[_id]) {
+				newState.team = false;
+				return newState;
 			}
-		} else {
-			newState.team = false;
+
+			//Ensure full team has loaded
+			if (!fullTeams[_id]) {
+				newState.isLoading = true;
+				return newState;
+			}
+
+			//Otherwise, assign the team to state
+			newState.team = fullTeams[_id];
 		}
 
 		return newState;
 	}
 
-	getSubmenu() {
-		const { _id } = this.state.team;
-		const items = [
-			{ label: "Overview", slug: "", isExact: true },
-			{ label: "Squads", slug: "squads" },
-			{ label: "Coaches", slug: "coaches" }
-		];
+	getHeader() {
+		const { isNew, team } = this.state;
 
-		return <SubMenu items={items} rootUrl={`/admin/teams/${_id}/`} />;
+		//Create Submenu
+		let submenu;
+		if (!isNew) {
+			const items = [
+				{ label: "Overview", slug: "", isExact: true },
+				{ label: "Grounds", slug: "grounds" },
+				{ label: "Squads", slug: "squads" },
+				{ label: "Coaches", slug: "coaches" }
+			];
+
+			submenu = (
+				<div className="container">
+					<SubMenu items={items} rootUrl={`/admin/teams/${team._id}/`} />
+				</div>
+			);
+		}
+
+		//Header Text, Banner and Title
+		let headerText, banner, title;
+		if (isNew) {
+			title = "Add New Team";
+			headerText = <h1>{title}</h1>;
+		} else {
+			title = team.name.long;
+			banner = <TeamBanner team={team} />;
+		}
+
+		return (
+			<section className="page-header">
+				<HelmetBuilder title={title} />
+				<div className="container">
+					<Link className="nav-card card" to="/admin/teams/">
+						↩ Return to team list
+					</Link>
+					{headerText}
+				</div>
+				{banner}
+				{submenu}
+			</section>
+		);
 	}
 
 	getContent() {
 		return (
 			<div className="container">
-				<HelmetBuilder title={this.state.team.name.long} />
 				<Switch>
+					<Route path="/admin/teams/new" component={AdminTeamOverview} />
+
 					<Route exact path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
 					<Route
 						exact
@@ -64,6 +119,7 @@ class AdminTeamPage extends Component {
 						component={AdminTeamSquads}
 					/>
 					<Route exact path="/admin/teams/:_id/squads" component={AdminTeamSquads} />
+					<Route path="/admin/teams/:_id/grounds" exact component={AdminTeamGrounds} />
 					<Route path="/admin/teams/:_id" exact component={AdminTeamOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
@@ -72,27 +128,21 @@ class AdminTeamPage extends Component {
 	}
 
 	render() {
-		const { team } = this.state;
-		if (team === undefined) {
+		const { isLoading, isNew, team } = this.state;
+		if (isLoading) {
 			return <LoadingPage />;
-		} else if (!team) {
-			return <NotFoundPage message="Team not found" />;
-		} else {
-			return (
-				<div className="admin-team-page admin-page">
-					<section className="page-header">
-						<div className="container">
-							<Link className="nav-card card" to="/admin/teams/">
-								↩ Return to team list
-							</Link>
-						</div>
-						<TeamBanner team={team} />
-						<div className="container">{this.getSubmenu()}</div>
-					</section>
-					{this.getContent()}
-				</div>
-			);
 		}
+
+		if (!isNew && team === false) {
+			return <NotFoundPage message="Team not found" />;
+		}
+
+		return (
+			<div className="admin-team-page admin-page">
+				{this.getHeader()}
+				{this.getContent()}
+			</div>
+		);
 	}
 }
 
@@ -100,7 +150,4 @@ function mapStateToProps({ teams }) {
 	const { fullTeams, teamList } = teams;
 	return { fullTeams, teamList };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchTeam }
-)(AdminTeamPage);
+export default connect(mapStateToProps, { fetchTeam })(AdminTeamPage);

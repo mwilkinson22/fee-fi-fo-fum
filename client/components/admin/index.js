@@ -52,8 +52,6 @@ import AdminTeamPage from "../../pages/admin/AdminTeamPage";
 import AdminTeamTypeList from "../../pages/admin/AdminTeamTypeList";
 import AdminTeamTypePage from "../../pages/admin/AdminTeamTypePage";
 
-import AdminNewTeamPage from "../../pages/admin/AdminNewTeamPage";
-
 import AdminUserList from "../../pages/admin/AdminUserList";
 import AdminUserPage from "../../pages/admin/AdminUserPage";
 
@@ -139,7 +137,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/sponsors/:_id" exact component={AdminSponsorPage} />
 					<Route path="/admin/sponsors/" exact component={AdminSponsorList} />
 
-					<Route path="/admin/teams/new" component={AdminNewTeamPage} />
+					<Route path="/admin/teams/new" component={AdminTeamPage} />
 					<Route path="/admin/teams/:_id" component={AdminTeamPage} />
 					<Route path="/admin/teams/" exact component={AdminTeamList} />
 
