@@ -179,7 +179,7 @@ class BasicForm extends Component {
 		}
 	}
 
-	renderFields(values) {
+	renderFields(values, formikProps) {
 		const { fastFieldByDefault, testMode } = this.props;
 		const { validationSchema } = this.state;
 		const fieldGroups = this.getFieldGroups(values);
@@ -198,7 +198,7 @@ class BasicForm extends Component {
 
 			if (render) {
 				//Custom Render
-				content = render(values);
+				content = render(values, formikProps);
 			} else if (fields) {
 				//Standard fields
 				content = renderFieldGroup(fields, validationSchema, fastFieldByDefault);
@@ -287,16 +287,19 @@ class BasicForm extends Component {
 	}
 
 	render() {
+		const { isInitialValid, onReset } = this.props;
 		const { initialValues, validationSchema } = this.state;
 
 		return (
 			<Formik
 				enableReinitialize={true}
-				isInitialValid={false}
+				isInitialValid={isInitialValid}
 				initialValues={initialValues}
+				onReset={onReset}
 				onSubmit={(values, formikProps) => this.handleSubmit(values, formikProps)}
 				validationSchema={validationSchema}
-				render={({ errors, values, touched, isValid, isSubmitting }) => {
+				render={formikProps => {
+					const { errors, values, touched, isValid, isSubmitting } = formikProps;
 					return (
 						<Form>
 							<Prompt
@@ -307,7 +310,7 @@ class BasicForm extends Component {
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className="form-card grid">
-								{this.renderFields(values)}
+								{this.renderFields(values, formikProps)}
 								{this.renderErrors(errors, touched)}
 								{this.renderSubmitButtons(isValid, isSubmitting)}
 							</div>
@@ -340,9 +343,11 @@ BasicForm.propTypes = {
 		)
 	]).isRequired,
 	initialValues: PropTypes.object.isRequired,
+	isInitialValid: PropTypes.bool,
 	isNew: PropTypes.bool.isRequired,
 	itemType: PropTypes.string.isRequired,
 	onDelete: PropTypes.func, // Action
+	onReset: PropTypes.func,
 	onSubmit: PropTypes.func.isRequired, //values => Action(id, values)
 	redirectOnDelete: PropTypes.string,
 	//Either a simple string, or a callback passing in form values and action result
@@ -354,6 +359,7 @@ BasicForm.propTypes = {
 
 BasicForm.defaultProps = {
 	fastFieldByDefault: true,
+	isInitialValid: false,
 	redirectOnDelete: `/admin/`,
 	submitButtonText: null,
 	testMode: false
