@@ -203,22 +203,20 @@ export async function appendSquad(req, res) {
 async function processBulkSquadAdd(data, teamTypeId) {
 	const results = [];
 	for (const row of _.values(data)) {
-		const { number, onLoan, from, to, _id, nameString } = row;
+		const { number, onLoan, from, to, _player, name } = row;
 		let person;
 
 		//Create New Player
-		if (_id === "skip") {
-			continue;
-		} else if (_id === "new") {
+		if (_player === "new") {
 			//Generate Slug
-			const slug = await Person.generateSlug(nameString.first, nameString.last);
+			const slug = await Person.generateSlug(name.first, name.last);
 
 			//Get Gender
 			const teamType = await TeamType.findById(teamTypeId);
 			const { gender } = teamType;
 
 			person = new Person({
-				name: nameString,
+				name,
 				isPlayer: true,
 				slug,
 				gender
@@ -226,15 +224,15 @@ async function processBulkSquadAdd(data, teamTypeId) {
 
 			await person.save();
 		} else {
-			person = await Person.findByIdAndUpdate(_id, { isPlayer: true });
+			person = await Person.findByIdAndUpdate(_player, { isPlayer: true });
 		}
 
 		results.push({
 			_player: person._id,
 			onLoan,
-			from: from.length ? from : null,
-			to: to.length ? to : null,
-			number: number.length ? number : null
+			from,
+			to,
+			number
 		});
 	}
 
@@ -364,10 +362,10 @@ export async function updateSquad(req, res) {
 							return null;
 						}
 						return {
-							number: number === "" ? null : number,
+							number,
 							onLoan,
-							from: from === "" ? null : new Date(from),
-							to: to === "" ? null : new Date(to),
+							from,
+							to,
 							_player
 						};
 					})

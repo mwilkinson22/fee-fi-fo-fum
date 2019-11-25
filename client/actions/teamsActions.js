@@ -47,14 +47,6 @@ export const deleteTeam = id => async (dispatch, getState, api) => {
 	}
 };
 
-export const updateTeamSquad = (team_id, squad_id, data) => async (dispatch, getState, api) => {
-	const res = await api.put(`/teams/${team_id}/squad/${squad_id}`, data);
-	if (res.data) {
-		toast.success("Squad updated");
-		dispatch({ type: FETCH_TEAM, payload: res.data });
-	}
-};
-
 export const addCoach = (team_id, data) => async (dispatch, getState, api) => {
 	const res = await api.post(`/teams/${team_id}/coaches`, data);
 	toast.success("Coach added");
@@ -69,8 +61,34 @@ export const appendTeamSquad = (team_id, squad_id, data) => async (dispatch, get
 
 export const createTeamSquad = (team_id, data) => async (dispatch, getState, api) => {
 	const res = await api.post(`/teams/${team_id}/squad`, data);
-	toast.success("Squad created");
-	dispatch({ type: FETCH_TEAM, payload: res.data });
+	if (res.data) {
+		toast.success("Squad created");
+		dispatch({ type: FETCH_TEAM, payload: res.data });
+
+		//Get the new squad
+		const team = res.data.fullTeams[team_id];
+		const newSquad = team.squads.find(
+			({ _teamType, year }) => _teamType == data._teamType && year == data.year
+		);
+		return newSquad._id;
+	}
+};
+
+export const updateTeamSquad = (team_id, squad_id, data) => async (dispatch, getState, api) => {
+	const res = await api.put(`/teams/${team_id}/squad/${squad_id}`, data);
+	if (res.data) {
+		dispatch({ type: FETCH_TEAM, payload: res.data });
+
+		//Check if squad has been deleted
+		const team = res.data.fullTeams[team_id];
+		const squad = team.squads.find(({ _id }) => _id == squad_id);
+		if (squad) {
+			toast.success("Squad updated");
+		} else {
+			toast.success("Squad deleted");
+			return true;
+		}
+	}
 };
 
 export const fetchAllTeamTypes = () => async (dispatch, getState, api) => {

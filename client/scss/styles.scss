@@ -111,7 +111,9 @@ body {
 	td {
 		padding: 4pt 8pt;
 		text-align: left;
-		input {
+		input,
+		.react-select,
+		&.stretch {
 			width: 100%;
 		}
 		vertical-align: middle;
@@ -155,11 +157,20 @@ body {
 			th {
 				background: white;
 			}
+			&.disabled {
+				background: #fc0;
+			}
 		}
 		tr:hover {
 			td,
 			th {
 				background: #f8f8f8;
+			}
+		}
+		tr.disabled {
+			td,
+			th {
+				background: #e4e4e4;
 			}
 		}
 	}

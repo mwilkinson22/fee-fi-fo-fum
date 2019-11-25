@@ -7,7 +7,7 @@ import { Link, Switch, Route } from "react-router-dom";
 import AdminTeamCoaches from "../../components/admin/teams/AdminTeamCoaches";
 import AdminTeamGrounds from "../../components/admin/teams/AdminTeamGrounds";
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
-import AdminTeamSquads from "../../components/admin/teams/AdminTeamSquads";
+import AdminTeamSquadsPage from "../../components/admin/teams/AdminTeamSquadsPage";
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "../NotFoundPage";
@@ -115,10 +115,14 @@ class AdminTeamPage extends Component {
 					<Route exact path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
 					<Route
 						exact
-						path="/admin/teams/:_id/squads/:squad"
-						component={AdminTeamSquads}
+						path="/admin/teams/:teamId/squads/:squadId"
+						component={AdminTeamSquadsPage}
 					/>
-					<Route exact path="/admin/teams/:_id/squads" component={AdminTeamSquads} />
+					<Route
+						exact
+						path="/admin/teams/:teamId/squads"
+						component={AdminTeamSquadsPage}
+					/>
 					<Route path="/admin/teams/:_id/grounds" exact component={AdminTeamGrounds} />
 					<Route path="/admin/teams/:_id" exact component={AdminTeamOverview} />
 					<Route path="/" component={NotFoundPage} />
