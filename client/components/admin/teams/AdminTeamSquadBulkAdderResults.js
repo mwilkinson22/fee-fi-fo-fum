@@ -247,7 +247,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 					fieldGroups={this.getFieldGroups()}
 					initialValues={this.getInitialValues()}
 					isNew={true}
-					itemType="Squad"
+					itemType="Players"
 					isInitialValid={true}
 					validationSchema={validationSchema}
 					{...formProps}

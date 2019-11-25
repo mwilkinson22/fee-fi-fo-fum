@@ -99,7 +99,7 @@ class AdminTeamSquadsEdit extends Component {
 					const rows = _.chain(squad.players)
 						.sortBy(p => p.number || p._player.name.full)
 						.map(({ _player }) => {
-							const { _id, name, slug } = _player;
+							const { _id, name } = _player;
 							//Only run if values are present
 							//This prevents an error when switching squads
 							if (!values[_id]) {
@@ -114,7 +114,7 @@ class AdminTeamSquadsEdit extends Component {
 							const data = {};
 
 							//Get Read Only Player Name
-							data.player = <Link to={`/admin/people/${slug}`}>{name.full}</Link>;
+							data.player = <Link to={`/admin/people/${_id}`}>{name.full}</Link>;
 
 							//Squad Number
 							data.number = renderInput({

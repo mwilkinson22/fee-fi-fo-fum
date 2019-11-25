@@ -10,7 +10,7 @@ export const createPerson = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/people/`, data);
 	dispatch({ type: FETCH_PERSON, payload: res.data });
 	toast.success("Person created");
-	return res.data.slug;
+	return res.data._id;
 };
 
 export const updatePerson = (id, data) => async (dispatch, getState, api) => {

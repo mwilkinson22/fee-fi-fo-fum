@@ -48,7 +48,7 @@ class AdminPersonList extends Component {
 					.sortBy(["name.last", "name.first"])
 					.map(person => (
 						<li key={person._id}>
-							<Link to={`/admin/people/${person.slug}`}>
+							<Link to={`/admin/people/${person._id}`}>
 								{this.renderPersonIcons(person)}
 								{person.name.first} {person.name.last}
 							</Link>
@@ -136,7 +136,4 @@ function mapStateToProps({ people }) {
 	return { peopleList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchPeopleList }
-)(AdminPersonList);
+export default connect(mapStateToProps, { fetchPeopleList })(AdminPersonList);

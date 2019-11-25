@@ -36,7 +36,6 @@ import AdminGroundPage from "../../pages/admin/AdminGroundPage";
 import AdminNewsList from "../../pages/admin/AdminNewsList";
 import AdminNewsPostPage from "../../pages/admin/AdminNewsPostPage";
 
-import AdminNewPersonPage from "../../pages/admin/AdminNewPersonPage";
 import AdminPersonPage from "../../pages/admin/AdminPersonPage";
 import AdminPersonList from "../../pages/admin/AdminPersonList";
 
@@ -125,8 +124,8 @@ class AdminRouter extends Component {
 					<Route path="/admin/neutralGames/:year" component={AdminNeutralGameList} />
 					<Route path="/admin/neutralGames/" component={AdminNeutralGameList} />
 
-					<Route path="/admin/people/new" exact component={AdminNewPersonPage} />
-					<Route path="/admin/people/:slug" component={AdminPersonPage} />
+					<Route path="/admin/people/new" exact component={AdminPersonPage} />
+					<Route path="/admin/people/:_id" component={AdminPersonPage} />
 					<Route path="/admin/people/" exact component={AdminPersonList} />
 
 					<Route path="/admin/social/new" exact component={AdminSocialPage} />

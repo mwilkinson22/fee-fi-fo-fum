@@ -30,87 +30,101 @@ class AdminPersonPage extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const { match, peopleList, fullPeople, fetchPerson } = nextProps;
-		const { slug } = match.params;
-		const newState = { isLoading: false };
+		const { _id } = match.params;
+		const newState = { isLoadingList: false };
 
-		if (!peopleList) {
-			newState.isLoading = true;
-			return newState;
-		}
+		//Create or edit
+		newState.isNew = !_id;
 
-		//Get Person Id
-		const person = _.find(peopleList, p => p.slug == slug);
+		if (!newState.isNew) {
+			//Check for peopleList
+			if (!peopleList) {
+				return { isLoadingList: true };
+			}
 
-		if (!person) {
-			newState.person = false;
-			return newState;
-		}
+			//Check for valid ID
+			if (!peopleList[_id]) {
+				return { person: false };
+			}
 
-		const { _id } = person;
-		if (!fullPeople[_id]) {
-			fetchPerson(_id);
-			newState.isLoading = true;
-		} else {
-			newState.person = fullPeople[_id];
+			//Check person is fully loaded
+			if (fullPeople[_id]) {
+				newState.person = fullPeople[_id];
+				newState.isLoadingPerson = false;
+			} else if (!prevState.isLoadingPerson) {
+				fetchPerson(_id);
+				newState.isLoadingPerson = true;
+			}
 		}
 
 		return newState;
 	}
 
 	getSubmenu() {
-		const { person } = this.state;
+		const { isNew, person } = this.state;
 
-		const submenuItems = [{ label: "Overview", slug: "", isExact: true }];
-		if (person.isPlayer) {
-			submenuItems.push({ label: "Player Details", slug: "player" });
-		}
-		if (person.isReferee) {
-			submenuItems.push({ label: "Referee Details", slug: "referee" });
-		}
+		if (!isNew) {
+			const submenuItems = [{ label: "Overview", slug: "", isExact: true }];
+			if (person.isPlayer) {
+				submenuItems.push({ label: "Player Details", slug: "player" });
+			}
+			if (person.isReferee) {
+				submenuItems.push({ label: "Referee Details", slug: "referee" });
+			}
 
-		return (
-			<SubMenu items={submenuItems} rootUrl={`/admin/people/${person.slug}/`} key="menu" />
-		);
+			return (
+				<SubMenu items={submenuItems} rootUrl={`/admin/people/${person._id}/`} key="menu" />
+			);
+		}
 	}
 
 	getContent() {
 		return (
-			<div>
-				<HelmetBuilder title={this.state.person.name.full} />
-				<Switch>
-					<Route path="/admin/people/:slug/referee" component={AdminRefereeDetails} />
-					<Route path="/admin/people/:slug/player" component={AdminPlayerDetails} />
-					<Route path="/admin/people/:slug" exact component={AdminPersonOverview} />
-					<Route path="/" component={NotFoundPage} />
-				</Switch>
-			</div>
+			<section className="form">
+				<div className="container">
+					<Switch>
+						<Route path="/admin/people/new" exact component={AdminPersonOverview} />
+						<Route path="/admin/people/:_id/referee" component={AdminRefereeDetails} />
+						<Route path="/admin/people/:_id/player" component={AdminPlayerDetails} />
+						<Route path="/admin/people/:_id" exact component={AdminPersonOverview} />
+						<Route path="/" component={NotFoundPage} />
+					</Switch>
+				</div>
+			</section>
 		);
 	}
 
 	render() {
-		const { person, isLoading } = this.state;
-		if (person === undefined || isLoading) {
+		const { isLoadingList, isLoadingPerson, isNew, person } = this.state;
+
+		if (isLoadingList || isLoadingPerson) {
 			return <LoadingPage />;
-		} else if (!person) {
-			return <NotFoundPage message="Person not found" />;
-		} else {
-			return (
-				<div className="admin-person-page admin-page">
-					<section className="page-header">
-						<div className="container">
-							<Link className="nav-card card" to="/admin/people/">
-								↩ Return to people list
-							</Link>
-						</div>
-						<h1>{person.name.full}</h1>
-						<div className="container">{this.getSubmenu()}</div>
-					</section>
-					{this.getContent()}
-				</div>
-			);
 		}
+
+		if (!isNew && person === false) {
+			return <NotFoundPage message="Person not found" />;
+		}
+
+		//Get Title
+		const title = isNew ? "Add New Person" : person.name.full;
+
+		return (
+			<div className="admin-person-page admin-page">
+				<section className="page-header">
+					<HelmetBuilder title={title} />
+					<div className="container">
+						<Link className="nav-card card" to="/admin/people/">
+							↩ Return to people list
+						</Link>
+					</div>
+					<h1>{title}</h1>
+					<div className="container">{this.getSubmenu()}</div>
+				</section>
+				{this.getContent()}
+			</div>
+		);
 	}
 }
 
@@ -118,7 +132,4 @@ function mapStateToProps({ people }) {
 	const { fullPeople, peopleList } = people;
 	return { fullPeople, peopleList };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchPerson, fetchPeopleList }
-)(AdminPersonPage);
+export default connect(mapStateToProps, { fetchPerson, fetchPeopleList })(AdminPersonPage);

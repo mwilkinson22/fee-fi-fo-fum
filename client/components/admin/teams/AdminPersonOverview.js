@@ -1,9 +1,7 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
@@ -14,12 +12,11 @@ import { fetchSponsors } from "~/client/actions/sponsorActions";
 //Components
 import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
-import DeleteButtons from "../fields/DeleteButtons";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminPersonOverview extends BasicForm {
+class AdminPersonOverview extends Component {
 	constructor(props) {
 		super(props);
 
@@ -80,55 +77,54 @@ class AdminPersonOverview extends BasicForm {
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { fullPeople, match, countries, cities, sponsorList } = nextProps;
+		const newState = { isLoading: false };
 
-		const newState = {
-			isNew: !(match && match.params.slug),
-			isLoading: false
-		};
+		//Create or Edit
+		newState.isNew = !match.params._id;
 
+		//Check everything is loaded
 		if (!countries || !cities || !sponsorList) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		if (!prevState.options) {
-			newState.options = {
-				_hometown: _.chain(cities)
-					.map(c => ({
-						label: `${c.name}, ${c._country.name}`,
-						value: c._id
-					}))
-					.sortBy("label")
-					.value(),
-				_represents: _.chain(countries)
-					.map(({ name, _id }) => ({
-						label: name,
-						value: _id
-					}))
-					.sortBy("label")
-					.value(),
-				_sponsor: _.chain(sponsorList)
-					.map(({ name, _id }) => ({ label: name, value: _id }))
-					.sortBy("label")
-					.value()
-			};
+		//Get Current Person
+		if (!newState.isNew) {
+			newState.person = fullPeople[match.params._id];
 		}
 
-		if (!newState.isNew) {
-			const { slug } = match.params;
-			newState.person = _.find(fullPeople, p => p.slug == slug);
-		}
+		//Set Dropdown Options
+		newState.options = {
+			_hometown: _.chain(cities)
+				.map(c => ({
+					label: `${c.name}, ${c._country.name}`,
+					value: c._id
+				}))
+				.sortBy("label")
+				.value(),
+			_represents: _.chain(countries)
+				.map(({ name, _id }) => ({
+					label: name,
+					value: _id
+				}))
+				.sortBy("label")
+				.value(),
+			_sponsor: _.chain(sponsorList)
+				.map(({ name, _id }) => ({ label: name, value: _id }))
+				.sortBy("label")
+				.value()
+		};
 
 		return newState;
 	}
 
-	getDefaults() {
-		const { person, options } = this.state;
+	getInitialValues() {
+		const { isNew, person, options } = this.state;
 
 		//Set basics for new teams:
-		let defaults = {
+		const defaultValues = {
 			name: {
 				first: "",
 				last: ""
@@ -153,194 +149,157 @@ class AdminPersonOverview extends BasicForm {
 			_sponsor: ""
 		};
 
-		if (person) {
-			defaults = _.mapValues(defaults, (val, key) => {
-				if (person[key] != null) {
-					switch (key) {
-						case "_hometown":
-						case "_represents":
-						case "_sponsor":
-							return options[key].find(o => o.value == person[key]._id);
-						case "dateOfBirth":
-							return person[key].toString("yyyy-MM-dd");
-						case "images":
-							return _.mapValues(person.images, image => image || "");
-						case "name":
-							return _.pick(person[key], ["first", "last"]);
-						case "description":
-							return person[key].join("\n");
-						default:
-							return person[key];
-					}
-				} else {
-					return val;
+		if (isNew) {
+			return defaultValues;
+		} else {
+			return _.mapValues(defaultValues, (defaultValue, key) => {
+				if (person[key] == null) {
+					return defaultValue;
 				}
-			});
-		}
-
-		return defaults;
-	}
-
-	async onSubmit(fValues) {
-		const { person, isNew } = this.state;
-		const { updatePerson, createPerson } = this.props;
-
-		const values = _.chain(fValues)
-			.cloneDeep()
-			.mapValues((val, key) => {
-				if (val === "") {
-					return null;
-				}
-
 				switch (key) {
-					case "description":
-						return _.filter(val.split("\n"), _.identity);
 					case "_hometown":
 					case "_represents":
 					case "_sponsor":
-						return val.value;
+						return options[key].find(o => o.value == person[key]._id);
+					case "dateOfBirth":
+						return person[key].toString("yyyy-MM-dd");
+					case "images":
+						return _.mapValues(person.images, image => image || "");
+					case "name":
+						return _.pick(person[key], ["first", "last"]);
+					case "description":
+						return person[key].join("\n");
 					default:
-						return val;
+						return person[key];
 				}
-			})
-			.value();
-
-		if (isNew) {
-			const newSlug = await createPerson(values);
-			this.props.history.push(`/admin/people/${newSlug}`);
-		} else {
-			updatePerson(person._id, values);
+			});
 		}
 	}
 
-	async onDelete() {
-		const { deletePerson, history } = this.props;
-		const { person } = this.state;
-		const success = await deletePerson(person._id);
-		if (success) {
-			history.replace("/admin/people");
+	getFieldGroups() {
+		const { isNew, person, options } = this.state;
+		return [
+			{
+				fields: [
+					{ name: "name.first", type: fieldTypes.text },
+					{ name: "name.last", type: fieldTypes.text },
+					{ name: "nickname", type: fieldTypes.text },
+					{ name: "dateOfBirth", type: fieldTypes.date },
+					{
+						name: "gender",
+						type: fieldTypes.radio,
+						options: [
+							{ label: "Male", value: "M" },
+							{ label: "Female", value: "F" }
+						],
+						readOnly: !isNew
+					},
+					{
+						name: "_hometown",
+						type: fieldTypes.select,
+						isClearable: true,
+						options: options._hometown
+					},
+					{
+						name: "_represents",
+						type: fieldTypes.select,
+						isClearable: true,
+						options: options._represents
+					},
+					{
+						name: "_sponsor",
+						type: fieldTypes.select,
+						isClearable: true,
+						options: options._sponsor
+					},
+					{
+						name: "description",
+						type: fieldTypes.textarea
+					}
+				]
+			},
+			{
+				label: "Roles",
+				fields: [
+					{
+						name: "isPlayer",
+						type: fieldTypes.boolean,
+						disabled: person && person.playedGames && person.playedGames.length
+					},
+					{
+						name: "isCoach",
+						type: fieldTypes.boolean,
+						disabled: person && person.coachingRoles && person.coachingRoles.length
+					},
+					{
+						name: "isReferee",
+						type: fieldTypes.boolean,
+						disabled:
+							person &&
+							person.isReferee &&
+							person.reffedGames &&
+							person.reffedGames.length
+					}
+				]
+			},
+			{
+				label: "Social Media",
+				fields: [
+					{ name: "twitter", type: fieldTypes.text },
+					{ name: "instagram", type: fieldTypes.text }
+				]
+			},
+			{
+				label: "Images",
+				fields: ["main", "player", "coach", "midpage"].map(type => ({
+					name: `images.${type}`,
+					type: fieldTypes.image,
+					path: `images/people/${type === "midpage" ? "midpage" : "full"}/`,
+					acceptSVG: false
+				}))
+			}
+		];
+	}
+
+	alterValuesBeforeSubmit(values) {
+		if (values.description) {
+			values.description = _.filter(values.description.split("\n"), _.identity);
 		}
 	}
 
 	render() {
-		const { isLoading, options, isNew, person } = this.state;
+		const { createPerson, updatePerson, deletePerson } = this.props;
+		const { isLoading, isNew, person, validationSchema } = this.state;
 
+		//Wait for dropdown fields
 		if (isLoading) {
 			return <LoadingPage />;
 		}
 
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createPerson(values),
+				redirectOnSubmit: id => `/admin/people/${id}`
+			};
+		} else {
+			formProps = {
+				onDelete: () => deletePerson(person._id),
+				onSubmit: values => updatePerson(person._id, values),
+				redirectOnDelete: "/admin/people/"
+			};
+		}
+
 		return (
-			<div className="container">
-				<Formik
-					validationSchema={this.state.validationSchema}
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					render={() => {
-						const mainFields = [
-							{ name: "name.first", type: fieldTypes.text },
-							{ name: "name.last", type: fieldTypes.text },
-							{ name: "nickname", type: fieldTypes.text },
-							{ name: "dateOfBirth", type: fieldTypes.date },
-							{
-								name: "gender",
-								type: fieldTypes.radio,
-								options: [
-									{ label: "Male", value: "M" },
-									{ label: "Female", value: "F" }
-								],
-								readOnly: !isNew
-							},
-							{
-								name: "_hometown",
-								type: fieldTypes.select,
-								isClearable: true,
-								options: options._hometown
-							},
-							{
-								name: "_represents",
-								type: fieldTypes.select,
-								isClearable: true,
-								options: options._represents
-							},
-							{
-								name: "_sponsor",
-								type: fieldTypes.select,
-								isClearable: true,
-								options: options._sponsor
-							},
-							{
-								name: "description",
-								type: fieldTypes.textarea
-							}
-						];
-
-						const roleFields = [
-							{
-								name: "isPlayer",
-								type: fieldTypes.boolean,
-								readOnly: person && person.playedGames && person.playedGames.length
-							},
-							{
-								name: "isCoach",
-								type: fieldTypes.boolean,
-								readOnly:
-									person && person.coachingRoles && person.coachingRoles.length
-							},
-							{
-								name: "isReferee",
-								type: fieldTypes.boolean,
-								readOnly:
-									person &&
-									person.isReferee &&
-									person.reffedGames &&
-									person.reffedGames.length
-							}
-						];
-
-						const socialFields = [
-							{ name: "twitter", type: fieldTypes.text },
-							{ name: "instagram", type: fieldTypes.text }
-						];
-
-						const imageFields = ["main", "player", "coach", "midpage"].map(type => ({
-							name: `images.${type}`,
-							type: fieldTypes.image,
-							path: `images/people/${type === "midpage" ? "midpage" : "full"}/`,
-							acceptSVG: false
-						}));
-
-						let deleteButtons;
-						if (!isNew) {
-							deleteButtons = (
-								<div className="form-card grid">
-									<DeleteButtons onDelete={() => this.onDelete()} />
-								</div>
-							);
-						}
-
-						return (
-							<Form>
-								<div className="form-card grid">
-									{this.renderFieldGroup(mainFields)}
-									<h6>Roles</h6>
-									{this.renderFieldGroup(roleFields)}
-									<h6>Social Media</h6>
-									{this.renderFieldGroup(socialFields)}
-									<h6>Images</h6>
-									{this.renderFieldGroup(imageFields)}
-									<div className="buttons">
-										<button type="clear">Clear</button>
-										<button type="submit" className="confirm">
-											{isNew ? "Add" : "Update"} Person
-										</button>
-									</div>
-								</div>
-								{deleteButtons}
-							</Form>
-						);
-					}}
-				/>
-			</div>
+			<BasicForm
+				fieldGroups={this.getFieldGroups()}
+				initialValues={this.getInitialValues()}
+				isNew={isNew}
+				itemType="Person"
+				validationSchema={validationSchema}
+				{...formProps}
+			/>
 		);
 	}
 }
@@ -353,9 +312,11 @@ function mapStateToProps({ people, locations, sponsors }) {
 	return { fullPeople, cities, countries, sponsorList };
 }
 // export default form;
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchCities, fetchCountries, updatePerson, createPerson, deletePerson, fetchSponsors }
-	)(AdminPersonOverview)
-);
+export default connect(mapStateToProps, {
+	fetchCities,
+	fetchCountries,
+	updatePerson,
+	createPerson,
+	deletePerson,
+	fetchSponsors
+})(AdminPersonOverview);
