@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -15,7 +15,7 @@ import BasicForm from "../BasicForm";
 import playerPositions from "~/constants/playerPositions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminPlayerDetails extends BasicForm {
+class AdminPlayerDetails extends Component {
 	constructor(props) {
 		super(props);
 		const validationSchema = Yup.object().shape({
@@ -50,16 +50,15 @@ class AdminPlayerDetails extends BasicForm {
 
 		const newState = {};
 
-		const { slug } = match.params;
-		newState.person = _.find(fullPeople, p => p.slug == slug);
+		newState.person = fullPeople[match.params._id];
 
 		return newState;
 	}
 
-	getDefaults() {
+	getInitialValues() {
 		const { person, positions } = this.state;
 
-		let defaults = {
+		const defaultValues = {
 			contractedUntil: "",
 			position1: "",
 			position2: "",
@@ -69,7 +68,7 @@ class AdminPlayerDetails extends BasicForm {
 			externalName: ""
 		};
 
-		return _.mapValues(defaults, (defaultValue, key) => {
+		return _.mapValues(defaultValues, (defaultValue, key) => {
 			let i;
 			switch (key) {
 				case "position1":
@@ -98,6 +97,39 @@ class AdminPlayerDetails extends BasicForm {
 					return person[key] || defaultValue;
 			}
 		});
+	}
+
+	getFieldGroups() {
+		const { positions } = this.state;
+		return [
+			{
+				fields: [
+					{
+						name: "position1",
+						type: fieldTypes.select,
+						isClearable: true,
+						options: positions
+					},
+					{
+						name: "position2",
+						type: fieldTypes.select,
+						isClearable: true,
+						options: positions
+					},
+					{
+						name: "otherPositions",
+						type: fieldTypes.select,
+						isMulti: true,
+						isClearable: true,
+						options: positions
+					},
+					{ name: "contractedUntil", type: fieldTypes.number },
+					{ name: "displayNicknameInCanvases", type: fieldTypes.boolean },
+					{ name: "squadNameWhenDuplicate", type: fieldTypes.text },
+					{ name: "externalName", type: fieldTypes.text }
+				]
+			}
+		];
 	}
 
 	renderPlayerHistory() {
@@ -156,77 +188,32 @@ class AdminPlayerDetails extends BasicForm {
 		}
 	}
 
-	async onSubmit(fValues) {
-		const { person } = this.state;
-		const { updatePerson } = this.props;
-		const values = _.cloneDeep(fValues);
-
+	alterValuesBeforeSubmit(values) {
 		values.playingPositions = [];
 		for (let i = 1; i <= 2; i++) {
-			const option = values[`position${i}`];
-			if (option && option.value) {
-				values.playingPositions.push(option.value);
-			}
-
+			values.playingPositions.push(values[`position${i}`]);
 			delete values[`position${i}`];
 		}
-		values.playingPositions.push(...values.otherPositions.map(o => o.value));
+		values.playingPositions.push(...values.otherPositions);
 		delete values.otherPositions;
-
-		updatePerson(person._id, values);
 	}
 
 	render() {
-		const { positions } = this.state;
-		return (
-			<div className="container">
-				<Formik
-					validationSchema={this.state.validationSchema}
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					render={() => {
-						const mainFields = [
-							{
-								name: "position1",
-								type: fieldTypes.select,
-								isClearable: true,
-								options: positions
-							},
-							{
-								name: "position2",
-								type: fieldTypes.select,
-								isClearable: true,
-								options: positions
-							},
-							{
-								name: "otherPositions",
-								type: fieldTypes.select,
-								isMulti: true,
-								isClearable: true,
-								options: positions
-							},
-							{ name: "contractedUntil", type: fieldTypes.number },
-							{ name: "displayNicknameInCanvases", type: fieldTypes.boolean },
-							{ name: "squadNameWhenDuplicate", type: fieldTypes.text },
-							{ name: "externalName", type: fieldTypes.text }
-						];
+		const { updatePerson } = this.props;
+		const { person, validationSchema } = this.state;
 
-						return (
-							<Form>
-								<div className="form-card grid">
-									{this.renderFieldGroup(mainFields)}
-									<div className="buttons">
-										<button type="clear">Clear</button>
-										<button type="submit" className="confirm">
-											Save
-										</button>
-									</div>
-								</div>
-								{this.renderPlayerHistory()}
-							</Form>
-						);
-					}}
+		return (
+			<div>
+				<BasicForm
+					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+					fieldGroups={this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isNew={false}
+					itemType="Player Details"
+					onSubmit={values => updatePerson(person._id, values)}
+					validationSchema={validationSchema}
 				/>
+				{this.renderPlayerHistory()}
 			</div>
 		);
 	}
@@ -238,7 +225,4 @@ function mapStateToProps({ people }) {
 	return { fullPeople };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ updatePerson }
-)(AdminPlayerDetails);
+export default connect(mapStateToProps, { updatePerson })(AdminPlayerDetails);
