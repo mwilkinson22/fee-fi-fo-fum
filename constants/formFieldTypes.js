@@ -12,6 +12,7 @@ export const boolean = "boolean";
 export const radio = "radio";
 export const select = "select";
 export const asyncSelect = "async-select";
+export const draft = "draft";
 
 //See ImageField props for extra args
 export const image = "image";

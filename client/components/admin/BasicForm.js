@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import { withRouter, Prompt } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Formik, Form } from "formik";
+import { convertToRaw } from "draft-js";
 
 //Components
 import DeleteButtons from "./fields/DeleteButtons";
@@ -27,14 +28,7 @@ class BasicForm extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const newState = _.pick(nextProps, [
-			"fieldGroups",
-			"initialValues",
-			"isNew",
-			"validationSchema"
-		]);
-
-		return newState;
+		return _.pick(nextProps, ["fieldGroups", "initialValues", "isNew", "validationSchema"]);
 	}
 
 	getFieldGroups(values) {
@@ -81,30 +75,38 @@ class BasicForm extends Component {
 
 	processValues(values, fields, parentPath = [], isArray = false) {
 		const callback = (val, key) => {
-			let newValue;
-			if (typeof val !== "object") {
-				newValue = val;
-			} else if (Array.isArray(val)) {
-				newValue = this.processValues(val, fields, [...parentPath, key], true);
+			//First we determine whether there is a field by this name
+			let field;
+			if (isArray) {
+				field = fields[parentPath.join(".")];
 			} else {
-				//First we determine whether there is a field by this name
-				let field;
-				if (isArray) {
-					field = fields[parentPath.join(".")];
-				} else {
-					field = fields[[...parentPath, key].join(".")];
-				}
+				field = fields[[...parentPath, key].join(".")];
+			}
 
-				if (
+			//Convert value
+			let newValue;
+			if (field && field.type === fieldTypes.draft) {
+				//For rich text fields, simply convert to raw
+				newValue = JSON.stringify(convertToRaw(val.getCurrentContent()));
+			} else if (Array.isArray(val)) {
+				//For arrays, go recursive, with isArray set to true
+				newValue = this.processValues(val, fields, [...parentPath, key], true);
+			} else if (typeof val === "object") {
+				//For objects, we check for select fields
+				const isSelect =
 					field &&
-					(field.type === fieldTypes.select || field.type === fieldTypes.asyncSelect)
-				) {
+					(field.type === fieldTypes.select || field.type === fieldTypes.asyncSelect);
+
+				if (isSelect) {
 					//If it's a select, we pull off the value
 					newValue = val.value;
 				} else {
 					//Otherwise, we go recursive
 					newValue = this.processValues(val, fields, [...parentPath, key]);
 				}
+			} else {
+				//For any non-object/array fields, simply return the value as is
+				newValue = val;
 			}
 
 			return newValue == null || newValue.length === 0 ? null : newValue;
@@ -287,7 +289,7 @@ class BasicForm extends Component {
 	}
 
 	render() {
-		const { isInitialValid, onReset } = this.props;
+		const { isInitialValid, onReset, useGrid } = this.props;
 		const { initialValues, validationSchema } = this.state;
 
 		return (
@@ -309,7 +311,7 @@ class BasicForm extends Component {
 								when={!isSubmitting && isValid}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
-							<div className="form-card grid">
+							<div className={`form-card ${useGrid ? "grid" : ""}`}>
 								{this.renderFields(values, formikProps)}
 								{this.renderErrors(errors, touched)}
 								{this.renderSubmitButtons(isValid, isSubmitting)}
@@ -354,6 +356,7 @@ BasicForm.propTypes = {
 	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 	submitButtonText: PropTypes.string,
 	testMode: PropTypes.bool,
+	useGrid: PropTypes.bool,
 	validationSchema: PropTypes.object.isRequired
 };
 
@@ -362,7 +365,8 @@ BasicForm.defaultProps = {
 	isInitialValid: false,
 	redirectOnDelete: `/admin/`,
 	submitButtonText: null,
-	testMode: false
+	testMode: false,
+	useGrid: true
 };
 
 export default withRouter(BasicForm);

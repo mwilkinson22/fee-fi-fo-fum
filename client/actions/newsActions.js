@@ -46,22 +46,26 @@ export const fetchLegacyNewsPost = id => async (dispatch, getState, api) => {
 
 export const createNewsPost = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/news/post/`, values);
-	dispatch({ type: UPDATE_POST, payload: res.data });
-	toast.success("Post Created");
-	const { _id, fullPosts } = res.data;
-	return fullPosts[_id].slug;
+	if (res.data) {
+		dispatch({ type: UPDATE_POST, payload: res.data });
+		toast.success("Post Created");
+		return res.data._id;
+	}
 };
 
 export const updateNewsPost = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/news/post/${id}`, values);
-	dispatch({ type: UPDATE_POST, payload: res.data });
-	toast.success("Post updated");
-	const { _id, fullPosts } = res.data;
-	return fullPosts[_id].slug;
+	if (res.data) {
+		dispatch({ type: UPDATE_POST, payload: res.data });
+		toast.success("Post updated");
+	}
 };
 
 export const deleteNewsPost = id => async (dispatch, getState, api) => {
 	const res = await api.delete(`/news/post/${id}`);
-	await dispatch({ type: DELETE_POST, payload: res.data });
-	toast.success("Post deleted");
+	if (res.data) {
+		await dispatch({ type: DELETE_POST, payload: res.data });
+		toast.success("Post deleted");
+		return true;
+	}
 };

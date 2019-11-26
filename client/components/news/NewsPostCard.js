@@ -53,9 +53,15 @@ class NewsPostCard extends Component {
 		if (inArticle) {
 			return this.generateContent();
 		} else {
-			const { slug } = this.props.post;
+			const { _id, slug } = this.props.post;
+			let url;
+			if (isAdminList) {
+				url = `/admin/news/post/${_id}`;
+			} else {
+				url = `/news/post/${slug}`;
+			}
 			return (
-				<Link to={`${isAdminList ? "/admin" : ""}/news/post/${slug}`} className="card">
+				<Link to={url} className="card">
 					{this.generateContent()}
 				</Link>
 			);

@@ -8,6 +8,7 @@ import Select, { Async } from "react-select";
 import BooleanField from "~/client/components/admin/fields/Boolean";
 import Radio from "~/client/components/admin/fields/Radio";
 import ImageField from "~/client/components/admin/fields/ImageField";
+import DraftEditor from "~/client/components/admin/fields/DraftEditor";
 import TweetComposer from "~/client/components/TweetComposer";
 
 //Constants
@@ -43,7 +44,10 @@ export function renderField(field, validationSchema, fastFieldByDefault = true, 
 	const yupField = extractYupData(field.name, validationSchema);
 
 	//Get Label
-	field.label = field.label || yupField.label || field.name;
+	field.label = field.label || yupField.label;
+	if (field.label == null) {
+		field.label = field.name;
+	}
 
 	//Determine Required Status
 	if (yupField) {
@@ -65,13 +69,21 @@ export function renderField(field, validationSchema, fastFieldByDefault = true, 
 		field.fastField = fastFieldByDefault;
 	}
 
+	//Get Label
+	let label;
+	if (field.label) {
+		label = (
+			<label key={`${field.name}-label`} className={field.required ? "required" : ""}>
+				{field.label}
+			</label>
+		);
+	}
+
 	//Render Field Input
 	const input = renderInput(field, onChange);
 
 	return [
-		<label key={`${field.name}-label`} className={field.required ? "required" : ""}>
-			{field.label}
-		</label>,
+		label,
 		input,
 		<span key={`${field.name}-error`} className="error">
 			<ErrorMessage name={field.name} />
@@ -95,6 +107,7 @@ export function renderInput(field, customOnChange) {
 			case fieldTypes.select:
 			case fieldTypes.asyncSelect:
 			case fieldTypes.image:
+			case fieldTypes.draft:
 			case fieldTypes.tweet:
 				formikProps.field.onChange = option => {
 					formikProps.form.setFieldTouched(field.name, true);
@@ -139,6 +152,8 @@ export function renderInput(field, customOnChange) {
 				);
 			case fieldTypes.image:
 				return <ImageField {...mainProps} />;
+			case fieldTypes.draft:
+				return <DraftEditor {...mainProps} />;
 			case fieldTypes.tweet:
 				return (
 					<TweetComposer

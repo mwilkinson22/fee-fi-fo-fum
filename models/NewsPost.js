@@ -9,7 +9,7 @@ const newsPostSchema = new Schema({
 	title: { type: String, required: true },
 	_author: { type: Schema.Types.ObjectId, ref: "users", required: true },
 	subtitle: { type: String, default: null },
-	content: { type: Schema.Types.Mixed, required: true },
+	content: { type: Schema.Types.Mixed },
 	image: { type: String, required: true },
 	dateCreated: { type: String, required: true, default: Date },
 	dateModified: { type: String, required: true, default: Date },

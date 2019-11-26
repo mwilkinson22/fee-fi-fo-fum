@@ -112,7 +112,7 @@ class AdminRouter extends Component {
 					<Route path="/admin/grounds" exact component={AdminGroundList} />
 
 					<Route path="/admin/news/post/new" component={AdminNewsPostPage} />
-					<Route path="/admin/news/post/:slug" component={AdminNewsPostPage} />
+					<Route path="/admin/news/post/:_id" component={AdminNewsPostPage} />
 					<Route path="/admin/news/" exact component={AdminNewsList} />
 
 					<Route path="/admin/neutralGame/new" component={AdminNeutralGamePage} />

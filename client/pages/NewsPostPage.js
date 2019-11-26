@@ -121,7 +121,7 @@ class NewsPostPage extends Component {
 		const { post } = this.state;
 		if (authUser) {
 			return (
-				<Link className="card nav-card" to={`/admin/news/post/${post.slug}`}>
+				<Link className="card nav-card" to={`/admin/news/post/${post._id}`}>
 					Edit this post
 				</Link>
 			);
@@ -278,9 +278,6 @@ async function loadData(store, path) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchNewsPost, fetchPostList }
-	)(NewsPostPage),
+	component: connect(mapStateToProps, { fetchNewsPost, fetchPostList })(NewsPostPage),
 	loadData
 };

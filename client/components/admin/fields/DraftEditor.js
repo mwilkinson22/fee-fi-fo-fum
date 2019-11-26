@@ -7,12 +7,12 @@ import actions from "megadraft/lib/actions/default";
 import LinkInput from "megadraft/lib/entity_inputs/LinkInput";
 
 //Components
-import InternalLinkInput from "./entities/InternalLinkInput";
+import InternalLinkInput from "../../news/entities/InternalLinkInput";
 
 //Constants
 import newsPlugins from "~/constants/newsPlugins";
 
-class NewsPostEditor extends Component {
+class DraftEditor extends Component {
 	customActions() {
 		//Convert H2 to H3
 		let customActions = actions.map(action => {
@@ -47,11 +47,11 @@ class NewsPostEditor extends Component {
 	}
 
 	render() {
-		const { editorState, onChange } = this.props;
+		const { value, onChange } = this.props;
 
 		return (
 			<MegadraftEditor
-				editorState={editorState}
+				editorState={value}
 				onChange={onChange}
 				actions={this.customActions()}
 				entityInputs={this.customEntityInputs()}
@@ -61,11 +61,11 @@ class NewsPostEditor extends Component {
 	}
 }
 
-NewsPostEditor.propTypes = {
-	editorState: PropTypes.object.isRequired,
+DraftEditor.propTypes = {
+	value: PropTypes.object.isRequired,
 	onChange: PropTypes.func.isRequired
 };
 
-NewsPostEditor.defaultProps = {};
+DraftEditor.defaultProps = {};
 
-export default NewsPostEditor;
+export default DraftEditor;

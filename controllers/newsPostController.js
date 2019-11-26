@@ -35,18 +35,6 @@ async function processList(req = null) {
 	const posts = await NewsPost.find(query).forList();
 	const postList = _.keyBy(posts, "_id");
 
-	const allPosts = await NewsPost.find({}, "content slug");
-	const postsWithImages = allPosts.filter(
-		p => p.content.indexOf("storage.googleapis.com.com") > -1
-	);
-	for (const post of postsWithImages) {
-		post.content = post.content.replace(
-			/storage.googleapis.com.com/gi,
-			"storage.googleapis.com"
-		);
-		await post.save();
-	}
-
 	const redirects = await getRedirects(posts, collectionName);
 	return { postList, redirects };
 }

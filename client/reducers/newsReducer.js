@@ -46,13 +46,15 @@ export default function(state = { fullPosts: {} }, action) {
 			};
 		}
 
-		case DELETE_POST:
+		case DELETE_POST: {
 			const { [action.payload]: removedFull, ...fullPosts } = state.fullPosts;
 			const { [action.payload]: removedFromList, ...postList } = state.postList;
 			return {
-				...fullPosts,
-				...postList
+				...state,
+				fullPosts,
+				postList
 			};
+		}
 
 		default:
 			return state;
