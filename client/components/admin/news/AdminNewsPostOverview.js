@@ -51,7 +51,19 @@ class AdminNewsPostOverview extends Component {
 			category: Yup.mixed()
 				.required()
 				.label("Category"),
-			_game: Yup.mixed().label("Game"),
+			_game: Yup.mixed()
+				.test("isRequired", "A game is required for this category", function(value) {
+					const category = this.parent.category;
+					if (
+						category &&
+						(category.value === "recaps" || category.value === "previews")
+					) {
+						return value;
+					} else {
+						return true;
+					}
+				})
+				.label("Game"),
 			slug: validateSlug(),
 			image: Yup.string()
 				.required()
@@ -65,7 +77,7 @@ class AdminNewsPostOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullPosts, match, userList, gameList, teamList, teamTypes } = nextProps;
+		const { location, fullPosts, match, userList, gameList, teamList, teamTypes } = nextProps;
 		const { _id } = match.params;
 		const newState = { isLoading: false };
 
@@ -81,6 +93,14 @@ class AdminNewsPostOverview extends Component {
 		if (!newState.isNew) {
 			newState.post = fullPosts[_id];
 		}
+
+		//Check for query values on new posts
+		newState.query = _.fromPairs(
+			location.search
+				.substr(1)
+				.split("&")
+				.map(s => s.split("="))
+		);
 
 		//Get dropdown options
 		newState.options = {};
@@ -124,51 +144,72 @@ class AdminNewsPostOverview extends Component {
 
 	getInitialValues() {
 		const { authUser } = this.props;
-		const { isNew, options, post } = this.state;
+		const { isNew, options, post, query } = this.state;
+
+		//Flatten game options for searching
+		const gameOptions = _.chain(options.games)
+			.map("options")
+			.flatten()
+			.value();
+
+		//Declare default values
+		const defaultValues = {
+			title: "",
+			_author: options.users.find(({ value }) => value == authUser._id) || "",
+			subtitle: "",
+			category: "",
+			slug: "",
+			image: "",
+			_game: ""
+		};
+
 		if (isNew) {
-			return {
-				title: "",
-				_author: options.users.find(({ value }) => value == authUser._id) || "",
-				subtitle: "",
-				category: "",
-				slug: "",
-				image: "",
-				_game: ""
-			};
-		} else {
-			const { title, subtitle, dateCreated, isPublished, slug } = post;
-			let _game = "";
-			if (post._game) {
-				_game = _.chain(options.games)
-					.map("options")
-					.flatten()
-					.find(({ value }) => value == post._game)
-					.value();
+			//If it's new, check the query in the URL for recap/preview values
+			if (query.recap) {
+				defaultValues.category = options.categories.find(({ value }) => value == "recaps");
+				defaultValues._game = gameOptions.find(({ value }) => value == query.recap) || "";
+			} else if (query.preview) {
+				defaultValues.category = options.categories.find(
+					({ value }) => value == "previews"
+				);
+				defaultValues._game = gameOptions.find(({ value }) => value == query.preview) || "";
 			}
-			return {
-				title,
-				_author: options.users.find(({ value }) => value == post._author._id) || "",
-				subtitle: subtitle || "",
-				slug,
-				image: post.image || "",
-				dateCreated: dateCreated.toString("yyyy-MM-dd"),
-				timeCreated: dateCreated.toString("HH:mm"),
-				isPublished: isPublished || false,
-				category: options.categories.find(({ value }) => value == post.category) || "",
-				_game
-			};
+
+			return defaultValues;
+		} else {
+			return _.mapValues(defaultValues, (defaultValue, key) => {
+				if (post[key] == null) {
+					return defaultValue;
+				}
+
+				switch (key) {
+					case "dateCreated":
+						return post[key].toString("yyyy-MM-dd");
+					case "timeCreated":
+						return post[key].toString("HH:mm:ss");
+					case "author":
+						return options.users.find(({ value }) => value == post[key]);
+					case "category":
+						return options.categories.find(({ value }) => value == post[key]);
+					case "_game":
+						return gameOptions.find(({ value }) => value == post[key]);
+					default:
+						return post[key];
+				}
+			});
 		}
 	}
 
 	getFieldGroups(values) {
-		const { isNew, options, post } = this.state;
+		const { isNew, options, post, query } = this.state;
 
 		//Render Last Date Modified
 		let dateModifiedString = "-";
 		if (post && post.dateModified) {
-			dateModifiedString = post.dateModified.toString("HH:mm:ss dd/MM/yyyy");
+			dateModifiedString = post.dateModified.toString("dddd dS MMMM yyyy - HH:mm:ss");
 		}
 
+		//Standard Fields
 		const fields = [
 			{
 				name: "image",
@@ -183,10 +224,12 @@ class AdminNewsPostOverview extends Component {
 			{
 				name: "category",
 				type: fieldTypes.select,
-				options: options.categories
+				options: options.categories,
+				isDisabled: query.recap || query.preview
 			}
 		];
 
+		//If the category is a recap or a preview, we add a game field
 		if (values.category.value === "recaps" || values.category.value === "previews") {
 			//Filter Options By Years
 			const filterYear = (values.dateCreated
@@ -204,9 +247,15 @@ class AdminNewsPostOverview extends Component {
 				.filter(_.identity)
 				.value();
 
-			fields.push({ name: "_game", type: fieldTypes.select, options: gameOptions });
+			fields.push({
+				name: "_game",
+				type: fieldTypes.select,
+				options: gameOptions,
+				isDisabled: query.recap || query.preview
+			});
 		}
 
+		//Once a post is created, we add a few more fields
 		if (!isNew) {
 			fields.push(
 				{ name: "isPublished", type: fieldTypes.boolean },
