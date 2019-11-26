@@ -25,7 +25,7 @@ class AdminPersonList extends Component {
 			fetchPeopleList();
 		}
 
-		this.state = { filterName: "", regex: /((?![A-Za-z]).)/gi };
+		this.state = { filteredPeople: null, selectedPerson: null };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -33,33 +33,76 @@ class AdminPersonList extends Component {
 		return { peopleList };
 	}
 
+	handleInputChange(value) {
+		const { peopleList } = this.state;
+
+		//Normalise input
+		const regex = new RegExp("((?![A-Za-z]).)", "gi");
+		const filterName = value.replace(regex, "").toLowerCase();
+
+		//Save filtered people to state
+		let filteredPeople;
+		if (filterName.length > 2) {
+			filteredPeople = _.chain(peopleList)
+				.filter(({ name }) => {
+					const fullName = (name.first + name.last).replace(regex, "").toLowerCase();
+					return fullName.includes(filterName);
+				})
+				.sortBy(["name.last", "name.first"])
+				.value();
+		}
+
+		this.setState({ filteredPeople, selectedPerson: 0 });
+	}
+
+	handleInputKeypress(ev) {
+		const { filteredPeople, selectedPerson } = this.state;
+
+		if (filteredPeople && filteredPeople.length) {
+			switch (ev.which) {
+				//Up arrow
+				case 38:
+					if (selectedPerson > 0) {
+						this.setState({ selectedPerson: selectedPerson - 1 });
+					}
+					break;
+				//Down arrow
+				case 40:
+					if (selectedPerson < filteredPeople.length - 1) {
+						this.setState({ selectedPerson: selectedPerson + 1 });
+					}
+					break;
+				//Enter
+				case 13: {
+					const person = filteredPeople[selectedPerson];
+					this.props.history.push(`/admin/people/${person._id}`);
+					break;
+				}
+			}
+		}
+	}
+
 	renderList() {
-		const { peopleList, filterName, regex } = this.state;
+		const { filteredPeople, selectedPerson } = this.state;
 		let content;
 
-		if (filterName.length > 2) {
-			const filteredPeople = _.filter(peopleList, ({ name }) => {
-				const fullName = (name.first + name.last).replace(regex, "").toLowerCase();
-				return fullName.includes(filterName);
-			});
-
-			if (filteredPeople.length) {
-				content = _.chain(filteredPeople)
-					.sortBy(["name.last", "name.first"])
-					.map(person => (
-						<li key={person._id}>
-							<Link to={`/admin/people/${person._id}`}>
-								{this.renderPersonIcons(person)}
-								{person.name.first} {person.name.last}
-							</Link>
-						</li>
-					))
-					.value();
-			} else {
-				content = <li>No people found</li>;
-			}
-		} else {
+		if (filteredPeople == null) {
 			content = <li>Enter 3 or more letters to search</li>;
+		} else if (filteredPeople.length) {
+			content = filteredPeople.map((person, i) => (
+				<li
+					key={person._id}
+					className={selectedPerson === i ? "selected" : ""}
+					onMouseOver={() => this.setState({ selectedPerson: i })}
+				>
+					<Link to={`/admin/people/${person._id}`}>
+						{this.renderPersonIcons(person)}
+						{person.name.first} {person.name.last}
+					</Link>
+				</li>
+			));
+		} else {
+			content = <li>No people found</li>;
 		}
 
 		return (
@@ -68,11 +111,8 @@ class AdminPersonList extends Component {
 					type="text"
 					placeholder="Search By Name"
 					className="name-filter"
-					onChange={({ target }) =>
-						this.setState({
-							filterName: target.value.replace(regex, "").toLowerCase()
-						})
-					}
+					onChange={ev => this.handleInputChange(ev.target.value)}
+					onKeyDown={ev => this.handleInputKeypress(ev)}
 				/>
 				<ul className="plain-list">{content}</ul>
 			</div>

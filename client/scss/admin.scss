@@ -48,6 +48,10 @@
 				}
 			}
 
+			&.selected {
+				background: #eee;
+			}
+
 			&.archived a {
 				color: #aaa !important;
 			}
