@@ -157,7 +157,7 @@ class PersonPage extends Component {
 		if (authUser) {
 			return (
 				<div className="container">
-					<Link to={`/admin/people/${person.slug}`} className="nav-card">
+					<Link to={`/admin/people/${person._id}`} className="nav-card">
 						Edit {person.name.first}
 					</Link>
 				</div>
@@ -404,9 +404,11 @@ async function loadData(store, path) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchPerson, fetchPeopleList, fetchGameList, fetchGames }
-	)(PersonPage),
+	component: connect(mapStateToProps, {
+		fetchPerson,
+		fetchPeopleList,
+		fetchGameList,
+		fetchGames
+	})(PersonPage),
 	loadData
 };
