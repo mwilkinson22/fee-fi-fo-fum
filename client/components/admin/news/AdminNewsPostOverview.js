@@ -51,6 +51,7 @@ class AdminNewsPostOverview extends Component {
 			category: Yup.mixed()
 				.required()
 				.label("Category"),
+			_game: Yup.mixed().label("Game"),
 			slug: validateSlug(),
 			image: Yup.string()
 				.required()
@@ -64,7 +65,7 @@ class AdminNewsPostOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullPosts, match, userList, gameList } = nextProps;
+		const { fullPosts, match, userList, gameList, teamList, teamTypes } = nextProps;
 		const { _id } = match.params;
 		const newState = { isLoading: false };
 
@@ -84,16 +85,38 @@ class AdminNewsPostOverview extends Component {
 		//Get dropdown options
 		newState.options = {};
 
-		//Get Users
 		newState.options.users = _.chain(userList)
 			.map(user => ({ label: user.name.full, value: user._id }))
 			.sortBy("label")
 			.value();
 
-		//Get Categories
 		newState.options.categories = _.chain(newsCategories)
 			.map(({ name, slug }) => ({ value: slug, label: name }))
 			.sortBy("label")
+			.value();
+
+		newState.options.games = _.chain(gameList)
+			.groupBy("_teamType")
+			.map((games, _teamType) => {
+				return {
+					label: teamTypes[_teamType].name,
+					order: teamTypes[_teamType].sortOrder,
+					options: _.chain(games)
+						.sortBy("date")
+						.map(g => {
+							const labelArr = [];
+							//Add Team Name
+							labelArr.push(teamList[g._opposition].name.short);
+
+							//Add Date
+							labelArr.push(g.date.toString("ddd dS MMM yyyy"));
+
+							return { label: labelArr.join(" - "), value: g._id, date: g.date };
+						})
+						.value()
+				};
+			})
+			.sortBy("order")
 			.value();
 
 		return newState;
@@ -109,10 +132,19 @@ class AdminNewsPostOverview extends Component {
 				subtitle: "",
 				category: "",
 				slug: "",
-				image: ""
+				image: "",
+				_game: ""
 			};
 		} else {
 			const { title, subtitle, dateCreated, isPublished, slug } = post;
+			let _game = "";
+			if (post._game) {
+				_game = _.chain(options.games)
+					.map("options")
+					.flatten()
+					.find(({ value }) => value == post._game)
+					.value();
+			}
 			return {
 				title,
 				_author: options.users.find(({ value }) => value == post._author._id) || "",
@@ -122,12 +154,13 @@ class AdminNewsPostOverview extends Component {
 				dateCreated: dateCreated.toString("yyyy-MM-dd"),
 				timeCreated: dateCreated.toString("HH:mm"),
 				isPublished: isPublished || false,
-				category: options.categories.find(({ value }) => value == post.category) || ""
+				category: options.categories.find(({ value }) => value == post.category) || "",
+				_game
 			};
 		}
 	}
 
-	getFieldGroups() {
+	getFieldGroups(values) {
 		const { isNew, options, post } = this.state;
 
 		//Render Last Date Modified
@@ -146,13 +179,33 @@ class AdminNewsPostOverview extends Component {
 			{ name: "title", type: fieldTypes.text },
 			{ name: "subtitle", type: fieldTypes.text },
 			{ name: "_author", type: fieldTypes.select, options: options.users },
+			{ name: "slug", type: fieldTypes.text },
 			{
 				name: "category",
 				type: fieldTypes.select,
 				options: options.categories
-			},
-			{ name: "slug", type: fieldTypes.text }
+			}
 		];
+
+		if (values.category.value === "recaps" || values.category.value === "previews") {
+			//Filter Options By Years
+			const filterYear = (values.dateCreated
+				? new Date(values.dateCreated)
+				: new Date()
+			).getFullYear();
+
+			const gameOptions = _.chain(options.games)
+				.map(({ label, options }) => {
+					const filteredGames = options.filter(g => g.date.getFullYear() == filterYear);
+					if (filteredGames.length) {
+						return { label, options: filteredGames };
+					}
+				})
+				.filter(_.identity)
+				.value();
+
+			fields.push({ name: "_game", type: fieldTypes.select, options: gameOptions });
+		}
 
 		if (!isNew) {
 			fields.push(
@@ -182,6 +235,10 @@ class AdminNewsPostOverview extends Component {
 			values.dateCreated = new Date(`${values.dateCreated} ${values.timeCreated}`);
 			delete values.timeCreated;
 		}
+
+		if (values.category !== "recaps" && values.category !== "previews") {
+			delete values._game;
+		}
 	}
 
 	render() {
@@ -210,7 +267,7 @@ class AdminNewsPostOverview extends Component {
 
 		return (
 			<BasicForm
-				fieldGroups={this.getFieldGroups()}
+				fieldGroups={values => this.getFieldGroups(values)}
 				initialValues={this.getInitialValues()}
 				isNew={isNew}
 				itemType="Post"
@@ -221,12 +278,13 @@ class AdminNewsPostOverview extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, news, users }) {
+function mapStateToProps({ config, games, news, teams, users }) {
 	const { authUser } = config;
 	const { fullPosts } = news;
 	const { userList } = users;
 	const { gameList } = games;
-	return { authUser, fullPosts, userList, gameList };
+	const { teamList, teamTypes } = teams;
+	return { authUser, fullPosts, userList, gameList, teamList, teamTypes };
 }
 
 export default connect(mapStateToProps, {
