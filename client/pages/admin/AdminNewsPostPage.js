@@ -13,6 +13,7 @@ import SubMenu from "../../components/SubMenu";
 //Forms
 import AdminNewsPostOverview from "../../components/admin/news/AdminNewsPostOverview";
 import AdminNewsPostContent from "../../components/admin/news/AdminNewsPostContent";
+import AdminNewsPostTags from "../../components/admin/news/AdminNewsPostTags";
 
 //Actions
 import { fetchPostList, fetchNewsPost } from "~/client/actions/newsActions";
@@ -97,7 +98,8 @@ class AdminNewsPostPage extends Component {
 		if (!isNew) {
 			const items = [
 				{ label: "Overview", slug: "", isExact: true },
-				{ label: "Content", slug: "content" }
+				{ label: "Content", slug: "content" },
+				{ label: "Tags", slug: "tags" }
 			];
 
 			submenu = (
@@ -135,6 +137,7 @@ class AdminNewsPostPage extends Component {
 							exact
 							component={AdminNewsPostOverview}
 						/>
+						<Route path="/admin/news/post/:_id/tags" component={AdminNewsPostTags} />
 						<Route
 							path="/admin/news/post/:_id/content"
 							component={AdminNewsPostContent}

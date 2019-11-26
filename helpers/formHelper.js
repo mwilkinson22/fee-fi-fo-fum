@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { Field, FastField, ErrorMessage } from "formik";
-import Select, { Async } from "react-select";
+import Select, { Async, Creatable } from "react-select";
 
 //Input Components
 import BooleanField from "~/client/components/admin/fields/Boolean";
@@ -105,6 +105,7 @@ export function renderInput(field, customOnChange) {
 		//Update default onChange method for custom Select component
 		switch (type) {
 			case fieldTypes.select:
+			case fieldTypes.creatableSelect:
 			case fieldTypes.asyncSelect:
 			case fieldTypes.image:
 			case fieldTypes.draft:
@@ -141,6 +142,8 @@ export function renderInput(field, customOnChange) {
 				return <Radio {...mainProps} />;
 			case fieldTypes.select:
 				return <Select className="react-select" styles={selectStyling} {...mainProps} />;
+			case fieldTypes.creatableSelect:
+				return <Creatable className="react-select" styles={selectStyling} {...mainProps} />;
 			case fieldTypes.asyncSelect:
 				return (
 					<Async

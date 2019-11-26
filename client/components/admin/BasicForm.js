@@ -51,10 +51,15 @@ class BasicForm extends Component {
 				let error;
 				switch (field.type) {
 					case fieldTypes.radio:
-					case fieldTypes.select:
-					case fieldTypes.asyncSelect: {
+					case fieldTypes.select: {
 						if (!field.options) {
 							error = `Field of type ${field.type} must have an options property`;
+						}
+						break;
+					}
+					case fieldTypes.asyncSelect: {
+						if (!field.loadOptions) {
+							error = `Field of type ${field.type} must have a loadOptions property`;
 						}
 						break;
 					}
@@ -95,7 +100,9 @@ class BasicForm extends Component {
 				//For objects, we check for select fields
 				const isSelect =
 					field &&
-					(field.type === fieldTypes.select || field.type === fieldTypes.asyncSelect);
+					[fieldTypes.select, fieldTypes.asyncSelect, fieldTypes.creatableSelect].indexOf(
+						field.type
+					) > -1;
 
 				if (isSelect) {
 					//If it's a select, we pull off the value

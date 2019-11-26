@@ -11,6 +11,7 @@ export const text = "text";
 export const boolean = "boolean";
 export const radio = "radio";
 export const select = "select";
+export const creatableSelect = "creatable-select";
 export const asyncSelect = "async-select";
 export const draft = "draft";
 
