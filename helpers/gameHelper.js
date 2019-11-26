@@ -271,6 +271,84 @@ export function convertTeamToSelect(
 	}
 }
 
+export function getDynamicOptions(values, competitionSegmentList, teamList, localTeam) {
+	const options = {
+		_competition: [],
+		teams: []
+	};
+
+	//Pull all valid competition for the selected date and team type
+	if (values.date && values._teamType) {
+		const currentYear = new Date(values.date).getFullYear();
+		const currentTeamType = values._teamType.value;
+
+		options._competition = _.chain(competitionSegmentList)
+			//Filter all competitions by team type
+			.filter(({ _teamType }) => _teamType == currentTeamType)
+			//Find those with corresponding instances for this year
+			.filter(({ multipleInstances, instances }) => {
+				if (multipleInstances) {
+					return instances.find(({ year }) => year == currentYear);
+				} else {
+					return instances.length;
+				}
+			})
+			//Convert to dropdown options
+			.map(c => ({ label: c.name, value: c._id }))
+			.value();
+
+		//Remove the selected competition if it's not in the list
+		if (!options._competition.find(option => option.value == values._competition.value)) {
+			values._competition = "";
+		}
+
+		//Get available teams from selected competition
+		if (values._competition) {
+			const currentCompetition = competitionSegmentList[values._competition.value];
+
+			//Get corresponding instance
+			let instance;
+			if (currentCompetition.multipleInstances) {
+				instance = currentCompetition.instances.find(({ year }) => year == currentYear);
+			} else {
+				instance = currentCompetition.instances[0];
+			}
+
+			//Look for teams
+			options.teams = _.chain(teamList)
+				//Filter based on instance
+				.filter(({ _id }) => {
+					//No local team in neutral games
+					if (_id == localTeam) {
+						return false;
+					}
+
+					if (instance.teams && instance.teams.length) {
+						return instance.teams.indexOf(_id) > -1;
+					} else {
+						//No teams specified, all are valid
+						return true;
+					}
+				})
+				//Convert to dropdown options
+				.map(team => {
+					return { label: team.name.long, value: team._id };
+				})
+				.sortBy("label")
+				.value();
+
+			//Remove the selected teams if they're not in the list
+			if (!options.teams.find(option => option.value == values._homeTeam.value)) {
+				values._homeTeam = "";
+			}
+			if (!options.teams.find(option => option.value == values._awayTeam.value)) {
+				values._awayTeam = "";
+			}
+		}
+	}
+	return options;
+}
+
 export async function parseExternalGame(game, justGetScores = false, includeScoringStats = true) {
 	//JSON-ify the game object
 	game = JSON.parse(JSON.stringify(game));

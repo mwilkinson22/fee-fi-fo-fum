@@ -24,7 +24,7 @@ import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { getNeutralGame } from "~/helpers/gameHelper";
+import { getNeutralGame, getDynamicOptions } from "~/helpers/gameHelper";
 
 class AdminNeutralGamePage extends Component {
 	constructor(props) {
@@ -56,7 +56,7 @@ class AdminNeutralGamePage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { competitionSegmentList, neutralGames, match } = nextProps;
+		const { competitionSegmentList, neutralGames, match, teamTypes } = nextProps;
 		const newState = { isLoading: false };
 
 		//Check for New Game
@@ -133,11 +133,18 @@ class AdminNeutralGamePage extends Component {
 			date: dateValidation
 		});
 
+		//Get Team Type Drop Down
+		newState.teamTypes = _.chain(teamTypes)
+			.sortBy("sortOrder")
+			.map(t => ({ label: t.name, value: t._id }))
+			.value();
+
 		return newState;
 	}
 
 	getInitialValues() {
-		const { game, isNew } = this.state;
+		const { game, isNew, teamTypes } = this.state;
+		const { competitionSegmentList, teamList, localTeam } = this.props;
 		const defaultValues = {
 			externalSync: false,
 			externalId: "",
@@ -167,6 +174,8 @@ class AdminNeutralGamePage extends Component {
 						value = game.date.toString("HH:mm:ss");
 						break;
 					case "_teamType":
+						value = teamTypes.find(option => option.value == game[key]);
+						break;
 					case "_competition":
 					case "_homeTeam":
 					case "_awayTeam":
@@ -181,12 +190,11 @@ class AdminNeutralGamePage extends Component {
 			});
 
 			//We use this object to get the options we need
-			const options = this.getOptions(values);
+			const options = getDynamicOptions(values, competitionSegmentList, teamList, localTeam);
 
 			//We then convert the select field values to use actual options
 			return _.mapValues(values, (currentValue, key) => {
 				switch (key) {
-					case "_teamType":
 					case "_competition":
 						return options[key].find(option => option.value == currentValue.value);
 					case "_homeTeam":
@@ -200,8 +208,9 @@ class AdminNeutralGamePage extends Component {
 	}
 
 	getFieldGroups(values) {
-		const { isNew } = this.state;
-		const options = this.getOptions(values);
+		const { isNew, teamTypes } = this.state;
+		const { competitionSegmentList, teamList, localTeam } = this.props;
+		const options = getDynamicOptions(values, competitionSegmentList, teamList, localTeam);
 
 		return [
 			{
@@ -214,8 +223,7 @@ class AdminNeutralGamePage extends Component {
 						name: "_teamType",
 						type: fieldTypes.select,
 						disabled: !isNew,
-						options: options._teamType,
-						clearOnChange: ["_competition"]
+						options: teamTypes
 					},
 					{
 						name: "_competition",
@@ -238,92 +246,6 @@ class AdminNeutralGamePage extends Component {
 				]
 			}
 		];
-	}
-
-	getOptions(values) {
-		const { competitionSegmentList, teamTypes, teamList, localTeam } = this.props;
-		const options = {
-			_teamType: [],
-			_competition: [],
-			teams: []
-		};
-
-		//Set team types
-		options._teamType = _.chain(teamTypes)
-			.sortBy("sortOrder")
-			.map(t => ({ label: t.name, value: t._id }))
-			.value();
-
-		//Pull all valid competition for the selected date and team type
-		if (values.date && values._teamType) {
-			const currentYear = new Date(values.date).getFullYear();
-			const currentTeamType = values._teamType.value;
-
-			options._competition = _.chain(competitionSegmentList)
-				//Filter all competitions by team type
-				.filter(({ _teamType }) => _teamType == currentTeamType)
-				//Find those with corresponding instances for this year
-				.filter(({ multipleInstances, instances }) => {
-					if (multipleInstances) {
-						return instances.find(({ year }) => year == currentYear);
-					} else {
-						return instances.length;
-					}
-				})
-				//Convert to dropdown options
-				.map(c => ({ label: c.name, value: c._id }))
-				.value();
-
-			//Remove the selected competition if it's not in the list
-			if (!options._competition.find(option => option.value == values._competition.value)) {
-				values._competition = "";
-			}
-
-			//Get available teams from selected competition
-			if (values._competition) {
-				const currentCompetition = competitionSegmentList[values._competition.value];
-
-				//Get corresponding instance
-				let instance;
-				if (currentCompetition.multipleInstances) {
-					instance = currentCompetition.instances.find(({ year }) => year == currentYear);
-				} else {
-					instance = currentCompetition.instances[0];
-				}
-
-				//Look for teams
-				options.teams = _.chain(teamList)
-					//Filter based on instance
-					.filter(({ _id }) => {
-						//No local team in neutral games
-						if (_id == localTeam) {
-							return false;
-						}
-
-						if (instance.teams && instance.teams.length) {
-							return instance.teams.indexOf(_id) > -1;
-						} else {
-							//No teams specified, all are valid
-							return true;
-						}
-					})
-					//Convert to dropdown options
-					.map(team => {
-						return { label: team.name.long, value: team._id };
-					})
-					.sortBy("label")
-					.value();
-
-				//Remove the selected teams if they're not in the list
-				if (!options.teams.find(option => option.value == values._homeTeam.value)) {
-					values._homeTeam = "";
-				}
-				if (!options.teams.find(option => option.value == values._awayTeam.value)) {
-					values._awayTeam = "";
-				}
-			}
-		}
-		return options;
 	}
 
 	alterValuesBeforeSubmit(values) {
