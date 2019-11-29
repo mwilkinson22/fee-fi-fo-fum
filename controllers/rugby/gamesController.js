@@ -199,7 +199,7 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 
 async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	//Get Full Game
-	let game = await Game.findById(id).fullGame();
+	let game = await Game.findById(id).fullGame(true, true);
 
 	//This only gets called after an admin action, so it's safe to assume we want the full admin data
 	game = await getExtraGameInfo([game], true, true);
