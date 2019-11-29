@@ -2,271 +2,161 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
-import { Link } from "react-router-dom";
+import * as Yup from "yup";
 
 //Components
-import Table from "../../Table";
+import AdminPregameSquadSelector from "./AdminGamePregameSquadSelector";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import { setPregameSquads } from "../../../actions/gamesActions";
+import { fetchGames, updateGame } from "../../../actions/gamesActions";
+
+//Helpers
+import { getLastGame } from "~/helpers/gameHelper";
+import BasicForm from "../BasicForm";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
 		super(props);
 
-		const { fetchTeam, fullTeams, game } = props;
-		const { _opposition } = game;
-		if (!fullTeams[_opposition._id]) {
-			fetchTeam(_opposition._id);
+		const { fetchGames, fullGames, gameList, match } = props;
+
+		//Get Last Game
+		const lastGameId = getLastGame(match.params._id, gameList);
+		if (lastGameId && !fullGames[lastGameId]) {
+			fetchGames([lastGameId], "admin");
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullTeams, game } = nextProps;
-		if (!fullTeams[game._opposition._id]) {
-			return { isLoading: true };
+		const { fullGames, gameList, localTeam, match, teamList } = nextProps;
+		const newState = { isLoading: false };
+
+		//Get Game
+		newState.game = fullGames[match.params._id];
+
+		//Get Last Game
+		const lastGameId = getLastGame(match.params._id, gameList);
+		if (lastGameId) {
+			newState.lastGame = fullGames[lastGameId];
 		} else {
-			return { isLoading: false, fullTeams };
+			newState.lastGame = false;
 		}
-	}
 
-	renderRows(team, formikProps) {
-		const { eligiblePlayers } = this.props.game;
-		const { setFieldValue, values } = formikProps;
-		const squad = _.sortBy(eligiblePlayers[team], "number");
+		//Check everything is loaded
+		if (lastGameId && !newState.lastGame) {
+			newState.isLoading = true;
+		}
 
-		return squad.map(p => {
-			const { number } = p;
-			const { _id, name } = p._player;
-			const currentValue = values[team][_id];
-			return {
-				key: _id,
-				data: {
-					checkbox: {
-						content: currentValue ? "✔" : " "
-					},
-					number: {
-						content: number || " ",
-						sortValue: number || 999999999
-					},
-					first: {
-						content: name.first
-					},
-					last: {
-						content: name.last
-					}
-				},
-				onClick: () => setFieldValue(`${team}[${_id}]`, !currentValue)
-			};
-		});
-	}
+		//Get Teams
+		newState.teams = [localTeam, newState.game._opposition._id];
+		if (newState.game.isAway) {
+			newState.teams.reverse();
+		}
 
-	getDefaults() {
-		const { eligiblePlayers, pregameSquads } = this.props.game;
-
-		return _.mapValues(eligiblePlayers, (squad, teamId) => {
-			if (!squad) {
-				return {};
-			}
-			//Get Current Squad
-			const currentSquad = _.find(pregameSquads, obj => obj._team === teamId);
-			return _.chain(eligiblePlayers[teamId])
-				.map(p => {
-					const playerId = p._player._id;
-					const inSquad = currentSquad && currentSquad.squad.indexOf(playerId) > -1;
-					return [playerId, inSquad];
-				})
+		//Validation Schema
+		newState.validationSchema = Yup.object().shape(
+			_.chain(newState.teams)
+				.map(id => [
+					id,
+					Yup.array()
+						.of(Yup.string())
+						.label(teamList[id].name.long)
+				])
 				.fromPairs()
-				.value();
-		});
-	}
-
-	renderFoot(values) {
-		return {
-			checkbox: "✔", //This keeps the width consistent
-			last: `Total: ${_.filter(values, value => value).length}`
-		};
-	}
-
-	clearList(formikProps, teamId) {
-		const { setValues, values } = formikProps;
-		setValues({
-			...values,
-			[teamId]: _.mapValues(values[teamId], () => false)
-		});
-	}
-
-	loadPreviousSquad(formikProps) {
-		const { setValues, values } = formikProps;
-		const { localTeam, lastGame } = this.props;
-		const lastSquad = _.find(lastGame.pregameSquads, s => s._team == localTeam);
-		const squadIds = lastSquad ? lastSquad.squad : [];
-
-		setValues({
-			...values,
-			[localTeam]: _.mapValues(values[localTeam], (val, id) =>
-				Boolean(_.find(squadIds, s => s == id))
-			)
-		});
-	}
-
-	onSubmit(values) {
-		const { game, setPregameSquads } = this.props;
-
-		values = _.mapValues(values, teamList =>
-			_.chain(teamList)
-				.pickBy()
-				.map((val, key) => key)
 				.value()
 		);
 
-		setPregameSquads(game._id, values);
+		return newState;
+	}
+
+	getInitialValues() {
+		const { game, teams } = this.state;
+
+		return _.chain(teams)
+			.map(teamId => {
+				let values;
+
+				//First we check to see if the squad exists yet
+				const currentPregameSquad = game.pregameSquads.find(({ _team }) => _team == teamId);
+
+				//If not, just return an empty array
+				if (!currentPregameSquad) {
+					values = [];
+				} else {
+					//Otherwise we return the existing squad, filtered to
+					//ensure all values appear in eligiblePlayers
+					values = currentPregameSquad.squad.filter(id =>
+						game.eligiblePlayers[teamId].find(({ _player }) => _player._id == id)
+					);
+				}
+				return [teamId, values];
+			})
+			.fromPairs()
+			.value();
+	}
+
+	getFieldGroups() {
+		const { game, lastGame, teams } = this.state;
+		const { teamList } = this.props;
+
+		return [
+			{
+				render: () => {
+					return teams.map(id => (
+						<AdminPregameSquadSelector
+							key={id}
+							game={game}
+							lastGame={lastGame}
+							team={teamList[id]}
+						/>
+					));
+				}
+			}
+		];
+	}
+
+	alterValuesBeforeSubmit(values) {
+		return _.map(values, (squad, _team) => ({ squad, _team }));
 	}
 
 	render() {
-		const { game, lastGame, localTeam } = this.props;
-		const { fullTeams, isLoading } = this.state;
+		const { updateGame } = this.props;
+		const { game, isLoading, validationSchema } = this.state;
 
-		const columns = [
-			{
-				key: "checkbox",
-				label: "",
-				sortable: false
-			},
-			{
-				key: "number",
-				label: "#"
-			},
-			{
-				key: "first",
-				label: "First Name"
-			},
-			{
-				key: "last",
-				label: "Last Name"
-			}
-		];
-
-		const tableProps = {
-			columns,
-			defaultAscSort: true,
-			sortBy: { key: "number", asc: true }
-		};
+		//Await Last Game
 		if (isLoading) {
 			return <LoadingPage />;
 		}
 
 		return (
 			<div className="admin-pregame-squad-page">
-				<Formik
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					render={formikProps => {
-						let teamIds = [localTeam, game._opposition._id];
-						if (game.isAway) {
-							teamIds = _.reverse(teamIds);
-						}
-
-						return (
-							<Form>
-								<div className="container">
-									<div className="pregame-wrapper">
-										{teamIds.map(id => {
-											let content;
-											if (!game.eligiblePlayers[id].length) {
-												content = <h5>No squad found</h5>;
-											} else {
-												const buttons = [
-													<button
-														type="button"
-														key="clear"
-														onClick={() =>
-															this.clearList(formikProps, id)
-														}
-													>
-														Clear
-													</button>
-												];
-												if (id === localTeam && lastGame) {
-													buttons.push(
-														<button
-															type="button"
-															key="last19"
-															onClick={() =>
-																this.loadPreviousSquad(formikProps)
-															}
-														>
-															Load Last 19
-														</button>
-													);
-												}
-												content = [
-													<div className="buttons" key="buttons">
-														{buttons}
-													</div>,
-													<Table
-														key="table"
-														{...tableProps}
-														rows={this.renderRows(id, formikProps)}
-														foot={this.renderFoot(
-															formikProps.values[id]
-														)}
-														stickyFoot={true}
-													/>
-												];
-											}
-											const team = fullTeams[id];
-											const squad = team.squads.find(
-												s =>
-													s._teamType == game._teamType &&
-													s.year == game.date.getFullYear()
-											);
-											const squadId = squad ? squad._id : "";
-											return (
-												<div key={id} className="pregame-squad-wrapper">
-													<h2>{team.name.short}</h2>
-													<Link
-														className="edit-team-squads-link"
-														to={`/admin/teams/${
-															team.slug
-														}/squads/${squadId}`}
-													>
-														Edit Squad
-													</Link>
-													{content}
-												</div>
-											);
-										})}
-									</div>
-
-									<div className="form-card">
-										<div className="buttons">
-											<button type="reset">Reset</button>
-											<button type="submit">Submit</button>
-										</div>
-									</div>
-								</div>
-							</Form>
-						);
-					}}
+				<BasicForm
+					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+					className={"pregame-wrapper"}
+					fieldGroups={this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isNew={false}
+					itemType={"Squads"}
+					onSubmit={pregameSquads => updateGame(game._id, { pregameSquads })}
+					useFormCard={false}
+					validationSchema={validationSchema}
 				/>
 			</div>
 		);
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	const { gameList, fullGames } = games;
+	const { teamList } = teams;
+	return { gameList, fullGames, localTeam, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ setPregameSquads, fetchTeam }
-)(AdminGamePregameSquads);
+export default connect(mapStateToProps, { fetchGames, updateGame, fetchTeam })(
+	AdminGamePregameSquads
+);

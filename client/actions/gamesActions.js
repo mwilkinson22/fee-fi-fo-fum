@@ -43,15 +43,9 @@ export const createGame = values => async (dispatch, getState, api) => {
 };
 
 export const updateGame = (id, values) => async (dispatch, getState, api) => {
-	const res = await api.put(`/games/${id}/basics/`, values);
+	const res = await api.put(`/games/${id}/`, values);
 	toast.success("Game updated");
 	await dispatch({ type: UPDATE_GAME, payload: res.data });
-};
-
-export const setPregameSquads = (id, values) => async (dispatch, getState, api) => {
-	const res = await api.put(`/games/${id}/pregame/`, values);
-	toast.success("Squads saved");
-	dispatch({ type: UPDATE_GAME, payload: res.data });
 };
 
 export const setSquad = (id, values) => async (dispatch, getState, api) => {

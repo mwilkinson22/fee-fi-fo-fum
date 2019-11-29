@@ -1147,11 +1147,16 @@
 			display: grid;
 			grid-gap: 10pt;
 
-			.buttons {
+			.team-buttons {
 				margin-bottom: 4pt;
 				button {
 					margin-right: 8pt;
 				}
+			}
+
+			.form-card {
+				grid-column: 1 / -1;
+				max-width: 100%;
 			}
 
 			.edit-team-squads-link {

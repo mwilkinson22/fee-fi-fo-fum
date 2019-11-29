@@ -8,7 +8,7 @@ import SquadSelector from "./SquadSelector";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { setPregameSquads, markSquadAsAnnounced } from "../../../actions/gamesActions";
+import { markSquadAsAnnounced } from "../../../actions/gamesActions";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 class AdminGameSquads extends Component {
@@ -40,9 +40,7 @@ class AdminGameSquads extends Component {
 						if (squadMember.number) {
 							name += `${squadMember.number}. `;
 						}
-						name += `${squadMember._player.name.first} ${
-							squadMember._player.name.last
-						}`;
+						name += `${squadMember._player.name.first} ${squadMember._player.name.last}`;
 
 						const currentSquadMember = _.find(
 							game.playerStats,
@@ -126,7 +124,4 @@ function mapStateToProps({ config, teams }) {
 	return { teamList, localTeam };
 }
 
-export default connect(
-	mapStateToProps,
-	{ setPregameSquads, markSquadAsAnnounced }
-)(AdminGameSquads);
+export default connect(mapStateToProps, { markSquadAsAnnounced })(AdminGameSquads);

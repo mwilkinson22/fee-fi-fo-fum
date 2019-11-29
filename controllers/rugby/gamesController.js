@@ -65,10 +65,9 @@ async function processBasics(values) {
 	//Sort ground
 	if (values._ground === "auto") {
 		const Team = mongoose.model("teams");
-		const homeTeam = await Team.findById(
-			values.isAway === "true" || values.isAway === true ? values._opposition : localTeam,
-			"_defaultGround _grounds"
-		);
+		const homeTeamId =
+			values.isAway === "true" || values.isAway === true ? values._opposition : localTeam;
+		const homeTeam = await Team.findById(homeTeamId, "_defaultGround _grounds").lean();
 		let ground = homeTeam._grounds.find(g => g._teamType == values._teamType);
 		values._ground = ground ? ground._ground : homeTeam._defaultGround;
 	}
@@ -264,7 +263,7 @@ export async function addGame(req, res) {
 }
 
 //Updaters
-export async function updateGameBasics(req, res) {
+export async function updateGame(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res);
 	if (game) {
@@ -273,30 +272,6 @@ export async function updateGameBasics(req, res) {
 		await Game.updateOne({ _id }, values);
 
 		await getUpdatedGame(_id, res, true);
-	}
-}
-
-export async function setPregameSquads(req, res) {
-	const { _id } = req.params;
-	const game = await validateGame(_id, res);
-	if (game) {
-		game.pregameSquads = _.chain(req.body)
-			.map((squad, _team) => {
-				if (squad.length) {
-					return {
-						_team,
-						squad
-					};
-				} else {
-					return null;
-				}
-			})
-			.filter(_.identity)
-			.value();
-
-		await game.save();
-
-		await getUpdatedGame(_id, res);
 	}
 }
 

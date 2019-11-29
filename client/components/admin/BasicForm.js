@@ -249,7 +249,7 @@ class BasicForm extends Component {
 	}
 
 	renderSubmitButtons(isValid, isSubmitting) {
-		let { itemType, submitButtonText } = this.props;
+		let { itemType, submitButtonText, useFormCard } = this.props;
 		const { isNew } = this.state;
 
 		if (!submitButtonText) {
@@ -271,7 +271,7 @@ class BasicForm extends Component {
 
 		const disableButtons = !isValid || isSubmitting;
 
-		return (
+		const buttons = (
 			<div className="buttons">
 				<button type="reset" disabled={disableButtons}>
 					Reset
@@ -285,6 +285,14 @@ class BasicForm extends Component {
 				</button>
 			</div>
 		);
+
+		if (useFormCard) {
+			//If the parent is a form-card, we return as-is
+			return buttons;
+		} else {
+			//Otherwise, wrap it in in a form-card
+			return <div className="form-card">{buttons}</div>;
+		}
 	}
 
 	renderDeleteButtons() {
@@ -299,8 +307,17 @@ class BasicForm extends Component {
 	}
 
 	render() {
-		const { isInitialValid, onReset, useGrid } = this.props;
+		const { className, isInitialValid, onReset, useFormCard, useGrid } = this.props;
 		const { initialValues, validationSchema } = this.state;
+
+		const divClass = [className];
+		if (useFormCard) {
+			divClass.push("form-card");
+
+			if (useGrid) {
+				divClass.push("grid");
+			}
+		}
 
 		return (
 			<Formik
@@ -321,7 +338,7 @@ class BasicForm extends Component {
 								when={!isSubmitting && isValid}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
-							<div className={`form-card ${useGrid ? "grid" : ""}`}>
+							<div className={divClass.join(" ")}>
 								{this.renderFields(values, formikProps)}
 								{this.renderErrors(errors, touched)}
 								{this.renderSubmitButtons(isValid, isSubmitting)}
@@ -337,6 +354,7 @@ class BasicForm extends Component {
 
 BasicForm.propTypes = {
 	alterValuesBeforeSubmit: PropTypes.func,
+	className: PropTypes.string,
 	fastFieldByDefault: PropTypes.bool,
 	fieldGroups: PropTypes.oneOfType([
 		PropTypes.func,
@@ -367,16 +385,19 @@ BasicForm.propTypes = {
 	submitButtonText: PropTypes.string,
 	testMode: PropTypes.bool,
 	useGrid: PropTypes.bool,
+	useFormCard: PropTypes.bool,
 	validationSchema: PropTypes.object.isRequired
 };
 
 BasicForm.defaultProps = {
+	className: "",
 	fastFieldByDefault: true,
 	isInitialValid: false,
 	redirectOnDelete: `/admin/`,
 	submitButtonText: null,
 	testMode: false,
-	useGrid: true
+	useGrid: true,
+	useFormCard: true
 };
 
 export default withRouter(BasicForm);
