@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import Select from "react-select";
 
@@ -17,7 +16,12 @@ class AdminGamePageNavigation extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		return _.pick(nextProps, ["game"]);
+		const { game, location } = nextProps;
+		const newState = { game };
+
+		newState.currentPath = location.pathname.split(game._id)[1].replace(/^\//, "");
+
+		return newState;
 	}
 
 	getOptions() {
@@ -67,15 +71,11 @@ class AdminGamePageNavigation extends Component {
 	}
 
 	render() {
-		const { location } = this.props;
-		const { game } = this.state;
+		const { currentPath, game } = this.state;
 		const groups = ["Pre-game", "Match Day", "Post-game"];
 
 		//Get all available options
 		const submenuItems = this.getOptions();
-
-		//Get the current path - everything after /admin/game/:_id
-		const currentPath = location.pathname.split(game._id)[1].replace(/^\//, "");
 
 		//Use this value to find the current option
 		const currentOption = submenuItems.find(i => i.value === currentPath);
@@ -93,7 +93,7 @@ class AdminGamePageNavigation extends Component {
 			<Select
 				styles={selectStyling}
 				options={options}
-				defaultValue={currentOption}
+				value={currentOption}
 				isSearchable={false}
 				onChange={option => {
 					if (option.value != currentOption.value) {
@@ -105,15 +105,8 @@ class AdminGamePageNavigation extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, teams }) {
-	const { fullGames, gameList } = games;
-	const { teamTypes, teamList } = teams;
-	const { localTeam } = config;
-	return { localTeam, fullGames, teamList, gameList, teamTypes };
-}
-
 AdminGamePageNavigation.propTypes = {
 	game: PropTypes.object.isRequired
 };
 
-export default withRouter(connect(mapStateToProps)(AdminGamePageNavigation));
+export default withRouter(AdminGamePageNavigation);
