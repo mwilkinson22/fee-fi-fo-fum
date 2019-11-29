@@ -268,7 +268,6 @@ export async function updateGame(req, res) {
 	const game = await validateGame(_id, res);
 	if (game) {
 		const values = await processBasics(req.body);
-
 		await Game.updateOne({ _id }, values);
 
 		await getUpdatedGame(_id, res, true);

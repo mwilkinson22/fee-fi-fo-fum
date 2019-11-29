@@ -13,6 +13,7 @@ import AdminGamePageNavigation from "../../components/admin/games/AdminGamePageN
 
 //Forms
 import AdminGameOverview from "../../components/admin/games/AdminGameOverview";
+import AdminGameImages from "../../components/admin/games/AdminGameImages";
 import AdminGamePregameSquads from "../../components/admin/games/AdminGamePregameSquads";
 import AdminGamePregameImage from "../../components/admin/games/AdminGamePregameImage";
 import AdminGameSquads from "../../components/admin/games/AdminGameSquads";
@@ -251,11 +252,8 @@ class AdminGamePage extends Component {
 					exact
 					component={AdminGamePregameImage}
 					/>*/}
-						<Route
-							path="/admin/game/:_id/pregame"
-							exact
-							component={AdminGamePregameSquads}
-						/>
+						<Route path="/admin/game/:_id/images" component={AdminGameImages} />
+						<Route path="/admin/game/:_id/pregame" component={AdminGamePregameSquads} />
 						<Route path="/admin/game/new" exact component={AdminGameOverview} />
 						<Route path="/admin/game/:_id" exact component={AdminGameOverview} />
 						<Route path="/" component={NotFoundPage} />
