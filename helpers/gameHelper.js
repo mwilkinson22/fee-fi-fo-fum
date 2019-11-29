@@ -271,11 +271,12 @@ export function convertTeamToSelect(
 	}
 }
 
-export function getDynamicOptions(values, competitionSegmentList, teamList, localTeam) {
+export function getDynamicOptions(values, neutral, props) {
 	const options = {
 		_competition: [],
 		teams: []
 	};
+	const { competitionSegmentList, teamList, localTeam } = props;
 
 	//Pull all valid competition for the selected date and team type
 	if (values.date && values._teamType) {
@@ -338,11 +339,17 @@ export function getDynamicOptions(values, competitionSegmentList, teamList, loca
 				.value();
 
 			//Remove the selected teams if they're not in the list
-			if (!options.teams.find(option => option.value == values._homeTeam.value)) {
-				values._homeTeam = "";
-			}
-			if (!options.teams.find(option => option.value == values._awayTeam.value)) {
-				values._awayTeam = "";
+			if (neutral) {
+				if (!options.teams.find(option => option.value == values._homeTeam.value)) {
+					values._homeTeam = "";
+				}
+				if (!options.teams.find(option => option.value == values._awayTeam.value)) {
+					values._awayTeam = "";
+				}
+			} else {
+				if (!options.teams.find(option => option.value == values._opposition.value)) {
+					values._opposition = "";
+				}
 			}
 		}
 	}

@@ -31,17 +31,16 @@ export default class AdminGameCard extends Component {
 
 	render() {
 		const { game } = this.props;
-		const { status, title, slug } = game;
 		const opposition = game._opposition;
 		const date = new Date(game.date).toString("H:mm | dddd dS MMM yyyy");
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const statusDots = [];
 		for (let i = 0; i < 3; i++) {
-			const backgroundColor = i >= status ? "red" : "green";
+			const backgroundColor = i >= game.status ? "red" : "green";
 			statusDots.push(<div style={{ backgroundColor }} key={i} />);
 		}
 		return (
-			<Link to={"/admin/game/" + slug} className="game-card admin-game-card card">
+			<Link to={`/admin/game/${game._id}`} className="game-card admin-game-card card">
 				<div
 					className="game-card-content"
 					style={{
@@ -58,7 +57,7 @@ export default class AdminGameCard extends Component {
 							</h4>
 							<ul>
 								<li className="date">{date.toLocaleString()}</li>
-								<li>{title}</li>
+								<li>{game.title}</li>
 							</ul>
 						</div>
 						<div className="game-status">{statusDots}</div>

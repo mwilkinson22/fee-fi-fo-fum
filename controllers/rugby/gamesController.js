@@ -43,48 +43,23 @@ async function validateGame(_id, res, promise = null) {
 }
 
 async function processBasics(values) {
-	//Combine datetime
-	values.date = new Date(`${values.date} ${values.time}`);
-	delete values.time;
-
-	//Pull select values
-	const selectable = [
-		"_teamType",
-		"_competition",
-		"_opposition",
-		"_ground",
-		"_referee",
-		"_video_referee"
-	];
-	_.each(selectable, prop => (values[prop] ? (values[prop] = values[prop].value) : null));
-
-	//Get Null values
-	const nullable = [
-		"customHashtags",
-		"round",
-		"title",
-		"tv",
-		"_referee",
-		"_video_referee",
-		"attendance"
-	];
-	_.each(nullable, prop => (values[prop] === "" ? (values[prop] = null) : null));
-
 	//Handle Score Override
-	values.scoreOverride = _.chain(values.scoreOverride)
-		.map((points, _team) => ({ points, _team }))
-		.reject(({ points }) => points === null || points === "")
-		.value();
+	// values.scoreOverride = _.chain(values.scoreOverride)
+	// 	.map((points, _team) => ({ points, _team }))
+	// 	.reject(({ points }) => points === null || points === "")
+	// 	.value();
 
 	//Check for empty images
-	values.images = _.chain(values.images)
-		.pick(["header", "midpage", "customLogo"])
-		.mapValues(i => i || null)
-		.value();
+	// values.images = _.chain(values.images)
+	// 	.pick(["header", "midpage", "customLogo"])
+	// 	.mapValues(i => i || null)
+	// 	.value();
 
-	//Split Hashtags
+	//Filter Hashtags
 	if (values.customHashtags) {
-		values.customHashtags = values.customHashtags.match(/[A-Za-z0-9]+/gi);
+		values.customHashtags = values.customHashtags.map(tag =>
+			tag.replace(/[^A-Za-z0-9]+/gi, "")
+		);
 	}
 
 	//Sort ground

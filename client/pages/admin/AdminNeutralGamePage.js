@@ -144,7 +144,6 @@ class AdminNeutralGamePage extends Component {
 
 	getInitialValues() {
 		const { game, isNew, teamTypes } = this.state;
-		const { competitionSegmentList, teamList, localTeam } = this.props;
 		const defaultValues = {
 			externalSync: false,
 			externalId: "",
@@ -190,7 +189,7 @@ class AdminNeutralGamePage extends Component {
 			});
 
 			//We use this object to get the options we need
-			const options = getDynamicOptions(values, competitionSegmentList, teamList, localTeam);
+			const options = getDynamicOptions(values, true, this.props);
 
 			//We then convert the select field values to use actual options
 			return _.mapValues(values, (currentValue, key) => {
@@ -209,8 +208,8 @@ class AdminNeutralGamePage extends Component {
 
 	getFieldGroups(values) {
 		const { isNew, teamTypes } = this.state;
-		const { competitionSegmentList, teamList, localTeam } = this.props;
-		const options = getDynamicOptions(values, competitionSegmentList, teamList, localTeam);
+
+		const options = getDynamicOptions(values, true, this.props);
 
 		return [
 			{
@@ -222,13 +221,13 @@ class AdminNeutralGamePage extends Component {
 					{
 						name: "_teamType",
 						type: fieldTypes.select,
-						disabled: !isNew,
+						isDisabled: !isNew,
 						options: teamTypes
 					},
 					{
 						name: "_competition",
 						type: fieldTypes.select,
-						disabled: !isNew,
+						isDisabled: !isNew,
 						options: options._competition
 					},
 					{

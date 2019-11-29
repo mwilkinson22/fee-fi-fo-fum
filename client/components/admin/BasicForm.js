@@ -200,6 +200,9 @@ class BasicForm extends Component {
 		if (testMode) {
 			console.info("Values", values);
 			console.info("Field Groups", fieldGroups);
+			if (Object.keys(formikProps.errors).length) {
+				console.info("Errors", formikProps.errors);
+			}
 		}
 
 		return fieldGroups.map(({ label, fields, render }) => {

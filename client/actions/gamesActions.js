@@ -11,13 +11,20 @@ export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) =>
 	dispatch({ type: FETCH_GAMES, payload: res.data });
 };
 
-export const reloadGames = ids => async (dispatch, getState, api) => {
+export const reloadGames = (ids, dataLevel) => async (dispatch, getState, api) => {
+	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
+		dataLevel = "basic";
+	}
+
+	//Delete from redux
 	const deleters = _.chain(ids)
 		.map(id => [id, undefined])
 		.fromPairs()
 		.value();
 	dispatch({ type: FETCH_GAMES, payload: deleters });
-	const res = await api.get(`/games/${ids.join(",")}`);
+
+	//Get reloaded games
+	const res = await api.get(`/games/${dataLevel}/${ids.join(",")}`);
 	dispatch({ type: FETCH_GAMES, payload: res.data });
 	toast.success(`${ids.length} games refreshed`);
 };
@@ -27,13 +34,15 @@ export const fetchGameList = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_GAME_LIST, payload: res.data });
 };
 
-export const addGame = values => async (dispatch, getState, api) => {
+export const createGame = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/games/`, values);
-	dispatch({ type: UPDATE_GAME, payload: res.data });
-	return res.data.fullGames[res.data.id];
+	if (res.data) {
+		dispatch({ type: UPDATE_GAME, payload: res.data });
+		return res.data.id;
+	}
 };
 
-export const updateGameBasics = (id, values) => async (dispatch, getState, api) => {
+export const updateGame = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/basics/`, values);
 	toast.success("Game updated");
 	await dispatch({ type: UPDATE_GAME, payload: res.data });

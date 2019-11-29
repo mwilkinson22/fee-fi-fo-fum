@@ -1,16 +1,15 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
 import { fetchCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
-import { addGame, updateGameBasics } from "../../../actions/gamesActions";
+import { createGame, updateGame } from "../../../actions/gamesActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -19,7 +18,10 @@ import LoadingPage from "../../LoadingPage";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-class AdminGameOverview extends BasicForm {
+//Helpers
+import { getDynamicOptions } from "~/helpers/gameHelper";
+
+class AdminGameOverview extends Component {
 	constructor(props) {
 		super(props);
 		const {
@@ -43,266 +45,110 @@ class AdminGameOverview extends BasicForm {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const {
-			game,
+			match,
 			teamList,
 			teamTypes,
 			competitionSegmentList,
 			groundList,
 			peopleList,
+			fullGames,
 			localTeam
 		} = nextProps;
-		const newState = {
-			game,
-			teamList,
-			teamTypes,
-			competitionSegmentList,
-			groundList,
-			peopleList
+		const newState = { isLoading: false };
+		const { _id } = match.params;
+
+		//Create or edit
+		newState.isNew = !_id;
+
+		//Await lists
+		if (!teamList || !competitionSegmentList || !groundList || !peopleList) {
+			newState.isLoading = true;
+			return newState;
+		}
+
+		if (!newState.isNew) {
+			//Get Game
+			newState.game = fullGames[_id];
+		}
+
+		//Validation Schema
+		const rawValidationSchema = {
+			date: Yup.date()
+				.required()
+				.label("Date"),
+			time: Yup.string()
+				.required()
+				.label("Time"),
+			_teamType: Yup.string()
+				.required()
+				.label("Team Type"),
+			_competition: Yup.string()
+				.required()
+				.label("Competition"),
+			_opposition: Yup.string()
+				.required()
+				.label("Opposition"),
+			round: Yup.number()
+				.min(1)
+				.label("Round"),
+			customTitle: Yup.string().label("Title"),
+			customHashtags: Yup.string().label("Hashtags"),
+			isAway: Yup.string()
+				.required()
+				.label("Home/Away"),
+			_ground: Yup.string()
+				.required()
+				.label("Ground"),
+			tv: Yup.string().label("TV"),
+			_referee: Yup.string()
+				.label("Referee")
+				.nullable(),
+			_video_referee: Yup.string()
+				.label("Video Referee")
+				.nullable()
 		};
 
-		if (!game || (!prevState.game || game._id != prevState.game._id)) {
-			let date;
+		if (!newState.isNew) {
+			//Add a year limit to the game date
+			const year = newState.game.date.getFullYear();
+			rawValidationSchema.date = rawValidationSchema.date
+				.min(`${year}-01-01`)
+				.max(`${year}-12-31`);
 
-			if (game && game.status > 0) {
-				const year = new Date(game.date).getFullYear();
-				date = Yup.date()
-					.required()
-					.label("Date")
-					.min(`${year}-01-01`)
-					.max(`${year}-12-31`);
-			} else {
-				date = Yup.date()
-					.required()
-					.label("Date");
-			}
-
-			const rawValidationSchema = {
-				date,
-				time: Yup.string()
-					.required()
-					.label("Time"),
-				_teamType: Yup.string()
-					.required()
-					.label("Team Type"),
-				_competition: Yup.string()
-					.required()
-					.label("Competition"),
-				_opposition: Yup.string()
-					.required()
-					.label("Opposition"),
-				round: Yup.number()
-					.min(1)
-					.label("Round"),
-				customTitle: Yup.string().label("Title"),
-				customHashtags: Yup.string().label("Hashtags"),
-				isAway: Yup.boolean()
-					.required()
-					.label("Home/Away"),
-				_ground: Yup.string()
-					.required()
-					.label("Ground"),
-				tv: Yup.string().label("TV"),
-				_referee: Yup.string()
-					.label("Referee")
-					.nullable(),
-				_video_referee: Yup.string()
-					.label("Video Referee")
-					.nullable(),
-				images: Yup.object().shape({
-					header: Yup.string().label("Header"),
-					midpage: Yup.string().label("Midpage"),
-					customLogo: Yup.string().label("Custom Logo")
-				}),
-				attendance: Yup.number()
-					.label("Attendance")
-					.nullable(),
-				extraTime: Yup.boolean().label("Game went to Extra Time")
-			};
-
-			if (game) {
-				rawValidationSchema.scoreOverride = Yup.object().shape({
-					[localTeam]: Yup.string().label(teamList[localTeam].name.short),
-					[game._opposition._id]: Yup.string().label(game._opposition.name.short)
-				});
-			}
-
-			newState.validationSchema = Yup.object().shape(rawValidationSchema);
-		}
-		return newState;
-	}
-
-	getDefaults() {
-		const { game } = this.state;
-		const { localTeam } = this.props;
-		const {
-			teamTypes,
-			competitionSegmentList,
-			teamList,
-			groundList,
-			referees
-		} = this.getOptions();
-
-		//Get Select Values
-		let _teamType,
-			_competition,
-			_opposition,
-			_ground,
-			_referee,
-			_video_referee,
-			images,
-			scoreOverride;
-
-		images = {
-			header: "",
-			midpage: "",
-			customLogo: ""
-		};
-
-		if (game) {
-			_teamType = _.find(teamTypes, type => type.value == game._teamType);
-			_competition = _.find(
-				competitionSegmentList,
-				comp => comp.value == game._competition._id
-			);
-			_opposition = _.find(teamList, team => team.value == game._opposition._id);
-			_ground = _.find(groundList, ground => ground.value == game._ground._id);
-			_referee = game._referee ? _.find(referees, ref => ref.value == game._referee._id) : "";
-			_video_referee = game._video_referee
-				? _.find(referees, ref => ref.value == game._video_referee._id)
-				: "";
-			images = _.mapValues(game.images, v => v || "");
-			scoreOverride = {
-				[localTeam]:
-					game.scoreOverride[localTeam] == null ? "" : game.scoreOverride[localTeam],
-				[game._opposition._id]:
-					game.scoreOverride[game._opposition._id] == null
-						? ""
-						: game.scoreOverride[game._opposition._id]
-			};
+			//Add Score Override
+			rawValidationSchema.scoreOverride = Yup.object().shape({
+				[localTeam]: Yup.string().label(teamList[localTeam].name.short),
+				[newState.game._opposition._id]: Yup.string().label(
+					newState.game._opposition.name.short
+				)
+			});
 		}
 
-		return {
-			date: game ? new Date(game.date).toString("yyyy-MM-dd") : "",
-			time: game ? new Date(game.date).toString("HH:mm:ss") : "",
-			_teamType: _teamType || "",
-			_competition: _competition || "",
-			_opposition: _opposition || "",
-			round: (game && game.round) || "",
-			customTitle: (game && game.customTitle) || "",
-			customHashtags: game && game.customHashtags ? game.customHashtags.join(" ") : "",
-			isAway: game ? game.isAway : false,
-			_ground: _ground || "",
-			tv: (game && game.tv) || "",
-			_referee,
-			_video_referee,
-			attendance: (game && game.attendance) || "",
-			extraTime: (game && game.extraTime) || false,
-			images,
-			scoreOverride
-		};
-	}
+		newState.validationSchema = Yup.object().shape(rawValidationSchema);
 
-	async onSubmit(values) {
-		const { addGame, updateGameBasics, game, history } = this.props;
-		if (game) {
-			updateGameBasics(game._id, values);
-		} else {
-			const newGame = await addGame(values);
-			history.push(`/admin/game/${newGame.slug}`);
-		}
-	}
+		//Create dropdown options
+		//Competitions and Teams will be rendered dynamically
+		newState.options = {};
+		newState.options._teamType = _.chain(teamTypes)
+			.sortBy("sortOrder")
+			.map(({ _id, name }) => ({ value: _id, label: name }))
+			.value();
 
-	getOptions(values) {
-		const options = {};
-		let { teamTypes, teamList, competitionSegmentList, groundList, peopleList } = this.state;
-		const { game } = this.state;
-		//Filter
-		if (values || game) {
-			//Filter Competitions on Team Type and Year
-			const filterDate = values ? values.date : game.date;
-			const filterTeamType = values ? values._teamType.value : game._teamType;
-			const filterYear = filterDate ? new Date(filterDate).getFullYear() : null;
-
-			//If the date and team types aren't set, return an empty list
-			if (!filterDate || !filterTeamType || !competitionSegmentList) {
-				competitionSegmentList = [];
-			} else {
-				competitionSegmentList = _.filter(competitionSegmentList, comp => {
-					return (
-						comp._teamType === filterTeamType &&
-						_.filter(
-							comp.instances,
-							instance => instance.year === filterYear || instance.year === null
-						).length > 0
-					);
-				});
-			}
-			//Filter Team on Competition and Year
-			const competitionSegmentId = values ? values._competition.value : game._competition._id;
-			const competitionSegment = _.find(
-				competitionSegmentList,
-				comp => comp.id == competitionSegmentId
-			);
-			if (!filterYear || !competitionSegment || !competitionSegmentList.length) {
-				teamList = [];
-			} else {
-				//Get Instance
-				const competitionInstance = _.find(
-					competitionSegment.instances,
-					instance => instance.year == filterYear || instance.year == null
-				);
-				if (competitionInstance.teams) {
-					teamList = _.filter(
-						teamList,
-						team => competitionInstance.teams.indexOf(team._id) > -1
-					);
-				}
-			}
-		}
-
-		//Team Types
-		options.teamTypes = _.map(teamTypes, teamType => ({
-			value: teamType._id,
-			label: teamType.name
-		}));
-
-		//Competition
-		options.competitionSegmentList = _.chain(competitionSegmentList)
-			.map(competition => ({
-				value: competition._id,
-				label: `${competition._parentCompetition.name}${
-					competition.appendCompetitionName ? " " + competition.name : ""
-				}`
+		const groundOptions = _.chain(groundList)
+			.map(({ _id, name, address }) => ({
+				value: _id,
+				label: `${name}, ${address._city.name}`
 			}))
 			.sortBy("label")
 			.value();
-
-		//Opposition
-		options.teamList = _.chain(teamList)
-			.map(team => ({
-				value: team._id,
-				label: team.name.long
-			}))
-			.sortBy("label")
-			.value();
-
-		//Grounds
-		const filteredGroundList = _.chain(groundList)
-			.map(ground => ({
-				value: ground._id,
-				label: `${ground.name}, ${ground.address._city.name}`
-			}))
-			.sortBy("label")
-			.value();
-		options.groundList = [
+		newState.options._ground = [
 			{ value: "auto", label: "Home Team's Ground" },
-			...filteredGroundList
+			...groundOptions
 		];
 
-		//Refs
-		options.referees = _.chain(peopleList)
+		newState.options._referee = _.chain(peopleList)
 			.filter(person => person.isReferee)
 			.map(ref => ({
 				value: ref._id,
@@ -311,224 +157,247 @@ class AdminGameOverview extends BasicForm {
 			.sortBy("label")
 			.value();
 
-		return options;
+		newState.options.tv = ["Sky", "BBC"].map(label => ({
+			label,
+			value: label.toLowerCase()
+		}));
+
+		newState.options.isAway = [
+			{ label: "Home", value: false },
+			{ label: "Away", value: true }
+		];
+
+		return newState;
 	}
 
-	handleDependentFieldChange(formikProps, name, value) {
-		const values = { ...formikProps.values, [name]: value };
-		const options = this.getOptions(values);
+	getInitialValues() {
+		const { game, isNew, options } = this.state;
 
-		formikProps.setFieldValue(name, value);
-		formikProps.setFieldTouched(name, true);
+		const defaultValues = {
+			date: "",
+			time: "",
+			_teamType: "",
+			_competition: "",
+			_opposition: "",
+			round: "",
+			customTitle: "",
+			customHashtags: [],
+			isAway: "",
+			_ground: options._ground[0],
+			tv: "",
+			_referee: "",
+			_video_referee: ""
+		};
 
-		if (!_.find(options.competitionSegmentList, o => o.value == values._competition.value)) {
-			formikProps.setFieldValue("_competition", "");
-		}
+		if (isNew) {
+			return defaultValues;
+		} else {
+			//As the options are created dynamically, we do this in three steps
+			//First, create a values object with placeholder dropdown options for
+			//the competition and opposition fields
+			const values = _.mapValues(defaultValues, (defaultValue, key) => {
+				let value;
+				switch (key) {
+					case "customHashtags":
+						value = game[key] ? game[key].map(tag => ({ label: tag, value: tag })) : [];
+						break;
+					case "date":
+						value = game.date.toString("yyyy-MM-dd");
+						break;
+					case "time":
+						value = game.date.toString("HH:mm:ss");
+						break;
+					case "_teamType":
+					case "tv":
+						value = options[key].find(({ value }) => value === game[key]);
+						break;
+					case "_referee":
+					case "_ground":
+					case "_video_referee": {
+						//Video Referee uses options._referee, so we run a quick replace
+						//on the key. This shouldn't affect other fields
+						const optionList = options[key.replace("_video", "")];
+						value = optionList.find(
+							({ value }) => value === (game[key] ? game[key]._id : null)
+						);
+						break;
+					}
+					case "_competition":
+					case "_opposition":
+						value = { value: game[key]._id };
+						break;
+					default:
+						value = game[key];
+						break;
+				}
+				return value != null ? value : defaultValue;
+			});
 
-		if (!_.find(options.teamList, o => o.value == values._opposition.value)) {
-			formikProps.setFieldValue("_opposition", "");
+			//We use this object to get the options we need
+			const dynamicOptions = getDynamicOptions(values, false, this.props);
+
+			//We then convert the select field values to use actual options
+			values._competition = dynamicOptions._competition.find(
+				option => option.value == values._competition.value
+			);
+			values._opposition = dynamicOptions.teams.find(
+				option => option.value == values._opposition.value
+			);
+
+			return values;
 		}
 	}
 
-	renderFields(formikProps) {
-		const { game } = this.state;
-		const { localTeam } = this.props;
+	getFieldGroups(values) {
+		const { game, isNew, options } = this.state;
+		const dynamicOptions = getDynamicOptions(values, false, this.props);
 
-		//Options
-		const {
-			teamTypes,
-			competitionSegmentList,
-			teamList,
-			groundList,
-			referees
-		} = this.getOptions(formikProps.values);
-
-		const awayOptions = [{ value: false, label: "Home" }, { value: true, label: "Away" }];
-		const tvOptions = [
-			{ value: "", label: "None" },
-			{ value: "sky", label: "Sky" },
-			{ value: "bbc", label: "BBC" }
-		];
-
-		//Fields
-		const mainFields = [
+		return [
 			{
-				name: "date",
-				type: fieldTypes.date,
-				disableFastField: true
-			},
-			{ name: "time", type: fieldTypes.time },
-			{
-				name: "_teamType",
-				type: fieldTypes.select,
-				options: teamTypes,
-				disableFastField: true,
-				onChange: opt => this.handleDependentFieldChange(formikProps, "_teamType", opt)
+				fields: [
+					{ name: "date", type: fieldTypes.date },
+					{ name: "time", type: fieldTypes.time },
+					{
+						name: "_teamType",
+						type: fieldTypes.select,
+						options: options._teamType,
+						isDisabled: !isNew
+					},
+					{
+						name: "_competition",
+						type: fieldTypes.select,
+						options: dynamicOptions._competition,
+						isDisabled: !isNew || !values.date || !values._teamType
+					},
+					{
+						name: "_opposition",
+						type: fieldTypes.select,
+						options: dynamicOptions.teams,
+						isDisabled: !values._competition || (!isNew && game.status > 0)
+					},
+					{
+						name: "round",
+						type: fieldTypes.number
+					}
+				]
 			},
 			{
-				name: "_competition",
-				type: fieldTypes.select,
-				options: competitionSegmentList,
-				disableFastField: true,
-				onChange: opt => this.handleDependentFieldChange(formikProps, "_competition", opt)
+				label: "Venue",
+				fields: [
+					{ name: "isAway", type: fieldTypes.radio, options: options.isAway },
+					{ name: "_ground", type: fieldTypes.select, options: options._ground }
+				]
 			},
 			{
-				name: "_opposition",
-				type: fieldTypes.select,
-				options: teamList,
-				disableFastField: true
+				label: "Media",
+				fields: [
+					{
+						name: "customTitle",
+						type: fieldTypes.text,
+						placeholder: "Auto-generated if left blank"
+					},
+					{
+						name: "customHashtags",
+						type: fieldTypes.creatableSelect,
+						isMulti: true,
+						placeholder: "Auto-generated if left blank"
+					},
+					{
+						name: "tv",
+						type: fieldTypes.select,
+						options: options.tv,
+						isClearable: true,
+						isSearchable: false
+					}
+				]
 			},
-			{ name: "round", type: fieldTypes.number }
-		];
-		const venueFields = [
-			{ name: "isAway", type: fieldTypes.radio, options: awayOptions },
-			{ name: "_ground", type: fieldTypes.select, options: groundList }
-		];
-		const mediaFields = [
 			{
-				name: "customTitle",
-				type: fieldTypes.text,
-				placeholder: "Auto-generated if left blank"
-			},
-			{
-				name: "customHashtags",
-				type: fieldTypes.text,
-				placeholder: "Auto-generated if left blank"
-			},
-			{ name: "tv", type: fieldTypes.radio, options: tvOptions }
-		];
-		const refereeFields = [
-			{ name: "_referee", type: fieldTypes.select, options: referees, isClearable: true },
-			{
-				name: "_video_referee",
-				type: fieldTypes.select,
-				options: referees,
-				isClearable: true
+				label: "Referees",
+				fields: [
+					{
+						name: "_referee",
+						type: fieldTypes.select,
+						options: options._referee,
+						isClearable: true
+					},
+					{
+						name: "_video_referee",
+						type: fieldTypes.select,
+						options: options._referee,
+						isClearable: true
+					}
+				]
 			}
 		];
-		const imageFields = [
-			{
-				name: "images.header",
-				type: fieldTypes.image,
-				path: "images/games/header/",
-				defaultUploadName: game ? game.slug : "",
-				acceptSVG: false
-			},
-			{
-				name: "images.midpage",
-				type: fieldTypes.image,
-				path: "images/games/midpage/",
-				defaultUploadName: game ? game.slug : "",
-				acceptSVG: false
-			},
-			{
-				name: "images.customLogo",
-				type: fieldTypes.image,
-				path: "images/games/logo/",
-				defaultUploadName: game ? game.slug : ""
-			}
-		];
+	}
 
-		let scoreOverrideSection;
-		if (game) {
-			let scoreOverrideFields = [
-				{ name: `scoreOverride.${localTeam}`, type: fieldTypes.number },
-				{ name: `scoreOverride.${game._opposition._id}`, type: fieldTypes.number }
-			];
-			if (game.isAway) {
-				scoreOverrideFields = scoreOverrideFields.reverse();
-			}
-			scoreOverrideSection = [
-				<h6 key="header">Score Override</h6>,
-				this.renderFieldGroup(scoreOverrideFields)
-			];
-		}
-
-		let postGameSection;
-		if (game && game.status > 1) {
-			const postGameFields = [
-				{ name: "attendance", type: fieldTypes.number },
-				{ name: "extraTime", type: fieldTypes.boolean }
-			];
-			postGameSection = [
-				<h6 key="header">Post-Match</h6>,
-				this.renderFieldGroup(postGameFields)
-			];
-		}
-		return (
-			<Form>
-				<div className="form-card grid">
-					<h6>Basics</h6>
-					{this.renderFieldGroup(mainFields)}
-					<h6>Venue</h6>
-					{this.renderFieldGroup(venueFields)}
-					<h6>Media</h6>
-					{this.renderFieldGroup(mediaFields)}
-					<h6>Referees</h6>
-					{this.renderFieldGroup(refereeFields)}
-					<h6>Images</h6>
-					{this.renderFieldGroup(imageFields)}
-					{scoreOverrideSection}
-					{postGameSection}
-
-					<div className="buttons">
-						<button type="clear">Clear</button>
-						<button type="submit">{game ? "Update" : "Add"} Game</button>
-					</div>
-				</div>
-			</Form>
-		);
+	alterValuesBeforeSubmit(values) {
+		values.date = `${values.date} ${values.time}`;
+		delete values.time;
 	}
 
 	render() {
-		const { validationSchema } = this.state;
+		const { game, isNew, isLoading, validationSchema } = this.state;
+		const { createGame, updateGame } = this.props;
 
-		const requireToRender = [
-			"competitionSegmentList",
-			"groundList",
-			"peopleList",
-			"teamList",
-			"validationSchema"
-		];
-
-		if (requireToRender.filter(prop => !this.state[prop]).length) {
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 
+		//Handle props specifically for create/update
+		let formProps;
+		if (isNew) {
+			formProps = {
+				onSubmit: values => createGame(values),
+				redirectOnSubmit: id => `/admin/game/${id}`
+			};
+		} else {
+			formProps = {
+				onSubmit: values => updateGame(game._id, values)
+			};
+		}
+
 		return (
-			<div className="container">
-				<Formik
-					validationSchema={validationSchema}
-					onSubmit={values => this.onSubmit(values)}
-					initialValues={this.getDefaults()}
-					enableReinitialize={true}
-					render={formikProps => this.renderFields(formikProps)}
-				/>
-			</div>
+			<BasicForm
+				alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+				fastFieldByDefault={false}
+				fieldGroups={values => this.getFieldGroups(values)}
+				initialValues={this.getInitialValues()}
+				isNew={isNew}
+				itemType="Game"
+				validationSchema={validationSchema}
+				{...formProps}
+			/>
 		);
 	}
 }
 
 //Add Redux Support
-function mapStateToProps({ teams, competitions, grounds, people, config }) {
+function mapStateToProps({ teams, competitions, games, grounds, people, config }) {
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
+	const { fullGames } = games;
 	const { groundList } = grounds;
 	const { peopleList } = people;
 	const { localTeam } = config;
 
-	return { teamTypes, teamList, competitionSegmentList, groundList, peopleList, localTeam };
+	return {
+		teamTypes,
+		teamList,
+		fullGames,
+		competitionSegmentList,
+		groundList,
+		peopleList,
+		localTeam
+	};
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchCompetitionSegments,
-			fetchAllGrounds,
-			fetchPeopleList,
-			addGame,
-			updateGameBasics
-		}
-	)(AdminGameOverview)
+	connect(mapStateToProps, {
+		fetchCompetitionSegments,
+		fetchAllGrounds,
+		fetchPeopleList,
+		createGame,
+		updateGame
+	})(AdminGameOverview)
 );

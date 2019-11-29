@@ -1,12 +1,17 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchGames, reloadGames, fetchGameList } from "../../actions/gamesActions";
+import { Link, Switch, Route } from "react-router-dom";
+
+//Components
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "../NotFoundPage";
 import TeamImage from "../../components/teams/TeamImage";
-import { Link, Switch, Route } from "react-router-dom";
+import AdminGamePageNavigation from "../../components/admin/games/AdminGamePageNavigation";
+
+//Forms
 import AdminGameOverview from "../../components/admin/games/AdminGameOverview";
 import AdminGamePregameSquads from "../../components/admin/games/AdminGamePregameSquads";
 import AdminGamePregameImage from "../../components/admin/games/AdminGamePregameImage";
@@ -16,9 +21,12 @@ import AdminGameEvent from "../../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../../components/admin/games/AdminGameStats";
 import AdminGameManOfSteel from "../../components/admin/games/AdminGameManOfSteel";
 import AdminGameManOfTheMatch from "../../components/admin/games/AdminGameManOfTheMatch";
-import Select from "react-select";
+
+//Actions
+import { fetchGames, reloadGames, fetchGameList } from "../../actions/gamesActions";
+
+//Helpers
 import { getLastGame, getNextGame } from "~/helpers/gameHelper";
-import selectStyling from "~/constants/selectStyling";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -33,40 +41,33 @@ class AdminGamePage extends Component {
 
 	static getDerivedStateFromProps(nextProps) {
 		const { match, gameList, fullGames, fetchGames } = nextProps;
-		const { slug } = match.params;
-		const newState = {};
-		if (!gameList) {
-			return newState;
-		}
+		const newState = { isLoadingList: false };
+		const { _id } = match.params;
 
-		//Get Game Id
-		const game = _.find(gameList, g => g.slug == slug);
+		//Create or Edit
+		newState.isNew = !_id;
 
-		if (!game) {
-			newState.game = false;
-			return newState;
-		}
+		if (!newState.isNew) {
+			//Await Game List
+			if (!gameList) {
+				return { isLoadingList: true };
+			}
 
-		//Get Previous Game Id
-		const lastGameId = (newState.lastGameId = getLastGame(game._id, gameList));
+			//Check Game Exists
+			if (!gameList[_id]) {
+				newState.game = false;
+				return newState;
+			}
 
-		//Get Games To Load
-		const gamesRequired = [game._id];
-		if (lastGameId) {
-			gamesRequired.push(lastGameId);
-		}
-		const gamesToLoad = gamesRequired.filter(id => !fullGames[id] || !fullGames[id].adminData);
-
-		if (gamesToLoad.length) {
-			fetchGames(gamesToLoad, "admin");
-			newState.game = undefined;
-			newState.lastGame = undefined;
-		} else {
-			newState.game = fullGames[game._id];
-			newState.lastGame = lastGameId ? fullGames[lastGameId] : false;
-
-			//Check for man of steel
-			newState.manOfSteelPoints = newState.game._competition.instance.manOfSteelPoints;
+			if (fullGames[_id] && fullGames[_id].adminData) {
+				newState.game = fullGames[_id];
+				newState.isLoadingGame = false;
+			} else {
+				fetchGames([_id], "admin");
+				newState.game = undefined;
+				newState.isLoadingGame = true;
+				return newState;
+			}
 		}
 
 		return newState;
@@ -97,230 +98,192 @@ class AdminGamePage extends Component {
 		return strings.join("") + " - " + new Date(date).toString("dd/MM/yyyy");
 	}
 
-	getSubmenu() {
-		const { pathname } = this.props.location;
-		const { manOfSteelPoints, game } = this.state;
-		const { status, slug, pregameSquads, playerStats, _competition } = game;
-		const { usesPregameSquads } = _competition.instance;
-		const groups = ["Pre-game", "Match Day", "Post-game"];
-		const submenuItems = [
-			{ label: "Overview", value: "", group: 0 },
-			{ label: "Photos", value: "photos", group: 0 }
-		];
-
-		if (usesPregameSquads) {
-			submenuItems.push({ label: "Pregame Squad", value: "pregame", group: 0 });
-			if (pregameSquads.length) {
-				submenuItems.push({
-					label: "Pregame Squad Image",
-					value: "pregame-image",
-					group: 0
-				});
-			}
-		}
-
-		if (status >= 1) {
-			submenuItems.push({ label: "Squads", value: "squads", group: 1 });
-		}
-
-		if (_.keys(_.groupBy(playerStats, "_team")).length >= 1) {
-			submenuItems.push({ label: "Squad Image", value: "squad-images", group: 1 });
-		}
-
-		if (status >= 2) {
-			submenuItems.push(
-				{ label: "Add In-Game Event", value: "event", group: 1 },
-				{ label: "Scores", value: "scores", group: 1 }
-			);
-
-			if (!_competition.instance.scoreOnly) {
-				submenuItems.push({ label: "Stats", value: "stats", group: 2 });
-			}
-
-			submenuItems.push({ label: "Man of the Match", value: "motm", group: 2 });
-			if (manOfSteelPoints) {
-				submenuItems.push({ label: "Man of Steel", value: "man-of-steel", group: 2 });
-			}
-		}
-
-		const currentPath = pathname.split(slug)[1].replace(/^\//, "");
-		const currentOption = _.find(submenuItems, i => i.value === currentPath);
-		const options = _.chain(submenuItems)
-			.groupBy(({ group }) => groups[group])
-			.map((options, label) => ({
-				label,
-				options
-			}))
-			.value();
-		return (
-			<Select
-				styles={selectStyling}
-				options={options}
-				defaultValue={currentOption}
-				isSearchable={false}
-				onChange={option => this.props.history.push(`/admin/game/${slug}/${option.value}`)}
-			/>
-		);
-	}
-
-	getNavigation() {
+	renderAdjacentGameLinks() {
 		const { gameList, teamList, teamTypes } = this.props;
-		const { game } = this.state;
+		const { game, isNew } = this.state;
+
+		//Only for existing games
+		if (isNew) {
+			return null;
+		}
 
 		//Get Next and Last links
 		const gameIds = {
 			last: getLastGame(game._id, gameList),
 			next: getNextGame(game._id, gameList)
 		};
+
+		//Convert to links
+		//Returns { last: <Link />, next: <Link />}
 		const links = _.mapValues(gameIds, (id, type) => {
-			const game = gameList[id];
-			if (!game) {
+			const adjacentGame = gameList[id];
+
+			//Ignore if no game is found
+			if (!adjacentGame) {
 				return null;
 			}
-			const { slug, date, _opposition } = game;
-			const team = teamList[_opposition];
+
+			//Get the opposition team
+			const team = teamList[adjacentGame._opposition];
+
 			return (
 				<Link
-					to={`/admin/game/${slug}`}
+					to={`/admin/game/${adjacentGame._id}`}
 					key={type}
 					className={`card nav-card ${type}`}
 					style={{ background: team.colours.main, color: team.colours.text }}
 				>
-					<span>{date.toString("ddd dS MMM")}</span>
+					<span>{adjacentGame.date.toString("ddd dS MMM")}</span>
 					<TeamImage team={team} />
 					<span>{type == "last" ? "\uD83E\uDC78" : "\uD83E\uDC7A"}</span>
 				</Link>
 			);
 		});
 
-		//Get Main Link Info
-		const urlYear = game.date > new Date() ? "fixtures" : game.date.getFullYear();
-		const urlSlug = _.find(teamTypes, teamType => teamType._id === game._teamType).slug;
+		//Add in the link to the corresponding game list
+		const listYear = game.date > new Date() ? "fixtures" : game.date.getFullYear();
+		const listTeamType = _.find(teamTypes, teamType => teamType._id === game._teamType).slug;
+		const listUrl = `/admin/games/${listYear}/${listTeamType}`;
+		const listText = listYear === "fixtures" ? "Fixtures" : `${listYear} Results`;
+
+		//Convert this into a nav-card
+		links.list = (
+			<Link className="nav-card card main" to={listUrl}>
+				Return to {listText}
+			</Link>
+		);
 
 		return (
 			<div className="navigation">
 				{links.last}
-				<Link className="nav-card card main" to={`/admin/games/${urlYear}/${urlSlug}`}>
-					Return to {urlYear === "fixtures" ? "Fixtures" : `${urlYear} Results`}
-				</Link>
+				{links.list}
 				{links.next}
 			</div>
 		);
 	}
 
-	getContent() {
-		const { game, lastGame, manOfSteelPoints } = this.state;
+	renderHeader() {
+		const { game, isNew } = this.state;
+		const { reloadGames } = this.props;
+
+		let viewLink, submenu, refreshButton;
+		if (!isNew) {
+			//Frontend Link
+			viewLink = (
+				<Link to={`/games/${game.slug}`} className="card nav-card">
+					View on frontend
+				</Link>
+			);
+
+			//Dropdown Nav
+			submenu = <AdminGamePageNavigation game={game} />;
+
+			//Refresh Button
+			refreshButton = (
+				<span className="refresh" onClick={() => reloadGames([game._id], "admin")}>
+					↺
+				</span>
+			);
+		}
+
+		//Page Title
+		const title = isNew ? "Add New Game" : this.getPageTitle();
+
 		return (
-			<div>
-				<HelmetBuilder title={this.getPageTitle()} canonical={`/admin/game/${game.slug}`} />
-				<Switch>
-					<Route
-						path="/admin/game/:slug/man-of-steel"
-						exact
-						render={() =>
-							manOfSteelPoints ? (
-								<AdminGameManOfSteel game={game} />
-							) : (
-								<NotFoundPage />
-							)
-						}
-					/>
-					<Route
-						path="/admin/game/:slug/motm"
-						exact
-						render={() => <AdminGameManOfTheMatch game={game} />}
-					/>
-					<Route
-						path="/admin/game/:slug/stats"
-						exact
-						render={() =>
-							game._competition.instance.scoreOnly ? (
-								<NotFoundPage />
-							) : (
-								<AdminGameStats game={game} scoreOnly={false} />
-							)
-						}
-					/>
-					<Route
-						path="/admin/game/:slug/scores"
-						exact
-						render={() => <AdminGameStats game={game} scoreOnly={true} />}
-					/>
-					<Route
-						path="/admin/game/:slug/event"
-						exact
-						render={() => <AdminGameEvent game={game} />}
-					/>
-					<Route
-						path="/admin/game/:slug/squad-images"
-						exact
-						render={() => <AdminGameSquadImage game={game} />}
-					/>
-					<Route
-						path="/admin/game/:slug/squads"
-						exact
-						render={() => <AdminGameSquads game={game} />}
-					/>
-					<Route
-						path="/admin/game/:slug/pregame-image"
-						exact
-						render={() => <AdminGamePregameImage game={game} lastGame={lastGame} />}
-					/>
-					<Route
-						path="/admin/game/:slug/pregame"
-						exact
-						render={() => <AdminGamePregameSquads game={game} lastGame={lastGame} />}
-					/>
-					<Route
-						path="/admin/game/:slug"
-						exact
-						render={() => <AdminGameOverview game={game} />}
-					/>
-					<Route path="/" component={NotFoundPage} />
-				</Switch>
-			</div>
+			<section className="page-header">
+				<HelmetBuilder title={title} />
+				<div className="container">
+					<h1 key="header">
+						{title} {refreshButton}
+					</h1>
+					{this.renderAdjacentGameLinks()}
+					{viewLink}
+					{submenu}
+				</div>
+			</section>
 		);
 	}
 
-	async handleRefresh() {
-		const { game, lastGame } = this.state;
-		const { reloadGames } = this.props;
-		const ids = [game._id];
-		if (lastGame) {
-			ids.push(lastGame._id);
-		}
-
-		await reloadGames(ids);
+	renderContent() {
+		return (
+			<section className="form">
+				<div className="container">
+					<Switch>
+						{/* 
+					<Route
+					path="/admin/game/:_id/motm"
+						exact
+						component={AdminGameManOfTheMatch}
+					/>
+					<Route
+					path="/admin/game/:_id/stats"
+					exact
+					render={() =>
+						game._competition.instance.scoreOnly ? (
+							<NotFoundPage />
+							) : (
+								<AdminGameStats game={game} scoreOnly={false} />
+								)
+						}
+						/>
+					<Route
+					path="/admin/game/:_id/scores"
+					exact
+					component={AdminGameStats}
+					/>
+					<Route
+						path="/admin/game/:_id/event"
+						exact
+						component={AdminGameEvent}
+						/>
+						<Route
+						path="/admin/game/:_id/squad-images"
+						exact
+						component={AdminGameSquadImage}
+						/>
+					<Route
+					path="/admin/game/:_id/squads"
+					exact
+					component={AdminGameSquads}
+					/>
+					<Route
+					path="/admin/game/:_id/pregame-image"
+					exact
+					component={AdminGamePregameImage}
+					/>
+					<Route
+					path="/admin/game/:_id/pregame"
+						exact
+						component={AdminGamePregameSquads}
+					/> */}
+						<Route path="/admin/game/new" exact component={AdminGameOverview} />
+						<Route path="/admin/game/:_id" exact component={AdminGameOverview} />
+						<Route path="/" component={NotFoundPage} />
+					</Switch>
+				</div>
+			</section>
+		);
 	}
 
 	render() {
-		const { game } = this.state;
-		if (game === undefined) {
+		const { game, isLoadingList, isLoadingGame, isNew } = this.state;
+
+		//Await all data
+		if (isLoadingList || isLoadingGame) {
 			return <LoadingPage />;
-		} else if (!game) {
-			return <NotFoundPage message="Game not found" />;
-		} else {
-			return (
-				<div className="admin-game-page admin-page">
-					<section className="page-header">
-						<div className="container">
-							<h1 key="header">
-								{this.getPageTitle()}&nbsp;
-								<span className="refresh" onClick={() => this.handleRefresh()}>
-									↺
-								</span>
-							</h1>
-							{this.getNavigation()}
-							<Link to={`/games/${game.slug}`} className="card nav-card">
-								View on frontend
-							</Link>
-							{this.getSubmenu()}
-						</div>
-					</section>
-					{this.getContent()}
-				</div>
-			);
 		}
+
+		//404
+		if (!isNew && !game) {
+			return <NotFoundPage message="Game not found" />;
+		}
+
+		return (
+			<div className="admin-game-page admin-page">
+				{this.renderHeader()}
+				{this.renderContent()}
+			</div>
+		);
 	}
 }
 
@@ -330,7 +293,4 @@ function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	return { localTeam, fullGames, teamList, gameList, teamTypes };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchGames, reloadGames, fetchGameList }
-)(AdminGamePage);
+export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameList })(AdminGamePage);

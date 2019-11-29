@@ -167,7 +167,7 @@ class GamePage extends Component {
 		const { game } = this.state;
 		if (authUser) {
 			return (
-				<Link to={`/admin/game/${game.slug}`} className="nav-card">
+				<Link to={`/admin/game/${game._id}`} className="nav-card">
 					Edit this game
 				</Link>
 			);
@@ -521,9 +521,8 @@ async function loadData(store, path) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchGames, fetchGameList, fetchTeam, fetchPostList }
-	)(GamePage),
+	component: connect(mapStateToProps, { fetchGames, fetchGameList, fetchTeam, fetchPostList })(
+		GamePage
+	),
 	loadData
 };

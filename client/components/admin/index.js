@@ -27,7 +27,6 @@ import AdminNeutralGamePage from "../../pages/admin/AdminNeutralGamePage";
 
 import GameList from "../../pages/GameList";
 import AdminGamePage from "../../pages/admin/AdminGamePage";
-import AdminNewGamePage from "../../pages/admin/AdminNewGamePage";
 import AdminFixtureListImagePage from "../../pages/admin/AdminFixtureListImagePage";
 
 import AdminGroundList from "../../pages/admin/AdminGroundList";
@@ -60,21 +59,6 @@ class AdminRouter extends Component {
 		if (this.props.authUser) {
 			content = (
 				<Switch>
-					<Route path="/admin/game/new" component={AdminNewGamePage} />
-					<Route path="/admin/game/:slug" component={AdminGamePage} />
-					<Route
-						path="/admin/games/:year/:teamType"
-						exact
-						component={GameList.component}
-					/>
-					<Route
-						path="/admin/games/fixture-list-image"
-						exact
-						component={AdminFixtureListImagePage}
-					/>
-					<Route path="/admin/games/:year/" exact component={GameList.component} />
-					<Route path="/admin/games/" exact component={GameList.component} />
-
 					<Route path="/admin/awards/:_id" component={AdminAwardPage} />
 					<Route path="/admin/awards" exact component={AdminAwardList} />
 
@@ -106,6 +90,21 @@ class AdminRouter extends Component {
 					<Route path="/admin/countries/new" exact component={AdminCountryPage} />
 					<Route path="/admin/countries/:_id" exact component={AdminCountryPage} />
 					<Route path="/admin/countries" exact component={AdminCountryList} />
+
+					<Route path="/admin/game/new" component={AdminGamePage} />
+					<Route path="/admin/game/:_id" component={AdminGamePage} />
+					<Route
+						path="/admin/games/fixture-list-image"
+						exact
+						component={AdminFixtureListImagePage}
+					/>
+					<Route
+						path="/admin/games/:year/:teamType"
+						exact
+						component={GameList.component}
+					/>
+					<Route path="/admin/games/:year/" exact component={GameList.component} />
+					<Route path="/admin/games/" exact component={GameList.component} />
 
 					<Route path="/admin/grounds/new" component={AdminGroundPage} />
 					<Route path="/admin/grounds/:_id" component={AdminGroundPage} />
