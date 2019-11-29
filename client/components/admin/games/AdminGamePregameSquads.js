@@ -84,7 +84,7 @@ class AdminGamePregameSquads extends Component {
 				const currentPregameSquad = game.pregameSquads.find(({ _team }) => _team == teamId);
 
 				//If not, just return an empty array
-				if (!currentPregameSquad) {
+				if (!currentPregameSquad || !currentPregameSquad.squad) {
 					values = [];
 				} else {
 					//Otherwise we return the existing squad, filtered to

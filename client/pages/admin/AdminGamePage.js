@@ -246,12 +246,11 @@ class AdminGamePage extends Component {
 					path="/admin/game/:_id/squads"
 					exact
 					component={AdminGameSquads}
-					/>
-					<Route
-					path="/admin/game/:_id/pregame-image"
-					exact
-					component={AdminGamePregameImage}
-					/>*/}
+					/> */}
+						<Route
+							path="/admin/game/:_id/pregame-image"
+							component={AdminGamePregameImage}
+						/>
 						<Route path="/admin/game/:_id/images" component={AdminGameImages} />
 						<Route path="/admin/game/:_id/pregame" component={AdminGamePregameSquads} />
 						<Route path="/admin/game/new" exact component={AdminGameOverview} />

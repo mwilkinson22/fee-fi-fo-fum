@@ -228,7 +228,4 @@ AdminGameEventList.propTypes = {
 	onReply: PropTypes.func.isRequired
 };
 
-export default connect(
-	null,
-	{ deleteGameEvent }
-)(AdminGameEventList);
+export default connect(null, { deleteGameEvent })(AdminGameEventList);

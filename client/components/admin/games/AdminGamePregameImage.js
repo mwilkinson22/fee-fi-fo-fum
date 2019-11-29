@@ -2,8 +2,8 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import Select from "react-select";
-import selectStyling from "~/constants/selectStyling";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -11,262 +11,366 @@ import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
 import { fetchProfiles } from "~/client/actions/socialActions";
-import { fetchTeam } from "../../../actions/teamsActions";
-import { getPregameImage, postGameEvent } from "../../../actions/gamesActions";
-import TweetComposer from "~/client/components/TweetComposer";
+import { fetchGames, getPregameImage, postGameEvent } from "../../../actions/gamesActions";
+
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { convertTeamToSelect } from "~/helpers/gameHelper";
+import { getLastGame } from "~/helpers/gameHelper";
+import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminGamePregameImage extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			game,
-			fullTeams,
-			fetchTeam,
-			localTeam,
-			profiles,
-			fetchProfiles,
-			defaultProfile
-		} = props;
+		const { match, fetchGames, fullGames, gameList, profiles, fetchProfiles } = props;
 
-		if (!fullTeams[localTeam]) {
-			fetchTeam(localTeam);
-		}
-		if (!fullTeams[game._opposition._id]) {
-			fetchTeam(game._opposition._id);
-		}
+		//Get Social Media Profiles
 		if (!profiles) {
 			fetchProfiles();
 		}
 
-		const { hashtags } = game;
-		this.state = {
-			_profile: defaultProfile,
-			game,
-			highlightNewPlayers: true,
-			team: game.pregameSquads.length > 1 ? "both" : _.values(game.pregameSquads)[0]._team,
-			tweet: `Here are your teams for this ${game.date.toString("dddd")}'s game against ${
-				game._opposition.name.short
-			}!\n\n${hashtags ? hashtags.map(t => `#${t}`).join(" ") : ""}`
-		};
+		//Get Last Game
+		const lastGameId = getLastGame(match.params._id, gameList);
+		if (lastGameId && !fullGames[lastGameId]) {
+			fetchGames([lastGameId], "admin");
+		}
+
+		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, lastGame, fullTeams, localTeam, teamList, profiles } = nextProps;
-		const newState = {};
+	static getDerivedStateFromProps(nextProps) {
+		const { fullGames, gameList, localTeam, match, profiles, teamList } = nextProps;
+		const newState = { isLoading: false };
 
-		let teams = [localTeam, game._opposition._id];
+		//Get Game
+		newState.game = fullGames[match.params._id];
 
-		//Ensure both teams have loaded
-		if (_.reject(teams, team => fullTeams[team]).length) {
+		//Get Last Game
+		const lastGameId = getLastGame(match.params._id, gameList);
+		if (lastGameId) {
+			newState.lastGame = fullGames[lastGameId];
+		} else {
+			newState.lastGame = false;
+		}
+
+		//Check everything is loaded
+		if (!profiles || (lastGameId && !newState.lastGame)) {
+			newState.isLoading = true;
 			return newState;
 		}
 
-		//Ensure we have social profiles
-		if (!profiles) {
-			return newState;
+		//Dropdown Options
+		newState.options = {};
+
+		//Social Profile Options
+		newState.options.profiles = _.chain(profiles)
+			.reject("archived")
+			.map(({ name, _id }) => ({ value: _id, label: name }))
+			.sortBy("label")
+			.value();
+
+		//Team Options
+		newState.options.team = _.chain(newState.game.pregameSquads)
+			.filter(({ squad }) => squad && squad.length)
+			.map(({ _team }) => ({ value: _team, label: teamList[_team].name.short }))
+			.value();
+		if (newState.options.team.length === 2) {
+			newState.options.team.unshift({ label: "Both", value: "both" });
 		}
 
-		//Check teams to prevent us repeating logic on picture load
-		if (!prevState.teams) {
-			newState.teams = _.pick(fullTeams, [localTeam, game._opposition._id]);
+		//Player Dropdowns
+		newState.currentLocalSquad = newState.game.pregameSquads.find(
+			({ _team }) => _team == localTeam
+		);
+		if (newState.currentLocalSquad && newState.currentLocalSquad.squad) {
+			newState.lastLocalSquad =
+				newState.lastGame &&
+				newState.lastGame.pregameSquads &&
+				newState.lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
 
-			//Get Squad Filters
-			const year = new Date(game.date).getFullYear();
-			const { _teamType } = game;
-
-			//Get squads
-			newState.squads = _.chain(teams)
-				.map(id => {
-					const squad = _.find(fullTeams[id].squads, { year, _teamType });
-					return [id, squad ? squad.players : null];
-				})
-				.fromPairs()
+			//Generic Player List, for "highlight" menu
+			newState.options.players = _.chain(newState.currentLocalSquad.squad)
+				//Convert ID list to eligible player array
+				.map(id =>
+					newState.game.eligiblePlayers[localTeam].find(
+						({ _player }) => _player._id == id
+					)
+				)
+				//Order
+				.sortBy(p => p.number || p._player.name.full)
+				//Convert to dropdown object
+				.map(({ _player, number }) => ({
+					value: _player._id,
+					label: `${number ? `${number}. ` : ""} ${_player.name.full}`,
+					image: _player.images.player || _player.images.main,
+					isNew:
+						newState.lastLocalSquad &&
+						!newState.lastLocalSquad.squad.find(_id => _id == _player._id)
+				}))
+				//Group By New Status
+				.groupBy(({ isNew }) => (isNew ? "New Players" : "All Players"))
+				//Map into nested options
+				.map((options, label) => ({ options, label, isNew: options[0].isNew }))
+				//Order so that new players appear first
+				.orderBy("isNew", "desc")
 				.value();
 
-			//Get highlight players
-			const thisLocalSquad = _.find(game.pregameSquads, ({ _team }) => _team == localTeam);
-			const lastLocalSquad = _.find(
-				lastGame.pregameSquads,
-				({ _team }) => _team == localTeam
-			);
+			//Filter by those with images
+			newState.options.playersWithImages =
+				newState.options.players
+					.map(optionGroup => {
+						const options = optionGroup.options.filter(({ image }) => image);
+						return {
+							...optionGroup,
+							options
+						};
+					})
+					.filter(({ options }) => options.length) || [];
 
-			if (thisLocalSquad && lastLocalSquad) {
-				newState.playersToHighlight = _.difference(
-					thisLocalSquad.squad,
-					lastLocalSquad.squad
-				);
-			} else {
-				newState.playersToHighlight = [];
-			}
-
-			//Player List
-			newState.playerHighlightOptions = convertTeamToSelect(
-				game,
-				teamList,
-				false,
-				false,
-				true
-			);
-			newState.playerImageOptions = [{ label: "None", value: false }];
-			if (thisLocalSquad) {
-				//Get the squad for the season, with numbers
-				const squadNumbers = _.find(
-					newState.teams[localTeam].squads,
-					s =>
-						s.year == new Date(game.date).getFullYear() && s._teamType == game._teamType
-				).players;
-
-				const newPlayers = [];
-				const otherPlayers = [];
-
-				//Add player to corresponding array
-				thisLocalSquad.squad.map(id => {
-					//Get Player Object
-					const squadMember = _.find(squadNumbers, ({ _player }) => _player._id == id);
-					const { images } = squadMember._player;
-
-					//Get Data
-					const { number } = squadMember;
-					const label = `${number ? number + ". " : ""}${squadMember._player.name.full}`;
-					const option = {
-						label,
-						value: id,
-						number,
-						image: images.player || images.main
-					};
-
-					//Push to object
-					const isNew = _.find(newState.playersToHighlight, p => p == id);
-					if (isNew) {
-						newPlayers.push(option);
-					} else {
-						otherPlayers.push(option);
-					}
-				});
-
-				if (newPlayers.filter(p => p.image).length) {
-					newState.playerImageOptions.push({
-						label: "New Players",
-						options: _.sortBy(newPlayers.filter(p => p.image), p => p.number || 999)
-					});
-				}
-
-				if (otherPlayers.filter(p => p.image).length) {
-					newState.playerImageOptions.push({
-						label: "Other Players",
-						options: _.sortBy(otherPlayers.filter(p => p.image), p => p.number || 999)
-					});
-				}
-
-				newState.playersToHighlight = newPlayers;
-
-				newState.playerForImage =
-					newState.playerImageOptions.length > 1 &&
-					_.sample(newState.playerImageOptions[1].options);
-			} else {
-				newState.playerForImage = newState.playerImageOptions[0];
-			}
+			//Add player twitter handles
+			newState.twitterVariables = _.chain(newState.currentLocalSquad.squad)
+				//Convert ID list to eligible player array
+				.map(id =>
+					newState.game.eligiblePlayers[localTeam].find(
+						({ _player }) => _player._id == id
+					)
+				)
+				.filter(({ _player }) => _player.twitter)
+				.sortBy(p => p.number || p._player.name.full)
+				.map(({ _player }) => ({ label: _player.name.full, value: `@${_player.twitter}` }))
+				.value();
+		} else {
+			//This means we only have the opposition pregame squad
+			newState.options.players = [];
 		}
+
+		//Validation Schema
+		newState.validationSchema = Yup.object().shape({
+			_profile: Yup.mixed()
+				.required()
+				.label("Profile"),
+			team: Yup.mixed()
+				.required()
+				.label("Team"),
+			playerForImage: Yup.mixed().label("Player For Image"),
+			playersToHighlight: Yup.array()
+				.of(Yup.mixed())
+				.label("Players To Highlight"),
+			tweet: Yup.string()
+				.required()
+				.label("Tweet"),
+			replyTweet: Yup.string().label("Reply Tweet ID")
+		});
 
 		return newState;
 	}
 
-	renderProfileSelect() {
-		const { profiles } = this.props;
-		const { _profile } = this.state;
+	getInitialValues() {
+		const { defaultProfile } = this.props;
+		const { options } = this.state;
 
-		const options = _.chain(profiles)
-			.reject("archived")
-			.map(({ name, _id }) => ({
-				value: _id,
-				label: name
-			}))
-			.value();
+		//Player for image
+		//This just pulls from the first group, as if there's
+		//no new players then we can use an existing one
+		const playerForImage = options.playersWithImages.length
+			? _.sample(options.playersWithImages[0].options)
+			: "";
 
-		return (
-			<Select
-				styles={selectStyling}
-				onChange={({ value }) => this.setState({ _profile: value })}
-				isDisabled={options.length === 1}
-				defaultValue={_.find(options, ({ value }) => value == _profile)}
-				options={options}
-			/>
-		);
+		//Players to highlight
+		//This only pulls from the isNew group
+		const playersToHighlight =
+			options.players.length && options.players[0].isNew ? options.players[0].options : [];
+
+		return {
+			_profile: options.profiles.find(({ value }) => value == defaultProfile),
+			team: options.team[0],
+			playerForImage,
+			playersToHighlight,
+			tweet: this.getInitialTweet(),
+			replyTweet: ""
+		};
 	}
-	renderTeamSelect() {
-		const { pregameSquads } = this.props.game;
-		const { teams, team } = this.state;
-		let options = _.map(pregameSquads, ({ _team }) => ({
-			value: _team,
-			label: teams[_team].name.short
-		}));
 
-		if (options.length > 1) {
-			options = [{ value: "both", label: "Both" }, ...options];
+	getInitialTweet() {
+		const { localTeam, teamList } = this.props;
+		const { currentLocalSquad, lastLocalSquad, game, options } = this.state;
+
+		let tweet = "";
+
+		//Add Teams
+		if (options.team.length === 1) {
+			tweet += `Here is your ${teamList[options.team[0].value].name.short} team`;
+		} else {
+			tweet += "Here are your teams";
+		}
+		tweet += ` for this ${game.date.toString("dddd")}'s game`;
+
+		//Add opposition, as long as they're not the only team with a pregame squad at present
+		//I.e. there's no need to say "Here is your Hull team for this Friday's game against Hull"
+		if (options.team.length !== 1 || options.team[0].value != game._opposition._id) {
+			tweet += ` against ${game._opposition.name.short}`;
 		}
 
-		return (
-			<Select
-				styles={selectStyling}
-				onChange={({ value }) => this.setState({ team: value })}
-				isDisabled={options.length === 1}
-				defaultValue={_.find(options, ({ value }) => value == team)}
-				options={options}
-			/>
-		);
+		//Add exclamation mark
+		tweet += "!";
+
+		//Add outgoing/incoming players
+		//If this passes, we know that we've succesfully loaded the
+		//local pregame squads for the current and previous games
+		if (options.players.length && options.players[0].isNew) {
+			const eligiblePlayers = _.keyBy(
+				game.eligiblePlayers[localTeam],
+				({ _player }) => _player._id
+			);
+
+			const getPlayerName = (player, useTwitter) => {
+				if (useTwitter && player.twitter) {
+					return `@${player.twitter}`;
+				}
+
+				if (player.nickname && player.displayNicknameInCanvas) {
+					return player.nickname;
+				}
+
+				return player.squadNameWhenDuplicate || player.name.last;
+			};
+
+			//Add some line breaks
+			tweet += "\n\n";
+
+			//Get outgoing players
+			const outgoing = lastLocalSquad.squad
+				.filter(id => !currentLocalSquad.squad.find(cId => id == cId))
+				.map(id => getPlayerName(eligiblePlayers[id]._player, false));
+
+			if (outgoing.length) {
+				tweet += `⬅️ ${outgoing.join(", ")}\n`;
+			}
+
+			//Get incoming players
+			const incoming = options.players[0].options
+				.map(({ value }) => eligiblePlayers[value]._player)
+				.map(p => getPlayerName(p, true));
+
+			tweet += `➡️ ${incoming.join(", ")}`;
+		}
+
+		//Add hashtags
+		tweet += `\n\n${game.hashtags.map(t => `#${t}`).join(" ")}`;
+
+		return tweet;
 	}
 
-	renderPlayerImageSelect() {
-		const { playerForImage, playerImageOptions } = this.state;
+	generateQueryString(values, forPreview) {
+		const { playerForImage, playersToHighlight, team } = values;
+		const query = {};
 
-		return (
-			<Select
-				styles={selectStyling}
-				onChange={playerForImage => this.setState({ playerForImage })}
-				defaultValue={playerForImage}
-				options={playerImageOptions}
-			/>
-		);
+		if (playerForImage) {
+			query.playerForImage = playerForImage.value;
+		}
+
+		if (playersToHighlight && playersToHighlight.length) {
+			query.playersToHighlight = playersToHighlight.map(p => p.value).join(",");
+		}
+
+		if (team.value !== "both") {
+			query.singleTeam = team.value;
+		}
+
+		if (forPreview) {
+			const queryStr = _.map(query, (val, key) => `${key}=${val}`).join("&");
+			return `?${queryStr}`;
+		} else {
+			return query;
+		}
 	}
 
-	renderPlayerHighlightSelect() {
-		const { playersToHighlight, playerHighlightOptions } = this.state;
+	async getPreview(values) {
+		const { getPregameImage } = this.props;
+		const { game } = this.state;
 
-		return (
-			<Select
-				styles={selectStyling}
-				onChange={playersToHighlight => this.setState({ playersToHighlight })}
-				defaultValue={playersToHighlight}
-				options={playerHighlightOptions}
-				isMulti={true}
-			/>
-		);
-	}
-
-	async generatePreview() {
+		//Set previewImage to false, which enforces LoadingPage
 		this.setState({ previewImage: false });
-		const { game, getPregameImage } = this.props;
-		const image = await getPregameImage(game._id, this.handleImageOptions(true));
+
+		//Get Image
+		const image = await getPregameImage(game._id, this.generateQueryString(values, true));
 		this.setState({ previewImage: image });
 	}
 
-	async postTweet() {
-		this.setState({ tweetSending: true });
-		const { game, postGameEvent } = this.props;
-		const { tweet, replyTweet, _profile } = this.state;
-		const event = await postGameEvent(game._id, {
-			_profile,
+	async handleSubmit(values, { setFieldValue, setSubmitting }) {
+		const { postGameEvent } = this.props;
+		const { game } = this.state;
+		const { _profile, tweet, replyTweet } = values;
+
+		//Create Event Object
+		const event = {
+			_profile: _profile.value,
 			tweet,
 			replyTweet,
 			postTweet: true,
 			event: "pregameSquad",
-			imageOptions: this.handleImageOptions(false)
-		});
+			imageOptions: this.generateQueryString(values, false)
+		};
 
-		await this.setState({ tweetSending: false, replyTweet: event.tweet_id });
+		//Get Posted Tweet
+		const result = await postGameEvent(game._id, event);
+
+		//Update replyTweet Value
+		setFieldValue("replyTweet", result.tweet_id);
+
+		//Remove Preview
+		this.setState({ previewImage: undefined });
+
+		//Enable resubmission
+		setSubmitting(false);
+	}
+
+	renderMainForm() {
+		const { options, twitterVariables, validationSchema } = this.state;
+
+		//Main For
+		const fields = [
+			{
+				name: "_profile",
+				type: fieldTypes.select,
+				options: options.profiles,
+				isSearchable: false
+			},
+			{
+				name: "team",
+				type: fieldTypes.select,
+				options: options.team,
+				isDisabled: options.team.length < 2,
+				isSearchable: false
+			},
+			{
+				name: "playerForImage",
+				type: fieldTypes.select,
+				options: options.playersWithImages,
+				isClearable: true,
+				isDisabled: !options.playersWithImages.length
+			},
+			{
+				name: "playersToHighlight",
+				type: fieldTypes.select,
+				options: options.players,
+				isDisabled: !options.players.length,
+				isMulti: true
+			},
+			{
+				name: "tweet",
+				type: fieldTypes.tweet,
+				variables: twitterVariables,
+				variableInstruction: "@ Player"
+			},
+			{
+				name: "replyTweet",
+				type: fieldTypes.text
+			}
+		];
+
+		return renderFieldGroup(fields, validationSchema);
 	}
 
 	renderPreview() {
@@ -280,110 +384,55 @@ class AdminGamePregameImage extends Component {
 		}
 	}
 
-	handleImageOptions(toString) {
-		const { playerForImage, playersToHighlight, team } = this.state;
-		const query = {
-			playerForImage: playerForImage.value,
-			playersToHighlight: playersToHighlight.map(p => p.value).join(",")
-		};
-		if (team !== "both") {
-			query.singleTeam = team;
-		}
-
-		if (toString) {
-			const queryStr = _.map(query, (val, key) => `${key}=${val}`).join("&");
-			return `?${queryStr}`;
-		} else {
-			return query;
-		}
-	}
-
-	renderTweetComposer() {
-		const { teams, tweet } = this.state;
-		const { game, localTeam } = this.props;
-		const localSquad = _.find(
-			teams[localTeam].squads,
-			({ year }) => year == game.date.getFullYear()
-		);
-
-		let variables = [];
-		if (localSquad) {
-			variables = _.chain(localSquad.players)
-				.filter(({ _player }) => _player.twitter)
-				.sortBy(p => p.number || 999)
-				.map(({ _player }) => ({ name: _player.name.full, value: `@${_player.twitter}` }))
-				.value();
-		}
-
-		return (
-			<TweetComposer
-				initialContent={tweet}
-				variables={variables}
-				variableInstruction="@ Player"
-				includeButton={false}
-				onChange={tweet => this.setState({ tweet })}
-			/>
-		);
-	}
-
 	render() {
-		const { teams } = this.state;
-		const { game, lastGame } = this.props;
+		const { game, isLoading, validationSchema } = this.state;
 
-		if (game === undefined || lastGame === undefined || teams === undefined) {
+		//Await Profiles
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 
 		return (
-			<div className="container pregame-image-loader">
-				<div className="form-card grid">
-					<label>Profile</label>
-					{this.renderProfileSelect()}
-					<label>Team</label>
-					{this.renderTeamSelect()}
-					<label>Player For Image</label>
-					{this.renderPlayerImageSelect()}
-					<label>Highlight New Players</label>
-					{this.renderPlayerHighlightSelect()}
-					<label>Tweet</label>
-					{this.renderTweetComposer()}
-					<label>In Reply To</label>
-					<input
-						type="text"
-						value={this.state.replyTweet}
-						onChange={ev => this.setState({ replyTweet: ev.target.value })}
-					/>
-					<div className="buttons">
-						<button type="button" onClick={() => this.generatePreview()}>
-							Preview
-						</button>
-						<button
-							type="button"
-							onClick={() => this.postTweet()}
-							disabled={this.state.tweetSending}
-						>
-							Post
-						</button>
-					</div>
-					{this.renderPreview()}
-				</div>
-				<AdminGameEventList
-					game={game}
-					onReply={replyTweet => this.setState({ replyTweet })}
-				/>
-			</div>
+			<Formik
+				initialValues={this.getInitialValues()}
+				onSubmit={(values, formik) => this.handleSubmit(values, formik)}
+				validationSchema={validationSchema}
+				render={({ isSubmitting, setFieldValue, values }) => (
+					<Form>
+						<div className="form-card grid">
+							{this.renderMainForm()}
+							<div className="buttons">
+								<button type="button" onClick={() => this.getPreview(values)}>
+									Preview
+								</button>
+								<button className="confirm" type="submit" disabled={isSubmitting}>
+									Post
+								</button>
+							</div>
+							{this.renderPreview()}
+						</div>
+						<AdminGameEventList
+							game={game}
+							onReply={tweetId => setFieldValue("replyTweet", tweetId)}
+						/>
+					</Form>
+				)}
+			/>
 		);
 	}
 }
 
-function mapStateToProps({ config, teams, social }) {
-	const { fullTeams, teamList } = teams;
+function mapStateToProps({ config, games, teams, social }) {
+	const { teamList } = teams;
 	const { localTeam } = config;
+	const { fullGames, gameList } = games;
 	const { profiles, defaultProfile } = social;
-	return { fullTeams, localTeam, teamList, profiles, defaultProfile };
+	return { fullGames, gameList, localTeam, teamList, profiles, defaultProfile };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchProfiles, fetchTeam, getPregameImage, postGameEvent }
-)(AdminGamePregameImage);
+export default connect(mapStateToProps, {
+	fetchGames,
+	fetchProfiles,
+	getPregameImage,
+	postGameEvent
+})(AdminGamePregameImage);
