@@ -123,7 +123,7 @@ class TweetComposer extends Component {
 			const options = variables.map(function(obj) {
 				return (
 					<option key={obj.value} value={obj.value}>
-						{obj.name}
+						{obj.label}
 					</option>
 				);
 			});
