@@ -52,7 +52,9 @@ class AdminCompetitionOverview extends Component {
 			type: Yup.mixed()
 				.required()
 				.label("Type"),
-			playerLimit: Yup.number().label("Max Players Per Game"),
+			interchangeLimit: Yup.number()
+				.min(0)
+				.label("Maximum Interchanges"),
 			useAllSquads: Yup.boolean().label("Use All Squads"),
 			webcrawlFormat: Yup.mixed().label("Web Crawl Format"),
 			webcrawlUrl: Yup.string().label("Web Crawl Root URL")
@@ -66,7 +68,7 @@ class AdminCompetitionOverview extends Component {
 		const defaultValues = {
 			name: "",
 			type: "",
-			playerLimit: "",
+			interchangeLimit: "",
 			useAllSquads: false,
 			webcrawlFormat: "",
 			webcrawlUrl: ""
@@ -102,7 +104,10 @@ class AdminCompetitionOverview extends Component {
 						type: fieldTypes.select,
 						options: options.type
 					},
-					{ name: "playerLimit", type: fieldTypes.number },
+					{
+						name: "interchangeLimit",
+						type: fieldTypes.number
+					},
 					{ name: "useAllSquads", type: fieldTypes.boolean },
 					{
 						name: "webcrawlFormat",

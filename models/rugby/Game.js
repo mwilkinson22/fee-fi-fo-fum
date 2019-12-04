@@ -254,7 +254,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"name _parentCompetition appendCompetitionName instances instance type hashtagPrefix multipleInstances",
 			populate: {
 				path: "_parentCompetition",
-				select: "name useAllSquads"
+				select: "name useAllSquads interchangeLimit"
 			}
 		});
 };
