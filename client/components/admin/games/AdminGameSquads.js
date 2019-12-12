@@ -5,10 +5,9 @@ import { connect } from "react-redux";
 
 //Components
 import SquadSelector from "./SquadSelector";
-import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { markSquadAsAnnounced } from "../../../actions/gamesActions";
+import { markSquadAsAnnounced, setSquad } from "../../../actions/gamesActions";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 class AdminGameSquads extends Component {
@@ -17,84 +16,84 @@ class AdminGameSquads extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, localTeam } = nextProps;
+	static getDerivedStateFromProps(nextProps) {
+		const { fullGames, match } = nextProps;
+
 		const newState = {};
 
-		const teams = [localTeam, game._opposition._id];
-
-		//Get Squads
-		if (!prevState.squads) {
-			newState.squads = _.chain(teams)
-				.map(id => {
-					const fullSquad = game.eligiblePlayers[id];
-					let availablePlayers;
-					if (game._competition.instance.usesPregameSquads) {
-						availablePlayers = _.find(game.pregameSquads, s => s._team === id).squad;
-					} else {
-						availablePlayers = _.map(fullSquad, ({ _player }) => _player._id);
-					}
-
-					const filteredSquad = _.map(fullSquad, squadMember => {
-						let name = "";
-						if (squadMember.number) {
-							name += `${squadMember.number}. `;
-						}
-						name += `${squadMember._player.name.first} ${squadMember._player.name.last}`;
-
-						const currentSquadMember = _.find(
-							game.playerStats,
-							s => s._team === id && s._player === squadMember._player._id
-						);
-						const position = currentSquadMember ? currentSquadMember.position : null;
-
-						return {
-							_id: squadMember._player._id,
-							number: squadMember.number,
-							name,
-							playingPositions: squadMember._player.playingPositions,
-							inPregame: Boolean(
-								_.find(availablePlayers, p => p == squadMember._player._id)
-							),
-							position
-						};
-					});
-
-					return [id, filteredSquad];
-				})
-				.fromPairs()
-				.value();
-		}
+		newState.game = fullGames[match.params._id];
 
 		return newState;
 	}
 
-	render() {
-		const { squads } = this.state;
-		const { game, localTeam, teamList } = this.props;
-		if (!squads) {
-			return <LoadingPage />;
-		}
+	async handleSubmit(team, squad) {
+		const { setSquad } = this.props;
+		const { game } = this.state;
 
-		let teams = [localTeam, game._opposition._id];
-		if (game.isAway) {
-			teams = teams.reverse();
-		}
+		await setSquad(game._id, { team, squad });
+	}
 
-		const content = teams.map(id => {
-			const { colours } = teamList[id];
-			return (
-				<div className="form-card squad-selector-wrapper" key={id}>
-					<TeamImage team={teamList[id]} variant="dark" />
-					<SquadSelector
-						squad={squads[id]}
-						teamColours={colours}
-						team={id}
-						game={game._id}
-					/>
-				</div>
-			);
+	getAllPlayers(team) {
+		const { game } = this.state;
+
+		//Get pregame squad
+		const pregameSquad = game.pregameSquads.find(({ _team }) => _team == team);
+
+		//Get the full list of eligible players
+		return game.eligiblePlayers[team].map(({ _player, number }) => {
+			let showInDropdown;
+
+			//We only use a dropdown when pregame squads are used
+			if (game._competition.instance.usesPregameSquads) {
+				//Returns true if a player appears in neither the pregame or match squad
+				showInDropdown =
+					!pregameSquad.squad.find(id => id == _player._id) &&
+					!game.playerStats.find(stats => stats._player == _player._id);
+			} else {
+				showInDropdown = false;
+			}
+
+			return {
+				_player,
+				number,
+				showInDropdown
+			};
 		});
+	}
+
+	getCurrentSquad(team) {
+		const { game } = this.state;
+		return _.chain(game.playerStats)
+			.filter(({ _team }) => _team == team)
+			.map(({ position, _player }) => [position, _player])
+			.fromPairs()
+			.value();
+	}
+
+	render() {
+		const { game } = this.state;
+		const { localTeam, teamList } = this.props;
+
+		//Get Both Teams
+		const teams = [localTeam, game._opposition._id];
+		if (game.isAway) {
+			teams.reverse();
+		}
+
+		const content = teams.map(team => (
+			<div className="form-card" key={team}>
+				<TeamImage team={teamList[team]} variant="light" />
+				<SquadSelector
+					currentSquad={this.getCurrentSquad(team)}
+					maxInterchanges={game._competition._parentCompetition.interchangeLimit}
+					onSubmit={values => this.handleSubmit(team, values)}
+					players={this.getAllPlayers(team)}
+					requireFullTeam={false}
+					team={teamList[team]}
+				/>
+			</div>
+		));
+
 		return (
 			<div className="admin-squad-picker-page">
 				<div className="container">
@@ -118,10 +117,11 @@ class AdminGameSquads extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, games, teams }) {
+	const { fullGames } = games;
 	const { teamList } = teams;
 	const { localTeam } = config;
-	return { teamList, localTeam };
+	return { fullGames, teamList, localTeam };
 }
 
-export default connect(mapStateToProps, { markSquadAsAnnounced })(AdminGameSquads);
+export default connect(mapStateToProps, { markSquadAsAnnounced, setSquad })(AdminGameSquads);

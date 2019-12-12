@@ -206,6 +206,7 @@ class AdminGamePage extends Component {
 	}
 
 	renderContent() {
+		const path = `/admin/game/:_id`;
 		return (
 			<section className="form">
 				<div className="container">
@@ -242,19 +243,13 @@ class AdminGamePage extends Component {
 						exact
 						component={AdminGameSquadImage}
 						/>
-					<Route
-					path="/admin/game/:_id/squads"
-					exact
-					component={AdminGameSquads}
-					/> */}
-						<Route
-							path="/admin/game/:_id/pregame-image"
-							component={AdminGamePregameImage}
-						/>
-						<Route path="/admin/game/:_id/images" component={AdminGameImages} />
-						<Route path="/admin/game/:_id/pregame" component={AdminGamePregameSquads} />
+						 */}
+						<Route path={`${path}/squads`} component={AdminGameSquads} />
+						<Route path={`${path}/pregame-image`} component={AdminGamePregameImage} />
+						<Route path={`${path}/images`} component={AdminGameImages} />
+						<Route path={`${path}/pregame`} component={AdminGamePregameSquads} />
 						<Route path="/admin/game/new" exact component={AdminGameOverview} />
-						<Route path="/admin/game/:_id" exact component={AdminGameOverview} />
+						<Route path={path} exact component={AdminGameOverview} />
 						<Route path="/" component={NotFoundPage} />
 					</Switch>
 				</div>

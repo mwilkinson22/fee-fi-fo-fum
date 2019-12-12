@@ -211,3 +211,15 @@ a {
 	color: $gold;
 	background: $claret;
 }
+
+//Dot Menu
+.three-dot-menu {
+	&.disabled {
+		pointer-events: none;
+		opacity: 0.5;
+	}
+	height: 30pt;
+	svg {
+		height: 100%;
+	}
+}

@@ -1,129 +1,174 @@
+//Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+
+//Components
+import ThreeDots from "../../ThreeDots";
+
+//Constants
+import playerPositions from "~/constants/playerPositions";
 
 class SquadSelectorCard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { showMoveMenu: false };
+		this.state = { showActionsInMobile: false };
 	}
 
-	handleClick(target) {
-		const { position } = this.props;
-		const { showMoveMenu } = this.state;
-		if (position === undefined) {
-			this.handleAction("add");
-		} else if (target.className.indexOf("action") === -1) {
-			this.setState({ showMoveMenu: !showMoveMenu });
+	static getDerivedStateFromProps(nextProps) {
+		return _.pick(nextProps, ["isActivePosition", "onClick", "withGap"]);
+	}
+
+	handleMainBarClick() {
+		const { onClick, showActionsInMobile } = this.state;
+		if (showActionsInMobile) {
+			this.setState({ showActionsInMobile: false });
+		} else {
+			onClick();
 		}
 	}
 
-	handleAction(action, ev) {
-		const { squadMember, formikProps } = this.props;
-		const { _id: id } = squadMember;
-		const { currentSquad } = formikProps.values;
-		if (ev) {
-			ev.preventDefault();
-		}
-		let index;
-		switch (action) {
-			case "add":
-				index = currentSquad.indexOf(null);
-				if (index === -1) {
-					currentSquad.push(id);
-				} else {
-					currentSquad[index] = id;
-				}
-				break;
-			case "move-up":
-			case "move-down":
-				index = currentSquad.indexOf(id);
-				currentSquad.splice(index, 1);
-				currentSquad.splice(action === "move-up" ? --index : ++index, 0, id);
-				break;
-			case "delete":
-				index = currentSquad.indexOf(id);
-				currentSquad[index] = null;
-				break;
-		}
+	renderPosition() {
+		const { isActivePosition } = this.state;
+		const { positionString, style } = this.props;
 
-		formikProps.setValues({
-			currentSquad
-		});
-	}
-
-	renderBottomBar() {
-		const { squadMember, position, teamColours } = this.props;
-		const { showMoveMenu } = this.state;
-
-		if (position === undefined) {
-			//Available menu
-			const { playingPositions } = squadMember;
-			if (playingPositions && playingPositions.length) {
-				return <span>{playingPositions.join(", ")}</span>;
-			} else {
-				return null;
-			}
-		} else if (showMoveMenu) {
+		if (positionString) {
 			return (
 				<div
-					className="action-bar"
-					style={{
-						backgroundColor: teamColours.borderColor,
-						color: teamColours.backgroundColor
-					}}
+					className={`position ${isActivePosition ? "active" : ""}`}
+					onClick={() => this.handleMainBarClick()}
+					style={{ borderColor: style.backgroundColor }} //Overwritten in css for active/hover
 				>
-					<div
-						className="action move-up"
-						onClick={ev => this.handleAction("move-up", ev)}
-					>
-						▲
-					</div>
-					<div
-						className="action move-down"
-						onClick={ev => this.handleAction("move-down", ev)}
-					>
-						▼
-					</div>
-					<div className="action delete" onClick={ev => this.handleAction("delete", ev)}>
-						✖
-					</div>
+					{positionString}
 				</div>
 			);
-		} else {
-			return null;
+		}
+	}
+
+	renderName() {
+		const { player, includePositions } = this.props;
+
+		let name, positions;
+		if (player) {
+			const { number, _player } = this.props.player;
+
+			let nameString = "";
+			//Add Number, where necessary
+			if (number) {
+				nameString += `${number}. `;
+			}
+
+			//Add player name
+			nameString += _player.name.full;
+
+			name = <div className="name">{nameString}</div>;
+
+			//Add positions
+			const { playingPositions } = _player;
+			if (includePositions && playingPositions && playingPositions.length) {
+				positions = (
+					<div className="positions">
+						{playingPositions.map(key => playerPositions[key].name).join(", ")}
+					</div>
+				);
+			}
+		}
+
+		return (
+			<div className="main" onClick={() => this.handleMainBarClick()}>
+				{name}
+				{positions}
+			</div>
+		);
+	}
+
+	renderActions() {
+		const { actions, style } = this.props;
+
+		if (actions && actions.length) {
+			//We invert the styling here, but this only applies on
+			//hover, as per css
+			const actionStyle = { color: style.backgroundColor, backgroundColor: style.color };
+
+			const renderedActions = actions.map((action, i) => {
+				const classNames = ["action"];
+
+				if (action.disabled) {
+					classNames.push("disabled");
+				}
+				return (
+					<div
+						className={classNames.join(" ")}
+						key={i}
+						onClick={() => {
+							this.setState({ showActionsInMobile: false });
+							action.onClick();
+						}}
+						style={actionStyle}
+					>
+						{action.icon}
+					</div>
+				);
+			});
+			return <div className="actions">{renderedActions}</div>;
+		}
+	}
+
+	renderMobileActionDots() {
+		const { actions, style } = this.props;
+
+		if (actions && actions.length) {
+			return (
+				<ThreeDots
+					colour={style.color}
+					onClick={() => this.setState({ showActionsInMobile: true })}
+				/>
+			);
 		}
 	}
 
 	render() {
-		const { squadMember, teamColours } = this.props;
-		const { name } = squadMember;
+		const { style } = this.props;
+		const { onClick, showActionsInMobile, withGap } = this.state;
+
+		const classNames = ["card", "squad-selector-card"];
+
+		if (withGap) {
+			classNames.push("with-gap");
+		}
+
+		if (showActionsInMobile) {
+			classNames.push("show-mobile-actions");
+		}
+
+		if (onClick) {
+			classNames.push("clickable");
+		}
 
 		return (
-			<div
-				className="card squad-selector-card"
-				style={teamColours}
-				onClick={ev => this.handleClick(ev.target)}
-			>
-				<span>{name}</span>
-				{this.renderBottomBar()}
+			<div className={classNames.join(" ")} style={style}>
+				{this.renderPosition()}
+				{this.renderName()}
+				{this.renderMobileActionDots()}
+				{this.renderActions()}
 			</div>
 		);
 	}
 }
 
 SquadSelectorCard.propTypes = {
-	squadMember: PropTypes.shape({
-		_id: PropTypes.string.isRequired,
-		inPregame: PropTypes.bool.isRequired,
-		number: PropTypes.number,
-		name: PropTypes.string.isRequired,
-		playingPositions: PropTypes.arrayOf(PropTypes.string)
-	}).isRequired,
-	teamColours: PropTypes.shape({
-		main: PropTypes.array,
-		text: PropTypes.array,
-		trim1: PropTypes.array
-	})
+	actions: PropTypes.array,
+	includePositions: PropTypes.bool,
+	onClick: PropTypes.func,
+	player: PropTypes.object,
+	positionString: PropTypes.string,
+	style: PropTypes.object.isRequired,
+	withGap: PropTypes.bool
+};
+
+SquadSelectorCard.defaultProps = {
+	outOfPosition: false,
+	withGap: false
 };
 
 export default SquadSelectorCard;

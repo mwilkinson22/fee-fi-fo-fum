@@ -297,8 +297,8 @@ export async function setSquads(req, res) {
 		const bulkOperation = _.chain(game.playerStats)
 			.filter(s => s._team == team)
 			.map(s => {
-				const index = _.findIndex(squad, p => p == s._player);
-				if (index === -1) {
+				const position = _.findKey(squad, p => p == s._player);
+				if (!position) {
 					return {
 						updateOne: {
 							filter: { _id },
@@ -317,7 +317,7 @@ export async function setSquads(req, res) {
 							filter: { _id },
 							update: {
 								$set: {
-									"playerStats.$[elem].position": index + 1
+									"playerStats.$[elem].position": position
 								}
 							},
 							arrayFilters: [{ "elem._player": { $eq: s._player } }]
@@ -330,17 +330,20 @@ export async function setSquads(req, res) {
 
 		//Then, add the new players
 		_.chain(squad)
-			.reject(id => _.find(game.playerStats, s => s._player == id))
-			.each(id => {
+			.map((_player, position) => ({ _player, position }))
+			.reject(
+				({ _player }) => !_player || _.find(game.playerStats, s => s._player == _player)
+			)
+			.each(({ _player, position }) => {
 				bulkOperation.push({
 					updateOne: {
 						filter: { _id },
 						update: {
 							$addToSet: {
 								playerStats: {
-									_player: id,
+									_player,
 									_team: team,
-									position: squad.indexOf(id) + 1,
+									position: position,
 									stats: PlayerStatsCollection
 								}
 							}
