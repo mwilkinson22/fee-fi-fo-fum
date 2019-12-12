@@ -6,6 +6,7 @@ import { Formik, Form } from "formik";
 
 //Components
 import SquadSelectorCard from "./SquadSelectorCard";
+import PopUpDialog from "../../PopUpDialog";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
@@ -175,6 +176,11 @@ class SquadSelector extends Component {
 						icon: "\u25BC"
 					},
 					{
+						//Move
+						onClick: () => this.setState({ playerToMove: i }),
+						icon: "\u2B0D"
+					},
+					{
 						onClick: () => {
 							formik.setFieldValue(i, "");
 							this.setNextActivePosition({ ...values, [i]: "" });
@@ -264,7 +270,7 @@ class SquadSelector extends Component {
 					//Only show a gap if the player is the last in
 					//the forActivePosition list
 					const withGap =
-						forActivePosition.length &&
+						forActivePosition.length > 0 &&
 						forActivePosition.indexOf(_id) === forActivePosition.length - 1;
 
 					return (
@@ -354,6 +360,52 @@ class SquadSelector extends Component {
 		return errors;
 	}
 
+	renderMoveDialog(formik) {
+		const { cardStyling, players, playerToMove, positionsByNumber } = this.state;
+		if (playerToMove) {
+			//Get Player's Name
+			const { _player } = players.find(
+				({ _player }) => _player._id == formik.values[playerToMove]
+			);
+
+			//Render List
+			const rowCount = this.getSelectedRowCount(formik.values);
+			const list = [];
+			for (let i = 1; i <= rowCount; i++) {
+				if (i !== playerToMove) {
+					list.push(
+						<SquadSelectorCard
+							includePositions={false}
+							key={i}
+							onClick={() => {
+								this.assignPlayerToPosition(formik, _player._id, i, playerToMove);
+								onDestroy();
+							}}
+							player={players.find(({ _player }) => _player._id == formik.values[i])}
+							positionString={positionsByNumber[i] ? positionsByNumber[i].key : "I"}
+							style={cardStyling}
+						/>
+					);
+				}
+			}
+
+			//Get Destroy Callback
+			const onDestroy = () =>
+				this.setState({ playerToMove: undefined, playerMoveDestination: undefined });
+
+			return (
+				<PopUpDialog
+					className="player-move-dialog"
+					closeButtonText="Cancel"
+					onDestroy={onDestroy}
+				>
+					<h6>Swap {_player.name.full} with:</h6>
+					{list}
+				</PopUpDialog>
+			);
+		}
+	}
+
 	render() {
 		const { onSubmit } = this.props;
 
@@ -365,6 +417,7 @@ class SquadSelector extends Component {
 				render={formik => (
 					<Form>
 						<div className="squad-selector">
+							{this.renderMoveDialog(formik)}
 							{this.renderSelectedPlayers(formik)}
 							{this.renderAvailablePlayers(formik)}
 						</div>
