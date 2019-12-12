@@ -317,7 +317,7 @@ class SquadSelector extends Component {
 		const { players } = this.state;
 		const dropdownPlayers = _.chain(unselectedPlayers)
 			.filter(p => p.showInDropdown)
-			.sortBy(p => p.number || p.name.full)
+			.sortBy(({ _player, number }) => number || _player.name.full)
 			.map(({ _player, number }) => {
 				const name = `${number ? number + ". " : ""}${_player.name.full}`;
 				return (
