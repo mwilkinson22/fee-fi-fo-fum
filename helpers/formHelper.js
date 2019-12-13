@@ -143,6 +143,10 @@ export function renderInput(field, customOnChange) {
 			case fieldTypes.select:
 				return <Select className="react-select" styles={selectStyling} {...mainProps} />;
 			case fieldTypes.creatableSelect:
+				if (mainProps.showDropdown === false) {
+					mainProps.components = { DropdownIndicator: () => null, Menu: () => null };
+					delete mainProps.showDropdown;
+				}
 				return <Creatable className="react-select" styles={selectStyling} {...mainProps} />;
 			case fieldTypes.asyncSelect:
 				return (
