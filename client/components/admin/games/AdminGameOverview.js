@@ -171,6 +171,7 @@ class AdminGameOverview extends Component {
 	}
 
 	getInitialValues() {
+		const { localTeam } = this.props;
 		const { game, isNew, options } = this.state;
 
 		const defaultValues = {
@@ -244,15 +245,26 @@ class AdminGameOverview extends Component {
 				option => option.value == values._opposition.value
 			);
 
+			//And finally add on the score override fields
+			values.scoreOverride = {};
+			[localTeam, game._opposition._id].forEach(_team => {
+				let value = "";
+				if (game.scoreOverride && game.scoreOverride[_team] != null) {
+					value = game.scoreOverride[_team];
+				}
+				values.scoreOverride[_team] = value;
+			});
+
 			return values;
 		}
 	}
 
 	getFieldGroups(values) {
+		const { localTeam } = this.props;
 		const { game, isNew, options } = this.state;
 		const dynamicOptions = getDynamicOptions(values, false, this.props);
 
-		return [
+		const fieldGroups = [
 			{
 				fields: [
 					{ name: "date", type: fieldTypes.date },
@@ -329,11 +341,44 @@ class AdminGameOverview extends Component {
 				]
 			}
 		];
+
+		if (!isNew) {
+			const scoreOverrideFields = [
+				{
+					name: `scoreOverride.${localTeam}`,
+					type: fieldTypes.number
+				},
+				{
+					name: `scoreOverride.${game._opposition._id}`,
+					type: fieldTypes.number
+				}
+			];
+
+			if (game.isAway) {
+				scoreOverrideFields.reverse();
+			}
+
+			fieldGroups.push({
+				label: "Score Override",
+				fields: scoreOverrideFields
+			});
+		}
+
+		return fieldGroups;
 	}
 
 	alterValuesBeforeSubmit(values) {
+		//Fix date/time
 		values.date = `${values.date} ${values.time}`;
 		delete values.time;
+
+		//Filter score override
+		if (values.scoreOverride) {
+			values.scoreOverride = _.map(values.scoreOverride, (points, _team) => ({
+				points,
+				_team
+			})).filter(({ points }) => points !== null);
+		}
 	}
 
 	render() {
