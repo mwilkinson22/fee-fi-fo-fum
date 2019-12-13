@@ -311,6 +311,16 @@ class AdminGameOverview extends Component {
 					{
 						name: "customHashtags",
 						type: fieldTypes.creatableSelect,
+						formatCreateLabel: str => `Add #${str}`,
+						isValidNewOption: val => val.match(/^[a-zA-Z]\w*$/),
+						components: {
+							NoOptionsMessage: props => (
+								<div style={props.getStyles("noOptionsMessage", props)}>
+									Hashtags must begin with a letter and can only contain letters
+									and numbers
+								</div>
+							)
+						},
 						isMulti: true,
 						placeholder: "Auto-generated if left blank"
 					},
