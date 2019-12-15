@@ -2,8 +2,8 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import Select from "react-select";
-import selectStyling from "~/constants/selectStyling";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -11,72 +11,191 @@ import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
 import { fetchProfiles } from "~/client/actions/socialActions";
-import { fetchTeam } from "../../../actions/teamsActions";
 import { getSquadImage, postGameEvent } from "../../../actions/gamesActions";
-import TweetComposer from "~/client/components/TweetComposer";
+
+//Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
+
+//Helpers
+import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminGameSquadImage extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			game,
-			fullTeams,
-			fetchTeam,
-			localTeam,
-			profiles,
-			fetchProfiles,
-			defaultProfile
-		} = props;
+		const { profiles, fetchProfiles } = props;
 
-		if (!fullTeams[localTeam]) {
-			fetchTeam(localTeam);
-		}
-		if (!fullTeams[game._opposition._id]) {
-			fetchTeam(game._opposition._id);
-		}
-
+		//Get Social Media Profiles
 		if (!profiles) {
 			fetchProfiles();
 		}
 
-		const { hashtags } = game;
-
-		//Get Initial Tweets
-		const tweet = `Here is your Giants squad for ${
-			Number(game.date.toString("H")) < 6 ? "today" : "tonight"
-		}'s game against ${game._opposition.name.short}!\n\n${
-			hashtags ? hashtags.map(t => `#${t}`).join(" ") : ""
-		}`;
-
-		this.state = {
-			_profile: defaultProfile,
-			game,
-			tweet
-		};
+		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, fullTeams, localTeam, profiles } = nextProps;
-		const newState = { game };
+	static getDerivedStateFromProps(nextProps) {
+		const { fullGames, localTeam, match, profiles, teamList } = nextProps;
+		const newState = { isLoading: false };
 
-		let teams = [localTeam, game._opposition._id];
+		//Get Game
+		newState.game = fullGames[match.params._id];
 
-		//Ensure both teams have loaded
-		if (_.reject(teams, team => fullTeams[team]).length || !profiles) {
+		//Check everything is loaded
+		if (!profiles) {
+			newState.isLoading = true;
 			return newState;
 		}
 
-		if (!prevState.teams) {
-			newState.teams = _.pick(fullTeams, [localTeam, game._opposition._id]);
-			newState.teamOptions = _.chain(newState.teams)
-				.filter(t => _.filter(game.playerStats, p => p._team == t._id).length)
-				.sortBy(t => t._id != localTeam)
-				.map(t => ({ value: t._id, label: t.name.short }))
-				.value();
-			newState.selectedTeam = newState.teamOptions[0];
-		}
+		//Dropdown Options
+		newState.options = {};
+
+		//Social Profile Options
+		newState.options.profiles = _.chain(profiles)
+			.reject("archived")
+			.map(({ name, _id }) => ({ value: _id, label: name }))
+			.sortBy("label")
+			.value();
+
+		//Team Options
+		newState.options.team = _.chain([localTeam, newState.game._opposition._id])
+			.filter(_id => newState.game.playerStats.filter(({ _team }) => _id == _team).length)
+			.map(_team => ({ value: _team, label: teamList[_team].name.short }))
+			.value();
+
+		//Add player twitter handles
+		newState.twitterVariables = _.chain(newState.game.playerStats)
+			//Just get the local players
+			.filter(({ _team }) => _team == localTeam)
+
+			//Convert ID list to eligible player array
+			.map(({ _player }) =>
+				newState.game.eligiblePlayers[localTeam].find(
+					eligiblePlayer => eligiblePlayer._player._id == _player
+				)
+			)
+			.filter(({ _player }) => _player.twitter)
+			.sortBy(p => p.number || p._player.name.full)
+			.map(({ _player }) => ({ label: _player.name.full, value: `@${_player.twitter}` }))
+			.value();
+
+		//Validation Schema
+		newState.validationSchema = Yup.object().shape({
+			_profile: Yup.mixed()
+				.required()
+				.label("Profile"),
+			team: Yup.mixed()
+				.required()
+				.label("Team"),
+			tweet: Yup.string()
+				.required()
+				.label("Tweet"),
+			replyTweet: Yup.string().label("Reply Tweet ID")
+		});
 
 		return newState;
+	}
+
+	getInitialValues() {
+		const { defaultProfile } = this.props;
+		const { options } = this.state;
+
+		return {
+			_profile: options.profiles.find(({ value }) => value == defaultProfile),
+			team: options.team[0],
+			tweet: this.getInitialTweet(),
+			replyTweet: ""
+		};
+	}
+
+	getInitialTweet() {
+		const { game } = this.state;
+
+		let tweet = "Here is your Giants squad for ";
+
+		//Today or tonight
+		tweet += Number(game.date.toString("H")) < 6 ? "today" : "tonight";
+
+		//Opposition
+		tweet += `'s game against ${game._opposition.name.short}!\n\n`;
+
+		//Add Hashtags
+		tweet += game.hashtags.map(t => `#${t}`).join(" ");
+
+		return tweet;
+	}
+
+	async getPreview(values) {
+		const { getSquadImage, localTeam } = this.props;
+		const { game } = this.state;
+
+		//Set previewImage to false, to enforce LoadingPage
+		await this.setState({ previewImage: false });
+
+		//Get the Image
+		const image = await getSquadImage(game._id, values.team.value != localTeam);
+		await this.setState({ previewImage: image });
+	}
+
+	async handleSubmit(values, { setFieldValue, setSubmitting }) {
+		const { postGameEvent, localTeam } = this.props;
+		const { game } = this.state;
+
+		const event = _.cloneDeep(values);
+
+		//Get team
+		event.showOpposition = event.team.value == localTeam;
+		delete event.team;
+
+		//Pull profile id
+		event._profile = event._profile.value;
+
+		//Add additional event data
+		event.postTweet = true;
+		event.event = "matchSquad";
+
+		//Get Posted Tweet
+		const result = await postGameEvent(game._id, event);
+
+		//Update replyTweet value
+		setFieldValue("replyTweet", result.tweet_id);
+
+		//Remove preview
+		this.setState({ previewImage: undefined });
+
+		//Enable resubmission
+		setSubmitting(false);
+	}
+
+	renderMainForm() {
+		const { options, twitterVariables, validationSchema } = this.state;
+
+		//Main Form
+		const fields = [
+			{
+				name: "_profile",
+				type: fieldTypes.select,
+				options: options.profiles,
+				isSearchable: false
+			},
+			{
+				name: "team",
+				type: fieldTypes.select,
+				options: options.team,
+				isDisabled: options.team.length < 2,
+				isSearchable: false
+			},
+			{
+				name: "tweet",
+				type: fieldTypes.tweet,
+				variables: twitterVariables,
+				variableInstruction: "@ Player"
+			},
+			{
+				name: "replyTweet",
+				type: fieldTypes.text
+			}
+		];
+
+		return renderFieldGroup(fields, validationSchema);
 	}
 
 	renderPreview() {
@@ -90,145 +209,53 @@ class AdminGameSquadImage extends Component {
 		}
 	}
 
-	renderProfileSelector() {
-		const { profiles } = this.props;
-		const { _profile } = this.state;
-
-		const options = _.chain(profiles)
-			.reject("archived")
-			.map(({ name, _id }) => ({
-				value: _id,
-				label: name
-			}))
-			.value();
-
-		return (
-			<Select
-				styles={selectStyling}
-				onChange={({ value }) => this.setState({ _profile: value })}
-				isDisabled={options.length === 1}
-				defaultValue={_.find(options, ({ value }) => value == _profile)}
-				options={options}
-			/>
-		);
-	}
-
-	renderTweetComposer() {
-		const { teams, tweet } = this.state;
-		const { game, localTeam } = this.props;
-		const localSquad = _.find(
-			teams[localTeam].squads,
-			({ year }) => year == game.date.getFullYear()
-		);
-
-		let variables = [];
-		if (localSquad) {
-			variables = _.chain(localSquad.players)
-				.filter(({ _player }) => _player.twitter)
-				.sortBy(p => p.number || 999)
-				.map(({ _player }) => ({ name: _player.name.full, value: `@${_player.twitter}` }))
-				.value();
-		}
-
-		return (
-			<TweetComposer
-				initialContent={tweet}
-				variables={variables}
-				variableInstruction="@ Player"
-				includeButton={false}
-				onChange={tweet => this.setState({ tweet })}
-			/>
-		);
-	}
-
-	async generatePreview() {
-		const { game, getSquadImage, localTeam } = this.props;
-		await this.setState({ previewImage: false });
-		const image = await getSquadImage(game._id, this.state.selectedTeam.value != localTeam);
-		await this.setState({ previewImage: image });
-	}
-
-	async postTweet() {
-		const { game, postGameEvent, localTeam } = this.props;
-		const { tweet, replyTweet, selectedTeam, _profile } = this.state;
-
-		this.setState({ tweetSending: true });
-		const options = {
-			_profile,
-			tweet,
-			replyTweet,
-			postTweet: true,
-			event: "matchSquad",
-			showOpposition: selectedTeam.value != localTeam
-		};
-		const event = await postGameEvent(game._id, options);
-		this.setState({ tweetSending: false, replyTweet: event.tweet_id });
-	}
-
 	render() {
-		const { teams, teamOptions, game } = this.state;
+		const { game, isLoading, validationSchema } = this.state;
 
-		if (game === undefined || teams === undefined) {
+		//Await profiles
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 
 		return (
-			<div className="container pregame-image-loader">
-				<div className="form-card grid">
-					<label>Profile</label>
-					{this.renderProfileSelector()}
-					<label>Team</label>
-					<Select
-						styles={selectStyling}
-						options={teamOptions}
-						onChange={selectedTeam =>
-							this.setState({
-								selectedTeam
-							})
-						}
-						isSearchable={false}
-						isDisabled={teamOptions.length <= 1}
-						defaultValue={this.state.selectedTeam}
-					/>
-					<label>Tweet</label>
-					{this.renderTweetComposer()}
-					<label>In Reply To</label>
-					<input
-						type="text"
-						value={this.state.replyTweet}
-						onChange={ev => this.setState({ replyTweet: ev.target.value })}
-					/>
-					<div className="buttons">
-						<button type="button" onClick={() => this.generatePreview()}>
-							Preview
-						</button>
-						<button
-							type="button"
-							onClick={() => this.postTweet()}
-							disabled={this.state.tweetSending}
-						>
-							Post
-						</button>
-					</div>
-					{this.renderPreview()}
-				</div>
-				<AdminGameEventList
-					game={game}
-					onReply={replyTweet => this.setState({ replyTweet })}
-				/>
-			</div>
+			<Formik
+				initialValues={this.getInitialValues()}
+				onSubmit={(values, formik) => this.handleSubmit(values, formik)}
+				validationSchema={validationSchema}
+				render={({ isSubmitting, setFieldValue, values }) => (
+					<Form>
+						<div className="form-card grid">
+							{this.renderMainForm()}
+							<div className="buttons">
+								<button type="button" onClick={() => this.getPreview(values)}>
+									Preview
+								</button>
+								<button className="confirm" type="submit" disabled={isSubmitting}>
+									Post
+								</button>
+							</div>
+							{this.renderPreview()}
+						</div>
+						<AdminGameEventList
+							game={game}
+							onReply={tweetId => setFieldValue("replyTweet", tweetId)}
+						/>
+					</Form>
+				)}
+			/>
 		);
 	}
 }
 
-function mapStateToProps({ config, teams, social }) {
-	const { fullTeams } = teams;
+function mapStateToProps({ config, games, social, teams }) {
+	const { fullGames } = games;
+	const { teamList } = teams;
 	const { localTeam } = config;
 	const { profiles, defaultProfile } = social;
-	return { fullTeams, localTeam, profiles, defaultProfile };
+	return { fullGames, localTeam, profiles, defaultProfile, teamList };
 }
 
 export default connect(
 	mapStateToProps,
-	{ fetchProfiles, fetchTeam, getSquadImage, postGameEvent }
+	{ fetchProfiles, getSquadImage, postGameEvent }
 )(AdminGameSquadImage);
