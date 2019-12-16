@@ -42,27 +42,8 @@ async function validateGame(_id, res, promise = null) {
 	}
 }
 
-async function processBasics(values) {
-	//Handle Score Override
-	// values.scoreOverride = _.chain(values.scoreOverride)
-	// 	.map((points, _team) => ({ points, _team }))
-	// 	.reject(({ points }) => points === null || points === "")
-	// 	.value();
-
-	//Check for empty images
-	// values.images = _.chain(values.images)
-	// 	.pick(["header", "midpage", "customLogo"])
-	// 	.mapValues(i => i || null)
-	// 	.value();
-
-	//Filter Hashtags
-	if (values.customHashtags) {
-		values.customHashtags = values.customHashtags.map(tag =>
-			tag.replace(/[^A-Za-z0-9]+/gi, "")
-		);
-	}
-
-	//Sort ground
+async function processGround(values) {
+	//Sort ground, when the value is set to "auto"
 	if (values._ground === "auto") {
 		const Team = mongoose.model("teams");
 		const homeTeamId =
@@ -255,7 +236,7 @@ async function getGames(req, res, forGamePage, forAdmin) {
 
 //Create New Game
 export async function addGame(req, res) {
-	const values = await processBasics(req.body);
+	const values = await processGround(req.body);
 	values.slug = await Game.generateSlug(values);
 	const game = new Game(values);
 	await game.save();
@@ -267,7 +248,7 @@ export async function updateGame(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res);
 	if (game) {
-		const values = await processBasics(req.body);
+		const values = await processGround(req.body);
 		await Game.updateOne({ _id }, values);
 
 		await getUpdatedGame(_id, res, true);
