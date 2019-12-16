@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -21,15 +21,10 @@ import { fetchProfiles } from "~/client/actions/socialActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
-//Helper
-function getTweetText(year) {
-	let message = `Here they are, Giants fans, your ${year} fixtures!`;
-	const caretPoint = message.length;
-	message += "\n\n#COYG #CowbellArmy";
-	return { caretPoint, message };
-}
+//Helpers
+import { renderFieldGroup } from "~/helpers/formHelper";
 
-class AdminFixtureListImagePage extends BasicForm {
+class AdminFixtureListImagePage extends Component {
 	constructor(props) {
 		super(props);
 
@@ -69,94 +64,166 @@ class AdminFixtureListImagePage extends BasicForm {
 				.label("Tweet")
 		});
 
-		this.state = { validationSchema, isLoading: true };
+		this.state = { validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
 		const { gameList, profiles, competitionSegmentList, teamTypes } = nextProps;
-		const newState = {};
+		const newState = { isLoading: false };
 
-		newState.isLoading = !gameList || !competitionSegmentList || !profiles;
-
-		if (!newState.isLoading) {
-			newState.year = _.chain(gameList)
-				.map(({ date }) => date.getFullYear())
-				.sort()
-				.value()
-				.pop();
-
-			newState.competitions = _.chain(gameList)
-				.filter(({ date }) => date.getFullYear() == newState.year)
-				.groupBy("_teamType")
-				.map((games, _teamType) => {
-					const teamType = teamTypes[_teamType];
-					const options = _.chain(games)
-						.map("_competition")
-						.uniq()
-						.map(c => {
-							const {
-								_parentCompetition,
-								appendCompetitionName,
-								name
-							} = competitionSegmentList[c];
-							const titleArr = [_parentCompetition.name];
-							if (appendCompetitionName) {
-								titleArr.push(name);
-							}
-							return { value: c, label: titleArr.join(" ") };
-						})
-						.sortBy("label")
-						.value();
-					return { label: teamType.name, options, sortOrder: teamType.sortOrder };
-				})
-				.sortBy("sortOrder")
-				.value();
-
-			newState.profiles = _.chain(profiles)
-				.reject("archived")
-				.map(({ name, _id }) => ({ label: name, value: _id }))
-				.sortBy("label")
-				.value();
+		if (!gameList || !competitionSegmentList || !profiles) {
+			newState.isLoading = true;
+			return newState;
 		}
+
+		//Get year based on gamelist
+		newState.year = _.chain(gameList)
+			.map(({ date }) => date.getFullYear())
+			.sort()
+			.value()
+			.pop();
+
+		//Dropdown options
+		newState.options = {};
+
+		//Get competitions to include
+		newState.options.competitions = _.chain(gameList)
+			.filter(({ date }) => date.getFullYear() == newState.year)
+			.groupBy("_teamType")
+			.map((games, _teamType) => {
+				const teamType = teamTypes[_teamType];
+				const options = _.chain(games)
+					.map("_competition")
+					.uniq()
+					.map(c => {
+						const {
+							_parentCompetition,
+							appendCompetitionName,
+							name
+						} = competitionSegmentList[c];
+						const titleArr = [_parentCompetition.name];
+						if (appendCompetitionName) {
+							titleArr.push(name);
+						}
+						return { value: c, label: titleArr.join(" ") };
+					})
+					.sortBy("label")
+					.value();
+				return { label: teamType.name, options, sortOrder: teamType.sortOrder };
+			})
+			.sortBy("sortOrder")
+			.value();
+
+		//Social Profiles
+		newState.options.profiles = _.chain(profiles)
+			.reject("archived")
+			.map(({ name, _id }) => ({ label: name, value: _id }))
+			.sortBy("label")
+			.value();
+
 		return newState;
 	}
 
 	getInitialValues() {
-		const { profiles, competitions, year } = this.state;
+		const { options, year } = this.state;
 		const { defaultProfile, competitionSegmentList } = this.props;
 
-		const { message } = getTweetText(year);
+		const { message } = this.getInitialTweetText(year);
 
 		return {
 			tweet: message,
-			_competitions: competitions[0].options.filter(
+			_competitions: options.competitions[0].options.filter(
 				({ value }) => competitionSegmentList[value].type !== "Friendly"
 			),
-			_profile: profiles.find(p => p.value == defaultProfile) || profiles[0]
+			_profile: options.profiles.find(p => p.value == defaultProfile) || options.profiles[0]
 		};
 	}
 
-	async generatePreview(values) {
+	getInitialTweetText(year) {
+		let message = `Here they are, Giants fans, your ${year} fixtures!`;
+		const caretPoint = message.length;
+		message += "\n\n#COYG #CowbellArmy";
+		return { caretPoint, message };
+	}
+
+	getFieldGroups() {
+		const { options, previewImage, year } = this.state;
+		const { caretPoint } = this.getInitialTweetText(year);
+		return [
+			{
+				fields: [
+					{
+						name: "_profile",
+						type: fieldTypes.select,
+						options: options.profiles,
+						isSearchable: false
+					},
+					{
+						name: "_competitions",
+						type: fieldTypes.select,
+						options: options.competitions,
+						isMulti: true
+					},
+					{
+						name: "tweet",
+						type: fieldTypes.tweet,
+						autoFocus: true,
+						caretPoint
+					}
+				]
+			},
+			{
+				render: values => {
+					let preview;
+					if (previewImage) {
+						preview = <img src={previewImage} className="preview-image" />;
+					} else if (previewImage === false) {
+						preview = <LoadingPage />;
+					}
+
+					return (
+						<div key="preview" className="full-span">
+							<div className="buttons">
+								<button type="button" onClick={() => this.getPreview(values)}>
+									Preview Image
+								</button>
+							</div>
+							{preview}
+						</div>
+					);
+				}
+			}
+		];
+	}
+
+	async getPreview(values) {
 		const { year } = this.state;
 		const { previewFixtureListImage } = this.props;
-		this.setState({ previewImage: false, isSubmitting: true });
+
+		//Set previewImage to false, to enforce LoadingPage
+		this.setState({ previewImage: false });
+
+		//Get the image
 		const image = await previewFixtureListImage(
 			year,
 			values._competitions.map(({ value }) => value).join(",")
 		);
-		this.setState({ previewImage: image, isSubmitting: false });
+		this.setState({ previewImage: image });
 	}
 
-	async onSubmit(fValues) {
+	async handleSubmit(values, { setSubmitting }) {
 		const { year } = this.state;
-		this.setState({ isSubmitting: true });
 		const { postFixtureListImage } = this.props;
-		const values = _.cloneDeep(fValues);
-		values._competitions = values._competitions.map(({ value }) => value);
-		values._profile = values._profile = values._profile.value;
+
+		//Post Image
 		values.year = year;
 		await postFixtureListImage(values);
-		this.setState({ isSubmitting: false });
+
+		//Remove preview
+		this.setState({ previewImage: undefined });
+
+		//Enable resubmission
+		setSubmitting(false);
 	}
 
 	renderForm() {
@@ -169,7 +236,7 @@ class AdminFixtureListImagePage extends BasicForm {
 			isSubmitting
 		} = this.state;
 		if (!isLoading) {
-			const { caretPoint } = getTweetText(year);
+			const { caretPoint } = this.getInitialTweetText(year);
 			const fields = [
 				{
 					name: "_profile",
@@ -190,18 +257,18 @@ class AdminFixtureListImagePage extends BasicForm {
 					<Formik
 						initialValues={this.getInitialValues()}
 						validationSchema={validationSchema}
-						onSubmit={values => this.onSubmit(values)}
+						onSubmit={values => this.handleSubmit(values)}
 						render={({ values }) => {
 							return (
 								<Form>
 									<div className="container">
 										<div className="form-card grid">
-											{this.renderFieldGroup(fields)}
+											{renderFieldGroup(fields)}
 											<div className="buttons">
 												<button
 													type="button"
 													disabled={isSubmitting}
-													onClick={() => this.generatePreview(values)}
+													onClick={() => this.getPreview(values)}
 												>
 													Preview Image
 												</button>
@@ -222,32 +289,38 @@ class AdminFixtureListImagePage extends BasicForm {
 		}
 	}
 
-	renderPreview() {
-		const { previewImage } = this.state;
-		if (previewImage) {
-			return (
-				<section className="preview-image">
-					<div className="container">
-						<img src={previewImage} className="preview-image" />
-					</div>
-				</section>
-			);
-		} else if (previewImage === false) {
-			return <LoadingPage />;
-		} else {
-			return null;
-		}
+	alterValuesBeforeSubmit(values) {
+		values.year = this.state.year;
 	}
 
 	render() {
-		const { year } = this.state;
+		const { isLoading, year, validationSchema } = this.state;
+
+		//Await all required data
+		if (isLoading) {
+			return <LoadingPage />;
+		}
+
 		return (
 			<div className="admin-fixture-list-image">
 				<section className="page-header">
-					<h1>{year ? `year ` : ""}Fixture Graphic</h1>
+					<h1>{year ? `${year} ` : ""}Fixture Graphic</h1>
 				</section>
-				{this.renderForm()}
-				{this.renderPreview()}
+				<section className="form">
+					<div className="container">
+						<BasicForm
+							alterValuesBeforeSubmit={values => this.alterValuesBeforeSubmit(values)}
+							fieldGroups={this.getFieldGroups()}
+							initialValues={this.getInitialValues()}
+							isInitialValid={true}
+							isNew={false}
+							itemType="Image"
+							onSubmit={(values, formik) => this.handleSubmit(values, formik)}
+							submitButtonText="Post Image"
+							validationSchema={validationSchema}
+						/>
+					</div>
+				</section>
 			</div>
 		);
 	}
@@ -268,13 +341,10 @@ function mapStateToProps({ competitions, games, social, teams }) {
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchGameList,
-		fetchProfiles,
-		previewFixtureListImage,
-		postFixtureListImage,
-		fetchCompetitionSegments
-	}
-)(AdminFixtureListImagePage);
+export default connect(mapStateToProps, {
+	fetchGameList,
+	fetchProfiles,
+	previewFixtureListImage,
+	postFixtureListImage,
+	fetchCompetitionSegments
+})(AdminFixtureListImagePage);
