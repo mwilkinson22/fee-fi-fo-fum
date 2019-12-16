@@ -65,6 +65,8 @@ class AdminGamePageNavigation extends Component {
 			if (!_competition.instance.scoreOnly) {
 				submenuItems.push({ label: "Stats", value: "stats", group: 2 });
 			}
+
+			submenuItems.push({ label: "Post-Game Data", value: "post-game", group: 2 });
 		}
 
 		return submenuItems;

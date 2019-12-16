@@ -29,6 +29,8 @@ class AdminGameImages extends Component {
 		//Get Game
 		newState.game = fullGames[_id];
 
+		console.log(newState.game);
+
 		//Validation Schema
 		newState.validationSchema = Yup.object().shape({
 			header: Yup.string().label("Header"),

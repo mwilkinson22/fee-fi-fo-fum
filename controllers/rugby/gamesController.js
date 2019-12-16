@@ -14,7 +14,7 @@ import axios from "axios";
 import twitter from "~/services/twitter";
 
 //Constants
-const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
+const { defaultSocialProfile, localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
@@ -249,7 +249,32 @@ export async function updateGame(req, res) {
 	const game = await validateGame(_id, res);
 	if (game) {
 		const values = await processGround(req.body);
-		await Game.updateOne({ _id }, values);
+
+		//Add events in case of motm being updated
+		if (Object.keys(req.body).indexOf("_motm") > -1) {
+			["_motm", "_fan_motm", "fan_motm_link"].forEach(field => {
+				if (req.body[field] && req.body[field] != game[field]) {
+					//Create a basic event to push
+					const event = {
+						//Remove trailing underscore
+						event: field.replace(/^_/, ""),
+						_user: req.user._id,
+						_profile: defaultSocialProfile
+					};
+					if (field === "fan_motm_link") {
+						event.tweet_id = req.body[field];
+					} else {
+						event._player = req.body[field];
+					}
+
+					game.events.push(event);
+				}
+			});
+			await game.save();
+		}
+
+		//Update values
+		await game.updateOne(values);
 
 		await getUpdatedGame(_id, res, true);
 	}
@@ -525,16 +550,6 @@ export async function deleteEvent(req, res) {
 	}
 }
 
-export async function setManOfSteelPoints(req, res) {
-	const { _id } = req.params;
-	const game = await validateGame(_id, res);
-	if (game) {
-		game.manOfSteel = _.map(req.body, (_player, points) => ({ _player, points }));
-		await game.save();
-		await getUpdatedGame(_id, res);
-	}
-}
-
 export async function setStats(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res);
@@ -552,35 +567,6 @@ export async function setStats(req, res) {
 			);
 		}
 		await getUpdatedGame(_id, res, true);
-	}
-}
-
-export async function setMotm(req, res) {
-	const { _id } = req.params;
-	const game = await validateGame(_id, res);
-	if (game) {
-		const { _motm, _fan_motm, fan_motm_link } = req.body;
-		const originalData = _.pick(game, ["_motm", "_fan_motm", "fan_motm_link"]);
-
-		//Update Values
-		game._motm = _motm;
-		game._fan_motm = _fan_motm;
-		game.fan_motm_link = fan_motm_link;
-
-		//Add events on new data
-		if (_motm != originalData._motm) {
-			await game.events.push({ event: "motm", _player: _motm });
-		}
-		if (_fan_motm != originalData._fan_motm) {
-			await game.events.push({ event: "fan_motm", _player: _fan_motm });
-		}
-		if (fan_motm_link != originalData._fan_motm) {
-			await game.events.push({ event: "fan_motm_link", tweet_id: fan_motm_link });
-		}
-
-		//Save
-		await game.save();
-		await getUpdatedGame(_id, res);
 	}
 }
 

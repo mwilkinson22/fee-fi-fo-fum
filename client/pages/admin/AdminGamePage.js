@@ -20,8 +20,7 @@ import AdminGameSquads from "../../components/admin/games/AdminGameSquads";
 import AdminGameSquadImage from "../../components/admin/games/AdminGameSquadImage";
 import AdminGameEvent from "../../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../../components/admin/games/AdminGameStats";
-import AdminGameManOfSteel from "../../components/admin/games/AdminGameManOfSteel";
-import AdminGameManOfTheMatch from "../../components/admin/games/AdminGameManOfTheMatch";
+import AdminGamePostGame from "../../components/admin/games/AdminGamePostGame";
 
 //Actions
 import { fetchGames, reloadGames, fetchGameList } from "../../actions/gamesActions";
@@ -213,13 +212,7 @@ class AdminGamePage extends Component {
 			<section className="form">
 				<div className="container">
 					<Switch>
-						{/* 
-					<Route
-					path="/admin/game/:_id/motm"
-						exact
-						component={AdminGameManOfTheMatch}
-					/>
-				*/}
+						<Route path={`${path}/post-game`} component={AdminGamePostGame} />
 						<Route
 							path="/admin/game/:_id/stats"
 							render={() => <AdminGameStats scoreOnly={scoreOnly} />}
