@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Formik, Form } from "formik";
@@ -9,7 +9,6 @@ import * as Yup from "yup";
 //Components
 import PopUpDialog from "../PopUpDialog";
 import LoadingPage from "../LoadingPage";
-import BasicForm from "../admin/BasicForm";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -19,8 +18,9 @@ import { fetchGames, getCalendar } from "../../actions/gamesActions";
 
 //Helpers
 import { convertGameToCalendarString } from "~/helpers/gameHelper";
+import { renderFieldGroup } from "~/helpers/formHelper";
 
-class CalendarConfigDialog extends BasicForm {
+class CalendarConfigDialog extends Component {
 	constructor(props) {
 		super(props);
 
@@ -169,7 +169,10 @@ class CalendarConfigDialog extends BasicForm {
 		const { _competitions, ...options } = values;
 
 		//Get Calendar Data
-		const data = await getCalendar(_competitions.map(c => c.value), options);
+		const data = await getCalendar(
+			_competitions.map(c => c.value),
+			options
+		);
 
 		//Convert to Blob
 		const file = new Blob([data], { type: "text/calendar" });
@@ -199,7 +202,7 @@ class CalendarConfigDialog extends BasicForm {
 
 	render() {
 		const { onDestroy } = this.props;
-		const { isDownloading, objectUrl, options, isLoading } = this.state;
+		const { isDownloading, objectUrl, options, isLoading, validationSchema } = this.state;
 
 		if (isLoading || isDownloading) {
 			return (
@@ -279,12 +282,12 @@ class CalendarConfigDialog extends BasicForm {
 										</a>
 									</p>
 									<hr />
-									{this.renderFieldGroup(competitionField)}
+									{renderFieldGroup(competitionField, validationSchema)}
 									<hr />
 									<p className="full-span">
 										Customise how your calendar entries will appear
 									</p>
-									{this.renderFieldGroup(configFields)}
+									{renderFieldGroup(configFields, validationSchema)}
 									<label>Examples</label>
 									{this.renderExampleEntries(values)}
 									<div className="buttons">
@@ -314,7 +317,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, activeTeamType, fullTeams, teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGames, getCalendar }
-)(CalendarConfigDialog);
+export default connect(mapStateToProps, { fetchGames, getCalendar })(CalendarConfigDialog);
