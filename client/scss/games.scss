@@ -1053,39 +1053,39 @@
 		}
 	}
 	.admin-stats-page {
-		.stat-tables {
-			margin: 0 10pt;
+		margin: 0 10pt;
+		h6 {
+			font-size: 1.4em;
+		}
+		.stat-table-wrapper {
+			margin-bottom: 14pt;
 
-			.stat-table-wrapper {
-				margin-bottom: 14pt;
+			thead th {
+				text-align: center;
+			}
 
-				thead th {
-					text-align: center;
+			tbody {
+				th {
+					text-align: left;
+					padding-left: 4pt;
+					padding-right: 8pt;
 				}
 
-				tbody {
-					th {
-						text-align: left;
-						padding-left: 4pt;
-						padding-right: 8pt;
+				input {
+					width: 50pt;
+					border-radius: 4pt;
+					text-align: center;
+					border: solid thin #999;
+
+					&.error {
+						border: solid 1pt red;
 					}
 
-					input {
-						width: 50pt;
-						border-radius: 4pt;
-						text-align: center;
-						border: solid thin #999;
+					padding: 2pt;
 
-						&.error {
-							border: solid 1pt red;
-						}
-
-						padding: 2pt;
-
-						&[type="number"]::-webkit-inner-spin-button,
-						&[type="number"]::-webkit-outer-spin-button {
-							opacity: 1;
-						}
+					&[type="number"]::-webkit-inner-spin-button,
+					&[type="number"]::-webkit-outer-spin-button {
+						opacity: 1;
 					}
 				}
 			}

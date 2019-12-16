@@ -206,6 +206,8 @@ class AdminGamePage extends Component {
 	}
 
 	renderContent() {
+		const { game } = this.state;
+		const { scoreOnly } = game._competition.instance;
 		const path = `/admin/game/:_id`;
 		return (
 			<section className="form">
@@ -217,23 +219,15 @@ class AdminGamePage extends Component {
 						exact
 						component={AdminGameManOfTheMatch}
 					/>
-					<Route
-					path="/admin/game/:_id/stats"
-					exact
-					render={() =>
-						game._competition.instance.scoreOnly ? (
-							<NotFoundPage />
-							) : (
-								<AdminGameStats game={game} scoreOnly={false} />
-								)
-						}
-						/>
-					<Route
-					path="/admin/game/:_id/scores"
-					exact
-					component={AdminGameStats}
-					/>
 				*/}
+						<Route
+							path="/admin/game/:_id/stats"
+							render={() => <AdminGameStats scoreOnly={scoreOnly} />}
+						/>
+						<Route
+							path="/admin/game/:_id/scores"
+							render={() => <AdminGameStats scoreOnly={true} />}
+						/>
 						<Route path={`${path}/event`} component={AdminGameEvent} />
 						<Route path={`${path}/squad-images`} component={AdminGameSquadImage} />
 						<Route path={`${path}/squads`} component={AdminGameSquads} />

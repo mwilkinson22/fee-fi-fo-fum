@@ -2,10 +2,11 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form, FastField } from "formik";
+import { withRouter } from "react-router-dom";
 import * as Yup from "yup";
 
 //Components
+import BasicForm from "../BasicForm";
 import AdminGameCrawler from "./AdminGameCrawler";
 import Table from "../../Table";
 
@@ -13,100 +14,126 @@ import Table from "../../Table";
 import { setStats } from "../../../actions/gamesActions";
 
 //Constants
+import * as fieldTypes from "~/constants/formFieldTypes";
 import playerStatTypes from "~/constants/playerStatTypes";
+
+//Helpers
+import { renderInput } from "~/helpers/formHelper";
 
 class AdminGameStats extends Component {
 	constructor(props) {
 		super(props);
 
-		const { game, localTeam } = props;
-
-		//Set Teams
-		let teams = [localTeam, game._opposition._id];
-		if (game.isAway) {
-			teams = teams.reverse();
-		}
-
 		//Set Stat Types
-		this.state = { teams, errors: [] };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const statTypes = _.chain(playerStatTypes)
+		const { fullGames, localTeam, match } = nextProps;
+
+		const newState = {};
+
+		//Get Game
+		newState.game = fullGames[match.params._id];
+
+		//Get Teams
+		newState.teams = [localTeam, newState.game._opposition._id];
+		if (newState.game.isAway) {
+			newState.teams.reverse();
+		}
+
+		//Get stat types to display.
+		//Ensure we only show stats stored in the database (i.e. no average values)
+		//and limit the scoreOnly ones where necessary
+		newState.statTypes = _.chain(playerStatTypes)
 			.map((obj, key) => ({ key, ...obj }))
 			.filter("storedInDatabase")
 			.reject(obj => nextProps.scoreOnly && !obj.scoreOnly)
 			.keyBy("key")
 			.value();
 
-		return { statTypes };
-	}
-
-	getDefaults() {
-		const { game } = this.props;
-		const { statTypes } = this.state;
-
-		const stats = _.chain(game.playerStats)
-			.map(p => {
-				const { _player, stats } = p;
-				const statValues = _.chain(statTypes)
-					.map((obj, key) => {
-						const value = stats[key] != null ? stats[key] : "";
-						return [key, value];
-					})
-					.fromPairs()
-					.value();
-				return [_player, statValues];
-			})
-			.fromPairs()
-			.value();
-		return { stats };
-	}
-
-	getValidationSchema() {
-		const { playerStats } = this.props.game;
-		const { statTypes } = this.state;
-
-		const stats = _.chain(playerStats)
-			.map(p => {
-				const { _player } = p;
-				const stats = _.mapValues(statTypes, () => {
-					return Yup.mixed()
+		//Validation Schema
+		const validationSchema = _.chain(newState.game.playerStats)
+			//Loop through players
+			.map(({ _player, _team }) => {
+				const { name } = newState.game.eligiblePlayers[_team].find(
+					p => p._player._id == _player
+				)._player;
+				//Loop through stats
+				const playerValidation = _.mapValues(newState.statTypes, statType =>
+					Yup.mixed()
 						.test("isNumber", "A positive integer must be provided", value => {
 							return value === "" || (Number.isInteger(value) && Number(value) >= 0);
 						})
 						.test("scoreIsProvided", "This field is required", function(value) {
-							const key = this.path.split(".").pop();
-							return !playerStatTypes[key].scoreOnly || value !== "";
-						});
-				});
-				return [_player, Yup.object().shape(stats)];
+							return !statType.scoreOnly || value !== "";
+						})
+						.label(`${name.full} ${statType.plural}`)
+				);
+				return [_player, Yup.object().shape(playerValidation)];
 			})
 			.fromPairs()
 			.value();
 
-		return Yup.object().shape({
-			stats: Yup.object().shape(stats)
-		});
+		//Create a yup object
+		newState.validationSchema = Yup.object().shape(validationSchema);
+
+		return newState;
 	}
 
-	renderGameCrawler(formikProps) {
-		const { game, scoreOnly } = this.props;
-		return (
-			<AdminGameCrawler
-				formikProps={formikProps}
-				game={game}
-				scoreOnly={scoreOnly}
-				teams={this.state.teams}
-			/>
-		);
+	getInitialValues() {
+		const { game, statTypes } = this.state;
+
+		//Set an empty object
+		const initialValues = {};
+
+		//Loop each player in the squad
+		game.playerStats.forEach(p => {
+			const { _player, stats } = p;
+
+			initialValues[_player] = _.mapValues(statTypes, (obj, key) => {
+				if (stats[key] != null) {
+					//If the value is set, return it
+					return stats[key];
+				} else {
+					//Otherwise, keep it blank
+					return "";
+				}
+			});
+		});
+
+		return initialValues;
+	}
+
+	getFieldGroups() {
+		const { scoreOnly, teamList } = this.props;
+		const { game, teams } = this.state;
+
+		const tables = teams.map(_team => ({
+			label: teamList[_team].name.long,
+			render: (values, formik) => this.renderTeamTable(formik, _team)
+		}));
+
+		return [
+			{
+				render: (values, formik) => (
+					<AdminGameCrawler
+						key="game-crawler"
+						formikProps={formik}
+						game={game}
+						scoreOnly={scoreOnly}
+						teams={teams}
+					/>
+				)
+			},
+			...tables
+		];
 	}
 
 	renderTeamTable(formikProps, team) {
-		const { teamList, game } = this.props;
-		const { playerStats, eligiblePlayers } = game;
-		const { statTypes } = this.state;
+		const { game, statTypes } = this.state;
 
+		//Create Columns
 		const statColumns = _.chain(statTypes)
 			.map(({ plural }, key) => {
 				return {
@@ -125,34 +152,39 @@ class AdminGameStats extends Component {
 			...statColumns
 		];
 
-		const rows = _.chain(playerStats)
+		//Loop through all players
+		const rows = _.chain(game.playerStats)
+			//Filter by team
 			.filter(({ _team }) => _team == team)
+			//Put them in order
 			.sortBy("position")
 			.map(p => {
-				//Get Name
-				const player = _.find(eligiblePlayers[team], m => m._player._id == p._player);
+				//Get Player Info
+				const { _player, number } = game.eligiblePlayers[team].find(
+					({ _player }) => _player._id == p._player
+				);
+
+				//Create Name Cell
 				const name = {
-					content: (player.number ? `${player.number}. ` : "") + player._player.name.full,
+					content: (number ? `${number}. ` : "") + _player.name.full,
 					sortValue: p.position
 				};
 
-				//Get Stats
-				const statInputs = _.mapValues(playerStatTypes, (obj, key) => {
-					let error;
-					const playerErrors =
-						formikProps.errors.stats && formikProps.errors.stats[p._player];
-					if (playerErrors) {
-						error = playerErrors[key];
-					}
+				//Get errors
+				const errors = formikProps.errors && formikProps.errors[p._player];
+
+				//Get Stat Inputs
+				const statInputs = _.mapValues(statTypes, (obj, key) => {
+					//Check for an error
+					const error = errors && errors[key];
+
 					return {
-						content: (
-							<FastField
-								type="number"
-								name={`stats.${p._player}.${key}`}
-								title={error || `${player._player.name.full} - ${obj.plural}`}
-								className={error ? "error" : ""}
-							/>
-						)
+						content: renderInput({
+							name: `${_player._id}.${key}`,
+							type: fieldTypes.number,
+							title: error || `${_player.name.full} ${playerStatTypes[key].plural}`,
+							className: error ? "error" : ""
+						})
 					};
 				});
 
@@ -167,9 +199,8 @@ class AdminGameStats extends Component {
 			.value();
 
 		return (
-			<div>
-				<h3>{teamList[team].name.short}</h3>
-				<div className="stat-table-wrapper">
+			<div key={team} className="stat-tables">
+				<div className="stat-table-wrapper no-max-height">
 					<Table
 						columns={columns}
 						rows={rows}
@@ -182,93 +213,35 @@ class AdminGameStats extends Component {
 		);
 	}
 
-	generateErrorList(formikProps) {
-		if (Object.keys(formikProps.errors).length) {
-			const errorList = [];
-			const { eligiblePlayers } = this.props.game;
-			const playerList = [
-				..._.values(eligiblePlayers)[0],
-				..._.values(eligiblePlayers)[1]
-			].map(p => p._player);
-
-			_.each(formikProps.errors.stats, (errors, player) => {
-				errorList.push(
-					<li>
-						<strong>{_.find(playerList, p => p._id == player).name.full}</strong>
-					</li>
-				);
-				_.each(errors, (error, key) => {
-					errorList.push(
-						<li>
-							{playerStatTypes[key].plural}: {error}
-						</li>
-					);
-				});
-			});
-			return (
-				<ul className="errors full-span">
-					<li>
-						<strong>Errors:</strong>
-					</li>
-					{errorList}
-				</ul>
-			);
-		} else {
-			return null;
-		}
-	}
-
 	onSubmit(values) {
-		const { game, setStats } = this.props;
-		setStats(game._id, values.stats);
+		const { setStats } = this.props;
+		const { game } = this.state;
+		setStats(game._id, values);
 	}
 
 	render() {
-		const { teams } = this.state;
+		const { validationSchema } = this.state;
+
 		return (
-			<div className="admin-stats-page">
-				<Formik
-					initialValues={this.getDefaults()}
-					validationSchema={this.getValidationSchema()}
-					onSubmit={values => this.onSubmit(values)}
-					render={formikProps => {
-						return (
-							<Form>
-								{this.renderGameCrawler(formikProps)}
-								<div className="stat-tables">
-									{this.renderTeamTable(formikProps, teams[0])}
-									{this.renderTeamTable(formikProps, teams[1])}
-								</div>
-								<div className="container">
-									<div className="form-card grid">
-										{this.generateErrorList(formikProps)}
-										<div className="buttons">
-											<button type="reset">Reset</button>
-											<button
-												type="submit"
-												disabled={Object.keys(formikProps.errors).length}
-											>
-												Update
-											</button>
-										</div>
-									</div>
-								</div>
-							</Form>
-						);
-					}}
-				/>
-			</div>
+			<BasicForm
+				className="admin-stats-page"
+				fieldGroups={this.getFieldGroups()}
+				initialValues={this.getInitialValues()}
+				isNew={false}
+				itemType="Stats"
+				useFormCard={false}
+				onSubmit={values => this.onSubmit(values)}
+				validationSchema={validationSchema}
+			/>
 		);
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
+	const { fullGames } = games;
 	const { teamList } = teams;
-	return { localTeam, teamList };
+	return { fullGames, localTeam, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ setStats }
-)(AdminGameStats);
+export default withRouter(connect(mapStateToProps, { setStats })(AdminGameStats));

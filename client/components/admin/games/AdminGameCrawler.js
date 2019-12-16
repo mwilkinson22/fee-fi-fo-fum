@@ -85,7 +85,7 @@ class AdminGameCrawler extends Component {
 	}
 
 	renderPlayers() {
-		const { game, formikProps } = this.props;
+		const { game } = this.props;
 		const { crawlData } = this.state;
 
 		return _.map(crawlData.results, (players, team) => {
@@ -141,26 +141,25 @@ class AdminGameCrawler extends Component {
 	}
 
 	async onRequest(includeScoringStats) {
-		const { game, crawlGame, formikProps } = this.props;
+		const { game, crawlGame } = this.props;
 		await this.setState({ isLoading: true });
 		const crawlData = await crawlGame(game._id, includeScoringStats);
-		await formikProps.setValues({
-			...formikProps.values,
-			nameMatch: _.mapValues(crawlData.results, players => {
-				return _.mapValues(players, ({ _player }) => _player);
-			})
+
+		const nameMatch = _.mapValues(crawlData.results, players => {
+			return _.mapValues(players, ({ _player }) => _player);
 		});
-		await this.setState({ crawlData, isLoading: false });
+
+		await this.setState({ crawlData, nameMatch, isLoading: false });
 	}
 
 	async onSubmit() {
 		const { formikProps, teams, setExternalNames } = this.props;
+		const { crawlData, nameMatch } = this.state;
 		const namesToUpdate = [];
 
-		const { crawlData } = this.state;
 		_.each(teams, team => {
 			//Update Stats
-			_.each(formikProps.values.nameMatch[team], (_id, name) => {
+			_.each(nameMatch[team], (_id, name) => {
 				if (!_id || _id == "null") {
 					return true;
 				}
@@ -175,8 +174,8 @@ class AdminGameCrawler extends Component {
 						delete stats.G;
 					}
 
-					formikProps.setFieldValue(`stats.${_id}`, {
-						...formikProps.values.stats[_id],
+					formikProps.setFieldValue(`${_id}`, {
+						...formikProps.values[_id],
 						...stats
 					});
 				}
@@ -277,7 +276,4 @@ function mapStateToProps({ config, teams }) {
 	return { localTeam, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ crawlGame, setExternalNames }
-)(AdminGameCrawler);
+export default connect(mapStateToProps, { crawlGame, setExternalNames })(AdminGameCrawler);

@@ -220,7 +220,7 @@ class BasicForm extends Component {
 	}
 
 	renderErrors(nestedErrors, nestedTouched) {
-		const { validationSchema } = this.props;
+		const { useFormCard, validationSchema } = this.props;
 
 		//Convert from { address : { city: "" } } to { address.city: "" }
 		const touched = nestedObjectToDot(nestedTouched);
@@ -239,12 +239,20 @@ class BasicForm extends Component {
 				const label = yupField && yupField.label ? yupField.label : name;
 				return <li key={name}>{label}</li>;
 			});
-			return (
+			const content = (
 				<div className="error">
 					<strong>The following fields have errors:</strong>
 					<ul>{errorList}</ul>
 				</div>
 			);
+
+			if (useFormCard) {
+				//If the parent is a form-card, we return as-is
+				return content;
+			} else {
+				//Otherwise, wrap it in in a form-card
+				return <div className="form-card">{content}</div>;
+			}
 		}
 	}
 
