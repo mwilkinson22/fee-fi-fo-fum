@@ -1,8 +1,4 @@
-import {
-	FETCH_GROUND,
-	DELETE_GROUND,
-	FETCH_ALL_GROUNDS
-} from "../actions/types";
+import { FETCH_GROUND, DELETE_GROUND, FETCH_ALL_GROUNDS } from "../actions/types";
 
 export default function(state = {}, action) {
 	switch (action.type) {
@@ -21,12 +17,13 @@ export default function(state = {}, action) {
 				}
 			};
 
-		case DELETE_GROUND:
+		case DELETE_GROUND: {
 			const { [action.payload]: oldId, ...groundList } = state.groundList;
 			return {
 				...state,
 				groundList
 			};
+		}
 		default:
 			return state;
 	}
