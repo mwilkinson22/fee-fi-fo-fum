@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { Link, Switch, Route } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "../NotFoundPage";
@@ -238,7 +239,9 @@ class AdminGamePage extends Component {
 
 		return (
 			<section className="form">
-				<div className="container">{content}</div>
+				<div className="container">
+					<ErrorBoundary>{content}</ErrorBoundary>
+				</div>
 			</section>
 		);
 	}

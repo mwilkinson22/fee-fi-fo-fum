@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Switch, Route, Link, withRouter } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import AdminCompetitionInstanceOverview from "../../components/admin/competitions/AdminCompetitionInstanceOverview";
 import AdminCompetitionInstanceSpecialRounds from "../../components/admin/competitions/AdminCompetitionInstanceSpecialRounds";
 import AdminCompetitionInstanceAdjustments from "../../components/admin/competitions/AdminCompetitionInstanceAdjustments";
@@ -103,7 +104,9 @@ class AdminCompetitionInstancePage extends Component {
 			submenu = (
 				<SubMenu
 					items={items}
-					rootUrl={`/admin/competitions/segments/${segment._id}/instances/${instance._id}/`}
+					rootUrl={`/admin/competitions/segments/${segment._id}/instances/${
+						instance._id
+					}/`}
 				/>
 			);
 		}
@@ -131,35 +134,41 @@ class AdminCompetitionInstancePage extends Component {
 	renderContent() {
 		const root = "/admin/competitions/segments/:segmentId/instances";
 		return (
-			<Switch>
-				<Route
-					path={`${root}/:instanceId/style`}
-					exact
-					component={AdminCompetitionInstanceStyle}
-				/>
-				<Route
-					path={`${root}/:instanceId/adjustments`}
-					exact
-					component={AdminCompetitionInstanceAdjustments}
-				/>
-				<Route
-					path={`${root}/:instanceId/special-rounds`}
-					exact
-					component={AdminCompetitionInstanceSpecialRounds}
-				/>
-				<Route
-					path={`${root}/new/:copyFromId`}
-					exact
-					component={AdminCompetitionInstanceOverview}
-				/>
-				<Route path={`${root}/new`} exact component={AdminCompetitionInstanceOverview} />
-				<Route
-					path={`${root}/:instanceId`}
-					exact
-					component={AdminCompetitionInstanceOverview}
-				/>
-				<Route path="/" component={NotFoundPage} />
-			</Switch>
+			<ErrorBoundary>
+				<Switch>
+					<Route
+						path={`${root}/:instanceId/style`}
+						exact
+						component={AdminCompetitionInstanceStyle}
+					/>
+					<Route
+						path={`${root}/:instanceId/adjustments`}
+						exact
+						component={AdminCompetitionInstanceAdjustments}
+					/>
+					<Route
+						path={`${root}/:instanceId/special-rounds`}
+						exact
+						component={AdminCompetitionInstanceSpecialRounds}
+					/>
+					<Route
+						path={`${root}/new/:copyFromId`}
+						exact
+						component={AdminCompetitionInstanceOverview}
+					/>
+					<Route
+						path={`${root}/new`}
+						exact
+						component={AdminCompetitionInstanceOverview}
+					/>
+					<Route
+						path={`${root}/:instanceId`}
+						exact
+						component={AdminCompetitionInstanceOverview}
+					/>
+					<Route path="/" component={NotFoundPage} />
+				</Switch>
+			</ErrorBoundary>
 		);
 	}
 
@@ -202,7 +211,10 @@ function mapStateToProps({ competitions }) {
 }
 
 export default withRouter(
-	connect(mapStateToProps, {
-		fetchCompetitionSegments
-	})(AdminCompetitionInstancePage)
+	connect(
+		mapStateToProps,
+		{
+			fetchCompetitionSegments
+		}
+	)(AdminCompetitionInstancePage)
 );

@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { renderRoutes } from "react-router-config";
 
 //Components
+import ErrorBoundary from "~/client/components/ErrorBoundary";
 import GAListener from "~/client/components/GAListener";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
@@ -47,15 +48,17 @@ class App extends Component {
 			className = `browser-${browser.toLowerCase().replace(/(?![A-Za-z0-9-_])./gi, "-")}`;
 		}
 		return (
-			<GAListener trackingId={gaTracking}>
-				<div className={className}>
-					<ScrollToTop>
-						<Header />
-						<HelmetBuilder title="" canonical="/" />
-						{renderRoutes(route.routes)}
-					</ScrollToTop>
-				</div>
-			</GAListener>
+			<ErrorBoundary>
+				<GAListener trackingId={gaTracking}>
+					<div className={className}>
+						<ScrollToTop>
+							<Header />
+							<HelmetBuilder title="" canonical="/" />
+							<ErrorBoundary>{renderRoutes(route.routes)}</ErrorBoundary>
+						</ScrollToTop>
+					</div>
+				</GAListener>
+			</ErrorBoundary>
 		);
 	}
 }

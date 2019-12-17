@@ -1,0 +1,35 @@
+.error-boundary {
+	margin: 20pt;
+	background: #fff6f6;
+	box-shadow: 2pt 2pt 2pt rgba(50, 50, 50, 0.5);
+	padding-bottom: 10pt;
+	max-height: 80vh;
+	display: flex;
+	flex-direction: column;
+
+	h2 {
+		background: #900;
+		color: white;
+		width: 100%;
+		padding: 10pt;
+		user-select: none;
+	}
+
+	.message {
+		margin: 10pt;
+		border-bottom: solid 4pt #900;
+		font-weight: 600;
+		padding-bottom: 6pt;
+	}
+
+	pre {
+		font-family: monospace;
+		margin: 10pt;
+		display: block;
+		padding: 4pt;
+		background: white;
+		border: solid thin black;
+		overflow: auto;
+		flex-grow: 1;
+	}
+}

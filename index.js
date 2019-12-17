@@ -15,6 +15,7 @@ import useragent from "express-useragent";
 
 //Models
 import "./models/Award";
+import "./models/Error";
 import "./models/User";
 import "./models/SocialProfile";
 import "./models/Sponsor";
@@ -48,6 +49,7 @@ import "./services/passport";
 
 //API Routes
 import awardRoutes from "./routes/awardRoutes";
+import errorRoutes from "./routes/errorRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import usersRoutes from "./routes/usersRoutes";
 import socialRoutes from "./routes/socialRoutes";
@@ -81,6 +83,7 @@ app.use(express.static("public"));
 
 // API Routes
 awardRoutes(app);
+errorRoutes(app);
 fileRoutes(app);
 usersRoutes(app);
 socialRoutes(app);

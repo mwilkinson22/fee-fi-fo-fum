@@ -25,7 +25,10 @@ export const getCoreConfig = req => async dispatch => {
 		initialPath: originalUrl,
 
 		//Set Analytics Key
-		gaTracking
+		gaTracking,
+
+		//Prod or Dev
+		environment: process.env.NODE_ENV
 	};
 
 	//Check for device

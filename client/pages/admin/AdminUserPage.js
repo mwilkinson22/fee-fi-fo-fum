@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { Switch, Route } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
@@ -84,22 +85,24 @@ class AdminTeamTypePage extends Component {
 		//more complex logic on access rights.
 		//Child components must pass the user prop into state
 		return (
-			<Switch>
-				<Route
-					path="/admin/users/:_id/ownership"
-					render={() => <AdminUserTransferSiteOwnership user={user} />}
-				/>
-				<Route
-					path="/admin/users/:_id/password"
-					render={() => <AdminUserPasswordChange user={user} />}
-				/>
-				<Route
-					path="/admin/users/:_id/"
-					exact
-					render={() => <AdminUserOverview user={user} />}
-				/>
-				<Route path="/" component={NotFoundPage} />
-			</Switch>
+			<ErrorBoundary>
+				<Switch>
+					<Route
+						path="/admin/users/:_id/ownership"
+						render={() => <AdminUserTransferSiteOwnership user={user} />}
+					/>
+					<Route
+						path="/admin/users/:_id/password"
+						render={() => <AdminUserPasswordChange user={user} />}
+					/>
+					<Route
+						path="/admin/users/:_id/"
+						exact
+						render={() => <AdminUserOverview user={user} />}
+					/>
+					<Route path="/" component={NotFoundPage} />
+				</Switch>
+			</ErrorBoundary>
 		);
 	}
 
@@ -138,4 +141,7 @@ function mapStateToProps({ config, users }) {
 	return { authUser, userList };
 }
 
-export default connect(mapStateToProps, { fetchUserList })(AdminTeamTypePage);
+export default connect(
+	mapStateToProps,
+	{ fetchUserList }
+)(AdminTeamTypePage);

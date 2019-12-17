@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Switch, Route, Link } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import AdminCompetitionOverview from "../../components/admin/competitions/AdminCompetitionOverview";
 import AdminCompetitionSegmentList from "../../components/admin/competitions/AdminCompetitionSegmentList";
 import NotFoundPage from "../NotFoundPage";
@@ -83,15 +84,25 @@ class AdminCompetitionPage extends Component {
 
 	renderContent() {
 		return (
-			<Switch>
-				<Route
-					path="/admin/competitions/:_id/segments"
-					component={AdminCompetitionSegmentList}
-				/>
-				<Route path="/admin/competitions/new" exact component={AdminCompetitionOverview} />
-				<Route path="/admin/competitions/:_id" exact component={AdminCompetitionOverview} />
-				<Route path="/" component={NotFoundPage} />
-			</Switch>
+			<ErrorBoundary>
+				<Switch>
+					<Route
+						path="/admin/competitions/:_id/segments"
+						component={AdminCompetitionSegmentList}
+					/>
+					<Route
+						path="/admin/competitions/new"
+						exact
+						component={AdminCompetitionOverview}
+					/>
+					<Route
+						path="/admin/competitions/:_id"
+						exact
+						component={AdminCompetitionOverview}
+					/>
+					<Route path="/" component={NotFoundPage} />
+				</Switch>
+			</ErrorBoundary>
 		);
 	}
 
@@ -119,4 +130,7 @@ function mapStateToProps({ competitions }) {
 	return { competitionList };
 }
 
-export default connect(mapStateToProps, { fetchCompetitions })(AdminCompetitionPage);
+export default connect(
+	mapStateToProps,
+	{ fetchCompetitions }
+)(AdminCompetitionPage);

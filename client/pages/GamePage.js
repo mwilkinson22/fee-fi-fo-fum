@@ -521,8 +521,9 @@ async function loadData(store, path) {
 }
 
 export default {
-	component: connect(mapStateToProps, { fetchGames, fetchGameList, fetchTeam, fetchPostList })(
-		GamePage
-	),
+	component: connect(
+		mapStateToProps,
+		{ fetchGames, fetchGameList, fetchTeam, fetchPostList }
+	)(GamePage),
 	loadData
 };

@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Link, Switch, Route } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import AdminTeamCoaches from "../../components/admin/teams/AdminTeamCoaches";
 import AdminTeamGrounds from "../../components/admin/teams/AdminTeamGrounds";
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
@@ -109,24 +110,30 @@ class AdminTeamPage extends Component {
 	getContent() {
 		return (
 			<div className="container">
-				<Switch>
-					<Route path="/admin/teams/new" component={AdminTeamOverview} />
+				<ErrorBoundary>
+					<Switch>
+						<Route path="/admin/teams/new" component={AdminTeamOverview} />
 
-					<Route exact path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
-					<Route
-						exact
-						path="/admin/teams/:teamId/squads/:squadId"
-						component={AdminTeamSquadsPage}
-					/>
-					<Route
-						exact
-						path="/admin/teams/:teamId/squads"
-						component={AdminTeamSquadsPage}
-					/>
-					<Route path="/admin/teams/:_id/grounds" exact component={AdminTeamGrounds} />
-					<Route path="/admin/teams/:_id" exact component={AdminTeamOverview} />
-					<Route path="/" component={NotFoundPage} />
-				</Switch>
+						<Route path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
+						<Route
+							exact
+							path="/admin/teams/:teamId/squads/:squadId"
+							component={AdminTeamSquadsPage}
+						/>
+						<Route
+							exact
+							path="/admin/teams/:teamId/squads"
+							component={AdminTeamSquadsPage}
+						/>
+						<Route
+							path="/admin/teams/:_id/grounds"
+							exact
+							component={AdminTeamGrounds}
+						/>
+						<Route path="/admin/teams/:_id" exact component={AdminTeamOverview} />
+						<Route path="/" component={NotFoundPage} />
+					</Switch>
+				</ErrorBoundary>
 			</div>
 		);
 	}
@@ -154,4 +161,7 @@ function mapStateToProps({ teams }) {
 	const { fullTeams, teamList } = teams;
 	return { fullTeams, teamList };
 }
-export default connect(mapStateToProps, { fetchTeam })(AdminTeamPage);
+export default connect(
+	mapStateToProps,
+	{ fetchTeam }
+)(AdminTeamPage);

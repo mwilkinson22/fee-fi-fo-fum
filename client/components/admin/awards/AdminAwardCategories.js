@@ -118,7 +118,7 @@ class AdminAwardCategories extends Component {
 	}
 
 	renderCategorySelect() {
-		const { award, category, isNew } = this.state;
+		let { award, category, isNew } = this.state;
 
 		//New category creation
 		const options = [{ label: "Add a category", value: "new" }];

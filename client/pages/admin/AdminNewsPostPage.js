@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { Link, Route, Switch } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
@@ -131,24 +132,29 @@ class AdminNewsPostPage extends Component {
 		return (
 			<section className="form">
 				<div className="container">
-					<Switch>
-						<Route
-							path="/admin/news/post/new"
-							exact
-							component={AdminNewsPostOverview}
-						/>
-						<Route path="/admin/news/post/:_id/tags" component={AdminNewsPostTags} />
-						<Route
-							path="/admin/news/post/:_id/content"
-							component={AdminNewsPostContent}
-						/>
-						<Route
-							path="/admin/news/post/:_id"
-							exact
-							component={AdminNewsPostOverview}
-						/>
-						<Route path="/" component={NotFoundPage} />
-					</Switch>
+					<ErrorBoundary>
+						<Switch>
+							<Route
+								path="/admin/news/post/new"
+								exact
+								component={AdminNewsPostOverview}
+							/>
+							<Route
+								path="/admin/news/post/:_id/tags"
+								component={AdminNewsPostTags}
+							/>
+							<Route
+								path="/admin/news/post/:_id/content"
+								component={AdminNewsPostContent}
+							/>
+							<Route
+								path="/admin/news/post/:_id"
+								exact
+								component={AdminNewsPostOverview}
+							/>
+							<Route path="/" component={NotFoundPage} />
+						</Switch>
+					</ErrorBoundary>
 				</div>
 			</section>
 		);
@@ -184,9 +190,12 @@ function mapStateToProps({ config, games, news, users }) {
 	return { authUser, postList, fullPosts, userList, gameList };
 }
 
-export default connect(mapStateToProps, {
-	fetchPostList,
-	fetchNewsPost,
-	fetchUserList,
-	fetchGameList
-})(AdminNewsPostPage);
+export default connect(
+	mapStateToProps,
+	{
+		fetchPostList,
+		fetchNewsPost,
+		fetchUserList,
+		fetchGameList
+	}
+)(AdminNewsPostPage);

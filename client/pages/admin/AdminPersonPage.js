@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { Link, Switch, Route } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import SubMenu from "~/client/components/SubMenu";
 import LoadingPage from "../../components/LoadingPage";
 import NotFoundPage from "../NotFoundPage";
@@ -84,13 +85,25 @@ class AdminPersonPage extends Component {
 		return (
 			<section className="form">
 				<div className="container">
-					<Switch>
-						<Route path="/admin/people/new" exact component={AdminPersonOverview} />
-						<Route path="/admin/people/:_id/referee" component={AdminRefereeDetails} />
-						<Route path="/admin/people/:_id/player" component={AdminPlayerDetails} />
-						<Route path="/admin/people/:_id" exact component={AdminPersonOverview} />
-						<Route path="/" component={NotFoundPage} />
-					</Switch>
+					<ErrorBoundary>
+						<Switch>
+							<Route path="/admin/people/new" exact component={AdminPersonOverview} />
+							<Route
+								path="/admin/people/:_id/referee"
+								component={AdminRefereeDetails}
+							/>
+							<Route
+								path="/admin/people/:_id/player"
+								component={AdminPlayerDetails}
+							/>
+							<Route
+								path="/admin/people/:_id"
+								exact
+								component={AdminPersonOverview}
+							/>
+							<Route path="/" component={NotFoundPage} />
+						</Switch>
+					</ErrorBoundary>
 				</div>
 			</section>
 		);
@@ -132,4 +145,7 @@ function mapStateToProps({ people }) {
 	const { fullPeople, peopleList } = people;
 	return { fullPeople, peopleList };
 }
-export default connect(mapStateToProps, { fetchPerson, fetchPeopleList })(AdminPersonPage);
+export default connect(
+	mapStateToProps,
+	{ fetchPerson, fetchPeopleList }
+)(AdminPersonPage);

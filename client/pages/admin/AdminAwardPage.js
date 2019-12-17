@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Link, Switch, Route } from "react-router-dom";
 
 //Components
+import ErrorBoundary from "../../components/ErrorBoundary";
 import SubMenu from "~/client/components/SubMenu";
 import LoadingPage from "../../components/LoadingPage";
 import NotFoundPage from "../NotFoundPage";
@@ -117,7 +118,9 @@ class AdminAwardPage extends Component {
 						<h1>{this.getTitle()}</h1>
 						<div className="container">{this.getSubmenu()}</div>
 					</section>
-					{this.getContent()}
+					<section className="form">
+						<ErrorBoundary>{this.getContent()}</ErrorBoundary>
+					</section>
 				</div>
 			);
 		}
