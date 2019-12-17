@@ -101,10 +101,10 @@ class AdminNewsPostTags extends Component {
 				}
 
 				switch (key) {
-					case "tags":
-						return post[key].map(value => ({ value, label: value }));
-					default:
+					case "_people":
 						return post[key].map(_id => options[key].find(({ value }) => value == _id));
+					default:
+						return post[key];
 				}
 			});
 		}
@@ -142,24 +142,12 @@ class AdminNewsPostTags extends Component {
 						name: "tags",
 						type: fieldTypes.creatableSelect,
 						isMulti: true,
+						showDropdown: false,
 						options: []
 					}
 				]
 			}
 		];
-	}
-
-	alterValuesBeforeSubmit(values) {
-		const { isNew } = this.state;
-
-		if (!isNew) {
-			values.dateCreated = new Date(`${values.dateCreated} ${values.timeCreated}`);
-			delete values.timeCreated;
-		}
-
-		if (values.category !== "recaps" && values.category !== "previews") {
-			delete values._game;
-		}
 	}
 
 	render() {
@@ -206,9 +194,12 @@ function mapStateToProps({ news, people, teams }) {
 	return { fullPosts, peopleList, teamList };
 }
 
-export default connect(mapStateToProps, {
-	fetchPostList,
-	fetchNewsPost,
-	fetchPeopleList,
-	updateNewsPost
-})(AdminNewsPostTags);
+export default connect(
+	mapStateToProps,
+	{
+		fetchPostList,
+		fetchNewsPost,
+		fetchPeopleList,
+		updateNewsPost
+	}
+)(AdminNewsPostTags);

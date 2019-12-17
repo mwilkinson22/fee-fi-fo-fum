@@ -63,18 +63,14 @@ class AdminTeamGrounds extends Component {
 	}
 
 	getInitialValues() {
-		const { team, groundOptions } = this.state;
+		const { team } = this.state;
 		const { teamTypes } = this.props;
 
 		return {
-			_defaultGround: groundOptions.find(({ value }) => value == team._defaultGround) || "",
+			_defaultGround: team._defaultGround || "",
 			_grounds: _.mapValues(teamTypes, ({ _id }) => {
 				const currentGround = team._grounds.find(({ _teamType }) => _teamType == _id);
-				if (currentGround) {
-					return groundOptions.find(({ value }) => value == currentGround._ground);
-				} else {
-					return "";
-				}
+				return currentGround ? currentGround._ground : "";
 			})
 		};
 	}
@@ -148,5 +144,8 @@ function mapStateToProps({ grounds, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, { fetchAllGrounds, updateTeam })(AdminTeamGrounds)
+	connect(
+		mapStateToProps,
+		{ fetchAllGrounds, updateTeam }
+	)(AdminTeamGrounds)
 );

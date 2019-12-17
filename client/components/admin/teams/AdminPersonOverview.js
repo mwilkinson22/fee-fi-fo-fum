@@ -121,7 +121,7 @@ class AdminPersonOverview extends Component {
 	}
 
 	getInitialValues() {
-		const { isNew, person, options } = this.state;
+		const { isNew, person } = this.state;
 
 		//Set basics for new teams:
 		const defaultValues = {
@@ -160,7 +160,7 @@ class AdminPersonOverview extends Component {
 					case "_hometown":
 					case "_represents":
 					case "_sponsor":
-						return options[key].find(o => o.value == person[key]._id);
+						return person[key]._id;
 					case "dateOfBirth":
 						return person[key].toString("yyyy-MM-dd");
 					case "images":

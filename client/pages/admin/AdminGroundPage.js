@@ -131,9 +131,7 @@ class AdminGroundPage extends Component {
 			values.image = values.image || "";
 
 			//Convert City ObjectId to dropdown Option
-			values.address._city = cityOptions.find(
-				({ value }) => value == ground.address._city._id
-			);
+			values.address._city = ground.address._city._id;
 
 			return values;
 		}

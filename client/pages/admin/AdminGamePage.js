@@ -205,33 +205,40 @@ class AdminGamePage extends Component {
 	}
 
 	renderContent() {
-		const { game } = this.state;
-		const { scoreOnly } = game._competition.instance;
-		const path = `/admin/game/:_id`;
+		const { game, isNew } = this.state;
+		let content;
+
+		if (isNew) {
+			content = <Route path="/" component={AdminGameOverview} />;
+		} else {
+			const { scoreOnly } = game._competition.instance;
+			const path = `/admin/game/:_id`;
+			content = (
+				<Switch>
+					<Route path={`${path}/post-game`} component={AdminGamePostGame} />
+					<Route
+						path={`${path}/stats`}
+						render={() => <AdminGameStats scoreOnly={scoreOnly} />}
+					/>
+					<Route
+						path={`${path}/scores`}
+						render={() => <AdminGameStats scoreOnly={true} />}
+					/>
+					<Route path={`${path}/event`} component={AdminGameEvent} />
+					<Route path={`${path}/squad-images`} component={AdminGameSquadImage} />
+					<Route path={`${path}/squads`} component={AdminGameSquads} />
+					<Route path={`${path}/pregame-image`} component={AdminGamePregameImage} />
+					<Route path={`${path}/images`} component={AdminGameImages} />
+					<Route path={`${path}/pregame`} component={AdminGamePregameSquads} />
+					<Route path={path} exact component={AdminGameOverview} />
+					<Route path="/" component={NotFoundPage} />
+				</Switch>
+			);
+		}
+
 		return (
 			<section className="form">
-				<div className="container">
-					<Switch>
-						<Route path={`${path}/post-game`} component={AdminGamePostGame} />
-						<Route
-							path="/admin/game/:_id/stats"
-							render={() => <AdminGameStats scoreOnly={scoreOnly} />}
-						/>
-						<Route
-							path="/admin/game/:_id/scores"
-							render={() => <AdminGameStats scoreOnly={true} />}
-						/>
-						<Route path={`${path}/event`} component={AdminGameEvent} />
-						<Route path={`${path}/squad-images`} component={AdminGameSquadImage} />
-						<Route path={`${path}/squads`} component={AdminGameSquads} />
-						<Route path={`${path}/pregame-image`} component={AdminGamePregameImage} />
-						<Route path={`${path}/images`} component={AdminGameImages} />
-						<Route path={`${path}/pregame`} component={AdminGamePregameSquads} />
-						<Route path="/admin/game/new" exact component={AdminGameOverview} />
-						<Route path={path} exact component={AdminGameOverview} />
-						<Route path="/" component={NotFoundPage} />
-					</Switch>
-				</div>
+				<div className="container">{content}</div>
 			</section>
 		);
 	}
@@ -264,4 +271,7 @@ function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	return { localTeam, fullGames, teamList, gameList, teamTypes };
 }
-export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameList })(AdminGamePage);
+export default connect(
+	mapStateToProps,
+	{ fetchGames, reloadGames, fetchGameList }
+)(AdminGamePage);

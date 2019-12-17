@@ -14,7 +14,7 @@ import axios from "axios";
 import twitter from "~/services/twitter";
 
 //Constants
-const { defaultSocialProfile, localTeam, fixtureCrawlUrl } = require("../../config/keys");
+const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
@@ -258,8 +258,7 @@ export async function updateGame(req, res) {
 					const event = {
 						//Remove trailing underscore
 						event: field.replace(/^_/, ""),
-						_user: req.user._id,
-						_profile: defaultSocialProfile
+						_user: req.user._id
 					};
 					if (field === "fan_motm_link") {
 						event.tweet_id = req.body[field];

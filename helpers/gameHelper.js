@@ -274,14 +274,15 @@ export function convertTeamToSelect(
 export function getDynamicOptions(values, neutral, props) {
 	const options = {
 		_competition: [],
-		teams: []
+		teams: [],
+		placeholders: {}
 	};
 	const { competitionSegmentList, teamList, localTeam } = props;
 
 	//Pull all valid competition for the selected date and team type
 	if (values.date && values._teamType) {
 		const currentYear = new Date(values.date).getFullYear();
-		const currentTeamType = values._teamType.value;
+		const currentTeamType = values._teamType;
 
 		options._competition = _.chain(competitionSegmentList)
 			//Filter all competitions by team type
@@ -299,13 +300,13 @@ export function getDynamicOptions(values, neutral, props) {
 			.value();
 
 		//Remove the selected competition if it's not in the list
-		if (!options._competition.find(option => option.value == values._competition.value)) {
+		if (!options._competition.find(option => option.value == values._competition)) {
 			values._competition = "";
 		}
 
 		//Get available teams from selected competition
 		if (values._competition) {
-			const currentCompetition = competitionSegmentList[values._competition.value];
+			const currentCompetition = competitionSegmentList[values._competition];
 
 			//Get corresponding instance
 			let instance;
@@ -340,19 +341,31 @@ export function getDynamicOptions(values, neutral, props) {
 
 			//Remove the selected teams if they're not in the list
 			if (neutral) {
-				if (!options.teams.find(option => option.value == values._homeTeam.value)) {
+				if (!options.teams.find(option => option.value == values._homeTeam)) {
 					values._homeTeam = "";
 				}
-				if (!options.teams.find(option => option.value == values._awayTeam.value)) {
+				if (!options.teams.find(option => option.value == values._awayTeam)) {
 					values._awayTeam = "";
 				}
 			} else {
-				if (!options.teams.find(option => option.value == values._opposition.value)) {
+				if (!options.teams.find(option => option.value == values._opposition)) {
 					values._opposition = "";
 				}
 			}
 		}
 	}
+
+	//Set placeholders
+	if (!values.date) {
+		options.placeholders._competition = "Select a date";
+	} else if (!values._teamType) {
+		options.placeholders._competition = "Select a team type";
+	}
+
+	if (!values._competition) {
+		options.placeholders._team = "Select a competition";
+	}
+
 	return options;
 }
 

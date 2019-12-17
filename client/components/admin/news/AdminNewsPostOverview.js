@@ -143,19 +143,13 @@ class AdminNewsPostOverview extends Component {
 	}
 
 	getInitialValues() {
-		const { authUser } = this.props;
-		const { isNew, options, post, query } = this.state;
-
-		//Flatten game options for searching
-		const gameOptions = _.chain(options.games)
-			.map("options")
-			.flatten()
-			.value();
+		const { authUser, gameList, teamList, teamTypes } = this.props;
+		const { isNew, post, query } = this.state;
 
 		//Declare default values
 		const defaultValues = {
 			title: "",
-			_author: options.users.find(({ value }) => value == authUser._id) || "",
+			_author: authUser._id,
 			subtitle: "",
 			category: "",
 			slug: "",
@@ -165,38 +159,50 @@ class AdminNewsPostOverview extends Component {
 
 		if (isNew) {
 			//If it's new, check the query in the URL for recap/preview values
-			if (query.recap) {
-				defaultValues.category = options.categories.find(({ value }) => value == "recaps");
-				defaultValues._game = gameOptions.find(({ value }) => value == query.recap) || "";
-			} else if (query.preview) {
-				defaultValues.category = options.categories.find(
-					({ value }) => value == "previews"
-				);
-				defaultValues._game = gameOptions.find(({ value }) => value == query.preview) || "";
+			if (query.recap || query.preview) {
+				//First, check the game exists
+				const gameId = query.recap || query.preview;
+				const game = gameList[gameId];
+				if (game) {
+					defaultValues.category = query.recap ? "recaps" : "previews";
+					defaultValues._game = gameId;
+					defaultValues.slug = `${game.slug}-${query.recap ? "recap" : "preview"}`;
+
+					//Create Title
+					const titleArr = [teamList[game._opposition].name.short];
+					if (teamTypes[game._teamType].slug !== "first") {
+						titleArr.push(teamTypes[game._teamType].name);
+					}
+					titleArr.push(game.date.toString("dd/MM/yyyy"));
+					titleArr.push("-");
+					titleArr.push(query.recap ? "Recap" : "Preview");
+					defaultValues.title = titleArr.join(" ");
+				}
 			}
 
 			return defaultValues;
 		} else {
-			return _.mapValues(defaultValues, (defaultValue, key) => {
+			const values = _.mapValues(defaultValues, (defaultValue, key) => {
 				if (post[key] == null) {
 					return defaultValue;
 				}
 
 				switch (key) {
-					case "dateCreated":
-						return post[key].toString("yyyy-MM-dd");
-					case "timeCreated":
-						return post[key].toString("HH:mm:ss");
-					case "author":
-						return options.users.find(({ value }) => value == post[key]);
-					case "category":
-						return options.categories.find(({ value }) => value == post[key]);
-					case "_game":
-						return gameOptions.find(({ value }) => value == post[key]);
+					case "_author":
+						return post[key]._id;
 					default:
 						return post[key];
 				}
 			});
+
+			//Add Created Date
+			values.dateCreated = post.dateCreated.toString("yyyy-MM-dd");
+			values.timeCreated = post.dateCreated.toString("HH:mm:ss");
+
+			//Add Published Status
+			values.isPublished = post.isPublished;
+
+			return values;
 		}
 	}
 
@@ -230,7 +236,7 @@ class AdminNewsPostOverview extends Component {
 		];
 
 		//If the category is a recap or a preview, we add a game field
-		if (values.category.value === "recaps" || values.category.value === "previews") {
+		if (values.category === "recaps" || values.category === "previews") {
 			//Filter Options By Years
 			const filterYear = (values.dateCreated
 				? new Date(values.dateCreated)
@@ -251,6 +257,7 @@ class AdminNewsPostOverview extends Component {
 				name: "_game",
 				type: fieldTypes.select,
 				options: gameOptions,
+				isNested: true,
 				isDisabled: query.recap || query.preview
 			});
 		}
@@ -316,6 +323,7 @@ class AdminNewsPostOverview extends Component {
 
 		return (
 			<BasicForm
+				alterValuesBeforeSubmit={values => this.alterValuesBeforeSubmit(values)}
 				fieldGroups={values => this.getFieldGroups(values)}
 				initialValues={this.getInitialValues()}
 				isNew={isNew}
@@ -336,12 +344,15 @@ function mapStateToProps({ config, games, news, teams, users }) {
 	return { authUser, fullPosts, userList, gameList, teamList, teamTypes };
 }
 
-export default connect(mapStateToProps, {
-	fetchPostList,
-	fetchNewsPost,
-	fetchUserList,
-	fetchGameList,
-	createNewsPost,
-	updateNewsPost,
-	deleteNewsPost
-})(AdminNewsPostOverview);
+export default connect(
+	mapStateToProps,
+	{
+		fetchPostList,
+		fetchNewsPost,
+		fetchUserList,
+		fetchGameList,
+		createNewsPost,
+		updateNewsPost,
+		deleteNewsPost
+	}
+)(AdminNewsPostOverview);

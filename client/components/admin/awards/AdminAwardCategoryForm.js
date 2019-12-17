@@ -57,68 +57,20 @@ class AdminAwardCategories extends Component {
 
 	getInitialValues() {
 		const { category } = this.state;
-		const { options } = this.props;
 
+		const defaultValues = {
+			name: "",
+			awardType: "",
+			description: "",
+			nominees: [
+				{ description: "", nominee: "", stats: [] },
+				{ description: "", nominee: "", stats: [] }
+			]
+		};
 		if (!category) {
-			return {
-				name: "",
-				awardType: "",
-				description: "",
-				nominees: [
-					{ description: "", nominee: "", stats: [] },
-					{ description: "", nominee: "", stats: [] }
-				]
-			};
+			return defaultValues;
 		} else {
-			//options.game is grouped by teamType, so
-			//we flatten that here to make it easier to find the value
-			let nomineeOptions;
-			switch (category.awardType) {
-				case "player":
-					nomineeOptions = options.player;
-					break;
-				case "game":
-					nomineeOptions = _.chain(options.game)
-						.map("options")
-						.flatten()
-						.value();
-			}
-
-			//Stat options are grouped regardless of award type,
-			//So we flatten those too
-			const statOptions = _.chain(options.stats)
-				.map("options")
-				.flatten()
-				.value();
-
-			//Get all current nominees
-			const nominees = category.nominees.map(n => {
-				//For player and game awards, pull the
-				//corresponding dropdown option
-				let { nominee, stats } = n;
-				switch (category.awardType) {
-					case "player":
-					case "game":
-						nominee = nomineeOptions.find(({ value }) => value == nominee);
-						break;
-				}
-
-				//Get Stat options
-				if (stats && stats.length) {
-					stats = stats.map(s => statOptions.find(({ value }) => value == s));
-				} else {
-					stats = [];
-				}
-
-				return { ...n, nominee, stats };
-			});
-
-			return {
-				name: category.name,
-				awardType: category.awardType,
-				description: category.description,
-				nominees
-			};
+			return _.mapValues(defaultValues, (defaultValue, key) => category[key] || defaultValue);
 		}
 	}
 
@@ -188,6 +140,11 @@ class AdminAwardCategories extends Component {
 			nomineeField.type = fieldTypes.text;
 		} else {
 			nomineeField.type = fieldTypes.select;
+
+			if (awardType == "game") {
+				nomineeField.isNested = true;
+			}
+
 			nomineeField.options = options[awardType];
 		}
 
@@ -212,7 +169,8 @@ class AdminAwardCategories extends Component {
 						name: `${baseName}.stats`,
 						type: fieldTypes.select,
 						options: options.stats,
-						isMulti: true
+						isMulti: true,
+						isNested: true
 					});
 				}
 
@@ -268,16 +226,6 @@ class AdminAwardCategories extends Component {
 		];
 	}
 
-	alterValuesBeforeSubmit(values) {
-		//Convert stats back to keys
-		values.nominees.map(n => {
-			if (n.stats && n.stats.length) {
-				n.stats = n.stats.map(s => s.value);
-			}
-			return n;
-		});
-	}
-
 	render() {
 		const { addCategory, updateCategory, deleteCategory } = this.props;
 		const { award, category, validationSchema } = this.state;
@@ -300,7 +248,6 @@ class AdminAwardCategories extends Component {
 		return (
 			<div className="container">
 				<BasicForm
-					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 					fieldGroups={values => this.getFieldGroups(values)}
 					initialValues={this.getInitialValues()}
 					isNew={!category}

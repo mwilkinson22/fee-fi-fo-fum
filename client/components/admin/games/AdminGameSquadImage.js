@@ -99,8 +99,8 @@ class AdminGameSquadImage extends Component {
 		const { options } = this.state;
 
 		return {
-			_profile: options.profiles.find(({ value }) => value == defaultProfile),
-			team: options.team[0],
+			_profile: defaultProfile,
+			team: options.team[0].value,
 			tweet: this.getInitialTweet(),
 			replyTweet: ""
 		};
@@ -131,7 +131,7 @@ class AdminGameSquadImage extends Component {
 		await this.setState({ previewImage: false });
 
 		//Get the Image
-		const image = await getSquadImage(game._id, values.team.value != localTeam);
+		const image = await getSquadImage(game._id, values.team != localTeam);
 		await this.setState({ previewImage: image });
 	}
 
@@ -142,11 +142,8 @@ class AdminGameSquadImage extends Component {
 		const event = _.cloneDeep(values);
 
 		//Get team
-		event.showOpposition = event.team.value == localTeam;
+		event.showOpposition = values.team != localTeam;
 		delete event.team;
-
-		//Pull profile id
-		event._profile = event._profile.value;
 
 		//Add additional event data
 		event.postTweet = true;

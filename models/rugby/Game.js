@@ -73,8 +73,7 @@ const gameSchema = new Schema(
 					inDatabase: { type: Boolean, default: false },
 					_profile: {
 						type: Schema.Types.ObjectId,
-						ref: "socialProfiles",
-						required: true
+						ref: "socialProfiles"
 					},
 					_user: { type: Schema.Types.ObjectId, ref: "users", required: true }
 				}

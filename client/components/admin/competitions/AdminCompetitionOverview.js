@@ -38,10 +38,7 @@ class AdminCompetitionOverview extends Component {
 		//Dropdown options
 		newState.options = {
 			type: competitionTypes.sort().map(value => ({ value, label: value })),
-			webcrawlFormat: [
-				{ value: "RFL", label: "RFL" },
-				{ value: "SL", label: "Super League" }
-			]
+			webcrawlFormat: [{ value: "RFL", label: "RFL" }, { value: "SL", label: "Super League" }]
 		};
 
 		//Create Validation Schema
@@ -64,7 +61,7 @@ class AdminCompetitionOverview extends Component {
 	}
 
 	getInitialValues() {
-		const { competition, isNew, options } = this.state;
+		const { competition, isNew } = this.state;
 		const defaultValues = {
 			name: "",
 			type: "",
@@ -77,19 +74,9 @@ class AdminCompetitionOverview extends Component {
 		if (isNew) {
 			return defaultValues;
 		} else {
-			return _.mapValues(defaultValues, (defaultValue, key) => {
-				let value;
-				switch (key) {
-					case "type":
-					case "webcrawlFormat":
-						value = options[key].find(option => option.value === competition[key]);
-						break;
-					default:
-						value = competition[key];
-						break;
-				}
-				return value != null ? value : defaultValue;
-			});
+			return _.mapValues(defaultValues, (defaultValue, key) =>
+				competition[key] != null ? competition[key] : defaultValue
+			);
 		}
 	}
 
@@ -165,8 +152,11 @@ function mapStateToProps({ competitions }) {
 	return { competitionList };
 }
 
-export default connect(mapStateToProps, {
-	createCompetition,
-	updateCompetition,
-	deleteCompetition
-})(AdminCompetitionOverview);
+export default connect(
+	mapStateToProps,
+	{
+		createCompetition,
+		updateCompetition,
+		deleteCompetition
+	}
+)(AdminCompetitionOverview);

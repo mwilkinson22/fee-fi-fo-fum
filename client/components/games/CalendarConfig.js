@@ -153,7 +153,9 @@ class CalendarConfigDialog extends Component {
 		);
 
 		return {
-			_competitions: activeTeamCompetitions ? activeTeamCompetitions.options : [],
+			_competitions: activeTeamCompetitions
+				? activeTeamCompetitions.options.map(o => o.value)
+				: [],
 			teams: "oppositionOnly",
 			teamName: "short",
 			teamTypes: "none",
@@ -169,10 +171,7 @@ class CalendarConfigDialog extends Component {
 		const { _competitions, ...options } = values;
 
 		//Get Calendar Data
-		const data = await getCalendar(
-			_competitions.map(c => c.value),
-			options
-		);
+		const data = await getCalendar(_competitions.map(c => c.value), options);
 
 		//Convert to Blob
 		const file = new Blob([data], { type: "text/calendar" });
@@ -227,7 +226,8 @@ class CalendarConfigDialog extends Component {
 								name: "_competitions",
 								type: fieldTypes.select,
 								options: options._competitions,
-								isMulti: true
+								isMulti: true,
+								isNested: true
 							}
 						];
 						const configFields = [
@@ -317,4 +317,7 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, activeTeamType, fullTeams, teamTypes };
 }
 
-export default connect(mapStateToProps, { fetchGames, getCalendar })(CalendarConfigDialog);
+export default connect(
+	mapStateToProps,
+	{ fetchGames, getCalendar }
+)(CalendarConfigDialog);

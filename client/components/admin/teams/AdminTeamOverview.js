@@ -164,11 +164,6 @@ class AdminTeamOverview extends Component {
 						value.customPitchColour = Boolean(team.colours.pitchColour);
 						value.customStatBarColour = Boolean(team.colours.statBarColour);
 						break;
-
-					//Pull default ground from options
-					case "_defaultGround":
-						value = groundOptions.find(({ value }) => value == team[key]);
-						break;
 					default:
 						value = team[key];
 						break;
@@ -324,7 +319,8 @@ function mapStateToProps({ grounds, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, { fetchAllGrounds, updateTeam, createTeam, deleteTeam })(
-		AdminTeamOverview
-	)
+	connect(
+		mapStateToProps,
+		{ fetchAllGrounds, updateTeam, createTeam, deleteTeam }
+	)(AdminTeamOverview)
 );

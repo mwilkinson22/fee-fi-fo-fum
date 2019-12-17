@@ -106,6 +106,18 @@ export function renderInput(field, customOnChange) {
 		switch (type) {
 			case fieldTypes.select:
 			case fieldTypes.creatableSelect:
+				formikProps.field.onChange = option => {
+					formikProps.form.setFieldTouched(field.name, true);
+					if (props.isMulti) {
+						formikProps.form.setFieldValue(
+							field.name,
+							option ? option.map(o => o.value) : ""
+						);
+					} else {
+						formikProps.form.setFieldValue(field.name, option ? option.value : "");
+					}
+				};
+				break;
 			case fieldTypes.asyncSelect:
 			case fieldTypes.image:
 			case fieldTypes.draft:
@@ -140,14 +152,54 @@ export function renderInput(field, customOnChange) {
 				return <BooleanField {...mainProps} />;
 			case fieldTypes.radio:
 				return <Radio {...mainProps} />;
-			case fieldTypes.select:
-				return <Select className="react-select" styles={selectStyling} {...mainProps} />;
 			case fieldTypes.creatableSelect:
 				if (mainProps.showDropdown === false) {
 					mainProps.components = { DropdownIndicator: () => null, Menu: () => null };
 					delete mainProps.showDropdown;
 				}
-				return <Creatable className="react-select" styles={selectStyling} {...mainProps} />;
+
+				if (mainProps.isMulti) {
+					mainProps.value = mainProps.value.map(str => ({
+						value: str,
+						label: str
+					}));
+				} else {
+					mainProps.value = { value: mainProps.value, label: mainProps.value };
+				}
+				return (
+					<Creatable
+						className="react-select"
+						styles={selectStyling}
+						{...mainProps}
+						value={mainProps.value || ""}
+					/>
+				);
+			case fieldTypes.select: {
+				let { options, value } = mainProps;
+
+				//Flatten Options if nested
+				if (mainProps.isNested) {
+					options = _.flatten(mainProps.options.map(o => o.options || o));
+				}
+
+				//Pull value from nested options
+				if (mainProps.isMulti) {
+					value = mainProps.value.map(valueInArray =>
+						options.find(({ value }) => value == valueInArray)
+					);
+				} else {
+					value = options.find(({ value }) => value == mainProps.value);
+				}
+
+				return (
+					<Select
+						className="react-select"
+						styles={selectStyling}
+						{...mainProps}
+						value={value || ""}
+					/>
+				);
+			}
 			case fieldTypes.asyncSelect:
 				return (
 					<Async

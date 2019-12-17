@@ -162,17 +162,14 @@ class AdminGameOverview extends Component {
 			value: label.toLowerCase()
 		}));
 
-		newState.options.isAway = [
-			{ label: "Home", value: false },
-			{ label: "Away", value: true }
-		];
+		newState.options.isAway = [{ label: "Home", value: false }, { label: "Away", value: true }];
 
 		return newState;
 	}
 
 	getInitialValues() {
 		const { localTeam } = this.props;
-		const { game, isNew, options } = this.state;
+		const { game, isNew } = this.state;
 
 		const defaultValues = {
 			date: "",
@@ -184,7 +181,7 @@ class AdminGameOverview extends Component {
 			customTitle: "",
 			customHashtags: [],
 			isAway: "",
-			_ground: options._ground[0],
+			_ground: "auto",
 			tv: "",
 			_referee: "",
 			_video_referee: ""
@@ -193,40 +190,24 @@ class AdminGameOverview extends Component {
 		if (isNew) {
 			return defaultValues;
 		} else {
-			//As the options are created dynamically, we do this in three steps
-			//First, create a values object with placeholder dropdown options for
-			//the competition and opposition fields
+			//Create a values object
 			const values = _.mapValues(defaultValues, (defaultValue, key) => {
 				let value;
 				switch (key) {
-					case "customHashtags":
-						value = game[key] ? game[key].map(tag => ({ label: tag, value: tag })) : [];
-						break;
 					case "date":
 						value = game.date.toString("yyyy-MM-dd");
 						break;
 					case "time":
 						value = game.date.toString("HH:mm:ss");
 						break;
-					case "_teamType":
-					case "tv":
-						value = options[key].find(({ value }) => value === game[key]);
-						break;
+					case "_competition":
+					case "_opposition":
 					case "_referee":
 					case "_ground":
 					case "_video_referee": {
-						//Video Referee uses options._referee, so we run a quick replace
-						//on the key. This shouldn't affect other fields
-						const optionList = options[key.replace("_video", "")];
-						value = optionList.find(
-							({ value }) => value === (game[key] ? game[key]._id : null)
-						);
+						value = game[key] ? game[key]._id : null;
 						break;
 					}
-					case "_competition":
-					case "_opposition":
-						value = { value: game[key]._id };
-						break;
 					default:
 						value = game[key];
 						break;
@@ -234,18 +215,7 @@ class AdminGameOverview extends Component {
 				return value != null ? value : defaultValue;
 			});
 
-			//We use this object to get the options we need
-			const dynamicOptions = getDynamicOptions(values, false, this.props);
-
-			//We then convert the select field values to use actual options
-			values._competition = dynamicOptions._competition.find(
-				option => option.value == values._competition.value
-			);
-			values._opposition = dynamicOptions.teams.find(
-				option => option.value == values._opposition.value
-			);
-
-			//And finally add on the score override fields
+			//Add on the score override fields
 			values.scoreOverride = {};
 			[localTeam, game._opposition._id].forEach(_team => {
 				let value = "";
@@ -279,13 +249,15 @@ class AdminGameOverview extends Component {
 						name: "_competition",
 						type: fieldTypes.select,
 						options: dynamicOptions._competition,
-						isDisabled: !isNew || !values.date || !values._teamType
+						isDisabled: !isNew || !values.date || !values._teamType,
+						placeholder: dynamicOptions.placeholders._competition
 					},
 					{
 						name: "_opposition",
 						type: fieldTypes.select,
 						options: dynamicOptions.teams,
-						isDisabled: !values._competition || (!isNew && game.status > 0)
+						isDisabled: !values._competition || (!isNew && game.status > 0),
+						placeholder: dynamicOptions.placeholders._team
 					},
 					{
 						name: "round",
@@ -448,11 +420,14 @@ function mapStateToProps({ teams, competitions, games, grounds, people, config }
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, {
-		fetchCompetitionSegments,
-		fetchAllGrounds,
-		fetchPeopleList,
-		createGame,
-		updateGame
-	})(AdminGameOverview)
+	connect(
+		mapStateToProps,
+		{
+			fetchCompetitionSegments,
+			fetchAllGrounds,
+			fetchPeopleList,
+			createGame,
+			updateGame
+		}
+	)(AdminGameOverview)
 );

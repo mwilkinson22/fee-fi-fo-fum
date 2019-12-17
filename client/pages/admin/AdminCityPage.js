@@ -78,7 +78,7 @@ class AdminCityPage extends Component {
 	}
 
 	getInitialValues() {
-		const { city, countries, isNew } = this.state;
+		const { city, isNew } = this.state;
 
 		if (isNew) {
 			return {
@@ -88,7 +88,7 @@ class AdminCityPage extends Component {
 		} else {
 			return {
 				name: city.name,
-				_country: countries.find(c => c.value == city._country._id)
+				_country: city._country._id
 			};
 		}
 	}

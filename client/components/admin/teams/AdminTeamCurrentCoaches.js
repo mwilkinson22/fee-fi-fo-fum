@@ -66,7 +66,7 @@ class AdminTeamCurrentCoaches extends Component {
 				const values = {
 					_person: coach._person._id,
 					_teamType: coach._teamType,
-					role: roles.find(({ value }) => value == coach.role),
+					role: coach.role,
 					from: coach.from ? new Date(coach.from).toString("yyyy-MM-dd") : "",
 					to: coach.to ? new Date(coach.to).toString("yyyy-MM-dd") : "",
 					deleteCoach: false
@@ -193,4 +193,7 @@ function mapStateToProps({ teams }) {
 	return { teamTypes };
 }
 
-export default connect(mapStateToProps, { updateTeam })(AdminTeamCurrentCoaches);
+export default connect(
+	mapStateToProps,
+	{ updateTeam }
+)(AdminTeamCurrentCoaches);

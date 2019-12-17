@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Actions
@@ -75,20 +74,15 @@ class AdminPlayerDetails extends Component {
 				case "position2":
 					i = Number(key.replace(/\D/gi, "")) - 1;
 					if (person.playingPositions) {
-						return (
-							_.find(positions, ({ value }) => value == person.playingPositions[i]) ||
-							defaultValue
-						);
+						return person.playingPositions[i] || defaultValue;
 					} else {
 						return defaultValue;
 					}
 				case "otherPositions":
-					if (person.playingPositions) {
+					if (person.playingPositions && person.playingPositions.length > 2) {
 						const [first, second, ...otherPositions] = person.playingPositions;
 
-						return otherPositions.map(pos =>
-							_.find(positions, ({ value }) => value == pos)
-						);
+						return otherPositions;
 					} else {
 						return defaultValue;
 					}
@@ -189,12 +183,15 @@ class AdminPlayerDetails extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		values.playingPositions = [];
-		for (let i = 1; i <= 2; i++) {
-			values.playingPositions.push(values[`position${i}`]);
-			delete values[`position${i}`];
+		const positions = [values.position1, values.position2];
+		if (values.otherPositions) {
+			positions.push(...values.otherPositions);
 		}
-		values.playingPositions.push(...values.otherPositions);
+
+		values.playingPositions = _.filter(positions, _.identity);
+
+		delete values.position1;
+		delete values.position2;
 		delete values.otherPositions;
 	}
 
@@ -225,4 +222,7 @@ function mapStateToProps({ people }) {
 	return { fullPeople };
 }
 // export default form;
-export default connect(mapStateToProps, { updatePerson })(AdminPlayerDetails);
+export default connect(
+	mapStateToProps,
+	{ updatePerson }
+)(AdminPlayerDetails);

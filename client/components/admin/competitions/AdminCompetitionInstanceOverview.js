@@ -139,6 +139,7 @@ class AdminCompetitionInstanceOverview extends Component {
 							value = _.chain(teams)
 								.filter(({ value }) => instance.teams.find(id => id == value))
 								.sortBy("label")
+								.map("value")
 								.value();
 						} else {
 							value = [];
@@ -239,9 +240,12 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionList, competitionSegmentList, teamList, teamTypes };
 }
 
-export default connect(mapStateToProps, {
-	createCompetitionInstance,
-	updateCompetitionInstance,
-	deleteCompetitionInstance,
-	fetchTeamList
-})(AdminCompetitionInstanceOverview);
+export default connect(
+	mapStateToProps,
+	{
+		createCompetitionInstance,
+		updateCompetitionInstance,
+		deleteCompetitionInstance,
+		fetchTeamList
+	}
+)(AdminCompetitionInstanceOverview);

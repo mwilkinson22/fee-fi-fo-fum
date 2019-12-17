@@ -95,10 +95,9 @@ class AdminNeutralGamePage extends Component {
 		newState.validationSchema = Yup.object().shape({
 			externalSync: Yup.boolean().label("External Sync"),
 			externalId: Yup.number()
-				.when("externalSync", (externalSync, schema) => {
-					return externalSync
-						? schema.required("An ID is required for External Sync")
-						: null;
+				.test("externalSync", "An ID is required for External Sync", function(externalId) {
+					const { externalSync } = this.parent;
+					return !externalSync || externalId;
 				})
 				.label("External Id"),
 			time: Yup.string()
@@ -112,17 +111,13 @@ class AdminNeutralGamePage extends Component {
 				.label("Competition"),
 			_homeTeam: Yup.mixed()
 				.required()
-				.test("isUnique", "Home Team and Away Team cannot match", function(_homeTeam) {
-					const { _awayTeam } = this.parent;
-					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
-				})
 				.label("Home Team"),
 			_awayTeam: Yup.mixed()
-				.required()
 				.test("isUnique", "Home Team and Away Team cannot match", function(_awayTeam) {
 					const { _homeTeam } = this.parent;
-					return !_homeTeam || !_awayTeam || _homeTeam.value !== _awayTeam.value;
+					return _homeTeam != _awayTeam;
 				})
+				.required()
 				.label("Away Team"),
 			homePoints: Yup.number()
 				.min(0)
@@ -143,7 +138,7 @@ class AdminNeutralGamePage extends Component {
 	}
 
 	getInitialValues() {
-		const { game, isNew, teamTypes } = this.state;
+		const { game, isNew } = this.state;
 		const defaultValues = {
 			externalSync: false,
 			externalId: "",
@@ -160,10 +155,7 @@ class AdminNeutralGamePage extends Component {
 		if (isNew) {
 			return defaultValues;
 		} else {
-			//As the options are created dynamically, we do this in three steps
-			//First, create a values object with placeholder dropdown options for
-			//the select fields
-			const values = _.mapValues(defaultValues, (defaultValue, key) => {
+			return _.mapValues(defaultValues, (defaultValue, key) => {
 				let value;
 				switch (key) {
 					case "date":
@@ -172,36 +164,12 @@ class AdminNeutralGamePage extends Component {
 					case "time":
 						value = game.date.toString("HH:mm:ss");
 						break;
-					case "_teamType":
-						value = teamTypes.find(option => option.value == game[key]);
-						break;
-					case "_competition":
-					case "_homeTeam":
-					case "_awayTeam":
-						value = { value: game[key] };
-						break;
 					default:
 						value = game[key];
 						break;
 				}
 
 				return value != null ? value : defaultValue;
-			});
-
-			//We use this object to get the options we need
-			const options = getDynamicOptions(values, true, this.props);
-
-			//We then convert the select field values to use actual options
-			return _.mapValues(values, (currentValue, key) => {
-				switch (key) {
-					case "_competition":
-						return options[key].find(option => option.value == currentValue.value);
-					case "_homeTeam":
-					case "_awayTeam":
-						return options.teams.find(option => option.value == currentValue.value);
-					default:
-						return currentValue;
-				}
 			});
 		}
 	}
@@ -227,18 +195,23 @@ class AdminNeutralGamePage extends Component {
 					{
 						name: "_competition",
 						type: fieldTypes.select,
-						isDisabled: !isNew,
-						options: options._competition
+						isDisabled: !isNew || !values.date || !values._teamType,
+						options: options._competition,
+						placeholder: options.placeholders._competition
 					},
 					{
 						name: "_homeTeam",
 						type: fieldTypes.select,
-						options: options.teams
+						options: options.teams,
+						placeholder: options.placeholders._team,
+						isDisabled: !values._competition
 					},
 					{
 						name: "_awayTeam",
 						type: fieldTypes.select,
-						options: options.teams
+						options: options.teams,
+						placeholder: options.placeholders._team,
+						isDisabled: !values._competition
 					},
 					{ name: "homePoints", type: fieldTypes.number },
 					{ name: "awayPoints", type: fieldTypes.number }
@@ -366,11 +339,14 @@ function mapStateToProps({ config, games, teams, competitions }) {
 }
 
 export default withRouter(
-	connect(mapStateToProps, {
-		fetchCompetitionSegments,
-		fetchNeutralGamesFromId,
-		createNeutralGames,
-		updateNeutralGames,
-		deleteNeutralGame
-	})(AdminNeutralGamePage)
+	connect(
+		mapStateToProps,
+		{
+			fetchCompetitionSegments,
+			fetchNeutralGamesFromId,
+			createNeutralGames,
+			updateNeutralGames,
+			deleteNeutralGame
+		}
+	)(AdminNeutralGamePage)
 );

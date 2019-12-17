@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
@@ -20,9 +19,6 @@ import { fetchProfiles } from "~/client/actions/socialActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
-
-//Helpers
-import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminFixtureListImagePage extends Component {
 	constructor(props) {
@@ -132,10 +128,10 @@ class AdminFixtureListImagePage extends Component {
 
 		return {
 			tweet: message,
-			_competitions: options.competitions[0].options.filter(
-				({ value }) => competitionSegmentList[value].type !== "Friendly"
-			),
-			_profile: options.profiles.find(p => p.value == defaultProfile) || options.profiles[0]
+			_competitions: options.competitions[0].options
+				.filter(({ value }) => competitionSegmentList[value].type !== "Friendly")
+				.map(o => o.value),
+			_profile: defaultProfile || options.profiles[0].value
 		};
 	}
 
@@ -162,7 +158,8 @@ class AdminFixtureListImagePage extends Component {
 						name: "_competitions",
 						type: fieldTypes.select,
 						options: options.competitions,
-						isMulti: true
+						isMulti: true,
+						isNested: true
 					},
 					{
 						name: "tweet",
@@ -204,10 +201,7 @@ class AdminFixtureListImagePage extends Component {
 		this.setState({ previewImage: false });
 
 		//Get the image
-		const image = await previewFixtureListImage(
-			year,
-			values._competitions.map(({ value }) => value).join(",")
-		);
+		const image = await previewFixtureListImage(year, values._competitions.join(","));
 		this.setState({ previewImage: image });
 	}
 
@@ -226,73 +220,6 @@ class AdminFixtureListImagePage extends Component {
 		setSubmitting(false);
 	}
 
-	renderForm() {
-		const {
-			year,
-			isLoading,
-			profiles,
-			competitions,
-			validationSchema,
-			isSubmitting
-		} = this.state;
-		if (!isLoading) {
-			const { caretPoint } = this.getInitialTweetText(year);
-			const fields = [
-				{
-					name: "_profile",
-					type: fieldTypes.select,
-					options: profiles,
-					isSearchable: false
-				},
-				{
-					name: "_competitions",
-					type: fieldTypes.select,
-					options: competitions,
-					isMulti: true
-				},
-				{ name: "tweet", type: fieldTypes.tweet, autoFocus: true, caretPoint }
-			];
-			return (
-				<section className="main-form">
-					<Formik
-						initialValues={this.getInitialValues()}
-						validationSchema={validationSchema}
-						onSubmit={values => this.handleSubmit(values)}
-						render={({ values }) => {
-							return (
-								<Form>
-									<div className="container">
-										<div className="form-card grid">
-											{renderFieldGroup(fields)}
-											<div className="buttons">
-												<button
-													type="button"
-													disabled={isSubmitting}
-													onClick={() => this.getPreview(values)}
-												>
-													Preview Image
-												</button>
-												<button type="submit" disabled={isSubmitting}>
-													Post Image
-												</button>
-											</div>
-										</div>
-									</div>
-								</Form>
-							);
-						}}
-					/>
-				</section>
-			);
-		} else {
-			return <LoadingPage />;
-		}
-	}
-
-	alterValuesBeforeSubmit(values) {
-		values.year = this.state.year;
-	}
-
 	render() {
 		const { isLoading, year, validationSchema } = this.state;
 
@@ -309,7 +236,6 @@ class AdminFixtureListImagePage extends Component {
 				<section className="form">
 					<div className="container">
 						<BasicForm
-							alterValuesBeforeSubmit={values => this.alterValuesBeforeSubmit(values)}
 							fieldGroups={this.getFieldGroups()}
 							initialValues={this.getInitialValues()}
 							isInitialValid={true}
@@ -341,10 +267,13 @@ function mapStateToProps({ competitions, games, social, teams }) {
 	};
 }
 
-export default connect(mapStateToProps, {
-	fetchGameList,
-	fetchProfiles,
-	previewFixtureListImage,
-	postFixtureListImage,
-	fetchCompetitionSegments
-})(AdminFixtureListImagePage);
+export default connect(
+	mapStateToProps,
+	{
+		fetchGameList,
+		fetchProfiles,
+		previewFixtureListImage,
+		postFixtureListImage,
+		fetchCompetitionSegments
+	}
+)(AdminFixtureListImagePage);

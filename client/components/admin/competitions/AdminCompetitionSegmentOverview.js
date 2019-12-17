@@ -91,7 +91,7 @@ class AdminCompetitionSegmentOverview extends Component {
 		return newState;
 	}
 	getInitialValues() {
-		const { segment, isNew, options } = this.state;
+		const { segment, isNew } = this.state;
 
 		const defaultValues = {
 			name: "",
@@ -108,20 +108,9 @@ class AdminCompetitionSegmentOverview extends Component {
 		if (isNew) {
 			return defaultValues;
 		} else {
-			return _.mapValues(defaultValues, (defaultValue, key) => {
-				let value;
-				switch (key) {
-					case "_teamType":
-					case "type":
-					case "_pointsCarriedFrom":
-						value = options[key].find(opt => opt.value == segment[key]);
-						break;
-
-					default:
-						value = segment[key];
-				}
-				return value != null ? value : defaultValue;
-			});
+			return _.mapValues(defaultValues, (defaultValue, key) =>
+				segment[key] != null ? segment[key] : defaultValue
+			);
 		}
 	}
 
@@ -215,8 +204,11 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionList, competitionSegmentList, teamTypes };
 }
 
-export default connect(mapStateToProps, {
-	createCompetitionSegment,
-	updateCompetitionSegment,
-	deleteCompetitionSegment
-})(AdminCompetitionSegmentOverview);
+export default connect(
+	mapStateToProps,
+	{
+		createCompetitionSegment,
+		updateCompetitionSegment,
+		deleteCompetitionSegment
+	}
+)(AdminCompetitionSegmentOverview);

@@ -39,8 +39,13 @@ class AdminGamePostGame extends Component {
 		newState.options = {};
 
 		//Get Team Options
-		newState.options.manOfSteel = convertTeamToSelect(newState.game, teamList);
-		newState.options.motm = convertTeamToSelect(newState.game, teamList, localTeam);
+		newState.options.players = {};
+		newState.options.players.bothTeams = convertTeamToSelect(newState.game, teamList);
+		newState.options.players.localTeam = convertTeamToSelect(
+			newState.game,
+			teamList,
+			localTeam
+		);
 
 		//Validation Schema
 		const validationSchema = {
@@ -100,21 +105,11 @@ class AdminGamePostGame extends Component {
 			switch (key) {
 				case "manOfSteel":
 					if (game.manOfSteel) {
-						const flatOptions = _.flatten(options.manOfSteel.map(o => o.options || o));
-
 						value = _.chain(game.manOfSteel)
-							.map(({ _player, points }) => [
-								points,
-								flatOptions.find(({ value }) => value == _player)
-							])
+							.map(({ _player, points }) => [points, _player])
 							.fromPairs()
 							.value();
 					}
-					break;
-
-				case "_motm":
-				case "_fan_motm":
-					value = options.motm.find(({ value }) => value == game[key]);
 					break;
 
 				default:
@@ -148,14 +143,15 @@ class AdminGamePostGame extends Component {
 					{
 						name: "_motm",
 						type: fieldTypes.select,
-						options: options.motm,
+						options: options.players.bothTeams,
 						isSearchable: false,
-						isClearable: true
+						isClearable: true,
+						isNested: true
 					},
 					{
 						name: "_fan_motm",
 						type: fieldTypes.select,
-						options: options.motm,
+						options: options.players.localTeam,
 						isSearchable: false,
 						isClearable: true
 					},
@@ -173,9 +169,10 @@ class AdminGamePostGame extends Component {
 				manOfSteelFields.push({
 					name: `manOfSteel.${i}`,
 					type: fieldTypes.select,
-					options: options.manOfSteel,
+					options: options.players.bothTeams,
 					isSearchable: false,
-					isClearable: true
+					isClearable: true,
+					isNested: true
 				});
 			}
 			fieldGroups.push({
@@ -224,7 +221,10 @@ function mapStateToProps({ config, games, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, {
-		updateGame
-	})(AdminGamePostGame)
+	connect(
+		mapStateToProps,
+		{
+			updateGame
+		}
+	)(AdminGamePostGame)
 );

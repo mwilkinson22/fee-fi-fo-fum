@@ -174,17 +174,19 @@ class AdminGamePregameImage extends Component {
 		//This just pulls from the first group, as if there's
 		//no new players then we can use an existing one
 		const playerForImage = options.playersWithImages.length
-			? _.sample(options.playersWithImages[0].options)
+			? _.sample(options.playersWithImages[0].options).value
 			: "";
 
 		//Players to highlight
 		//This only pulls from the isNew group
 		const playersToHighlight =
-			options.players.length && options.players[0].isNew ? options.players[0].options : [];
+			options.players.length && options.players[0].isNew
+				? options.players[0].options.map(o => o.value)
+				: [];
 
 		return {
-			_profile: options.profiles.find(({ value }) => value == defaultProfile),
-			team: options.team[0],
+			_profile: defaultProfile,
+			team: options.team[0].value,
 			playerForImage,
 			playersToHighlight,
 			tweet: this.getInitialTweet(),
@@ -267,15 +269,15 @@ class AdminGamePregameImage extends Component {
 		const query = {};
 
 		if (playerForImage) {
-			query.playerForImage = playerForImage.value;
+			query.playerForImage = playerForImage;
 		}
 
 		if (playersToHighlight && playersToHighlight.length) {
-			query.playersToHighlight = playersToHighlight.map(p => p.value).join(",");
+			query.playersToHighlight = playersToHighlight.join(",");
 		}
 
-		if (team.value !== "both") {
-			query.singleTeam = team.value;
+		if (team !== "both") {
+			query.singleTeam = team;
 		}
 
 		if (forPreview) {
@@ -305,7 +307,7 @@ class AdminGamePregameImage extends Component {
 
 		//Create Event Object
 		const event = {
-			_profile: _profile.value,
+			_profile,
 			tweet,
 			replyTweet,
 			postTweet: true,
@@ -349,14 +351,16 @@ class AdminGamePregameImage extends Component {
 				type: fieldTypes.select,
 				options: options.playersWithImages,
 				isClearable: true,
-				isDisabled: !options.playersWithImages.length
+				isDisabled: !options.playersWithImages.length,
+				isNested: true
 			},
 			{
 				name: "playersToHighlight",
 				type: fieldTypes.select,
 				options: options.players,
 				isDisabled: !options.players.length,
-				isMulti: true
+				isMulti: true,
+				isNested: true
 			},
 			{
 				name: "tweet",
@@ -430,9 +434,12 @@ function mapStateToProps({ config, games, teams, social }) {
 	return { fullGames, gameList, localTeam, teamList, profiles, defaultProfile };
 }
 
-export default connect(mapStateToProps, {
-	fetchGames,
-	fetchProfiles,
-	getPregameImage,
-	postGameEvent
-})(AdminGamePregameImage);
+export default connect(
+	mapStateToProps,
+	{
+		fetchGames,
+		fetchProfiles,
+		getPregameImage,
+		postGameEvent
+	}
+)(AdminGamePregameImage);

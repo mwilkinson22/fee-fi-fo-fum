@@ -100,12 +100,10 @@ class BasicForm extends Component {
 				//For objects, we check for select fields
 				const isSelect =
 					field &&
-					[fieldTypes.select, fieldTypes.asyncSelect, fieldTypes.creatableSelect].indexOf(
-						field.type
-					) > -1;
+					[fieldTypes.asyncSelect, fieldTypes.creatableSelect].indexOf(field.type) > -1;
 
 				if (isSelect) {
-					//If it's a select, we pull off the value
+					//If it's a creatable or async select, we pull off the value
 					newValue = val.value;
 				} else {
 					//Otherwise, we go recursive

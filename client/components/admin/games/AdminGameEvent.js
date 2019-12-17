@@ -41,8 +41,8 @@ class AdminGameEvent extends Component {
 			player: Yup.mixed()
 				.test("isRequired", "Please select a player", function(player) {
 					const { event } = this.parent;
-					const { isPlayerEvent } = gameEvents[event.value];
-					return !isPlayerEvent || (player && player.value);
+					const { isPlayerEvent } = gameEvents[event];
+					return !isPlayerEvent || player;
 				})
 				.label("Player"),
 			postTweet: Yup.boolean().label("Post to Social?"),
@@ -146,8 +146,8 @@ class AdminGameEvent extends Component {
 		}
 
 		return {
-			_profile: profiles.find(p => p.value == defaultProfile) || profiles[0],
-			event: event[0],
+			_profile: defaultProfile || profiles[0].value,
+			event: event[0].value,
 			player: "",
 			postTweet: true,
 			tweet,
@@ -164,16 +164,18 @@ class AdminGameEvent extends Component {
 			name: "event",
 			type: fieldTypes.select,
 			options: options.event,
-			isSearchable: false
+			isSearchable: false,
+			isNested: true
 		});
 
 		//Conditionally add player field, based on current event type
-		if (gameEvents[event.value].isPlayerEvent) {
+		if (gameEvents[event].isPlayerEvent) {
 			fields.push({
 				name: "player",
 				type: fieldTypes.select,
 				options: options.player,
-				isSearchable: false
+				isSearchable: false,
+				isNested: true
 			});
 		}
 
@@ -208,8 +210,8 @@ class AdminGameEvent extends Component {
 		//Create the options
 		const options = {
 			...values,
-			event: values.event.value,
-			player: values.player.value
+			event: values.event,
+			player: values.player
 		};
 
 		//Get the image
@@ -217,17 +219,9 @@ class AdminGameEvent extends Component {
 		await this.setState({ previewImage: image });
 	}
 
-	async handleSubmit(fValues, { setSubmitting, setValues }) {
+	async handleSubmit(values, { setSubmitting, setValues }) {
 		const { postGameEvent } = this.props;
-		const { game, options } = this.state;
-
-		//Clone Values
-		const values = _.cloneDeep(fValues);
-
-		//Pull off select values
-		values.event = values.event.value;
-		values.player = values.player.value || null;
-		values._profile = values._profile.value;
+		const { game } = this.state;
 
 		//Post Event
 		const result = await postGameEvent(game._id, values);
@@ -241,8 +235,8 @@ class AdminGameEvent extends Component {
 
 			//Get the next event
 			if (values.event === "T") {
-				//If we've just submitted a try, it will be "conversion"
-				newValues.event = options.event[1].options.find(({ value }) => value == "CN");
+				//If we've just submitted a try, auto-select conversion
+				newValues.event = "CN";
 
 				//And we set the reply tweet to the one we just posted
 				if (result.tweet_id) {
@@ -251,7 +245,7 @@ class AdminGameEvent extends Component {
 			}
 
 			//Persist profile and postTweet
-			const { _profile, postTweet } = fValues;
+			const { _profile, postTweet } = values;
 
 			//Set these values, maintaining the current profile and postTweet status
 			setValues({

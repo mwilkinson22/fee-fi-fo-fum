@@ -80,7 +80,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 	}
 
 	getInitialValues() {
-		const { parsedList, defaultOptions } = this.state;
+		const { parsedList } = this.state;
 		return _.mapValues(parsedList, p => {
 			const values = {
 				number: p.number,
@@ -91,9 +91,9 @@ class AdminTeamSquadBulkAdderResults extends Component {
 
 			//Get Name Select default
 			if (p.options.length) {
-				values._player = p.options[0];
+				values._player = p.options[0].value;
 			} else {
-				values._player = defaultOptions.find(({ value }) => value === "new");
+				values._player = "new";
 			}
 
 			//Get Name Input defaults
@@ -271,6 +271,7 @@ AdminTeamSquadBulkAdderResults.propTypes = {
 	year: PropTypes.number.isRequired
 };
 
-export default connect(mapStateToProps, { appendTeamSquad, createTeamSquad })(
-	AdminTeamSquadBulkAdderResults
-);
+export default connect(
+	mapStateToProps,
+	{ appendTeamSquad, createTeamSquad }
+)(AdminTeamSquadBulkAdderResults);
