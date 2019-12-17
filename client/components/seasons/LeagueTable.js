@@ -346,10 +346,14 @@ class LeagueTable extends Component {
 			away = rows[_awayTeam] || this.createRowForTeam(_awayTeam);
 
 			//Set Points
-			home.F += homePoints;
-			home.A += awayPoints;
-			away.F += awayPoints;
-			away.A += homePoints;
+			if (!isNaN(homePoints)) {
+				home.F += homePoints;
+				away.A += homePoints;
+			}
+			if (!isNaN(awayPoints)) {
+				home.A += awayPoints;
+				away.F += awayPoints;
+			}
 
 			//Set result
 			if (homePoints > awayPoints) {
@@ -483,11 +487,14 @@ function mapStateToProps({ config, games, teams, competitions }) {
 }
 
 export default withRouter(
-	connect(mapStateToProps, {
-		fetchNeutralGames,
-		fetchGames,
-		fetchGameList,
-		fetchCompetitionSegments,
-		fetchTeamList
-	})(LeagueTable)
+	connect(
+		mapStateToProps,
+		{
+			fetchNeutralGames,
+			fetchGames,
+			fetchGameList,
+			fetchCompetitionSegments,
+			fetchTeamList
+		}
+	)(LeagueTable)
 );
