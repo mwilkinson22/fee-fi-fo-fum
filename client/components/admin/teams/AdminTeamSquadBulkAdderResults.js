@@ -65,7 +65,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 		const { isNew, squad, team, teamType, year } = this.state;
 		const { appendTeamSquad, createTeamSquad } = this.props;
 
-		players = _.map(players, ({ nameSelect, ...p }) => ({ ...p, _id: nameSelect.value }));
+		players = _.map(players, ({ nameSelect, ...p }) => ({ ...p, _id: nameSelect }));
 
 		if (isNew) {
 			const values = {
@@ -126,7 +126,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 
 						//Get common field props
 						const baseName = name => `${i}.${name}`;
-						const disabled = values[i]._player.value === "skip";
+						const disabled = values[i]._player === "skip";
 
 						//Get Row Class Name
 						let className;
@@ -162,7 +162,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 								options: [...defaultOptions, ...options]
 							})
 						];
-						if (values[i]._player.value === "new") {
+						if (values[i]._player === "new") {
 							data.name.push(
 								renderInput({
 									name: baseName("name.first"),
@@ -213,14 +213,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		return (
-			_.chain(values)
-				//Get rid of skip values
-				.reject(({ _player }) => _player.value === "skip")
-				//Pull "value" from _player
-				.map(({ _player, ...p }) => ({ ...p, _player: _player.value }))
-				.value()
-		);
+		return _.reject(values, ({ _player }) => _player === "skip");
 	}
 
 	render() {
