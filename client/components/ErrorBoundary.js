@@ -3,11 +3,14 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
+//Components
+import ErrorPrintout from "./ErrorPrintout";
+
 //Actions
 import { sendError } from "~/client/actions/errorActions";
 
 //Inital State, when all is ok
-const initialState = { error: null, componentStack: null, errorPage: null, errorTapCount: 0 };
+const initialState = { error: null, componentStack: null, errorPage: null };
 
 class ErrorBoundary extends Component {
 	constructor(props) {
@@ -58,29 +61,12 @@ class ErrorBoundary extends Component {
 			sendError(errorObject);
 		}
 	}
-
-	renderMessage() {
-		const { environment } = this.props;
-		const { errorTapCount, componentStack } = this.state;
-		if (environment === "development" || errorTapCount >= 5) {
-			return <pre>{componentStack}</pre>;
-		}
-	}
-
 	render() {
-		const { error, errorTapCount } = this.state;
+		const { componentStack, error } = this.state;
 		if (error) {
 			return (
 				<div className="container">
-					<div className="error-boundary">
-						<h2 onClick={() => this.setState({ errorTapCount: errorTapCount + 1 })}>
-							Error
-						</h2>
-						<div className="message">
-							{error.message} ({error.fileName}:{error.lineNumber})
-						</div>
-						{this.renderMessage()}
-					</div>
+					<ErrorPrintout componentStack={componentStack} error={error} />
 				</div>
 			);
 		}
@@ -89,10 +75,10 @@ class ErrorBoundary extends Component {
 }
 
 function mapStateToProps({ config, errors }) {
-	const { authUser, browser, deviceType, environment } = config;
+	const { authUser, browser, deviceType } = config;
 	const { sentErrors } = errors;
 
-	return { authUser, browser, deviceType, environment, sentErrors };
+	return { authUser, browser, deviceType, sentErrors };
 }
 
 export default withRouter(
