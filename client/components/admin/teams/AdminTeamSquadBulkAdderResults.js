@@ -121,82 +121,91 @@ class AdminTeamSquadBulkAdderResults extends Component {
 		return [
 			{
 				render: values => {
-					const rows = parsedList.map((parsedLine, i) => {
-						const { exact, options, original } = parsedLine;
+					const rows = parsedList
+						.map((parsedLine, i) => {
+							if (!values[i]) {
+								return null;
+							}
 
-						//Get common field props
-						const baseName = name => `${i}.${name}`;
-						const disabled = values[i]._player === "skip";
+							const { exact, options, original } = parsedLine;
 
-						//Get Row Class Name
-						let className;
-						if (exact) {
-							className = "exact";
-						} else if (options.length) {
-							className = "approx";
-						} else {
-							className = "no-match";
-						}
+							//Get common field props
+							const baseName = name => `${i}.${name}`;
+							const disabled = values[i]._player === "skip";
 
-						//Get Row Data
-						const data = {};
+							//Get Row Class Name
+							let className;
+							if (exact) {
+								className = "exact";
+							} else if (options.length) {
+								className = "approx";
+							} else {
+								className = "no-match";
+							}
 
-						//Read-only fields, not used by Formik
-						data.colourCode = " ";
-						data.original = original;
+							//Get Row Data
+							const data = {};
 
-						//Squad Number
-						data.number = renderInput({
-							name: baseName("number"),
-							type: fieldTypes.number,
-							disabled
-						});
+							//Read-only fields, not used by Formik
+							data.colourCode = " ";
+							data.original = original;
 
-						//Name
-						//We make this an array so we can conditionally display
-						//the name input fields
-						data.name = [
-							renderInput({
-								name: baseName("_player"),
-								type: fieldTypes.select,
-								options: [...defaultOptions, ...options]
-							})
-						];
-						if (values[i]._player === "new") {
-							data.name.push(
+							//Squad Number
+							data.number = renderInput({
+								name: baseName("number"),
+								type: fieldTypes.number,
+								disabled
+							});
+
+							//Name
+							//We make this an array so we can conditionally display
+							//the name input fields
+							data.name = [
 								renderInput({
-									name: baseName("name.first"),
-									type: fieldTypes.text
-								}),
-								renderInput({ name: baseName("name.last"), type: fieldTypes.text })
-							);
-						}
+									name: baseName("_player"),
+									type: fieldTypes.select,
+									options: [...defaultOptions, ...options]
+								})
+							];
+							if (values[i]._player === "new") {
+								data.name.push(
+									renderInput({
+										name: baseName("name.first"),
+										type: fieldTypes.text
+									}),
+									renderInput({
+										name: baseName("name.last"),
+										type: fieldTypes.text
+									})
+								);
+							}
 
-						//Loan
-						data.onLoan = renderInput({
-							name: baseName("onLoan"),
-							type: fieldTypes.boolean,
-							disabled
-						});
+							//Loan
+							data.onLoan = renderInput({
+								name: baseName("onLoan"),
+								type: fieldTypes.boolean,
+								disabled
+							});
 
-						//Dates
-						data.from = renderInput({
-							name: baseName("from"),
-							type: fieldTypes.date,
-							disabled
-						});
-						data.to = renderInput({
-							name: baseName("to"),
-							type: fieldTypes.date,
-							disabled
-						});
+							//Dates
+							data.from = renderInput({
+								name: baseName("from"),
+								type: fieldTypes.date,
+								disabled
+							});
+							data.to = renderInput({
+								name: baseName("to"),
+								type: fieldTypes.date,
+								disabled
+							});
 
-						return {
-							key: i,
-							data: _.mapValues(data, content => ({ content })),
-							className: `${className} ${disabled ? "disabled" : ""}`
-						};
-					});
+							return {
+								key: i,
+								data: _.mapValues(data, content => ({ content })),
+								className: `${className} ${disabled ? "disabled" : ""}`
+							};
+						})
+						.filter(r => r);
 
 					return (
 						<Table
