@@ -19,14 +19,14 @@ class ErrorPrintout extends Component {
 	}
 
 	render() {
-		const { error } = this.props;
+		const { file, message } = this.props;
 		const { errorTapCount } = this.state;
 
 		return (
 			<div className="error-boundary">
 				<h2 onClick={() => this.setState({ errorTapCount: errorTapCount + 1 })}>Error</h2>
 				<div className="message">
-					{error.message} ({error.fileName}:{error.lineNumber})
+					{message} ({file})
 				</div>
 				{this.renderMessage()}
 			</div>
@@ -35,7 +35,8 @@ class ErrorPrintout extends Component {
 }
 
 ErrorPrintout.propTypes = {
-	error: PropTypes.object.isRequired,
+	file: PropTypes.string.isRequired,
+	message: PropTypes.string.isRequired,
 	componentStack: PropTypes.string.isRequired
 };
 

@@ -9,7 +9,8 @@ const errorSchema = new Schema({
 	browser: { type: String, required: true },
 	deviceType: { type: String, required: true },
 	message: { type: String },
-	componentStack: { type: String }
+	componentStack: { type: String },
+	file: { type: String }
 });
 
 mongoose.model("errors", errorSchema);

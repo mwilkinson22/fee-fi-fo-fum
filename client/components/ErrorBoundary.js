@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
@@ -10,7 +11,7 @@ import ErrorPrintout from "./ErrorPrintout";
 import { sendError } from "~/client/actions/errorActions";
 
 //Inital State, when all is ok
-const initialState = { error: null, componentStack: null, errorPage: null };
+const initialState = { message: null, componentStack: null, page: null };
 
 class ErrorBoundary extends Component {
 	constructor(props) {
@@ -20,10 +21,10 @@ class ErrorBoundary extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { errorPage } = prevState;
+		const { page } = prevState;
 
 		//Clear the error if we've navigated
-		if (errorPage && errorPage != nextProps.location.pathname) {
+		if (page && page != nextProps.location.pathname) {
 			return initialState;
 		}
 
@@ -34,19 +35,26 @@ class ErrorBoundary extends Component {
 		const { authUser, browser, deviceType, sendError, sentErrors } = this.props;
 
 		//Get the uri where the error occured
-		const errorPage = this.props.location.pathname;
+		const page = this.props.location.pathname;
+
+		//Get the message
+		const { message } = error;
 
 		//Get the component stack
 		const { componentStack } = info;
 
+		//Get the file
+		const file = `${error.fileName}:${error.lineNumber}`;
+
 		//Update the state to render fallback component
-		this.setState({ error, componentStack, errorPage });
+		this.setState({ message, componentStack, page, file });
 
 		//Save the error to the database
-		if (!sentErrors.find(path => path == errorPage)) {
+		if (!sentErrors.find(path => path == page)) {
 			const errorObject = {
-				page: errorPage,
-				message: error.message,
+				page,
+				message,
+				file,
 				componentStack,
 				browser,
 				deviceType
@@ -62,11 +70,11 @@ class ErrorBoundary extends Component {
 		}
 	}
 	render() {
-		const { componentStack, error } = this.state;
-		if (error) {
+		if (this.state.message) {
+			const errorData = _.pick(this.state, ["componentStack", "message", "file"]);
 			return (
 				<div className="container">
-					<ErrorPrintout componentStack={componentStack} error={error} />
+					<ErrorPrintout {...errorData} />
 				</div>
 			);
 		}
