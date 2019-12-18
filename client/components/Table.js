@@ -133,6 +133,9 @@ class Table extends Component {
 
 								cellProps.className = classNames.join(" ");
 
+								//Click Events
+								cellProps.onClick = data.onClick;
+
 								//Handle missing values
 								if (data === undefined) {
 									cellProps.children = "-";
@@ -140,10 +143,11 @@ class Table extends Component {
 								} else {
 									cellProps.children = data.content;
 									cellProps.title =
-										data.title || column.title || labelAsDefaultTitle
-											? column.label
-											: null;
+										data.title ||
+										column.title ||
+										(labelAsDefaultTitle ? column.label : null);
 								}
+
 								return column.dataUsesTh ? (
 									<th {...cellProps} />
 								) : (
@@ -212,6 +216,7 @@ Table.propTypes = {
 			data: PropTypes.objectOf(
 				PropTypes.shape({
 					content: PropTypes.node.isRequired,
+					onClick: PropTypes.func,
 					sortValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 					title: PropTypes.string
 				})

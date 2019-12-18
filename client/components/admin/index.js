@@ -23,6 +23,8 @@ import AdminCompetitionInstancePage from "../../pages/admin/AdminCompetitionInst
 import AdminCountryList from "../../pages/admin/AdminCountryList";
 import AdminCountryPage from "../../pages/admin/AdminCountryPage";
 
+import AdminErrorPage from "../../pages/admin/AdminErrorPage";
+
 import AdminNeutralGameList from "../../pages/admin/AdminNeutralGameList";
 import AdminNeutralGamePage from "../../pages/admin/AdminNeutralGamePage";
 
@@ -92,6 +94,8 @@ class AdminRouter extends Component {
 						<Route path="/admin/countries/new" exact component={AdminCountryPage} />
 						<Route path="/admin/countries/:_id" exact component={AdminCountryPage} />
 						<Route path="/admin/countries" exact component={AdminCountryList} />
+
+						<Route path="/admin/errors" component={AdminErrorPage} />
 
 						<Route path="/admin/game/new" component={AdminGamePage} />
 						<Route path="/admin/game/:_id" component={AdminGamePage} />

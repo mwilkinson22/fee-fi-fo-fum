@@ -84,4 +84,5 @@ export const DELETE_SOCIAL_PROFILE = "delete_social_profile";
 
 //Errors
 export const FETCH_ERRORS = "fetch_errors";
+export const CLEAR_ERRORS = "clear_errors";
 export const SEND_ERROR = "send_error";

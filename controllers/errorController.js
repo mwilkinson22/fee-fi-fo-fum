@@ -3,7 +3,18 @@ import mongoose from "mongoose";
 const Error = mongoose.model("errors");
 
 export async function getErrors(req, res) {
-	const errors = await Error.find().lean();
+	//30 days ago
+	const date = new Date().addDays(-30);
+
+	//Generate query
+	const query = { date: { $gte: date } };
+
+	//Unless instructed otherwise, filter by archived status
+	if (!req.query.includeArchived) {
+		query.archived = false;
+	}
+
+	const errors = await Error.find(query).populate("_user");
 	res.send(errors);
 }
 
@@ -17,4 +28,26 @@ export async function postError(req, res) {
 	error.save();
 
 	res.send(error._id);
+}
+
+export async function unarchiveError(req, res) {
+	const { _id } = req.params;
+
+	await Error.findOneAndUpdate({ _id }, { archived: false });
+
+	await getErrors(req, res);
+}
+
+export async function archiveError(req, res) {
+	const { _id } = req.params;
+
+	await Error.findOneAndUpdate({ _id }, { archived: true });
+
+	await getErrors(req, res);
+}
+
+export async function archiveAllErrors(req, res) {
+	await Error.updateMany({}, { archived: true }, { multi: true });
+
+	await getErrors(req, res);
 }

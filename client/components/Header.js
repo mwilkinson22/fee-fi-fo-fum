@@ -142,6 +142,7 @@ class Header extends Component {
 					headerLink: "/admin/social",
 					subMenuRootLink: "/admin/",
 					subMenu: {
+						Errors: "errors",
 						Social: "social",
 						Users: "users"
 					}

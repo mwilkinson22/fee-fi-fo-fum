@@ -15,11 +15,11 @@
 		user-select: none;
 	}
 
-	.message {
+	.data {
 		margin: 10pt;
-		border-bottom: solid 4pt #900;
 		font-weight: 600;
 		padding-bottom: 6pt;
+		border-bottom: solid 4pt #900;
 	}
 
 	pre {
@@ -31,5 +31,30 @@
 		border: solid thin black;
 		overflow: auto;
 		flex-grow: 1;
+	}
+}
+
+.error-list-table-wrapper {
+	overflow-x: auto;
+	margin: 10pt 0;
+	.error-list-table {
+		margin: 0 !important;
+		td {
+			white-space: nowrap;
+		}
+		.archived td {
+			background: #ccc !important;
+		}
+		td.link {
+			color: $claret;
+			cursor: pointer;
+			font-weight: 600;
+			&:hover {
+				color: lighten($claret, 10%);
+			}
+			a {
+				color: inherit;
+			}
+		}
 	}
 }

@@ -10,6 +10,13 @@ class ErrorPrintout extends Component {
 		this.state = { errorTapCount: 0 };
 	}
 
+	renderDate() {
+		const { date } = this.props;
+		if (date) {
+			return <div className="date">{date.toLocaleString()}</div>;
+		}
+	}
+
 	renderMessage() {
 		const { componentStack, environment } = this.props;
 		const { errorTapCount } = this.state;
@@ -25,8 +32,11 @@ class ErrorPrintout extends Component {
 		return (
 			<div className="error-boundary">
 				<h2 onClick={() => this.setState({ errorTapCount: errorTapCount + 1 })}>Error</h2>
-				<div className="message">
-					{message} ({file})
+				<div className="data">
+					<div className="message">
+						{message} ({file})
+					</div>
+					{this.renderDate()}
 				</div>
 				{this.renderMessage()}
 			</div>
@@ -35,6 +45,7 @@ class ErrorPrintout extends Component {
 }
 
 ErrorPrintout.propTypes = {
+	date: PropTypes.instanceOf(Date),
 	file: PropTypes.string.isRequired,
 	message: PropTypes.string.isRequired,
 	componentStack: PropTypes.string.isRequired

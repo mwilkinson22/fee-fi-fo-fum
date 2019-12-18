@@ -71,7 +71,7 @@ class ErrorBoundary extends Component {
 	}
 	render() {
 		if (this.state.message) {
-			const errorData = _.pick(this.state, ["componentStack", "message", "file"]);
+			const errorData = _.pick(this.state, ["componentStack", "date", "message", "file"]);
 			return (
 				<div className="container">
 					<ErrorPrintout {...errorData} />
