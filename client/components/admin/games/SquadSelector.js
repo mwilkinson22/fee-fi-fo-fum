@@ -235,6 +235,7 @@ class SquadSelector extends Component {
 				const positionKey = positionsByNumber[activePosition]
 					? positionsByNumber[activePosition].key
 					: "I";
+
 				forActivePosition = unselectedPlayers
 					//Filter by those not in dropdown
 					.filter(p => !p.showInDropdown)
@@ -258,7 +259,7 @@ class SquadSelector extends Component {
 					p => (forActivePosition.indexOf(p._player._id) > -1 ? 0 : 1),
 					p => p.number || p._player.name.full
 				])
-				.map(p => {
+				.map((p, i) => {
 					const { _id } = p._player;
 
 					//Get click action, if there is an active position
@@ -270,8 +271,7 @@ class SquadSelector extends Component {
 					//Only show a gap if the player is the last in
 					//the forActivePosition list
 					const withGap =
-						forActivePosition.length > 0 &&
-						forActivePosition.indexOf(_id) === forActivePosition.length - 1;
+						forActivePosition.length > 0 && i === forActivePosition.length - 1;
 
 					return (
 						<SquadSelectorCard
