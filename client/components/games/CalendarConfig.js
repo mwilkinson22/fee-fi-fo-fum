@@ -171,7 +171,7 @@ class CalendarConfigDialog extends Component {
 		const { _competitions, ...options } = values;
 
 		//Get Calendar Data
-		const data = await getCalendar(_competitions.map(c => c.value), options);
+		const data = await getCalendar(_competitions, options);
 
 		//Convert to Blob
 		const file = new Blob([data], { type: "text/calendar" });
