@@ -16,13 +16,14 @@ import useragent from "express-useragent";
 //Models
 import "./models/Award";
 import "./models/Error";
-import "./models/User";
-import "./models/SocialProfile";
-import "./models/Sponsor";
 import "./models/IdLink";
-import "./models/SlugRedirect";
+import "./models/TeamSelector";
 import "./models/rugby";
+import "./models/SocialProfile";
+import "./models/SlugRedirect";
+import "./models/Sponsor";
 import "./models/NewsPost";
+import "./models/User";
 
 //Frontend
 import Routes from "./client/Routes";
@@ -51,10 +52,11 @@ import "./services/passport";
 import awardRoutes from "./routes/awardRoutes";
 import errorRoutes from "./routes/errorRoutes";
 import fileRoutes from "./routes/fileRoutes";
-import usersRoutes from "./routes/usersRoutes";
-import socialRoutes from "./routes/socialRoutes";
-import rugbyRoutes from "./routes/rugby";
 import newsRoutes from "./routes/newsRoutes";
+import rugbyRoutes from "./routes/rugby";
+import socialRoutes from "./routes/socialRoutes";
+import teamSelectorRoutes from "./routes/teamSelectorRoutes";
+import usersRoutes from "./routes/usersRoutes";
 
 //Configure Mongoose
 mongoose.connect(keys.mongoURI, {
@@ -67,6 +69,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(compression({ level: 9 }));
 app.use(useragent.express());
+app.use((req, res, done) => {
+	const forwarded = req.headers["x-forwarded-for"];
+	req.ipAddress = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+	done();
+});
 
 //Set up passport
 app.use(
@@ -85,10 +92,11 @@ app.use(express.static("public"));
 awardRoutes(app);
 errorRoutes(app);
 fileRoutes(app);
-usersRoutes(app);
-socialRoutes(app);
-rugbyRoutes(app);
 newsRoutes(app);
+rugbyRoutes(app);
+socialRoutes(app);
+teamSelectorRoutes(app);
+usersRoutes(app);
 app.all("/api*", (req, res) => {
 	res.status("404").send("404 - Invalid API path");
 });
@@ -100,15 +108,11 @@ app.use(requireHttps);
 app.get("*", async (req, res) => {
 	const store = createStore(req);
 
-	//Get public ip Address
-	const forwarded = req.headers["x-forwarded-for"];
-	const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
-
 	//Get Basic Config
 	await store.dispatch(getCoreConfig(req));
 	await store.dispatch(setDefaultProfile(keys.defaultSocialProfile));
 	await store.dispatch(fetchCurrentUser());
-	await store.dispatch(fetchCurrentAwards(ip));
+	await store.dispatch(fetchCurrentAwards(req.ipAddress));
 
 	//Team Types
 	await store.dispatch(fetchAllTeamTypes());

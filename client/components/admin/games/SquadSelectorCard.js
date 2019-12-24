@@ -83,9 +83,9 @@ class SquadSelectorCard extends Component {
 	}
 
 	renderActions() {
-		const { actions, style } = this.props;
+		const { actions, readOnly, style } = this.props;
 
-		if (actions && actions.length) {
+		if (!readOnly && actions && actions.length) {
 			//We invert the styling here, but this only applies on
 			//hover, as per css
 			const actionStyle = { color: style.backgroundColor, backgroundColor: style.color };
@@ -115,9 +115,9 @@ class SquadSelectorCard extends Component {
 	}
 
 	renderMobileActionDots() {
-		const { actions, style } = this.props;
+		const { actions, readOnly, style } = this.props;
 
-		if (actions && actions.length) {
+		if (!readOnly && actions && actions.length) {
 			return (
 				<ThreeDots
 					colour={style.color}
@@ -128,7 +128,7 @@ class SquadSelectorCard extends Component {
 	}
 
 	render() {
-		const { style } = this.props;
+		const { readOnly, style } = this.props;
 		const { onClick, showActionsInMobile, withGap } = this.state;
 
 		const classNames = ["card", "squad-selector-card"];
@@ -143,6 +143,10 @@ class SquadSelectorCard extends Component {
 
 		if (onClick) {
 			classNames.push("clickable");
+		}
+
+		if (readOnly) {
+			classNames.push("read-only");
 		}
 
 		return (
@@ -162,12 +166,14 @@ SquadSelectorCard.propTypes = {
 	onClick: PropTypes.func,
 	player: PropTypes.object,
 	positionString: PropTypes.string,
+	readOnly: PropTypes.bool,
 	style: PropTypes.object.isRequired,
 	withGap: PropTypes.bool
 };
 
 SquadSelectorCard.defaultProps = {
 	outOfPosition: false,
+	readOnly: false,
 	withGap: false
 };
 

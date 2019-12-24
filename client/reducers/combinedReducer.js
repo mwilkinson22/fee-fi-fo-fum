@@ -11,6 +11,7 @@ import newsReducer from "./newsReducer";
 import peopleReducer from "./peopleReducer";
 import socialReducer from "./socialReducer";
 import sponsorReducer from "./sponsorReducer";
+import teamSelectorReducer from "./teamSelectorReducer";
 import userReducer from "./userReducer";
 
 export default combineReducers({
@@ -25,6 +26,7 @@ export default combineReducers({
 	people: peopleReducer,
 	social: socialReducer,
 	sponsors: sponsorReducer,
+	teamSelectors: teamSelectorReducer,
 	teams: teamsReducer,
 	users: userReducer
 });

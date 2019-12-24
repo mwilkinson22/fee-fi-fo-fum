@@ -11,6 +11,7 @@ import SeasonPage from "./pages/SeasonPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import TeamSelectorPage from "./pages/TeamSelectorPage";
 import AdminRouter from "./components/admin";
 import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
 
@@ -134,6 +135,13 @@ const newsRoutes = [
 	}
 ];
 
+const teamSelectorRoutes = [
+	{
+		...TeamSelectorPage,
+		path: "/team-selectors/:slug"
+	}
+];
+
 export default [
 	{
 		...App,
@@ -144,6 +152,7 @@ export default [
 			...squadRoutes,
 			...newsRoutes,
 			...seasonRoutes,
+			...teamSelectorRoutes,
 			{
 				...HomePage,
 				path: "/",

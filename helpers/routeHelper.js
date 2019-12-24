@@ -7,15 +7,15 @@ export function matchSlugToItem(slug, list, redirects) {
 
 	if (item) {
 		return { item, redirect: false };
-	} else {
+	} else if (redirects) {
 		//If there's no match, look for a redirect
 		const redirectId = redirects[slug];
 		item = list[redirectId];
 
 		if (item) {
 			return { item, redirect: true };
-		} else {
-			return { item: null };
 		}
 	}
+
+	return { item: null };
 }

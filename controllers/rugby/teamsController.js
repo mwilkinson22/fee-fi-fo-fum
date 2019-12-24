@@ -60,9 +60,11 @@ async function getUpdatedTeam(_id, res) {
 	});
 }
 
-/*
- * FULL TEAM METHODS
- */
+/* ----------------------------------------------------------------
+ *
+ * Full Team CRUD Methods
+ *
+ * ---------------------------------------------------------------- */
 export async function createTeam(req, res) {
 	//Handle Plain Text Fields
 	const team = new Team(req.body);
@@ -154,9 +156,11 @@ export async function getTeam(req, res) {
 	}
 }
 
-/*
- * SQUAD METHODS
- */
+/* ----------------------------------------------------------------
+ *
+ * Squad Methods
+ *
+ * ---------------------------------------------------------------- */
 export async function createSquad(req, res) {
 	const { _id } = req.params;
 	const team = await validateTeam(_id, res);
@@ -384,9 +388,11 @@ export async function updateSquad(req, res) {
 	}
 }
 
-/*
- * COACH METHODS
- */
+/* ----------------------------------------------------------------
+ *
+ * Coach Methods
+ *
+ * ---------------------------------------------------------------- */
 export async function addCoach(req, res) {
 	const { _id } = req.params;
 	const team = await validateTeam(_id, res);
@@ -397,9 +403,11 @@ export async function addCoach(req, res) {
 	}
 }
 
-/*
- * TEAM TYPES METHODS
- */
+/* ----------------------------------------------------------------
+ *
+ * Team Types
+ *
+ * ---------------------------------------------------------------- */
 export async function getTeamTypes(req, res) {
 	const teamTypes = await TeamType.find({}).sort({ sortOrder: 1 });
 	res.send(_.keyBy(teamTypes, "_id"));

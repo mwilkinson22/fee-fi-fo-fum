@@ -5,12 +5,6 @@ import mongoose from "mongoose";
 //Mongoose
 const Award = mongoose.model("awards");
 
-//Helpers
-function getIpAddress(req) {
-	const forwarded = req.headers["x-forwarded-for"];
-	return forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
-}
-
 async function validateAward(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -51,9 +45,9 @@ export async function getCurrent(req, res) {
 		}
 	}).lean();
 
-	const ip = req.query.ip || getIpAddress(req);
+	const { ipAddress } = req;
 	if (currentAwards) {
-		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === ip);
+		currentAwards.votes = currentAwards.votes.find(vote => vote.ip === ipAddress);
 		res.send(currentAwards);
 	} else {
 		res.send(false);
@@ -127,8 +121,8 @@ export async function submitVotes(req, res) {
 	const award = await validateAward(_id, res);
 	if (award) {
 		//Check to see if we've already voted
-		const ip = getIpAddress(req);
-		const currentVote = award.votes.find(v => v.ip === ip);
+		const { ipAddress } = req;
+		const currentVote = award.votes.find(v => v.ip === ipAddress);
 
 		//Process data
 		const choices = _.map(req.body, (choice, categoryId) => ({ choice, categoryId }));
@@ -139,7 +133,7 @@ export async function submitVotes(req, res) {
 				{ $set: { "votes.$.choices": choices } }
 			);
 		} else {
-			award.votes.push({ ip, choices });
+			award.votes.push({ ip: ipAddress, choices });
 			await award.save();
 		}
 

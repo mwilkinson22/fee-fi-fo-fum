@@ -2,12 +2,15 @@ import { GET_CORE_CONFIG } from "./types";
 import { localTeam, gaTracking } from "../../config/keys";
 
 export const getCoreConfig = req => async dispatch => {
-	const { headers, useragent, protocol, originalUrl } = req;
+	const { headers, ipAddress, useragent, protocol, originalUrl } = req;
 
 	const { browser } = useragent;
 	const config = {
 		//Set Browser
 		browser,
+
+		//Set IP Address
+		ipAddress,
 
 		//Set webp compatibility
 		webp: headers.accept && headers.accept.indexOf("image/webp") > -1,

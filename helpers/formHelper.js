@@ -27,15 +27,10 @@ export function extractYupData(name, validationSchema) {
 		);
 }
 
-export function renderFieldGroup(
-	fields,
-	validationSchema,
-	fastFieldByDefault = true,
-	onChange = null
-) {
-	return fields.map(field => renderField(field, validationSchema, fastFieldByDefault, onChange));
+export function renderFieldGroup(fields, validationSchema, fastFieldByDefault = true) {
+	return fields.map(field => renderField(field, validationSchema, fastFieldByDefault));
 }
-export function renderField(field, validationSchema, fastFieldByDefault = true, onChange = null) {
+export function renderField(field, validationSchema, fastFieldByDefault = true) {
 	if (!validationSchema || !validationSchema.describe()) {
 		throw new Error("Yup Validation Schema required");
 	}
@@ -80,7 +75,7 @@ export function renderField(field, validationSchema, fastFieldByDefault = true, 
 	}
 
 	//Render Field Input
-	const input = renderInput(field, onChange);
+	const input = renderInput(field);
 
 	return [
 		label,
@@ -91,8 +86,8 @@ export function renderField(field, validationSchema, fastFieldByDefault = true, 
 	];
 }
 
-export function renderInput(field, customOnChange) {
-	const { label, type, name, fastField, ...props } = field;
+export function renderInput(field) {
+	const { label, type, name, fastField, customOnChange, ...props } = field;
 
 	if (!_.find(fieldTypes, t => t == type)) {
 		throw new Error(
@@ -135,7 +130,7 @@ export function renderInput(field, customOnChange) {
 			const originalOnChange = formikProps.field.onChange;
 			formikProps.field.onChange = option => {
 				originalOnChange(option);
-				customOnChange(option);
+				customOnChange(option, formikProps);
 			};
 		}
 

@@ -86,3 +86,8 @@ export const DELETE_SOCIAL_PROFILE = "delete_social_profile";
 export const FETCH_ERRORS = "fetch_errors";
 export const CLEAR_ERRORS = "clear_errors";
 export const SEND_ERROR = "send_error";
+
+//Team Selectors
+export const FETCH_TEAM_SELECTOR_LIST = "fetch_team_selector_list";
+export const FETCH_TEAM_SELECTOR = "fetch_team_selector";
+export const DELETE_TEAM_SELECTOR = "delete_team_selector";

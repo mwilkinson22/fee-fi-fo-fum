@@ -40,3 +40,18 @@ export const getPlayersByYearAndGender = (teamId, year, teamType) => (dispatch, 
 
 	return _.keyBy(players, p => p._player._id);
 };
+
+export function getSquadsAsDropdown(squads, teamTypes) {
+	return _.chain(squads)
+		.groupBy("_teamType")
+		.map((squads, _teamType) => ({
+			label: teamTypes[_teamType].name,
+			order: teamTypes[_teamType].sortOrder,
+			options: _.chain(squads)
+				.orderBy("year", "desc")
+				.map(squad => ({ label: squad.year, value: squad._id }))
+				.value()
+		}))
+		.sortBy("order")
+		.value();
+}

@@ -12,6 +12,9 @@ import AdminTeamSquadsEdit from "./AdminTeamSquadsEdit";
 //Constants
 import selectStyling from "~/constants/selectStyling";
 
+//Helpers
+import { getSquadsAsDropdown } from "~/helpers/teamHelper";
+
 class AdminTeamSquadsPage extends Component {
 	constructor(props) {
 		super(props);
@@ -50,22 +53,7 @@ class AdminTeamSquadsPage extends Component {
 		const { squadId } = match.params;
 
 		const newOption = { value: "new", label: "Add New Squad" };
-		const options = [newOption];
-
-		//Convert existing squads to dropdown options
-		_.chain(team.squads)
-			.groupBy("_teamType")
-			.map((squads, _teamType) => ({
-				label: teamTypes[_teamType].name,
-				order: teamTypes[_teamType].sortOrder,
-				options: _.chain(squads)
-					.orderBy("year", "desc")
-					.map(squad => ({ label: squad.year, value: squad._id }))
-					.value()
-			}))
-			.sortBy("order")
-			.each(group => options.push(group))
-			.value();
+		const options = [newOption, ...getSquadsAsDropdown(team.squads, teamTypes)];
 
 		//Get Default
 		let value;

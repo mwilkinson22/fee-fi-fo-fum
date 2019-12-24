@@ -138,7 +138,7 @@ class SquadSelector extends Component {
 	}
 
 	renderSelectedPlayers(formik) {
-		const { players } = this.props;
+		const { players, readOnly } = this.props;
 		const { activePosition, cardStyling, positionsByNumber, followWithAGap } = this.state;
 		const { values } = formik;
 
@@ -199,6 +199,7 @@ class SquadSelector extends Component {
 					onClick={() => this.setState({ activePosition: i })}
 					player={player}
 					positionString={positionString}
+					readOnly={readOnly}
 					style={cardStyling}
 					withGap={followWithAGap.indexOf(i) > -1}
 				/>
@@ -210,6 +211,16 @@ class SquadSelector extends Component {
 				{cards}
 			</div>
 		);
+	}
+
+	renderSecondColumn(formik) {
+		const { customSecondColumn, readOnly } = this.props;
+
+		if (customSecondColumn) {
+			return customSecondColumn;
+		} else if (!readOnly) {
+			return this.renderAvailablePlayers(formik);
+		}
 	}
 
 	renderAvailablePlayers(formik) {
@@ -399,36 +410,53 @@ class SquadSelector extends Component {
 					closeButtonText="Cancel"
 					onDestroy={onDestroy}
 				>
-					<h6>Swap {_player.name.full} with:</h6>
+					<h6>Move {_player.name.full} to:</h6>
 					{list}
 				</PopUpDialog>
 			);
 		}
 	}
 
+	renderButtons(disableButtons) {
+		const { readOnly, submitText } = this.props;
+		if (!readOnly) {
+			return (
+				<div className="buttons">
+					<button type="reset">Reset Squad</button>
+					<button type="submit" className="confirm" disabled={disableButtons}>
+						{submitText}
+					</button>
+				</div>
+			);
+		}
+	}
+
 	render() {
-		const { onSubmit } = this.props;
+		const { customValidation, onSubmit } = this.props;
 
 		return (
 			<Formik
 				initialValues={this.props.currentSquad}
 				onSubmit={onSubmit}
 				validate={values => this.validate(values)}
-				render={formik => (
-					<Form>
-						<div className="squad-selector">
-							{this.renderMoveDialog(formik)}
-							{this.renderSelectedPlayers(formik)}
-							{this.renderAvailablePlayers(formik)}
-						</div>
-						<div className="buttons">
-							<button type="reset">Reset Squad</button>
-							<button type="submit" className="confirm" disabled={!formik.isValid}>
-								Update Squad
-							</button>
-						</div>
-					</Form>
-				)}
+				render={formik => {
+					let disableButtons;
+					if (customValidation) {
+						disableButtons = Object.keys(this.validate(formik.values)).length > 0;
+					} else {
+						disableButtons = !formik.isValid;
+					}
+					return (
+						<Form>
+							<div className={`squad-selector`}>
+								{this.renderMoveDialog(formik)}
+								{this.renderSelectedPlayers(formik)}
+								{this.renderSecondColumn(formik)}
+							</div>
+							{this.renderButtons(disableButtons)}
+						</Form>
+					);
+				}}
 			/>
 		);
 	}
@@ -436,6 +464,8 @@ class SquadSelector extends Component {
 
 SquadSelector.propTypes = {
 	currentSquad: PropTypes.object.isRequired,
+	customSecondColumn: PropTypes.node,
+	customValidation: PropTypes.bool,
 	onSubmit: PropTypes.func.isRequired,
 	maxInterchanges: PropTypes.number,
 	players: PropTypes.arrayOf(
@@ -445,12 +475,17 @@ SquadSelector.propTypes = {
 			showInDropdown: PropTypes.bool.isRequired
 		})
 	).isRequired,
+	readOnly: PropTypes.bool,
 	requireFullTeam: PropTypes.bool,
+	submitText: PropTypes.string,
 	team: PropTypes.object.isRequired
 };
 
-SquadSelector.defaultprops = {
-	maxInterchanges: 4
+SquadSelector.defaultProps = {
+	customValidation: false,
+	maxInterchanges: 4,
+	readOnly: false,
+	submitText: "Update Squad"
 };
 
 export default SquadSelector;

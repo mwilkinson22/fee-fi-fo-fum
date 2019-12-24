@@ -50,6 +50,7 @@
 		}
 		.game-details-wrapper {
 			flex-grow: 1;
+			font-weight: 400;
 			.date {
 				font-weight: 600;
 			}
@@ -1297,132 +1298,6 @@
 		right: 0;
 		margin: 0 auto 10pt;
 		display: block;
-	}
-}
-.squad-selector {
-	display: grid;
-	grid-gap: 10pt;
-	margin-bottom: 10pt;
-
-	.squad-selector-card {
-		user-select: none;
-		display: flex;
-		align-content: stretch;
-		background: white;
-		justify-content: center;
-		min-height: 30pt;
-		position: relative;
-		font-weight: 600;
-
-		&.with-gap {
-			margin-bottom: 8pt;
-		}
-
-		.position,
-		.main,
-		.three-dot-menu,
-		.actions .action {
-			cursor: pointer;
-			padding: 8pt;
-		}
-
-		&:not(.clickable) {
-			.position,
-			.main {
-				cursor: default;
-			}
-		}
-
-		.position {
-			text-align: center;
-			box-sizing: content-box;
-			min-width: 18pt;
-			border-left-width: 8pt;
-			border-left-style: solid;
-		}
-
-		&:hover .position,
-		.position.active {
-			border-left-color: inherit !important;
-		}
-
-		.main {
-			flex-grow: 1;
-			border-left-style: solid;
-			border-left-width: 6pt;
-			border-color: inherit;
-			.positions {
-				font-weight: normal;
-			}
-		}
-
-		.actions {
-			display: flex;
-
-			.action {
-				&:not(:hover) {
-					//This allows us to dynamically set the hover
-					//properties based on team colours
-					background: inherit !important;
-					color: inherit !important;
-				}
-				&.disabled {
-					pointer-events: none;
-					opacity: 0.2;
-					cursor: default;
-				}
-			}
-		}
-
-		@media #{$desktop-and-tablet} {
-			.three-dot-menu {
-				display: none;
-			}
-		}
-
-		@media #{$mobile-only} {
-			overflow: hidden;
-			.actions {
-				position: absolute;
-				background: inherit;
-				top: 0;
-				right: 0;
-				bottom: 0;
-				transform: translateX(100%);
-				margin: auto;
-			}
-			&.show-mobile-actions {
-				.position,
-				.name {
-					filter: blur(1pt);
-				}
-				.actions {
-					transition: transform 200ms;
-					transform: none;
-				}
-			}
-		}
-	}
-
-	.available {
-		.active-position-instruction {
-			margin-bottom: 8pt;
-			font-weight: 600;
-		}
-		select {
-			margin-top: 10pt;
-			padding: 2pt 4pt;
-			width: 100%;
-			border-radius: 4pt;
-		}
-	}
-
-	.buttons {
-		margin-top: 10pt;
-	}
-
-	@media #{$desktop-and-tablet} {
-		grid-template-columns: 1fr 1fr;
 	}
 }
 
