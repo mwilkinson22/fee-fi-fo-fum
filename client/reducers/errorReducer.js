@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { FETCH_ERRORS, SEND_ERROR, CLEAR_ERRORS } from "../actions/types";
 
 export default function(state = { sentErrors: [] }, action) {

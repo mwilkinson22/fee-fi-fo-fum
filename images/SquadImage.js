@@ -4,7 +4,7 @@ import { localTeam } from "~/config/keys";
 import mongoose from "mongoose";
 
 export default class SquadImage extends Canvas {
-	constructor(game, options = {}) {
+	constructor(players, options = {}) {
 		//Set Dimensions
 		const cWidth = 1400;
 		const cHeight = cWidth / 2;
@@ -83,17 +83,15 @@ export default class SquadImage extends Canvas {
 		].map(p => this.processPlayerPositions(p));
 
 		//Variables
-		this.game = game;
+		this.players = players;
+		this.game = options.game;
 		this.options = options;
-		this.teamBadges = {
-			[localTeam]: {},
-			[game._opposition._id]: {}
-		};
-		this.extraInterchanges =
-			_.filter(
-				game.playerStats,
-				s => s._team == (options.showOpposition ? game._opposition._id : localTeam)
-			).length > 17;
+		this.teamBadges = {};
+		this.teamBadges[localTeam] = {};
+		if (this.game) {
+			this.teamBadges[this.game._opposition._id] = {};
+		}
+		this.extraInterchanges = players.length > 17;
 	}
 
 	processPlayerPositions([x, y]) {
@@ -109,24 +107,34 @@ export default class SquadImage extends Canvas {
 		const Team = mongoose.model("teams");
 		const localTeamObject = await Team.findById(localTeam, "images").lean();
 
+		//First, load the 'dark' image to be shown in the sidebar
 		this.teamBadges[localTeam].dark = await this.googleToCanvas(
 			`images/teams/${localTeamObject.images.dark || localTeamObject.images.main}`
 		);
-		this.teamBadges[game._opposition._id].dark = await this.googleToCanvas(
-			`images/teams/${game._opposition.images.dark || game._opposition.images.main}`
-		);
 
-		if (options.showOpposition) {
-			const { _id, images } = game._opposition;
-			let image;
-			if (!images.light && !images.dark) {
-				//If we don't have light/dark variants, we've already loaded the main image and can copy it
-				image = this.teamBadges[_id].dark;
-			} else {
-				//Otherwise, load either the light or main one
-				image = await this.googleToCanvas(`images/teams/${images.light || images.main}`);
+		//If it's directly linked to a game, then we also load the
+		//opposition dark image
+		if (game) {
+			this.teamBadges[game._opposition._id].dark = await this.googleToCanvas(
+				`images/teams/${game._opposition.images.dark || game._opposition.images.main}`
+			);
+
+			//If we're showing the opposition players, then we
+			//also need the light variant to show in lieu of player images
+			if (options.showOpposition) {
+				const { _id, images } = game._opposition;
+				let image;
+				if (!images.light && !images.dark) {
+					//If we don't have light/dark variants, we've already loaded the main image and can copy it
+					image = this.teamBadges[_id].dark;
+				} else {
+					//Otherwise, load either the light or main one
+					image = await this.googleToCanvas(
+						`images/teams/${images.light || images.main}`
+					);
+				}
+				this.teamBadges[_id].light = image;
 			}
-			this.teamBadges[_id].light = image;
 		}
 	}
 
@@ -151,31 +159,35 @@ export default class SquadImage extends Canvas {
 			interchangeHeaderY
 		} = this.positions;
 
-		//Add Game Logo
-		const siteIcon = await this.googleToCanvas(
+		//Add Main Logo
+		const brandIcon = await this.googleToCanvas(
 			"images/layout/branding/square-logo-with-shadow.png"
 		);
-		let gameIcon;
-		if (game.images.logo) {
-			gameIcon = await this.googleToCanvas(game.images.logo);
 
-			//We have a gameIcon so we place the siteIcon on the right
-			if (siteIcon) {
+		let mainIcon;
+		if (game && game.images.logo) {
+			//If we have a game with its own icon (custom or based on competition),
+			//we use this as the main icon
+			mainIcon = await this.googleToCanvas(game.images.logo);
+
+			//We have a mainIcon so we place the brandIcon on the right
+			if (brandIcon) {
 				this.contain(
-					siteIcon,
-					cWidth - sideBarIconX / 2,
+					brandIcon,
+					cWidth - sideBarIconWidth / 2,
 					sideBarGameIconY / 0.6,
 					sideBarIconWidth / 2,
 					sideBarGameIconHeight * 0.6
 				);
 			}
 		} else {
-			gameIcon = siteIcon;
+			//Othewise, we use the brandIcon as the main icon
+			mainIcon = brandIcon;
 		}
 
-		if (gameIcon) {
+		if (mainIcon) {
 			this.contain(
-				gameIcon,
+				mainIcon,
 				sideBarIconX,
 				sideBarGameIconY,
 				sideBarIconWidth,
@@ -189,25 +201,27 @@ export default class SquadImage extends Canvas {
 		ctx.fillStyle = "#FFF";
 		const bannerText = [];
 
-		//Title
-		bannerText.push([{ text: game.title }]);
+		if (game) {
+			//Title
+			bannerText.push([{ text: game.title }]);
 
-		//Date/Time
-		const date = new Date(this.game.date);
-		bannerText.push([
-			{ text: date.toString("HH:mm "), colour: "#FC0" },
-			{ text: date.toString("dS MMMM yyyy"), colour: "#FFF" }
-		]);
+			//Date/Time
+			const date = new Date(this.game.date);
+			bannerText.push([
+				{ text: date.toString("HH:mm "), colour: "#FC0" },
+				{ text: date.toString("dS MMMM yyyy"), colour: "#FFF" }
+			]);
 
-		//Ground
-		bannerText.push([{ text: game._ground.name }]);
+			//Ground
+			bannerText.push([{ text: game._ground.name }]);
 
-		//Hashtag
-		const { hashtags } = game;
-		bannerText.push([
-			{ text: "#", colour: "#FC0" },
-			{ text: hashtags ? hashtags[0] : "CowbellArmy", colour: "#FFF" }
-		]);
+			//Hashtag
+			const { hashtags } = game;
+			bannerText.push([
+				{ text: "#", colour: "#FC0" },
+				{ text: hashtags ? hashtags[0] : "CowbellArmy", colour: "#FFF" }
+			]);
+		}
 
 		this.textBuilder(bannerText, sideBarWidth * 0.5, bannerY, {
 			lineHeight: 2.7
@@ -215,19 +229,30 @@ export default class SquadImage extends Canvas {
 
 		//Team Badges (limit to 17-man squads)
 		if (!extraInterchanges) {
-			let badges = [teamBadges[localTeam].dark, teamBadges[game._opposition._id].dark];
-			if (game.isAway) {
-				badges = badges.reverse();
-			}
-			badges.map((badge, i) => {
+			const teamBadgeY = cHeight - teamIconHeight - sideBarGameIconY;
+			if (game) {
+				let badges = [teamBadges[localTeam].dark, teamBadges[game._opposition._id].dark];
+				if (game.isAway) {
+					badges = badges.reverse();
+				}
+				badges.map((badge, i) => {
+					this.contain(
+						badge,
+						(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX,
+						teamBadgeY,
+						sideBarIconWidth / 2,
+						teamIconHeight
+					);
+				});
+			} else {
 				this.contain(
-					badge,
-					(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX,
-					cHeight - teamIconHeight - sideBarGameIconY,
-					sideBarIconWidth / 2,
+					teamBadges[localTeam].dark,
+					sideBarIconX,
+					teamBadgeY,
+					sideBarIconWidth,
 					teamIconHeight
 				);
-			});
+			}
 		}
 
 		//Interchanges Header
@@ -237,24 +262,16 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSquad() {
-		const { cHeight, positions, options, game } = this;
-		const { eligiblePlayers, playerStats } = this.game;
+		const { cHeight, positions, players } = this;
 
 		//Create Squad Object
-		const filterTeam = options.showOpposition ? game._opposition._id : localTeam;
-		this.squad = _.chain(playerStats)
-			.filter(s => s._team == filterTeam)
-			.sortBy("position")
-			.map(({ _player }) => {
-				const { name, nickname, displayNicknameInCanvases, _id } = _player;
-				const squadEntry = _.find(eligiblePlayers[filterTeam], m => m._player._id == _id);
-				return {
-					displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
-					number: squadEntry && squadEntry.number ? squadEntry.number : "",
-					..._player
-				};
-			})
-			.value();
+		this.squad = players.map(player => {
+			const { name, nickname, displayNicknameInCanvases } = player;
+			return {
+				displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
+				...player
+			};
+		});
 
 		//Fix duplicate names
 		const duplicates = _.chain(this.squad)

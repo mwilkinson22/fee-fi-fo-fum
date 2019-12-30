@@ -75,7 +75,7 @@ class AdminTeamTypePage extends Component {
 				menu.push({ label: "Transfer Ownership", slug: "ownership" });
 			}
 
-			return <SubMenu items={menu} rootUrl={`/admin/users/${user._id}`} />;
+			return <SubMenu items={menu} rootUrl={`/admin/settings/users/${user._id}`} />;
 		}
 	}
 
@@ -88,15 +88,15 @@ class AdminTeamTypePage extends Component {
 			<ErrorBoundary>
 				<Switch>
 					<Route
-						path="/admin/users/:_id/ownership"
+						path="/admin/settings/users/:_id/ownership"
 						render={() => <AdminUserTransferSiteOwnership user={user} />}
 					/>
 					<Route
-						path="/admin/users/:_id/password"
+						path="/admin/settings/users/:_id/password"
 						render={() => <AdminUserPasswordChange user={user} />}
 					/>
 					<Route
-						path="/admin/users/:_id/"
+						path="/admin/settings/users/:_id/"
 						exact
 						render={() => <AdminUserOverview user={user} />}
 					/>
@@ -141,7 +141,4 @@ function mapStateToProps({ config, users }) {
 	return { authUser, userList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchUserList }
-)(AdminTeamTypePage);
+export default connect(mapStateToProps, { fetchUserList })(AdminTeamTypePage);

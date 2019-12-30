@@ -8,12 +8,15 @@ import SquadSelector from "../components/admin/games/SquadSelector";
 import LoadingPage from "../components/LoadingPage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
+import ShareDialog from "../components/social/ShareDialog";
 
 //Actions
 import {
 	fetchAllTeamSelectors,
 	fetchTeamSelector,
-	saveTeamSelectorChoices
+	fetchPreviewImage,
+	saveTeamSelectorChoices,
+	shareTeamSelector
 } from "~/client/actions/teamSelectorActions";
 
 //Helpers
@@ -168,7 +171,15 @@ class TeamSelectorPage extends Component {
 	}
 
 	renderSecondColumn() {
+		const { baseUrl, fetchPreviewImage, shareTeamSelector } = this.props;
 		const { editMode, selector } = this.state;
+
+		//Get Initial Share Values
+		const initialContent = selector.defaultSocialText.replace(
+			/{url}/gi,
+			`${baseUrl}/team-selectors/${selector.slug}`
+		);
+
 		if (selector.activeUserChoices && !editMode) {
 			return (
 				<div>
@@ -182,6 +193,11 @@ class TeamSelectorPage extends Component {
 						</span>
 						<span> to edit them</span>
 					</p>
+					<ShareDialog
+						initialContent={initialContent}
+						onFetchImage={() => fetchPreviewImage(selector._id)}
+						onSubmit={data => shareTeamSelector(selector._id, data)}
+					/>
 				</div>
 			);
 		}
@@ -208,16 +224,18 @@ class TeamSelectorPage extends Component {
 }
 
 function mapStateToProps({ config, teams, teamSelectors }) {
-	const { localTeam } = config;
+	const { baseUrl, localTeam } = config;
 	const { fullTeams, teamTypes } = teams;
 	const { selectors, selectorList } = teamSelectors;
-	return { fullTeams, localTeam, selectors, selectorList, teamTypes };
+	return { baseUrl, fullTeams, localTeam, selectors, selectorList, teamTypes };
 }
 
 export default {
 	component: connect(mapStateToProps, {
 		fetchAllTeamSelectors,
 		fetchTeamSelector,
-		saveTeamSelectorChoices
+		fetchPreviewImage,
+		saveTeamSelectorChoices,
+		shareTeamSelector
 	})(TeamSelectorPage)
 };

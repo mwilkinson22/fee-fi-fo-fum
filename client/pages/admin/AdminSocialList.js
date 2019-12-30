@@ -35,7 +35,7 @@ class AdminSocialList extends Component {
 			.sortBy("name")
 			.map(({ _id, name, archived }) => (
 				<li key={_id} className={archived ? "archived" : ""}>
-					<Link to={`/admin/social/${_id}`}>{name}</Link>
+					<Link to={`/admin/settings/social/${_id}`}>{name}</Link>
 				</li>
 			))
 			.value();
@@ -70,7 +70,7 @@ class AdminSocialList extends Component {
 				</section>
 				<section className="list">
 					<div className="container">
-						<Link className="nav-card card" to={`/admin/social/new`}>
+						<Link className="nav-card card" to={`/admin/settings/social/new`}>
 							Add a New Social Profile
 						</Link>
 						{content}
@@ -87,7 +87,4 @@ function mapStateToProps({ config, social }) {
 	return { authUser, profiles };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchProfiles }
-)(AdminSocialList);
+export default connect(mapStateToProps, { fetchProfiles })(AdminSocialList);

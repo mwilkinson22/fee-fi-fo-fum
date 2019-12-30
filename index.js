@@ -19,6 +19,7 @@ import "./models/Error";
 import "./models/IdLink";
 import "./models/TeamSelector";
 import "./models/rugby";
+import "./models/Settings";
 import "./models/SocialProfile";
 import "./models/SlugRedirect";
 import "./models/Sponsor";
@@ -40,6 +41,7 @@ import {
 	setActiveTeamType,
 	fetchTeamList
 } from "./client/actions/teamsActions";
+import { ensureRequiredSettingsAreSet } from "./controllers/settingsController";
 
 //Constants
 import keys from "./config/keys";
@@ -54,6 +56,8 @@ import errorRoutes from "./routes/errorRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import newsRoutes from "./routes/newsRoutes";
 import rugbyRoutes from "./routes/rugby";
+import oAuthRoutes from "./routes/oAuthRoutes";
+import settingsRoutes from "./routes/settingsRoutes";
 import socialRoutes from "./routes/socialRoutes";
 import teamSelectorRoutes from "./routes/teamSelectorRoutes";
 import usersRoutes from "./routes/usersRoutes";
@@ -93,7 +97,9 @@ awardRoutes(app);
 errorRoutes(app);
 fileRoutes(app);
 newsRoutes(app);
+oAuthRoutes(app);
 rugbyRoutes(app);
+settingsRoutes(app);
 socialRoutes(app);
 teamSelectorRoutes(app);
 usersRoutes(app);
@@ -156,6 +162,8 @@ app.get("*", async (req, res) => {
 if (process.env.NODE_ENV !== "development") {
 	require("./scheduledTasks");
 }
+
+ensureRequiredSettingsAreSet();
 
 export const PORT = process.env.PORT || 3000;
 console.info("\x1b[32m", `Application started and listening on port ${PORT}`, "\x1b[0m");

@@ -96,7 +96,8 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 				select: playerSelect.join(" "),
 				...adminPlayerPopulate
 			})
-			.populate({ path: "coaches._person", select: "name slug" });
+			.populate({ path: "coaches._person", select: "name slug" })
+			.lean();
 
 		teams = _.keyBy(teams, "_id");
 
@@ -603,7 +604,21 @@ export async function fetchPregameImage(req, res) {
 
 async function generateSquadImage(game, showOpposition) {
 	const [gameWithSquads] = await getExtraGameInfo([game], true, true);
-	return new SquadImage(gameWithSquads, { showOpposition });
+
+	const teamToMatch = showOpposition ? game._opposition._id : localTeam;
+
+	const players = _.chain(gameWithSquads.playerStats)
+		.filter(({ _team }) => _team == teamToMatch)
+		.sortBy("position")
+		//Get data from eligible players
+		.map(({ _player }) =>
+			gameWithSquads.eligiblePlayers[teamToMatch].find(ep => ep._player._id == _player._id)
+		)
+		//Pull off number and player data
+		.map(({ _player, number }) => ({ number, ..._player }))
+		.value();
+
+	return new SquadImage(players, { game: gameWithSquads, showOpposition });
 }
 
 export async function fetchSquadImage(req, res) {

@@ -56,6 +56,8 @@ import AdminTeamSelectorPage from "../../pages/admin/AdminTeamSelectorPage";
 import AdminTeamTypeList from "../../pages/admin/AdminTeamTypeList";
 import AdminTeamTypePage from "../../pages/admin/AdminTeamTypePage";
 
+import AdminTwitterAppPage from "../../pages/admin/AdminTwitterAppPage";
+
 import AdminUserList from "../../pages/admin/AdminUserList";
 import AdminUserPage from "../../pages/admin/AdminUserPage";
 
@@ -98,8 +100,6 @@ class AdminRouter extends Component {
 						<Route path="/admin/countries/:_id" exact component={AdminCountryPage} />
 						<Route path="/admin/countries" exact component={AdminCountryList} />
 
-						<Route path="/admin/errors" component={AdminErrorPage} />
-
 						<Route path="/admin/game/new" component={AdminGamePage} />
 						<Route path="/admin/game/:_id" component={AdminGamePage} />
 						<Route
@@ -136,9 +136,29 @@ class AdminRouter extends Component {
 						<Route path="/admin/people/:_id" component={AdminPersonPage} />
 						<Route path="/admin/people/" exact component={AdminPersonList} />
 
-						<Route path="/admin/social/new" exact component={AdminSocialPage} />
-						<Route path="/admin/social/:_id" exact component={AdminSocialPage} />
-						<Route path="/admin/social/" exact component={AdminSocialList} />
+						<Route path="/admin/settings/errors" component={AdminErrorPage} />
+
+						<Route
+							path="/admin/settings/social/new"
+							exact
+							component={AdminSocialPage}
+						/>
+						<Route
+							path="/admin/settings/social/:_id"
+							exact
+							component={AdminSocialPage}
+						/>
+						<Route path="/admin/settings/social/" exact component={AdminSocialList} />
+
+						<Route
+							path="/admin/settings/twitter/"
+							exact
+							component={AdminTwitterAppPage}
+						/>
+
+						<Route path="/admin/settings/users/new" component={AdminUserPage} />
+						<Route path="/admin/settings/users/:_id" component={AdminUserPage} />
+						<Route path="/admin/settings/users/" exact component={AdminUserList} />
 
 						<Route path="/admin/sponsors/new" exact component={AdminSponsorPage} />
 						<Route path="/admin/sponsors/:_id" exact component={AdminSponsorPage} />
@@ -158,10 +178,6 @@ class AdminRouter extends Component {
 						<Route path="/admin/team-types/new" exact component={AdminTeamTypePage} />
 						<Route path="/admin/team-types/:_id" exact component={AdminTeamTypePage} />
 						<Route path="/admin/team-types/" exact component={AdminTeamTypeList} />
-
-						<Route path="/admin/users/new" component={AdminUserPage} />
-						<Route path="/admin/users/:_id" component={AdminUserPage} />
-						<Route path="/admin/users/" exact component={AdminUserList} />
 
 						<Route path="/admin/logout" component={Logout} />
 						<Route path="/admin" component={NotFoundPage} />

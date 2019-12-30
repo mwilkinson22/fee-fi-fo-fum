@@ -13,7 +13,7 @@ export const createProfile = data => async (dispatch, getState, api) => {
 	return res.data._id;
 };
 
-export const setDefaultProfile = id => async (dispatch, getState, api) => {
+export const setDefaultProfile = id => async dispatch => {
 	dispatch({ type: SET_DEFAULT_SOCIAL_PROFILE, payload: id });
 };
 
@@ -38,7 +38,7 @@ export const deleteProfile = id => async (dispatch, getState, api) => {
 	return false;
 };
 
-export const twitterTest = data => async (dispatch, getState, api) => {
-	const res = await api.post(`/socialProfiles/twitterTest`, data);
+export const validateTwitterCredentials = data => async (dispatch, getState, api) => {
+	const res = await api.post(`/socialProfiles/validateTwitter`, data);
 	return res.data;
 };

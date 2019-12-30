@@ -1,5 +1,6 @@
-import { GET_CORE_CONFIG } from "./types";
+import { GET_CORE_CONFIG, GET_SETTINGS } from "./types";
 import { localTeam, gaTracking } from "../../config/keys";
+import { toast } from "react-toastify";
 
 export const getCoreConfig = req => async dispatch => {
 	const { headers, ipAddress, useragent, protocol, originalUrl } = req;
@@ -44,4 +45,15 @@ export const getCoreConfig = req => async dispatch => {
 	}
 
 	dispatch({ type: GET_CORE_CONFIG, payload: config });
+};
+
+export const getSettings = names => async (dispatch, getState, api) => {
+	const res = await api.get(`/settings/${names.join(",")}`);
+	dispatch({ type: GET_SETTINGS, payload: res.data });
+};
+
+export const setSettings = data => async (dispatch, getState, api) => {
+	await api.post("/settings/", data);
+	dispatch({ type: GET_SETTINGS, payload: data });
+	toast.success("Settings Updated");
 };

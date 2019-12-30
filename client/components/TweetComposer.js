@@ -142,6 +142,13 @@ class TweetComposer extends Component {
 		}
 	}
 
+	handleSubmit() {
+		const { onSubmit } = this.props;
+		const { textContent } = this.state;
+
+		onSubmit(textContent);
+	}
+
 	render() {
 		const { formattedContent, calculatedLength } = this.state;
 		const { includeButton } = this.props;
@@ -173,6 +180,7 @@ class TweetComposer extends Component {
 						<button
 							className="tweet-composer-submit"
 							disabled={calculatedLength > 280}
+							onClick={() => this.handleSubmit()}
 							type="button"
 						>
 							Tweet
@@ -194,6 +202,7 @@ TweetComposer.propTypes = {
 	variableInstruction: PropTypes.string,
 	includeButton: PropTypes.bool,
 	onChange: PropTypes.func,
+	onSubmit: PropTypes.func,
 	autoFocus: PropTypes.bool
 };
 

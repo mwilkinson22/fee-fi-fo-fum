@@ -6,6 +6,7 @@ import errorReducer from "./errorReducer";
 import gamesReducer from "./gamesReducer";
 import locationReducer from "./locationReducer";
 import groundReducer from "./groundReducer";
+import oAuthReducer from "./oAuthReducer";
 import teamsReducer from "./teamsReducer";
 import newsReducer from "./newsReducer";
 import peopleReducer from "./peopleReducer";
@@ -23,6 +24,7 @@ export default combineReducers({
 	grounds: groundReducer,
 	locations: locationReducer,
 	news: newsReducer,
+	oAuth: oAuthReducer,
 	people: peopleReducer,
 	social: socialReducer,
 	sponsors: sponsorReducer,

@@ -35,7 +35,7 @@ class AdminUserList extends Component {
 			.sortBy("name.full")
 			.map(({ _id, username, name }) => (
 				<li key={_id}>
-					<Link to={`/admin/users/${_id}`}>
+					<Link to={`/admin/settings/users/${_id}`}>
 						{name.full} ({username})
 					</Link>
 				</li>
@@ -72,7 +72,7 @@ class AdminUserList extends Component {
 				</section>
 				<section className="list">
 					<div className="container">
-						<Link className="nav-card card" to={`/admin/users/new`}>
+						<Link className="nav-card card" to={`/admin/settings/users/new`}>
 							Add a new User
 						</Link>
 						{content}
@@ -89,7 +89,4 @@ function mapStateToProps({ config, users }) {
 	return { authUser, userList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchUserList }
-)(AdminUserList);
+export default connect(mapStateToProps, { fetchUserList })(AdminUserList);

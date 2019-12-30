@@ -16,7 +16,7 @@ import {
 	createProfile,
 	updateProfile,
 	deleteProfile,
-	twitterTest
+	validateTwitterCredentials
 } from "~/client/actions/socialActions";
 
 //Constants
@@ -60,12 +60,6 @@ class AdminProfilePage extends Component {
 				.label("Name"),
 			archived: Yup.boolean().label("Archived"),
 			twitter: Yup.object().shape({
-				consumer_key: Yup.string()
-					.required()
-					.label("Consumer Key"),
-				consumer_secret: Yup.string()
-					.required()
-					.label("Consumer Secret"),
 				access_token: Yup.string()
 					.required()
 					.label("Access Token"),
@@ -88,8 +82,6 @@ class AdminProfilePage extends Component {
 			name: "",
 			archived: false,
 			twitter: {
-				consumer_key: "",
-				consumer_secret: "",
 				access_token: "",
 				access_token_secret: ""
 			},
@@ -118,8 +110,6 @@ class AdminProfilePage extends Component {
 			{
 				label: "Twitter",
 				fields: [
-					{ name: "twitter.consumer_key", type: fieldTypes.text },
-					{ name: "twitter.consumer_secret", type: fieldTypes.text },
 					{ name: "twitter.access_token", type: fieldTypes.text },
 					{ name: "twitter.access_token_secret", type: fieldTypes.text }
 				]
@@ -145,7 +135,7 @@ class AdminProfilePage extends Component {
 
 	async twitterTest(values) {
 		await this.setState({ twitterTestResults: "loading" });
-		const twitterTestResults = await this.props.twitterTest(values);
+		const twitterTestResults = await this.props.validateTwitterCredentials(values);
 		await this.setState({ twitterTestResults });
 	}
 
@@ -236,5 +226,5 @@ export default connect(mapStateToProps, {
 	createProfile,
 	updateProfile,
 	deleteProfile,
-	twitterTest
+	validateTwitterCredentials
 })(AdminProfilePage);

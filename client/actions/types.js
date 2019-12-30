@@ -69,6 +69,7 @@ export const FETCH_ALL_GROUNDS = "fetch_all_grounds";
 
 //Config
 export const GET_CORE_CONFIG = "get_core_config";
+export const GET_SETTINGS = "get_settings";
 
 //Users
 export const FETCH_USER = "fetch_user";
@@ -91,3 +92,6 @@ export const SEND_ERROR = "send_error";
 export const FETCH_TEAM_SELECTOR_LIST = "fetch_team_selector_list";
 export const FETCH_TEAM_SELECTOR = "fetch_team_selector";
 export const DELETE_TEAM_SELECTOR = "delete_team_selector";
+
+//OAuth
+export const FETCH_OAUTH_ACCOUNTS = "fetch_oauth_accounts";

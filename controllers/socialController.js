@@ -35,6 +35,11 @@ export async function createProfile(req, res) {
 export async function getProfiles(req, res) {
 	const profiles = await SocialProfile.find().lean();
 
+	await SocialProfile.updateMany(
+		{},
+		{ $unset: { "twitter.consumer_key": true, "twitter.consumer_secret": true } }
+	);
+
 	res.send(_.keyBy(profiles, "_id"));
 }
 
@@ -81,7 +86,7 @@ export async function deleteProfile(req, res) {
 	}
 }
 
-export async function twitterTest(req, res) {
+export async function validateTwitterCredentials(req, res) {
 	const twitterClient = await twitter(null, req.body);
 	let error, result;
 	try {

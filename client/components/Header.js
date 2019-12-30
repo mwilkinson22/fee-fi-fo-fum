@@ -143,11 +143,11 @@ class Header extends Component {
 			if (authUser.isAdmin) {
 				adminMenu.push({
 					header: "Settings",
-					headerLink: "/admin/social",
-					subMenuRootLink: "/admin/",
+					subMenuRootLink: "/admin/settings/",
 					subMenu: {
 						Errors: "errors",
 						Social: "social",
+						Twitter: "twitter",
 						Users: "users"
 					}
 				});
@@ -174,17 +174,25 @@ class Header extends Component {
 				}
 			}).map(section => {
 				const activeClassName = "active-nav-link";
-				const sectionHeader = (
-					<NavLink
-						activeClassName={activeClassName}
-						to={section.headerLink}
-						className={"nav-menu-header" + (section.subMenu ? " with-submenu" : "")}
-						onClick={() => this.setState({ showMobileNav: false })}
-						exact={section.exactNav}
-					>
-						{section.header}
-					</NavLink>
-				);
+				const headerClassName = `nav-menu-header ${section.subMenu ? "with-submenu" : ""}`;
+
+				let sectionHeader;
+				if (section.headerLink) {
+					sectionHeader = (
+						<NavLink
+							activeClassName={activeClassName}
+							className={headerClassName}
+							to={section.headerLink}
+							onClick={() => this.setState({ showMobileNav: false })}
+							exact={section.exactNav}
+						>
+							{section.header}
+						</NavLink>
+					);
+				} else {
+					sectionHeader = <div className={headerClassName}>{section.header}</div>;
+				}
+
 				let sectionBody;
 
 				if (section.subMenu) {
