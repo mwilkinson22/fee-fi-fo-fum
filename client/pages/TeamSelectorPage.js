@@ -2,6 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 //Components
 import SquadSelector from "../components/admin/games/SquadSelector";
@@ -111,12 +112,24 @@ class TeamSelectorPage extends Component {
 	}
 
 	renderHeader() {
+		const { authUser } = this.props;
 		const { selector } = this.state;
+
+		let adminLink;
+		if (authUser.isAdmin) {
+			adminLink = (
+				<Link className="nav-card" to={`/admin/team-selectors/${selector._id}`}>
+					Edit this selector
+				</Link>
+			);
+		}
+
 		return (
 			<section className="page-header">
 				<HelmetBuilder title={selector.title} cardImage={selector.socialCard} />
 				<div className="container">
 					<h1>{selector.title}</h1>
+					{adminLink}
 				</div>
 			</section>
 		);
@@ -243,10 +256,10 @@ class TeamSelectorPage extends Component {
 }
 
 function mapStateToProps({ config, teams, teamSelectors }) {
-	const { baseUrl, localTeam } = config;
+	const { authUser, baseUrl, localTeam } = config;
 	const { fullTeams, teamTypes } = teams;
 	const { selectors, selectorList } = teamSelectors;
-	return { baseUrl, fullTeams, localTeam, selectors, selectorList, teamTypes };
+	return { authUser, baseUrl, fullTeams, localTeam, selectors, selectorList, teamTypes };
 }
 
 export default {

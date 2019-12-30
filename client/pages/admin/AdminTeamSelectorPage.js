@@ -95,6 +95,9 @@ class AdminTeamSelectorPage extends Component {
 					<Link className="nav-card card" to="/admin/team-selectors">
 						↩ Return to Team Selector list
 					</Link>
+					<Link className="nav-card" to={`/team-selectors/${selector.slug}`}>
+						View on frontend
+					</Link>
 					<h1>{title}</h1>
 				</div>
 				{submenu}
