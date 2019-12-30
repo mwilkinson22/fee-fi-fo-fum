@@ -133,6 +133,18 @@
 	}
 }
 
+.team-selector-page {
+	.confirmation {
+		background: #eee;
+		padding: 14pt;
+		text-align: center;
+		margin-bottom: 20pt;
+		p:not(:last-child) {
+			margin-bottom: 10pt;
+		}
+	}
+}
+
 .admin-team-selector-players-page {
 	.actionable-player {
 		user-select: none;

@@ -205,9 +205,15 @@ class SquadSelector extends Component {
 				/>
 			);
 		}
+
+		let title;
+		if (!readOnly) {
+			title = <h6>Current squad</h6>;
+		}
+
 		return (
 			<div className="selected">
-				<h6>Current Squad</h6>
+				{title}
 				{cards}
 			</div>
 		);

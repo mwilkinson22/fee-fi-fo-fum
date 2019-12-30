@@ -198,16 +198,20 @@ class TeamSelectorPage extends Component {
 		if (selector.activeUserChoices && !editMode) {
 			return (
 				<div>
-					<p>
-						<span>Thank you, your team has been saved. </span>
-						<span
-							className="pseudo-link"
-							onClick={() => this.setState({ editMode: true })}
-						>
-							Click Here
-						</span>
-						<span> to edit them</span>
-					</p>
+					<div className="confirmation">
+						<p>Thank you, your choices have been saved!</p>
+						<p>
+							{"Want to make a change? "}
+							<span
+								className="pseudo-link"
+								onClick={() => this.setState({ editMode: true })}
+							>
+								Click Here
+							</span>
+							{" to edit your team"}
+						</p>
+						<p>Or, share your picks with the world using the tool below!</p>
+					</div>
 					<ShareDialog
 						initialContent={initialContent}
 						onFetchImage={() => fetchPreviewImage(selector._id)}
