@@ -8,9 +8,10 @@ const teamSelectorSchema = new Schema({
 	players: [{ type: Schema.Types.ObjectId, ref: "people" }],
 	numberFromTeam: { type: Schema.Types.ObjectId, ref: "teams" },
 	numberFromSquad: { type: Schema.Types.ObjectId, ref: "teams.squads" },
-	shareOnSocial: { type: Boolean, default: true },
 	defaultSocialText: { type: String, default: null },
 	socialCard: { type: String, default: null },
+	canvasText1: { type: String, default: null },
+	canvasText2: { type: String, default: null },
 	choices: {
 		type: [
 			{

@@ -88,9 +88,10 @@ class AdminTeamSelectorOverview extends Component {
 			slug: validateSlug(),
 			numberFromTeam: Yup.mixed().label("Team"),
 			numberFromSquad: Yup.mixed().label("Squad"),
-			shareOnSocial: Yup.boolean().label("Share On Social Media?"),
 			defaultSocialText: Yup.string().label("Default Post Text"),
-			socialCard: Yup.string().label("Social Media Card")
+			socialCard: Yup.string().label("Social Media Card"),
+			canvasText1: Yup.string().label("Canvas First Line"),
+			canvasText2: Yup.string().label("Canvas Second Line")
 		};
 
 		newState.validationSchema = Yup.object().shape(validationSchema);
@@ -106,9 +107,10 @@ class AdminTeamSelectorOverview extends Component {
 			slug: "",
 			numberFromTeam: "",
 			numberFromSquad: "",
-			shareOnSocial: true,
 			defaultSocialText: "",
-			socialCard: ""
+			socialCard: "",
+			canvasText1: "",
+			canvasText2: ""
 		};
 
 		if (isNew) {
@@ -127,23 +129,8 @@ class AdminTeamSelectorOverview extends Component {
 		}
 	}
 
-	getFieldGroups(values) {
+	getFieldGroups() {
 		const { isLoadingTeam, options, team } = this.state;
-
-		//Social media sharing fields
-		const socialFields = [
-			{
-				name: "socialCard",
-				type: fieldTypes.image,
-				path: "images/team-selectors/",
-				allowSVG: false,
-				convertToWebP: false
-			},
-			{ name: "shareOnSocial", type: fieldTypes.boolean }
-		];
-		if (values.shareOnSocial) {
-			socialFields.push({ name: "defaultSocialText", type: fieldTypes.textarea });
-		}
 
 		return [
 			{
@@ -187,7 +174,26 @@ class AdminTeamSelectorOverview extends Component {
 			},
 			{
 				label: "Sharing",
-				fields: socialFields
+				fields: [
+					{
+						name: "socialCard",
+						type: fieldTypes.image,
+						path: "images/team-selectors/",
+						allowSVG: false,
+						convertToWebP: false
+					},
+					{ name: "defaultSocialText", type: fieldTypes.textarea },
+					{
+						name: "canvasText1",
+						type: fieldTypes.text,
+						placeholder: "Defaults to title"
+					},
+					{
+						name: "canvasText2",
+						type: fieldTypes.text,
+						placeholder: "Defaults to twitter handle"
+					}
+				]
 			}
 		];
 	}
@@ -223,7 +229,7 @@ class AdminTeamSelectorOverview extends Component {
 					<BasicForm
 						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 						fastFieldByDefault={false}
-						fieldGroups={values => this.getFieldGroups(values)}
+						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}
 						itemType="Selector"

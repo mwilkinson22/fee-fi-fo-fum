@@ -193,5 +193,5 @@ export async function generateImage(req, res, selector) {
 		};
 	});
 
-	return new SquadImage(players);
+	return new SquadImage(players, { selector });
 }

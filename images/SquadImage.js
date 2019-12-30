@@ -85,6 +85,7 @@ export default class SquadImage extends Canvas {
 		//Variables
 		this.players = players;
 		this.game = options.game;
+		this.selector = options.selector;
 		this.options = options;
 		this.teamBadges = {};
 		this.teamBadges[localTeam] = {};
@@ -147,7 +148,16 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const { ctx, game, textStyles, cWidth, cHeight, teamBadges, extraInterchanges } = this;
+		const {
+			ctx,
+			game,
+			textStyles,
+			cWidth,
+			cHeight,
+			teamBadges,
+			extraInterchanges,
+			selector
+		} = this;
 		const {
 			bannerY,
 			sideBarWidth,
@@ -221,6 +231,25 @@ export default class SquadImage extends Canvas {
 				{ text: "#", colour: "#FC0" },
 				{ text: hashtags ? hashtags[0] : "CowbellArmy", colour: "#FFF" }
 			]);
+		} else if (selector) {
+			//Add title
+			bannerText.push([{ text: selector.canvasText1 || selector.title }]);
+
+			//Add subtitle
+			if (selector.canvasText2) {
+				bannerText.push([{ text: selector.canvasText2 }]);
+			}
+
+			//Standard Text
+			bannerText.push(
+				[{ text: "Created On" }],
+				[{ text: "feefifofum.co.uk", colour: "#FC0" }]
+			);
+
+			//Add a twitter handle if we're a row short
+			if (bannerText.length < 4) {
+				bannerText.push([{ text: "@" }, { text: "FeeFiFoFumRL", colour: "#FFF" }]);
+			}
 		}
 
 		this.textBuilder(bannerText, sideBarWidth * 0.5, bannerY, {
