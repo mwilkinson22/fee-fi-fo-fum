@@ -1,5 +1,5 @@
 import { GET_CORE_CONFIG, GET_SETTINGS } from "./types";
-import { localTeam, gaTracking } from "../../config/keys";
+import { localTeam, gaTracking, mongoURI } from "../../config/keys";
 import { toast } from "react-toastify";
 
 export const getCoreConfig = req => async dispatch => {
@@ -32,7 +32,10 @@ export const getCoreConfig = req => async dispatch => {
 		gaTracking,
 
 		//Prod or Dev
-		environment: process.env.NODE_ENV
+		environment: process.env.NODE_ENV,
+
+		//Live or test database
+		database: mongoURI.includes("test") ? "test" : "live"
 	};
 
 	//Check for device

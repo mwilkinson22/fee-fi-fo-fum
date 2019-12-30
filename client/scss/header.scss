@@ -1,6 +1,16 @@
 header {
 	user-select: none;
 	background-color: $claret;
+
+	&.staging {
+		background-color: darken($claret, 15%);
+	}
+	&.local-dev {
+		background-color: #333;
+	}
+	&.local-dev-on-live {
+		background-color: #d70000;
+	}
 	color: white;
 	position: sticky;
 	top: 0;

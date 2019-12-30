@@ -239,9 +239,25 @@ class Header extends Component {
 	}
 
 	render() {
+		const { database, environment } = this.props;
 		const social = this.getSocial();
+
+		//Render classname based on environment
+		let headerClass = "";
+
+		if (database === "test" && environment === "production") {
+			//Staged test website
+			headerClass = "staging";
+		} else if (database === "test" && environment === "development") {
+			//Local dev server
+			headerClass = "local-dev";
+		} else if (database === "live" && environment === "development") {
+			//Local dev server hooked up to live db
+			headerClass = "local-dev-on-live";
+		}
+
 		return (
-			<header>
+			<header className={headerClass}>
 				<div className="container top-bar">
 					<div
 						className="nav-hamburger"
@@ -279,9 +295,9 @@ class Header extends Component {
 
 function mapStateToProps({ awards, config, teams }) {
 	const { currentAwards } = awards;
-	const { authUser, localTeam } = config;
+	const { authUser, database, environment, localTeam } = config;
 	const { fullTeams } = teams;
-	return { currentAwards, authUser, localTeam, fullTeams };
+	return { currentAwards, database, environment, authUser, localTeam, fullTeams };
 }
 
 export default withRouter(connect(mapStateToProps)(Header));
