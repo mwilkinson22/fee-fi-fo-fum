@@ -106,10 +106,11 @@ export async function authoriseService(req, res) {
 
 	if (client && authUrl) {
 		//Try to get token
-		client.getOAuthRequestToken((err, token) => {
-			if (err) {
-				console.error(err);
-				res.status(500).send("Error retrieving token");
+		client.getOAuthRequestToken((error, token) => {
+			if (error) {
+				res.status(error.statusCode).send(
+					`${error.data}<br/><br/>Callback URL: ${client._authorize_callback}`
+				);
 			} else {
 				res.redirect(authUrl(token));
 			}
