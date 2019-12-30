@@ -81,6 +81,21 @@ class TeamSelectorPage extends Component {
 				newState.squadNumbers = squad ? squad.players : [];
 				newState.isLoadingTeam = false;
 			}
+
+			//If a player is missing from the preselected values
+			//(i.e, if a user chooses a player who is later removed
+			//from the selector, and then revisits the page), we
+			//enforce edit mode
+			const { activeUserChoices, players } = newState.selector;
+			if (activeUserChoices) {
+				const missingPlayers = _.difference(
+					activeUserChoices,
+					players.map(p => p._id)
+				);
+				if (missingPlayers.length) {
+					newState.editMode = true;
+				}
+			}
 		}
 
 		return newState;
