@@ -73,6 +73,9 @@ class PregameSquadList extends Component {
 					}
 				}
 
+				//If at least one player has a squad number, we set this to true
+				let includeNumbers = false;
+
 				//Get Players
 				const squad = _.chain(squadObject.squad)
 					.map(p => {
@@ -81,9 +84,13 @@ class PregameSquadList extends Component {
 							({ _player }) => _player._id == p
 						);
 
+						if (number) {
+							includeNumbers = true;
+						}
+
 						return {
 							id: _player._id,
-							name: _player.name.full,
+							name: `${_player.name.first} ${_player.name.last}`,
 							number,
 							slug: _player.slug,
 							isNew: previousSquad && !previousSquad.find(id => id == _player._id)
@@ -91,14 +98,19 @@ class PregameSquadList extends Component {
 					})
 					.sortBy(p => p.number || 99999 + p.name)
 					.map(p => {
-						const content = [
-							<span
-								key="number"
-								className="number"
-								style={{ color: team.colours.trim1 }}
-							>
-								{p.number || ""}
-							</span>,
+						const content = [];
+						if (includeNumbers) {
+							content.push(
+								<span
+									key="number"
+									className="number"
+									style={{ color: team.colours.trim1 }}
+								>
+									{p.number || ""}
+								</span>
+							);
+						}
+						content.push(
 							<span
 								key="name"
 								className="name"
@@ -108,7 +120,8 @@ class PregameSquadList extends Component {
 							>
 								{p.name}
 							</span>
-						];
+						);
+
 						const props = { key: p.id, className: "player" };
 						if (team._id == localTeam && p.slug) {
 							return (
@@ -128,11 +141,7 @@ class PregameSquadList extends Component {
 						key={team._id}
 						style={{
 							backgroundColor: team.colours.main,
-							textShadow: `0 0 2pt ${team.colours.main},-2px 2px 2pt ${
-								team.colours.main
-							}, 2px 2px 2pt ${team.colours.main},2px -2px 2pt ${
-								team.colours.main
-							},-2px -2px 2pt ${team.colours.main}`
+							textShadow: `0 0 2pt ${team.colours.main},-2px 2px 2pt ${team.colours.main}, 2px 2px 2pt ${team.colours.main},2px -2px 2pt ${team.colours.main},-2px -2px 2pt ${team.colours.main}`
 						}}
 					>
 						<TeamImage team={team} />
