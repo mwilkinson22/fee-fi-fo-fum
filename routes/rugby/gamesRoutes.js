@@ -36,4 +36,5 @@ export default app => {
 
 	//Deleters
 	app.delete("/api/games/:_id/event/:_event", requireAdmin, gamesController.deleteEvent);
+	app.delete("/api/games/:_id/", requireAdmin, gamesController.deleteGame);
 };

@@ -244,6 +244,29 @@ export async function addGame(req, res) {
 	await getUpdatedGame(game._id, res, true);
 }
 
+//Delete Game
+export async function deleteGame(req, res) {
+	const { _id } = req.params;
+	const game = await validateGame(_id, res);
+
+	if (game) {
+		const NewsPost = mongoose.model("newsPosts");
+		const posts = await NewsPost.find({ _game: _id }, "title slug").lean();
+
+		if (posts.length) {
+			res.status(409).send({
+				error: `Could not delete game as ${posts.length} news ${
+					posts.length == 1 ? "post depends" : "posts depend"
+				} on it`,
+				toLog: { posts }
+			});
+		} else {
+			await game.remove();
+			res.send({});
+		}
+	}
+}
+
 //Updaters
 export async function updateGame(req, res) {
 	const { _id } = req.params;

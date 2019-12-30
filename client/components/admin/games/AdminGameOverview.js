@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import { fetchCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
-import { createGame, updateGame } from "../../../actions/gamesActions";
+import { createGame, updateGame, deleteGame } from "../../../actions/gamesActions";
 
 //Components
 import BasicForm from "../BasicForm";
@@ -162,7 +162,10 @@ class AdminGameOverview extends Component {
 			value: label.toLowerCase()
 		}));
 
-		newState.options.isAway = [{ label: "Home", value: false }, { label: "Away", value: true }];
+		newState.options.isAway = [
+			{ label: "Home", value: false },
+			{ label: "Away", value: true }
+		];
 
 		return newState;
 	}
@@ -365,7 +368,7 @@ class AdminGameOverview extends Component {
 
 	render() {
 		const { game, isNew, isLoading, validationSchema } = this.state;
-		const { createGame, updateGame } = this.props;
+		const { createGame, updateGame, deleteGame } = this.props;
 
 		if (isLoading) {
 			return <LoadingPage />;
@@ -380,7 +383,9 @@ class AdminGameOverview extends Component {
 			};
 		} else {
 			formProps = {
-				onSubmit: values => updateGame(game._id, values)
+				onSubmit: values => updateGame(game._id, values),
+				onDelete: () => deleteGame(game._id),
+				redirectOnDelete: "/admin/games"
 			};
 		}
 
@@ -420,14 +425,12 @@ function mapStateToProps({ teams, competitions, games, grounds, people, config }
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchCompetitionSegments,
-			fetchAllGrounds,
-			fetchPeopleList,
-			createGame,
-			updateGame
-		}
-	)(AdminGameOverview)
+	connect(mapStateToProps, {
+		fetchCompetitionSegments,
+		fetchAllGrounds,
+		fetchPeopleList,
+		createGame,
+		updateGame,
+		deleteGame
+	})(AdminGameOverview)
 );

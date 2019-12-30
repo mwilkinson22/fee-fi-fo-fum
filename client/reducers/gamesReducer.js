@@ -1,6 +1,7 @@
 import {
 	FETCH_GAMES,
 	UPDATE_GAME,
+	DELETE_GAME,
 	FETCH_GAME_LIST,
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_LOCAL_GAMES,
@@ -43,6 +44,16 @@ export default function(state = { fullGames: {} }, action) {
 					...action.payload.redirects
 				}
 			};
+
+		case DELETE_GAME: {
+			const { [action.payload]: oldGame, ...fullGames } = state.fullGames;
+			const { [action.payload]: oldInList, ...gameList } = state.gameList;
+			return {
+				...state,
+				fullGames,
+				gameList
+			};
+		}
 
 		case FETCH_GAME_LIST:
 			fixDates(action.payload.gameList);

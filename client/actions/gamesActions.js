@@ -1,4 +1,4 @@
-import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES } from "./types";
+import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES, DELETE_GAME } from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
 
@@ -46,6 +46,16 @@ export const updateGame = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/`, values);
 	toast.success("Game updated");
 	await dispatch({ type: UPDATE_GAME, payload: res.data });
+};
+
+export const deleteGame = id => async (dispatch, getState, api) => {
+	const res = await api.delete(`/games/${id}/`);
+	if (res.data) {
+		toast.success("Game deleted");
+		await dispatch({ type: DELETE_GAME, payload: id });
+		return true;
+	}
+	return false;
 };
 
 export const setSquad = (id, values) => async (dispatch, getState, api) => {
