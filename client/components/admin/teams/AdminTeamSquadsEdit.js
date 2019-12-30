@@ -35,7 +35,7 @@ class AdminTeamSquadsEdit extends Component {
 			.map(player => {
 				const playerLabel = name => `${player._player.name.full} - ${name}`;
 				const schema = Yup.object().shape({
-					number: Yup.number().label(playerLabel("Squad Number")),
+					number: Yup.string().label(playerLabel("Squad Number")),
 					onLoan: Yup.boolean().label(playerLabel("On Loan")),
 					from: Yup.string().label(playerLabel("From Date")),
 					to: Yup.string().label(playerLabel("To Date")),
