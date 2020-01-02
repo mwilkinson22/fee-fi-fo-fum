@@ -53,7 +53,6 @@ export default class SquadImage extends Canvas {
 			sideBarIconWidth: sideBarWidth - sideBarIconX * 2,
 			sideBarGameIconY: Math.round(cHeight * 0.03),
 			sideBarGameIconHeight: Math.round(cHeight * 0.15),
-			teamIconHeight: Math.round(cHeight * 0.15),
 			dividerWidth,
 			mainPanelOffset,
 			mainPanelWidth: cWidth - mainPanelOffset,
@@ -156,6 +155,7 @@ export default class SquadImage extends Canvas {
 			cHeight,
 			teamBadges,
 			extraInterchanges,
+			players,
 			selector
 		} = this;
 		const {
@@ -165,9 +165,11 @@ export default class SquadImage extends Canvas {
 			sideBarIconWidth,
 			sideBarGameIconY,
 			sideBarGameIconHeight,
-			teamIconHeight,
 			interchangeHeaderY
 		} = this.positions;
+
+		//Determine whether we need to show interchanges
+		const showInterchanges = players.length > 13;
 
 		//Add Main Logo
 		const brandIcon = await this.googleToCanvas(
@@ -258,7 +260,15 @@ export default class SquadImage extends Canvas {
 
 		//Team Badges (limit to 17-man squads)
 		if (!extraInterchanges) {
-			const teamBadgeY = cHeight - teamIconHeight - sideBarGameIconY;
+			let teamIconHeight = Math.round(cHeight * 0.15);
+			let teamBadgeY = cHeight - teamIconHeight - sideBarGameIconY;
+
+			//Adjust if we don't show interchanges
+			if (!game && !showInterchanges) {
+				teamIconHeight += teamIconHeight;
+				teamBadgeY -= teamIconHeight * 0.8;
+			}
+
 			if (game) {
 				let badges = [teamBadges[localTeam].dark, teamBadges[game._opposition._id].dark];
 				if (game.isAway) {
@@ -285,9 +295,11 @@ export default class SquadImage extends Canvas {
 		}
 
 		//Interchanges Header
-		ctx.fillStyle = this.colours.claret;
-		ctx.font = textStyles.interchangeHeader.string;
-		ctx.fillText("INTERCHANGES", sideBarWidth / 2, interchangeHeaderY);
+		if (showInterchanges) {
+			ctx.fillStyle = this.colours.claret;
+			ctx.font = textStyles.interchangeHeader.string;
+			ctx.fillText("INTERCHANGES", sideBarWidth / 2, interchangeHeaderY);
+		}
 	}
 
 	async drawSquad() {
