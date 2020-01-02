@@ -3,6 +3,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Formik, Form } from "formik";
+import Select from "react-select";
 
 //Components
 import SquadSelectorCard from "./SquadSelectorCard";
@@ -10,6 +11,7 @@ import PopUpDialog from "../../PopUpDialog";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
+import selectStyling from "~/constants/selectStyling";
 
 class SquadSelector extends Component {
 	constructor(props) {
@@ -230,7 +232,13 @@ class SquadSelector extends Component {
 	}
 
 	renderAvailablePlayers(formik) {
-		const { activePosition, cardStyling, players, positionsByNumber } = this.state;
+		const {
+			activePosition,
+			cardStyling,
+			interchangeFilter,
+			players,
+			positionsByNumber
+		} = this.state;
 		const { values } = formik;
 
 		//Render available players as cards
@@ -248,10 +256,11 @@ class SquadSelector extends Component {
 
 			//Work out if there are any unselected players in this position
 			let forActivePosition = [];
-			if (activePosition && activePosition < 14) {
-				const positionKey = positionsByNumber[activePosition]
-					? positionsByNumber[activePosition].key
-					: "I";
+			if (activePosition) {
+				const positionKey =
+					activePosition <= 13
+						? positionsByNumber[activePosition].key
+						: interchangeFilter || "I";
 
 				forActivePosition = unselectedPlayers
 					//Filter by those not in dropdown
@@ -320,10 +329,34 @@ class SquadSelector extends Component {
 			instructionString = "Select a position to add a player";
 		}
 
+		//Add positional filter for interchanges
+		let interchangeFilterDropdown;
+		if (activePosition > 13) {
+			const options = _.map(playerPositions, ({ name }, value) => ({
+				label: name,
+				value
+			})).filter(({ value }) => value !== "I");
+
+			interchangeFilterDropdown = (
+				<Select
+					onChange={opt => this.setState({ interchangeFilter: opt && opt.value })}
+					isClearable={true}
+					isSearchable={false}
+					options={options}
+					placeholder="Filter By..."
+					styles={selectStyling}
+					value={options.find(({ value }) => value == interchangeFilter)}
+				/>
+			);
+		}
+
 		return (
 			<div className="available">
 				<h6>Available Players</h6>
-				<div className="active-position-instruction">{instructionString}</div>
+				<div className="active-position-instruction">
+					{instructionString}
+					{interchangeFilterDropdown}
+				</div>
 				{cards}
 				{dropdown}
 			</div>
