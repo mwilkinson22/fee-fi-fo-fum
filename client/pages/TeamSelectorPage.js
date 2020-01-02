@@ -203,10 +203,13 @@ class TeamSelectorPage extends Component {
 		const { editMode, selector } = this.state;
 
 		//Get Initial Share Values
-		const initialContent = selector.defaultSocialText.replace(
-			/{url}/gi,
-			`${baseUrl}/team-selectors/${selector.slug}`
-		);
+		let initialContent = "";
+		if (selector.defaultSocialText) {
+			initialContent = selector.defaultSocialText.replace(
+				/{url}/gi,
+				`${baseUrl}/team-selectors/${selector.slug}`
+			);
+		}
 
 		if (selector.activeUserChoices && !editMode) {
 			return (
