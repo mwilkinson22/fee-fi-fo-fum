@@ -96,8 +96,7 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 				select: playerSelect.join(" "),
 				...adminPlayerPopulate
 			})
-			.populate({ path: "coaches._person", select: "name slug" })
-			.lean();
+			.populate({ path: "coaches._person", select: "name slug" });
 
 		teams = _.keyBy(teams, "_id");
 

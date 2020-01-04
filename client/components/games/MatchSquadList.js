@@ -52,9 +52,9 @@ class MatchSquadList extends Component {
 						({ _player }) => _player._id == p._player
 					);
 					const { position } = p;
-					const { id, name, images, slug, gender } = _player;
+					const { _id, name, images, slug, gender } = _player;
 					const player = {
-						id,
+						_id,
 						name,
 						number,
 						images,
@@ -121,7 +121,7 @@ class MatchSquadList extends Component {
 	}
 
 	renderPlayer(player, team) {
-		const { id, position, slug } = player;
+		const { _id, position, slug } = player;
 		const { localTeam } = this.props;
 		const { game } = this.state;
 
@@ -131,13 +131,13 @@ class MatchSquadList extends Component {
 			image = null;
 		} else if (team._id != localTeam) {
 			image = (
-				<div className="image" key={id}>
+				<div className="image" key={_id}>
 					<TeamImage team={team} />
 				</div>
 			);
 		} else {
 			image = (
-				<div className="image" key={id}>
+				<div className="image" key={_id}>
 					<PersonImage person={player} variant="player" />
 				</div>
 			);
@@ -145,7 +145,7 @@ class MatchSquadList extends Component {
 
 		//Render Item
 		const props = {
-			key: id,
+			key: _id,
 			className: `person-wrapper player ${position <= 13 ? "starting" : "interchange"}`,
 			style: {
 				background: "transparent",
@@ -157,7 +157,7 @@ class MatchSquadList extends Component {
 
 		//Add GameStar stats
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
-			const gameStarStats = getGameStarStats(game, id, {
+			const gameStarStats = getGameStarStats(game, _id, {
 				T: 1,
 				G: 1,
 				DG: 1,

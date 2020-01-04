@@ -18,7 +18,7 @@ class ManOfSteelPoints extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { localTeam, teamTypes, teamList } = nextProps;
+		const { localTeam, teamTypes } = nextProps;
 		const { _teamType, manOfSteel, eligiblePlayers } = nextProps.game;
 		const newState = {};
 
