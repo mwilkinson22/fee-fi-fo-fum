@@ -7,6 +7,7 @@ import { Link, Switch, Route } from "react-router-dom";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import AdminTeamSelectorOverview from "../../components/admin/teamSelectors/AdminTeamSelectorOverview";
 import AdminTeamSelectorPlayers from "../../components/admin/teamSelectors/AdminTeamSelectorPlayers";
+import AdminTeamSelectorChoiceTally from "../../components/admin/teamSelectors/AdminTeamSelectorChoiceTally";
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "../NotFoundPage";
@@ -70,7 +71,8 @@ class AdminTeamSelectorPage extends Component {
 		if (!isNew) {
 			const items = [
 				{ label: "Overview", slug: "", isExact: true },
-				{ label: "Players", slug: "players", isExact: true }
+				{ label: "Players", slug: "players" },
+				{ label: "Choice Tally", slug: "choices" }
 			];
 
 			submenu = (
@@ -114,6 +116,10 @@ class AdminTeamSelectorPage extends Component {
 							path="/admin/team-selectors/new"
 							exact
 							component={AdminTeamSelectorOverview}
+						/>
+						<Route
+							path="/admin/team-selectors/:_id/choices"
+							component={AdminTeamSelectorChoiceTally}
 						/>
 						<Route
 							path="/admin/team-selectors/:_id/players"
