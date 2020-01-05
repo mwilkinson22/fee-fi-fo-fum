@@ -243,7 +243,9 @@ class AdminGamePregameImage extends Component {
 
 			//Get outgoing players
 			const outgoing = lastLocalSquad.squad
-				.filter(id => !currentLocalSquad.squad.find(cId => id == cId))
+				.filter(
+					id => !currentLocalSquad.squad.find(cId => id == cId) && eligiblePlayers[id]
+				)
 				.map(id => getPlayerName(eligiblePlayers[id]._player, false));
 
 			if (outgoing.length) {
@@ -434,12 +436,9 @@ function mapStateToProps({ config, games, teams, social }) {
 	return { fullGames, gameList, localTeam, teamList, profiles, defaultProfile };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchGames,
-		fetchProfiles,
-		getPregameImage,
-		postGameEvent
-	}
-)(AdminGamePregameImage);
+export default connect(mapStateToProps, {
+	fetchGames,
+	fetchProfiles,
+	getPregameImage,
+	postGameEvent
+})(AdminGamePregameImage);
