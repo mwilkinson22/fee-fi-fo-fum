@@ -56,7 +56,13 @@ const competitionSegmentSchema = new Schema(
 				],
 				usesPregameSquads: { type: Boolean, default: true },
 				manOfSteelPoints: { type: Boolean, default: false },
-				scoreOnly: { type: Boolean, default: true }
+				scoreOnly: { type: Boolean, default: true },
+				sharedSquads: [
+					{
+						_team: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+						sharedWith: [{ type: Schema.Types.ObjectId, ref: "teams", required: true }]
+					}
+				]
 			}
 		],
 		externalCompId: { type: Number, default: null },

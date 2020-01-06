@@ -9,6 +9,7 @@ import AdminCompetitionInstanceOverview from "../../components/admin/competition
 import AdminCompetitionInstanceSpecialRounds from "../../components/admin/competitions/AdminCompetitionInstanceSpecialRounds";
 import AdminCompetitionInstanceAdjustments from "../../components/admin/competitions/AdminCompetitionInstanceAdjustments";
 import AdminCompetitionInstanceStyle from "../../components/admin/competitions/AdminCompetitionInstanceStyle";
+import AdminCompetitionInstanceSharedSquads from "../../components/admin/competitions/AdminCompetitionInstanceSharedSquads";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
@@ -91,7 +92,8 @@ class AdminCompetitionInstancePage extends Component {
 		if (!isNew) {
 			const items = [
 				{ label: "Overview", slug: "", isExact: true },
-				{ label: "Special Rounds", slug: "special-rounds", isExact: true }
+				{ label: "Special Rounds", slug: "special-rounds", isExact: true },
+				{ label: "Shared Squads", slug: "shared-squads" }
 			];
 
 			if (segment.type === "League" && instance.teams) {
@@ -104,9 +106,7 @@ class AdminCompetitionInstancePage extends Component {
 			submenu = (
 				<SubMenu
 					items={items}
-					rootUrl={`/admin/competitions/segments/${segment._id}/instances/${
-						instance._id
-					}/`}
+					rootUrl={`/admin/competitions/segments/${segment._id}/instances/${instance._id}/`}
 				/>
 			);
 		}
@@ -145,6 +145,11 @@ class AdminCompetitionInstancePage extends Component {
 						path={`${root}/:instanceId/adjustments`}
 						exact
 						component={AdminCompetitionInstanceAdjustments}
+					/>
+					<Route
+						path={`${root}/:instanceId/shared-squads`}
+						exact
+						component={AdminCompetitionInstanceSharedSquads}
 					/>
 					<Route
 						path={`${root}/:instanceId/special-rounds`}
@@ -211,10 +216,7 @@ function mapStateToProps({ competitions }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchCompetitionSegments
-		}
-	)(AdminCompetitionInstancePage)
+	connect(mapStateToProps, {
+		fetchCompetitionSegments
+	})(AdminCompetitionInstancePage)
 );
