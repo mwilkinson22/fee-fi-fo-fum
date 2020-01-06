@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { localTeam } from "~/config/keys";
 
 //Helper Functions
 function getInstance(doc) {
@@ -32,7 +33,8 @@ function getInstance(doc) {
 		"sponsor",
 		"manOfSteelPoints",
 		"scoreOnly",
-		"usesPregameSquads"
+		"usesPregameSquads",
+		"sharedSquads"
 	]);
 
 	//Custom Title
@@ -154,6 +156,20 @@ export default gameSchema => {
 			}
 		} else {
 			return null;
+		}
+	});
+
+	//Get Shared Squads
+	gameSchema.virtual("sharedSquads").get(function() {
+		const { _opposition } = this;
+		const { sharedSquads } = getInstance(this);
+
+		if (sharedSquads) {
+			return _.chain(sharedSquads)
+				.filter(({ _team }) => _team == localTeam || _team == _opposition._id)
+				.map(({ _team, sharedWith }) => [_team, sharedWith])
+				.fromPairs()
+				.value();
 		}
 	});
 };
