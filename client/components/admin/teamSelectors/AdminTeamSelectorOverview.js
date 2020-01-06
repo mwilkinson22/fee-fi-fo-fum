@@ -234,7 +234,7 @@ class AdminTeamSelectorOverview extends Component {
 						isNew={isNew}
 						itemType="Selector"
 						onReset={() => {
-							this.setState({ team: selector.numberFromTeam });
+							this.setState({ team: selector && selector.numberFromTeam });
 						}}
 						validationSchema={validationSchema}
 						{...formProps}

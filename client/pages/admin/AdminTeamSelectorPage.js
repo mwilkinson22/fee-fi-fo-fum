@@ -90,6 +90,16 @@ class AdminTeamSelectorPage extends Component {
 			title = selector.title;
 		}
 
+		//Frontend Link
+		let frontendLink;
+		if (!isNew) {
+			frontendLink = (
+				<Link className="nav-card" to={`/team-selectors/${selector.slug}`}>
+					View on frontend
+				</Link>
+			);
+		}
+
 		return (
 			<section className="page-header">
 				<HelmetBuilder title={title} />
@@ -97,9 +107,7 @@ class AdminTeamSelectorPage extends Component {
 					<Link className="nav-card card" to="/admin/team-selectors">
 						↩ Return to Team Selector list
 					</Link>
-					<Link className="nav-card" to={`/team-selectors/${selector.slug}`}>
-						View on frontend
-					</Link>
+					{frontendLink}
 					<h1>{title}</h1>
 				</div>
 				{submenu}
