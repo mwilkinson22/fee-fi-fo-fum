@@ -88,7 +88,16 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		}
 
 		//Get All Full Teams
-		const teamIds = [localTeam, ...games.map(g => g._opposition._id)];
+		const teamIds = [localTeam];
+
+		//Add opposition and shared squads
+		games.forEach(g => {
+			teamIds.push(g._opposition._id);
+
+			if (g.sharedSquads && Object.keys(g.sharedSquads).length) {
+				_.map(g.sharedSquads, teams => teamIds.push(...teams));
+			}
+		});
 
 		let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
 			.populate({
@@ -149,19 +158,44 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 				validTeamTypes = [game._teamType];
 			}
 
-			//Loop local and opposition teams
 			game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
+				//Loop local and opposition teams
 				.map(id => {
-					const team = teams[id];
-					const squad = _.chain(team.squads)
-						.filter(
-							squad =>
-								squad.year == year &&
-								validTeamTypes.indexOf(squad._teamType.toString()) > -1
-						)
-						.map(s => s.players)
-						.flatten()
+					//Create an array with this team's id, plus
+					//the ids of any shared squads they might have
+					const teamsToCheck = [id];
+					if (game.sharedSquads && game.sharedSquads[id]) {
+						teamsToCheck.push(...game.sharedSquads[id]);
+					}
+
+					//Loop through the abbove array
+					const squad = _.chain(teamsToCheck)
+						.map(teamToCheck => {
+							//Get the team whose squad we'll be pulling
+							const team = teams[teamToCheck];
+
+							//Return any squads that match the year with an
+							//appropriate team type
+							return team.squads
+								.filter(
+									squad =>
+										squad.year == year &&
+										validTeamTypes.indexOf(squad._teamType.toString()) > -1
+								)
+								.map(s => s.players);
+						})
+						//At this stage we'll have nested values, so flatten
+						//them first to get a simple list of player objects
+						.flattenDeep()
+						//Remove duplicates
 						.uniqBy(p => p._player._id)
+						//Remove squad numbers where more than one squad is used
+						.map(p => {
+							if (teamsToCheck.length > 1 || validTeamTypes.length > 1) {
+								p.number = null;
+							}
+							return p;
+						})
 						.value();
 					return [id, squad];
 				})
