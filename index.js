@@ -65,7 +65,8 @@ import usersRoutes from "./routes/usersRoutes";
 //Configure Mongoose
 mongoose.connect(keys.mongoURI, {
 	useNewUrlParser: true,
-	useCreateIndex: true
+	useCreateIndex: true,
+	useUnifiedTopology: true
 });
 
 //Render App with middleware
