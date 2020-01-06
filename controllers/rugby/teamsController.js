@@ -42,9 +42,6 @@ async function validateTeamTypeSlug(slug, res, id = null) {
 	}
 }
 
-//Constants
-import { localTeam } from "~/config/keys";
-
 async function getUpdatedTeam(_id, res) {
 	//To be called after post/put methods
 	const fullTeam = await Team.findById([_id]).fullTeam();
@@ -279,7 +276,7 @@ export async function updateSquad(req, res) {
 								playerStats: {
 									$elemMatch: {
 										_player,
-										_team: localTeam
+										_team: _id
 									}
 								}
 							},
@@ -287,7 +284,7 @@ export async function updateSquad(req, res) {
 								pregameSquads: {
 									$elemMatch: {
 										squad: _player,
-										_team: localTeam
+										_team: _id
 									}
 								}
 							}
@@ -355,7 +352,7 @@ export async function updateSquad(req, res) {
 				res.status(419).send({
 					error: `Could not delete ${undeleteables.length} ${
 						undeleteables.length == 1 ? "player" : "players"
-					}`,
+					} as they are required for games`,
 					toLog: undeleteables
 				});
 			} else {
