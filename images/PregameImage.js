@@ -3,11 +3,83 @@ import _ from "lodash";
 import mongoose from "mongoose";
 const { localTeam } = require("../config/keys");
 
+//Removed from class so we can use it in constructor
+function getTeamList(game, team) {
+	const { pregameSquads, eligiblePlayers } = game;
+	const result = _.find(pregameSquads, s => s._team == team);
+	if (result) {
+		const { squad } = result;
+		return _.chain(squad)
+			.map(player => {
+				const squadEntry = _.find(
+					eligiblePlayers[team._id],
+					m => m._player._id == player._id
+				);
+				return {
+					...player,
+					number: squadEntry ? squadEntry.number : null
+				};
+			})
+			.sortBy(p => p.number || 999)
+			.value();
+	}
+}
+
 export default class PregameImage extends Canvas {
 	constructor(game, options = {}) {
-		//Set Dimensions
+		//Set Width
 		const cWidth = 1400;
-		const cHeight = cWidth / 2;
+
+		//Constants
+		const positions = {
+			bannerTop: Math.round(cWidth * 0.055),
+			bannerHeight: Math.round(cWidth * 0.025),
+			bannerText: Math.round(cWidth * 0.072),
+			teamBlockTop: Math.round(cWidth * 0.11),
+			badgeWidth: Math.round(cWidth * 0.2),
+			badgeHeight: Math.round(cWidth * 0.225),
+			headerLeftIconOffset: Math.round(cWidth * 0.03),
+			headerIconWidth: Math.round(cWidth * 0.1),
+			headerIconHeight: Math.round(cWidth * 0.075),
+			headerIconPadding: 0.1
+		};
+		positions.headerIconTop = Math.round(
+			positions.bannerTop + positions.bannerHeight / 2 - positions.headerIconHeight / 2
+		);
+		positions.headerRightIconOffset = Math.round(
+			cWidth - positions.headerLeftIconOffset - positions.headerIconWidth
+		);
+
+		//Set text list sizes
+		let textRows;
+		if (options.singleTeam) {
+			positions.listPadding = Math.round(cWidth * 0.04);
+			positions.listTextHeight = Math.round(cWidth * 0.021);
+			positions.listTextMargin = positions.listTextHeight * 0.3;
+			const players = getTeamList(game, options.singleTeam);
+			textRows = Math.max(10, Math.ceil(players.length / 2));
+		} else {
+			positions.listTextHeight = Math.round(cWidth * 0.015);
+			positions.listPadding = positions.listTextHeight;
+			positions.listTextMargin = positions.listTextHeight * 0.14;
+			const localPlayers = getTeamList(game, localTeam);
+			const oppositionPlayers = getTeamList(game, game._opposition._id);
+			textRows = Math.max(19, localPlayers.length, oppositionPlayers.length);
+		}
+
+		//Set Team Block Height
+		positions.teamBlockHeight =
+			//Top and bottom padding
+			positions.listPadding * 2 +
+			//Text + margin for each row
+			textRows * (positions.listTextHeight + positions.listTextMargin);
+
+		positions.listTop =
+			positions.teamBlockTop + positions.listPadding + positions.listTextHeight;
+
+		//Dynamically Set Height
+		const cHeight =
+			positions.teamBlockTop + positions.teamBlockHeight + Math.round(cWidth * 0.04);
 
 		//Load In Fonts
 		const fonts = [
@@ -17,44 +89,19 @@ export default class PregameImage extends Canvas {
 
 		//Create Canvas
 		super(cWidth, cHeight, { fonts });
-
-		//Constants
-		const positions = {
-			bannerTop: Math.round(cHeight * 0.11),
-			bannerHeight: Math.round(cHeight * 0.05),
-			bannerText: Math.round(cHeight * 0.144),
-			teamBlockTop: Math.round(cHeight * 0.22),
-			teamBlockHeight: Math.round(cHeight * 0.71),
-			badgeWidth: Math.round(cWidth * 0.2),
-			badgeHeight: Math.round(cHeight * 0.45),
-			headerLeftIconOffset: Math.round(cWidth * 0.03),
-			headerIconWidth: Math.round(cWidth * 0.1),
-			headerIconHeight: Math.round(cHeight * 0.15),
-			headerIconPadding: 0.1
-		};
-		positions.headerIconTop = Math.round(
-			positions.bannerTop + positions.bannerHeight / 2 - positions.headerIconHeight / 2
-		);
-		positions.headerRightIconOffset = Math.round(
-			cWidth - positions.headerLeftIconOffset - positions.headerIconWidth
-		);
 		this.positions = positions;
 
 		const textStyles = {
 			title: {
-				size: cHeight * 0.07,
+				size: cWidth * 0.035,
 				family: "Montserrat"
 			},
 			subtitle: {
-				size: cHeight * 0.025,
+				size: cWidth * 0.0125,
 				family: "Titillium"
 			},
-			singleList: {
-				size: cHeight * 0.042,
-				family: "Montserrat"
-			},
-			doubleList: {
-				size: cHeight * 0.03,
+			list: {
+				size: positions.listTextHeight,
 				family: "Montserrat"
 			}
 		};
@@ -207,41 +254,19 @@ export default class PregameImage extends Canvas {
 		const playerImage = await this.googleToCanvas(
 			"images/people/full/" + (playerForImage.images.player || playerForImage.images.main)
 		);
+
+		//Positions
+		const x = singleTeam ? 0 - cWidth * 0.05 : cWidth * 0.3;
+		const y = cWidth * 0.09;
+		const w = cWidth * 0.4;
+		const h = cHeight - y;
+
+		//Set Shadow
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-		if (singleTeam) {
-			this.contain(
-				playerImage,
-				0 - cWidth * 0.05,
-				cHeight * 0.18,
-				cWidth * 0.4,
-				cHeight * 0.82
-			);
-		} else {
-			this.contain(playerImage, cWidth * 0.3, cHeight * 0.18, cWidth * 0.4, cHeight * 0.82);
-		}
-		this.resetShadow();
-	}
 
-	getTeamList(team) {
-		const { pregameSquads, eligiblePlayers } = this.game;
-		const result = _.find(pregameSquads, s => s._team == team._id);
-		if (result) {
-			const { squad } = result;
-			return _.chain(squad)
-				.map(player => {
-					const squadEntry = _.find(
-						eligiblePlayers[team._id],
-						m => m._player._id == player._id
-					);
-					return {
-						...player,
-						number: squadEntry ? squadEntry.number : null
-					};
-				})
-				.sortBy(p => p.number || 999)
-				.value();
-		}
+		this.contain(playerImage, x, y, w, h);
+		this.resetShadow();
 	}
 
 	setTeamShadow(team) {
@@ -251,19 +276,19 @@ export default class PregameImage extends Canvas {
 	}
 
 	drawList(team) {
-		const { ctx, cHeight, cWidth, options, textStyles } = this;
-		const squad = this.getTeamList(team);
+		const { ctx, cWidth, game, options, positions, textStyles } = this;
+		const squad = getTeamList(game, team._id);
 
 		//Set Text
-		ctx.font = textStyles.singleList.string;
+		ctx.font = textStyles.list.string;
 		ctx.textAlign = "left";
 		this.setTeamShadow(team);
 
 		//Set Positioning
 		let numX = options.playerForImage ? Math.round(cWidth * 0.3) : Math.round(cWidth * 0.075);
-		let nameX = numX + Math.round(textStyles.singleList.size * 1.7);
-		const initialY = Math.round(cHeight * 0.34);
-		let y = initialY;
+		let nameX = numX + Math.round(textStyles.list.size * 1.7);
+
+		let y = positions.listTop;
 		let widest = 0;
 
 		_.each(squad, ({ name, number, id }, i) => {
@@ -275,7 +300,7 @@ export default class PregameImage extends Canvas {
 			const isHighlighted = options.playersToHighlight.indexOf(id) > -1;
 			ctx.fillStyle = isHighlighted ? team.colours.trim1 : team.colours.text;
 			ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
-			y += Math.round(textStyles.singleList.size * 1.3);
+			y += positions.listTextHeight + positions.listTextMargin;
 
 			//Update widest point
 			const { width } = ctx.measureText(`${name.first} ${name.last}`);
@@ -285,21 +310,21 @@ export default class PregameImage extends Canvas {
 
 			//Reset for second column
 			if (i === Math.floor(squad.length / 2)) {
-				numX = nameX + widest + Math.round(textStyles.singleList.size * 4);
-				nameX = numX + Math.round(textStyles.singleList.size * 1.7);
-				y = initialY;
+				numX = nameX + widest + Math.round(textStyles.list.size * 4);
+				nameX = numX + Math.round(textStyles.list.size * 1.7);
+				y = positions.listTop;
 			}
 		});
 	}
 
 	drawLists() {
-		const { teams, ctx, cHeight, cWidth, options, textStyles } = this;
-		ctx.font = textStyles.doubleList.string;
+		const { teams, ctx, cWidth, game, options, positions, textStyles } = this;
+		ctx.font = textStyles.list.string;
 		_.each(teams, (team, i) => {
 			this.setTeamShadow(team);
 
 			let nameX, numX, nameAlign, numAlign;
-			let y = Math.round(cHeight * 0.28);
+			let y = positions.listTop;
 			if (i === 0) {
 				numAlign = "left";
 				numX = Math.round(cWidth * 0.29);
@@ -312,7 +337,7 @@ export default class PregameImage extends Canvas {
 				nameX = Math.round(cWidth * 0.72);
 			}
 
-			const squad = this.getTeamList(team);
+			const squad = getTeamList(game, team._id);
 			_.each(squad, ({ name, number, id }) => {
 				//Number
 				ctx.fillStyle = ctx.fillStyle = team.colours.trim1;
@@ -324,7 +349,7 @@ export default class PregameImage extends Canvas {
 				ctx.fillStyle = isHighlighted ? team.colours.trim1 : team.colours.text;
 				ctx.textAlign = nameAlign;
 				ctx.fillText(`${name.first} ${name.last}`.toUpperCase(), nameX, y);
-				y += Math.round(cHeight * 0.034);
+				y += positions.listTextHeight + positions.listTextMargin;
 			});
 		});
 	}
