@@ -7,6 +7,7 @@ import actions from "megadraft/lib/actions/default";
 import LinkInput from "megadraft/lib/entity_inputs/LinkInput";
 
 //Components
+import LinkIcon from "../../news/entities/LinkIcon";
 import InternalLinkInput from "../../news/entities/InternalLinkInput";
 
 //Constants
@@ -28,9 +29,13 @@ class DraftEditor extends Component {
 						{
 							...action,
 							label: "Page Link",
-							entity: "INTERNAL_PAGE_LINK"
+							entity: "INTERNAL_PAGE_LINK",
+							icon: () => <LinkIcon internal={true} />
 						},
-						action
+						{
+							...action,
+							icon: () => <LinkIcon internal={false} />
+						}
 					];
 				default:
 					return action;
