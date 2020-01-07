@@ -22,12 +22,17 @@
 		}
 	}
 
-	.news-inline-image {
+	.custom-block {
 		max-width: 100%;
 		max-height: 100vh;
-		left: 0;
-		right: 0;
-		margin: auto;
+		& > *,
+		.twitter-tweet {
+			display: block;
+			left: 0;
+			right: 0;
+			margin: auto;
+			max-width: 100%;
+		}
 	}
 
 	.youtube-wrapper {

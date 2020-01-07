@@ -1,7 +1,9 @@
+//Modules
 import React, { Component } from "react";
 import icons from "megadraft/lib/icons";
+import TweetEmbed from "react-tweet-embed";
 
-export default class ImageBlock extends Component {
+export default class TwitterBlock extends Component {
 	constructor(props) {
 		super(props);
 
@@ -15,12 +17,10 @@ export default class ImageBlock extends Component {
 	}
 
 	render() {
+		const { tweetId } = this.props.data;
 		return (
-			<div className="custom-block image-wrapper">
-				<img
-					src={`https://storage.googleapis.com/feefifofum/images/news/inline/${this.props.data.src}`}
-					alt=""
-				/>
+			<div className="custom-block twitter-wrapper">
+				<TweetEmbed id={tweetId} />
 			</div>
 		);
 	}
