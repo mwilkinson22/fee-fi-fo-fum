@@ -64,15 +64,17 @@ class AdminNewsPostContent extends Component {
 		const { updateNewsPost } = this.props;
 
 		return (
-			<BasicForm
-				fieldGroups={this.getFieldGroups()}
-				initialValues={this.getInitialValues()}
-				isNew={false}
-				itemType="Post"
-				onSubmit={values => updateNewsPost(post._id, values)}
-				useGrid={false}
-				validationSchema={validationSchema}
-			/>
+			<div className="admin-news-content-wrapper">
+				<BasicForm
+					fieldGroups={this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isNew={false}
+					itemType="Post"
+					onSubmit={values => updateNewsPost(post._id, values)}
+					useGrid={false}
+					validationSchema={validationSchema}
+				/>
+			</div>
 		);
 	}
 }
