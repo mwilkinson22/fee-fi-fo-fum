@@ -56,7 +56,7 @@ class InternalLinkInput extends Component {
 
 	render() {
 		return (
-			<div style={{ whiteSpace: "nowrap" }}>
+			<div style={{ whiteSpace: "nowrap" }} title="Internal Link">
 				<input
 					ref={el => {
 						this.textInput = el;
