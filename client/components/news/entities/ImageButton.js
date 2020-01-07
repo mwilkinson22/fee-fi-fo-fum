@@ -1,5 +1,6 @@
 //Modules
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
 //Megadraft
@@ -13,8 +14,12 @@ class ImageButton extends Component {
 	constructor(props) {
 		super(props);
 
+		const { match, postList } = props;
+		const { slug } = postList[match.params._id];
+
 		this.state = {
-			showFileUploader: false
+			showFileUploader: false,
+			slug
 		};
 	}
 
@@ -31,7 +36,8 @@ class ImageButton extends Component {
 	}
 
 	renderFileUploader() {
-		const { slug } = this.props.match.params;
+		const { slug } = this.state;
+
 		const accept = ["jpg", "jpeg", "gif", "png"];
 
 		return (
@@ -72,4 +78,9 @@ class ImageButton extends Component {
 	}
 }
 
-export default withRouter(ImageButton);
+function mapStateToProps({ news }) {
+	const { postList } = news;
+	return { postList };
+}
+
+export default withRouter(connect(mapStateToProps)(ImageButton));
