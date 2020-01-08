@@ -38,6 +38,10 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 	//Pull meta data from yup
 	const yupField = extractYupData(field.name, validationSchema);
 
+	if (!yupField) {
+		throw new Error(`Field name '${field.name}' not found in validation schema`);
+	}
+
 	//Get Label
 	field.label = field.label || yupField.label;
 	if (field.label == null) {
@@ -45,18 +49,16 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 	}
 
 	//Determine Required Status
-	if (yupField) {
-		field.required = Boolean(yupField.tests.find(test => test.name === "required"));
+	field.required = Boolean(yupField.tests.find(test => test.name === "required"));
 
-		//Get Min & Max
-		const min = yupField.tests.find(test => test.name === "min");
-		const max = yupField.tests.find(test => test.name === "max");
-		if (min) {
-			field.min = min.params.min;
-		}
-		if (max) {
-			field.max = max.params.max;
-		}
+	//Get Min & Max
+	const min = yupField.tests.find(test => test.name === "min");
+	const max = yupField.tests.find(test => test.name === "max");
+	if (min) {
+		field.min = min.params.min;
+	}
+	if (max) {
+		field.max = max.params.max;
 	}
 
 	//FastField eligibility

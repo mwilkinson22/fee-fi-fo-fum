@@ -55,7 +55,12 @@ class AdminGamePostGame extends Component {
 		const validationSchema = {
 			attendance: Yup.number().label("Attendance"),
 			extraTime: Yup.boolean().label("Game went to extra time?"),
-			_potm: Yup.string().label(`${newState.genderedString} of the Match`)
+			_potm: Yup.string().label(`${newState.genderedString} of the Match`),
+			fan_potm_options: Yup.array()
+				.of(Yup.string())
+				.label("Nominees"),
+			fan_potm_deadline_date: Yup.string().label("Deadline Date"),
+			fan_potm_deadline_time: Yup.string().label("Deadline Time")
 		};
 
 		//New or legacy Player of the Match
@@ -65,8 +70,6 @@ class AdminGamePostGame extends Component {
 				`Fans' ${newState.genderedString} of the Match (Legacy)`
 			);
 			validationSchema.fan_potm_link = Yup.string().label("Poll Link (Legacy)");
-		} else {
-			//
 		}
 
 		if (newState.manOfSteel) {
@@ -102,7 +105,10 @@ class AdminGamePostGame extends Component {
 			extraTime: "",
 			_potm: "",
 			_fan_potm: "",
-			fan_potm_link: ""
+			fan_potm_link: "",
+			fan_potm_options: [],
+			fan_potm_deadline_date: "",
+			fan_potm_deadline_time: ""
 		};
 
 		if (legacyFanPotm) {
@@ -121,6 +127,19 @@ class AdminGamePostGame extends Component {
 		return _.mapValues(defaultValues, (defaultValue, key) => {
 			let value;
 			switch (key) {
+				case "fan_potm_options":
+					if (game.fan_potm) {
+						value = game.fan_potm.options;
+					}
+					break;
+				case "fan_potm_deadline_date":
+				case "fan_potm_deadline_time":
+					if (game.fan_potm && game.fan_potm.deadline) {
+						const dateOrTime = key.replace("fan_potm_deadline_", "");
+						const toString = dateOrTime == "date" ? "yyyy-MM-dd" : "HH:mm:ss";
+						value = new Date(game.fan_potm.deadline).toString(toString);
+					}
+					break;
 				case "manOfSteel":
 					if (game.manOfSteel) {
 						value = _.chain(game.manOfSteel)
@@ -142,19 +161,11 @@ class AdminGamePostGame extends Component {
 	getFieldGroups() {
 		const { genderedString, legacyFanPotm, manOfSteel, options } = this.state;
 
-		const potmFields = [
-			{
-				name: "_potm",
-				type: fieldTypes.select,
-				options: options.players.bothTeams,
-				isSearchable: false,
-				isClearable: true,
-				isNested: true
-			}
-		];
+		//Handle legacy potm fields
+		const legacyPotmFields = [];
 
 		if (legacyFanPotm) {
-			potmFields.push(
+			legacyPotmFields.push(
 				{
 					name: "_fan_potm",
 					type: fieldTypes.select,
@@ -169,6 +180,7 @@ class AdminGamePostGame extends Component {
 			);
 		}
 
+		//Create standard post-game fields
 		const fieldGroups = [
 			{
 				fields: [
@@ -179,15 +191,21 @@ class AdminGamePostGame extends Component {
 					{
 						name: "extraTime",
 						type: fieldTypes.boolean
-					}
+					},
+					{
+						name: "_potm",
+						type: fieldTypes.select,
+						options: options.players.bothTeams,
+						isSearchable: false,
+						isClearable: true,
+						isNested: true
+					},
+					...legacyPotmFields
 				]
-			},
-			{
-				label: `${genderedString} of the Match`,
-				fields: potmFields
 			}
 		];
 
+		//Add Man Of Steel, if necessary
 		if (manOfSteel) {
 			const manOfSteelFields = [];
 			for (let i = 3; i > 0; i--) {
@@ -206,6 +224,59 @@ class AdminGamePostGame extends Component {
 			});
 		}
 
+		//Add Fans' Man of the Match
+		fieldGroups.push(
+			{
+				label: `Fans' ${genderedString} of the Match`,
+				fields: [
+					{
+						name: "fan_potm_options",
+						type: fieldTypes.select,
+						options: options.players.localTeam,
+						isMulti: true
+					},
+					{
+						name: "fan_potm_deadline_date",
+						type: fieldTypes.date
+					},
+					{
+						name: "fan_potm_deadline_time",
+						type: fieldTypes.time
+					}
+				]
+			},
+			{
+				render: (values, formik) => {
+					const setValue = days => {
+						const now = new Date();
+						formik.setFieldValue("fan_potm_deadline_time", now.toString("HH:mm:00"));
+
+						now.addDays(days);
+						formik.setFieldValue("fan_potm_deadline_date", now.toString("yyyy-MM-dd"));
+					};
+
+					const buttons = [];
+					for (var i = 1; i <= 3; i++) {
+						buttons.push(
+							<button
+								//Can't use a standard () => {} or i will always be 4
+								onClick={(days => () => setValue(days))(i)}
+								type="button"
+								key={i}
+							>
+								{i * 24} Hours
+							</button>
+						);
+					}
+
+					return [
+						<label key="label">Set Deadline</label>,
+						<div key="buttons">{buttons}</div>
+					];
+				}
+			}
+		);
+
 		return fieldGroups;
 	}
 
@@ -216,6 +287,20 @@ class AdminGamePostGame extends Component {
 				.filter("_player")
 				.value();
 		}
+
+		//Fan POTM
+		values.fan_potm = {
+			options: values.fan_potm_options
+		};
+		if (values.fan_potm_deadline_date && values.fan_potm_deadline_time) {
+			values.fan_potm.deadline = `${values.fan_potm_deadline_date} ${values.fan_potm_deadline_time}`;
+		} else {
+			values.fan_potm.deadline = null;
+		}
+
+		delete values.fan_potm_options;
+		delete values.fan_potm_deadline_date;
+		delete values.fan_potm_deadline_time;
 	}
 
 	render() {

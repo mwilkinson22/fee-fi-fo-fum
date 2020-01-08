@@ -95,6 +95,20 @@ const gameSchema = new Schema(
 
 		//Man of the match
 		_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		fan_potm: {
+			options: [{ type: Schema.Types.ObjectId, ref: "people", default: null }],
+			deadline: { type: Date, default: null },
+			votes: {
+				type: [
+					{
+						ip: { type: String, required: true },
+						choice: { type: Schema.Types.ObjectId, ref: "people" }
+					}
+				],
+				default: []
+			}
+		},
+		//LEGACY
 		_fan_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
 		fan_potm_link: { type: String, default: null },
 
@@ -198,7 +212,8 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"_fan_potm",
 				"fan_potm_link",
 				"attendance",
-				"manOfSteel"
+				"manOfSteel",
+				"fan_potm"
 			);
 		}
 
