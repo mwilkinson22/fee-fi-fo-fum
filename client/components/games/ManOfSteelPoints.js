@@ -80,7 +80,7 @@ class ManOfSteelPoints extends Component {
 
 		//Check for Gamestar stats, and add to mainProps.children if necessary
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
-			const gameStarStats = getGameStarStats(game, p._player._id, {
+			const gameStarStats = getGameStarStats(game, p._player, {
 				T: 1,
 				G: 1,
 				DG: 1,

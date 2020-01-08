@@ -24,7 +24,7 @@ class AdminGamePostGame extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, fullGames, localTeam, teamList } = nextProps;
+		const { match, fullGames, localTeam, teamList, teamTypes } = nextProps;
 
 		const newState = {};
 		const { _id } = match.params;
@@ -47,14 +47,27 @@ class AdminGamePostGame extends Component {
 			localTeam
 		);
 
+		//Get Man/Woman string based on teamType
+		const { gender } = teamTypes[newState.game._teamType];
+		newState.genderedString = gender == "M" ? "Man" : "Woman";
+
 		//Validation Schema
 		const validationSchema = {
 			attendance: Yup.number().label("Attendance"),
 			extraTime: Yup.boolean().label("Game went to extra time?"),
-			_motm: Yup.object().label("Man of the Match"),
-			_fan_motm: Yup.object().label("Fans' Man of the Match"),
-			fan_motm_link: Yup.string().label("Poll Link")
+			_potm: Yup.string().label(`${newState.genderedString} of the Match`)
 		};
+
+		//New or legacy Player of the Match
+		newState.legacyFanPotm = Number(newState.game.date.getFullYear()) <= 2019;
+		if (newState.legacyFanPotm) {
+			validationSchema._fan_potm = Yup.string().label(
+				`Fans' ${newState.genderedString} of the Match (Legacy)`
+			);
+			validationSchema.fan_potm_link = Yup.string().label("Poll Link (Legacy)");
+		} else {
+			//
+		}
 
 		if (newState.manOfSteel) {
 			const manOfSteelValidation = {};
@@ -82,15 +95,20 @@ class AdminGamePostGame extends Component {
 	}
 
 	getInitialValues() {
-		const { game, manOfSteel, options } = this.state;
+		const { game, legacyFanPotm, manOfSteel } = this.state;
 
 		const defaultValues = {
 			attendance: "",
 			extraTime: "",
-			_motm: "",
-			_fan_motm: "",
-			fan_motm_link: ""
+			_potm: "",
+			_fan_potm: "",
+			fan_potm_link: ""
 		};
+
+		if (legacyFanPotm) {
+			defaultValues._fan_potm = "";
+			defaultValues.fan_potm_link = "";
+		}
 
 		if (manOfSteel) {
 			defaultValues.manOfSteel = {
@@ -122,7 +140,34 @@ class AdminGamePostGame extends Component {
 	}
 
 	getFieldGroups() {
-		const { manOfSteel, options } = this.state;
+		const { genderedString, legacyFanPotm, manOfSteel, options } = this.state;
+
+		const potmFields = [
+			{
+				name: "_potm",
+				type: fieldTypes.select,
+				options: options.players.bothTeams,
+				isSearchable: false,
+				isClearable: true,
+				isNested: true
+			}
+		];
+
+		if (legacyFanPotm) {
+			potmFields.push(
+				{
+					name: "_fan_potm",
+					type: fieldTypes.select,
+					options: options.players.localTeam,
+					isSearchable: false,
+					isClearable: true
+				},
+				{
+					name: "fan_potm_link",
+					type: fieldTypes.text
+				}
+			);
+		}
 
 		const fieldGroups = [
 			{
@@ -138,28 +183,8 @@ class AdminGamePostGame extends Component {
 				]
 			},
 			{
-				label: "Man of the Match",
-				fields: [
-					{
-						name: "_motm",
-						type: fieldTypes.select,
-						options: options.players.bothTeams,
-						isSearchable: false,
-						isClearable: true,
-						isNested: true
-					},
-					{
-						name: "_fan_motm",
-						type: fieldTypes.select,
-						options: options.players.localTeam,
-						isSearchable: false,
-						isClearable: true
-					},
-					{
-						name: "fan_motm_link",
-						type: fieldTypes.text
-					}
-				]
+				label: `${genderedString} of the Match`,
+				fields: potmFields
 			}
 		];
 
@@ -176,7 +201,7 @@ class AdminGamePostGame extends Component {
 				});
 			}
 			fieldGroups.push({
-				label: "Man of Steel",
+				label: `${genderedString} of Steel`,
 				fields: manOfSteelFields
 			});
 		}
@@ -213,18 +238,15 @@ class AdminGamePostGame extends Component {
 
 //Add Redux Support
 function mapStateToProps({ config, games, teams }) {
-	const { localTeam } = config;
+	const { legacyFanPotmDeadline, localTeam } = config;
 	const { fullGames } = games;
-	const { teamList } = teams;
+	const { teamList, teamTypes } = teams;
 
-	return { fullGames, localTeam, teamList };
+	return { legacyFanPotmDeadline, fullGames, localTeam, teamList, teamTypes };
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			updateGame
-		}
-	)(AdminGamePostGame)
+	connect(mapStateToProps, {
+		updateGame
+	})(AdminGamePostGame)
 );

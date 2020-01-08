@@ -1,5 +1,5 @@
 import { GET_CORE_CONFIG, GET_SETTINGS } from "./types";
-import { localTeam, gaTracking, mongoURI } from "../../config/keys";
+import { localTeam, gaTracking, legacyFanPotmDeadline, mongoURI } from "../../config/keys";
 import { toast } from "react-toastify";
 
 export const getCoreConfig = req => async dispatch => {
@@ -35,7 +35,10 @@ export const getCoreConfig = req => async dispatch => {
 		environment: process.env.NODE_ENV,
 
 		//Live or test database
-		database: mongoURI.includes("test") ? "test" : "live"
+		database: mongoURI.includes("test") ? "test" : "live",
+
+		//Set Legacy Fan POTM deadline
+		legacyFanPotmDeadline
 	};
 
 	//Check for device

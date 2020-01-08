@@ -307,28 +307,6 @@ export async function updateGame(req, res) {
 	if (game) {
 		const values = await processGround(req.body);
 
-		//Add events in case of motm being updated
-		if (Object.keys(req.body).indexOf("_motm") > -1) {
-			["_motm", "_fan_motm", "fan_motm_link"].forEach(field => {
-				if (req.body[field] && req.body[field] != game[field]) {
-					//Create a basic event to push
-					const event = {
-						//Remove trailing underscore
-						event: field.replace(/^_/, ""),
-						_user: req.user._id
-					};
-					if (field === "fan_motm_link") {
-						event.tweet_id = req.body[field];
-					} else {
-						event._player = req.body[field];
-					}
-
-					game.events.push(event);
-				}
-			});
-			await game.save();
-		}
-
 		//Update values
 		await game.updateOne(values);
 

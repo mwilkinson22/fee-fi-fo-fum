@@ -94,9 +94,9 @@ const gameSchema = new Schema(
 		squadsAnnounced: { type: Boolean, default: false },
 
 		//Man of the match
-		_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
-		_fan_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
-		fan_motm_link: { type: String, default: null },
+		_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		_fan_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		fan_potm_link: { type: String, default: null },
 
 		//Post-game fields
 		attendance: { type: Number, default: null },
@@ -194,9 +194,9 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 			propsToRemove.push(
 				"_referee",
 				"_video_referee",
-				"_motm",
-				"_fan_motm",
-				"fan_motm_link",
+				"_potm",
+				"_fan_potm",
+				"fan_potm_link",
 				"attendance",
 				"manOfSteel"
 			);

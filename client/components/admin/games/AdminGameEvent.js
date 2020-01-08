@@ -54,7 +54,7 @@ class AdminGameEvent extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullGames, localTeam, match, profiles, teamList } = nextProps;
+		const { fullGames, localTeam, match, profiles, teamList, teamTypes } = nextProps;
 		const newState = { isLoading: false };
 
 		//Get Game
@@ -76,6 +76,10 @@ class AdminGameEvent extends Component {
 			.sortBy("label")
 			.value();
 
+		//Man or Woman
+		const { gender } = teamTypes[newState.game._teamType];
+		const genderedString = gender == "M" ? "Man" : "Woman";
+
 		//Event Types
 		newState.options.event = [
 			{ label: "None", value: "none" },
@@ -89,8 +93,8 @@ class AdminGameEvent extends Component {
 					{ label: "40/20", value: "FT" },
 					{ label: "Yellow Card", value: "YC" },
 					{ label: "Red Card", value: "RC" },
-					{ label: "Man of the Match", value: "motm" },
-					{ label: "Fans' Man of the Match", value: "fan_motm" }
+					{ label: `${genderedString} of the Match`, value: "potm" },
+					{ label: `Fans' ${genderedString} of the Match`, value: "fan_potm" }
 				]
 			},
 			{
@@ -318,17 +322,14 @@ class AdminGameEvent extends Component {
 function mapStateToProps({ config, games, teams, social }) {
 	const { localTeam } = config;
 	const { fullGames } = games;
-	const { teamList } = teams;
+	const { teamList, teamTypes } = teams;
 	const { profiles, defaultProfile } = social;
-	return { fullGames, localTeam, teamList, profiles, defaultProfile };
+	return { fullGames, localTeam, teamList, profiles, defaultProfile, teamTypes };
 }
 
 // export default form;
-export default connect(
-	mapStateToProps,
-	{
-		fetchProfiles,
-		postGameEvent,
-		previewPlayerEventImage
-	}
-)(AdminGameEvent);
+export default connect(mapStateToProps, {
+	fetchProfiles,
+	postGameEvent,
+	previewPlayerEventImage
+})(AdminGameEvent);
