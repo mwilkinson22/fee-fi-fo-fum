@@ -246,7 +246,7 @@ class NewsPostPage extends Component {
 							canonical={`/news/post/${post.slug}`}
 							cardImage={newsHeaderPath + post.image}
 							cardType="summary_large_image"
-							description={post.preview.substring(0, 500) + "..."}
+							description={post.subtitle || post.preview.substring(0, 500) + "..."}
 						/>
 						{this.formatPost()}
 					</div>

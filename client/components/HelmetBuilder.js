@@ -49,7 +49,7 @@ class HelmetBuilder extends Component {
 			{ name: "twitter:title", property: "og:title", content: title },
 			{ name: "twitter:creator", content: `@${author}` },
 			{ name: "twitter:site", content: "@FeeFiFoFumRL" },
-			{ property: "twitter:description", content: description },
+			{ name: "twitter:description", property: "twitter:description", content: description },
 			{ name: "twitter:image", property: "og:image", content: cardImage },
 			{ property: "og:url", content: url }
 		];
