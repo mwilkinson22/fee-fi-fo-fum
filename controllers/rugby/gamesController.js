@@ -107,7 +107,7 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 			})
 			.populate({ path: "coaches._person", select: "name slug" });
 
-		teams = _.keyBy(teams, "_id");
+		teams = _.keyBy(JSON.parse(JSON.stringify(teams)), "_id");
 
 		//Check to see if any games are valid for more than one teamType
 		let teamTypes;

@@ -413,15 +413,30 @@ export default class SquadImage extends Canvas {
 		const { width: nameWidth, actualBoundingBoxAscent: nameHeight } = ctx.measureText(
 			displayName
 		);
-		const nameBoxWidth = Math.max(nameWidth, playerWidth) + playerNameBarNumberWidth / 2;
+
+		//Set the name box width, plus half the number width as padding
+		let nameBoxWidth = Math.max(nameWidth, playerWidth) + playerNameBarNumberWidth / 2;
 		const totalBoxWidth = nameBoxWidth + playerNameBarNumberWidth;
 		const numberBoxX = x - totalBoxWidth / 2;
-		const nameBoxX = numberBoxX + playerNameBarNumberWidth;
+		let nameBoxX = numberBoxX + playerNameBarNumberWidth;
 		const boxY = y + playerHeight / 2 - playerNameBarHeight;
 		const textY = boxY + playerNameBarHeight / 2 + nameHeight / 2;
 
+		//If there's no number, nameBoxWidth and nameBoxX need to match totalBox
+		//We set nameBoxRounding exceptions if there is a number
+		let nameBoxRounding = {};
+		if (number) {
+			nameBoxRounding = {
+				topLeft: 0,
+				bottomLeft: 0
+			};
+		} else {
+			nameBoxWidth = totalBoxWidth;
+			nameBoxX = numberBoxX;
+		}
+
 		//Draw Box Shadow
-		ctx.fillStyle = "red";
+		ctx.fillStyle = "white";
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "#000000AA";
 		ctx.shadowOffsetY = 10;
@@ -435,23 +450,34 @@ export default class SquadImage extends Canvas {
 
 		this.resetShadow();
 
-		//Draw Number Box
-		if (options.showOpposition) {
-			ctx.fillStyle = game._opposition.colours.text;
-		} else {
-			ctx.fillStyle = colours.claret;
-		}
-		this.fillRoundedRect(
-			numberBoxX,
-			boxY,
-			playerNameBarNumberWidth,
-			playerNameBarHeight,
-			playerNameBarRadius,
-			{
-				topRight: 0,
-				bottomRight: 0
+		if (number) {
+			//Draw Number Box
+			if (options.showOpposition) {
+				ctx.fillStyle = game._opposition.colours.text;
+			} else {
+				ctx.fillStyle = colours.claret;
 			}
-		);
+			this.fillRoundedRect(
+				numberBoxX,
+				boxY,
+				playerNameBarNumberWidth,
+				playerNameBarHeight,
+				playerNameBarRadius,
+				{
+					topRight: 0,
+					bottomRight: 0
+				}
+			);
+
+			//Add Number
+			if (options.showOpposition) {
+				ctx.fillStyle = game._opposition.colours.main;
+			} else {
+				ctx.fillStyle = colours.gold;
+			}
+			ctx.textAlign = "center";
+			ctx.fillText(number, numberBoxX + playerNameBarNumberWidth / 2, textY);
+		}
 
 		//Draw Name box
 		if (options.showOpposition) {
@@ -465,20 +491,8 @@ export default class SquadImage extends Canvas {
 			nameBoxWidth,
 			playerNameBarHeight,
 			playerNameBarRadius,
-			{
-				topLeft: 0,
-				bottomLeft: 0
-			}
+			nameBoxRounding
 		);
-
-		//Add Number
-		if (options.showOpposition) {
-			ctx.fillStyle = game._opposition.colours.main;
-		} else {
-			ctx.fillStyle = colours.gold;
-		}
-		ctx.textAlign = "center";
-		ctx.fillText(number, numberBoxX + playerNameBarNumberWidth / 2, textY);
 
 		//Add Name
 		if (options.showOpposition) {
@@ -496,27 +510,34 @@ export default class SquadImage extends Canvas {
 		const numberBoxXCentre = sideBarWidth * 0.27;
 		const numberBoxSize = textStyles.interchange.size * 1.75;
 
-		//Add Box
-		ctx.fillStyle = colours.claret;
-		ctx.fillRect(
-			numberBoxXCentre - numberBoxSize / 2,
-			y - numberBoxSize / 2 - textStyles.interchange.size * 0.3,
-			numberBoxSize,
-			numberBoxSize
-		);
-
 		//Set Font
 		ctx.font = textStyles.interchange.string;
 
-		//Add Number
-		ctx.textAlign = "center";
-		ctx.fillStyle = colours.gold;
-		ctx.fillText(number, numberBoxXCentre, y);
+		if (number) {
+			//Add Box
+			ctx.fillStyle = colours.claret;
+			ctx.fillRect(
+				numberBoxXCentre - numberBoxSize / 2,
+				y - numberBoxSize / 2 - textStyles.interchange.size * 0.3,
+				numberBoxSize,
+				numberBoxSize
+			);
+
+			//Add Number
+			ctx.textAlign = "center";
+			ctx.fillStyle = colours.gold;
+			ctx.fillText(number, numberBoxXCentre, y);
+		}
 
 		//Add Name
-		ctx.textAlign = "left";
 		ctx.fillStyle = colours.claret;
-		ctx.fillText(displayName, sideBarWidth * 0.34, y);
+		if (number) {
+			ctx.textAlign = "left";
+			ctx.fillText(displayName, sideBarWidth * 0.34, y);
+		} else {
+			ctx.textAlign = "center";
+			ctx.fillText(displayName, sideBarWidth * 0.5, y);
+		}
 	}
 
 	async render(forTwitter = false) {
