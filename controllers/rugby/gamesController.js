@@ -109,19 +109,21 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 
 		teams = _.keyBy(JSON.parse(JSON.stringify(teams)), "_id");
 
-		//Check to see if any games are valid for more than one teamType
+		//Get team types
 		let teamTypes;
-		if (games.filter(g => g._competition._parentCompetition.useAllSquads).length) {
-			const TeamType = mongoose.model("teamTypes");
-			const results = await TeamType.find({}, "_id gender");
-			teamTypes = _.keyBy(results, "_id");
-		}
+		const TeamType = mongoose.model("teamTypes");
+		const results = await TeamType.find({}, "_id gender");
+		teamTypes = _.keyBy(results, "_id");
 
 		//Loop each game
 		games = games.map(g => {
 			const game = JSON.parse(JSON.stringify(g));
 			const date = new Date(game.date);
 			const year = date.getFullYear();
+
+			//Get gendered term for _____ of steel, of the match, etc
+			game.gender = teamTypes[game._teamType].gender;
+			game.genderedString = game.gender === "M" ? "Man" : "Woman";
 
 			//Get Coaches
 			game.coaches = _.chain([localTeam, game._opposition._id])
@@ -150,8 +152,7 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 			const { useAllSquads } = game._competition._parentCompetition;
 			let validTeamTypes;
 			if (useAllSquads) {
-				const { gender } = teamTypes[game._teamType];
-				validTeamTypes = _.filter(teamTypes, t => t.gender == gender).map(t =>
+				validTeamTypes = _.filter(teamTypes, t => t.gender == game.gender).map(t =>
 					t._id.toString()
 				);
 			} else {

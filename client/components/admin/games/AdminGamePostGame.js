@@ -24,7 +24,7 @@ class AdminGamePostGame extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, fullGames, localTeam, teamList, teamTypes } = nextProps;
+		const { match, fullGames, localTeam, teamList } = nextProps;
 
 		const newState = {};
 		const { _id } = match.params;
@@ -47,15 +47,11 @@ class AdminGamePostGame extends Component {
 			localTeam
 		);
 
-		//Get Man/Woman string based on teamType
-		const { gender } = teamTypes[newState.game._teamType];
-		newState.genderedString = gender == "M" ? "Man" : "Woman";
-
 		//Validation Schema
 		const validationSchema = {
 			attendance: Yup.number().label("Attendance"),
 			extraTime: Yup.boolean().label("Game went to extra time?"),
-			_potm: Yup.string().label(`${newState.genderedString} of the Match`),
+			_potm: Yup.string().label(`${newState.game.genderedString} of the Match`),
 			fan_potm_options: Yup.array()
 				.of(Yup.string())
 				.label("Nominees"),
@@ -67,7 +63,7 @@ class AdminGamePostGame extends Component {
 		newState.legacyFanPotm = Number(newState.game.date.getFullYear()) <= 2019;
 		if (newState.legacyFanPotm) {
 			validationSchema._fan_potm = Yup.string().label(
-				`Fans' ${newState.genderedString} of the Match (Legacy)`
+				`Fans' ${newState.game.genderedString} of the Match (Legacy)`
 			);
 			validationSchema.fan_potm_link = Yup.string().label("Poll Link (Legacy)");
 		}
@@ -159,7 +155,8 @@ class AdminGamePostGame extends Component {
 	}
 
 	getFieldGroups() {
-		const { genderedString, legacyFanPotm, manOfSteel, options } = this.state;
+		const { game, legacyFanPotm, manOfSteel, options } = this.state;
+		const { genderedString } = game;
 
 		//Handle legacy potm fields
 		const legacyPotmFields = [];
@@ -325,9 +322,9 @@ class AdminGamePostGame extends Component {
 function mapStateToProps({ config, games, teams }) {
 	const { legacyFanPotmDeadline, localTeam } = config;
 	const { fullGames } = games;
-	const { teamList, teamTypes } = teams;
+	const { teamList } = teams;
 
-	return { legacyFanPotmDeadline, fullGames, localTeam, teamList, teamTypes };
+	return { legacyFanPotmDeadline, fullGames, localTeam, teamList };
 }
 // export default form;
 export default withRouter(

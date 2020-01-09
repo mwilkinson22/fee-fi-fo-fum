@@ -144,20 +144,17 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 		values.push({ key: "FAN_POTM", starPoints: 3, value: null });
 	}
 
-	//Get "Man" or "Woman" for ___ of the match
-	const genderedString = player.gender == "M" ? "Man" : "Woman";
-
 	return values.map(({ key, value, starPoints }) => {
 		let isBest = false;
 		let valueString;
 		let label;
 
 		if (key == "POTM") {
-			valueString = genderedString;
+			valueString = game.genderedString;
 			label = "of the Match";
 		} else if (key == "FAN_POTM") {
 			valueString = "Fans'";
-			label = `${genderedString} of the Match`;
+			label = `${game.genderedString} of the Match`;
 		} else {
 			//Get Value String
 			switch (key) {

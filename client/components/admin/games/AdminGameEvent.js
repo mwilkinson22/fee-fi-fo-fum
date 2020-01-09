@@ -54,7 +54,7 @@ class AdminGameEvent extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullGames, localTeam, match, profiles, teamList, teamTypes } = nextProps;
+		const { fullGames, localTeam, match, profiles, teamList } = nextProps;
 		const newState = { isLoading: false };
 
 		//Get Game
@@ -76,10 +76,6 @@ class AdminGameEvent extends Component {
 			.sortBy("label")
 			.value();
 
-		//Man or Woman
-		const { gender } = teamTypes[newState.game._teamType];
-		const genderedString = gender == "M" ? "Man" : "Woman";
-
 		//Event Types
 		newState.options.event = [
 			{ label: "None", value: "none" },
@@ -93,8 +89,11 @@ class AdminGameEvent extends Component {
 					{ label: "40/20", value: "FT" },
 					{ label: "Yellow Card", value: "YC" },
 					{ label: "Red Card", value: "RC" },
-					{ label: `${genderedString} of the Match`, value: "potm" },
-					{ label: `Fans' ${genderedString} of the Match`, value: "fan_potm" }
+					{ label: `${newState.game.genderedString} of the Match`, value: "potm" },
+					{
+						label: `Fans' ${newState.game.genderedString} of the Match`,
+						value: "fan_potm"
+					}
 				]
 			},
 			{
@@ -322,9 +321,9 @@ class AdminGameEvent extends Component {
 function mapStateToProps({ config, games, teams, social }) {
 	const { localTeam } = config;
 	const { fullGames } = games;
-	const { teamList, teamTypes } = teams;
+	const { teamList } = teams;
 	const { profiles, defaultProfile } = social;
-	return { fullGames, localTeam, teamList, profiles, defaultProfile, teamTypes };
+	return { fullGames, localTeam, teamList, profiles, defaultProfile };
 }
 
 // export default form;
