@@ -30,6 +30,17 @@
 		}
 	}
 
+	.authorise-dialog {
+		p {
+			margin-bottom: 8pt;
+		}
+
+		.disclaimer-link {
+			color: $claret;
+			font-weight: 600;
+		}
+	}
+
 	.dialog {
 		padding: 10pt;
 		background: #eee;

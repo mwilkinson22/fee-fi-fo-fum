@@ -14,6 +14,7 @@ import { disconnectAccount, getAuthorisedAccounts } from "~/client/actions/oAuth
 
 //Constants
 import { layoutImagePath } from "../../extPaths";
+import PopUpDialog from "../PopUpDialog";
 const services = {
 	twitter: {
 		name: "Twitter",
@@ -87,14 +88,7 @@ class ShareDialog extends Component {
 	}
 
 	renderDialog() {
-		const { getAuthorisedAccounts } = this.props;
-		const {
-			authorisedAccounts,
-			isAuthorising,
-			isSubmitting,
-			service,
-			submittedPost
-		} = this.state;
+		const { authorisedAccounts, isSubmitting, service, submittedPost } = this.state;
 
 		if (service) {
 			let content;
@@ -137,38 +131,135 @@ class ShareDialog extends Component {
 					</div>
 				);
 			} else if (!authorisedAccounts[service]) {
-				//If we don't have credentials, get a request token
-				let popout;
-				if (isAuthorising) {
-					popout = (
-						<NewWindow
-							url={`/api/oauth/${service}/authorise`}
-							onUnload={async () => {
-								await getAuthorisedAccounts();
-								this.setState({ isAuthorising: false });
-							}}
-						/>
-					);
-				}
-				content = (
-					<div>
-						<button
-							className="authorise-btn"
-							style={services[service].authBtn}
-							onClick={() => this.setState({ isAuthorising: true })}
-							disabled={isAuthorising}
-						>
-							Share on {services[service].name}
-						</button>
-						{popout}
-					</div>
-				);
+				content = this.renderAuthoriseDialog();
 			} else {
 				//Otherwise, we render the composer
 				content = this.renderComposer();
 			}
 
 			return <div className="dialog">{content}</div>;
+		}
+	}
+
+	renderAuthoriseDialog() {
+		const { getAuthorisedAccounts } = this.props;
+		const { isAuthorising, service } = this.state;
+
+		//If we don't have credentials, get a request token
+		let popout;
+		if (isAuthorising) {
+			popout = (
+				<NewWindow
+					url={`/api/oauth/${service}/authorise`}
+					onUnload={async () => {
+						await getAuthorisedAccounts();
+						this.setState({ isAuthorising: false });
+					}}
+				/>
+			);
+		}
+
+		let content;
+		let buttonText = `Share on ${services[service].name}`;
+		let includeDisclaimer = false;
+
+		switch (service) {
+			case "twitter":
+				includeDisclaimer = true;
+				content = [
+					<p key="1">
+						To share to Twitter, you will need to click the button below and authorise
+						posts from this website. Granting authorisation simply allows{" "}
+						<strong>you</strong> to post to your own account from this website.
+					</p>,
+					<p key="2">
+						No personal data is ever saved by us, and your password is never exposed by
+						Twitter, meaning it is impossible for us (or anyone else) to access your
+						account or post without your consent.
+					</p>
+				];
+				break;
+		}
+
+		//Render disclaimer link
+		let disclaimer;
+		if (includeDisclaimer) {
+			disclaimer = (
+				<p
+					className="disclaimer-link"
+					onClick={() => this.setState({ isShowingDisclaimer: true })}
+				>
+					Read More
+				</p>
+			);
+		}
+
+		return (
+			<div className="authorise-dialog">
+				{content}
+				{disclaimer}
+				<button
+					className="authorise-btn"
+					style={services[service].authBtn}
+					onClick={() => this.setState({ isAuthorising: true })}
+					disabled={isAuthorising}
+				>
+					{buttonText}
+				</button>
+				{popout}
+				{this.renderDisclaimerDialog()}
+			</div>
+		);
+	}
+
+	renderDisclaimerDialog() {
+		const { isShowingDisclaimer, service } = this.state;
+
+		if (isShowingDisclaimer) {
+			let content;
+			switch (service) {
+				case "twitter":
+					content = (
+						<div>
+							<h6>Sharing to Twitter</h6>
+							<p>
+								Upon clicking the Share button, a Twitter window will pop up asking
+								you to grant access to Fee Fi Fo Fum (the website, not the
+								page/group). If you accept, an access token will be saved to your
+								web browser.
+							</p>
+							<p>
+								This access token is a long string of letters and numbers, generated
+								by Twitter to allow other apps to post to your account without
+								accessing twitter.com directly. It is accessible only within your
+								web browser, so at no point can this be accessed or used by the 4Fs
+								team (or anyone else).
+							</p>
+							<p>
+								The access token can easily be deleted, if you wish, either by
+								clicking the <strong>Disconnect</strong> link above the Tweet
+								editor, or by revoking it directly on Twitter. If you have any more
+								questions,{" "}
+								<a
+									href="https://twitter.com/FeeFiFoFumRL"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									just let us know
+								</a>
+							</p>
+						</div>
+					);
+					break;
+			}
+
+			if (content) {
+				return (
+					<PopUpDialog onDestroy={() => this.setState({ isShowingDisclaimer: false })}>
+						{content}
+					</PopUpDialog>
+				);
+			}
 		}
 	}
 
