@@ -1451,15 +1451,22 @@
 			}
 		}
 	}
-	.submit {
+	button {
 		margin-top: 10pt;
 		width: 100%;
+		font-weight: 600;
 
-		&:not(:disabled) {
+		&.submit:not(:disabled) {
 			background: $claret;
 			&:hover {
 				background: lighten($claret, 5%);
 			}
+		}
+
+		&.post-submit {
+			background: #090;
+			opacity: 1;
+			color: white;
 		}
 	}
 }

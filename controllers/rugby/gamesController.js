@@ -837,6 +837,34 @@ export async function createCalendar(req, res) {
 	}
 }
 
+//Fan POTM
+export async function saveFanPotmVote(req, res) {
+	const { _game, _player } = req.params;
+
+	const game = await validateGame(_game, res);
+
+	if (game) {
+		//Check to see if the user has already voted
+		const { ipAddress } = req;
+		const currentVote = game.fan_potm.votes.find(v => v.ip == ipAddress);
+
+		console.log(currentVote ? "Updating" : "Saving");
+
+		if (currentVote) {
+			await Game.updateOne(
+				{ _id: _game, "fan_potm.votes._id": currentVote._id },
+				{ $set: { "fan_potm.votes.$.choice": _player } }
+			);
+		} else {
+			game.fan_potm.votes.push({ ip: ipAddress, choice: _player });
+			await game.save();
+		}
+
+		//Return vote
+		res.send({ hadAlreadyVoted: Boolean(currentVote), choice: _player });
+	}
+}
+
 //To Be Replaced
 export async function crawlFixtures() {
 	const url = fixtureCrawlUrl;

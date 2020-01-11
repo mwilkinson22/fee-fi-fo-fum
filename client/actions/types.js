@@ -27,6 +27,7 @@ export const DELETE_NEUTRAL_GAME = "delete_neutral_game";
 export const CRAWL_LOCAL_GAMES = "crawl_local_games";
 export const CRAWL_NEUTRAL_GAMES = "crawl_neutral_games";
 export const DELETE_GAME = "delete_game";
+export const SAVE_FAN_POTM_VOTE = "save_fan_potm_vote";
 
 //Locations
 export const FETCH_CITIES = "fetch_cities";

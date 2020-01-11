@@ -8,7 +8,8 @@ import {
 	CRAWL_NEUTRAL_GAMES,
 	UPDATE_NEUTRAL_GAMES,
 	DELETE_NEUTRAL_GAME,
-	FETCH_NEUTRAL_GAME_YEARS
+	FETCH_NEUTRAL_GAME_YEARS,
+	SAVE_FAN_POTM_VOTE
 } from "../actions/types";
 import _ from "lodash";
 
@@ -121,6 +122,20 @@ export default function(state = { fullGames: {} }, action) {
 				...state,
 				crawledNeutralGames: action.payload
 			};
+
+		case SAVE_FAN_POTM_VOTE: {
+			const { gameId, choice } = action.payload;
+			return {
+				...state,
+				fullGames: {
+					...state.fullGames,
+					[gameId]: {
+						...state.fullGames[gameId],
+						activeUserFanPotmVote: choice
+					}
+				}
+			};
+		}
 
 		default:
 			return state;
