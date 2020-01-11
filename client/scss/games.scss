@@ -1423,6 +1423,21 @@
 						display: block;
 					}
 				}
+
+				.statgroup {
+					display: block;
+					span {
+						@include header;
+
+						&.value {
+							color: $gold;
+						}
+
+						&.label {
+							color: white;
+						}
+					}
+				}
 			}
 
 			&.active {

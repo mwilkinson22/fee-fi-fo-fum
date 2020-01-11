@@ -7,6 +7,9 @@ import PropTypes from "prop-types";
 import PersonImage from "../people/PersonImage";
 import Countdown from "./Countdown";
 
+//Helpers
+import { getGameStarStats } from "~/helpers/gameHelper";
+
 class FanPotmVoting extends Component {
 	constructor(props) {
 		super(props);
@@ -47,12 +50,30 @@ class FanPotmVoting extends Component {
 
 	renderPlayers() {
 		const { localTeam } = this.props;
-		const { game, selectedPlayer } = this.state;
+		const { game, selectedPlayer, votingClosed } = this.state;
 
 		const players = game.fan_potm.options.map(id => {
 			const { number, _player } = game.eligiblePlayers[localTeam].find(
 				p => p._player._id == id
 			);
+
+			let playerStatSection;
+			if (!votingClosed) {
+				const stats = getGameStarStats(game, _player)
+					.filter(s => s.key !== "FAN_POTM")
+					.filter((stat, i) => i < 3);
+
+				if (stats.length) {
+					const renderedStats = stats.map(({ key, value, label }) => (
+						<div className="statgroup" key={key}>
+							<span className="value">{value} </span>
+							<span className="label">{label}</span>
+						</div>
+					));
+					playerStatSection = <div className="stats">{renderedStats}</div>;
+				}
+			}
+
 			return (
 				<div
 					key={id}
@@ -68,6 +89,7 @@ class FanPotmVoting extends Component {
 							{_player.name.first}
 							<span className="last-name">{_player.name.last}</span>
 						</h6>
+						{playerStatSection}
 					</div>
 				</div>
 			);
@@ -78,9 +100,14 @@ class FanPotmVoting extends Component {
 
 	render() {
 		const { game, selectedPlayer } = this.state;
+		const { options } = game.fan_potm;
 		return (
 			<div className="fan-potm-voting">
 				<h6 className="header">{`Fans' ${game.genderedString} of the Match`}</h6>
+				<p>
+					Choose your {game.genderedString} of the Match from the {options.length}{" "}
+					{options.length === 1 ? "player" : "players"} below!
+				</p>
 				<div className="deadline">{this.renderCountdown()}</div>
 				{this.renderPlayers()}
 				<button type="button" className="submit" disabled={!selectedPlayer}>
