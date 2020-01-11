@@ -1,6 +1,7 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
-export default class Countdown extends Component {
+class Countdown extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.getCountdownValues();
@@ -17,7 +18,9 @@ export default class Countdown extends Component {
 		const timeDiff = this.props.date - Date.parse(new Date());
 		if (timeDiff < 0) {
 			clearInterval(this.interval);
-			if (this.props.onFinish) this.props.onFinish();
+			if (this.props.onFinish) {
+				this.props.onFinish();
+			}
 		}
 
 		return {
@@ -35,8 +38,17 @@ export default class Countdown extends Component {
 	render() {
 		const elements = [];
 
+		//Don't show 0 days, etc
+		let valueFound = false;
 		["Days", "Hours", "Minutes", "Seconds"].forEach(segment => {
 			const value = this.state[segment.toLowerCase()] || null;
+
+			if (Number(value)) {
+				valueFound = true;
+			} else if (!valueFound) {
+				return false;
+			}
+
 			elements.push(
 				<span className="group" key={segment}>
 					<span
@@ -56,3 +68,17 @@ export default class Countdown extends Component {
 		return <span className="game-countdown">{elements}</span>;
 	}
 }
+
+Countdown.propTypes = {
+	background: PropTypes.string,
+	colour: PropTypes.string,
+	date: PropTypes.instanceOf(Date).isRequired,
+	onFinish: PropTypes.func
+};
+
+Countdown.defaultProps = {
+	background: "#751432",
+	colour: "#FFFFFF"
+};
+
+export default Countdown;
