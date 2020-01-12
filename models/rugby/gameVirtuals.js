@@ -53,7 +53,7 @@ function getInstance(doc) {
 
 function getHashtags(doc) {
 	const { _competition, customHashtags, _opposition, isAway } = doc;
-	const hashtags = customHashtags || [];
+	const hashtags = _.clone(customHashtags) || [];
 	if (_opposition && _opposition.hashtagPrefix && _competition && _competition.hashtagPrefix) {
 		let teamPrefixes = ["Hud", _opposition.hashtagPrefix];
 		if (isAway) {
