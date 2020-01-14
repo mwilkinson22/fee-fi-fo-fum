@@ -336,6 +336,16 @@ export async function updateGame(req, res) {
 	if (game) {
 		const values = await processGround(req.body);
 
+		//In case we're updating the post-game settings, convert fan_potm
+		//to dot notation, so we don't overwrite the votes
+		if (values.fan_potm) {
+			for (const subKey in values.fan_potm) {
+				values[`fan_potm.${subKey}`] = values.fan_potm[subKey];
+			}
+
+			delete values.fan_potm;
+		}
+
 		//Update values
 		await game.updateOne(values);
 
