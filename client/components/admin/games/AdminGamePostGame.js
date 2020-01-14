@@ -10,6 +10,7 @@ import { updateGame } from "../../../actions/gamesActions";
 
 //Components
 import BasicForm from "../BasicForm";
+import Table from "../../Table";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -270,6 +271,44 @@ class AdminGamePostGame extends Component {
 						<label key="label">Set Deadline</label>,
 						<div key="buttons">{buttons}</div>
 					];
+				}
+			},
+			{
+				render: () => {
+					if (game.fan_potm && game.fan_potm.votes.length) {
+						const columns = [
+							{ key: "player", label: "Player" },
+							{ key: "pc", label: "%" },
+							{ key: "votes", label: "Votes" }
+						];
+
+						const rows = _.chain(game.fan_potm.votes)
+							.groupBy("choice")
+							.mapValues("length")
+							.map((votes, player) => ({
+								votes,
+								player: options.players.localTeam.find(o => o.value == player)
+									.label,
+								pc:
+									Math.round((votes / game.fan_potm.votes.length) * 1000) / 10 +
+									"%"
+							}))
+							.map(data => ({
+								key: data.player,
+								data: _.mapValues(data, content => ({ content }))
+							}))
+							.value();
+						return (
+							<Table
+								className="full-span"
+								columns={columns}
+								defaultSortable={false}
+								key="fan_potm_table"
+								rows={rows}
+								sortBy={{ key: "votes", asc: false }}
+							/>
+						);
+					}
 				}
 			}
 		);
