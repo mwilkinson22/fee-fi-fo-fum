@@ -8,7 +8,6 @@ const ics = require("ics");
 
 //Modules
 import _ from "lodash";
-import { getRedirects } from "../genericController";
 import { parse } from "node-html-parser";
 import axios from "axios";
 import twitter from "~/services/twitter";
@@ -19,6 +18,7 @@ import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
 //Helpers
+import { getRedirects } from "../genericController";
 import { parseExternalGame, postToIfttt, convertGameToCalendarString } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
@@ -54,6 +54,18 @@ async function processGround(values) {
 	}
 
 	return values;
+}
+
+async function checkFanPotmVote(req, _id) {
+	const game = await Game.findById(_id, "fan_potm");
+
+	if (!game.fan_potm || !game.fan_potm.votes) {
+		return null;
+	}
+
+	const { ipAddress, session } = req;
+
+	return game.fan_potm.votes.find(v => v.ip == ipAddress || v.session == session.id);
 }
 
 async function getExtraGameInfo(games, forGamePage, forAdmin) {
@@ -265,6 +277,22 @@ async function getGames(req, res, forGamePage, forAdmin) {
 	}).fullGame(forGamePage, forAdmin);
 
 	games = await getExtraGameInfo(games, forGamePage, forAdmin);
+
+	//Here, we loop through the games and check to see if the user has
+	//voted for fan_potm yet. Currently this will be overwritten if getUpdatedGame is called,
+	//but that will only happen to admins so shouldn't be a major issue.
+	//The alternative is passing req (or at least the ip and session info)
+	//to almost every method that handles games. This seems overkill, not least because
+	//it only affects the UI options when voting. If a user tries to vote again,
+	//it will be stopped on the server.
+	if (forGamePage) {
+		for (const game of games) {
+			const currentVote = await checkFanPotmVote(req, game._id);
+			if (currentVote) {
+				game.activeUserFanPotmVote = currentVote.choice;
+			}
+		}
+	}
 
 	res.send(_.keyBy(games, "_id"));
 }
@@ -845,18 +873,23 @@ export async function saveFanPotmVote(req, res) {
 
 	if (game) {
 		//Check to see if the user has already voted
-		const { ipAddress } = req;
-		const currentVote = game.fan_potm.votes.find(v => v.ip == ipAddress);
+		const currentVote = await checkFanPotmVote(req, game._id);
 
-		console.log(currentVote ? "Updating" : "Saving");
+		//Create a vote object to add
+		const { ipAddress, session } = req;
+		const vote = {
+			ip: ipAddress,
+			session: session.id,
+			choice: _player
+		};
 
 		if (currentVote) {
 			await Game.updateOne(
 				{ _id: _game, "fan_potm.votes._id": currentVote._id },
-				{ $set: { "fan_potm.votes.$.choice": _player } }
+				{ $set: { "fan_potm.votes.$": vote } }
 			);
 		} else {
-			game.fan_potm.votes.push({ ip: ipAddress, choice: _player });
+			game.fan_potm.votes.push(vote);
 			await game.save();
 		}
 

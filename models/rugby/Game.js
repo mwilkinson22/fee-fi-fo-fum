@@ -102,7 +102,8 @@ const gameSchema = new Schema(
 				type: [
 					{
 						ip: { type: String, required: true },
-						choice: { type: Schema.Types.ObjectId, ref: "people" }
+						choice: { type: Schema.Types.ObjectId, ref: "people" },
+						session: { type: String, required: true }
 					}
 				],
 				default: []
