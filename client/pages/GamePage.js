@@ -17,6 +17,7 @@ import MatchSquadList from "../components/games/MatchSquadList";
 import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
 import HeadToHeadStats from "../components/games/HeadToHeadStats";
+import FanPotmVoting from "../components/games/FanPotmVoting";
 import GameStars from "../components/games/GameStars";
 import LeagueTable from "~/client/components/seasons/LeagueTable";
 import StatsTables from "~/client/components/games/StatsTables";
@@ -289,6 +290,22 @@ class GamePage extends Component {
 		return strings.join("") + " - " + date.toString("dd/MM/yyyy");
 	}
 
+	generateFanPotm() {
+		const { fan_potm, _id } = this.state.game;
+		if (fan_potm) {
+			const { options, deadline } = fan_potm;
+			if (options && options.length && deadline) {
+				return (
+					<section className="fan-potm-section">
+						<div className="container">
+							<FanPotmVoting id={_id} />
+						</div>
+					</section>
+				);
+			}
+		}
+	}
+
 	generateStats() {
 		const { game } = this.state;
 		if (game._competition.instance.scoreOnly || game.status < 3) {
@@ -476,6 +493,7 @@ class GamePage extends Component {
 					{this.generateCountdown()}
 					{this.generateEvents()}
 					{this.generateManOfSteel()}
+					{this.generateFanPotm()}
 					{this.generateNewsPosts()}
 					{this.generatePregameList()}
 					{this.generateForm()}
@@ -521,9 +539,8 @@ async function loadData(store, path) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchGames, fetchGameList, fetchTeam, fetchPostList }
-	)(GamePage),
+	component: connect(mapStateToProps, { fetchGames, fetchGameList, fetchTeam, fetchPostList })(
+		GamePage
+	),
 	loadData
 };
