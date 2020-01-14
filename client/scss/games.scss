@@ -1392,6 +1392,10 @@
 			flex-direction: column;
 			background: rgba(#fff, 0.4);
 
+			&.disabled {
+				pointer-events: none;
+			}
+
 			cursor: pointer;
 			&:hover {
 				background: rgba(#ccc, 0.4);
@@ -1411,9 +1415,9 @@
 			}
 
 			.details {
-				padding: 10pt;
 				background: $claret;
 				h6 {
+					padding: 10pt 10pt 0;
 					font-size: 1.3em;
 					color: white;
 					span {
@@ -1424,18 +1428,32 @@
 					}
 				}
 
-				.statgroup {
-					display: block;
-					span {
-						@include header;
+				.stats {
+					padding: 4pt 10pt 10pt;
+					.statgroup {
+						display: block;
+						span {
+							@include header;
 
-						&.value {
-							color: $gold;
-						}
+							&.value {
+								color: $gold;
+							}
 
-						&.label {
-							color: white;
+							&.label {
+								color: white;
+							}
 						}
+					}
+				}
+
+				.result {
+					@include header;
+					padding-top: 2pt;
+					color: white;
+					.progress-bar {
+						display: block;
+						height: 8pt;
+						background-color: $gold;
 					}
 				}
 			}

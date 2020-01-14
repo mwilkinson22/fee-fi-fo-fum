@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
@@ -39,20 +40,34 @@ class FanPotmVoting extends Component {
 		newState.deadline = new Date(newState.game.fan_potm.deadline);
 		newState.votingClosed = new Date() > newState.deadline;
 
+		if (newState.votingClosed) {
+			newState.results = _.chain(newState.game.fan_potm.votes)
+				.groupBy("choice")
+				.map((votes, player) => [
+					player,
+					Math.round((votes.length / newState.game.fan_potm.votes.length) * 1000) / 10
+				])
+				.fromPairs()
+				.value();
+		}
+
 		return newState;
 	}
 
 	renderCountdown() {
-		const { deadline, votingClosed } = this.state;
-		if (votingClosed) {
-			return <span className="deadline-text">Voting has now closed</span>;
-		} else {
+		const { deadline, votingClosed, userSavedVote } = this.state;
+		if (!votingClosed) {
 			return (
 				<div>
 					<span className="deadline-text">Voting Closes</span>
 					<Countdown
 						date={deadline}
-						onFinish={() => this.setState({ votingClosed: true })}
+						onFinish={() =>
+							this.setState({
+								votingClosed: true,
+								selectedPlayer: userSavedVote
+							})
+						}
 					/>
 				</div>
 			);
@@ -61,15 +76,31 @@ class FanPotmVoting extends Component {
 
 	renderPlayers() {
 		const { localTeam } = this.props;
-		const { game, selectedPlayer, votingClosed } = this.state;
+		const { game, results, selectedPlayer, votingClosed } = this.state;
 
 		const players = game.fan_potm.options.map(id => {
 			const { number, _player } = game.eligiblePlayers[localTeam].find(
 				p => p._player._id == id
 			);
 
-			let playerStatSection;
-			if (!votingClosed) {
+			let playerStatSection, playerResult;
+			if (votingClosed) {
+				//Get vote percentage
+				const percentage = results && results[id] ? results[id] : 0;
+
+				//Check to see if they've won
+				let winningStar = "";
+				if (game.fan_potm_winners && game.fan_potm_winners.find(winner => winner == id)) {
+					winningStar = "★ ";
+				}
+				playerResult = (
+					<div className="result">
+						{winningStar}
+						{percentage}%
+						<span className="progress-bar" style={{ width: `${percentage}%` }}></span>
+					</div>
+				);
+			} else {
 				const stats = getGameStarStats(game, _player)
 					.filter(s => s.key !== "FAN_POTM")
 					.filter((stat, i) => i < 3);
@@ -88,8 +119,14 @@ class FanPotmVoting extends Component {
 			return (
 				<div
 					key={id}
-					className={`player${id == selectedPlayer ? " active" : ""}`}
-					onClick={() => this.setState({ selectedPlayer: id, postSubmitMessage: null })}
+					className={`player${id == selectedPlayer ? " active" : ""} ${
+						votingClosed ? "disabled" : ""
+					}`}
+					onClick={() => {
+						if (!votingClosed) {
+							this.setState({ selectedPlayer: id, postSubmitMessage: null });
+						}
+					}}
 				>
 					<div className="image">
 						<PersonImage person={_player} variant="player" />
@@ -101,6 +138,7 @@ class FanPotmVoting extends Component {
 							<span className="last-name">{_player.name.last}</span>
 						</h6>
 						{playerStatSection}
+						{playerResult}
 					</div>
 				</div>
 			);
@@ -110,24 +148,33 @@ class FanPotmVoting extends Component {
 	}
 
 	renderSubmitButton() {
-		const { isSubmitting, postSubmitMessage, selectedPlayer, userSavedVote } = this.state;
+		const {
+			isSubmitting,
+			postSubmitMessage,
+			selectedPlayer,
+			userSavedVote,
+			votingClosed
+		} = this.state;
 
-		//If we have a postSubmitMessage, display it as an unclickable button
-		//to prevent the page jumping around
-		const submitVerb = userSavedVote ? "Update" : "Save";
-		const buttonText = postSubmitMessage || `${submitVerb} Your Vote`;
+		if (!votingClosed) {
+			//If we have a postSubmitMessage, display it as an unclickable button
+			//to prevent the page jumping around
+			const submitVerb = userSavedVote ? "Update" : "Save";
+			const buttonText = postSubmitMessage || `${submitVerb} Your Vote`;
 
-		return (
-			<button
-				type="button"
-				className={postSubmitMessage ? "post-submit" : "submit"}
-				disabled={isSubmitting || !selectedPlayer || selectedPlayer == userSavedVote}
-				onClick={() => this.handleSubmit()}
-			>
-				{buttonText}
-			</button>
-		);
+			return (
+				<button
+					type="button"
+					className={postSubmitMessage ? "post-submit" : "submit"}
+					disabled={isSubmitting || !selectedPlayer || selectedPlayer == userSavedVote}
+					onClick={() => this.handleSubmit()}
+				>
+					{buttonText}
+				</button>
+			);
+		}
 	}
+
 	async handleSubmit() {
 		const { saveFanPotmVote } = this.props;
 		const { game, selectedPlayer } = this.state;
@@ -147,16 +194,18 @@ class FanPotmVoting extends Component {
 	}
 
 	render() {
-		const { game } = this.state;
+		const { game, votingClosed } = this.state;
 		const { options } = game.fan_potm;
+
+		let description = votingClosed ? "We asked you to choose" : "Choose";
+		description += ` your ${game.genderedString} of the Match from the ${options.length} ${
+			options.length === 1 ? "player" : "players"
+		} below!`;
 
 		return (
 			<div className="fan-potm-voting">
 				<h6 className="header">{`Fans' ${game.genderedString} of the Match`}</h6>
-				<p>
-					Choose your {game.genderedString} of the Match from the {options.length}{" "}
-					{options.length === 1 ? "player" : "players"} below!
-				</p>
+				<p>{description}</p>
 				<div className="deadline">{this.renderCountdown()}</div>
 				{this.renderPlayers()}
 				{this.renderSubmitButton()}

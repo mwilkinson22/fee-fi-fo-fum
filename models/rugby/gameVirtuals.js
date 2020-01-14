@@ -172,4 +172,28 @@ export default gameSchema => {
 				.value();
 		}
 	});
+
+	//Get winner of player of the match
+	gameSchema.virtual("fan_potm_winners").get(function() {
+		const { fan_potm } = this;
+
+		if (fan_potm && fan_potm.deadline && fan_potm.votes.length) {
+			//Ensure voting has closed
+			const votingClosed = new Date() > new Date(fan_potm.deadline);
+
+			if (votingClosed) {
+				const votes = _.chain(fan_potm.votes)
+					.groupBy("choice")
+					.map((votes, player) => ({ player, voteCount: votes.length }))
+					.value();
+
+				const maxVotes = _.chain(votes)
+					.map("voteCount")
+					.max()
+					.value();
+
+				return votes.filter(({ voteCount }) => voteCount === maxVotes).map(p => p.player);
+			}
+		}
+	});
 };

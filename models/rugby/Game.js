@@ -202,7 +202,14 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		model = this;
 	} else {
 		//Things to remove for gamepage
-		let propsToRemove = ["events", "externalId", "externalSync", "extraTime"];
+		let propsToRemove = [
+			"events",
+			"externalId",
+			"externalSync",
+			"extraTime",
+			"fan_potm.votes.ip",
+			"fan_potm.votes.session"
+		];
 
 		//Things to remove for basics
 		if (!forGamePage) {
