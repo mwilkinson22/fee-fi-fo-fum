@@ -109,9 +109,6 @@ const gameSchema = new Schema(
 				default: []
 			}
 		},
-		//LEGACY
-		_fan_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
-		fan_potm_link: { type: String, default: null },
 
 		//Post-game fields
 		attendance: { type: Number, default: null },

@@ -60,15 +60,6 @@ class AdminGamePostGame extends Component {
 			fan_potm_deadline_time: Yup.string().label("Deadline Time")
 		};
 
-		//New or legacy Player of the Match
-		newState.legacyFanPotm = Number(newState.game.date.getFullYear()) <= 2019;
-		if (newState.legacyFanPotm) {
-			validationSchema._fan_potm = Yup.string().label(
-				`Fans' ${newState.game.genderedString} of the Match (Legacy)`
-			);
-			validationSchema.fan_potm_link = Yup.string().label("Poll Link (Legacy)");
-		}
-
 		if (newState.manOfSteel) {
 			const manOfSteelValidation = {};
 			for (let i = 1; i <= 3; i++) {
@@ -95,7 +86,7 @@ class AdminGamePostGame extends Component {
 	}
 
 	getInitialValues() {
-		const { game, legacyFanPotm, manOfSteel } = this.state;
+		const { game, manOfSteel } = this.state;
 
 		const defaultValues = {
 			attendance: "",
@@ -107,11 +98,6 @@ class AdminGamePostGame extends Component {
 			fan_potm_deadline_date: "",
 			fan_potm_deadline_time: ""
 		};
-
-		if (legacyFanPotm) {
-			defaultValues._fan_potm = "";
-			defaultValues.fan_potm_link = "";
-		}
 
 		if (manOfSteel) {
 			defaultValues.manOfSteel = {
@@ -156,27 +142,8 @@ class AdminGamePostGame extends Component {
 	}
 
 	getFieldGroups() {
-		const { game, legacyFanPotm, manOfSteel, options } = this.state;
+		const { game, manOfSteel, options } = this.state;
 		const { genderedString } = game;
-
-		//Handle legacy potm fields
-		const legacyPotmFields = [];
-
-		if (legacyFanPotm) {
-			legacyPotmFields.push(
-				{
-					name: "_fan_potm",
-					type: fieldTypes.select,
-					options: options.players.localTeam,
-					isSearchable: false,
-					isClearable: true
-				},
-				{
-					name: "fan_potm_link",
-					type: fieldTypes.text
-				}
-			);
-		}
 
 		//Create standard post-game fields
 		const fieldGroups = [
@@ -197,8 +164,7 @@ class AdminGamePostGame extends Component {
 						isSearchable: false,
 						isClearable: true,
 						isNested: true
-					},
-					...legacyPotmFields
+					}
 				]
 			}
 		];
@@ -359,11 +325,11 @@ class AdminGamePostGame extends Component {
 
 //Add Redux Support
 function mapStateToProps({ config, games, teams }) {
-	const { legacyFanPotmDeadline, localTeam } = config;
+	const { localTeam } = config;
 	const { fullGames } = games;
 	const { teamList } = teams;
 
-	return { legacyFanPotmDeadline, fullGames, localTeam, teamList };
+	return { fullGames, localTeam, teamList };
 }
 // export default form;
 export default withRouter(

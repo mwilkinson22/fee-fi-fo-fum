@@ -11,6 +11,5 @@ module.exports = {
 		private_key: process.env.GC_KEY
 	},
 	googleBucketName: process.env.GOOGLE_BUCKET,
-	legacyFanPotmDeadline: process.env.LEGACY_FAN_POTM_DEADLINE,
 	mongoURI: process.env.MONGO_URI
 };
