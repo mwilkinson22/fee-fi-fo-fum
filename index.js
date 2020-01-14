@@ -12,6 +12,7 @@ import cookieSession from "cookie-session";
 import passport from "passport";
 import bodyParser from "body-parser";
 import useragent from "express-useragent";
+import uuid from "uuid/v4";
 
 //Models
 import "./models/Award";
@@ -114,6 +115,12 @@ app.use(requireHttps);
 //Render
 app.get("*", async (req, res) => {
 	const store = createStore(req);
+
+	//Ensure there's a session id
+	if (!req.session.id) {
+		req.session.id = uuid();
+		req.session.save();
+	}
 
 	//Get Basic Config
 	await store.dispatch(getCoreConfig(req));
