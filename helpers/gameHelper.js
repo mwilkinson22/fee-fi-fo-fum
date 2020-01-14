@@ -140,7 +140,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 	if (player._id == game._potm) {
 		values.push({ key: "POTM", starPoints: 3, value: null });
 	}
-	if (player._id == game._fan_potm) {
+	if (game.fan_potm_winners && game.fan_potm_winners.find(winner => winner == player._id)) {
 		values.push({ key: "FAN_POTM", starPoints: 3, value: null });
 	}
 
