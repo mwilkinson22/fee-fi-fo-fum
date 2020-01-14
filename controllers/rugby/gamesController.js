@@ -8,7 +8,6 @@ const ics = require("ics");
 
 //Modules
 import _ from "lodash";
-import { getRedirects } from "../genericController";
 import { parse } from "node-html-parser";
 import axios from "axios";
 import twitter from "~/services/twitter";
@@ -19,6 +18,7 @@ import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
 //Helpers
+import { getRedirects } from "../genericController";
 import { parseExternalGame, postToIfttt, convertGameToCalendarString } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
@@ -54,6 +54,18 @@ async function processGround(values) {
 	}
 
 	return values;
+}
+
+async function checkFanPotmVote(req, _id) {
+	const game = await Game.findById(_id, "fan_potm");
+
+	if (!game.fan_potm || !game.fan_potm.votes) {
+		return null;
+	}
+
+	const { ipAddress, session } = req;
+
+	return game.fan_potm.votes.find(v => v.ip == ipAddress || v.session == session.id);
 }
 
 async function getExtraGameInfo(games, forGamePage, forAdmin) {
@@ -109,19 +121,21 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 
 		teams = _.keyBy(JSON.parse(JSON.stringify(teams)), "_id");
 
-		//Check to see if any games are valid for more than one teamType
+		//Get team types
 		let teamTypes;
-		if (games.filter(g => g._competition._parentCompetition.useAllSquads).length) {
-			const TeamType = mongoose.model("teamTypes");
-			const results = await TeamType.find({}, "_id gender");
-			teamTypes = _.keyBy(results, "_id");
-		}
+		const TeamType = mongoose.model("teamTypes");
+		const results = await TeamType.find({}, "_id gender");
+		teamTypes = _.keyBy(results, "_id");
 
 		//Loop each game
 		games = games.map(g => {
 			const game = JSON.parse(JSON.stringify(g));
 			const date = new Date(game.date);
 			const year = date.getFullYear();
+
+			//Get gendered term for _____ of steel, of the match, etc
+			game.gender = teamTypes[game._teamType].gender;
+			game.genderedString = game.gender === "M" ? "Man" : "Woman";
 
 			//Get Coaches
 			game.coaches = _.chain([localTeam, game._opposition._id])
@@ -150,8 +164,7 @@ async function getExtraGameInfo(games, forGamePage, forAdmin) {
 			const { useAllSquads } = game._competition._parentCompetition;
 			let validTeamTypes;
 			if (useAllSquads) {
-				const { gender } = teamTypes[game._teamType];
-				validTeamTypes = _.filter(teamTypes, t => t.gender == gender).map(t =>
+				validTeamTypes = _.filter(teamTypes, t => t.gender == game.gender).map(t =>
 					t._id.toString()
 				);
 			} else {
@@ -265,6 +278,22 @@ async function getGames(req, res, forGamePage, forAdmin) {
 
 	games = await getExtraGameInfo(games, forGamePage, forAdmin);
 
+	//Here, we loop through the games and check to see if the user has
+	//voted for fan_potm yet. Currently this will be overwritten if getUpdatedGame is called,
+	//but that will only happen to admins so shouldn't be a major issue.
+	//The alternative is passing req (or at least the ip and session info)
+	//to almost every method that handles games. This seems overkill, not least because
+	//it only affects the UI options when voting. If a user tries to vote again,
+	//it will be stopped on the server.
+	if (forGamePage) {
+		for (const game of games) {
+			const currentVote = await checkFanPotmVote(req, game._id);
+			if (currentVote) {
+				game.activeUserFanPotmVote = currentVote.choice;
+			}
+		}
+	}
+
 	res.send(_.keyBy(games, "_id"));
 }
 
@@ -307,26 +336,14 @@ export async function updateGame(req, res) {
 	if (game) {
 		const values = await processGround(req.body);
 
-		//Add events in case of motm being updated
-		if (Object.keys(req.body).indexOf("_motm") > -1) {
-			["_motm", "_fan_motm", "fan_motm_link"].forEach(field => {
-				if (req.body[field] && req.body[field] != game[field]) {
-					//Create a basic event to push
-					const event = {
-						//Remove trailing underscore
-						event: field.replace(/^_/, ""),
-						_user: req.user._id
-					};
-					if (field === "fan_motm_link") {
-						event.tweet_id = req.body[field];
-					} else {
-						event._player = req.body[field];
-					}
+		//In case we're updating the post-game settings, convert fan_potm
+		//to dot notation, so we don't overwrite the votes
+		if (values.fan_potm) {
+			for (const subKey in values.fan_potm) {
+				values[`fan_potm.${subKey}`] = values.fan_potm[subKey];
+			}
 
-					game.events.push(event);
-				}
-			});
-			await game.save();
+			delete values.fan_potm;
 		}
 
 		//Update values
@@ -855,6 +872,39 @@ export async function createCalendar(req, res) {
 	} else {
 		res.set({ "Content-Disposition": 'attachment; filename="Giants.ics"' });
 		res.send(value);
+	}
+}
+
+//Fan POTM
+export async function saveFanPotmVote(req, res) {
+	const { _game, _player } = req.params;
+
+	const game = await validateGame(_game, res);
+
+	if (game) {
+		//Check to see if the user has already voted
+		const currentVote = await checkFanPotmVote(req, game._id);
+
+		//Create a vote object to add
+		const { ipAddress, session } = req;
+		const vote = {
+			ip: ipAddress,
+			session: session.id,
+			choice: _player
+		};
+
+		if (currentVote) {
+			await Game.updateOne(
+				{ _id: _game, "fan_potm.votes._id": currentVote._id },
+				{ $set: { "fan_potm.votes.$": vote } }
+			);
+		} else {
+			game.fan_potm.votes.push(vote);
+			await game.save();
+		}
+
+		//Return vote
+		res.send({ hadAlreadyVoted: Boolean(currentVote), choice: _player });
 	}
 }
 

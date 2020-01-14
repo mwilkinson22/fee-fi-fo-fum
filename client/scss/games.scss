@@ -1366,3 +1366,125 @@
 		max-width: 100%;
 	}
 }
+
+.fan-potm-voting {
+	text-align: center;
+	.header {
+		font-size: 2em;
+	}
+
+	.deadline {
+		.deadline-text {
+			font-size: 1.4em;
+			font-weight: 600;
+			display: block;
+			margin: 4pt 0;
+		}
+	}
+
+	.players {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		grid-gap: 20pt;
+		.player {
+			margin-top: 8pt;
+			display: flex;
+			flex-direction: column;
+			background: rgba(#fff, 0.4);
+
+			&.disabled {
+				pointer-events: none;
+			}
+
+			cursor: pointer;
+			&:hover {
+				background: rgba(#ccc, 0.4);
+			}
+
+			.image {
+				flex-grow: 1;
+				display: flex;
+				align-items: flex-end;
+				justify-content: center;
+				padding: 10pt 10pt 0;
+				overflow: hidden;
+				img {
+					max-height: 140pt;
+					max-width: 100%;
+				}
+			}
+
+			.details {
+				background: $claret;
+				h6 {
+					padding: 10pt 10pt 0;
+					font-size: 1.3em;
+					color: white;
+					span {
+						color: $gold;
+					}
+					.last-name {
+						display: block;
+					}
+				}
+
+				.stats {
+					padding: 4pt 10pt 10pt;
+					.statgroup {
+						display: block;
+						span {
+							@include header;
+
+							&.value {
+								color: $gold;
+							}
+
+							&.label {
+								color: white;
+							}
+						}
+					}
+				}
+
+				.result {
+					@include header;
+					padding-top: 2pt;
+					color: white;
+					.progress-bar {
+						display: block;
+						height: 8pt;
+						background-color: $gold;
+					}
+				}
+			}
+
+			&.active {
+				transition: background 100ms;
+				background-color: rgba($gold, 0.6);
+				.image img {
+					transition: filter 100ms;
+					-webkit-filter: drop-shadow(0 06px 12px rgba(0, 0, 0, 0.3));
+					filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=6, Color='rgba(0,0,0,0.5')";
+				}
+			}
+		}
+	}
+	button {
+		margin-top: 10pt;
+		width: 100%;
+		font-weight: 600;
+
+		&.submit:not(:disabled) {
+			background: $claret;
+			&:hover {
+				background: lighten($claret, 5%);
+			}
+		}
+
+		&.post-submit {
+			background: #090;
+			opacity: 1;
+			color: white;
+		}
+	}
+}

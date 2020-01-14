@@ -1,4 +1,11 @@
-import { FETCH_GAMES, FETCH_GAME_LIST, UPDATE_GAME, CRAWL_LOCAL_GAMES, DELETE_GAME } from "./types";
+import {
+	FETCH_GAMES,
+	FETCH_GAME_LIST,
+	UPDATE_GAME,
+	CRAWL_LOCAL_GAMES,
+	DELETE_GAME,
+	SAVE_FAN_POTM_VOTE
+} from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
 
@@ -143,4 +150,13 @@ export const postFixtureListImage = data => async (dispatch, getState, api) => {
 export const getCalendar = (_competitions, options) => async (dispatch, getState, api) => {
 	const res = await api.post("/games/calendar", { _competitions, options });
 	return res.data;
+};
+
+export const saveFanPotmVote = (gameId, playerId) => async (dispatch, getState, api) => {
+	const res = await api.post(`/games/${gameId}/fan-potm-vote/${playerId}`);
+	if (res.data) {
+		const { hadAlreadyVoted, choice } = res.data;
+		dispatch({ type: SAVE_FAN_POTM_VOTE, payload: { gameId, choice } });
+		return hadAlreadyVoted;
+	}
 };

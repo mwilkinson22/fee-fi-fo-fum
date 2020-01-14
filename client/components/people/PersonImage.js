@@ -47,6 +47,7 @@ PersonImage.propTypes = {
 };
 
 PersonImage.defaultProps = {
+	useWebp: true,
 	variant: "main"
 };
 

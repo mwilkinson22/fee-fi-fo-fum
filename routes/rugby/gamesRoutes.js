@@ -30,8 +30,9 @@ export default app => {
 	app.put("/api/games/:_id/", requireAdmin, gamesController.updateGame);
 
 	//Post
+	app.post("/api/games/:_game/fan-potm-vote/:_player", gamesController.saveFanPotmVote);
 	app.post("/api/games/calendar", gamesController.createCalendar);
-	app.post("/api/games/fixtureListImage/", gamesController.postFixtureListImage);
+	app.post("/api/games/fixtureListImage/", requireAdmin, gamesController.postFixtureListImage);
 	app.post("/api/games", requireAdmin, gamesController.addGame);
 
 	//Deleters

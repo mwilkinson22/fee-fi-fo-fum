@@ -94,9 +94,24 @@ const gameSchema = new Schema(
 		squadsAnnounced: { type: Boolean, default: false },
 
 		//Man of the match
-		_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
-		_fan_motm: { type: Schema.Types.ObjectId, ref: "people", default: null },
-		fan_motm_link: { type: String, default: null },
+		_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		fan_potm: {
+			options: [{ type: Schema.Types.ObjectId, ref: "people", default: null }],
+			deadline: { type: Date, default: null },
+			votes: {
+				type: [
+					{
+						ip: { type: String, required: true },
+						choice: { type: Schema.Types.ObjectId, ref: "people" },
+						session: { type: String, required: true }
+					}
+				],
+				default: []
+			}
+		},
+		//LEGACY
+		_fan_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
+		fan_potm_link: { type: String, default: null },
 
 		//Post-game fields
 		attendance: { type: Number, default: null },
@@ -187,18 +202,26 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		model = this;
 	} else {
 		//Things to remove for gamepage
-		let propsToRemove = ["events", "externalId", "externalSync", "extraTime"];
+		let propsToRemove = [
+			"events",
+			"externalId",
+			"externalSync",
+			"extraTime",
+			"fan_potm.votes.ip",
+			"fan_potm.votes.session"
+		];
 
 		//Things to remove for basics
 		if (!forGamePage) {
 			propsToRemove.push(
 				"_referee",
 				"_video_referee",
-				"_motm",
-				"_fan_motm",
-				"fan_motm_link",
+				"_potm",
+				"_fan_potm",
+				"fan_potm_link",
 				"attendance",
-				"manOfSteel"
+				"manOfSteel",
+				"fan_potm"
 			);
 		}
 

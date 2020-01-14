@@ -52,15 +52,10 @@ class MatchSquadList extends Component {
 						({ _player }) => _player._id == p._player
 					);
 					const { position } = p;
-					const { _id, name, images, slug, gender } = _player;
 					const player = {
-						_id,
-						name,
+						_player,
 						number,
-						images,
-						position,
-						slug,
-						gender
+						position
 					};
 
 					//Create Component
@@ -121,7 +116,8 @@ class MatchSquadList extends Component {
 	}
 
 	renderPlayer(player, team) {
-		const { _id, position, slug } = player;
+		const { _player, position } = player;
+		const { _id, slug } = _player;
 		const { localTeam } = this.props;
 		const { game } = this.state;
 
@@ -138,7 +134,7 @@ class MatchSquadList extends Component {
 		} else {
 			image = (
 				<div className="image" key={_id}>
-					<PersonImage person={player} variant="player" />
+					<PersonImage person={_player} variant="player" />
 				</div>
 			);
 		}
@@ -153,11 +149,11 @@ class MatchSquadList extends Component {
 			}
 		};
 
-		const content = [image, this.renderNameBar(player.name.last, player.number, team)];
+		const content = [image, this.renderNameBar(_player.name.last, _player.number, team)];
 
 		//Add GameStar stats
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
-			const gameStarStats = getGameStarStats(game, _id, {
+			const gameStarStats = getGameStarStats(game, _player, {
 				T: 1,
 				G: 1,
 				DG: 1,

@@ -89,8 +89,11 @@ class AdminGameEvent extends Component {
 					{ label: "40/20", value: "FT" },
 					{ label: "Yellow Card", value: "YC" },
 					{ label: "Red Card", value: "RC" },
-					{ label: "Man of the Match", value: "motm" },
-					{ label: "Fans' Man of the Match", value: "fan_motm" }
+					{ label: `${newState.game.genderedString} of the Match`, value: "potm" },
+					{
+						label: `Fans' ${newState.game.genderedString} of the Match`,
+						value: "fan_potm"
+					}
 				]
 			},
 			{
@@ -324,11 +327,8 @@ function mapStateToProps({ config, games, teams, social }) {
 }
 
 // export default form;
-export default connect(
-	mapStateToProps,
-	{
-		fetchProfiles,
-		postGameEvent,
-		previewPlayerEventImage
-	}
-)(AdminGameEvent);
+export default connect(mapStateToProps, {
+	fetchProfiles,
+	postGameEvent,
+	previewPlayerEventImage
+})(AdminGameEvent);

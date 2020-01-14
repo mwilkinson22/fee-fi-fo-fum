@@ -83,7 +83,7 @@ export function getNextGame(id, gameList) {
 	return getAdjacentGame(id, gameList, true);
 }
 
-export function getGameStarStats(game, _player, overwriteThreshold = {}) {
+export function getGameStarStats(game, player, overwriteThreshold = {}) {
 	const statTypes = _.chain(playerStatTypes)
 		.cloneDeep()
 		.map((obj, key) => {
@@ -100,7 +100,7 @@ export function getGameStarStats(game, _player, overwriteThreshold = {}) {
 		.value();
 
 	const processedStats = PlayerStatsHelper.processStats(
-		game.playerStats.find(p => p._player == _player).stats
+		game.playerStats.find(p => p._player == player._id).stats
 	);
 	const values = _.chain(statTypes)
 		.map(({ key, moreIsBetter, requiredForGameStar }) => {
@@ -137,11 +137,11 @@ export function getGameStarStats(game, _player, overwriteThreshold = {}) {
 		.filter(_.identity)
 		.value();
 
-	if (_player == game._motm) {
-		values.push({ key: "MOTM", starPoints: 3, value: null });
+	if (player._id == game._potm) {
+		values.push({ key: "POTM", starPoints: 3, value: null });
 	}
-	if (_player == game._fan_motm) {
-		values.push({ key: "FAN_MOTM", starPoints: 3, value: null });
+	if (game.fan_potm_winners && game.fan_potm_winners.find(winner => winner == player._id)) {
+		values.push({ key: "FAN_POTM", starPoints: 3, value: null });
 	}
 
 	return values.map(({ key, value, starPoints }) => {
@@ -149,18 +149,18 @@ export function getGameStarStats(game, _player, overwriteThreshold = {}) {
 		let valueString;
 		let label;
 
-		if (key == "MOTM") {
-			valueString = "Man";
+		if (key == "POTM") {
+			valueString = game.genderedString;
 			label = "of the Match";
-		} else if (key == "FAN_MOTM") {
+		} else if (key == "FAN_POTM") {
 			valueString = "Fans'";
-			label = "Man of the Match";
+			label = `${game.genderedString} of the Match`;
 		} else {
 			//Get Value String
 			switch (key) {
 				case "TS":
 					if (!values.find(v => v.key == "TK")) {
-						const { TK, MI } = game.playerStats.find(p => p._player == _player).stats;
+						const { TK, MI } = game.playerStats.find(p => p._player == player.id).stats;
 						//Show Tackles
 						valueString =
 							PlayerStatsHelper.toString(key, value) + ` (${TK}/${TK + MI})`;
