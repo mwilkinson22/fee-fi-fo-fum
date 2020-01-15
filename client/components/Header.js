@@ -145,6 +145,7 @@ class Header extends Component {
 					header: "Settings",
 					subMenuRootLink: "/admin/settings/",
 					subMenu: {
+						Broadcasters: "broadcasters",
 						Errors: "errors",
 						Social: "social",
 						Twitter: "twitter",

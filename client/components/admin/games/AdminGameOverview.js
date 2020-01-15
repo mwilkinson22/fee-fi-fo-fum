@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import * as Yup from "yup";
 
 //Actions
+import { fetchBroadcasters } from "../../../actions/broadcasterActions";
 import { fetchCompetitionSegments } from "../../../actions/competitionActions";
 import { fetchAllGrounds } from "../../../actions/groundActions";
 import { fetchPeopleList } from "../../../actions/peopleActions";
@@ -25,6 +26,8 @@ class AdminGameOverview extends Component {
 	constructor(props) {
 		super(props);
 		const {
+			broadcasterList,
+			fetchBroadcasters,
 			competitionSegmentList,
 			fetchCompetitionSegments,
 			groundList,
@@ -33,6 +36,9 @@ class AdminGameOverview extends Component {
 			fetchPeopleList
 		} = props;
 
+		if (!broadcasterList) {
+			fetchBroadcasters();
+		}
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
 		}
@@ -51,6 +57,7 @@ class AdminGameOverview extends Component {
 			teamList,
 			teamTypes,
 			competitionSegmentList,
+			broadcasterList,
 			groundList,
 			peopleList,
 			fullGames,
@@ -63,7 +70,13 @@ class AdminGameOverview extends Component {
 		newState.isNew = !_id;
 
 		//Await lists
-		if (!teamList || !competitionSegmentList || !groundList || !peopleList) {
+		if (
+			!teamList ||
+			!competitionSegmentList ||
+			!groundList ||
+			!peopleList ||
+			!broadcasterList
+		) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -101,7 +114,7 @@ class AdminGameOverview extends Component {
 			_ground: Yup.string()
 				.required()
 				.label("Ground"),
-			tv: Yup.string().label("TV"),
+			_broadcaster: Yup.string().label("Broadcaster"),
 			_referee: Yup.string()
 				.label("Referee")
 				.nullable(),
@@ -157,10 +170,10 @@ class AdminGameOverview extends Component {
 			.sortBy("label")
 			.value();
 
-		newState.options.tv = ["Sky", "BBC"].map(label => ({
-			label,
-			value: label.toLowerCase()
-		}));
+		newState.options._broadcaster = _.chain(broadcasterList)
+			.map(({ name, _id }) => ({ label: name, value: _id }))
+			.sortBy("label")
+			.value();
 
 		newState.options.isAway = [
 			{ label: "Home", value: false },
@@ -185,7 +198,7 @@ class AdminGameOverview extends Component {
 			customHashtags: [],
 			isAway: "",
 			_ground: "auto",
-			tv: "",
+			_broadcaster: "",
 			_referee: "",
 			_video_referee: ""
 		};
@@ -206,6 +219,7 @@ class AdminGameOverview extends Component {
 					case "_competition":
 					case "_opposition":
 					case "_referee":
+					case "_broadcaster":
 					case "_ground":
 					case "_video_referee": {
 						value = game[key] ? game[key]._id : null;
@@ -300,9 +314,9 @@ class AdminGameOverview extends Component {
 						placeholder: "Auto-generated if left blank"
 					},
 					{
-						name: "tv",
+						name: "_broadcaster",
 						type: fieldTypes.select,
-						options: options.tv,
+						options: options._broadcaster,
 						isClearable: true,
 						isSearchable: false
 					}
@@ -405,7 +419,8 @@ class AdminGameOverview extends Component {
 }
 
 //Add Redux Support
-function mapStateToProps({ teams, competitions, games, grounds, people, config }) {
+function mapStateToProps({ broadcasters, teams, competitions, games, grounds, people, config }) {
+	const { broadcasterList } = broadcasters;
 	const { teamTypes, teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { fullGames } = games;
@@ -414,6 +429,7 @@ function mapStateToProps({ teams, competitions, games, grounds, people, config }
 	const { localTeam } = config;
 
 	return {
+		broadcasterList,
 		teamTypes,
 		teamList,
 		fullGames,
@@ -426,6 +442,7 @@ function mapStateToProps({ teams, competitions, games, grounds, people, config }
 // export default form;
 export default withRouter(
 	connect(mapStateToProps, {
+		fetchBroadcasters,
 		fetchCompetitionSegments,
 		fetchAllGrounds,
 		fetchPeopleList,

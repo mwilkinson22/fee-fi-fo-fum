@@ -38,7 +38,7 @@ class CalendarConfigDialog extends Component {
 			teamName: Yup.string().label("Team Names"),
 			teamTypes: Yup.string().label("Include Team Types?"),
 			venue: Yup.string().label("Home/Away"),
-			tv: Yup.bool().label("Include TV?")
+			withBroadcaster: Yup.bool().label("Include Broadcaster?")
 		});
 
 		//Ensure we have all required games
@@ -123,19 +123,19 @@ class CalendarConfigDialog extends Component {
 				{
 					_opposition: teams[0],
 					isAway: false,
-					tv: null,
+					_broadcaster: null,
 					_teamType: Object.keys(teamTypes)[0]
 				},
 				{
 					_opposition: teams[1] || teams[0],
 					isAway: true,
-					tv: "sky",
+					_broadcaster: { name: "Sky" },
 					_teamType: Object.keys(teamTypes)[2]
 				},
 				{
 					_opposition: teams[2] || teams[0],
 					isAway: true,
-					tv: "bbc",
+					_broadcaster: { name: "OurLeague" },
 					_teamType: Object.keys(teamTypes)[3]
 				}
 			];
@@ -160,7 +160,7 @@ class CalendarConfigDialog extends Component {
 			teamName: "short",
 			teamTypes: "none",
 			venue: "none",
-			tv: false
+			withBroadcaster: false
 		};
 	}
 
@@ -239,7 +239,7 @@ class CalendarConfigDialog extends Component {
 								options: options.teamTypes
 							},
 							{ name: "venue", type: fieldTypes.radio, options: options.venue },
-							{ name: "tv", type: fieldTypes.boolean }
+							{ name: "withBroadcaster", type: fieldTypes.boolean }
 						];
 						return (
 							<Form>
@@ -317,7 +317,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, activeTeamType, fullTeams, teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGames, getCalendar }
-)(CalendarConfigDialog);
+export default connect(mapStateToProps, { fetchGames, getCalendar })(CalendarConfigDialog);

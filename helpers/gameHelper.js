@@ -611,7 +611,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 }
 
 export function convertGameToCalendarString(game, options, teamTypes, localTeamName) {
-	const { _opposition, isAway, tv, _teamType } = game;
+	const { _opposition, isAway, _broadcaster, _teamType } = game;
 
 	//Set Team Names
 	let str = "";
@@ -650,21 +650,9 @@ export function convertGameToCalendarString(game, options, teamTypes, localTeamN
 		str += ` (${isAway ? "Away" : "Home"})`;
 	}
 
-	//Add TV
-	if (options.tv && tv) {
-		let tvString;
-		switch (tv) {
-			case "sky":
-				tvString = "Sky";
-				break;
-			case "bbc":
-				tvString = "BBC";
-				break;
-			default:
-				tvString = tv;
-				break;
-		}
-		str += ` - ${tvString}`;
+	//Add Broadcaster
+	if (options.withBroadcaster && _broadcaster) {
+		str += ` - ${_broadcaster.name}`;
 	}
 
 	return str;

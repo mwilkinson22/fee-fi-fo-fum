@@ -53,7 +53,7 @@ const gameSchema = new Schema(
 			],
 			default: []
 		},
-		tv: { type: String, enum: [false, "bbc", "sky"], default: null },
+		_broadcaster: { type: Schema.Types.ObjectId, ref: "broadcasters", default: null },
 		socialImageVersion: { type: Number, default: 1 },
 
 		//Game Day Fields
@@ -255,6 +255,9 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		.populate({
 			path: "_opposition",
 			select: "name colours hashtagPrefix images"
+		})
+		.populate({
+			path: "_broadcaster"
 		})
 		.populate({
 			path: "_ground",

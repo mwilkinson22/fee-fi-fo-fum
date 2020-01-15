@@ -16,6 +16,7 @@ import uuid from "uuid/v4";
 
 //Models
 import "./models/Award";
+import "./models/Broadcaster";
 import "./models/Error";
 import "./models/IdLink";
 import "./models/TeamSelector";
@@ -53,6 +54,7 @@ import "./services/passport";
 
 //API Routes
 import awardRoutes from "./routes/awardRoutes";
+import broadcasterRoutes from "./routes/broadcasterRoutes";
 import errorRoutes from "./routes/errorRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import newsRoutes from "./routes/newsRoutes";
@@ -96,6 +98,7 @@ app.use(express.static("public"));
 
 // API Routes
 awardRoutes(app);
+broadcasterRoutes(app);
 errorRoutes(app);
 fileRoutes(app);
 newsRoutes(app);

@@ -10,6 +10,7 @@ import LoadingPage from "../components/LoadingPage";
 import Countdown from "../components/games/Countdown";
 import GameHeaderImage from "../components/games/GameHeaderImage";
 import NotFoundPage from "./NotFoundPage";
+import BroadcasterImage from "../components/broadcasters/BroadcasterImage";
 import TeamBanner from "../components/teams/TeamBanner";
 import TeamForm from "../components/games/TeamForm";
 import PregameSquadList from "../components/games/PregameSquadList";
@@ -129,15 +130,9 @@ class GamePage extends Component {
 			);
 		}
 
-		if (game.tv)
-			fields.push(
-				<img
-					key="tv"
-					src={`${imagePath}layout/icons/${game.tv}.svg`}
-					className="tv-logo"
-					alt={`${game.tv} Logo`}
-				/>
-			);
+		if (game._broadcaster) {
+			fields.push(<BroadcasterImage broadcaster={game._broadcaster} />);
+		}
 
 		return (
 			<ul>

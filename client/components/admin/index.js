@@ -12,6 +12,9 @@ import Logout from "./Logout";
 import AdminAwardPage from "../../pages/admin/AdminAwardPage";
 import AdminAwardList from "../../pages/admin/AdminAwardList";
 
+import AdminBroadcasterPage from "../../pages/admin/AdminBroadcasterPage";
+import AdminBroadcasterList from "../../pages/admin/AdminBroadcasterList";
+
 import AdminCityList from "../../pages/admin/AdminCityList";
 import AdminCityPage from "../../pages/admin/AdminCityPage";
 
@@ -70,6 +73,22 @@ class AdminRouter extends Component {
 					<Switch>
 						<Route path="/admin/awards/:_id" component={AdminAwardPage} />
 						<Route path="/admin/awards" exact component={AdminAwardList} />
+
+						<Route
+							path="/admin/settings/broadcasters/new"
+							exact
+							component={AdminBroadcasterPage}
+						/>
+						<Route
+							path="/admin/settings/broadcasters/:_id"
+							exact
+							component={AdminBroadcasterPage}
+						/>
+						<Route
+							path="/admin/settings/broadcasters"
+							exact
+							component={AdminBroadcasterList}
+						/>
 
 						<Route path="/admin/cities/new" exact component={AdminCityPage} />
 						<Route path="/admin/cities/:_id" exact component={AdminCityPage} />

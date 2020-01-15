@@ -1,12 +1,17 @@
+//Modules
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { toRgba } from "~/helpers/colourHelper";
-import Countdown from "./Countdown";
+
+//Components
 import GameHeaderImage from "./GameHeaderImage";
+import BroadcasterImage from "../broadcasters/BroadcasterImage";
 import TeamImage from "../teams/TeamImage";
 import GameLogo from "./GameLogo";
-import { googleBucket } from "../../extPaths";
+
+//Helpers
+import { toRgba } from "~/helpers/colourHelper";
+import Countdown from "./Countdown";
 
 class GameCard extends Component {
 	constructor(props) {
@@ -73,12 +78,10 @@ class GameCard extends Component {
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const url = game.slug;
 		const title = game.title;
-		const tvLogo = game.tv ? (
-			<img
-				src={`${googleBucket}images/layout/icons/${game.tv}.svg`}
-				alt={game.tv + " logo"}
-			/>
-		) : null;
+		let broadcastLogo;
+		if (game._broadcaster) {
+			broadcastLogo = <BroadcasterImage broadcaster={game._broadcaster} />;
+		}
 		return (
 			<Link to={"/games/" + url} className="game-card card">
 				<div className="background-image-wrapper">
@@ -108,7 +111,7 @@ class GameCard extends Component {
 					</div>
 					<div className="game-icons">
 						<GameLogo game={game} className="game-logo" />
-						{tvLogo}
+						{broadcastLogo}
 					</div>
 				</div>
 			</Link>

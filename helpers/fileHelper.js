@@ -6,7 +6,7 @@ export async function uploadToGoogle({ originalname, buffer, mimeType }, path = 
 	const file = bucket.file(path + originalname);
 	const externalUrl = await new Promise((resolve, reject) => {
 		const stream = file.createWriteStream({
-			metaData: {
+			metadata: {
 				contentType: mimeType
 			}
 		});
@@ -42,14 +42,20 @@ export async function uploadImageToGoogle(file, path, webPConvert = true, nameOv
 	switch (extension) {
 		case "jpg":
 		case "jpeg":
+			file.mimeType = "image/jpeg";
 			file.buffer = await sharp(file.buffer)
 				.jpeg()
 				.toBuffer();
 			break;
 		case "png":
+			file.mimeType = "image/png";
 			file.buffer = await sharp(file.buffer)
 				.png()
 				.toBuffer();
+			break;
+		case "svg":
+			file.mimeType = "image/svg+xml";
+			webPConvert = false;
 			break;
 	}
 	const uploadedImage = await uploadToGoogle(file, path);

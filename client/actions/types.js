@@ -97,3 +97,8 @@ export const DELETE_TEAM_SELECTOR = "delete_team_selector";
 
 //OAuth
 export const FETCH_OAUTH_ACCOUNTS = "fetch_oauth_accounts";
+
+//Broadcaster
+export const FETCH_BROADCASTER = "fetch_broadcaster";
+export const FETCH_BROADCASTERS = "fetch_broadcasters";
+export const DELETE_BROADCASTER = "delete_broadcaster";
