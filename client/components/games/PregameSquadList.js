@@ -60,7 +60,7 @@ class PregameSquadList extends Component {
 
 				//Get Previous Games squad
 				let previousSquad;
-				if (team._id == localTeam) {
+				if (team._id == localTeam && previousGame) {
 					const previousSquadObject = previousGame.pregameSquads.find(
 						({ _team }) => _team == team._id
 					);

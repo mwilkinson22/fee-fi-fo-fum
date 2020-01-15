@@ -124,6 +124,25 @@
 			figcaption.md-block-image-caption--empty {
 				display: none;
 			}
+
+			.pre-article-content {
+				position: relative;
+				margin-bottom: 20pt;
+
+				.game-events-wrapper .events {
+					box-shadow: none;
+				}
+			}
+			.post-article-content {
+				.pregame-squads {
+					@media #{$desktop-only} {
+						img {
+							max-width: 50%;
+						}
+					}
+				}
+			}
+
 			.post-body-header {
 				display: flex;
 				justify-content: space-between;
@@ -292,7 +311,11 @@
 .admin-news-content-wrapper {
 	@media #{$desktop-only} {
 		display: grid;
-		grid-template-columns: 2fr 1fr;
+		grid-template-columns: 1fr 4fr 1fr;
 		grid-gap: 10pt;
+
+		form {
+			grid-column: 2;
+		}
 	}
 }

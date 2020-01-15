@@ -202,8 +202,14 @@ class GamePage extends Component {
 
 	generateEvents() {
 		const { game } = this.state;
-		if (game.squadsAnnounced) {
-			return <GameEvents game={game} />;
+		if (game.squadsAnnounced && _.sum(_.values(game.score))) {
+			return (
+				<section className="game-events">
+					<div className="container">
+						<GameEvents game={game} />
+					</div>
+				</section>
+			);
 		} else {
 			return null;
 		}

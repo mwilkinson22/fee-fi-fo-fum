@@ -18,7 +18,7 @@ class GameEvents extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const { game } = nextProps;
 		return { game };
 	}
@@ -43,7 +43,7 @@ class GameEvents extends Component {
 	}
 
 	renderEvents(events) {
-		const { localTeam, fullTeams } = this.props;
+		const { includeTeams, localTeam, fullTeams } = this.props;
 		const { game } = this.state;
 		let teams = [fullTeams[localTeam], game._opposition];
 		if (game.isAway) {
@@ -52,16 +52,21 @@ class GameEvents extends Component {
 		const elements = [];
 
 		//Add Badges
-		teams.forEach((team, i) => {
-			elements.push(
-				<div key={team._id + " image"} className="team-image">
-					<TeamImage team={team} variant="light" />
-				</div>
-			);
-			if (i == 0) {
-				elements.push(<div className="team-image" key="blank" />);
-			}
-		});
+		if (includeTeams) {
+			const teamImageWrapperClassName = "team-image-wrapper";
+			teams.forEach((team, i) => {
+				elements.push(
+					<div key={team._id + " image"} className={teamImageWrapperClassName}>
+						<TeamImage team={team} variant="light" />
+					</div>
+				);
+				if (i == 0) {
+					elements.push(
+						<div className={`${teamImageWrapperClassName} blank`} key="blank" />
+					);
+				}
+			});
+		}
 
 		//Add Events
 		events.forEach(({ event, stats }) => {
@@ -112,13 +117,17 @@ class GameEvents extends Component {
 							}
 						})
 						.value();
-					return <div key={event + team._id}>{playerElements}</div>;
+					return (
+						<div key={event + team._id} className="scorers">
+							{playerElements}
+						</div>
+					);
 				})
 			);
 		});
 
 		return (
-			<div className="container">
+			<div className="game-events-wrapper">
 				<div className="events">{elements}</div>
 			</div>
 		);
@@ -127,16 +136,21 @@ class GameEvents extends Component {
 	render() {
 		const events = this.getEvents();
 		if (events.length) {
-			return <section className="game-events">{this.renderEvents(events)}</section>;
+			return this.renderEvents(events);
 		} else {
 			return null;
 		}
 	}
 }
 
-GameEvents.propTypes = {};
+GameEvents.propTypes = {
+	game: PropTypes.object.isRequired,
+	includeTeams: PropTypes.bool
+};
 
-GameEvents.defaultProps = {};
+GameEvents.defaultProps = {
+	includeTeams: false
+};
 
 function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;

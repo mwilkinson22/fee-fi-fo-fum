@@ -1,5 +1,6 @@
 //Modules
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -71,7 +72,7 @@ class GameCard extends Component {
 		}
 	}
 	render() {
-		const { game } = this.props;
+		const { game, hideImage } = this.props;
 		const opposition = game._opposition;
 		const ground = game._ground;
 		const date = new Date(game.date).toString("H:mm | dddd dS MMM yyyy");
@@ -82,11 +83,21 @@ class GameCard extends Component {
 		if (game._broadcaster) {
 			broadcastLogo = <BroadcasterImage broadcaster={game._broadcaster} />;
 		}
-		return (
-			<Link to={"/games/" + url} className="game-card card">
+
+		let backgroundImage;
+		if (!hideImage) {
+			backgroundImage = (
 				<div className="background-image-wrapper">
 					<GameHeaderImage game={game} />
 				</div>
+			);
+		}
+		return (
+			<Link
+				to={"/games/" + url}
+				className={`game-card card ${hideImage ? "hidden-image" : ""}`}
+			>
+				{backgroundImage}
 				<div
 					className="game-card-content"
 					style={{
@@ -118,6 +129,15 @@ class GameCard extends Component {
 		);
 	}
 }
+
+GameCard.propTypes = {
+	game: PropTypes.object.isRequired,
+	hideImage: PropTypes.bool
+};
+
+GameCard.defaultProps = {
+	hideImage: false
+};
 
 function mapStateToProps({ config }) {
 	const { localTeam } = config;

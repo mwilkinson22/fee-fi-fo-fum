@@ -24,8 +24,13 @@ import NotFoundPage from "./NotFoundPage";
 import NewsPostCard from "../components/news/NewsPostCard";
 import HelmetBuilder from "../components/HelmetBuilder";
 import AuthorImage from "../components/news/AuthorImage";
+import GameCard from "../components/games/GameCard";
+import GameEvents from "../components/games/GameEvents";
+import FanPotmVoting from "../components/games/FanPotmVoting";
+import PregameSquadList from "../components/games/PregameSquadList";
 
 //Actions
+import { fetchGames } from "../actions/gamesActions";
 import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 
 //Helpers
@@ -51,42 +56,94 @@ class NewsPostPage extends Component {
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
-		const { postList, fullPosts, match, redirects, fetchNewsPost } = nextProps;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const {
+			postList,
+			fullPosts,
+			fullGames,
+			match,
+			redirects,
+			fetchNewsPost,
+			fetchGames
+		} = nextProps;
 		const { slug } = match.params;
-		const newState = { redirect: null };
+		const newState = { isLoadingList: false, redirect: null };
 
-		if (postList) {
-			const { item, redirect } = matchSlugToItem(slug, postList, redirects);
-
-			if (redirect) {
-				newState.redirect = `/news/post/${item.slug}`;
-			} else if (!item) {
-				newState.post = false;
-			} else {
-				const { _id } = item;
-				newState.post = fullPosts[_id];
-				if (!newState.post) {
-					fetchNewsPost(_id);
-				} else {
-					//Get Meta Description
-					const { blocks } = JSON.parse(newState.post.content);
-					//We do the regex to ensure punctuation at the end of each line
-					newState.post.preview = blocks
-						.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
-						.join(" \n");
-					newState.post.editorState = editorStateFromRaw(
-						JSON.parse(newState.post.content),
-						newsDecorators
-					);
-					newState.recentPosts = _.chain(postList)
-						.orderBy(["dateCreated"], ["desc"])
-						.reject(post => post.id == _id)
-						.chunk(5)
-						.value()[0];
-				}
-			}
+		//Ensure we have the basic postlist
+		if (!postList) {
+			newState.isLoadingList = true;
+			return newState;
 		}
+
+		//Get the item and redirect info from the post
+		const { item, redirect } = matchSlugToItem(slug, postList, redirects);
+
+		//If there's a redirect, pass it in immediately
+		if (redirect) {
+			newState.redirect = `/news/post/${item.slug}`;
+			return newState;
+		}
+
+		//If the post isn't found in the list, 404
+		if (!item) {
+			newState.post = false;
+			return newState;
+		}
+
+		//Otherwise, we have the id
+		const { _id } = item;
+
+		//Check to see if we have the post within fullPosts
+		newState.post = fullPosts[_id];
+
+		//If don't have it, we need to load it
+		if (!newState.post && !prevState.isLoadingPost) {
+			fetchNewsPost(_id);
+			newState.isLoadingPost = true;
+		}
+
+		//Otherwise, pull the info we need
+		if (newState.post) {
+			//For when it's just loaded
+			newState.isLoadingPost = false;
+
+			//Get Meta Description
+			const { blocks } = JSON.parse(newState.post.content);
+
+			//We do the regex to ensure punctuation at the end of each line
+			newState.post.preview = blocks
+				.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
+				.join(" \n");
+			newState.post.editorState = editorStateFromRaw(
+				JSON.parse(newState.post.content),
+				newsDecorators
+			);
+
+			//Get recent posts for the sidebar
+			newState.recentPosts = _.chain(postList)
+				.orderBy(["dateCreated"], ["desc"])
+				.reject(post => post.id == _id)
+				.chunk(5)
+				.value()[0];
+
+			//Get game, if necessary
+			if (newState.post._game) {
+				//See if it's already loaded
+				newState.game = fullGames[newState.post._game];
+				if ((!newState.game || !newState.game.pageData) && !prevState.isLoadingGame) {
+					//Load Game
+					fetchGames([newState.post._game], "gamePage");
+					newState.isLoadingGame = true;
+				} else if (newState.game && newState.game.pageData) {
+					newState.isLoadingGame = false;
+				}
+			} else {
+				newState.game = undefined;
+			}
+		} else {
+			fetchNewsPost(_id);
+		}
+
 		return newState;
 	}
 
@@ -127,6 +184,69 @@ class NewsPostPage extends Component {
 			);
 		} else {
 			return null;
+		}
+	}
+
+	prependArticle() {
+		const { game, post } = this.state;
+
+		let content;
+
+		switch (post.category) {
+			case "previews":
+				if (game) {
+					content = <GameCard game={game} hideImage={true} />;
+				}
+				break;
+			case "recaps":
+				{
+					if (game) {
+						content = (
+							<div>
+								<GameCard game={game} hideImage={true} />
+								<GameEvents game={game} />
+							</div>
+						);
+					}
+				}
+				break;
+		}
+
+		if (content) {
+			return <div className="pre-article-content">{content}</div>;
+		}
+	}
+
+	appendArticle() {
+		const { game, post } = this.state;
+
+		let content;
+
+		switch (post.category) {
+			case "previews": {
+				if (game) {
+					content = <PregameSquadList game={game} />;
+				}
+				break;
+			}
+			case "recaps": {
+				if (game && game.fan_potm && game.fan_potm.deadline) {
+					//Check if voting is still valid
+					const canStillVote = new Date() < new Date(game.fan_potm.deadline);
+					if (canStillVote) {
+						content = (
+							<div>
+								<FanPotmVoting id={game._id} />
+							</div>
+						);
+					}
+				}
+				break;
+			}
+		}
+
+		if (content) {
+			return <div className="post-article-content">{content}</div>;
 		}
 	}
 
@@ -207,12 +327,14 @@ class NewsPostPage extends Component {
 							</div>
 						</div>
 						<div className="post-content">
+							{this.prependArticle()}
 							<MegadraftEditor
 								editorState={post.editorState}
 								readOnly={true}
 								onChange={() => {}}
 								plugins={newsPlugins}
 							/>
+							{this.appendArticle()}
 						</div>
 					</div>
 					<ul className="other-posts">
@@ -230,54 +352,72 @@ class NewsPostPage extends Component {
 	}
 
 	render() {
-		const { post, redirect } = this.state;
+		const { isLoadingList, isLoadingPost, isLoadingGame, post, redirect } = this.state;
+
+		//Redirect old slugs
 		if (redirect) {
 			return <Redirect to={redirect} />;
-		} else if (post === undefined) {
-			return <LoadingPage />;
-		} else if (!post) {
-			return <NotFoundPage message="Post not found" />;
-		} else {
-			return (
-				<FacebookProvider appId="1610338439232779">
-					<div className={`news-post ${post.category}`}>
-						<HelmetBuilder
-							title={post.title}
-							canonical={`/news/post/${post.slug}`}
-							cardImage={newsHeaderPath + post.image}
-							cardType="summary_large_image"
-							description={post.subtitle || post.preview.substring(0, 500) + "..."}
-						/>
-						{this.formatPost()}
-					</div>
-				</FacebookProvider>
-			);
 		}
+
+		//Wait for all content
+		if (isLoadingList || isLoadingPost || isLoadingGame) {
+			return <LoadingPage />;
+		}
+
+		//404
+		if (!post) {
+			return <NotFoundPage message="Post not found" />;
+		}
+
+		return (
+			<FacebookProvider appId="1610338439232779">
+				<div className={`news-post ${post.category}`}>
+					<HelmetBuilder
+						title={post.title}
+						canonical={`/news/post/${post.slug}`}
+						cardImage={newsHeaderPath + post.image}
+						cardType="summary_large_image"
+						description={post.subtitle || post.preview.substring(0, 500) + "..."}
+					/>
+					{this.formatPost()}
+				</div>
+			</FacebookProvider>
+		);
 	}
 }
 
-function mapStateToProps({ config, news }) {
+function mapStateToProps({ config, games, news }) {
 	const { authUser } = config;
+	const { fullGames } = games;
 	const { fullPosts, postList, redirects } = news;
 
-	return { fullPosts, postList, redirects, authUser };
+	return { fullPosts, fullGames, postList, redirects, authUser };
 }
 
 async function loadData(store, path) {
 	const slug = path.split("/")[3];
 
+	//Get post list
 	await store.dispatch(fetchPostList());
 
+	//Find item in list
 	const { postList, redirects } = store.getState().news;
-
 	const { item } = matchSlugToItem(slug, postList, redirects);
 
+	//Load the full post, if it exists
 	if (item) {
-		return store.dispatch(fetchNewsPost(item._id));
+		await store.dispatch(fetchNewsPost(item._id));
+		const post = store.getState().news.fullPosts[item._id];
+
+		//Load game, if necessary
+		if (post._game) {
+			await store.dispatch(fetchGames([post._game], "gamePage"));
+		}
+		return;
 	}
 }
 
 export default {
-	component: connect(mapStateToProps, { fetchNewsPost, fetchPostList })(NewsPostPage),
+	component: connect(mapStateToProps, { fetchGames, fetchNewsPost, fetchPostList })(NewsPostPage),
 	loadData
 };
