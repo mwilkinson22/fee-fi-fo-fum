@@ -122,7 +122,7 @@ class AdminGameEvent extends Component {
 		const sponsors = players
 			.filter(p => p._sponsor)
 			.map(({ name, _sponsor }) => ({
-				name: `${name.first} ${name.last} sponsor`,
+				label: `${name.full} Sponsor`,
 				value: `\n\n${name.first} is sponsored by ${
 					_sponsor.twitter ? `@${_sponsor.twitter}` : _sponsor.name
 				}`
