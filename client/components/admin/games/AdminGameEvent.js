@@ -89,11 +89,7 @@ class AdminGameEvent extends Component {
 					{ label: "40/20", value: "FT" },
 					{ label: "Yellow Card", value: "YC" },
 					{ label: "Red Card", value: "RC" },
-					{ label: `${newState.game.genderedString} of the Match`, value: "potm" },
-					{
-						label: `Fans' ${newState.game.genderedString} of the Match`,
-						value: "fan_potm"
-					}
+					{ label: `${newState.game.genderedString} of the Match`, value: "potm" }
 				]
 			},
 			{
