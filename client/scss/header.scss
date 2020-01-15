@@ -2,14 +2,25 @@ header {
 	user-select: none;
 	background-color: $claret;
 
-	&.staging {
-		background-color: darken($claret, 15%);
-	}
-	&.local-dev {
-		background-color: #333;
-	}
-	&.local-dev-on-live {
-		background-color: #d70000;
+	@media #{$desktop-only} {
+		&.staging {
+			&,
+			nav .root-nav-list .nav-section:hover ul {
+				background-color: darken($claret, 15%);
+			}
+		}
+		&.local-dev {
+			&,
+			nav .root-nav-list .nav-section:hover ul {
+				background-color: #333;
+			}
+		}
+		&.local-dev-on-live {
+			&,
+			nav .root-nav-list .nav-section:hover ul {
+				background-color: #d70000;
+			}
+		}
 	}
 	color: white;
 	position: sticky;
