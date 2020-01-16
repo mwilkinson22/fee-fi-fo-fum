@@ -1,7 +1,7 @@
 //Modules
 import _ from "lodash";
 import React from "react";
-import { Field, FastField, ErrorMessage } from "formik";
+import { Field, FastField, ErrorMessage, FieldArray } from "formik";
 import Select, { Async, Creatable } from "react-select";
 
 //Input Components
@@ -35,57 +35,66 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 		throw new Error("Yup Validation Schema required");
 	}
 
-	//Pull meta data from yup
-	const yupField = extractYupData(field.name, validationSchema);
+	if (field.type == fieldTypes.fieldArray) {
+		const key = field.key || field.name + "-fieldArray";
+		return <FieldArray name={field.name} render={field.render} key={key} />;
+	} else {
+		//Pull meta data from yup
+		const yupField = extractYupData(field.name, validationSchema);
 
-	if (!yupField) {
-		throw new Error(`Field name '${field.name}' not found in validation schema`);
+		if (!yupField) {
+			throw new Error(`Field name '${field.name}' not found in validation schema`);
+		}
+
+		//Get Label
+		field.label = field.label || yupField.label;
+		if (field.label == null) {
+			field.label = field.name;
+		}
+
+		//Determine Required Status
+		field.required = Boolean(yupField.tests.find(test => test.name === "required"));
+
+		//Get Min & Max
+		const min = yupField.tests.find(test => test.name === "min");
+		const max = yupField.tests.find(test => test.name === "max");
+		if (min) {
+			field.min = min.params.min;
+		}
+		if (max) {
+			field.max = max.params.max;
+		}
+
+		//FastField eligibility
+		if (field.fastField == null) {
+			field.fastField = fastFieldByDefault;
+		}
+
+		//Get Label
+		let label;
+		if (field.label) {
+			label = (
+				<label key={`${field.name}-label`} className={field.required ? "required" : ""}>
+					{field.label}
+				</label>
+			);
+		}
+
+		//Render Field Input
+		const input = renderInput(field);
+
+		//Error Message
+		let error;
+		if (!field.type) {
+			error = (
+				<span key={`${field.name}-error`} className="error">
+					<ErrorMessage name={field.name} />
+				</span>
+			);
+		}
+
+		return [label, input, error];
 	}
-
-	//Get Label
-	field.label = field.label || yupField.label;
-	if (field.label == null) {
-		field.label = field.name;
-	}
-
-	//Determine Required Status
-	field.required = Boolean(yupField.tests.find(test => test.name === "required"));
-
-	//Get Min & Max
-	const min = yupField.tests.find(test => test.name === "min");
-	const max = yupField.tests.find(test => test.name === "max");
-	if (min) {
-		field.min = min.params.min;
-	}
-	if (max) {
-		field.max = max.params.max;
-	}
-
-	//FastField eligibility
-	if (field.fastField == null) {
-		field.fastField = fastFieldByDefault;
-	}
-
-	//Get Label
-	let label;
-	if (field.label) {
-		label = (
-			<label key={`${field.name}-label`} className={field.required ? "required" : ""}>
-				{field.label}
-			</label>
-		);
-	}
-
-	//Render Field Input
-	const input = renderInput(field);
-
-	return [
-		label,
-		input,
-		<span key={`${field.name}-error`} className="error">
-			<ErrorMessage name={field.name} />
-		</span>
-	];
 }
 
 export function renderInput(field) {
