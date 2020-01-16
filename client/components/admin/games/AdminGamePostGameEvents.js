@@ -19,6 +19,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 import selectStyling from "~/constants/selectStyling";
 
 //Helpers
+import { convertTeamToSelect } from "~/helpers/gameHelper";
 import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminGamePostGameEvents extends Component {
@@ -32,55 +33,57 @@ class AdminGamePostGameEvents extends Component {
 		}
 
 		//An array of all potential extra fields to be added to an event type
-		//Requires a key, a label (to pass into Yup), and an events array
-		const extraFields = [
-			{ key: "stats", label: "Stat Types", events: ["team-stats", "player-stats"] },
-			{ key: "_player", label: "Player", events: ["single-player-stats"] },
-			{
-				key: "multi-stats",
-				label: "",
-				events: ["multi-player-stats", "fan-potm-oprions", "steel-points"]
-			}
-		];
-
-		this.state = {
-			extraFields
+		//Requires a key, a Yup validation object, and an events array
+		//All potential extra fields, and where they'll appear
+		const extraFields = {
+			_player: ["player-stats"],
+			stats: ["team-stats", "player-stats"],
+			playersAndStats: ["grouped-player-stats", "fan-potm-options", "steel-points"]
 		};
-	}
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullGames, match, profiles } = nextProps;
-		const newState = { isLoading: false };
-
-		//Get Game
-		newState.game = fullGames[match.params._id];
-
-		//Get Event Types
-		const { genderedString } = newState.game;
-		newState.eventTypes = [
-			{ label: "Match Breakdown Intro", value: "breakdown-intro" },
-			{ label: "Team Stats", value: "team-stats" },
-			{ label: "Single Player Stats", value: "player-stats" },
-			{ label: "Multiple Player Stats", value: "multi-player-stats" },
-			{ label: `Fans' ${genderedString} of the Match Options`, value: "fan-potm-options" },
-			{ label: `${genderedString} of Steel Points`, value: "steel-points" }
-		];
-
-		//Ensure an event type is selected for the dropdown
-		if (!prevState.newEventType) {
-			newState.newEventType = newState.eventTypes[0];
-		}
-
-		//Check everything is loaded
-		if (!profiles) {
-			newState.isLoading = true;
-			return newState;
-		}
-
-		//Dropdown Options
-		newState.options = AdminGamePostGameEvents.getDropdownOptionsFromProps(nextProps);
 
 		//Validation Schema
+		const tweetValidationSchema = {
+			text: Yup.string().label("Tweet Text"),
+			stats: Yup.array()
+				.of(Yup.string())
+				.when("eventType", (eventType, schema) => {
+					if (extraFields.stats.indexOf(eventType) > -1) {
+						return schema.min(1);
+					} else {
+						return schema;
+					}
+				})
+				.label("Stats"),
+			_player: Yup.string()
+				.when("eventType", (eventType, schema) => {
+					if (extraFields._player.indexOf(eventType) > -1) {
+						return schema.required();
+					} else {
+						return schema;
+					}
+				})
+				.label("Player"),
+			playersAndStats: Yup.array()
+				.of(
+					Yup.object().shape({
+						_player: Yup.string()
+							.required()
+							.label("Player"),
+						stats: Yup.array()
+							.of(Yup.string())
+							.label("Stats")
+					})
+				)
+				.when("eventType", (eventType, schema) => {
+					if (extraFields.playersAndStats.indexOf(eventType) > -1) {
+						return schema.min(1);
+					} else {
+						return schema;
+					}
+				})
+		};
+
+		//Loop through
 		const validationSchema = {
 			replyTweet: Yup.string().label("Reply To (Tweet Id)"),
 			_profile: Yup.string()
@@ -88,24 +91,79 @@ class AdminGamePostGameEvents extends Component {
 				.label("Profile"),
 			postToFacebook: Yup.boolean().label("Post To Facebook"),
 			tweets: Yup.array()
-				.of(
-					Yup.object().shape({
-						text: Yup.string().label("Tweet Text"),
-						stats: Yup.array()
-							.of(Yup.string())
-							.label("Stats")
-					})
-				)
+				.of(Yup.object().shape(tweetValidationSchema))
 				.min(1)
 		};
 
-		newState.validationSchema = Yup.object().shape(validationSchema);
+		this.state = {
+			extraFields,
+			validationSchema: Yup.object().shape(validationSchema)
+		};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { fullGames, match, profiles } = nextProps;
+		const newState = { isLoading: false };
+
+		//Check everything is loaded
+		if (!profiles) {
+			newState.isLoading = true;
+			return newState;
+		}
+
+		//Get Game
+		newState.game = fullGames[match.params._id];
+
+		//On game change
+		if (!prevState.game || prevState.game._id != match.params._id) {
+			//Get Event Types
+			const { genderedString } = newState.game;
+			newState.eventTypes = [
+				{ label: "Match Breakdown Intro", value: "breakdown-intro" },
+				{ label: "Team Stats", value: "team-stats" },
+				{ label: "Single Player Stats", value: "player-stats" },
+				{ label: "Multiple Player Stats", value: "grouped-player-stats" }
+			];
+
+			//Conditionally add Man of Steel and Fans' POTM event types
+			if (newState.game.manOfSteel && newState.game.manOfSteel.length) {
+				newState.eventTypes.push({
+					label: `${genderedString} of Steel Points`,
+					value: "steel-points"
+				});
+			}
+			if (newState.game.fan_potm) {
+				if (newState.game.fan_potm.options.length) {
+					newState.eventTypes.push({
+						label: `Fans' ${genderedString} of the Match Options`,
+						value: "fan-potm-options"
+					});
+				}
+				if (newState.game.fan_potm_winners && newState.game.fan_potm_winners.length) {
+					newState.eventTypes.push({
+						label: `Fans' ${genderedString} of the Match Winner`,
+						value: "fan-potm"
+					});
+				}
+			}
+
+			//Ensure an event type is selected for the dropdown
+			if (!prevState.newEventType) {
+				newState.newEventType = newState.eventTypes[0];
+			}
+
+			//Dropdown Options
+			newState.options = AdminGamePostGameEvents.getDropdownOptionsFromProps(
+				nextProps,
+				newState.game
+			);
+		}
 
 		return newState;
 	}
 
-	static getDropdownOptionsFromProps(props) {
-		const { profiles } = props;
+	static getDropdownOptionsFromProps(props, game) {
+		const { profiles, teamList } = props;
 		const options = {};
 
 		//Social Profile Options
@@ -126,6 +184,9 @@ class AdminGamePostGameEvents extends Component {
 			.map((options, label) => ({ label, options: _.sortBy(options, "label") }))
 			.value();
 
+		//Players
+		options.players = convertTeamToSelect(game, teamList);
+
 		return options;
 	}
 
@@ -143,14 +204,17 @@ class AdminGamePostGameEvents extends Component {
 
 	getNewTweetInitialValues(eventType) {
 		const { game } = this.state;
-		const fields = { eventType, text: "" };
+		const fields = { eventType, text: "", stats: [], _player: "", playersAndStats: [] };
 
 		switch (eventType) {
 			case "breakdown-intro":
 				fields.text = `Let's look at our game against ${game._opposition.name.short} in a little more detail!`;
 				break;
-			case "team-stats":
-				fields.stats = [];
+			case "fan-potm-options":
+				fields.playersAndStats = game.fan_potm.options.map(_player => ({
+					_player,
+					stats: []
+				}));
 				break;
 			default:
 				break;
@@ -159,6 +223,109 @@ class AdminGamePostGameEvents extends Component {
 		//Add hashtags
 		fields.text += "\n\n";
 		fields.text += game.hashtags.map(t => `#${t}`).join(" ");
+
+		return fields;
+	}
+
+	getTweetFields({ eventType, playersAndStats }) {
+		const { extraFields, game, options } = this.state;
+
+		//Set standard fields
+		const fields = [{ name: "text", type: fieldTypes.tweet }];
+
+		//Loop through extras
+		for (const name in extraFields) {
+			const validEventTypes = extraFields[name];
+			if (validEventTypes.indexOf(eventType) > -1) {
+				switch (name) {
+					case "_player":
+						fields.push({
+							name,
+							type: fieldTypes.select,
+							options: options.players,
+							isNested: true
+						});
+						break;
+					case "stats":
+						fields.push({
+							name,
+							type: fieldTypes.select,
+							options: options.stats,
+							isNested: true,
+							isMulti: true
+						});
+						break;
+					case "playersAndStats":
+						{
+							if (eventType == "grouped-player-stats") {
+								playersAndStats.forEach((data, i) => {
+									fields.push(
+										{
+											name: `playersAndStats.${i}._player`,
+											type: fieldTypes.select,
+											options: options.players,
+											isNested: true
+										},
+										{
+											name: `playersAndStats.${i}.stats`,
+											type: fieldTypes.select,
+											options: options.stats,
+											isNested: true,
+											isMulti: true
+										},
+										{
+											name: `playersAndStats`,
+											type: fieldTypes.fieldArray,
+											key: `playersAndStats.${i}.fieldArray`,
+											render: ({ remove }) => (
+												<div className="buttons">
+													<button type="button" onClick={() => remove(i)}>
+														Remove Player
+													</button>
+													<hr />
+												</div>
+											)
+										}
+									);
+								});
+								fields.push({
+									name: `playersAndStats`,
+									type: fieldTypes.fieldArray,
+									key: `playersAndStats.add`,
+									render: ({ push }) => (
+										<div className="buttons">
+											<button
+												type="button"
+												onClick={() => push({ _player: "", stats: [] })}
+											>
+												Add Player
+											</button>
+										</div>
+									)
+								});
+							} else {
+								playersAndStats.forEach((data, i) => {
+									const { _player } = _.chain(game.eligiblePlayers)
+										.values()
+										.flatten()
+										.find(({ _player }) => _player._id == data._player)
+										.value();
+
+									fields.push({
+										name: `playersAndStats.${i}.stats`,
+										type: fieldTypes.select,
+										options: options.stats,
+										isNested: true,
+										isMulti: true,
+										label: `${_player.name.full} Stats`
+									});
+								});
+							}
+						}
+						break;
+				}
+			}
+		}
 
 		return fields;
 	}
@@ -185,7 +352,7 @@ class AdminGamePostGameEvents extends Component {
 	}
 
 	renderTweets(values) {
-		const { eventTypes, options, validationSchema } = this.state;
+		const { eventTypes, validationSchema } = this.state;
 		return values.tweets.map((tweet, i) => {
 			//Get Event Type as a string
 			const eventType = eventTypes.find(({ value }) => value == tweet.eventType).label;
@@ -221,28 +388,11 @@ class AdminGamePostGameEvents extends Component {
 				/>
 			);
 
-			//Get standard fields
-			let fields = [{ name: "text", type: fieldTypes.tweet }];
-
-			//Add more, based on eventType
-			switch (tweet.eventType) {
-				case "single-player-stats":
-				case "team-stats":
-					fields.push({
-						name: "stats",
-						type: fieldTypes.select,
-						isMulti: true,
-						isSearchable: false,
-						isNested: true,
-						options: options.stats
-					});
-					break;
-				default:
-					break;
-			}
-
-			//Prepend tweet number
-			fields = fields.map(field => ({ ...field, name: ["tweets", i, field.name].join(".") }));
+			//Get fields
+			const fields = this.getTweetFields(tweet).map(field => ({
+				...field,
+				name: ["tweets", i, field.name].join(".")
+			}));
 
 			return (
 				<div className="form-card grid" key={i}>
@@ -323,10 +473,11 @@ class AdminGamePostGameEvents extends Component {
 AdminGamePostGameEvents.propTypes = {};
 AdminGamePostGameEvents.defaultProps = {};
 
-function mapStateToProps({ games, social }) {
+function mapStateToProps({ games, social, teams }) {
 	const { fullGames } = games;
 	const { profiles, defaultProfile } = social;
-	return { fullGames, profiles, defaultProfile };
+	const { teamList } = teams;
+	return { fullGames, profiles, defaultProfile, teamList };
 }
 
 export default connect(mapStateToProps, { fetchProfiles })(AdminGamePostGameEvents);
