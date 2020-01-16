@@ -19,7 +19,7 @@ export function extractYupData(name, validationSchema) {
 	return name
 		.split(".")
 		.join(".fields.")
-		.replace(/\.fields\.\d+\./, ".innerType.")
+		.replace(/\.fields\.\d+\./g, ".innerType.")
 		.split(".")
 		.reduce(
 			(prev, curr) => (prev ? prev[curr] : null),
