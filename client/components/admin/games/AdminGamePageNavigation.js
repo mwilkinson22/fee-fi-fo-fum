@@ -67,6 +67,7 @@ class AdminGamePageNavigation extends Component {
 			}
 
 			submenuItems.push({ label: "Post-Game Data", value: "post-game", group: 2 });
+			submenuItems.push({ label: "Post-Game Events", value: "post-game-events", group: 2 });
 		}
 
 		return submenuItems;

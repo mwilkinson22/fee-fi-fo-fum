@@ -22,6 +22,7 @@ import AdminGameSquadImage from "../../components/admin/games/AdminGameSquadImag
 import AdminGameEvent from "../../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../../components/admin/games/AdminGameStats";
 import AdminGamePostGame from "../../components/admin/games/AdminGamePostGame";
+import AdminGamePostGameEvents from "../../components/admin/games/AdminGamePostGameEvents";
 
 //Actions
 import { fetchGames, reloadGames, fetchGameList } from "../../actions/gamesActions";
@@ -216,6 +217,7 @@ class AdminGamePage extends Component {
 			const path = `/admin/game/:_id`;
 			content = (
 				<Switch>
+					<Route path={`${path}/post-game-events`} component={AdminGamePostGameEvents} />
 					<Route path={`${path}/post-game`} component={AdminGamePostGame} />
 					<Route
 						path={`${path}/stats`}
@@ -274,7 +276,4 @@ function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	return { localTeam, fullGames, teamList, gameList, teamTypes };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchGames, reloadGames, fetchGameList }
-)(AdminGamePage);
+export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameList })(AdminGamePage);
