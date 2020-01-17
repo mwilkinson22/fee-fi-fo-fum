@@ -96,9 +96,11 @@ export default class TeamStatsImage extends Canvas {
 		ctx.fillRect(0, 0, cWidth, rowHeight);
 
 		//Add team badges
-		teams.forEach(({ badge }, i) =>
-			this.contain(badge, cWidth * 0.5 * i, rowHeight * 0.1, cWidth * 0.5, rowHeight * 0.8)
-		);
+		teams.forEach(({ badge }, i) => {
+			const width = cWidth * 0.3;
+			const x = i === 0 ? 0 : cWidth - width;
+			this.contain(badge, x, rowHeight * 0.1, width, rowHeight * 0.8);
+		});
 	}
 
 	drawRows() {
