@@ -2,9 +2,11 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Prompt } from "react-router-dom";
 import { Formik, Form, FieldArray } from "formik";
 import Select from "react-select";
 import * as Yup from "yup";
+import { diff } from "deep-object-diff";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -601,6 +603,10 @@ class AdminGamePostGameEvents extends Component {
 				render={formikProps => {
 					return (
 						<Form>
+							<Prompt
+								when={formikProps.values.tweets.length > 0}
+								message="You have unsaved changes. Are you sure you want to navigate away?"
+							/>
 							<div className="admin-post-game-events">
 								{this.renderThreadDetails()}
 								{this.renderTweets(formikProps)}
@@ -611,7 +617,7 @@ class AdminGamePostGameEvents extends Component {
 										<button
 											type="submit"
 											className="confirm"
-											disabled={!formikProps.isValid}
+											disabled={formikProps.values.tweets.length === 0}
 										>
 											Submit
 										</button>
