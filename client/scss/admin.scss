@@ -181,6 +181,12 @@
 		}
 	}
 
+	div:not(.buttons) {
+		button:not(:last-child) {
+			margin-right: 4pt;
+		}
+	}
+
 	// Field Types
 	.radio-fields {
 		display: flex;

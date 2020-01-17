@@ -230,7 +230,7 @@ class AdminGamePostGameEvents extends Component {
 		return fields;
 	}
 
-	getTweetFields({ eventType, playersAndStats }) {
+	getTweetFields({ eventType, playersAndStats, stats }) {
 		const { extraFields, game, options } = this.state;
 
 		//Set standard fields
@@ -250,14 +250,53 @@ class AdminGamePostGameEvents extends Component {
 						});
 						break;
 					case "stats":
-						fields.push({
-							name,
-							type: fieldTypes.select,
-							options: options.stats,
-							closeMenuOnSelect: false,
-							isNested: true,
-							isMulti: true
-						});
+						fields.push(
+							{
+								name,
+								type: fieldTypes.select,
+								options: options.stats,
+								closeMenuOnSelect: false,
+								isNested: true,
+								isMulti: true
+							},
+							{
+								name,
+								type: fieldTypes.fieldArray,
+								render: ({ push }) => {
+									//Get stats grouped by type
+									const groupedStats = _.chain(playerStatTypes)
+										.map((stat, key) => ({ ...stat, key }))
+										.groupBy("type")
+										.mapValues(s => _.map(s, "key"))
+										.value();
+
+									//Create Buttons
+									const buttons = [];
+									for (const label in groupedStats) {
+										buttons.push(
+											<button
+												key={label}
+												type="button"
+												onClick={() => {
+													groupedStats[label]
+														.filter(key => stats.indexOf(key) === -1)
+														.map(push);
+												}}
+											>
+												{label} Stats
+											</button>
+										);
+									}
+
+									return [
+										<label key="label">Quick add</label>,
+										<div key="buttons" className="button-group">
+											{buttons}
+										</div>
+									];
+								}
+							}
+						);
 						break;
 					case "playersAndStats":
 						{
