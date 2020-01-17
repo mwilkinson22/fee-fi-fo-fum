@@ -44,6 +44,7 @@
 		"css-loader": "^2.1.1",
 		"date-easter": "^0.2.5",
 		"datejs": "^1.0.0-rc3",
+		"deep-object-diff": "^1.1.0",
 		"detect-browser": "^4.1.0",
 		"draft-js": "^0.10.5",
 		"es6-promise": "^4.2.5",

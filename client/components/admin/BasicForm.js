@@ -5,6 +5,7 @@ import { withRouter, Prompt } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Formik, Form } from "formik";
 import { convertToRaw } from "draft-js";
+import { diff } from "deep-object-diff";
 
 //Components
 import DeleteButtons from "./fields/DeleteButtons";
@@ -254,7 +255,7 @@ class BasicForm extends Component {
 		}
 	}
 
-	renderSubmitButtons(isValid, isSubmitting) {
+	renderSubmitButtons(formHasChanged, isSubmitting) {
 		let { itemType, submitButtonText, useFormCard } = this.props;
 		const { isNew } = this.state;
 
@@ -275,7 +276,7 @@ class BasicForm extends Component {
 			submitButtonText += ` ${itemType}`;
 		}
 
-		const disableButtons = !isValid || isSubmitting;
+		const disableButtons = !formHasChanged || isSubmitting;
 
 		const buttons = (
 			<div className="buttons">
@@ -334,20 +335,19 @@ class BasicForm extends Component {
 				onSubmit={(values, formikProps) => this.handleSubmit(values, formikProps)}
 				validationSchema={validationSchema}
 				render={formikProps => {
-					const { errors, values, touched, isValid, isSubmitting } = formikProps;
+					const { errors, initialValues, values, touched, isSubmitting } = formikProps;
+
+					const formHasChanged = Object.keys(diff(values, initialValues)).length > 0;
 					return (
 						<Form>
 							<Prompt
-								//As long as isInitialValid = false,
-								//the isValid property will mean the form has changes
-								//the !isSubmitting prevents prompts on redirectOnSubmit
-								when={!isSubmitting && isValid}
+								when={!isSubmitting && formHasChanged}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className={divClass.join(" ")}>
 								{this.renderFields(values, formikProps)}
 								{this.renderErrors(errors, touched)}
-								{this.renderSubmitButtons(isValid, isSubmitting)}
+								{this.renderSubmitButtons(formHasChanged, isSubmitting)}
 							</div>
 							{this.renderDeleteButtons()}
 						</Form>
