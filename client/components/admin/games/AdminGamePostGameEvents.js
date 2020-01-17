@@ -254,6 +254,7 @@ class AdminGamePostGameEvents extends Component {
 							name,
 							type: fieldTypes.select,
 							options: options.stats,
+							closeMenuOnSelect: false,
 							isNested: true,
 							isMulti: true
 						});
@@ -273,6 +274,7 @@ class AdminGamePostGameEvents extends Component {
 											name: `playersAndStats.${i}.stats`,
 											type: fieldTypes.select,
 											options: options.stats,
+											closeMenuOnSelect: false,
 											isNested: true,
 											isMulti: true
 										},
