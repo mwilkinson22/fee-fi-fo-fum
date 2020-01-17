@@ -6,7 +6,6 @@ import { Prompt } from "react-router-dom";
 import { Formik, Form, FieldArray } from "formik";
 import Select from "react-select";
 import * as Yup from "yup";
-import { diff } from "deep-object-diff";
 
 //Components
 import LoadingPage from "../../LoadingPage";
@@ -23,7 +22,7 @@ import selectStyling from "~/constants/selectStyling";
 
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
-import { renderFieldGroup } from "~/helpers/formHelper";
+import { renderFieldGroup, getTouchedNestedErrors } from "~/helpers/formHelper";
 
 class AdminGamePostGameEvents extends Component {
 	constructor(props) {
@@ -421,7 +420,7 @@ class AdminGamePostGameEvents extends Component {
 		return <div className="form-card grid">{renderFieldGroup(fields, validationSchema)}</div>;
 	}
 
-	renderTweets({ errors, touched, values }) {
+	renderTweets({ errors, values }) {
 		const { eventTypes, isLoadingPreview, previewImages, validationSchema } = this.state;
 		return values.tweets.map((tweet, i) => {
 			//Get Event Type as a string
@@ -590,6 +589,37 @@ class AdminGamePostGameEvents extends Component {
 		);
 	}
 
+	renderErrors({ errors, touched }) {
+		const filteredErrors = getTouchedNestedErrors(errors, touched);
+
+		const tweetsWithErrors = _.chain(filteredErrors)
+			//Get Array of Keys
+			.keys()
+			//Filter to just tweets
+			.filter(key => key.match(/^tweets./))
+			//Pull off tweet number
+			.map(key => Number(key.split(".")[1]))
+			//Get a unique, sorted list
+			.uniq()
+			.sort()
+			//Move from 0-index to 1-index
+			.map(num => ++num)
+			.value();
+
+		if (tweetsWithErrors.length) {
+			let text = "Please correct errors in ";
+			if (tweetsWithErrors.length === 1) {
+				text += `Tweet ${tweetsWithErrors[0]}`;
+			} else {
+				const lastTweetNumber = tweetsWithErrors.pop();
+				text += `Tweets ${tweetsWithErrors.join(", ")} & ${lastTweetNumber}`;
+			}
+			text += " before submitting";
+
+			return <span className="error">{text}</span>;
+		}
+	}
+
 	render() {
 		const { isLoading, validationSchema } = this.state;
 		if (isLoading) {
@@ -612,6 +642,7 @@ class AdminGamePostGameEvents extends Component {
 								{this.renderAddButton()}
 								{this.renderThreadDetails()}
 								<div className="form-card">
+									{this.renderErrors(formikProps)}
 									<div className="buttons">
 										<button type="reset">Clear</button>
 										<button

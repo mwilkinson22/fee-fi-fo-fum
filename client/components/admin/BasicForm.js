@@ -14,8 +14,7 @@ import DeleteButtons from "./fields/DeleteButtons";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { nestedObjectToDot } from "~/helpers/genericHelper";
-import { extractYupData, renderFieldGroup } from "~/helpers/formHelper";
+import { extractYupData, renderFieldGroup, getTouchedNestedErrors } from "~/helpers/formHelper";
 
 class BasicForm extends Component {
 	constructor(props) {
@@ -221,16 +220,7 @@ class BasicForm extends Component {
 	renderErrors(nestedErrors, nestedTouched) {
 		const { useFormCard, validationSchema } = this.props;
 
-		//Convert from { address : { city: "" } } to { address.city: "" }
-		const touched = nestedObjectToDot(nestedTouched);
-
-		//Only log the touched errors
-		const errors = {};
-		_.each(nestedObjectToDot(nestedErrors), (err, key) => {
-			if (touched[key]) {
-				errors[key] = err;
-			}
-		});
+		const errors = getTouchedNestedErrors(nestedErrors, nestedTouched);
 
 		if (Object.keys(errors).length) {
 			const errorList = Object.keys(errors).map(name => {

@@ -15,6 +15,9 @@ import TweetComposer from "~/client/components/TweetComposer";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import selectStyling from "~/constants/selectStyling";
 
+//Helpers
+import { nestedObjectToDot } from "./genericHelper";
+
 export function extractYupData(name, validationSchema) {
 	return name
 		.split(".")
@@ -243,4 +246,19 @@ export function renderInput(field) {
 	} else {
 		return <Field {...fieldProps} />;
 	}
+}
+
+export function getTouchedNestedErrors(nestedErrors, nestedTouched) {
+	//Convert from { address : { city: "" } } to { address.city: "" }
+	const touched = nestedObjectToDot(nestedTouched);
+
+	//Only log the touched errors
+	const errors = {};
+	_.each(nestedObjectToDot(nestedErrors), (err, key) => {
+		if (touched[key]) {
+			errors[key] = err;
+		}
+	});
+
+	return errors;
 }
