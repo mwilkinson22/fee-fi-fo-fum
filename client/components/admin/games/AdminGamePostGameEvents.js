@@ -608,9 +608,9 @@ class AdminGamePostGameEvents extends Component {
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className="admin-post-game-events">
-								{this.renderThreadDetails()}
 								{this.renderTweets(formikProps)}
 								{this.renderAddButton()}
+								{this.renderThreadDetails()}
 								<div className="form-card">
 									<div className="buttons">
 										<button type="reset">Clear</button>
