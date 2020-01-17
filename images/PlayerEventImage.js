@@ -8,8 +8,8 @@ const Team = mongoose.model("teams");
 export default class PlayerEventImage extends Canvas {
 	constructor(player, options = {}) {
 		//Set Dimensions
-		const cWidth = 1400;
-		const cHeight = cWidth / 2;
+		const cWidth = 1200;
+		const cHeight = cWidth * 0.6;
 
 		//Load In Fonts
 		const fonts = [
@@ -31,7 +31,7 @@ export default class PlayerEventImage extends Canvas {
 				family: "Montserrat"
 			},
 			score: {
-				size: Math.round(cHeight * 0.08),
+				size: Math.round(cHeight * 0.07),
 				family: "Montserrat"
 			},
 			hashtag: {
@@ -75,7 +75,7 @@ export default class PlayerEventImage extends Canvas {
 		this.backgroundRendered = true;
 	}
 
-	async drawGameData() {
+	async drawGameData(includeGameLogo) {
 		if (!this.backgroundRendered) {
 			await this.drawBackground();
 		}
@@ -92,11 +92,11 @@ export default class PlayerEventImage extends Canvas {
 		}
 
 		//Draw Bar
-		const barTop = Math.round(cHeight * 0.575);
+		const barTop = Math.round(cHeight * 0.625);
 		const barHeight = Math.round(cHeight * 0.11);
 		const barWidth = Math.round(positions.rightPanelWidth * 0.5);
 		const badgeHeight = Math.round(barHeight * 1.6);
-		const badgeOffset = Math.round(positions.rightPanelWidth * 0.13);
+		const badgeOffset = Math.round(positions.rightPanelWidth * 0.17);
 		const badgeWidth = Math.round(positions.rightPanelWidth * 0.25);
 		const textOffset = Math.round(positions.rightPanelWidth * 0.02);
 		const logoWidth = Math.round(positions.rightPanelWidth * 0.5);
@@ -110,10 +110,10 @@ export default class PlayerEventImage extends Canvas {
 			ctx.fillStyle = colours.main;
 			if (i === 0) {
 				ctx.beginPath();
-				ctx.moveTo(cWidth - barWidth * 2.092, barTop);
+				ctx.moveTo(cWidth - barWidth * 2.11, barTop);
 				ctx.lineTo(cWidth - barWidth, barTop);
 				ctx.lineTo(cWidth - barWidth, barTop + barHeight);
-				ctx.lineTo(cWidth - barWidth * 2.13, barTop + barHeight);
+				ctx.lineTo(cWidth - barWidth * 2.14, barTop + barHeight);
 				ctx.closePath();
 				ctx.fill();
 				relativeBadgeOffset = 0 - badgeOffset - badgeWidth;
@@ -144,19 +144,21 @@ export default class PlayerEventImage extends Canvas {
 			);
 		});
 
-		//Add Game Logo
+		//Add Game and brand logos
 		const brandLogoUrl = `images/layout/branding/square-logo-with-shadow.png`;
-		const gameLogoUrl = game.images.logo || brandLogoUrl;
-		const gameLogo = await this.googleToCanvas(gameLogoUrl);
-		this.contain(
-			gameLogo,
-			cWidth - (positions.rightPanelWidth + logoWidth) / 2,
-			Math.round(cHeight * 0.05),
-			logoWidth,
-			logoHeight
-		);
+		if (includeGameLogo) {
+			const gameLogoUrl = game.images.logo || brandLogoUrl;
+			const gameLogo = await this.googleToCanvas(gameLogoUrl);
+			this.contain(
+				gameLogo,
+				cWidth - (positions.rightPanelWidth + logoWidth) / 2,
+				Math.round(cHeight * 0.05),
+				logoWidth,
+				logoHeight
+			);
+		}
 
-		if (game.images.logo) {
+		if (game.images.logo || !includeGameLogo) {
 			const brandLogo = await this.googleToCanvas(brandLogoUrl);
 			ctx.shadowBlur = 20;
 			ctx.shadowColor = "#000";
@@ -231,7 +233,7 @@ export default class PlayerEventImage extends Canvas {
 		this.textBuilder(
 			[firstRow, secondRow],
 			cWidth - positions.rightPanelWidth / 2,
-			cHeight * 0.85,
+			cHeight * 0.87,
 			{
 				lineHeight: 1.1
 			}
@@ -266,7 +268,7 @@ export default class PlayerEventImage extends Canvas {
 		const { ctx, cWidth, cHeight, positions, game, textStyles } = this;
 		let rows = [];
 		let size = Math.round(cHeight * 0.18);
-		let height = Math.round(cHeight * 0.35);
+		let height = Math.round(cHeight * 0.375);
 		ctx.fillStyle = this.colours.gold;
 		ctx.shadowColor = "black";
 		ctx.shadowOffsetX = 5;
@@ -410,12 +412,11 @@ export default class PlayerEventImage extends Canvas {
 					}
 				]);
 				break;
-			case "motm":
-			case "fan_motm":
+			case "potm":
 				rows.push(
 					[
 						{
-							text: "MAN",
+							text: game.genderedString,
 							size: size * 0.8
 						}
 					],
@@ -447,15 +448,6 @@ export default class PlayerEventImage extends Canvas {
 		});
 
 		this.textBuilder(rows, cWidth - positions.rightPanelWidth / 2, height);
-
-		if (event === "fan_motm") {
-			const rotation = -0.2;
-			ctx.rotate(rotation);
-			ctx.font = `${size * 0.5}px Monstro`;
-			ctx.fillStyle = this.colours.lightClaret;
-			ctx.fillText("FANS'", cWidth - positions.rightPanelWidth * 0.85, cHeight * 0.52);
-			ctx.rotate(0 - rotation);
-		}
 	}
 
 	async render(forTwitter = false) {
