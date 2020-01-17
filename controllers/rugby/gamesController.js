@@ -29,6 +29,7 @@ import FixtureListImage from "~/images/FixtureListImage";
 import SquadImage from "~/images/SquadImage";
 import GameEventImage from "~/images/GameEventImage";
 import PlayerEventImage from "~/images/PlayerEventImage";
+import TeamStatsImage from "~/images/TeamStatsImage";
 
 //Utility Functions
 async function validateGame(_id, res, promise = null) {
@@ -808,7 +809,7 @@ export async function postFixtureListImage(req, res) {
 }
 
 async function generatePostGameEventImage(basicGame, data, res) {
-	const { eventType } = data;
+	const { eventType, stats } = data;
 
 	const [game] = await getExtraGameInfo([basicGame], true, true);
 
@@ -817,11 +818,10 @@ async function generatePostGameEventImage(basicGame, data, res) {
 	} else {
 		//Pull the correct image, based on event type
 		switch (eventType) {
-			case "breakdown-intro": {
-				const image = new GameEventImage(game, eventType);
-				return image;
-			}
+			case "breakdown-intro":
+				return new GameEventImage(game, eventType);
 			case "team-stats":
+				return new TeamStatsImage(game, stats);
 			case "player-stats":
 			case "grouped-player-stats":
 			case "steel-points":

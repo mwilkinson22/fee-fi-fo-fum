@@ -472,7 +472,11 @@ class AdminGamePostGameEvents extends Component {
 					preview.push(<LoadingPage key="loading" className="full-span" />);
 				} else if (previewImages[i]) {
 					preview.push(
-						<img src={previewImages[i]} className="full-span" key="preview-image" />
+						<img
+							src={previewImages[i]}
+							className="full-span preview-image"
+							key="preview-image"
+						/>
 					);
 				}
 			}
@@ -553,19 +557,21 @@ class AdminGamePostGameEvents extends Component {
 				render={formikProps => {
 					return (
 						<Form>
-							{this.renderThreadDetails()}
-							{this.renderTweets(formikProps)}
-							{this.renderAddButton()}
-							<div className="form-card">
-								<div className="buttons">
-									<button type="reset">Clear</button>
-									<button
-										type="submit"
-										className="confirm"
-										disabled={!formikProps.isValid}
-									>
-										Submit
-									</button>
+							<div className="admin-post-game-events">
+								{this.renderThreadDetails()}
+								{this.renderTweets(formikProps)}
+								{this.renderAddButton()}
+								<div className="form-card">
+									<div className="buttons">
+										<button type="reset">Clear</button>
+										<button
+											type="submit"
+											className="confirm"
+											disabled={!formikProps.isValid}
+										>
+											Submit
+										</button>
+									</div>
 								</div>
 							</div>
 						</Form>
