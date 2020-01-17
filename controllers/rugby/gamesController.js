@@ -711,7 +711,7 @@ export async function fetchSquadImage(req, res) {
 async function generatePlayerEventImage(player, event, basicGame) {
 	const [game] = await getExtraGameInfo([basicGame], true, true);
 	const image = new PlayerEventImage(player, { game });
-	await image.drawGameData();
+	await image.drawGameData(true);
 	await image.drawGameEvent(event);
 	return image;
 }
@@ -809,7 +809,7 @@ export async function postFixtureListImage(req, res) {
 }
 
 async function generatePostGameEventImage(basicGame, data, res) {
-	const { eventType, stats } = data;
+	const { eventType, _player, stats } = data;
 
 	const [game] = await getExtraGameInfo([basicGame], true, true);
 
@@ -822,7 +822,12 @@ async function generatePostGameEventImage(basicGame, data, res) {
 				return new GameEventImage(game, eventType);
 			case "team-stats":
 				return new TeamStatsImage(game, stats);
-			case "player-stats":
+			case "player-stats": {
+				const image = new PlayerEventImage(_player, { game });
+				await image.drawGameData();
+				await image.drawGameStats(stats);
+				return image;
+			}
 			case "grouped-player-stats":
 			case "steel-points":
 			case "fan-potm-options":

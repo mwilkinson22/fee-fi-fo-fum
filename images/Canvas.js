@@ -289,7 +289,7 @@ export default class Canvas {
 					rowX = (drawableWidth - rowWidth) / 2 + xPadding;
 					break;
 				case "right":
-					rowX = drawableWidth - rowWidth - xPadding;
+					rowX = drawableWidth - rowWidth + xPadding;
 					break;
 			}
 

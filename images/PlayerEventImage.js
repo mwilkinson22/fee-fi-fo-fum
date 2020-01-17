@@ -1,9 +1,18 @@
-import Canvas from "./Canvas";
+//Modules
 import _ from "lodash";
 import mongoose from "mongoose";
-import { localTeam } from "~/config/keys";
 const Person = mongoose.model("people");
 const Team = mongoose.model("teams");
+
+//Canvas
+import Canvas from "./Canvas";
+
+//Constants
+import { localTeam } from "~/config/keys";
+import playerStatTypes from "~/constants/playerStatTypes";
+
+//Helpers
+import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 
 export default class PlayerEventImage extends Canvas {
 	constructor(player, options = {}) {
@@ -13,7 +22,8 @@ export default class PlayerEventImage extends Canvas {
 
 		//Load In Fonts
 		const fonts = [
-			{ file: "Montserrat-Bold.ttf", family: "Montserrat" },
+			{ file: "Montserrat-SemiBold.ttf", family: "Montserrat Semibold" },
+			{ file: "Montserrat-Bold.ttf", family: "Montserrat Bold" },
 			{ file: "Monstro.ttf", family: "Monstro" }
 		];
 
@@ -24,19 +34,27 @@ export default class PlayerEventImage extends Canvas {
 		const textStyles = {
 			squadNumber: {
 				size: Math.round(cHeight * 0.075),
-				family: "Montserrat"
+				family: "Montserrat Bold"
 			},
 			playerName: {
 				size: Math.round(cHeight * 0.1),
-				family: "Montserrat"
+				family: "Montserrat Bold"
 			},
 			score: {
 				size: Math.round(cHeight * 0.07),
-				family: "Montserrat"
+				family: "Montserrat Bold"
 			},
 			hashtag: {
 				size: Math.round(cHeight * 0.075),
-				family: "Montserrat"
+				family: "Montserrat Bold"
+			},
+			statsLabel: {
+				size: Math.round(cHeight * 0.065),
+				family: "Montserrat Semibold"
+			},
+			statsValue: {
+				size: Math.round(cHeight * 0.065),
+				family: "Montserrat Bold"
 			}
 		};
 		this.setTextStyles(textStyles);
@@ -448,6 +466,42 @@ export default class PlayerEventImage extends Canvas {
 		});
 
 		this.textBuilder(rows, cWidth - positions.rightPanelWidth / 2, height);
+	}
+
+	drawGameStats(statTypes) {
+		const { ctx, colours, cHeight, cWidth, game, player, textStyles } = this;
+
+		//Get stats
+		const { stats } = game.playerStats.find(({ _player }) => _player._id == player);
+		const processedStats = PlayerStatsHelper.processStats(stats);
+
+		//Use statTypes array to get info
+		const rows = statTypes.map(key => {
+			const { singular, plural } = playerStatTypes[key];
+			const value = processedStats[key];
+
+			//Only use toString if it's not metres,
+			//as we don't want "120m Metres"
+			const valueAsString =
+				key === "M" ? value.toString() : PlayerStatsHelper.toString(key, value, 2);
+
+			//Pick label based on value
+			const label = value === 1 ? singular : plural;
+			return [
+				{ text: valueAsString, colour: colours.gold, font: textStyles.statsValue.string },
+				{
+					text: ` ${label.toUpperCase()}`,
+					colour: "#FFF",
+					font: textStyles.statsLabel.string
+				}
+			];
+		});
+
+		ctx.shadowColor = "black";
+		ctx.shadowOffsetX = 2;
+		ctx.shadowOffsetY = 2;
+		this.textBuilder(rows, cWidth * 0.97, cHeight * 0.31, { xAlign: "right" });
+		this.resetShadow();
 	}
 
 	async render(forTwitter = false) {
