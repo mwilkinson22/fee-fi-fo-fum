@@ -84,14 +84,11 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 		const input = renderInput(field);
 
 		//Error Message
-		let error;
-		if (!field.type) {
-			error = (
-				<span key={`${field.name}-error`} className="error">
-					<ErrorMessage name={field.name} />
-				</span>
-			);
-		}
+		const error = (
+			<span key={`${field.name}-error`} className="error">
+				<ErrorMessage name={field.name} />
+			</span>
+		);
 
 		return [label, input, error];
 	}
