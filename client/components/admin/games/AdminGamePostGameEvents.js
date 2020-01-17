@@ -54,6 +54,9 @@ class AdminGamePostGameEvents extends Component {
 						return schema;
 					}
 				})
+				//10 is a sensible limit for team stats, but a necessary one
+				//for player stats.
+				.max(10)
 				.label("Stats"),
 			_player: Yup.string()
 				.when("eventType", (eventType, schema) => {
@@ -416,7 +419,7 @@ class AdminGamePostGameEvents extends Component {
 		return <div className="form-card grid">{renderFieldGroup(fields, validationSchema)}</div>;
 	}
 
-	renderTweets({ errors, values }) {
+	renderTweets({ errors, touched, values }) {
 		const { eventTypes, isLoadingPreview, previewImages, validationSchema } = this.state;
 		return values.tweets.map((tweet, i) => {
 			//Get Event Type as a string
