@@ -120,12 +120,20 @@ export default class GameEventImage extends Canvas {
 			case "extraTime":
 				text = ["EXTRA", " TIME"];
 				break;
+			case "breakdown-intro":
+				text = ["THE", " BREAKDOWN"];
+				break;
 		}
 		ctx.font = textStyles.event.string;
 		ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.005);
 		ctx.shadowColor = "black";
 		this.textBuilder(
-			[[{ text: text[0], colour: colours.gold }, { text: text[1], colour: "#FFF" }]],
+			[
+				[
+					{ text: text[0], colour: colours.gold },
+					{ text: text[1], colour: "#FFF" }
+				]
+			],
 			cWidth / 2,
 			cHeight / 5
 		);

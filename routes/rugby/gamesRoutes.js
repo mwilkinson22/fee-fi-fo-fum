@@ -21,6 +21,13 @@ export default app => {
 	//Crawlers
 	app.get("/api/games/:_id/crawl", requireAdmin, gamesController.fetchExternalGame);
 
+	//Post Game Event
+	app.put(
+		"/api/games/:_id/postGameEvent/imagePreview",
+		requireAdmin,
+		gamesController.fetchPostGameEventImage
+	);
+
 	//Putters
 	app.put("/api/games/:_id/stats", requireAdmin, gamesController.setStats);
 	app.put("/api/games/:_id/event/imagePreview", requireAdmin, gamesController.fetchEventImage);

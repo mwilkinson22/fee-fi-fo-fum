@@ -11,6 +11,7 @@ import LoadingPage from "../../LoadingPage";
 import DeleteButtons from "../fields/DeleteButtons";
 
 //Actions
+import { previewPostGameEventImage } from "~/client/actions/gamesActions";
 import { fetchProfiles } from "~/client/actions/socialActions";
 
 //Constants
@@ -97,6 +98,7 @@ class AdminGamePostGameEvents extends Component {
 
 		this.state = {
 			extraFields,
+			previewImages: {},
 			validationSchema: Yup.object().shape(validationSchema)
 		};
 	}
@@ -119,6 +121,7 @@ class AdminGamePostGameEvents extends Component {
 			//Get Event Types
 			const { genderedString } = newState.game;
 			newState.eventTypes = [
+				{ label: "Text Only", value: "text-only" },
 				{ label: "Match Breakdown Intro", value: "breakdown-intro" },
 				{ label: "Team Stats", value: "team-stats" },
 				{ label: "Single Player Stats", value: "player-stats" },
@@ -330,6 +333,27 @@ class AdminGamePostGameEvents extends Component {
 		return fields;
 	}
 
+	async getPreview(i, data) {
+		const { previewPostGameEventImage } = this.props;
+		const { game, previewImages } = this.state;
+
+		//Disable preview buttons and
+		//set corresponding image to "loading"
+		this.setState({
+			isLoadingPreview: true,
+			previewImages: { ...previewImages, [i]: "loading" }
+		});
+
+		//Load image
+		const result = await previewPostGameEventImage(game._id, data);
+
+		//Add to state
+		this.setState({
+			isLoadingPreview: false,
+			previewImages: { ...previewImages, [i]: result }
+		});
+	}
+
 	renderThreadDetails() {
 		const { options, validationSchema } = this.state;
 		const fields = [
@@ -351,11 +375,11 @@ class AdminGamePostGameEvents extends Component {
 		return <div className="form-card grid">{renderFieldGroup(fields, validationSchema)}</div>;
 	}
 
-	renderTweets(values) {
-		const { eventTypes, validationSchema } = this.state;
+	renderTweets({ errors, values }) {
+		const { eventTypes, isLoadingPreview, previewImages, validationSchema } = this.state;
 		return values.tweets.map((tweet, i) => {
 			//Get Event Type as a string
-			const eventType = eventTypes.find(({ value }) => value == tweet.eventType).label;
+			const eventTypeLabel = eventTypes.find(({ value }) => value == tweet.eventType).label;
 
 			//Get "Movement" buttons
 			const movementButtons = (
@@ -364,26 +388,50 @@ class AdminGamePostGameEvents extends Component {
 					render={({ move }) => (
 						<div>
 							<button
-								onClick={() => move(i, i + 1)}
+								onClick={() => {
+									//Set Destination
+									const destination = i + 1;
+
+									//Move Tweet
+									move(i, destination);
+
+									//Move Images
+									this.setState({
+										previewImages: {
+											...previewImages,
+											[i]: previewImages[destination],
+											[destination]: previewImages[i]
+										}
+									});
+								}}
 								disabled={i == values.tweets.length - 1}
 								type="button"
 							>
 								&#9660;
 							</button>
-							<button onClick={() => move(i, i - 1)} disabled={i == 0} type="button">
+							<button
+								onClick={() => {
+									//Set Destination
+									const destination = i - 1;
+
+									//Move Tweet
+									move(i, destination);
+
+									//Move Images
+									this.setState({
+										previewImages: {
+											...previewImages,
+											[i]: previewImages[destination],
+											[destination]: previewImages[i]
+										}
+									});
+								}}
+								disabled={i == 0}
+								type="button"
+							>
 								&#9650;
 							</button>
 						</div>
-					)}
-				/>
-			);
-
-			//Get "delete" fields
-			const deleteButtons = (
-				<FieldArray
-					name="tweets"
-					render={({ remove }) => (
-						<DeleteButtons deleteText="Remove from Thread" onDelete={() => remove(i)} />
 					)}
 				/>
 			);
@@ -394,13 +442,67 @@ class AdminGamePostGameEvents extends Component {
 				name: ["tweets", i, field.name].join(".")
 			}));
 
+			//Get Preview Section
+			let preview;
+			if (tweet.eventType !== "plain-text") {
+				preview = [
+					<div className="buttons" key="preview-button">
+						<button
+							type="button"
+							disabled={isLoadingPreview || (errors.tweets && errors.tweets[i])}
+							onClick={() => this.getPreview(i, tweet)}
+						>
+							Preview Image
+						</button>
+						<button
+							type="button"
+							disabled={!previewImages[i] || previewImages[i] === "loading"}
+							onClick={() =>
+								this.setState({
+									previewImages: { ...previewImages, [i]: null }
+								})
+							}
+						>
+							Clear Preview
+						</button>
+					</div>
+				];
+
+				if (previewImages[i] === "loading") {
+					preview.push(<LoadingPage key="loading" className="full-span" />);
+				} else if (previewImages[i]) {
+					preview.push(
+						<img src={previewImages[i]} className="full-span" key="preview-image" />
+					);
+				}
+			}
+
+			//Get "delete" fields
+			const deleteButtons = (
+				<FieldArray
+					name="tweets"
+					render={({ remove }) => (
+						<DeleteButtons
+							deleteText="Remove from Thread"
+							onDelete={() => {
+								remove(i);
+								this.setState({
+									previewImages: { ...previewImages, [i]: null }
+								});
+							}}
+						/>
+					)}
+				/>
+			);
+
 			return (
 				<div className="form-card grid" key={i}>
 					{movementButtons}
 					<strong>
-						Tweet {i + 1} of {values.tweets.length} - {eventType}
+						Tweet {i + 1} of {values.tweets.length} - {eventTypeLabel}
 					</strong>
 					{renderFieldGroup(fields, validationSchema)}
+					{preview}
 					{deleteButtons}
 				</div>
 			);
@@ -448,16 +550,20 @@ class AdminGamePostGameEvents extends Component {
 				initialValues={this.getInitialValues()}
 				onSubmit={() => {}}
 				validationSchema={validationSchema}
-				render={({ isValid, values }) => {
+				render={formikProps => {
 					return (
 						<Form>
 							{this.renderThreadDetails()}
-							{this.renderTweets(values)}
+							{this.renderTweets(formikProps)}
 							{this.renderAddButton()}
 							<div className="form-card">
 								<div className="buttons">
 									<button type="reset">Clear</button>
-									<button type="submit" className="confirm" disabled={!isValid}>
+									<button
+										type="submit"
+										className="confirm"
+										disabled={!formikProps.isValid}
+									>
 										Submit
 									</button>
 								</div>
@@ -480,4 +586,6 @@ function mapStateToProps({ games, social, teams }) {
 	return { fullGames, profiles, defaultProfile, teamList };
 }
 
-export default connect(mapStateToProps, { fetchProfiles })(AdminGamePostGameEvents);
+export default connect(mapStateToProps, { fetchProfiles, previewPostGameEventImage })(
+	AdminGamePostGameEvents
+);

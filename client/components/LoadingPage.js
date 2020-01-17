@@ -1,6 +1,6 @@
 import React from "react";
 
-export default props => {
+const LoadingPage = props => {
 	const style = {};
 	if (props.fullpage) {
 		style.height = "70vh";
@@ -11,3 +11,5 @@ export default props => {
 		</div>
 	);
 };
+
+export default LoadingPage;

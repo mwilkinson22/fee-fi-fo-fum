@@ -134,6 +134,11 @@ export const previewPlayerEventImage = (id, values) => async (dispatch, getState
 	return res.data;
 };
 
+export const previewPostGameEventImage = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.put(`/games/${id}/postGameEvent/imagePreview`, values);
+	return res.data;
+};
+
 export const previewFixtureListImage = (year, competitions) => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/fixtureListImage/${year}/${competitions}`);
 	return res.data;

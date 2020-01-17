@@ -807,6 +807,45 @@ export async function postFixtureListImage(req, res) {
 	res.send(true);
 }
 
+async function generatePostGameEventImage(basicGame, data, res) {
+	const { eventType } = data;
+
+	const [game] = await getExtraGameInfo([basicGame], true, true);
+
+	if (!eventType) {
+		res.status(400).send("No event type specified");
+	} else {
+		//Pull the correct image, based on event type
+		switch (eventType) {
+			case "breakdown-intro": {
+				const image = new GameEventImage(game, eventType);
+				return image;
+			}
+			case "team-stats":
+			case "player-stats":
+			case "grouped-player-stats":
+			case "steel-points":
+			case "fan-potm-options":
+			case "fan_potm":
+				break;
+		}
+	}
+}
+
+export async function fetchPostGameEventImage(req, res) {
+	const { _id } = req.params;
+
+	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
+
+	if (game) {
+		const image = await generatePostGameEventImage(game, req.body, res);
+		if (image) {
+			const output = await image.render(false);
+			res.send(output);
+		}
+	}
+}
+
 //Calendar
 export async function createCalendar(req, res) {
 	const { _competitions, options } = req.body;
