@@ -335,7 +335,7 @@ export default class Canvas {
 				y = y - drawableHeight / 2;
 				break;
 			case "bottom":
-				y = y - drawableHeight;
+				y = y - drawableHeight - yPadding;
 				break;
 		}
 		y = y - yPadding;

@@ -7,8 +7,8 @@ const Team = mongoose.model("teams");
 export default class GameEventImage extends Canvas {
 	constructor(game, event) {
 		//Set Dimensions
-		const cWidth = 1400;
-		const cHeight = cWidth / 2;
+		const cWidth = 1200;
+		const cHeight = cWidth * 0.6;
 
 		//Load In Fonts
 		const fonts = [

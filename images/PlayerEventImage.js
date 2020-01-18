@@ -504,6 +504,8 @@ export default class PlayerEventImage extends Canvas {
 		this.resetShadow();
 	}
 
+	drawSteelPoints() {}
+
 	async render(forTwitter = false) {
 		if (!this.playerDataRendered) {
 			await this.drawPlayerData();
