@@ -1506,10 +1506,33 @@ section.match-squads {
 }
 
 .admin-post-game-events {
-	.preview-image {
-		max-height: 60vh;
-		left: 0;
-		right: 0;
-		margin: auto;
+	.tweet-wrapper {
+		.hide-button {
+			border-radius: 100%;
+			justify-self: flex-start;
+			transition: transform 100ms;
+		}
+
+		&.hidden {
+			.hide-button {
+				transform: rotate(-90deg);
+			}
+		}
+		.tweet-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			@media #{$mobile-only} {
+				flex-direction: column-reverse;
+			}
+		}
+
+		.preview-image {
+			max-height: 60vh;
+			left: 0;
+			right: 0;
+			margin: auto;
+		}
 	}
 }

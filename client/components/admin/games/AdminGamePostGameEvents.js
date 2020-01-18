@@ -81,7 +81,7 @@ class AdminGamePostGameEvents extends Component {
 				)
 				.when("eventType", (eventType, schema) => {
 					if (extraFields.playersAndStats.indexOf(eventType) > -1) {
-						return schema.min(1);
+						return schema.min(2);
 					} else {
 						return schema;
 					}
@@ -103,7 +103,8 @@ class AdminGamePostGameEvents extends Component {
 		this.state = {
 			extraFields,
 			previewImages: {},
-			validationSchema: Yup.object().shape(validationSchema)
+			validationSchema: Yup.object().shape(validationSchema),
+			hiddenTweets: {}
 		};
 	}
 
@@ -421,8 +422,17 @@ class AdminGamePostGameEvents extends Component {
 	}
 
 	renderTweets({ errors, values }) {
-		const { eventTypes, isLoadingPreview, previewImages, validationSchema } = this.state;
+		const {
+			eventTypes,
+			hiddenTweets,
+			isLoadingPreview,
+			previewImages,
+			validationSchema
+		} = this.state;
 		return values.tweets.map((tweet, i) => {
+			//Get Hidden Status
+			const isHidden = Boolean(hiddenTweets[i]);
+
 			//Get Event Type as a string
 			const eventTypeLabel = eventTypes.find(({ value }) => value == tweet.eventType).label;
 
@@ -446,6 +456,11 @@ class AdminGamePostGameEvents extends Component {
 											...previewImages,
 											[i]: previewImages[destination],
 											[destination]: previewImages[i]
+										},
+										hiddenTweets: {
+											...hiddenTweets,
+											[i]: hiddenTweets[destination],
+											[destination]: hiddenTweets[i]
 										}
 									});
 								}}
@@ -468,6 +483,11 @@ class AdminGamePostGameEvents extends Component {
 											...previewImages,
 											[i]: previewImages[destination],
 											[destination]: previewImages[i]
+										},
+										hiddenTweets: {
+											...hiddenTweets,
+											[i]: hiddenTweets[destination],
+											[destination]: hiddenTweets[i]
 										}
 									});
 								}}
@@ -481,76 +501,98 @@ class AdminGamePostGameEvents extends Component {
 				/>
 			);
 
-			//Get fields
-			const fields = this.getTweetFields(tweet).map(field => ({
-				...field,
-				name: ["tweets", i, field.name].join(".")
-			}));
+			let renderedFields, preview, deleteButtons;
+			if (!isHidden) {
+				//Get fields
+				const fields = this.getTweetFields(tweet).map(field => ({
+					...field,
+					name: ["tweets", i, field.name].join(".")
+				}));
+				renderedFields = renderFieldGroup(fields, validationSchema);
 
-			//Get Preview Section
-			let preview;
-			if (tweet.eventType !== "plain-text") {
-				preview = [
-					<div className="buttons" key="preview-button">
-						<button
-							type="button"
-							disabled={isLoadingPreview || (errors.tweets && errors.tweets[i])}
-							onClick={() => this.getPreview(i, tweet)}
-						>
-							Preview Image
-						</button>
-						<button
-							type="button"
-							disabled={!previewImages[i] || previewImages[i] === "loading"}
-							onClick={() =>
-								this.setState({
-									previewImages: { ...previewImages, [i]: null }
-								})
-							}
-						>
-							Clear Preview
-						</button>
-					</div>
-				];
+				//Get Preview Section
+				if (tweet.eventType !== "text-only") {
+					preview = [
+						<div className="buttons" key="preview-button">
+							<button
+								type="button"
+								disabled={isLoadingPreview || (errors.tweets && errors.tweets[i])}
+								onClick={() => this.getPreview(i, tweet)}
+							>
+								Preview Image
+							</button>
+							<button
+								type="button"
+								disabled={!previewImages[i] || previewImages[i] === "loading"}
+								onClick={() =>
+									this.setState({
+										previewImages: { ...previewImages, [i]: null }
+									})
+								}
+							>
+								Clear Preview
+							</button>
+						</div>
+					];
 
-				if (previewImages[i] === "loading") {
-					preview.push(<LoadingPage key="loading" className="full-span" />);
-				} else if (previewImages[i]) {
-					preview.push(
-						<img
-							src={previewImages[i]}
-							className="full-span preview-image"
-							key="preview-image"
-						/>
-					);
+					if (previewImages[i] === "loading") {
+						preview.push(<LoadingPage key="loading" className="full-span" />);
+					} else if (previewImages[i]) {
+						preview.push(
+							<img
+								src={previewImages[i]}
+								className="full-span preview-image"
+								key="preview-image"
+							/>
+						);
+					}
 				}
+
+				//Get "delete" fields
+				deleteButtons = (
+					<FieldArray
+						name="tweets"
+						render={({ remove }) => (
+							<DeleteButtons
+								deleteText="Remove from Thread"
+								onDelete={() => {
+									const previewImages = {};
+									const hiddenTweets = {};
+									values.tweets.forEach((tweet, index) => {
+										//Move everything up
+										const indexToCheck = index < i ? index : index + 1;
+										previewImages[index] = this.state.previewImages[
+											indexToCheck
+										];
+										hiddenTweets[index] = this.state.hiddenTweets[indexToCheck];
+									});
+									this.setState({ previewImages, hiddenTweets });
+									remove(i);
+								}}
+							/>
+						)}
+					/>
+				);
 			}
 
-			//Get "delete" fields
-			const deleteButtons = (
-				<FieldArray
-					name="tweets"
-					render={({ remove }) => (
-						<DeleteButtons
-							deleteText="Remove from Thread"
-							onDelete={() => {
-								remove(i);
-								this.setState({
-									previewImages: { ...previewImages, [i]: null }
-								});
-							}}
-						/>
-					)}
-				/>
-			);
-
 			return (
-				<div className="form-card grid" key={i}>
-					{movementButtons}
-					<strong>
-						Tweet {i + 1} of {values.tweets.length} - {eventTypeLabel}
-					</strong>
-					{renderFieldGroup(fields, validationSchema)}
+				<div className={`form-card grid tweet-wrapper ${isHidden ? "hidden" : ""}`} key={i}>
+					<button
+						type="button"
+						className="hide-button"
+						onClick={() =>
+							this.setState({ hiddenTweets: { ...hiddenTweets, [i]: !isHidden } })
+						}
+					>
+						{"\u25BC"}
+					</button>
+					<div className="tweet-header">
+						<strong>
+							Tweet {i + 1} of {values.tweets.length} - {eventTypeLabel}
+						</strong>
+						{movementButtons}
+					</div>
+					{renderedFields}
 					{preview}
 					{deleteButtons}
 				</div>
