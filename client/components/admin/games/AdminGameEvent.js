@@ -270,7 +270,7 @@ class AdminGameEvent extends Component {
 	}
 
 	render() {
-		const { game, isLoading, validationSchema } = this.state;
+		const { game, isLoading, previewImage, validationSchema } = this.state;
 
 		//Wait for profiles to load
 		if (isLoading) {
@@ -283,30 +283,44 @@ class AdminGameEvent extends Component {
 					initialValues={this.getInitialValues()}
 					onSubmit={(values, formik) => this.handleSubmit(values, formik)}
 					validationSchema={validationSchema}
-					render={({ errors, isSubmitting, setFieldValue, values }) => (
-						<Form>
-							<div className="form-card grid">
-								{renderFieldGroup(this.getFieldGroups(values), validationSchema)}
-								<div className="buttons">
-									<button type="button" onClick={() => this.getPreview(values)}>
-										Preview
-									</button>
-									<button
-										className="confirm"
-										type="submit"
-										disabled={isSubmitting || Object.keys(errors).length}
-									>
-										Post
-									</button>
+					render={({ errors, isSubmitting, setFieldValue, values }) => {
+						const disabled = isSubmitting || Object.keys(errors).length;
+						return (
+							<Form>
+								<div className="form-card grid">
+									{renderFieldGroup(
+										this.getFieldGroups(values),
+										validationSchema
+									)}
+									<div className="buttons">
+										<button
+											type="button"
+											onClick={() => this.getPreview(values)}
+											disabled={
+												disabled ||
+												values.event == "none" ||
+												previewImage === false
+											}
+										>
+											Preview
+										</button>
+										<button
+											className="confirm"
+											type="submit"
+											disabled={disabled}
+										>
+											Post
+										</button>
+									</div>
+									{this.renderPreview()}
 								</div>
-								{this.renderPreview()}
-							</div>
-							<AdminGameEventList
-								game={game}
-								onReply={tweetId => setFieldValue("replyTweet", tweetId)}
-							/>
-						</Form>
-					)}
+								<AdminGameEventList
+									game={game}
+									onReply={tweetId => setFieldValue("replyTweet", tweetId)}
+								/>
+							</Form>
+						);
+					}}
 				/>
 			</div>
 		);
