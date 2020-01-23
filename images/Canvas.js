@@ -32,11 +32,20 @@ export default class Canvas {
 	}
 
 	setTextStyles(styles) {
-		this.textStyles = _.mapValues(styles, style => {
+		const currentTextStyles = this.textStyles || {};
+
+		const newTextStyles = _.mapValues(styles, style => {
 			style.size = Math.round(style.size);
 			style.string = `${style.size}px ${style.family}`;
 			return style;
 		});
+
+		this.textStyles = {
+			...currentTextStyles,
+			...newTextStyles
+		};
+
+		return this.textStyles;
 	}
 
 	resetShadow(ctx = this.ctx) {
