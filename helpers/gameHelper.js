@@ -657,3 +657,113 @@ export function convertGameToCalendarString(game, options, teamTypes, localTeamN
 
 	return str;
 }
+
+export function formatPlayerStatsForImage(game, player, statTypes, textStyles, colours, sizes) {
+	const { stats } = game.playerStats.find(({ _player }) => _player._id == player);
+	const processedStats = PlayerStatsHelper.processStats(stats);
+	return statTypes
+		.map(key => {
+			let row;
+			//Standard stat types
+			switch (key) {
+				case "potm":
+				case "fan_potm": {
+					//Ensure the player has the award in question
+					if (key === "potm" && game._potm != player) {
+						return null;
+					} else if (
+						key === "fan_potm" &&
+						(!game.fan_potm_winners || game.fan_potm_winners.indexOf(player) === -1)
+					) {
+						return null;
+					}
+					row = [
+						{
+							text: key === "fan_potm" ? "FANS' " : "",
+							colour: colours.lightClaret,
+							font: textStyles.statsValue.string
+						},
+						{
+							text: game.genderedString.toUpperCase(),
+							colour: colours.gold,
+							font: textStyles.statsValue.string
+						},
+						{
+							text: " OF THE ",
+							colour: "#FFF",
+							font: textStyles.statsLabel.string
+						},
+						{
+							text: "MATCH",
+							colour: colours.gold,
+							font: textStyles.statsValue.string
+						}
+					];
+					break;
+				}
+
+				case "steel":
+					if (game.manOfSteel && game.manOfSteel.length) {
+						const entry = game.manOfSteel.find(({ _player }) => _player == player);
+						if (entry) {
+							const { points } = entry;
+							row = [
+								{
+									text: points,
+									colour: colours.gold,
+									font: textStyles.statsValue.string
+								},
+								{
+									text: ` ${game.genderedString.toUpperCase()} OF `,
+									colour: "#FFF",
+									font: textStyles.statsLabel.string
+								},
+								{
+									text: "STEEL ",
+									colour: colours.gold,
+									font: textStyles.statsValue.string
+								},
+								{
+									text: points === 1 ? "POINT" : "POINTS",
+									colour: "#FFF",
+									font: textStyles.statsLabel.string
+								}
+							];
+						}
+					}
+					break;
+
+				//Standard stat types
+				default: {
+					const { singular, plural } = playerStatTypes[key];
+					const value = processedStats[key];
+
+					//Only use toString if it's not metres,
+					//as we don't want "120m Metres"
+					const valueAsString =
+						key === "M" ? value.toString() : PlayerStatsHelper.toString(key, value, 2);
+
+					//Pick label based on value
+					const label = value === 1 ? singular : plural;
+					row = [
+						{
+							text: valueAsString,
+							colour: colours.gold,
+							font: textStyles.statsValue.string
+						},
+						{
+							text: ` ${label.toUpperCase()}`,
+							colour: "#FFF",
+							font: textStyles.statsLabel.string
+						}
+					];
+				}
+			}
+
+			return row.map(r => ({
+				...r,
+				font: sizes[key] ? r.font.replace(/\d+/, sizes[key]) : r.font
+			}));
+		})
+		.filter(_.identity);
+}

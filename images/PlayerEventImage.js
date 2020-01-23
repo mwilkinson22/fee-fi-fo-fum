@@ -9,10 +9,9 @@ import Canvas from "./Canvas";
 
 //Constants
 import { localTeam } from "~/config/keys";
-import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
 
 export default class PlayerEventImage extends Canvas {
 	constructor(player, options = {}) {
@@ -471,36 +470,15 @@ export default class PlayerEventImage extends Canvas {
 	drawGameStats(statTypes) {
 		const { ctx, colours, cHeight, cWidth, game, player, textStyles } = this;
 
-		//Get stats
-		const { stats } = game.playerStats.find(({ _player }) => _player._id == player);
-		const processedStats = PlayerStatsHelper.processStats(stats);
-
-		//Use statTypes array to get info
-		const rows = statTypes.map(key => {
-			const { singular, plural } = playerStatTypes[key];
-			const value = processedStats[key];
-
-			//Only use toString if it's not metres,
-			//as we don't want "120m Metres"
-			const valueAsString =
-				key === "M" ? value.toString() : PlayerStatsHelper.toString(key, value, 2);
-
-			//Pick label based on value
-			const label = value === 1 ? singular : plural;
-			return [
-				{ text: valueAsString, colour: colours.gold, font: textStyles.statsValue.string },
-				{
-					text: ` ${label.toUpperCase()}`,
-					colour: "#FFF",
-					font: textStyles.statsLabel.string
-				}
-			];
+		const rows = formatPlayerStatsForImage(game, player, statTypes, textStyles, colours, {
+			fan_potm: cHeight * 0.05,
+			steel: cHeight * 0.055
 		});
 
 		ctx.shadowColor = "black";
 		ctx.shadowOffsetX = 2;
 		ctx.shadowOffsetY = 2;
-		const lineHeight = statTypes.length <= 5 ? 2 : null;
+		const lineHeight = rows.length <= 5 ? 2 : null;
 		this.textBuilder(rows, cWidth * 0.97, cHeight * 0.31, { xAlign: "right", lineHeight });
 		this.resetShadow();
 	}
