@@ -299,22 +299,13 @@ gameSchema.query.crawl = function() {
 
 gameSchema.query.eventImage = function() {
 	return this.select({
-		hashtags: 1,
-		customHashtags: 1,
-		isAway: 1,
-		date: 1,
-		_ground: 1,
-		_opposition: 1,
-		_competition: 1,
-		_teamType: 1,
-		images: 1,
-		round: 1,
-		customTitle: 1,
-		playerStats: 1,
-		squadsAnnounced: 1,
-		pregameSquads: 1,
-		extraTime: 1,
-		events: 1
+		slug: 0,
+		_referee: 0,
+		_video_referee: 0,
+		externalId: 0,
+		externalSync: 0,
+		socialImageVersion: 0,
+		attendance: 0
 	})
 		.populate({ path: "pregameSquads.squad", select: "name images gender" })
 		.populate({
