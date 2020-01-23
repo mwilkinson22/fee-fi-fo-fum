@@ -500,7 +500,8 @@ export default class PlayerEventImage extends Canvas {
 		ctx.shadowColor = "black";
 		ctx.shadowOffsetX = 2;
 		ctx.shadowOffsetY = 2;
-		this.textBuilder(rows, cWidth * 0.97, cHeight * 0.31, { xAlign: "right" });
+		const lineHeight = statTypes.length <= 5 ? 2 : null;
+		this.textBuilder(rows, cWidth * 0.97, cHeight * 0.31, { xAlign: "right", lineHeight });
 		this.resetShadow();
 	}
 
