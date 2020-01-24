@@ -830,8 +830,7 @@ async function generatePostGameEventImage(basicGame, data, res) {
 				return image;
 			}
 			case "grouped-player-stats":
-			case "fan-potm-options":
-			case "fan-potm": {
+			case "fan-potm-options": {
 				const image = new MultiplePlayerStats(game, playersAndStats, eventType);
 				return image;
 			}

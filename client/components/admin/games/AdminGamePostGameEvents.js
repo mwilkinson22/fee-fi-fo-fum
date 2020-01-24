@@ -147,12 +147,6 @@ class AdminGamePostGameEvents extends Component {
 						value: "fan-potm-options"
 					});
 				}
-				if (newState.game.fan_potm_winners && newState.game.fan_potm_winners.length) {
-					newState.eventTypes.push({
-						label: `Fans' ${genderedString} of the Match Winner`,
-						value: "fan-potm"
-					});
-				}
 			}
 
 			//Ensure an event type is selected for the dropdown
@@ -330,6 +324,15 @@ class AdminGamePostGameEvents extends Component {
 					}
 					case "playersAndStats":
 						{
+							const statsField = i => ({
+								name: `playersAndStats.${i}.stats`,
+								type: fieldTypes.select,
+								options: [...options.stats, ...options.playerAwards],
+								closeMenuOnSelect: false,
+								isNested: true,
+								isMulti: true
+							});
+
 							if (eventType == "grouped-player-stats") {
 								playersAndStats.forEach((data, i) => {
 									fields.push(
@@ -339,14 +342,7 @@ class AdminGamePostGameEvents extends Component {
 											options: options.players,
 											isNested: true
 										},
-										{
-											name: `playersAndStats.${i}.stats`,
-											type: fieldTypes.select,
-											options: [...options.stats, ...options.playerAwards],
-											closeMenuOnSelect: false,
-											isNested: true,
-											isMulti: true
-										},
+										statsField(i),
 										{
 											name: `playersAndStats`,
 											type: fieldTypes.fieldArray,
@@ -386,11 +382,7 @@ class AdminGamePostGameEvents extends Component {
 										.value();
 
 									fields.push({
-										name: `playersAndStats.${i}.stats`,
-										type: fieldTypes.select,
-										options: options.stats,
-										isNested: true,
-										isMulti: true,
+										...statsField(i),
 										label: `${_player.name.full} Stats`
 									});
 								});
