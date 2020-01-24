@@ -5,6 +5,7 @@ import { OAuth } from "oauth";
 
 //Mongoose
 import mongoose from "mongoose";
+const Person = mongoose.model("people");
 const Settings = mongoose.model("settings");
 const SocialProfile = mongoose.model("socialProfiles");
 
@@ -209,8 +210,28 @@ export async function postToSocial(service, text, options = {}) {
 			//Get core info
 			let event = "facebook";
 			const data = {
-				value1: text.replace(/\n/g, "<br>&nbsp;<br>")
+				value1: text.replace(/\n/g, "<br>")
 			};
+
+			//Replace @'s with names, where possible
+			const twitterHandles = text.match(/@[A-Z0-9-_]+/gi);
+			if (twitterHandles) {
+				//Get people with corresponding handles
+				const people = await Person.find(
+					{
+						twitter: { $in: twitterHandles.map(h => h.replace("@", "")) }
+					},
+					"twitter name nickname"
+				).lean();
+
+				//Loop through and update text
+				people.forEach(({ nickname, name, twitter }) => {
+					data.value1 = data.value1.replace(
+						new RegExp(`@${twitter}`, "gi"),
+						nickname || name.last
+					);
+				});
+			}
 
 			//Add image
 			if (options.images && options.images.length) {
