@@ -9,6 +9,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
 
 export default class MultiplePlayerStats extends Canvas {
 	constructor(game, playersAndStats, eventType) {
@@ -20,7 +21,8 @@ export default class MultiplePlayerStats extends Canvas {
 
 		//Load In Fonts
 		const fonts = [
-			{ file: "Montserrat-Bold.ttf", family: "Montserrat" },
+			{ file: "Montserrat-SemiBold.ttf", family: "Montserrat Semibold" },
+			{ file: "Montserrat-Bold.ttf", family: "Montserrat Bold" },
 			{ file: "Monstro.ttf", family: "Monstro" }
 		];
 
@@ -44,26 +46,32 @@ export default class MultiplePlayerStats extends Canvas {
 		this.splitRows = playersAndStats.length > 4;
 
 		//Constants
+		const statSize = Math.round(cWidth * (this.splitRows ? 0.015 : 0.018));
 		const textStyles = {
 			header: {
 				size: Math.round(cHeight * 0.1),
-				family: "Montserrat"
-			},
-			stats: {
-				size: Math.round(cWidth * (this.splitRows ? 0.015 : 0.018)),
-				family: "Montserrat"
+				family: "Montserrat Semibold"
 			},
 			number: {
 				size: Math.round(cWidth * 0.017),
-				family: "Montserrat"
+				family: "Montserrat Semibold"
 			},
 			name: {
 				size: Math.round(cWidth * 0.02),
-				family: "Montserrat"
+				family: "Montserrat Semibold"
+			},
+			statsLabel: {
+				size: statSize,
+				family: "Montserrat Semibold"
+			},
+			statsValue: {
+				size: statSize,
+				family: "Montserrat Bold"
 			}
 		};
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
+		this.colours.fans = this.colours.gold;
 	}
 
 	async drawBackground() {
@@ -164,7 +172,7 @@ export default class MultiplePlayerStats extends Canvas {
 		//Work out maximum stat rows
 		const maximumStatRows = Math.max(...players.map(p => p.stats.length));
 		const statRowPadding = 1.8;
-		const statBoxHeight = (maximumStatRows + 0.5) * textStyles.stats.size * statRowPadding;
+		const statBoxHeight = (maximumStatRows + 0.5) * textStyles.statsValue.size * statRowPadding;
 		const imageBoxHeight = height - statBoxHeight;
 
 		//Flatten eligible players
@@ -243,35 +251,12 @@ export default class MultiplePlayerStats extends Canvas {
 			ctx.fillStyle = colours.claret;
 			ctx.fillRect(x, y + imageBoxHeight, width, statBoxHeight);
 
-			//Get Player Stats
-			const playerStats = PlayerStatsHelper.processStats(
-				game.playerStats.find(p => p._player._id == _player).stats
-			);
-
 			//Add Stats
-			ctx.fillStyle = "#FFF";
-			ctx.font = textStyles.stats.string;
-			const rows = stats.map(key => {
-				//Get Value
-				const value = playerStats[key];
-				const valueAsString =
-					key === "M" ? value.toString() : PlayerStatsHelper.toString(key, value, 2);
-				//Get Label
-				const { singular, plural } = playerStatTypes[key];
-				let label;
-				if (key === "TS") {
-					label = "Tackling";
-				} else if (key === "KS") {
-					label = "Kicking";
-				} else {
-					label = value === 1 ? singular : plural;
-				}
-
-				return [
-					{ text: valueAsString, colour: colours.gold },
-					{ text: ` ${label.toUpperCase()}`, colour: "#FFF" }
-				];
+			const rows = formatPlayerStatsForImage(game, _player, stats, textStyles, colours, {
+				steel: textStyles.statsValue.size * 0.8,
+				fan_potm: textStyles.statsValue.size * 0.78
 			});
+
 			this.textBuilder(rows, x + width / 2, y + imageBoxHeight + statBoxHeight / 2, {
 				lineHeight: statRowPadding * 1.25
 			});

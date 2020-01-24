@@ -58,6 +58,7 @@ export default class PlayerEventImage extends Canvas {
 		};
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
+		this.colours.fans = this.colours.lightClaret;
 
 		this.positions = {
 			leftPanelWidth: Math.round(cWidth * 0.44),

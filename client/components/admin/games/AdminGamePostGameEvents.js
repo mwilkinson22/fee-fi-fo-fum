@@ -192,6 +192,25 @@ class AdminGamePostGameEvents extends Component {
 			.map((options, label) => ({ label, options: _.sortBy(options, "label") }))
 			.value();
 
+		//Player Awards (to be used in addition to stats)
+		const playerAwards = [];
+		if (game._potm) {
+			playerAwards.push({ label: `${game.genderedString} of the Match`, value: "potm" });
+		}
+		if (game.fan_potm && game.fan_potm_winners) {
+			playerAwards.push({
+				label: `Fans' ${game.genderedString} of the Match`,
+				value: "fan_potm"
+			});
+		}
+		if (game.manOfSteel && game.manOfSteel.length) {
+			playerAwards.push({ label: `${game.genderedString} of Steel Points`, value: "steel" });
+		}
+		options.playerAwards = [];
+		if (playerAwards.length) {
+			options.playerAwards.push({ label: "Awards", options: playerAwards });
+		}
+
 		//Players
 		options.players = convertTeamToSelect(game, teamList);
 
@@ -254,12 +273,17 @@ class AdminGamePostGameEvents extends Component {
 							isNested: true
 						});
 						break;
-					case "stats":
+					case "stats": {
+						const statOptions = [...options.stats];
+						if (eventType === "player-stats") {
+							statOptions.push(...options.playerAwards);
+						}
+
 						fields.push(
 							{
 								name,
 								type: fieldTypes.select,
-								options: options.stats,
+								options: statOptions,
 								closeMenuOnSelect: false,
 								isNested: true,
 								isMulti: true
@@ -303,6 +327,7 @@ class AdminGamePostGameEvents extends Component {
 							}
 						);
 						break;
+					}
 					case "playersAndStats":
 						{
 							if (eventType == "grouped-player-stats") {
@@ -317,7 +342,7 @@ class AdminGamePostGameEvents extends Component {
 										{
 											name: `playersAndStats.${i}.stats`,
 											type: fieldTypes.select,
-											options: options.stats,
+											options: [...options.stats, ...options.playerAwards],
 											closeMenuOnSelect: false,
 											isNested: true,
 											isMulti: true

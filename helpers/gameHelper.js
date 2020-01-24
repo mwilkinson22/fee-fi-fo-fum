@@ -680,7 +680,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 					row = [
 						{
 							text: key === "fan_potm" ? "FANS' " : "",
-							colour: colours.lightClaret,
+							colour: colours.fans,
 							font: textStyles.statsValue.string
 						},
 						{
@@ -760,10 +760,12 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 				}
 			}
 
-			return row.map(r => ({
-				...r,
-				font: sizes[key] ? r.font.replace(/\d+/, sizes[key]) : r.font
-			}));
+			if (row) {
+				return row.map(r => ({
+					...r,
+					font: sizes && sizes[key] ? r.font.replace(/\d+/, sizes[key]) : r.font
+				}));
+			}
 		})
 		.filter(_.identity);
 }
