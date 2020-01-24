@@ -19,7 +19,8 @@ import coachTypes from "~/constants/coachTypes";
 
 //Helpers
 import { getRedirects } from "../genericController";
-import { parseExternalGame, postToIfttt, convertGameToCalendarString } from "~/helpers/gameHelper";
+import { postToSocial } from "../oAuthController";
+import { parseExternalGame, convertGameToCalendarString } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
 //Images
@@ -557,7 +558,11 @@ export async function handleEvent(req, res) {
 			}
 
 			//Post to ifttt
-			await postToIfttt(_profile, tweet, eventObject.tweet_image);
+			const facebookImages = [];
+			if (eventObject.tweet_image) {
+				facebookImages.push(eventObject.tweet_image);
+			}
+			await postToSocial("facebook", tweet, { _profile, images: facebookImages });
 		}
 
 		//Add Event
@@ -802,7 +807,10 @@ export async function postFixtureListImage(req, res) {
 
 	const tweetMediaObject = postedTweet.data.entities.media;
 	if (tweetMediaObject) {
-		await postToIfttt(_profile, tweet, tweetMediaObject[0].media_url);
+		await postToSocial("facebook", tweet, {
+			_profile,
+			images: [tweetMediaObject[0].media_url]
+		});
 	}
 
 	//Post to ifttt

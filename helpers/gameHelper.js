@@ -2,7 +2,6 @@
 import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
-import mongoose from "mongoose";
 
 //Helpers
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
@@ -27,27 +26,6 @@ export function fixDates(games) {
 		}
 		return game;
 	});
-}
-
-export async function postToIfttt(_profile, text, image) {
-	//Get Profile
-	const SocialProfile = mongoose.model("socialProfiles");
-	const profile = await SocialProfile.findById(_profile).lean();
-
-	let event = "facebook";
-	const data = {
-		value1: text
-	};
-
-	if (image) {
-		event += "_with_photo";
-		data.value2 = image;
-	}
-	const res = await axios.post(
-		`https://maker.ifttt.com/trigger/${event}/with/key/${profile.iftttKey}`,
-		data
-	);
-	return res;
 }
 
 function getAdjacentGame(id, gameList, next) {

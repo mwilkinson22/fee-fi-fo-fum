@@ -1,10 +1,12 @@
 //Modules
 import _ from "lodash";
+import axios from "axios";
 import { OAuth } from "oauth";
 
 //Mongoose
 import mongoose from "mongoose";
 const Settings = mongoose.model("settings");
+const SocialProfile = mongoose.model("socialProfiles");
 
 //Services
 import twitter from "~/services/twitter";
@@ -198,6 +200,29 @@ export async function postToSocial(service, text, options = {}) {
 			} else {
 				return { success: true, post: postedTweet.data };
 			}
+		}
+
+		case "facebook": {
+			//Get Profile
+			const profile = await SocialProfile.findById(options._profile).lean();
+
+			//Get core info
+			let event = "facebook";
+			const data = {
+				value1: text.replace(/\n/g, "<br>&nbsp;<br>")
+			};
+
+			//Add image
+			if (options.images && options.images.length) {
+				event += "_with_photo";
+				data.value2 = options.images[0];
+			}
+
+			//Submit
+			await axios.post(
+				`https://maker.ifttt.com/trigger/${event}/with/key/${profile.iftttKey}`,
+				data
+			);
 		}
 	}
 }
