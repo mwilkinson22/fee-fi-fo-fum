@@ -702,29 +702,40 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 					break;
 				}
 
+				//steel = "3 Man of Steel Points"
+				//steel-points-only = "3 Points"
 				case "steel":
+				case "steel-points-only":
 					if (game.manOfSteel && game.manOfSteel.length) {
 						const entry = game.manOfSteel.find(({ _player }) => _player == player);
 						if (entry) {
 							const { points } = entry;
+
+							//If the event type is just "steel", insert " Man of Steel" between number and " points"
+							const fullStringFields = [];
+							if (key === "steel") {
+								fullStringFields.push(
+									{
+										text: ` ${game.genderedString.toUpperCase()} OF `,
+										colour: "#FFF",
+										font: textStyles.statsLabel.string
+									},
+									{
+										text: "STEEL",
+										colour: colours.gold,
+										font: textStyles.statsValue.string
+									}
+								);
+							}
 							row = [
 								{
 									text: points,
 									colour: colours.gold,
 									font: textStyles.statsValue.string
 								},
+								...fullStringFields,
 								{
-									text: ` ${game.genderedString.toUpperCase()} OF `,
-									colour: "#FFF",
-									font: textStyles.statsLabel.string
-								},
-								{
-									text: "STEEL ",
-									colour: colours.gold,
-									font: textStyles.statsValue.string
-								},
-								{
-									text: points === 1 ? "POINT" : "POINTS",
+									text: points === 1 ? " POINT" : " POINTS",
 									colour: "#FFF",
 									font: textStyles.statsLabel.string
 								}
@@ -744,7 +755,19 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 						key === "M" ? value.toString() : PlayerStatsHelper.toString(key, value, 2);
 
 					//Pick label based on value
-					const label = value === 1 ? singular : plural;
+					let label;
+					switch (key) {
+						case "TS":
+							label = "Tackling";
+							break;
+						case "KS":
+							label = "Kicking";
+							break;
+						default:
+							label = value === 1 ? singular : plural;
+							break;
+					}
+
 					row = [
 						{
 							text: valueAsString,
@@ -752,7 +775,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 							font: textStyles.statsValue.string
 						},
 						{
-							text: ` ${label.toUpperCase()}`,
+							text: ` ${label.toUpperCase().replace(" SUCCESS", "")}`,
 							colour: "#FFF",
 							font: textStyles.statsLabel.string
 						}

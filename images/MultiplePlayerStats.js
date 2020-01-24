@@ -5,17 +5,17 @@ import _ from "lodash";
 import Canvas from "./Canvas";
 
 //Constants
-import playerStatTypes from "~/constants/playerStatTypes";
+import { localTeam } from "~/config/keys";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
 
 export default class MultiplePlayerStats extends Canvas {
 	constructor(game, playersAndStats, eventType) {
 		//Set Dimensions
 		const cWidth = 1200;
-		const topBanner = eventType.includes("potm") ? cWidth * 0.075 : 0;
+		const topBanner =
+			["fan-potm-options", "steel-points"].indexOf(eventType) > -1 ? cWidth * 0.075 : 0;
 		const heightMultiplier = playersAndStats.length > 4 ? 0.7 : 0.5;
 		const cHeight = cWidth * heightMultiplier + topBanner;
 
@@ -102,6 +102,27 @@ export default class MultiplePlayerStats extends Canvas {
 		this.resetShadow();
 	}
 
+	drawSteelHeader() {
+		const { colours, ctx, cWidth, game, positions, textStyles } = this;
+
+		//Set Font
+		ctx.font = textStyles.header.string;
+		ctx.shadowColor = "black";
+		ctx.shadowOffsetX = 2;
+		ctx.shadowOffsetY = 2;
+
+		//Create row of text
+		const row = [
+			{ text: game.genderedString.toUpperCase(), colour: colours.gold },
+			{ text: " OF ", colour: "#FFF" },
+			{ text: "STEEL", colour: colours.gold }
+		];
+
+		//Output
+		this.textBuilder([row], cWidth * 0.5, positions.padding + positions.topBanner / 2);
+		this.resetShadow();
+	}
+
 	async drawPlayers() {
 		const { playersAndStats, positions, splitRows } = this;
 		const { playerSectionY, playerSectionWidth, playerSectionHeight } = positions;
@@ -164,7 +185,16 @@ export default class MultiplePlayerStats extends Canvas {
 	}
 
 	async drawPlayerRow(players, xMargin, y, width, height) {
-		const { colours, ctx, game, positions, textStyles } = this;
+		const { colours, ctx, eventType, game, positions, textStyles } = this;
+
+		//For the Player of Steel Points graphic, we loop through the stats arrays
+		//and ensure steel is top of the list.
+		//We use "steel-points-only" to get "3 Points" instead of "3 Man of Steel Points"
+		if (eventType === "steel-points") {
+			players.forEach(
+				p => (p.stats = ["steel-points-only", ...p.stats.filter(key => key !== "steel")])
+			);
+		}
 
 		//Get Initial X Value
 		let x = xMargin + positions.padding;
@@ -182,7 +212,7 @@ export default class MultiplePlayerStats extends Canvas {
 			.keyBy(({ _player }) => _player._id)
 			.value();
 
-		for (const { _player, stats } of players) {
+		for (let { _player, stats } of players) {
 			//Draw empty box with shadow
 			ctx.fillStyle = "#00000000";
 			ctx.shadowColor = "#00000055";
@@ -201,12 +231,28 @@ export default class MultiplePlayerStats extends Canvas {
 
 			//Get Image
 			const { images, gender, name } = player._player;
-			const image = await this.googleToCanvas(
-				`images/people/full/${images.player || images.main || `blank-${gender}.png`}`
-			);
-			this.cover(image, x, y + imageBoxHeight * 0.05, width, imageBoxHeight, {
-				yAlign: "top"
-			});
+			const { _team } = game.playerStats.find(p => p._player._id == _player);
+			if (_team == localTeam) {
+				const image = await this.googleToCanvas(
+					`images/people/full/${images.player || images.main || `blank-${gender}.png`}`
+				);
+				this.cover(image, x, y + imageBoxHeight * 0.05, width, imageBoxHeight, {
+					yAlign: "top"
+				});
+			} else {
+				const teamImages = game._opposition.images;
+				const image = await this.googleToCanvas(
+					`images/teams/${teamImages.dark || teamImages.main}`
+				);
+				const margin = imageBoxHeight * 0.1;
+				this.contain(
+					image,
+					x + margin,
+					y + margin,
+					width - margin * 2,
+					imageBoxHeight - margin * 2
+				);
+			}
 
 			//Add name & number
 			const firstNameRow = [];
@@ -270,8 +316,14 @@ export default class MultiplePlayerStats extends Canvas {
 		const { eventType } = this;
 		await this.drawBackground();
 
-		if (eventType.includes("potm")) {
-			this.drawFansPotmHeader();
+		//Draw Header
+		switch (eventType) {
+			case "fan-potm-options":
+				this.drawFansPotmHeader();
+				break;
+			case "steel-points":
+				this.drawSteelHeader();
+				break;
 		}
 
 		await this.drawPlayers();

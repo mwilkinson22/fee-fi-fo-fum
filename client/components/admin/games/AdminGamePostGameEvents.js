@@ -237,6 +237,14 @@ class AdminGamePostGameEvents extends Component {
 					stats: []
 				}));
 				break;
+			case "steel-points":
+				fields.playersAndStats = _.orderBy(game.manOfSteel, "points", "desc").map(
+					({ _player }) => ({
+						_player,
+						stats: []
+					})
+				);
+				break;
 			default:
 				break;
 		}
