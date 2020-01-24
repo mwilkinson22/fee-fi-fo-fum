@@ -146,7 +146,7 @@ export async function shareSelector(req, res) {
 		const imageClass = await generateImage(req, res, selector);
 		const image = await imageClass.render(true);
 
-		const result = await postToSocial(service, keys, text, [image]);
+		const result = await postToSocial(service, text, { keys, images: [image] });
 
 		if (result.success) {
 			res.send(result.post);

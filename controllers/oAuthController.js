@@ -155,20 +155,28 @@ export async function disconnect(req, res) {
 	await getAuthorisedAccounts(req, res);
 }
 
-export async function postToSocial(service, keys, text, images = [], options = {}) {
+export async function postToSocial(service, text, options = {}) {
+	if (!options._profile && !options.keys) {
+		return { success: false, error: "Social Profile ID or Keys must be included" };
+	}
+
 	switch (service) {
 		case "twitter": {
-			const client = await twitter(null, keys);
+			//Only one of these options will be required
+			const client = await twitter(options._profile, options.keys);
 
 			//First, upload the images
 			const media_ids = [];
-			if (images && images.length) {
-				for (const media_data of images) {
+			if (options.images && options.images.length) {
+				for (const media_data of options.images) {
 					const upload = await client.post("media/upload", {
 						media_data
 					});
 					media_ids.push(upload.data.media_id_string);
 				}
+			}
+			if (options.media_strings && options.media_strings.length) {
+				media_ids.push(...options.media_strings);
 			}
 
 			//Post Tweet
