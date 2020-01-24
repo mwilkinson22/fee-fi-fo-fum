@@ -140,7 +140,7 @@ class AdminGamePostGameEvents extends Component {
 					value: "steel-points"
 				});
 			}
-			if (newState.game.fan_potm) {
+			if (newState.game.fan_potm && newState.game.fan_potm.options) {
 				if (newState.game.fan_potm.options.length) {
 					newState.eventTypes.push({
 						label: `Fans' ${genderedString} of the Match Options`,
