@@ -56,7 +56,7 @@ module.exports = {
 							}
 						},
 						{
-							loader: "sass-loader",
+							loader: "fast-sass-loader",
 							options: {
 								sourceMap: true
 							}
