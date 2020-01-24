@@ -168,7 +168,7 @@ class AdminGamePostGameEvents extends Component {
 	}
 
 	static getDropdownOptionsFromProps(props, game) {
-		const { profiles, teamList } = props;
+		const { baseUrl, localTeam, profiles, teamList } = props;
 		const options = {};
 
 		//Social Profile Options
@@ -210,6 +210,27 @@ class AdminGamePostGameEvents extends Component {
 
 		//Players
 		options.players = convertTeamToSelect(game, teamList);
+
+		//Twitter Variables
+		options.twitter = _.chain(game.playerStats)
+			//Localteam players only
+			.filter(({ _team }) => _team == localTeam)
+			//Get eligiblePlayers entry
+			.map(({ _player }) =>
+				game.eligiblePlayers[localTeam].find(p => p._player._id == _player)
+			)
+			//Remove those without Twitter
+			.filter(({ _player }) => _player.twitter)
+			//Sort
+			.sortBy(p => p.number || p.name.last)
+			//Convert to label/value pair
+			.map(p => ({
+				value: `@${p._player.twitter}`,
+				label: `${p.number ? `${p.number}. ` : ""} ${p._player.name.full}`
+			}))
+			.value();
+
+		options.twitter.unshift({ value: `${baseUrl}/games/${game.slug}`, label: "Game Page" });
 
 		return options;
 	}
@@ -270,7 +291,7 @@ class AdminGamePostGameEvents extends Component {
 		const { extraFields, game, options } = this.state;
 
 		//Set standard fields
-		const fields = [{ name: "text", type: fieldTypes.tweet }];
+		const fields = [{ name: "text", type: fieldTypes.tweet, variables: options.twitter }];
 
 		//Loop through extras
 		for (const name in extraFields) {
@@ -782,11 +803,12 @@ class AdminGamePostGameEvents extends Component {
 AdminGamePostGameEvents.propTypes = {};
 AdminGamePostGameEvents.defaultProps = {};
 
-function mapStateToProps({ games, social, teams }) {
+function mapStateToProps({ config, games, social, teams }) {
+	const { baseUrl, localTeam } = config;
 	const { fullGames } = games;
 	const { profiles, defaultProfile } = social;
 	const { teamList } = teams;
-	return { fullGames, profiles, defaultProfile, teamList };
+	return { fullGames, baseUrl, localTeam, profiles, defaultProfile, teamList };
 }
 
 export default connect(mapStateToProps, {
