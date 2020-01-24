@@ -266,14 +266,16 @@ export default class MultiplePlayerStats extends Canvas {
 			firstNameRow.push({
 				text: name.first.toUpperCase(),
 				colour: "#FFF",
-				font: textStyles.name.string
+				font: textStyles.name.string,
+				maxWidth: width * 0.9
 			});
 			const nameRows = [
 				firstNameRow,
 				[
 					{
 						text: name.last.toUpperCase(),
-						colour: colours.gold
+						colour: colours.gold,
+						maxWidth: width * 0.95
 					}
 				]
 			];
