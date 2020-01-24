@@ -11,11 +11,13 @@ import { localTeam } from "~/config/keys";
 import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
 
 export default class MultiplePlayerStats extends Canvas {
-	constructor(game, playersAndStats, eventType) {
+	constructor(game, playersAndStats, eventType, options = {}) {
 		//Set Dimensions
 		const cWidth = 1200;
 		const topBanner =
-			["fan-potm-options", "steel-points"].indexOf(eventType) > -1 ? cWidth * 0.075 : 0;
+			["fan-potm-options", "steel-points"].indexOf(eventType) > -1 || options.customHeader
+				? cWidth * 0.075
+				: 0;
 		const heightMultiplier = playersAndStats.length > 4 ? 0.7 : 0.5;
 		const cHeight = cWidth * heightMultiplier + topBanner;
 
@@ -72,6 +74,7 @@ export default class MultiplePlayerStats extends Canvas {
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
 		this.colours.fans = this.colours.gold;
+		this.customHeader = options.customHeader;
 	}
 
 	async drawBackground() {
@@ -120,6 +123,25 @@ export default class MultiplePlayerStats extends Canvas {
 
 		//Output
 		this.textBuilder([row], cWidth * 0.5, positions.padding + positions.topBanner / 2);
+		this.resetShadow();
+	}
+
+	drawCustomHeader() {
+		const { customHeader, colours, ctx, cWidth, positions, textStyles } = this;
+
+		//Set Font
+		ctx.font = textStyles.header.string;
+		ctx.fillStyle = "#FFF";
+		ctx.shadowColor = "black";
+		ctx.shadowOffsetX = 2;
+		ctx.shadowOffsetY = 2;
+
+		//Output
+		this.textBuilder(
+			[[{ text: customHeader, colour: colours.white }]],
+			cWidth * 0.5,
+			positions.padding + positions.topBanner / 2
+		);
 		this.resetShadow();
 	}
 
@@ -315,7 +337,7 @@ export default class MultiplePlayerStats extends Canvas {
 	}
 
 	async render(forTwitter = false) {
-		const { eventType } = this;
+		const { customHeader, eventType } = this;
 		await this.drawBackground();
 
 		//Draw Header
@@ -325,6 +347,11 @@ export default class MultiplePlayerStats extends Canvas {
 				break;
 			case "steel-points":
 				this.drawSteelHeader();
+				break;
+			default:
+				if (customHeader) {
+					this.drawCustomHeader();
+				}
 				break;
 		}
 

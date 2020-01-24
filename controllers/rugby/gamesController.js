@@ -810,7 +810,7 @@ export async function postFixtureListImage(req, res) {
 }
 
 async function generatePostGameEventImage(basicGame, data, res) {
-	const { eventType, _player, stats, playersAndStats } = data;
+	const { customHeader, eventType, _player, stats, playersAndStats } = data;
 
 	const [game] = await getExtraGameInfo([basicGame], true, true);
 
@@ -832,7 +832,9 @@ async function generatePostGameEventImage(basicGame, data, res) {
 			case "grouped-player-stats":
 			case "fan-potm-options":
 			case "steel-points": {
-				const image = new MultiplePlayerStats(game, playersAndStats, eventType);
+				const image = new MultiplePlayerStats(game, playersAndStats, eventType, {
+					customHeader
+				});
 				return image;
 			}
 		}

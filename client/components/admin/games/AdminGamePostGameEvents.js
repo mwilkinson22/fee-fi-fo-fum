@@ -38,6 +38,7 @@ class AdminGamePostGameEvents extends Component {
 		//Requires a key, a Yup validation object, and an events array
 		//All potential extra fields, and where they'll appear
 		const extraFields = {
+			customHeader: ["grouped-player-stats"],
 			_player: ["player-stats"],
 			stats: ["team-stats", "player-stats"],
 			playersAndStats: ["grouped-player-stats", "fan-potm-options", "steel-points"]
@@ -46,6 +47,7 @@ class AdminGamePostGameEvents extends Component {
 		//Validation Schema
 		const tweetValidationSchema = {
 			text: Yup.string().label("Tweet Text"),
+			customHeader: Yup.string().label("Custom Header"),
 			stats: Yup.array()
 				.of(Yup.string())
 				.when("eventType", (eventType, schema) => {
@@ -225,7 +227,14 @@ class AdminGamePostGameEvents extends Component {
 
 	getNewTweetInitialValues(eventType) {
 		const { game } = this.state;
-		const fields = { eventType, text: "", stats: [], _player: "", playersAndStats: [] };
+		const fields = {
+			eventType,
+			text: "",
+			stats: [],
+			_player: "",
+			playersAndStats: [],
+			customHeader: ""
+		};
 
 		switch (eventType) {
 			case "breakdown-intro":
@@ -267,6 +276,12 @@ class AdminGamePostGameEvents extends Component {
 			const validEventTypes = extraFields[name];
 			if (validEventTypes.indexOf(eventType) > -1) {
 				switch (name) {
+					case "customHeader":
+						fields.push({
+							name,
+							type: fieldTypes.text
+						});
+						break;
 					case "_player":
 						fields.push({
 							name,
