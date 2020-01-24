@@ -22,6 +22,7 @@ export default app => {
 	app.get("/api/games/:_id/crawl", requireAdmin, gamesController.fetchExternalGame);
 
 	//Post Game Event
+	app.post("/api/games/:_id/postGameEvents", requireAdmin, gamesController.submitPostGameEvents);
 	app.put(
 		"/api/games/:_id/postGameEvent/imagePreview",
 		requireAdmin,

@@ -817,10 +817,8 @@ export async function postFixtureListImage(req, res) {
 	res.send(true);
 }
 
-async function generatePostGameEventImage(basicGame, data, res) {
+async function generatePostGameEventImage(game, data, res) {
 	const { customHeader, eventType, _player, stats, playersAndStats } = data;
-
-	const [game] = await getExtraGameInfo([basicGame], true, true);
 
 	if (!eventType) {
 		res.status(400).send("No event type specified");
@@ -852,14 +850,97 @@ async function generatePostGameEventImage(basicGame, data, res) {
 export async function fetchPostGameEventImage(req, res) {
 	const { _id } = req.params;
 
-	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
+	const basicGame = await validateGame(_id, res, Game.findById(_id).eventImage());
 
-	if (game) {
+	if (basicGame) {
+		const [game] = await getExtraGameInfo([basicGame], true, true);
+
 		const image = await generatePostGameEventImage(game, req.body, res);
 		if (image) {
 			const output = await image.render(false);
 			res.send(output);
 		}
+	}
+}
+
+export async function submitPostGameEvents(req, res) {
+	const { _id } = req.params;
+
+	const basicGame = await validateGame(_id, res, Game.findById(_id).eventImage());
+
+	if (basicGame) {
+		const [game] = await getExtraGameInfo([basicGame], true, true);
+		let { replyTweet, _profile, postToFacebook, tweets } = req.body;
+
+		//Get Twitter Client for uploading images
+		const twitterClient = await twitter(_profile);
+
+		//Loop through tweets and render images
+		const images = {};
+		for (const i in tweets) {
+			const tweet = tweets[i];
+			if (tweet.eventType !== "text-only") {
+				//Create base64 image
+				console.info(`Creating Image for Tweet #${Number(i) + 1} of ${tweets.length}...`);
+				const image = await generatePostGameEventImage(game, tweets[i]);
+				const media_data = await image.render(true);
+
+				console.info(`Uploading Image...`);
+				//Upload it to twitter
+				const upload = await twitterClient.post("media/upload", {
+					media_data
+				});
+
+				//Save the media_id_string
+				console.info(`Image uploaded!`);
+				images[i] = upload.data.media_id_string;
+			}
+		}
+
+		//Post Tweets
+		const imageUrls = {};
+		for (const i in tweets) {
+			const { text } = tweets[i];
+
+			const media_strings = [];
+			if (images[i]) {
+				media_strings.push(images[i]);
+			}
+			console.info(`Posting Tweet #${Number(i) + 1} of ${tweets.length}...`);
+			const result = await postToSocial("twitter", text, {
+				_profile,
+				media_strings,
+				replyTweet
+			});
+
+			if (result.success) {
+				//Update reply tweet to continue thread
+				replyTweet = result.post.id_str;
+
+				//Get image URLs, for Facebook
+				const tweetMediaObject = result.post.entities.media;
+				if (tweetMediaObject) {
+					imageUrls[i] = tweetMediaObject[0].media_url;
+				}
+			}
+		}
+
+		//Handle facebook
+		if (postToFacebook) {
+			for (const i in tweets) {
+				const images = [];
+				if (imageUrls[i]) {
+					images.push(imageUrls[i]);
+				}
+				console.info(`Posting Facebook Post #${Number(i) + 1} of ${tweets.length}...`);
+				await postToSocial("facebook", tweets[i].text, {
+					_profile,
+					images
+				});
+			}
+		}
+
+		res.send({});
 	}
 }
 

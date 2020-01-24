@@ -6,13 +6,14 @@ import { Prompt } from "react-router-dom";
 import { Formik, Form, FieldArray } from "formik";
 import Select from "react-select";
 import * as Yup from "yup";
+import { diff } from "deep-object-diff";
 
 //Components
 import LoadingPage from "../../LoadingPage";
 import DeleteButtons from "../fields/DeleteButtons";
 
 //Actions
-import { previewPostGameEventImage } from "~/client/actions/gamesActions";
+import { previewPostGameEventImage, submitPostGameEvents } from "~/client/actions/gamesActions";
 import { fetchProfiles } from "~/client/actions/socialActions";
 
 //Constants
@@ -440,6 +441,24 @@ class AdminGamePostGameEvents extends Component {
 		});
 	}
 
+	async handleSubmit(values) {
+		const { submitPostGameEvents } = this.props;
+		const { game } = this.state;
+
+		//Set state to "Submitting"
+		this.setState({ isSubmitting: true });
+
+		//Send to server
+		const result = await submitPostGameEvents(game._id, values);
+
+		//Remove submitting tag
+		const newState = { isSubmitting: false };
+		if (result) {
+			newState.lastPostedTweets = [...values.tweets];
+		}
+		this.setState(newState);
+	}
+
 	renderThreadDetails() {
 		const { options, validationSchema } = this.state;
 		const fields = [
@@ -703,20 +722,35 @@ class AdminGamePostGameEvents extends Component {
 	}
 
 	render() {
-		const { isLoading, validationSchema } = this.state;
+		const { isLoading, isSubmitting, lastPostedTweets, validationSchema } = this.state;
 		if (isLoading) {
 			return <LoadingPage />;
 		}
 		return (
 			<Formik
 				initialValues={this.getInitialValues()}
-				onSubmit={() => {}}
+				onSubmit={values => this.handleSubmit(values)}
 				validationSchema={validationSchema}
 				render={formikProps => {
+					//Check to see if there are unsaved and unposted changes before navigating away
+					let preventNavigation = formikProps.values.tweets.length > 0;
+
+					if (preventNavigation && lastPostedTweets) {
+						preventNavigation =
+							Object.keys(diff(lastPostedTweets, formikProps.values.tweets)).length >
+							0;
+					}
+
+					//Keep this separate to the other LoadingPage to
+					//prevent Formik values being overwritten
+					if (isSubmitting) {
+						return <LoadingPage />;
+					}
+
 					return (
 						<Form>
 							<Prompt
-								when={formikProps.values.tweets.length > 0}
+								when={preventNavigation}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className="admin-post-game-events">
@@ -755,6 +789,8 @@ function mapStateToProps({ games, social, teams }) {
 	return { fullGames, profiles, defaultProfile, teamList };
 }
 
-export default connect(mapStateToProps, { fetchProfiles, previewPostGameEventImage })(
-	AdminGamePostGameEvents
-);
+export default connect(mapStateToProps, {
+	fetchProfiles,
+	previewPostGameEventImage,
+	submitPostGameEvents
+})(AdminGamePostGameEvents);

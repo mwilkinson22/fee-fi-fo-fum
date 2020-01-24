@@ -139,6 +139,14 @@ export const previewPostGameEventImage = (id, values) => async (dispatch, getSta
 	return res.data;
 };
 
+export const submitPostGameEvents = (id, values) => async (dispatch, getState, api) => {
+	const res = await api.post(`/games/${id}/postGameEvents/`, values);
+	if (res.data) {
+		toast.success("Events posted");
+		return true;
+	}
+};
+
 export const previewFixtureListImage = (year, competitions) => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/fixtureListImage/${year}/${competitions}`);
 	return res.data;
