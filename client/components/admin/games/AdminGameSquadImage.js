@@ -17,6 +17,7 @@ import { getSquadImage, postGameEvent } from "../../../actions/gamesActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
+import { getDateString } from "~/helpers/gameHelper";
 import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminGameSquadImage extends Component {
@@ -109,13 +110,27 @@ class AdminGameSquadImage extends Component {
 	getInitialTweet() {
 		const { game } = this.state;
 
-		let tweet = "Here is your Giants squad for ";
+		let tweet = "Here is your team for ";
 
-		//Today or tonight
-		tweet += Number(game.date.toString("H")) < 6 ? "today" : "tonight";
+		//Get date string
+		const dateStringObject = getDateString(game.date);
+		switch (dateStringObject.status) {
+			case "past":
+				//...for our game against...
+				tweet += "our";
+				break;
+			case "overAWeek":
+				//...for our upcoming game against...
+				tweet += "our upcoming";
+				break;
+			default:
+				//...for tommorow's/tonight's/Friday's game against...
+				tweet += `${dateStringObject.string}'s`;
+				break;
+		}
 
 		//Opposition
-		tweet += `'s game against ${game._opposition.name.short}!\n\n`;
+		tweet += ` game against ${game._opposition.name.short}!\n\n`;
 
 		//Add Hashtags
 		tweet += game.hashtags.map(t => `#${t}`).join(" ");
@@ -252,7 +267,6 @@ function mapStateToProps({ config, games, social, teams }) {
 	return { fullGames, localTeam, profiles, defaultProfile, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchProfiles, getSquadImage, postGameEvent }
-)(AdminGameSquadImage);
+export default connect(mapStateToProps, { fetchProfiles, getSquadImage, postGameEvent })(
+	AdminGameSquadImage
+);

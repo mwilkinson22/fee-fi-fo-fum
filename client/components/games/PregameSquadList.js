@@ -7,6 +7,9 @@ import { connect } from "react-redux";
 import TeamImage from "~/client/components/teams/TeamImage";
 import { Link } from "react-router-dom";
 
+//Helpers
+import { getDateString } from "~/helpers/gameHelper";
+
 class PregameSquadList extends Component {
 	constructor(props) {
 		super(props);
@@ -19,26 +22,18 @@ class PregameSquadList extends Component {
 	}
 
 	setDueDate() {
-		const { date } = this.state.game;
-		const dueDate = new Date(date).addDays(-2);
-		dueDate.setHours(12, 0, 0, 0);
-		const daysToGo = (dueDate - new Date()) / 1000 / 60 / 60 / 24;
-		const isToday = new Date().setHours(12, 0, 0, 0) === dueDate.getTime();
+		const { game } = this.state;
 
-		let text;
-		if (daysToGo < 0) {
-			text = "soon";
-		} else if (isToday) {
-			text = "this afternoon";
-		} else if (daysToGo < 6.5) {
-			text = `${dueDate.toString("dddd")} afternoon`;
-		} else {
-			text = dueDate.toString("dddd dS MMM");
-		}
+		//Create due date - 2 days before kick off
+		const dueDate = new Date(game.date).addDays(-2);
+
+		//Get string
+		const dateStringObject = getDateString(dueDate);
+		const dateString = dateStringObject.status === "past" ? "soon" : dateStringObject.string;
 
 		return (
 			<div className="container">
-				<h2>Squads due {text}</h2>
+				<h2 className="squads-due-message">Squads due {dateString}</h2>
 			</div>
 		);
 	}

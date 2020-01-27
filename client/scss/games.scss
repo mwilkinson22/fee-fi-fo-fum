@@ -760,6 +760,9 @@ section.pregame-squads {
 }
 section.pregame-squads {
 	overflow: hidden;
+	.squads-due-message {
+		margin: 14pt 0;
+	}
 	&.with-squads {
 		padding: 0;
 	}

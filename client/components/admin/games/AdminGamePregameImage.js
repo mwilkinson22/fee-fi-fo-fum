@@ -17,7 +17,7 @@ import { fetchGames, getPregameImage, postGameEvent } from "../../../actions/gam
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { getLastGame } from "~/helpers/gameHelper";
+import { getLastGame, getDateString } from "~/helpers/gameHelper";
 import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminGamePregameImage extends Component {
@@ -208,7 +208,27 @@ class AdminGamePregameImage extends Component {
 		} else {
 			tweet += "Here are your teams";
 		}
-		tweet += ` for this ${game.date.toString("dddd")}'s game`;
+		tweet += ` for `;
+
+		//Get date string
+		const dateStringObject = getDateString(game.date);
+		switch (dateStringObject.status) {
+			case "past":
+				//...for our game against...
+				tweet += "our";
+				break;
+			case "overAWeek":
+				//...for our upcoming game against...
+				tweet += "our upcoming";
+				break;
+			default:
+				//...for tommorow's/tonight's/Friday's game against...
+				tweet += `${dateStringObject.string}'s`;
+				break;
+		}
+
+		//Add Game
+		tweet += ` game`;
 
 		//Add opposition, as long as they're not the only team with a pregame squad at present
 		//I.e. there's no need to say "Here is your Hull team for this Friday's game against Hull"

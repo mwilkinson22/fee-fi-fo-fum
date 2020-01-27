@@ -28,6 +28,34 @@ export function fixDates(games) {
 	});
 }
 
+export function getDateString(date) {
+	//Get the current dates, set to midnight
+	const gameDate = new Date(date.toDateString());
+	const today = new Date(new Date().toDateString());
+
+	//Work out days to go
+	const daysToGo = (gameDate - today) / 1000 / 60 / 60 / 24;
+
+	if (daysToGo < 0) {
+		//In the past. Return full date
+		return { status: "past", string: gameDate.toString("ddd dS MMMM") };
+	} else if (daysToGo === 0) {
+		//If the game is today, return either "today" or "tonight",
+		//based on time
+		const status = Number(date.toString("H")) < 18 ? "today" : "tonight";
+		return { status, string: status };
+	} else if (daysToGo === 1) {
+		//If the game is tomorrow, simply return that
+		return { status: "tomorrow", string: "tomorrow" };
+	} else if (daysToGo < 7) {
+		//Return the day of the week
+		return { status: "thisWeek", string: gameDate.toString("dddd") };
+	} else {
+		//Over a week away. Return Full date
+		return { status: "overAWeek", string: gameDate.toString("dddd dS MMMM") };
+	}
+}
+
 function getAdjacentGame(id, gameList, next) {
 	const { _teamType, date } = gameList[id];
 	const list = _.chain(gameList)
