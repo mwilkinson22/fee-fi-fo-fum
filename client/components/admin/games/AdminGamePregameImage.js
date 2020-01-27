@@ -83,6 +83,8 @@ class AdminGamePregameImage extends Component {
 		newState.currentLocalSquad = newState.game.pregameSquads.find(
 			({ _team }) => _team == localTeam
 		);
+
+		//If the local team has a pregame squad for this game
 		if (newState.currentLocalSquad && newState.currentLocalSquad.squad) {
 			newState.lastLocalSquad =
 				newState.lastGame &&
@@ -142,7 +144,7 @@ class AdminGamePregameImage extends Component {
 				.value();
 		} else {
 			//This means we only have the opposition pregame squad
-			newState.options.players = [];
+			newState.options.players = newState.options.playersWithImages = [];
 		}
 
 		//Validation Schema

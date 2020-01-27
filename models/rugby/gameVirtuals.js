@@ -142,7 +142,10 @@ export default gameSchema => {
 		if (instance) {
 			const { usesPregameSquads } = instance;
 
-			if (usesPregameSquads && (!pregameSquads || pregameSquads.length < 2)) {
+			if (
+				usesPregameSquads &&
+				(!pregameSquads || pregameSquads.filter(s => s.squad && s.squad.length).length < 2)
+			) {
 				return 0;
 			} else if (
 				Object.keys(_.groupBy(playerStats, "_team")).length < 2 ||

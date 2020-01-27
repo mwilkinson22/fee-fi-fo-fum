@@ -112,7 +112,9 @@ export default class PregameImage extends Canvas {
 		this.options = {
 			singleTeam: options.singleTeam, //False, or a team id
 			playerForImage: options.playerForImage !== "false" && options.playerForImage,
-			playersToHighlight: options.playersToHighlight.split(",")
+			playersToHighlight: options.playersToHighlight
+				? options.playersToHighlight.split(",")
+				: []
 		};
 		const teamIds = [localTeam, game._opposition._id];
 		this.teamIds = game.isAway ? teamIds.reverse() : teamIds;
