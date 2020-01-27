@@ -302,7 +302,12 @@ export function getDynamicOptions(values, neutral, props) {
 				}
 			})
 			//Convert to dropdown options
-			.map(c => ({ label: c.name, value: c._id }))
+			.map(c => {
+				//Pull in the name of the parent comp and the segment, and run "uniq"
+				//to prevent something like "Preseason Friendly Preseason Friendly"
+				const label = _.uniq([c._parentCompetition.name, c.name]).join(" ");
+				return { label, value: c._id };
+			})
 			.value();
 
 		//Remove the selected competition if it's not in the list
