@@ -1,7 +1,8 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
-import Select, { Async } from "react-select";
+import Select from "react-select";
+import AsyncSelect from "react-select/async";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
@@ -133,7 +134,7 @@ class AdminTeamSelectorPlayers extends Component {
 		return (
 			<div className="form-card">
 				<h6>Add Individual Players</h6>
-				<Async
+				<AsyncSelect
 					onChange={player => this.setState({ players: [...players, player] })}
 					styles={selectStyling}
 					value={{ label: "Add a player", value: false }}

@@ -2,7 +2,9 @@
 import _ from "lodash";
 import React from "react";
 import { Field, FastField, ErrorMessage, FieldArray } from "formik";
-import Select, { Async, Creatable } from "react-select";
+import Select from "react-select";
+import AsyncSelect from "react-select/async";
+import CreatableSelect from "react-select/creatable";
 
 //Input Components
 import BooleanField from "~/client/components/admin/fields/Boolean";
@@ -173,7 +175,7 @@ export function renderInput(field) {
 					mainProps.value = { value: mainProps.value, label: mainProps.value };
 				}
 				return (
-					<Creatable
+					<CreatableSelect
 						className="react-select"
 						styles={selectStyling}
 						{...mainProps}
@@ -208,7 +210,7 @@ export function renderInput(field) {
 			}
 			case fieldTypes.asyncSelect:
 				return (
-					<Async
+					<AsyncSelect
 						className="react-select"
 						cacheOptions
 						styles={selectStyling}
