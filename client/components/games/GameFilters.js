@@ -46,11 +46,14 @@ class GameFilters extends Component {
 			const filters = {
 				_competition: {
 					name: "Competition",
-					options: competitionOptions
+					options: competitionOptions,
+					isMulti: true
 				},
 				_opposition: {
 					name: "Opposition",
-					options: [allOption, ...oppositionOptions]
+					options: [allOption, ...oppositionOptions],
+					isMulti: true,
+					placeHolder: "All"
 				},
 				venue: {
 					name: "Venue",
@@ -62,7 +65,7 @@ class GameFilters extends Component {
 				_competition: filters._competition.options.filter(o =>
 					friendliesByDefault ? false : !o.isFriendly
 				),
-				_opposition: allOption,
+				_opposition: [],
 				venue: allOption
 			};
 
@@ -75,8 +78,8 @@ class GameFilters extends Component {
 			let isValid = true;
 
 			//Opposition
-			if (_opposition && _opposition.value) {
-				isValid = g._opposition._id == _opposition.value;
+			if (_opposition && _opposition.length) {
+				isValid = _opposition.find(o => o.value == g._opposition._id);
 			}
 
 			//Venue
@@ -113,7 +116,7 @@ class GameFilters extends Component {
 		const { filters, activeFilters } = this.state;
 
 		//Get filter data
-		const { name, options } = filters[key];
+		const { name, ...filterData } = filters[key];
 
 		//Get currently selected Options
 		const value = activeFilters[key];
@@ -122,13 +125,12 @@ class GameFilters extends Component {
 			<div key={key} className="list-filter">
 				<h4>{name}</h4>
 				<Select
+					{...filterData}
 					styles={selectStyling}
-					options={options}
 					value={value}
 					isSearchable={false}
 					onChange={option => this.updateActiveFilters(key, option)}
-					isMulti={key == "_competition"}
-					placeholder={key == "_competition" ? "All" : "Select..."}
+					placeholder="All"
 				/>
 			</div>
 		);
