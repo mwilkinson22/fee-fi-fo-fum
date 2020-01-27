@@ -8,25 +8,19 @@ function getInstance(doc) {
 		!date ||
 		!_competition ||
 		!_competition._parentCompetition ||
-		_competition.multipleInstances == null ||
 		!_competition.instances.length
 	) {
 		return null;
 	}
 
-	let instance;
-	if (_competition.multipleInstances) {
-		const year = new Date(date).getFullYear();
-		instance = _competition.instances.find(i => i.year == year);
-	} else {
-		instance = _competition.instances[0];
-	}
+	const year = new Date(date).getFullYear();
+	const instance = _competition.instances.find(i => i.year == year);
 
 	if (!instance) {
 		return null;
 	}
 
-	instance = _.pick(instance, [
+	const instanceFields = _.pick(instance, [
 		"image",
 		"specialRounds",
 		"specialRounds",
@@ -38,7 +32,7 @@ function getInstance(doc) {
 	]);
 
 	//Custom Title
-	const { sponsor } = instance;
+	const { sponsor } = instanceFields;
 	const { _parentCompetition, appendCompetitionName, name } = _competition;
 	const titleArr = [
 		sponsor, //Sponsor
@@ -46,7 +40,7 @@ function getInstance(doc) {
 		appendCompetitionName ? name : null //Segment name i.e. Super 8s
 	];
 	return {
-		...instance,
+		...instanceFields,
 		title: _.filter(titleArr, _.identity).join(" ")
 	};
 }

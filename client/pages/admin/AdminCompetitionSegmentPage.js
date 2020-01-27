@@ -73,14 +73,10 @@ class AdminCompetitionSegmentPage extends Component {
 		//Render submenu for existing segments
 		let submenu;
 		if (segment) {
-			const items = [{ label: "Overview", slug: "", isExact: true }];
-			if (segment.multipleInstances) {
-				items.push({ label: "Instances", slug: "instances" });
-			} else if (segment.instances.length) {
-				items.push({ label: "Instance", slug: `instances/${segment.instances[0]._id}` });
-			} else {
-				items.push({ label: "Instance", slug: "instances/new" });
-			}
+			const items = [
+				{ label: "Overview", slug: "", isExact: true },
+				{ label: "Instances", slug: "instances" }
+			];
 
 			submenu = (
 				<SubMenu items={items} rootUrl={`/admin/competitions/segments/${segment._id}/`} />
@@ -153,10 +149,7 @@ function mapStateToProps({ competitions }) {
 	return { competitionList, competitionSegmentList };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchCompetitions,
-		fetchCompetitionSegments
-	}
-)(AdminCompetitionSegmentPage);
+export default connect(mapStateToProps, {
+	fetchCompetitions,
+	fetchCompetitionSegments
+})(AdminCompetitionSegmentPage);

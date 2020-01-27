@@ -15,7 +15,6 @@ const competitionSegmentSchema = new Schema(
 			ref: "competitionSegments",
 			default: null
 		},
-		multipleInstances: { type: Boolean, required: true },
 		instances: [
 			{
 				year: { type: Number, default: null },

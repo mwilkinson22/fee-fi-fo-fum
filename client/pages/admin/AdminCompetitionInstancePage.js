@@ -1,7 +1,7 @@
 //Modules
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Switch, Route, Link, withRouter } from "react-router-dom";
+import { Switch, Route, Link } from "react-router-dom";
 
 //Components
 import ErrorBoundary from "../../components/ErrorBoundary";
@@ -64,7 +64,7 @@ class AdminCompetitionInstancePage extends Component {
 		const titleArr = [];
 		if (isNew) {
 			titleArr.push("Add New Competition Instance -");
-		} else if (segment.multipleInstances) {
+		} else {
 			titleArr.push(instance.year);
 		}
 		titleArr.push(segment._parentCompetition.name);
@@ -73,10 +73,9 @@ class AdminCompetitionInstancePage extends Component {
 		}
 		const title = titleArr.join(" ");
 
-		//Render copy link for existing instances,
-		//where multiple instances are allowed
+		//Render copy link for existing instances
 		let copyLink;
-		if (!isNew && segment.multipleInstances) {
+		if (!isNew) {
 			copyLink = (
 				<Link
 					to={`/admin/competitions/segments/${segment._id}/instances/new/${instance._id}`}
@@ -117,9 +116,7 @@ class AdminCompetitionInstancePage extends Component {
 				<div className="container">
 					<Link
 						className="nav-card"
-						to={`/admin/competitions/segments/${segment._id}/${
-							segment.multipleInstances ? "instances" : ""
-						}`}
+						to={`/admin/competitions/segments/${segment._id}/instances`}
 					>
 						Return to {segment.name}
 					</Link>
@@ -178,7 +175,6 @@ class AdminCompetitionInstancePage extends Component {
 	}
 
 	render() {
-		const { history } = this.props;
 		const { instance, segment, isNew, isLoading } = this.state;
 
 		//Await competitionSegmentList
@@ -191,14 +187,6 @@ class AdminCompetitionInstancePage extends Component {
 		}
 		if (!isNew && instance === false) {
 			return <NotFoundPage message="Instance not found" />;
-		}
-
-		//Prevent adding multiple entries where segments do not allow it
-		if (isNew && !segment.multipleInstances && segment.instances.length) {
-			history.replace(
-				`/admin/competitions/segments/${segment._id}/instances/${segment.instances[0]._id}`
-			);
-			return null;
 		}
 
 		return (
@@ -215,8 +203,6 @@ function mapStateToProps({ competitions }) {
 	return { competitionSegmentList };
 }
 
-export default withRouter(
-	connect(mapStateToProps, {
-		fetchCompetitionSegments
-	})(AdminCompetitionInstancePage)
-);
+export default connect(mapStateToProps, {
+	fetchCompetitionSegments
+})(AdminCompetitionInstancePage);

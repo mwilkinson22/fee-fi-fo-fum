@@ -58,7 +58,6 @@ class AdminCompetitionSegmentOverview extends Component {
 			externalCompId: Yup.number().label("External Competition Id"),
 			externalDivId: Yup.number().label("External Division Id"),
 			externalReportPage: Yup.string().label("External Report Page"),
-			multipleInstances: Yup.string().label("Use Multiple Instances?"),
 			_pointsCarriedFrom: Yup.mixed().label("Points Carried From")
 		});
 
@@ -102,8 +101,7 @@ class AdminCompetitionSegmentOverview extends Component {
 			externalCompId: "",
 			externalDivId: "",
 			externalReportPage: "",
-			_pointsCarriedFrom: "",
-			multipleInstances: true
+			_pointsCarriedFrom: ""
 		};
 		if (isNew) {
 			return defaultValues;
@@ -115,7 +113,7 @@ class AdminCompetitionSegmentOverview extends Component {
 	}
 
 	getFieldGroups() {
-		const { segment, isNew, options } = this.state;
+		const { isNew, options } = this.state;
 
 		const fields = [
 			{ name: "name", type: fieldTypes.text },
@@ -135,12 +133,7 @@ class AdminCompetitionSegmentOverview extends Component {
 			{ name: "appendCompetitionName", type: fieldTypes.boolean },
 			{ name: "externalCompId", type: fieldTypes.number },
 			{ name: "externalDivId", type: fieldTypes.number },
-			{ name: "externalReportPage", type: fieldTypes.text },
-			{
-				name: "multipleInstances",
-				type: fieldTypes.boolean,
-				readOnly: !isNew && segment.instances.length > 1
-			}
+			{ name: "externalReportPage", type: fieldTypes.text }
 		];
 
 		if (!isNew && options._pointsCarriedFrom && options._pointsCarriedFrom.length) {
@@ -204,11 +197,8 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionList, competitionSegmentList, teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		createCompetitionSegment,
-		updateCompetitionSegment,
-		deleteCompetitionSegment
-	}
-)(AdminCompetitionSegmentOverview);
+export default connect(mapStateToProps, {
+	createCompetitionSegment,
+	updateCompetitionSegment,
+	deleteCompetitionSegment
+})(AdminCompetitionSegmentOverview);

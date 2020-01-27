@@ -165,10 +165,7 @@ export async function updateInstance(req, res) {
 					//Regardless of how gameCheck === true happened,
 					//we just need to check there are no
 					//games depending on unlisted teams
-					const query = getGameQuery(
-						segmentId,
-						segment.multipleInstances && instance.year
-					);
+					const query = getGameQuery(segmentId, instance.year);
 					const games = await Game.find(
 						{ ...query, _opposition: { $nin: req.body.teams } },
 						"slug _opposition"

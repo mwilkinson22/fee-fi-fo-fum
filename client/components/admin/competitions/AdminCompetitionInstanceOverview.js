@@ -54,7 +54,18 @@ class AdminCompetitionInstanceOverview extends Component {
 		}
 
 		//Create Validation Schema
-		const validationSchema = {
+		newState.validationSchema = Yup.object().shape({
+			year: Yup.number()
+				.min(1895)
+				.max(new Date().getFullYear() + 1)
+				.test("is-taken", "An instance for this year is already in place", year => {
+					return (
+						(newState.instance && newState.instance.year == year) ||
+						!_.find(newState.segment.instances, i => i.year == year)
+					);
+				})
+				.required()
+				.label("Year"),
 			teams: Yup.array()
 				.test(
 					"isLeague",
@@ -67,24 +78,7 @@ class AdminCompetitionInstanceOverview extends Component {
 			manOfSteelPoints: Yup.bool().label("Man of Steel Points"),
 			scoreOnly: Yup.bool().label("Score Only"),
 			usesPregameSquads: Yup.bool().label("Uses Pregame Squads")
-		};
-
-		//Add year check where multiple instances are required
-		if (newState.segment.multipleInstances) {
-			validationSchema.year = Yup.number()
-				.min(1895)
-				.max(new Date().getFullYear() + 1)
-				.test("is-taken", "An instance for this year is already in place", year => {
-					return (
-						(newState.instance && newState.instance.year == year) ||
-						!_.find(newState.segment.instances, i => i.year == year)
-					);
-				})
-				.required()
-				.label("Year");
-		}
-
-		newState.validationSchema = Yup.object().shape(validationSchema);
+		});
 
 		//Convert teamlist to dropdown options
 		if (!prevState.teams) {
@@ -102,6 +96,7 @@ class AdminCompetitionInstanceOverview extends Component {
 
 		//Define default values
 		const defaultValues = {
+			year: "",
 			teams: [],
 			sponsor: "",
 			manOfSteelPoints: false,
@@ -109,10 +104,6 @@ class AdminCompetitionInstanceOverview extends Component {
 			usesPregameSquads: false,
 			image: ""
 		};
-
-		if (segment.multipleInstances) {
-			defaultValues.year = "";
-		}
 
 		//Check if we have an instance to copy, for new items
 		const instanceToCopy = segment.instances.find(({ _id }) => _id == match.params.copyFromId);
@@ -154,35 +145,32 @@ class AdminCompetitionInstanceOverview extends Component {
 	}
 
 	getFieldGroups() {
-		const { segment, teams } = this.state;
+		const { teams } = this.state;
 
-		const fields = [];
-
-		if (segment.multipleInstances) {
-			fields.push({ name: "year", type: fieldTypes.number });
-		}
-
-		fields.push(
-			{ name: "sponsor", type: fieldTypes.text },
-			{ name: "usesPregameSquads", type: fieldTypes.boolean },
-			{ name: "manOfSteelPoints", type: fieldTypes.boolean },
-			{ name: "scoreOnly", type: fieldTypes.boolean },
+		return [
 			{
-				name: "teams",
-				type: fieldTypes.select,
-				closeMenuOnSelect: false,
-				isMulti: true,
-				options: teams
-			},
-			{
-				name: "image",
-				type: fieldTypes.image,
-				path: "images/competitions/",
-				acceptSVG: true
+				fields: [
+					{ name: "year", type: fieldTypes.number },
+					{ name: "sponsor", type: fieldTypes.text },
+					{ name: "usesPregameSquads", type: fieldTypes.boolean },
+					{ name: "manOfSteelPoints", type: fieldTypes.boolean },
+					{ name: "scoreOnly", type: fieldTypes.boolean },
+					{
+						name: "teams",
+						type: fieldTypes.select,
+						closeMenuOnSelect: false,
+						isMulti: true,
+						options: teams
+					},
+					{
+						name: "image",
+						type: fieldTypes.image,
+						path: "images/competitions/",
+						acceptSVG: true
+					}
+				]
 			}
-		);
-
-		return [{ fields }];
+		];
 	}
 
 	render() {
@@ -209,13 +197,8 @@ class AdminCompetitionInstanceOverview extends Component {
 			formProps = {
 				onDelete: () => deleteCompetitionInstance(segment._id, instance._id),
 				onSubmit: values => updateCompetitionInstance(segment._id, instance._id, values),
-				redirectOnDelete: `/admin/competitions/segments/${segment._id}/${
-					segment.multipleInstances ? "instances" : ""
-				}`
+				redirectOnDelete: `/admin/competitions/segments/${segment._id}/instances`
 			};
-			if (segment.multipleInstances) {
-				formProps.onDelete = () => deleteCompetitionInstance(segment._id, instance._id);
-			}
 		}
 		return (
 			<section className="form">
@@ -240,12 +223,9 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionList, competitionSegmentList, teamList, teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		createCompetitionInstance,
-		updateCompetitionInstance,
-		deleteCompetitionInstance,
-		fetchTeamList
-	}
-)(AdminCompetitionInstanceOverview);
+export default connect(mapStateToProps, {
+	createCompetitionInstance,
+	updateCompetitionInstance,
+	deleteCompetitionInstance,
+	fetchTeamList
+})(AdminCompetitionInstanceOverview);

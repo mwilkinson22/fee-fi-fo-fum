@@ -294,13 +294,7 @@ export function getDynamicOptions(values, neutral, props) {
 			//Filter all competitions by team type
 			.filter(({ _teamType }) => _teamType == currentTeamType)
 			//Find those with corresponding instances for this year
-			.filter(({ multipleInstances, instances }) => {
-				if (multipleInstances) {
-					return instances.find(({ year }) => year == currentYear);
-				} else {
-					return instances.length;
-				}
-			})
+			.filter(({ instances }) => instances.find(({ year }) => year == currentYear))
 			//Convert to dropdown options
 			.map(c => {
 				//Pull in the name of the parent comp and the segment, and run "uniq"
@@ -320,12 +314,7 @@ export function getDynamicOptions(values, neutral, props) {
 			const currentCompetition = competitionSegmentList[values._competition];
 
 			//Get corresponding instance
-			let instance;
-			if (currentCompetition.multipleInstances) {
-				instance = currentCompetition.instances.find(({ year }) => year == currentYear);
-			} else {
-				instance = currentCompetition.instances[0];
-			}
+			const instance = currentCompetition.instances.find(({ year }) => year == currentYear);
 
 			//Look for teams
 			options.teams = _.chain(teamList)
