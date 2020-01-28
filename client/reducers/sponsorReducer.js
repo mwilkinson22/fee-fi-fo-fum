@@ -1,8 +1,4 @@
-import {
-	DELETE_SPONSOR,
-	FETCH_SPONSOR,
-	FETCH_SPONSORS
-} from "../actions/types";
+import { DELETE_SPONSOR, FETCH_SPONSOR, FETCH_SPONSORS } from "../actions/types";
 
 export default function(state = {}, action) {
 	switch (action.type) {
@@ -21,12 +17,13 @@ export default function(state = {}, action) {
 				}
 			};
 
-		case DELETE_SPONSOR:
+		case DELETE_SPONSOR: {
 			const { [action.payload]: oldId, ...sponsorList } = state.sponsorList;
 			return {
 				...state,
 				sponsorList
 			};
+		}
 
 		default:
 			return state;

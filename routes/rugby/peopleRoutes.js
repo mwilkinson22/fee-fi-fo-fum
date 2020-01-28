@@ -13,6 +13,7 @@ export default app => {
 	//Putters
 	app.put("/api/people/setExternalNames", requireAdmin, peopleController.setExternalNames);
 	app.put("/api/people/:id", requireAdmin, peopleController.updatePerson);
+	app.put("/api/people/", requireAdmin, peopleController.updatePeople);
 
 	//Post
 	app.post("/api/people", requireAdmin, peopleController.createPerson);

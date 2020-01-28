@@ -167,10 +167,14 @@ export function renderInput(field) {
 				}
 
 				if (mainProps.isMulti) {
-					mainProps.value = mainProps.value.map(str => ({
-						value: str,
-						label: str
-					}));
+					if (mainProps.value) {
+						mainProps.value = mainProps.value.map(str => ({
+							value: str,
+							label: str
+						}));
+					} else {
+						mainProps.value = [];
+					}
 				} else {
 					mainProps.value = { value: mainProps.value, label: mainProps.value };
 				}
@@ -192,9 +196,13 @@ export function renderInput(field) {
 
 				//Pull value from nested options
 				if (mainProps.isMulti) {
-					value = mainProps.value.map(valueInArray =>
-						options.find(({ value }) => value == valueInArray)
-					);
+					if (mainProps.value) {
+						value = mainProps.value.map(valueInArray =>
+							options.find(({ value }) => value == valueInArray)
+						);
+					} else {
+						value = [];
+					}
 				} else {
 					value = options.find(({ value }) => value == mainProps.value);
 				}

@@ -171,6 +171,11 @@ class AdminTeamSquadsEdit extends Component {
 
 		return (
 			<div>
+				<div className="form-card">
+					<Link to={`/admin/teams/${team._id}/squads/${squad._id}/members`}>
+						Edit Team Members
+					</Link>
+				</div>
 				<BasicForm
 					fieldGroups={this.getFieldGroups()}
 					initialValues={this.getInitialValues()}

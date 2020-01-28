@@ -19,6 +19,17 @@ export const updatePerson = (id, data) => async (dispatch, getState, api) => {
 	toast.success("Person Updated");
 };
 
+export const updatePeople = data => async (dispatch, getState, api) => {
+	const res = await api.put(`/people/`, data);
+	if (res.data) {
+		toast.success(`${Object.keys(data).length} People Updated`);
+		dispatch({ type: FETCH_PEOPLE, payload: res.data });
+		return true;
+	}
+
+	return false;
+};
+
 export const deletePerson = id => async (dispatch, getState, api) => {
 	const res = await api.delete(`/people/${id}`);
 	if (res.data) {

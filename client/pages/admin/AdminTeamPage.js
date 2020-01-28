@@ -116,7 +116,6 @@ class AdminTeamPage extends Component {
 
 						<Route path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
 						<Route
-							exact
 							path="/admin/teams/:teamId/squads/:squadId"
 							component={AdminTeamSquadsPage}
 						/>
@@ -161,7 +160,4 @@ function mapStateToProps({ teams }) {
 	const { fullTeams, teamList } = teams;
 	return { fullTeams, teamList };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchTeam }
-)(AdminTeamPage);
+export default connect(mapStateToProps, { fetchTeam })(AdminTeamPage);

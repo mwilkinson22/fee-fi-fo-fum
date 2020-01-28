@@ -8,6 +8,7 @@ import Select from "react-select";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import AdminTeamSquadsCreate from "./AdminTeamSquadsCreate";
 import AdminTeamSquadsEdit from "./AdminTeamSquadsEdit";
+import AdminTeamSquadMembers from "./AdminTeamSquadMembers";
 
 //Constants
 import selectStyling from "~/constants/selectStyling";
@@ -23,7 +24,7 @@ class AdminTeamSquadsPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, fullTeams } = nextProps;
+		const { match, fullTeams, location } = nextProps;
 		const { teamId, squadId } = match.params;
 		const newState = {};
 
@@ -35,6 +36,8 @@ class AdminTeamSquadsPage extends Component {
 			newState.pageType = "root";
 		} else if (squadId === "new") {
 			newState.pageType = "new";
+		} else if (location.pathname.match(/members/)) {
+			newState.pageType = "edit-members";
 		} else {
 			newState.pageType = "edit";
 		}
@@ -86,6 +89,8 @@ class AdminTeamSquadsPage extends Component {
 			return <AdminTeamSquadsCreate team={team} />;
 		} else if (pageType === "edit") {
 			return <AdminTeamSquadsEdit team={team} squad={squad} />;
+		} else if (pageType === "edit-members") {
+			return <AdminTeamSquadMembers team={team} squad={squad} />;
 		}
 	}
 

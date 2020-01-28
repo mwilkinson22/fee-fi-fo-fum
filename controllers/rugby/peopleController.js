@@ -205,6 +205,26 @@ export async function updatePerson(req, res) {
 	}
 }
 
+export async function updatePeople(req, res) {
+	const bulkOperations = _.map(req.body, (data, _id) => ({
+		updateOne: {
+			filter: { _id },
+			update: {
+				$set: data
+			}
+		}
+	}));
+
+	//Update the DB
+	if (bulkOperations.length) {
+		await Person.bulkWrite(bulkOperations);
+	}
+
+	//Return people
+	const people = await getFullPeople(Object.keys(req.body));
+	res.send(_.keyBy(people, "_id"));
+}
+
 export async function setExternalNames(req, res) {
 	for (const obj of req.body) {
 		await Person.findByIdAndUpdate(obj._player, { externalName: obj.name });
