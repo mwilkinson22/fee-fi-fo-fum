@@ -16,6 +16,7 @@
 		h6,
 		.error,
 		.buttons,
+		.table-wrapper,
 		.md-RichEditor-root,
 		hr,
 		.full-span {
@@ -260,6 +261,10 @@
 				opacity: 0.5;
 			}
 		}
+	}
+
+	.table-wrapper {
+		overflow-x: auto;
 	}
 
 	.table {

@@ -246,7 +246,7 @@ class BasicForm extends Component {
 	}
 
 	renderSubmitButtons(formHasChanged, isSubmitting) {
-		let { itemType, submitButtonText, useFormCard } = this.props;
+		let { isInitialValid, itemType, submitButtonText, useFormCard } = this.props;
 		const { isNew } = this.state;
 
 		if (!submitButtonText) {
@@ -266,7 +266,7 @@ class BasicForm extends Component {
 			submitButtonText += ` ${itemType}`;
 		}
 
-		const disableButtons = !formHasChanged || isSubmitting;
+		const disableButtons = (!formHasChanged && !isInitialValid) || isSubmitting;
 
 		const buttons = (
 			<div className="buttons">
@@ -304,7 +304,14 @@ class BasicForm extends Component {
 	}
 
 	render() {
-		const { className, isInitialValid, onReset, useFormCard, useGrid } = this.props;
+		const {
+			className,
+			isInitialValid,
+			onReset,
+			promptOnExit,
+			useFormCard,
+			useGrid
+		} = this.props;
 		const { initialValues, validationSchema } = this.state;
 
 		const divClass = [className];
@@ -331,7 +338,7 @@ class BasicForm extends Component {
 					return (
 						<Form>
 							<Prompt
-								when={!isSubmitting && formHasChanged}
+								when={promptOnExit && !isSubmitting && formHasChanged}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
 							<div className={divClass.join(" ")}>
@@ -375,6 +382,7 @@ BasicForm.propTypes = {
 	onDelete: PropTypes.func, // Action
 	onReset: PropTypes.func,
 	onSubmit: PropTypes.func.isRequired, //values => Action(id, values)
+	promptOnExit: PropTypes.bool,
 	redirectOnDelete: PropTypes.string,
 	//Either a simple string, or a callback passing in form values and action result
 	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
@@ -389,6 +397,7 @@ BasicForm.defaultProps = {
 	className: "",
 	fastFieldByDefault: true,
 	isInitialValid: false,
+	promptOnExit: true,
 	redirectOnDelete: `/admin/`,
 	submitButtonText: null,
 	testMode: false,

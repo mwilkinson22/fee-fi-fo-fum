@@ -208,13 +208,14 @@ class AdminTeamSquadBulkAdderResults extends Component {
 						.filter(r => r);
 
 					return (
-						<Table
-							key="table"
-							rows={rows}
-							columns={columns}
-							defaultSortable={false}
-							className="bulk-add-table"
-						/>
+						<div className="table-wrapper" key="table">
+							<Table
+								rows={rows}
+								columns={columns}
+								defaultSortable={false}
+								className="bulk-add-table"
+							/>
+						</div>
 					);
 				}
 			}
@@ -243,7 +244,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 		}
 
 		return (
-			<div>
+			<div className="scroll-x">
 				<BasicForm
 					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 					fieldGroups={this.getFieldGroups()}
@@ -273,7 +274,6 @@ AdminTeamSquadBulkAdderResults.propTypes = {
 	year: PropTypes.number.isRequired
 };
 
-export default connect(
-	mapStateToProps,
-	{ appendTeamSquad, createTeamSquad }
-)(AdminTeamSquadBulkAdderResults);
+export default connect(mapStateToProps, { appendTeamSquad, createTeamSquad })(
+	AdminTeamSquadBulkAdderResults
+);

@@ -198,6 +198,7 @@ class AdminTeamSquadBulkAdder extends Component {
 						const parsedList = await this.parseList(values);
 						this.setState({ parsedList });
 					}}
+					promptOnExit={false}
 					submitButtonText="Parse Players"
 					validationSchema={validationSchema}
 				/>
