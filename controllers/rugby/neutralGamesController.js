@@ -1,17 +1,12 @@
 //Mongoose
 import mongoose from "mongoose";
 const NeutralGame = mongoose.model("neutralGames");
-const Team = mongoose.model("teams");
 
 //Modules
 import _ from "lodash";
 
-//Constants
-const { localTeam } = require("../../config/keys");
-
 //Helpers
 import { parseExternalGame } from "~/helpers/gameHelper";
-import { crawlFixtures } from "./gamesController";
 
 function queryGenerator(year) {
 	return {
@@ -58,7 +53,7 @@ async function getUpdatedNeutralGames(ids, res) {
 
 //Setters
 export async function createNeutralGames(req, res) {
-	const bulkOperation = _.map(req.body, (document, id) => {
+	const bulkOperation = _.map(req.body, document => {
 		return {
 			insertOne: { document }
 		};
@@ -91,16 +86,6 @@ export async function deleteGame(req, res) {
 }
 
 //External Getters
-export async function crawl(req, res) {
-	const games = await crawlFixtures();
-	const localTeamObject = await Team.findById(localTeam, "name.short");
-	const filteredGames = _.chain(games)
-		.reject(g => [g.home, g.away].indexOf(localTeamObject.name.short) > -1)
-		.map(g => ({ ...g, externalSite: "SL", tv: undefined, round: undefined }))
-		.value();
-	res.send(filteredGames);
-}
-
 export async function crawlAndUpdate(req, res) {
 	const games = await NeutralGame.find(
 		{

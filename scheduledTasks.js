@@ -26,5 +26,5 @@ async function apiCall(path, successMessage) {
  */
 //Sync Neutral Games every 15 minutes
 schedule.scheduleJob("*/15 * * * *", async function() {
-	await apiCall("neutralGames/crawlAndUpdate", "Neutral Games Updated");
+	await apiCall("neutralGames/crawl/update", "Neutral Games Updated");
 });

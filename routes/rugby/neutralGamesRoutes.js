@@ -6,12 +6,7 @@ import requireAdmin from "../../middlewares/requireAdmin";
 
 export default app => {
 	//Getters
-	app.get("/api/neutralGames/crawl", requireAdmin, neutralGamesController.crawl);
-	app.get(
-		"/api/neutralGames/crawlAndUpdate",
-		requireAdmin,
-		neutralGamesController.crawlAndUpdate
-	);
+	app.get("/api/neutralGames/crawl/update", requireAdmin, neutralGamesController.crawlAndUpdate);
 	app.get("/api/neutralGames/fromId/:_id", requireAdmin, neutralGamesController.getListFromId);
 	app.get("/api/neutralGames/years", requireAdmin, neutralGamesController.getYears);
 	app.get("/api/neutralGames/:year/", neutralGamesController.getList);

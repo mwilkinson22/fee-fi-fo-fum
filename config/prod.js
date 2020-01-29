@@ -3,7 +3,6 @@ module.exports = {
 	cookieKey: process.env.COOKIE_KEY,
 	defaultSocialProfile: process.env.DEFAULT_SOCIAL_PROFILE,
 	earliestGiantsData: 2017,
-	fixtureCrawlUrl: process.env.FIXTURE_CRAWL_URL,
 	localTeam: process.env.LOCAL_TEAM,
 	gaTracking: process.env.GA_TRACKING,
 	gc: {

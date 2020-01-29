@@ -6,6 +6,11 @@ import requireAdmin from "~/middlewares/requireAdmin";
 
 export default app => {
 	//Get
+	app.get(
+		"/api/competitions/segments/:_segment/crawlNewGames",
+		requireAdmin,
+		competitionController.crawlNewGames
+	);
 	app.get("/api/competitions/segments", competitionController.getSegments);
 	app.get("/api/competitions", competitionController.getCompetitions);
 

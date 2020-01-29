@@ -15,7 +15,6 @@ export default app => {
 	);
 	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
 	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);
-	app.get("/api/games/crawl/local", requireAdmin, gamesController.crawlLocalGames);
 	app.get("/api/games", gamesController.getList);
 
 	//Crawlers

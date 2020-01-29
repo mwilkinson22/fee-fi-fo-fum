@@ -8,12 +8,10 @@ const ics = require("ics");
 
 //Modules
 import _ from "lodash";
-import { parse } from "node-html-parser";
-import axios from "axios";
 import twitter from "~/services/twitter";
 
 //Constants
-const { localTeam, fixtureCrawlUrl } = require("../../config/keys");
+const { localTeam } = require("../../config/keys");
 import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
@@ -1043,95 +1041,4 @@ export async function saveFanPotmVote(req, res) {
 		//Return vote
 		res.send({ hadAlreadyVoted: Boolean(currentVote), choice: _player });
 	}
-}
-
-//To Be Replaced
-export async function crawlFixtures() {
-	const url = fixtureCrawlUrl;
-	const { data } = await axios.get(url);
-
-	const html = parse(data);
-	const list = html.querySelector(".row.matches").childNodes[1].childNodes;
-	const games = [];
-	let date;
-	for (const row of list) {
-		if (!row.tagName) {
-			continue;
-		}
-
-		if (row.tagName === "h3") {
-			const [dayText, day, month, year] = row.text.split(" ");
-			const dayNum = day.replace(/\D/g, "");
-			date = new Date(`${dayNum} ${month} ${year}`);
-		} else if (row.classNames.indexOf("fixture-card") > -1) {
-			const anchor = row.querySelector("a");
-			const externalId = anchor.rawAttributes.href.split("/").pop();
-			const [firstRow, secondRow, thirdRow] = _.reject(
-				anchor.childNodes,
-				n => n.tagName === undefined
-			);
-
-			//Date and time
-			let timeStringClass;
-			if (firstRow.querySelector(".uk-time")) {
-				timeStringClass = "uk-time";
-			} else {
-				timeStringClass = "middle";
-			}
-			const [hours, minutes] = firstRow
-				.querySelector(`.${timeStringClass}`)
-				.text.match(/\d+/g);
-			date.setHours(hours, minutes);
-
-			//Teams
-			const _homeTeam = firstRow.querySelector(".left").text.trim();
-			const _awayTeam = firstRow.querySelector(".right").text.trim();
-
-			//Round
-			const [ignore, roundStr] = secondRow.text.split("Round");
-			const round = roundStr && roundStr.replace(/\D/g, "");
-
-			//TV
-			let tv = null;
-			if (thirdRow && thirdRow.querySelector("img")) {
-				const tvImageName = thirdRow
-					.querySelector("img")
-					.rawAttributes.src.split("/")
-					.pop();
-				if (tvImageName.includes("sky-sports")) {
-					tv = "sky";
-				} else if (tvImageName.includes("bbc")) {
-					tv = "bbc";
-				}
-			}
-
-			//Core Game Object
-			games.push({
-				externalId,
-				date,
-				round,
-				_homeTeam,
-				_awayTeam,
-				tv
-			});
-		}
-	}
-	return games;
-}
-
-export async function crawlLocalGames(req, res) {
-	const games = await crawlFixtures();
-	const localTeamObject = await Team.findById(localTeam, "name.short");
-	const localTeamName = localTeamObject.name.short;
-	const filteredGames = _.chain(games)
-		.filter(g => [g.home, g.away].indexOf(localTeamName) > -1)
-		.map(g => ({
-			...g,
-			isAway: g.away === localTeamName,
-			_opposition: g.home === localTeamName ? g.away : g.home,
-			home: undefined,
-			away: undefined
-		}))
-		.value();
-	res.send(filteredGames);
 }
