@@ -57,7 +57,6 @@ class AdminCompetitionSegmentOverview extends Component {
 			appendCompetitionName: Yup.boolean().label("Append Competition Name?"),
 			externalCompId: Yup.number().label("External Competition Id"),
 			externalDivId: Yup.number().label("External Division Id"),
-			externalReportPage: Yup.string().label("External Report Page"),
 			_pointsCarriedFrom: Yup.mixed().label("Points Carried From")
 		});
 
@@ -100,7 +99,6 @@ class AdminCompetitionSegmentOverview extends Component {
 			appendCompetitionName: false,
 			externalCompId: "",
 			externalDivId: "",
-			externalReportPage: "",
 			_pointsCarriedFrom: ""
 		};
 		if (isNew) {
@@ -132,8 +130,7 @@ class AdminCompetitionSegmentOverview extends Component {
 			{ name: "hashtagPrefix", type: fieldTypes.text },
 			{ name: "appendCompetitionName", type: fieldTypes.boolean },
 			{ name: "externalCompId", type: fieldTypes.number },
-			{ name: "externalDivId", type: fieldTypes.number },
-			{ name: "externalReportPage", type: fieldTypes.text }
+			{ name: "externalDivId", type: fieldTypes.number }
 		];
 
 		if (!isNew && options._pointsCarriedFrom && options._pointsCarriedFrom.length) {

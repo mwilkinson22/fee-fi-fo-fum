@@ -8,7 +8,9 @@ const competitionSchema = new Schema({
 	interchangeLimit: { type: Number, default: 4 },
 	useAllSquads: { type: Boolean, default: "false" },
 	webcrawlFormat: { type: String, enum: [null, "SL", "RFL"] },
-	webcrawlUrl: { type: String, default: null }
+	webcrawlUrl: { type: String, default: null },
+	webcrawlFixturesPage: { type: String, default: null },
+	webcrawlReportPage: { type: String, default: null }
 });
 
 mongoose.model("competitions", competitionSchema);

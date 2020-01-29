@@ -38,7 +38,10 @@ class AdminCompetitionOverview extends Component {
 		//Dropdown options
 		newState.options = {
 			type: competitionTypes.sort().map(value => ({ value, label: value })),
-			webcrawlFormat: [{ value: "RFL", label: "RFL" }, { value: "SL", label: "Super League" }]
+			webcrawlFormat: [
+				{ value: "RFL", label: "RFL" },
+				{ value: "SL", label: "Super League" }
+			]
 		};
 
 		//Create Validation Schema
@@ -53,8 +56,10 @@ class AdminCompetitionOverview extends Component {
 				.min(0)
 				.label("Maximum Interchanges"),
 			useAllSquads: Yup.boolean().label("Use All Squads"),
-			webcrawlFormat: Yup.mixed().label("Web Crawl Format"),
-			webcrawlUrl: Yup.string().label("Web Crawl Root URL")
+			webcrawlFormat: Yup.mixed().label("Format"),
+			webcrawlUrl: Yup.string().label("Root URL"),
+			webcrawlFixturesPage: Yup.string().label("Fixtures Page"),
+			webcrawlReportPage: Yup.string().label("Report Page")
 		});
 
 		return newState;
@@ -68,7 +73,9 @@ class AdminCompetitionOverview extends Component {
 			interchangeLimit: "",
 			useAllSquads: false,
 			webcrawlFormat: "",
-			webcrawlUrl: ""
+			webcrawlUrl: "",
+			webcrawlFixturesPage: "",
+			webcrawlReportPage: ""
 		};
 
 		if (isNew) {
@@ -95,7 +102,12 @@ class AdminCompetitionOverview extends Component {
 						name: "interchangeLimit",
 						type: fieldTypes.number
 					},
-					{ name: "useAllSquads", type: fieldTypes.boolean },
+					{ name: "useAllSquads", type: fieldTypes.boolean }
+				]
+			},
+			{
+				label: "Web Crawling",
+				fields: [
 					{
 						name: "webcrawlFormat",
 						type: fieldTypes.select,
@@ -105,6 +117,14 @@ class AdminCompetitionOverview extends Component {
 					},
 					{
 						name: "webcrawlUrl",
+						type: fieldTypes.text
+					},
+					{
+						name: "webcrawlFixturesPage",
+						type: fieldTypes.text
+					},
+					{
+						name: "webcrawlReportPage",
 						type: fieldTypes.text
 					}
 				]
@@ -152,11 +172,8 @@ function mapStateToProps({ competitions }) {
 	return { competitionList };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		createCompetition,
-		updateCompetition,
-		deleteCompetition
-	}
-)(AdminCompetitionOverview);
+export default connect(mapStateToProps, {
+	createCompetition,
+	updateCompetition,
+	deleteCompetition
+})(AdminCompetitionOverview);

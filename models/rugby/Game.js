@@ -289,10 +289,10 @@ gameSchema.query.crawl = function() {
 		})
 		.populate({
 			path: "_competition",
-			select: "externalReportPage _parentCompetition instances",
+			select: "_parentCompetition instances",
 			populate: {
 				path: "_parentCompetition",
-				select: "webcrawlUrl webcrawlFormat"
+				select: "webcrawlUrl webcrawlFormat webcrawlReportPage"
 			}
 		});
 };

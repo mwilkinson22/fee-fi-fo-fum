@@ -375,12 +375,12 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 
 	//Get Data
 	const id = game.externalId;
-	const { externalReportPage, instance, _parentCompetition } = game._competition;
-	const { webcrawlFormat, webcrawlUrl } = _parentCompetition;
+	const { instance, _parentCompetition } = game._competition;
+	const { webcrawlFormat, webcrawlUrl, webcrawlReportPage } = _parentCompetition;
 	const nameRegex = new RegExp(/[^A-Za-z\s]/, "gi");
 
 	//Build URL
-	const url = `${webcrawlUrl}${externalReportPage}/${id}`;
+	const url = `${webcrawlUrl}${webcrawlReportPage}/${id}`;
 
 	//Load HTML
 	const { data } = await axios.get(url);
