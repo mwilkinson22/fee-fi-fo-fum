@@ -39,6 +39,7 @@ export default app => {
 	//Post
 	app.post("/api/games/:_game/fan-potm-vote/:_player", gamesController.saveFanPotmVote);
 	app.post("/api/games/calendar", gamesController.createCalendar);
+	app.post("/api/games/crawled", gamesController.addCrawledGames);
 	app.post("/api/games/fixtureListImage/", requireAdmin, gamesController.postFixtureListImage);
 	app.post("/api/games", requireAdmin, gamesController.addGame);
 

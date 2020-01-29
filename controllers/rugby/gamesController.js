@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 const collectionName = "games";
 const Game = mongoose.model(collectionName);
+const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
 const ics = require("ics");
@@ -298,13 +299,70 @@ async function getGames(req, res, forGamePage, forAdmin) {
 	res.send(_.keyBy(games, "_id"));
 }
 
-//Create New Game
+//Create New Games
 export async function addGame(req, res) {
 	const values = await processGround(req.body);
 	values.slug = await Game.generateSlug(values);
 	const game = new Game(values);
 	await game.save();
 	await getUpdatedGame(game._id, res, true);
+}
+
+export async function addCrawledGames(req, res) {
+	//Results object
+	const savedData = {};
+
+	//First, add local games
+	const localBulkOperations = [];
+
+	for (const game of req.body.local) {
+		//Get Ground
+		await processGround(game);
+
+		//Get Slug
+		game.slug = await Game.generateSlug(game);
+
+		localBulkOperations.push({
+			insertOne: { document: game }
+		});
+	}
+
+	if (localBulkOperations.length) {
+		//Save to database
+		const result = await Game.bulkWrite(localBulkOperations);
+
+		//Pull new games
+		const list = await processList();
+		const games = await Game.find({ _id: { $in: _.values(result.insertedIds) } }).fullGame(
+			true,
+			true
+		);
+		const fullGames = await getExtraGameInfo(games, true, true);
+
+		//Return new games
+		savedData.local = {
+			fullGames,
+			...list
+		};
+	}
+
+	//Then, add neutral games
+	const neutralBulkOperations = _.map(req.body.neutral, document => {
+		return {
+			insertOne: { document }
+		};
+	});
+	if (neutralBulkOperations.length) {
+		//Save to database
+		const result = await NeutralGame.bulkWrite(neutralBulkOperations);
+
+		//Return new games
+		savedData.neutral = await NeutralGame.find({
+			_id: { $in: _.values(result.insertedIds) }
+		}).lean();
+	}
+
+	res.send(savedData);
 }
 
 //Delete Game

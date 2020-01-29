@@ -4,7 +4,8 @@ import {
 	UPDATE_GAME,
 	CRAWL_LOCAL_GAMES,
 	DELETE_GAME,
-	SAVE_FAN_POTM_VOTE
+	SAVE_FAN_POTM_VOTE,
+	UPDATE_NEUTRAL_GAMES
 } from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
@@ -171,5 +172,31 @@ export const saveFanPotmVote = (gameId, playerId) => async (dispatch, getState, 
 		const { hadAlreadyVoted, choice } = res.data;
 		dispatch({ type: SAVE_FAN_POTM_VOTE, payload: { gameId, choice } });
 		return hadAlreadyVoted;
+	}
+};
+
+export const addCrawledGames = games => async (dispatch, getState, api) => {
+	const res = await api.post(`/games/crawled/`, games);
+	if (res.data) {
+		const gameCount = [];
+
+		const { local, neutral } = res.data;
+		if (local) {
+			dispatch({ type: UPDATE_GAME, payload: local });
+			gameCount.push(
+				`${local.fullGames.length} local ${local.fullGames.length === 1 ? "game" : "games"}`
+			);
+		}
+
+		if (neutral) {
+			gameCount.push(`${neutral.length} neutral ${neutral.length === 1 ? "game" : "games"}`);
+
+			if (getState().games.neutralGames) {
+				dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: neutral });
+			}
+		}
+
+		toast.success(`${gameCount.join(" & ")} created`);
+		return true;
 	}
 };

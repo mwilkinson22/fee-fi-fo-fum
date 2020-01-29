@@ -7,6 +7,7 @@ import { Switch, Route, Link } from "react-router-dom";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import AdminCompetitionSegmentOverview from "../../components/admin/competitions/AdminCompetitionSegmentOverview";
 import AdminCompetitionInstanceList from "../../components/admin/competitions/AdminCompetitionInstanceList";
+import AdminCompetitionSegmentCrawler from "../../components/admin/competitions/AdminCompetitionSegmentCrawler";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
@@ -14,6 +15,9 @@ import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
 import { fetchCompetitions, fetchCompetitionSegments } from "~/client/actions/competitionActions";
+
+//Helpers
+import { canCrawlFixtures } from "~/helpers/competitionHelper";
 
 class AdminCompetitionSegmentPage extends Component {
 	constructor(props) {
@@ -78,6 +82,10 @@ class AdminCompetitionSegmentPage extends Component {
 				{ label: "Instances", slug: "instances" }
 			];
 
+			if (canCrawlFixtures(segment)) {
+				items.push({ label: "Crawl Fixtures", slug: "crawl" });
+			}
+
 			submenu = (
 				<SubMenu items={items} rootUrl={`/admin/competitions/segments/${segment._id}/`} />
 			);
@@ -101,6 +109,11 @@ class AdminCompetitionSegmentPage extends Component {
 		return (
 			<ErrorBoundary>
 				<Switch>
+					<Route
+						path="/admin/competitions/segments/:_id/crawl"
+						component={AdminCompetitionSegmentCrawler}
+						exact
+					/>
 					<Route
 						path="/admin/competitions/segments/:_id/instances"
 						component={AdminCompetitionInstanceList}
