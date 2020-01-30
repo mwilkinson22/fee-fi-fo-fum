@@ -136,6 +136,10 @@ class AdminGamePostGameEvents extends Component {
 				{ label: "Multiple Player Stats", value: "grouped-player-stats" }
 			];
 
+			if (newState.game._competition.type === "League") {
+				newState.eventTypes.push({ label: "League Table", value: "league-table" });
+			}
+
 			//Conditionally add Man of Steel and Fans' POTM event types
 			if (newState.game.manOfSteel && newState.game.manOfSteel.length) {
 				newState.eventTypes.push({

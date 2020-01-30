@@ -31,6 +31,7 @@ import GameEventImage from "~/images/GameEventImage";
 import PlayerEventImage from "~/images/PlayerEventImage";
 import TeamStatsImage from "~/images/TeamStatsImage";
 import MultiplePlayerStats from "~/images/MultiplePlayerStats";
+import LeagueTable from "~/images/LeagueTable";
 
 //Utility Functions
 async function validateGame(_id, res, promise = null) {
@@ -898,6 +899,12 @@ async function generatePostGameEventImage(game, data, res) {
 					customHeader
 				});
 				return image;
+			}
+			case "league-table": {
+				return new LeagueTable(game._competition._id, new Date(game.date).getFullYear(), [
+					localTeam,
+					game._opposition._id
+				]);
 			}
 		}
 	}

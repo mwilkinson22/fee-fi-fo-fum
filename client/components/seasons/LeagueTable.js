@@ -394,7 +394,15 @@ class LeagueTable extends Component {
 				[
 					"data.Pts.content",
 					"data.Diff.content",
-					"data.F.content",
+					({ data }) => {
+						const F = data.F.content;
+						const A = data.A.content;
+						if (F && A) {
+							return F / A;
+						} else {
+							return 0;
+						}
+					},
 					"data.team-name.content"
 				],
 				["desc", "desc", "desc", "asc"]
@@ -487,14 +495,11 @@ function mapStateToProps({ config, games, teams, competitions }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchNeutralGames,
-			fetchGames,
-			fetchGameList,
-			fetchCompetitionSegments,
-			fetchTeamList
-		}
-	)(LeagueTable)
+	connect(mapStateToProps, {
+		fetchNeutralGames,
+		fetchGames,
+		fetchGameList,
+		fetchCompetitionSegments,
+		fetchTeamList
+	})(LeagueTable)
 );

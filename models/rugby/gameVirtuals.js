@@ -159,10 +159,9 @@ export default gameSchema => {
 	//Get Shared Squads
 	gameSchema.virtual("sharedSquads").get(function() {
 		const { _opposition } = this;
-		const { sharedSquads } = getInstance(this);
-
-		if (sharedSquads) {
-			return _.chain(sharedSquads)
+		const instance = getInstance(this);
+		if (instance && instance.sharedSquads) {
+			return _.chain(instance && instance.sharedSquads)
 				.filter(({ _team }) => _team == localTeam || _team == _opposition._id)
 				.map(({ _team, sharedWith }) => [_team, sharedWith])
 				.fromPairs()
