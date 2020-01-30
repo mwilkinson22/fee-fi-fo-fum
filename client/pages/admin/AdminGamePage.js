@@ -137,7 +137,7 @@ class AdminGamePage extends Component {
 				>
 					<span>{adjacentGame.date.toString("ddd dS MMM")}</span>
 					<TeamImage team={team} />
-					<span>{type == "last" ? "\uD83E\uDC78" : "\uD83E\uDC7A"}</span>
+					<span>{type == "last" ? "\u25c0" : "\u25b6"}</span>
 				</Link>
 			);
 		});
