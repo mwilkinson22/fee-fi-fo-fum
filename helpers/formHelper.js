@@ -21,15 +21,22 @@ import selectStyling from "~/constants/selectStyling";
 import { nestedObjectToDot } from "./genericHelper";
 
 export function extractYupData(name, validationSchema) {
-	return name
-		.split(".")
-		.join(".fields.")
-		.replace(/\.fields\.\d+\./g, ".innerType.")
-		.split(".")
-		.reduce(
-			(prev, curr) => (prev ? prev[curr] : null),
-			validationSchema.describe().fields || self
-		);
+	return (
+		name
+			//Handle objects
+			.split(".")
+			.join(".fields.")
+			//Handle arrays of objects
+			.replace(/\.fields\.\d+\./g, ".innerType.")
+			//Handle arrays of simple types
+			.replace(/\.fields\.\d+$/g, ".innerType")
+			//Convert to dot notation
+			.split(".")
+			.reduce(
+				(prev, curr) => (prev ? prev[curr] : null),
+				validationSchema.describe().fields || self
+			)
+	);
 }
 
 export function renderFieldGroup(fields, validationSchema, fastFieldByDefault = true) {
