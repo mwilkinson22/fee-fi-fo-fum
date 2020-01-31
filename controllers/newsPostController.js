@@ -10,7 +10,14 @@ import { getRedirects } from "./genericController";
 
 //Config
 function generateQuery(user, obj = {}) {
-	const query = user ? {} : { isPublished: true };
+	let query = {};
+	if (!user) {
+		query = {
+			isPublished: true,
+			dateCreated: { $lte: new Date().toISOString() }
+		};
+	}
+
 	return {
 		...query,
 		...obj

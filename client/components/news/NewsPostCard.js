@@ -30,9 +30,13 @@ class NewsPostCard extends Component {
 			imageArr.pop();
 			image = imageArr.join(".") + ".webp";
 		}
+		//This doesn't govern visibility, only the classname,
+		//which changes the colour to indicate admin-viewable-only posts
+		const isPublished = post.isPublished && post.dateCreated < new Date();
+
 		return (
 			<div
-				className={`post-preview ${!post.isPublished ? "unpublished" : ""}`}
+				className={`post-preview ${isPublished ? "" : "unpublished"}`}
 				style={{
 					backgroundImage: image ? `url('${newsHeaderPath}${image}')` : null
 				}}
