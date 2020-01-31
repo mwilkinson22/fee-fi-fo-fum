@@ -265,7 +265,7 @@ export default class PlayerEventImage extends Canvas {
 				Math.round(cHeight * 0.05),
 				Math.round(cWidth * 0.5),
 				Math.round(cHeight * 0.95),
-				{ yAlign: "top" }
+				{ xAlign: "right", yAlign: "top" }
 			);
 		} else {
 			const badgeWidth = Math.round(cWidth * 0.3);
