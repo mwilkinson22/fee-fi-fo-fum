@@ -20,7 +20,7 @@ function getTeamList(game, team) {
 					number: squadEntry ? squadEntry.number : null
 				};
 			})
-			.sortBy(p => p.number || 999)
+			.sortBy(p => p.number || p.name.full)
 			.value();
 	}
 }
@@ -258,16 +258,16 @@ export default class PregameImage extends Canvas {
 		);
 
 		//Positions
-		const x = singleTeam ? 0 - cWidth * 0.05 : cWidth * 0.3;
+		const x = singleTeam ? 0 - cWidth * 0.05 : cWidth * 0.275;
 		const y = cWidth * 0.09;
-		const w = cWidth * 0.4;
+		const w = cWidth * 0.45;
 		const h = cHeight - y;
 
 		//Set Shadow
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
 
-		this.contain(playerImage, x, y, w, h);
+		this.contain(playerImage, x, y, w, h, { yAlign: "bottom" });
 		this.resetShadow();
 	}
 
