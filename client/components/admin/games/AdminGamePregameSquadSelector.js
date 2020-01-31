@@ -60,7 +60,7 @@ class AdminGamePregameSquadSelector extends Component {
 							const lastSquad =
 								lastGame.pregameSquads &&
 								lastGame.pregameSquads.find(
-									s => s._team == team._id && s.squad.length
+									s => s._team == team._id && s.squad && s.squad.length
 								);
 
 							let squadMembers;
