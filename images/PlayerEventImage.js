@@ -131,7 +131,7 @@ export default class PlayerEventImage extends Canvas {
 				ctx.moveTo(cWidth - barWidth * 2.11, barTop);
 				ctx.lineTo(cWidth - barWidth, barTop);
 				ctx.lineTo(cWidth - barWidth, barTop + barHeight);
-				ctx.lineTo(cWidth - barWidth * 2.14, barTop + barHeight);
+				ctx.lineTo(cWidth - barWidth * 2.145, barTop + barHeight);
 				ctx.closePath();
 				ctx.fill();
 				relativeBadgeOffset = 0 - badgeOffset - badgeWidth;
