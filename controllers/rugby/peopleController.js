@@ -67,7 +67,7 @@ async function getPlayedGames(_id) {
 		{
 			$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }]
 		},
-		"playerStats._player playerStats._team pregameSquads date"
+		"playerStats._player playerStats._team pregameSquads date squadsAnnounced"
 	).lean();
 
 	return playedGames.map(game => {
@@ -83,7 +83,13 @@ async function getPlayedGames(_id) {
 			forLocalTeam = playerStatEntry._team == localTeam;
 		}
 
-		return { _id: game._id, pregameOnly, forLocalTeam, date: game.date };
+		return {
+			_id: game._id,
+			pregameOnly,
+			forLocalTeam,
+			date: game.date,
+			squadsAnnounced: game.squadsAnnounced
+		};
 	});
 }
 

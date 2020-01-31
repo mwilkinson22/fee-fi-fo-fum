@@ -296,7 +296,7 @@ class PersonPage extends Component {
 		}
 
 		const playedGames = person.playedGames
-			.filter(g => !g.pregameOnly && g.forLocalTeam)
+			.filter(g => !g.pregameOnly && g.forLocalTeam && g.squadsAnnounced)
 			.map(g => gameList[g._id])
 			.filter(g => Number(g.date.getFullYear()) >= earliestGiantsData);
 
