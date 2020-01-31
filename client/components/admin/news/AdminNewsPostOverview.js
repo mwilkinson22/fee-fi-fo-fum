@@ -197,7 +197,7 @@ class AdminNewsPostOverview extends Component {
 
 			//Add Created Date
 			values.dateCreated = post.dateCreated.toString("yyyy-MM-dd");
-			values.timeCreated = post.dateCreated.toString("HH:mm:ss");
+			values.timeCreated = post.dateCreated.toString("HH:mm");
 
 			//Add Published Status
 			values.isPublished = post.isPublished;
@@ -344,15 +344,12 @@ function mapStateToProps({ config, games, news, teams, users }) {
 	return { authUser, fullPosts, userList, gameList, teamList, teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchPostList,
-		fetchNewsPost,
-		fetchUserList,
-		fetchGameList,
-		createNewsPost,
-		updateNewsPost,
-		deleteNewsPost
-	}
-)(AdminNewsPostOverview);
+export default connect(mapStateToProps, {
+	fetchPostList,
+	fetchNewsPost,
+	fetchUserList,
+	fetchGameList,
+	createNewsPost,
+	updateNewsPost,
+	deleteNewsPost
+})(AdminNewsPostOverview);

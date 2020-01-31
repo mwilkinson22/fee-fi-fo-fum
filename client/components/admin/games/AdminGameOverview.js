@@ -214,7 +214,7 @@ class AdminGameOverview extends Component {
 						value = game.date.toString("yyyy-MM-dd");
 						break;
 					case "time":
-						value = game.date.toString("HH:mm:ss");
+						value = game.date.toString("HH:mm");
 						break;
 					case "_competition":
 					case "_opposition":

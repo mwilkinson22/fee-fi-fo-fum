@@ -162,7 +162,7 @@ class AdminNeutralGamePage extends Component {
 						value = game.date.toString("yyyy-MM-dd");
 						break;
 					case "time":
-						value = game.date.toString("HH:mm:ss");
+						value = game.date.toString("HH:mm");
 						break;
 					default:
 						value = game[key];
@@ -339,14 +339,11 @@ function mapStateToProps({ config, games, teams, competitions }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{
-			fetchCompetitionSegments,
-			fetchNeutralGamesFromId,
-			createNeutralGames,
-			updateNeutralGames,
-			deleteNeutralGame
-		}
-	)(AdminNeutralGamePage)
+	connect(mapStateToProps, {
+		fetchCompetitionSegments,
+		fetchNeutralGamesFromId,
+		createNeutralGames,
+		updateNeutralGames,
+		deleteNeutralGame
+	})(AdminNeutralGamePage)
 );
