@@ -38,7 +38,12 @@ class ManOfSteelPoints extends Component {
 			.value();
 
 		//Get Player For Image
-		const localPlayers = newState.players.filter(p => p._team == localTeam && p._player.image);
+		const localPlayers = newState.players.filter(
+			p =>
+				p._team == localTeam &&
+				p._player.images &&
+				(p._player.images.main || p._player.images.player)
+		);
 		if (localPlayers.length) {
 			newState.playerForImage = localPlayers[0]._player;
 		}

@@ -63,7 +63,7 @@ class AdminGamePostGame extends Component {
 		if (newState.manOfSteel) {
 			const manOfSteelValidation = {};
 			for (let i = 1; i <= 3; i++) {
-				manOfSteelValidation[i] = Yup.mixed()
+				manOfSteelValidation[`${i}points`] = Yup.mixed()
 					.test("isUnique", "Player selected twice", function(option) {
 						//No worries if the value is empty
 						if (!option || !option.value) {
@@ -101,9 +101,9 @@ class AdminGamePostGame extends Component {
 
 		if (manOfSteel) {
 			defaultValues.manOfSteel = {
-				1: "",
-				2: "",
-				3: ""
+				"1points": "",
+				"2points": "",
+				"3points": ""
 			};
 		}
 
@@ -126,7 +126,7 @@ class AdminGamePostGame extends Component {
 				case "manOfSteel":
 					if (game.manOfSteel) {
 						value = _.chain(game.manOfSteel)
-							.map(({ _player, points }) => [points, _player])
+							.map(({ _player, points }) => [`${points}points`, _player])
 							.fromPairs()
 							.value();
 					}
@@ -174,7 +174,7 @@ class AdminGamePostGame extends Component {
 			const manOfSteelFields = [];
 			for (let i = 3; i > 0; i--) {
 				manOfSteelFields.push({
-					name: `manOfSteel.${i}`,
+					name: `manOfSteel.${i}points`,
 					type: fieldTypes.select,
 					options: options.players.bothTeams,
 					isSearchable: false,
@@ -285,7 +285,7 @@ class AdminGamePostGame extends Component {
 	alterValuesBeforeSubmit(values) {
 		if (values.manOfSteel) {
 			values.manOfSteel = _.chain(values.manOfSteel)
-				.map((_player, points) => ({ _player, points }))
+				.map((_player, points) => ({ _player, points: points.replace(/\D/g, "") }))
 				.filter("_player")
 				.value();
 		}
