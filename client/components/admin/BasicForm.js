@@ -9,6 +9,7 @@ import { diff } from "deep-object-diff";
 
 //Components
 import DeleteButtons from "./fields/DeleteButtons";
+import BooleanField from "./fields/Boolean";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -24,11 +25,25 @@ class BasicForm extends Component {
 			console.info("Form loaded in test mode");
 		}
 
-		this.state = {};
+		this.state = {
+			disableRedirect: false
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		return _.pick(nextProps, ["fieldGroups", "initialValues", "isNew", "validationSchema"]);
+		const newState = _.pick(nextProps, [
+			"enableRedirectBoolean",
+			"fieldGroups",
+			"initialValues",
+			"isNew",
+			"validationSchema"
+		]);
+
+		if (!newState.enableRedirectBoolean) {
+			newState.disableRedirect = false;
+		}
+
+		return newState;
 	}
 
 	getFieldGroups(values) {
@@ -132,6 +147,7 @@ class BasicForm extends Component {
 			redirectOnSubmit,
 			testMode
 		} = this.props;
+		const { disableRedirect } = this.state;
 
 		const fieldGroups = this.getFieldGroups(fValues);
 
@@ -163,10 +179,12 @@ class BasicForm extends Component {
 			const result = await onSubmit(values, formikProps);
 
 			//Redirect
-			if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
-				history.push(redirectOnSubmit(result));
-			} else if (typeof redirectOnSubmit === "string") {
-				history.push(redirectOnSubmit);
+			if (!disableRedirect) {
+				if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
+					history.push(redirectOnSubmit(result));
+				} else if (typeof redirectOnSubmit === "string") {
+					history.push(redirectOnSubmit);
+				}
 			}
 
 			//Required in case the submit is unsuccesful
@@ -247,8 +265,9 @@ class BasicForm extends Component {
 
 	renderSubmitButtons(formHasChanged, isSubmitting) {
 		let { isInitialValid, itemType, submitButtonText, useFormCard } = this.props;
-		const { isNew } = this.state;
+		const { disableRedirect, enableRedirectBoolean, isNew } = this.state;
 
+		//Get text for submit button
 		if (!submitButtonText) {
 			if (isSubmitting) {
 				if (isNew) {
@@ -266,10 +285,12 @@ class BasicForm extends Component {
 			submitButtonText += ` ${itemType}`;
 		}
 
+		//Work out whether buttons are disabled
 		const disableButtons = (!formHasChanged && !isInitialValid) || isSubmitting;
 
-		const buttons = (
-			<div className="buttons">
+		//Create Buttons
+		const content = [
+			<div className="buttons" key="buttons">
 				<button type="reset" disabled={disableButtons}>
 					Reset
 				</button>
@@ -281,14 +302,29 @@ class BasicForm extends Component {
 					{submitButtonText}
 				</button>
 			</div>
-		);
+		];
 
+		//Add redirect boolean, if necessary
+		if (enableRedirectBoolean) {
+			content.unshift(
+				<hr key="redirect-bool-divider" />,
+				<label key="redirect-bool-label">Disable Redirect on Submit?</label>,
+				<BooleanField
+					value={disableRedirect}
+					name="disable-redirect"
+					key="redirect-bool"
+					onChange={() => this.setState({ disableRedirect: !disableRedirect })}
+				/>
+			);
+		}
+
+		//Return data
 		if (useFormCard) {
 			//If the parent is a form-card, we return as-is
-			return buttons;
+			return content;
 		} else {
 			//Otherwise, wrap it in in a form-card
-			return <div className="form-card">{buttons}</div>;
+			return <div className="form-card grid">{content}</div>;
 		}
 	}
 
@@ -358,6 +394,7 @@ class BasicForm extends Component {
 BasicForm.propTypes = {
 	alterValuesBeforeSubmit: PropTypes.func,
 	className: PropTypes.string,
+	enableRedirectBoolean: PropTypes.bool,
 	fastFieldByDefault: PropTypes.bool,
 	fieldGroups: PropTypes.oneOfType([
 		PropTypes.func,
@@ -395,6 +432,7 @@ BasicForm.propTypes = {
 
 BasicForm.defaultProps = {
 	className: "",
+	enableRedirectBoolean: false,
 	fastFieldByDefault: true,
 	isInitialValid: false,
 	promptOnExit: true,

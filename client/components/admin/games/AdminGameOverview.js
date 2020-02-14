@@ -406,6 +406,7 @@ class AdminGameOverview extends Component {
 		return (
 			<BasicForm
 				alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+				enableRedirectBoolean={isNew}
 				fastFieldByDefault={false}
 				fieldGroups={values => this.getFieldGroups(values)}
 				initialValues={this.getInitialValues()}
