@@ -46,6 +46,7 @@ export const createGame = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/games/`, values);
 	if (res.data) {
 		dispatch({ type: UPDATE_GAME, payload: res.data });
+		toast.success("Game created");
 		return res.data.id;
 	}
 };
