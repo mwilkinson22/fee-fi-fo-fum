@@ -183,7 +183,9 @@ export default class LeagueTable extends Canvas {
 					});
 
 				//Get adjustments
-				const adjustments = instance.adjustments.find(a => a._team.toString() == _team);
+				const adjustments =
+					instance.adjustments &&
+					instance.adjustments.find(a => a._team.toString() == _team);
 				if (adjustments) {
 					for (const key in adjustments) {
 						if (key !== "_id" && key !== "_team") {
