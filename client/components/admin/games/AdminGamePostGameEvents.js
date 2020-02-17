@@ -396,11 +396,29 @@ class AdminGamePostGameEvents extends Component {
 											name: `playersAndStats`,
 											type: fieldTypes.fieldArray,
 											key: `playersAndStats.${i}.fieldArray`,
-											render: ({ remove }) => (
+											render: ({ move, remove }) => (
 												<div className="buttons">
 													<button type="button" onClick={() => remove(i)}>
 														Remove Player
 													</button>
+													<div>
+														<button
+															onClick={() => move(i, i + 1)}
+															disabled={
+																i == playersAndStats.length - 1
+															}
+															type="button"
+														>
+															&#9660;
+														</button>
+														<button
+															onClick={() => move(i, i - 1)}
+															disabled={i == 0}
+															type="button"
+														>
+															&#9650;
+														</button>
+													</div>
 													<hr />
 												</div>
 											)
