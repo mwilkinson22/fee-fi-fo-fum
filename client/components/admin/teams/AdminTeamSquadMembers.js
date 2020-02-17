@@ -91,7 +91,7 @@ class AdminTeamSquadMembers extends Component {
 		newState.options.positions = _.map(playerPositions, ({ name }, key) => ({
 			label: name,
 			value: key
-		}));
+		})).filter(o => o.value !== "I");
 
 		//Sponsors
 		newState.options._sponsor = _.chain(sponsorList)
