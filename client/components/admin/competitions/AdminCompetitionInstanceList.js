@@ -43,11 +43,7 @@ class AdminCompetitionInstanceList extends Component {
 		const list = _.chain(segment.instances)
 			.orderBy(["year"], ["desc"])
 			.map(({ year, _id, sponsor }) => {
-				const titleArr = [year, sponsor, segment._parentCompetition.name];
-
-				if (segment.appendCompetitionName) {
-					titleArr.push(segment.name);
-				}
+				const titleArr = [year, sponsor, segment.basicTitle];
 
 				const title = _.filter(titleArr, _.identity).join(" ");
 

@@ -33,11 +33,10 @@ function getInstance(doc) {
 
 	//Custom Title
 	const { sponsor } = instanceFields;
-	const { _parentCompetition, appendCompetitionName, name } = _competition;
+	const { basicTitle } = _competition;
 	const titleArr = [
 		sponsor, //Sponsor
-		_parentCompetition.name, //Parent comp i.e. Super League
-		appendCompetitionName ? name : null //Segment name i.e. Super 8s
+		basicTitle //Basic Title (parent + segment names)
 	];
 	return {
 		...instanceFields,

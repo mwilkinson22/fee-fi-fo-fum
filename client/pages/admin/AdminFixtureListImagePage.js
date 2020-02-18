@@ -92,16 +92,7 @@ class AdminFixtureListImagePage extends Component {
 					.map("_competition")
 					.uniq()
 					.map(c => {
-						const {
-							_parentCompetition,
-							appendCompetitionName,
-							name
-						} = competitionSegmentList[c];
-						const titleArr = [_parentCompetition.name];
-						if (appendCompetitionName) {
-							titleArr.push(name);
-						}
-						return { value: c, label: titleArr.join(" ") };
+						return { value: c, label: competitionSegmentList[c].basicTitle };
 					})
 					.sortBy("label")
 					.value();
@@ -267,13 +258,10 @@ function mapStateToProps({ competitions, games, social, teams }) {
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchGameList,
-		fetchProfiles,
-		previewFixtureListImage,
-		postFixtureListImage,
-		fetchCompetitionSegments
-	}
-)(AdminFixtureListImagePage);
+export default connect(mapStateToProps, {
+	fetchGameList,
+	fetchProfiles,
+	previewFixtureListImage,
+	postFixtureListImage,
+	fetchCompetitionSegments
+})(AdminFixtureListImagePage);

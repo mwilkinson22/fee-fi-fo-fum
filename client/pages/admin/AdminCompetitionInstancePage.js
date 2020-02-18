@@ -67,10 +67,8 @@ class AdminCompetitionInstancePage extends Component {
 		} else {
 			titleArr.push(instance.year);
 		}
-		titleArr.push(segment._parentCompetition.name);
-		if (segment.appendCompetitionName) {
-			titleArr.push(segment.name);
-		}
+		titleArr.push(segment.basicTitle);
+
 		const title = titleArr.join(" ");
 
 		//Render copy link for existing instances

@@ -73,4 +73,20 @@ const competitionSegmentSchema = new Schema(
 	}
 );
 
+competitionSegmentSchema.virtual("basicTitle").get(function() {
+	if (!this._parentCompetition || !this._parentCompetition.name) {
+		return undefined;
+	} else {
+		//Get Parent Competition Name
+		let value = this._parentCompetition.name;
+
+		//Append segment name where necessary
+		if (this.appendCompetitionName) {
+			value += ` ${this.name}`;
+		}
+
+		return value;
+	}
+});
+
 mongoose.model("competitionSegments", competitionSegmentSchema);
