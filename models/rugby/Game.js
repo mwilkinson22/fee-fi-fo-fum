@@ -162,6 +162,11 @@ gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType 
 	const TeamType = mongoose.model("teamTypes");
 	const teamType = await TeamType.findById(_teamType, "slug");
 
+	//Ensure date is date object
+	if (typeof date === "string") {
+		date = new Date(date);
+	}
+
 	const coreSlugText = `${teamSlug}${
 		teamType.slug == "first" ? "-" : `-${teamType.slug}-`
 	}${date.toString("yyyy-MM-dd")}`;
