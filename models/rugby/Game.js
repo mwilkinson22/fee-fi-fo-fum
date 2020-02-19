@@ -278,7 +278,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		.populate({
 			path: "_competition",
 			select:
-				"name _parentCompetition appendCompetitionName instances instance type hashtagPrefix",
+				"name _parentCompetition appendCompetitionName basicTitle instances instance type hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
 				select: "name useAllSquads interchangeLimit"

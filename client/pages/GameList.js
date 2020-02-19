@@ -12,7 +12,7 @@ import LoadingPage from "../components/LoadingPage";
 import GameFilters from "../components/games/GameFilters";
 import GameCard from "../components/games/GameCard";
 import AdminGameCard from "~/client/components/games/AdminGameCard";
-import CalendarConfig from "../components/games/CalendarConfig";
+import CalendarDialog from "../components/games/calendar/CalendarDialog";
 
 //Actions
 import { fetchGames, fetchGameList, getCalendar } from "../actions/gamesActions";
@@ -240,7 +240,7 @@ class GameList extends Component {
 
 		if (showCalendarDialog) {
 			return (
-				<CalendarConfig onDestroy={() => this.setState({ showCalendarDialog: false })} />
+				<CalendarDialog onDestroy={() => this.setState({ showCalendarDialog: false })} />
 			);
 		}
 	}
@@ -346,9 +346,11 @@ export async function loadData(store, path) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchGames, fetchGameList, getCalendar, setActiveTeamType }
-	)(GameList),
+	component: connect(mapStateToProps, {
+		fetchGames,
+		fetchGameList,
+		getCalendar,
+		setActiveTeamType
+	})(GameList),
 	loadData
 };

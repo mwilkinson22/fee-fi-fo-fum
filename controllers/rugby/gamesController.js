@@ -1009,8 +1009,6 @@ export async function submitPostGameEvents(req, res) {
 
 //Calendar
 export async function createCalendar(req, res) {
-	const { _competitions, options } = req.body;
-
 	//Get Team Types
 	const teamTypes = await TeamType.find({}, "name sortOrder").lean();
 
@@ -1019,11 +1017,8 @@ export async function createCalendar(req, res) {
 
 	//Get Games
 	let games = await Game.find({
-		date: {
-			$gte: new Date()
-		},
-		_competition: {
-			$in: _competitions
+		_id: {
+			$in: req.body.games
 		}
 	}).fullGame();
 	games = JSON.parse(JSON.stringify(games));
@@ -1047,7 +1042,7 @@ export async function createCalendar(req, res) {
 		return {
 			title: convertGameToCalendarString(
 				g,
-				options,
+				req.body.options,
 				_.keyBy(teamTypes, "_id"),
 				localTeamName.name
 			),

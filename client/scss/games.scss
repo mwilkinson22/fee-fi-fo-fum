@@ -1539,3 +1539,68 @@ section.match-squads {
 		}
 	}
 }
+
+.calendar-dialog {
+	border: 8pt $claret solid;
+	background-color: #f4f4f4;
+	display: flex;
+	flex-direction: column;
+
+	.form-card {
+		padding: 0;
+		box-shadow: none;
+		background: transparent;
+	}
+
+	ul {
+		li {
+			display: flex;
+			justify-content: flex-start;
+			padding: 6pt;
+			user-select: none;
+			font-weight: 600;
+
+			&:not(:last-child) {
+				border-bottom: solid 1pt #e4e4e4;
+			}
+
+			.boolean {
+				margin-right: 10pt;
+				pointer-events: none;
+			}
+		}
+		&.clickable {
+			li {
+				cursor: pointer;
+				&:hover {
+					background: rgba($claret, 0.2);
+				}
+			}
+		}
+	}
+
+	.disabled {
+		opacity: 0.3;
+		* {
+			pointer-events: none;
+		}
+	}
+
+	.scrollable {
+		overflow: auto;
+		padding: 6pt 12pt;
+		border-radius: 4pt;
+		border: solid thin #eee;
+	}
+
+	form {
+		label {
+			padding: 4pt 0 0;
+			display: block;
+		}
+		h6 {
+			font-size: 1em;
+			margin: 4pt 0 0;
+		}
+	}
+}

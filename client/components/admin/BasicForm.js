@@ -264,7 +264,13 @@ class BasicForm extends Component {
 	}
 
 	renderSubmitButtons(formHasChanged, isSubmitting) {
-		let { isInitialValid, itemType, submitButtonText, useFormCard } = this.props;
+		let {
+			isInitialValid,
+			itemType,
+			replaceResetButton,
+			submitButtonText,
+			useFormCard
+		} = this.props;
 		const { disableRedirect, enableRedirectBoolean, isNew } = this.state;
 
 		//Get text for submit button
@@ -288,12 +294,16 @@ class BasicForm extends Component {
 		//Work out whether buttons are disabled
 		const disableButtons = (!formHasChanged && !isInitialValid) || isSubmitting;
 
+		const resetButton = replaceResetButton || (
+			<button type="reset" disabled={disableButtons}>
+				Reset
+			</button>
+		);
+
 		//Create Buttons
 		const content = [
 			<div className="buttons" key="buttons">
-				<button type="reset" disabled={disableButtons}>
-					Reset
-				</button>
+				{resetButton}
 				<button
 					type="submit"
 					className={disableButtons ? "" : "confirm"}
@@ -421,6 +431,7 @@ BasicForm.propTypes = {
 	onSubmit: PropTypes.func.isRequired, //values => Action(id, values)
 	promptOnExit: PropTypes.bool,
 	redirectOnDelete: PropTypes.string,
+	replaceResetButton: PropTypes.node,
 	//Either a simple string, or a callback passing in form values and action result
 	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 	submitButtonText: PropTypes.string,
@@ -437,6 +448,7 @@ BasicForm.defaultProps = {
 	isInitialValid: false,
 	promptOnExit: true,
 	redirectOnDelete: `/admin/`,
+	replaceResetButton: null,
 	submitButtonText: null,
 	testMode: false,
 	useGrid: true,

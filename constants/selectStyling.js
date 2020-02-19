@@ -20,6 +20,7 @@ export default {
 	}),
 	menu: provided => ({
 		...provided,
-		zIndex: 20
+		zIndex: 20,
+		marginTop: 0
 	})
 };
