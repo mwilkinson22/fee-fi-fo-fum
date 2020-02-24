@@ -126,7 +126,12 @@ class AdminCompetitionInstanceOverview extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		values.specialRounds.map(round => (round.hashtag = round.hashtag.split(" ")));
+		values.specialRounds.map(round => {
+			if (round.hashtag) {
+				round.hashtag = round.hashtag.split(" ");
+			}
+			return round;
+		});
 	}
 
 	render() {
