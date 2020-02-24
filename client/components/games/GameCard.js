@@ -75,7 +75,8 @@ class GameCard extends Component {
 		const { game, hideImage } = this.props;
 		const opposition = game._opposition;
 		const ground = game._ground;
-		const date = new Date(game.date).toString("H:mm | dddd dS MMM yyyy");
+		const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMM yyyy`;
+		const date = game.date.toString(dateFormat);
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const url = game.slug;
 		const title = game.title;

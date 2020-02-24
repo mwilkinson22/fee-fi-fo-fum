@@ -191,4 +191,13 @@ export default gameSchema => {
 			}
 		}
 	});
+
+	//Check if the game is set to midnight, i.e. an unknown time
+	gameSchema.virtual("hasTime").get(function() {
+		if (!this.date) {
+			return false;
+		} else {
+			return new Date(this.date).toString("H:mm") !== "0:00";
+		}
+	});
 };

@@ -158,8 +158,11 @@ export default class GameSocialCardImage extends Canvas {
 		//Add Text
 		ctx.fillStyle = "#EEEEEE";
 		ctx.font = textStyles.details.string;
+
+		//Work out whether or not to show the time
+		const dateStringFormat = `${game.hasTime ? "HH:mm " : ""}dddd dS MMM yyyy`;
 		const details = [
-			new Date(game.date).toString("HH:mm dddd dS MMM yyyy"),
+			new Date(game.date).toString(dateStringFormat),
 			game.title,
 			`${game._ground.name}, ${game._ground.address._city.name}`
 		];

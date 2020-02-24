@@ -32,7 +32,8 @@ export default class AdminGameCard extends Component {
 	render() {
 		const { game } = this.props;
 		const opposition = game._opposition;
-		const date = new Date(game.date).toString("H:mm | dddd dS MMM yyyy");
+		const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMM yyyy`;
+		const date = new Date(game.date).toString(dateFormat);
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const statusDots = [];
 		for (let i = 0; i < 3; i++) {

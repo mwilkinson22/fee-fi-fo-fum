@@ -158,7 +158,8 @@ export default class FixtureListImage extends Canvas {
 
 			//Add date
 			ctx.font = textStyles.gameDate.string;
-			let dateText = game.date.toString("dddd dS MMMM");
+			const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMMM`;
+			let dateText = game.date.toString(dateFormat);
 			if (game.title === "Magic Weekend") {
 				dateText = "Magic Weekend";
 			}
@@ -392,12 +393,14 @@ export default class FixtureListImage extends Canvas {
 		} else {
 			title = "Easter Weekend";
 		}
-		bodyRows = easterGames.map(({ _opposition, isAway, date }) => {
-			let text = `${_opposition.name.short} (${isAway ? "A" : "H"}) - `;
+		bodyRows = easterGames.map(({ _opposition, isAway, date, hasTime }) => {
+			let text = `${_opposition.name.short} (${isAway ? "A" : "H"})`;
 			if (easterGames.length > 1) {
-				text += date.toString("dddd ");
+				text += date.toString(" - dddd");
 			}
-			text += date.toString("HH:mm");
+			if (hasTime) {
+				text += date.toString(" - HH:mm");
+			}
 
 			return [{ text }];
 		});
