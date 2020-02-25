@@ -38,6 +38,13 @@ export const deleteProfile = id => async (dispatch, getState, api) => {
 	return false;
 };
 
+export const simpleSocialPost = data => async (dispatch, getState, api) => {
+	const res = await api.post("/social/simplePost", data);
+	if (res.data) {
+		toast.success("Post successful");
+	}
+};
+
 export const validateTwitterCredentials = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/socialProfiles/validateTwitter`, data);
 	return res.data;

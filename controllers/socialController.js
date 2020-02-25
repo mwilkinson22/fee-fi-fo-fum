@@ -7,6 +7,7 @@ const SocialProfile = mongoose.model("socialProfiles");
 
 //Helpers
 import twitter from "~/services/twitter";
+import { postToSocial } from "./oAuthController";
 
 //Constants
 import { defaultSocialProfile } from "~/config/keys";
@@ -105,4 +106,14 @@ export async function validateTwitterCredentials(req, res) {
 			user: result.data.screen_name
 		});
 	}
+}
+
+export async function simpleSocialPost(req, res) {
+	const { channels, _profile, content, replyTweet } = req.body;
+
+	for (const channel of channels) {
+		await postToSocial(channel, content, { _profile, replyTweet });
+	}
+
+	res.send({});
 }
