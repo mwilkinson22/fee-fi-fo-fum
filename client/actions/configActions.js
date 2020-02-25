@@ -1,5 +1,5 @@
 import { GET_CORE_CONFIG, GET_SETTINGS } from "./types";
-import { localTeam, gaTracking, mongoURI } from "../../config/keys";
+import { localTeam, gaTracking, mongoURI, googleBucketName } from "../../config/keys";
 import { toast } from "react-toastify";
 
 export const getCoreConfig = req => async dispatch => {
@@ -37,6 +37,39 @@ export const getCoreConfig = req => async dispatch => {
 		//Live or test database
 		database: mongoURI.includes("test") ? "test" : "live"
 	};
+
+	//Add Bucket Paths
+	config.bucketPaths = { root: `https://storage.googleapis.com/${googleBucketName}/` };
+
+	//Get Local URL
+	if (typeof window !== "undefined") {
+		config.bucketPaths.localUrl = window.location.protocol + "//" + window.location.host;
+	} else {
+		config.bucketPaths.localUrl = "";
+	}
+
+	//Get Image Path
+	config.bucketPaths.imageRoot = `${config.bucketPaths.root}images/`;
+
+	//Get Image Subconfig.bucketPaths
+	const imageSubPaths = {
+		competitions: "competitions",
+		games: "games",
+		grounds: "grounds",
+		layout: "layout",
+		newsHeader: "news/headers",
+		people: "people",
+		sponsors: "sponsors",
+		teams: "teams",
+		users: "users"
+	};
+	config.bucketPaths.images = {};
+
+	for (const pathName in imageSubPaths) {
+		config.bucketPaths.images[
+			pathName
+		] = `${config.bucketPaths.imageRoot}${imageSubPaths[pathName]}/`;
+	}
 
 	//Check for device
 	if (useragent.isiPad || useragent.isiPhone) {

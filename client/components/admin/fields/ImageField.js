@@ -1,7 +1,7 @@
 //Modules
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { googleBucket } from "~/client/extPaths";
 
 //Components
 import ImageSelector from "../ImageSelector";
@@ -57,14 +57,14 @@ class ImageField extends Component {
 	}
 
 	render() {
-		const { onChange, path } = this.props;
+		const { bucketPaths, onChange, path } = this.props;
 		const { value } = this.state;
 
 		let content;
 		if (value.length) {
 			content = (
 				<img
-					src={`${googleBucket + path + value}?t=${new Date().getTime()}`}
+					src={`${bucketPaths.root + path + value}?t=${new Date().getTime()}`}
 					className="image-selector-field image"
 					title={value}
 				/>
@@ -114,4 +114,9 @@ ImageField.defaultProps = {
 	convertToWebP: true
 };
 
-export default ImageField;
+function mapStateToProps({ config }) {
+	const { bucketPaths } = config;
+	return { bucketPaths };
+}
+
+export default connect(mapStateToProps)(ImageField);

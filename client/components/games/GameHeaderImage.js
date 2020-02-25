@@ -1,23 +1,22 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { gameImagePath, groundImagePath } from "../../extPaths";
 
 class GameHeaderImage extends Component {
 	render() {
-		const { game, className, useWebp } = this.props;
+		const { bucketPaths, game, className, useWebp } = this.props;
 		let image;
 		let alt;
 
 		if (game.images.header) {
-			image = gameImagePath + "header/" + game.images.header;
+			image = bucketPaths.images.games + "header/" + game.images.header;
 			alt = `Huddersfield Giants vs ${game._opposition.name.long} - ${game.date.toString(
 				"dd/MM/yyyy"
 			)}`;
 		} else if (game._ground.image) {
-			image = groundImagePath + game._ground.image;
+			image = bucketPaths.images.grounds + game._ground.image;
 			alt = game._ground.name;
 		} else {
-			image = groundImagePath + "pitch.jpg";
+			image = bucketPaths.images.grounds + "pitch.jpg";
 			alt = "Rugby Pitch";
 		}
 
@@ -34,8 +33,10 @@ class GameHeaderImage extends Component {
 }
 
 function mapStateToProps({ config }) {
+	const { bucketPaths, webp } = config;
 	return {
-		useWebp: config.webp
+		bucketPaths,
+		useWebp: webp
 	};
 }
 

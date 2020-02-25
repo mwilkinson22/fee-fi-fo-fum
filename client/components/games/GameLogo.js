@@ -1,16 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { googleBucket } from "../../extPaths";
 
 class GameLogo extends Component {
 	render() {
-		const { game, useWebp } = this.props;
+		const { bucketPaths, game, useWebp } = this.props;
 		const className = this.props.className || "";
 		let image;
 		let alt;
 
 		if (game.images.logo) {
-			image = googleBucket + game.images.logo;
+			image = bucketPaths.root + game.images.logo;
 			alt = game.title;
 		}
 
@@ -39,8 +38,10 @@ class GameLogo extends Component {
 }
 
 function mapStateToProps({ config }) {
+	const { bucketPaths, webp } = config;
 	return {
-		useWebp: config.webp
+		bucketPaths,
+		useWebp: webp
 	};
 }
 

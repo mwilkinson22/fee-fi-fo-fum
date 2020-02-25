@@ -21,9 +21,6 @@ import { setActiveTeamType } from "../actions/teamsActions";
 //Helpers
 import { validateGameDate } from "../../helpers/gameHelper";
 
-//Constants
-import { layoutImagePath } from "../extPaths";
-
 class GameList extends Component {
 	constructor(props) {
 		super(props);
@@ -246,8 +243,8 @@ class GameList extends Component {
 	}
 
 	render() {
+		const { bucketPaths, gameList, teamList, localTeam } = this.props;
 		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin } = this.state;
-		const { gameList, teamList, localTeam } = this.props;
 
 		if (teamTypeRedirect) {
 			return <Redirect to={`${rootUrl}/${teamTypeRedirect}`} />;
@@ -295,7 +292,7 @@ class GameList extends Component {
 						type="button"
 						onClick={() => this.setState({ showCalendarDialog: true })}
 					>
-						<img src={`${layoutImagePath}icons/calendar.png`} alt="" />
+						<img src={`${bucketPaths.images.layout}icons/calendar.png`} alt="" />
 						Add to calendar
 					</button>
 				</div>
@@ -325,10 +322,11 @@ class GameList extends Component {
 }
 
 function mapStateToProps({ games, teams, config }) {
-	const { localTeam } = config;
+	const { bucketPaths, localTeam } = config;
 	const { gameList, fullGames } = games;
 	const { teamList, teamTypes, activeTeamType } = teams;
 	return {
+		bucketPaths,
 		localTeam,
 		gameList,
 		fullGames,

@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { teamImagePath } from "../../extPaths";
 
 class TeamImage extends Component {
 	render() {
-		const { team, useWebp, className, variant } = this.props;
+		const { bucketPaths, team, useWebp, className, variant } = this.props;
 		const { name, images } = team;
 		const image = images[variant] || images.main;
 
@@ -18,7 +17,7 @@ class TeamImage extends Component {
 		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
 		return (
 			<img
-				src={`${teamImagePath}${useWebp && isRaster ? webp : image}`}
+				src={`${bucketPaths.images.teams}${useWebp && isRaster ? webp : image}`}
 				className={`team-image ${className || ""}`}
 				alt={name.long}
 				title={name.long}
@@ -29,8 +28,10 @@ class TeamImage extends Component {
 }
 
 function mapStateToProps({ config }) {
+	const { bucketPaths, webp } = config;
 	return {
-		useWebp: config.webp
+		bucketPaths,
+		useWebp: webp
 	};
 }
 

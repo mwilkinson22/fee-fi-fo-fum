@@ -10,9 +10,6 @@ import HelmetBuilder from "../components/HelmetBuilder";
 import AwardsVotingForm from "../components/awards/AwardsVotingForm";
 import AwardsStatueImage from "../components/awards/AwardsStatueImage";
 
-//Constants
-import { imagePath } from "../extPaths";
-
 //Actions
 import { fetchGames } from "~/client/actions/gamesActions";
 import { fetchPeople } from "~/client/actions/peopleActions";
@@ -157,7 +154,7 @@ class AwardPage extends Component {
 
 	render() {
 		const { isLoading } = this.state;
-		const { currentAwards } = this.props;
+		const { bucketPaths, currentAwards } = this.props;
 
 		const year = currentAwards ? `${currentAwards.year} ` : "";
 
@@ -166,8 +163,9 @@ class AwardPage extends Component {
 				<HelmetBuilder
 					title={`${year}5Fs Awards`}
 					description={`Vote in the ${year}Fee Fi Fo Fum Fan Awards!`}
-					cardImage={`${imagePath}awards/socialCards/${currentAwards.socialCard ||
-						"default.jpg"}`}
+					cardImage={`${
+						bucketPaths.imageRoot
+					}awards/socialCards/${currentAwards.socialCard || "default.jpg"}`}
 				/>
 				<section className="page-header">
 					<div className="container">
@@ -187,16 +185,14 @@ class AwardPage extends Component {
 	}
 }
 
-function mapStateToProps({ awards, games, people }) {
+function mapStateToProps({ awards, config, games, people }) {
+	const { bucketPaths } = config;
 	const { currentAwards } = awards;
 	const { fullGames } = games;
 	const { fullPeople } = people;
-	return { currentAwards, fullPeople, fullGames };
+	return { bucketPaths, currentAwards, fullPeople, fullGames };
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchGames, fetchPeople }
-	)(AwardPage)
+	component: connect(mapStateToProps, { fetchGames, fetchPeople })(AwardPage)
 };

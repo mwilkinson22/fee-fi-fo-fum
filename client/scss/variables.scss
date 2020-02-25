@@ -1,6 +1,8 @@
 //Sources
-$googleBucket: "https://storage.googleapis.com/feefifofum/";
+//GOOGLE-BUCKET-NAME is replaced through a custom loader
+$googleBucket: "https://storage.googleapis.com/GOOGLE-BUCKET-NAME/";
 $fonts: "#{$googleBucket}fonts/";
+
 $layoutImages: "#{$googleBucket}images/layout/";
 
 //Colours

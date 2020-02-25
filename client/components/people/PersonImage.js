@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { personImagePath } from "../../extPaths";
 
 class PersonImage extends Component {
 	render() {
-		const { className, person, useWebp, variant } = this.props;
+		const { bucketPaths, className, person, useWebp, variant } = this.props;
 		const { images, name, gender } = person;
 		const { first, last } = name;
 
@@ -19,7 +18,7 @@ class PersonImage extends Component {
 		}
 
 		//Get URL
-		let src = personImagePath + image;
+		let src = bucketPaths.images.people + "full/" + image;
 		if (useWebp) {
 			src = src.substr(0, src.lastIndexOf(".")) + ".webp";
 		}
@@ -35,8 +34,10 @@ class PersonImage extends Component {
 }
 
 function mapStateToProps({ config }) {
+	const { bucketPaths, webp } = config;
 	return {
-		useWebp: config.webp
+		bucketPaths,
+		useWebp: webp
 	};
 }
 

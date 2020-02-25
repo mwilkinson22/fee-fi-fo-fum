@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
-import { imagePath } from "../extPaths";
-
-const defaultCardImage = imagePath + "layout/twitter-card.jpg";
-const defaultLargeCardImage = imagePath + "layout/twitter-card-large.jpg";
 
 class HelmetBuilder extends Component {
 	render() {
@@ -17,7 +13,8 @@ class HelmetBuilder extends Component {
 			cardType,
 			description,
 			baseUrl,
-			initialPath
+			initialPath,
+			bucketPaths
 		} = this.props;
 
 		//Set Title
@@ -39,7 +36,9 @@ class HelmetBuilder extends Component {
 		}
 
 		if (!cardImage) {
-			cardImage = cardType === "summary" ? defaultCardImage : defaultLargeCardImage;
+			cardImage =
+				bucketPaths.images.layout +
+				(cardType === "summary" ? "twitter-card.jpg" : "twitter-card-large.jpg");
 		}
 
 		//Set Meta
@@ -60,7 +59,7 @@ class HelmetBuilder extends Component {
 				title={title}
 				link={[
 					{ rel: "canonical", href: url },
-					{ rel: "shortcut icon", href: `${imagePath}favicon.png` }
+					{ rel: "icon shortcut", href: `${bucketPaths.imageRoot}favicon.png` }
 				]}
 				meta={meta}
 			/>
@@ -78,16 +77,15 @@ HelmetBuilder.propTypes = {
 };
 
 HelmetBuilder.defaultProps = {
-	author: "GiantsFanzine",
+	author: "FeeFiFoFumRL",
 	canonical: null,
-	cardImage: defaultCardImage,
 	cardType: "summary_large_image",
 	description: "Huddersfield Giants news, stats and reports"
 };
 
 function mapStateToProps({ config }) {
-	const { baseUrl, initialPath } = config;
-	return { baseUrl, initialPath };
+	const { baseUrl, bucketPaths, initialPath } = config;
+	return { baseUrl, bucketPaths, initialPath };
 }
 
 export default connect(mapStateToProps)(HelmetBuilder);

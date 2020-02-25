@@ -37,7 +37,6 @@ import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
 import { matchSlugToItem } from "~/helpers/routeHelper";
 
 //Constants
-import { newsHeaderPath } from "~/client/extPaths";
 import newsDecorators from "~/constants/newsDecorators";
 import newsPlugins from "~/constants/newsPlugins";
 
@@ -352,6 +351,7 @@ class NewsPostPage extends Component {
 	}
 
 	render() {
+		const { bucketPaths } = this.props;
 		const { isLoadingList, isLoadingPost, isLoadingGame, post, redirect } = this.state;
 
 		//Redirect old slugs
@@ -375,7 +375,7 @@ class NewsPostPage extends Component {
 					<HelmetBuilder
 						title={post.title}
 						canonical={`/news/post/${post.slug}`}
-						cardImage={newsHeaderPath + post.image}
+						cardImage={bucketPaths.images.newsHeader + post.image}
 						cardType="summary_large_image"
 						description={post.subtitle || post.preview.substring(0, 500) + "..."}
 					/>
@@ -387,11 +387,11 @@ class NewsPostPage extends Component {
 }
 
 function mapStateToProps({ config, games, news }) {
-	const { authUser } = config;
+	const { authUser, bucketPaths } = config;
 	const { fullGames } = games;
 	const { fullPosts, postList, redirects } = news;
 
-	return { fullPosts, fullGames, postList, redirects, authUser };
+	return { fullPosts, fullGames, postList, redirects, authUser, bucketPaths };
 }
 
 async function loadData(store, path) {

@@ -1,9 +1,8 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink, withRouter } from "react-router-dom";
-import _ from "lodash";
 import newsCategories from "../../constants/newsCategories";
-import { layoutImagePath } from "../extPaths";
 
 class Header extends Component {
 	constructor(props) {
@@ -15,6 +14,7 @@ class Header extends Component {
 	}
 
 	getSocial() {
+		const { bucketPaths } = this.props;
 		return ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
 				<a
@@ -24,7 +24,7 @@ class Header extends Component {
 					key={social}
 				>
 					<img
-						src={`${layoutImagePath}icons/${social.toLowerCase()}.svg`}
+						src={`${bucketPaths.images.layout}icons/${social.toLowerCase()}.svg?b=test`}
 						alt={`${social} Logo`}
 						title={`Follow us on ${social}`}
 					/>
@@ -241,6 +241,7 @@ class Header extends Component {
 
 	render() {
 		const { database, environment } = this.props;
+		const { bucketPaths } = this.props;
 		const social = this.getSocial();
 
 		//Render classname based on environment
@@ -271,7 +272,7 @@ class Header extends Component {
 					<Link to="/">
 						<img
 							className="main-header-logo"
-							src={`${layoutImagePath}branding/long-no-tagline.png`}
+							src={`${bucketPaths.images.layout}branding/long-no-tagline.png`}
 							alt="Fee Fi Fo Fum Logo"
 						/>
 					</Link>
@@ -296,9 +297,17 @@ class Header extends Component {
 
 function mapStateToProps({ awards, config, teams }) {
 	const { currentAwards } = awards;
-	const { authUser, database, environment, localTeam } = config;
+	const { authUser, database, environment, localTeam, bucketPaths } = config;
 	const { fullTeams } = teams;
-	return { currentAwards, database, environment, authUser, localTeam, fullTeams };
+	return {
+		currentAwards,
+		database,
+		environment,
+		authUser,
+		bucketPaths,
+		localTeam,
+		fullTeams
+	};
 }
 
 export default withRouter(connect(mapStateToProps)(Header));

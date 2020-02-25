@@ -2,18 +2,18 @@
 import React from "react";
 import { connect } from "react-redux";
 
-//Constants
-import { imagePath } from "../../extPaths";
-
-function AwardsStatueImage({ webp }) {
+function AwardsStatueImage({ bucketPaths, webp }) {
 	return (
-		<img src={`${imagePath}awards/statue.${webp ? "webp" : "png"}`} className="award-statue" />
+		<img
+			src={`${bucketPaths.imageRoot}awards/statue.${webp ? "webp" : "png"}`}
+			className="award-statue"
+		/>
 	);
 }
 
 function mapStateToProps({ config }) {
-	const { webp } = config;
-	return { webp };
+	const { bucketPaths, webp } = config;
+	return { bucketPaths, webp };
 }
 
 export default connect(mapStateToProps)(AwardsStatueImage);

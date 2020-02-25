@@ -16,7 +16,6 @@ import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
 
 //Constants
-import { layoutImagePath, imagePath, personImagePath } from "../extPaths";
 import playerPositions from "~/constants/playerPositions";
 const { earliestGiantsData } = require("~/config/keys");
 
@@ -82,8 +81,10 @@ class PersonPage extends Component {
 	}
 
 	getSocial() {
-		const social = [];
+		const { bucketPaths } = this.props;
 		const { twitter, instagram } = this.state.person;
+		const social = [];
+
 		if (twitter) {
 			social.push(
 				<a
@@ -93,7 +94,8 @@ class PersonPage extends Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img src={`${layoutImagePath}icons/twitter.svg`} alt="Twitter Logo" />@{twitter}
+					<img src={`${bucketPaths.images.layout}icons/twitter.svg`} alt="Twitter Logo" />
+					@{twitter}
 				</a>
 			);
 		}
@@ -106,8 +108,11 @@ class PersonPage extends Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img src={`${layoutImagePath}icons/instagram.svg`} alt="Instagram Logo" />@
-					{instagram}
+					<img
+						src={`${bucketPaths.images.layout}icons/instagram.svg`}
+						alt="Instagram Logo"
+					/>
+					@{instagram}
 				</a>
 			);
 		}
@@ -180,7 +185,7 @@ class PersonPage extends Component {
 	}
 
 	getInfoTable() {
-		const { localTeam } = this.props;
+		const { bucketPaths, localTeam } = this.props;
 		const { person } = this.state;
 		const {
 			contractedUntil,
@@ -250,7 +255,10 @@ class PersonPage extends Component {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<img src={`${layoutImagePath}icons/twitter.svg`} alt="Twitter Logo" />
+						<img
+							src={`${bucketPaths.images.layout}icons/twitter.svg`}
+							alt="Twitter Logo"
+						/>
 					</a>
 				);
 			}
@@ -321,7 +329,7 @@ class PersonPage extends Component {
 	}
 
 	render() {
-		const { match } = this.props;
+		const { bucketPaths, match } = this.props;
 		const { person, redirect } = this.state;
 		const role = match.url.split("/")[1]; //players or coaches
 
@@ -344,10 +352,13 @@ class PersonPage extends Component {
 			let cardImage;
 			let cardType = "summary";
 			if (person.images.midpage) {
-				cardImage = imagePath + "people/midpage/" + person.images.midpage;
+				cardImage = bucketPaths.images.people + "midpage/" + person.images.midpage;
 				cardType = "summary_large_image";
 			} else if (person.images[imageVariant] || person.images.main) {
-				cardImage = personImagePath + (person.images[imageVariant] || person.images.main);
+				cardImage =
+					bucketPaths.images.people +
+					"full/" +
+					(person.images[imageVariant] || person.images.main);
 			}
 
 			return (
@@ -383,10 +394,10 @@ class PersonPage extends Component {
 }
 
 function mapStateToProps({ config, games, people }) {
-	const { authUser, localTeam } = config;
+	const { authUser, bucketPaths, localTeam } = config;
 	const { gameList } = games;
 	const { fullPeople, redirects, peopleList } = people;
-	return { authUser, localTeam, gameList, fullPeople, redirects, peopleList };
+	return { authUser, bucketPaths, localTeam, gameList, fullPeople, redirects, peopleList };
 }
 
 async function loadData(store, path) {

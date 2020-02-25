@@ -4,7 +4,6 @@ import _ from "lodash";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import newsCategories from "../../../constants/newsCategories";
-import { newsHeaderPath } from "~/client/extPaths";
 
 class NewsPostCard extends Component {
 	getTitle() {
@@ -17,7 +16,7 @@ class NewsPostCard extends Component {
 	}
 
 	generateContent() {
-		const { post, inArticle, webp } = this.props;
+		const { bucketPaths, post, inArticle, webp } = this.props;
 		const category = _.keyBy(newsCategories, "slug")[post.category];
 		const categoryElement = inArticle ? (
 			<Link to={`/news/category/${category.slug}`}>{category.name}</Link>
@@ -38,7 +37,9 @@ class NewsPostCard extends Component {
 			<div
 				className={`post-preview ${isPublished ? "" : "unpublished"}`}
 				style={{
-					backgroundImage: image ? `url('${newsHeaderPath}${image}')` : null
+					backgroundImage: image
+						? `url('${bucketPaths.images.newsHeader}${image}')`
+						: null
 				}}
 			>
 				<div className="post-meta">
@@ -85,9 +86,9 @@ NewsPostCard.defaultProps = {
 };
 
 function mapStateToProps({ config, news }) {
-	const { webp } = config;
+	const { bucketPaths, webp } = config;
 	const { categories } = news;
-	return { categories, webp };
+	return { bucketPaths, categories, webp };
 }
 
 export default connect(mapStateToProps)(NewsPostCard);

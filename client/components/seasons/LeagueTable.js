@@ -16,9 +16,6 @@ import { fetchGames, fetchGameList } from "../../actions/gamesActions";
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 import { fetchTeamList } from "~/client/actions/teamsActions";
 
-//Constants
-import { competitionImagePath } from "../../extPaths";
-
 //Helpers
 import { validateGameDate } from "~/helpers/gameHelper";
 
@@ -74,7 +71,8 @@ class LeagueTable extends Component {
 			toDate,
 			teamList,
 			styleOverride,
-			loadGames
+			loadGames,
+			bucketPaths
 		} = nextProps;
 		const newState = {};
 
@@ -103,7 +101,7 @@ class LeagueTable extends Component {
 		//Set Columns
 		const logo = newState.instance.image ? (
 			<img
-				src={competitionImagePath + newState.instance.image}
+				src={bucketPaths.images.competitions + newState.instance.image}
 				className="competition-logo"
 			/>
 		) : (
@@ -483,12 +481,13 @@ function mapStateToProps({ config, games, teams, competitions }) {
 	const { teamList } = teams;
 	const { competitionSegmentList } = competitions;
 	const { neutralGames, gameList, fullGames } = games;
-	const { localTeam } = config;
+	const { bucketPaths, localTeam } = config;
 	return {
 		teamList,
 		neutralGames,
 		gameList,
 		fullGames,
+		bucketPaths,
 		localTeam,
 		competitionSegmentList
 	};

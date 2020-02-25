@@ -13,7 +13,6 @@ import TweetComposer from "../TweetComposer";
 import { disconnectAccount, getAuthorisedAccounts } from "~/client/actions/oAuthActions";
 
 //Constants
-import { layoutImagePath } from "../../extPaths";
 import PopUpDialog from "../PopUpDialog";
 const services = {
 	twitter: {
@@ -66,6 +65,7 @@ class ShareDialog extends Component {
 	}
 
 	renderIcons() {
+		const { bucketPaths } = this.props;
 		const { service } = this.state;
 		const icons = _.map(services, ({ title }, key) => (
 			<div
@@ -80,7 +80,7 @@ class ShareDialog extends Component {
 					})
 				}
 			>
-				<img src={`${layoutImagePath}icons/${key}.svg`} title={title} />
+				<img src={`${bucketPaths.images.layout}icons/${key}.svg`} title={title} />
 			</div>
 		));
 
@@ -351,9 +351,9 @@ class ShareDialog extends Component {
 }
 
 function mapStateToProps({ config, oAuth }) {
-	const { browser } = config;
+	const { browser, bucketPaths } = config;
 	const { authorisedAccounts } = oAuth;
-	return { authorisedAccounts, browser };
+	return { authorisedAccounts, browser, bucketPaths };
 }
 
 ShareDialog.propTypes = {

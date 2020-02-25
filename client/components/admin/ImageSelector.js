@@ -10,9 +10,6 @@ import PopUpDialog from "../PopUpDialog";
 //Actions
 import { getFiles } from "~/client/actions/fileActions";
 
-//Constants
-import { googleBucket } from "~/client/extPaths";
-
 class ImageSelector extends Component {
 	constructor(props) {
 		super(props);
@@ -41,12 +38,12 @@ class ImageSelector extends Component {
 	}
 
 	renderPreviewBox() {
-		const { path } = this.props;
+		const { bucketPaths, path } = this.props;
 		const { currentImage, images } = this.state;
 		if (currentImage) {
 			const dateFormat = "yyyy-MM-dd H:mm";
 			const metadata = images.find(i => i.name == currentImage);
-			const src = googleBucket + path + currentImage;
+			const src = bucketPaths.root + path + currentImage;
 			let textContent;
 			if (metadata) {
 				textContent = (
@@ -89,13 +86,13 @@ class ImageSelector extends Component {
 	}
 
 	renderImageList() {
-		const { path } = this.props;
+		const { bucketPaths, path } = this.props;
 		const { currentImage, images } = this.state;
 
 		const content = images.map(i => (
 			<img
 				className={`thumbnail ${i.name == currentImage ? " selected" : ""}`}
-				src={googleBucket + path + i.name}
+				src={bucketPaths.root + path + i.name}
 				title={i.name}
 				onClick={() => this.setState({ currentImage: i.name })}
 				key={i.name}
@@ -158,7 +155,9 @@ ImageSelector.propTypes = {
 	onDestroy: PropTypes.func.isRequired
 };
 
-export default connect(
-	null,
-	{ getFiles }
-)(ImageSelector);
+function mapStateToProps({ config }) {
+	const { bucketPaths } = config;
+	return { bucketPaths };
+}
+
+export default connect(mapStateToProps, { getFiles })(ImageSelector);

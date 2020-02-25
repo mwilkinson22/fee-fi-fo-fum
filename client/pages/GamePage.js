@@ -31,7 +31,6 @@ import { fetchTeam } from "../actions/teamsActions";
 import { fetchPostList } from "~/client/actions/newsActions";
 
 //Constants
-import { imagePath, gameImagePath } from "../extPaths";
 import { Redirect } from "react-router-dom";
 
 //Helpers
@@ -454,7 +453,7 @@ class GamePage extends Component {
 	}
 
 	render() {
-		const { postList } = this.props;
+		const { bucketPaths, postList } = this.props;
 		const { game, redirect } = this.state;
 		if (redirect) {
 			return <Redirect to={redirect} />;
@@ -468,12 +467,16 @@ class GamePage extends Component {
 			//Get Helmet Image
 			let cardImage;
 			if (game.images.header) {
-				cardImage = gameImagePath + "header/" + game.images.header;
+				cardImage = bucketPaths.images.games + "header/" + game.images.header;
 			} else if (game.images.midpage) {
-				cardImage = gameImagePath + "midpage/" + game.images.midpage;
+				cardImage = bucketPaths.images.games + "midpage/" + game.images.midpage;
 			} else {
 				cardImage =
-					gameImagePath + "social/" + game._id + ".jpg?v=" + game.socialImageVersion;
+					bucketPaths.images.games +
+					"social/" +
+					game._id +
+					".jpg?v=" +
+					game.socialImageVersion;
 			}
 
 			return (
@@ -510,10 +513,19 @@ class GamePage extends Component {
 
 function mapStateToProps({ games, config, teams, news }) {
 	const { fullGames, redirects, gameList } = games;
-	const { localTeam, authUser } = config;
+	const { localTeam, authUser, bucketPaths } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
-	return { fullGames, redirects, postList, localTeam, authUser, gameList, fullTeams };
+	return {
+		fullGames,
+		redirects,
+		postList,
+		localTeam,
+		authUser,
+		bucketPaths,
+		gameList,
+		fullTeams
+	};
 }
 
 async function loadData(store, path) {

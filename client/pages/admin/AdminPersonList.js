@@ -11,10 +11,6 @@ import LoadingPage from "../../components/LoadingPage";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
-//Constants
-import { imagePath } from "~/client/extPaths";
-const iconPath = `${imagePath}people/icons/`;
-
 class AdminPersonList extends Component {
 	constructor(props) {
 		super(props);
@@ -120,6 +116,7 @@ class AdminPersonList extends Component {
 	}
 
 	renderPersonIcons(person) {
+		const { bucketPaths } = this.props;
 		const icons = [
 			person.gender == "M"
 				? { file: "male", title: "Male" }
@@ -137,7 +134,11 @@ class AdminPersonList extends Component {
 
 		return icons.map(({ file, title }) => (
 			<span key={file}>
-				<img src={`${iconPath}${file}.svg`} alt={title} title={title} />
+				<img
+					src={`${bucketPaths.images.people}icons/${file}.svg`}
+					alt={title}
+					title={title}
+				/>
 			</span>
 		));
 	}
@@ -171,9 +172,10 @@ class AdminPersonList extends Component {
 	}
 }
 
-function mapStateToProps({ people }) {
+function mapStateToProps({ config, people }) {
+	const { bucketPaths } = config;
 	const { peopleList } = people;
-	return { peopleList };
+	return { bucketPaths, peopleList };
 }
 
 export default connect(mapStateToProps, { fetchPeopleList })(AdminPersonList);

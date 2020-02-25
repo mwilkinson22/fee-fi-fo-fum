@@ -1,16 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { userImagePath } from "../../extPaths";
 
 class AuthorImage extends Component {
 	render() {
-		const { author, useWebp, className } = this.props;
+		const { author, bucketPaths, useWebp, className } = this.props;
 		const { image, name } = author;
 
 		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
 		return (
 			<img
-				src={`${userImagePath}${useWebp ? webp : image}`}
+				src={`${bucketPaths.images.users}${useWebp ? webp : image}`}
 				className={`author-image ${className || ""}`}
 				alt={name.full}
 				title={name.full}
@@ -20,8 +19,10 @@ class AuthorImage extends Component {
 }
 
 function mapStateToProps({ config }) {
+	const { bucketPaths, webp } = config;
 	return {
-		useWebp: config.webp
+		bucketPaths,
+		useWebp: webp
 	};
 }
 
