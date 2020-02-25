@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, Route, Switch } from "react-router-dom";
@@ -10,6 +9,7 @@ import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import SubMenu from "../../components/SubMenu";
+import BasicSocialForm from "../../components/admin/BasicSocialForm";
 
 //Forms
 import AdminNewsPostOverview from "../../components/admin/news/AdminNewsPostOverview";
@@ -160,6 +160,41 @@ class AdminNewsPostPage extends Component {
 		);
 	}
 
+	renderSocialForm() {
+		const { baseUrl } = this.props;
+		const { isNew, post } = this.state;
+		if (!isNew && post.isPublished) {
+			//Create URL
+			const url = `${baseUrl}/news/post/${post.slug}`;
+
+			//Get Post Variables
+			const variables = [
+				{ label: "Post Title", value: post.title },
+				{ label: "Link to Post", value: url },
+				{
+					label: "Author Name",
+					value: post._author.frontendName
+				}
+			];
+
+			if (post._author.twitter) {
+				variables.push({ label: "Author Twitter", value: "@" + post._author.twitter });
+			}
+
+			return (
+				<section className="social-posting">
+					<div className="container">
+						<BasicSocialForm
+							initialContent={`${post.title}\n\n${url}`}
+							label="Share Post"
+							variables={variables}
+						/>
+					</div>
+				</section>
+			);
+		}
+	}
+
 	render() {
 		const { post, isNew, isLoadingLists, isLoadingPost } = this.state;
 
@@ -177,25 +212,23 @@ class AdminNewsPostPage extends Component {
 			<div className="admin-news-page">
 				{this.renderHeader()}
 				{this.renderContent()}
+				{this.renderSocialForm()}
 			</div>
 		);
 	}
 }
 
 function mapStateToProps({ config, games, news, users }) {
-	const { authUser } = config;
+	const { authUser, baseUrl } = config;
 	const { postList, fullPosts } = news;
 	const { userList } = users;
 	const { gameList } = games;
-	return { authUser, postList, fullPosts, userList, gameList };
+	return { authUser, baseUrl, postList, fullPosts, userList, gameList };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchPostList,
-		fetchNewsPost,
-		fetchUserList,
-		fetchGameList
-	}
-)(AdminNewsPostPage);
+export default connect(mapStateToProps, {
+	fetchPostList,
+	fetchNewsPost,
+	fetchUserList,
+	fetchGameList
+})(AdminNewsPostPage);
