@@ -56,13 +56,7 @@ export async function getPostList(req, res) {
 export async function getFullPost(req, res) {
 	const { id } = req.params;
 	const query = generateQuery(req.user, { _id: id });
-	const newsPost = await NewsPost.findOne(query, {
-		contentHistory: false,
-		version: false
-	}).populate({
-		path: "_author",
-		select: "name frontendName twitter image"
-	});
+	const newsPost = await NewsPost.findOne(query).fullPost();
 
 	if (newsPost) {
 		res.send(newsPost);

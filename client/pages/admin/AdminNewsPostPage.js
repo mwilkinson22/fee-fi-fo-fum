@@ -177,8 +177,25 @@ class AdminNewsPostPage extends Component {
 				}
 			];
 
+			//Add Author Twitter
 			if (post._author.twitter) {
 				variables.push({ label: "Author Twitter", value: "@" + post._author.twitter });
+			}
+
+			//We create a separate array for 'tag' variables.
+			//That way we can conditionally add a divider
+			const taggedVariables = [];
+			//Add people
+			if (post._people) {
+				post._people
+					.filter(p => p.twitter)
+					.forEach(({ name, twitter }) =>
+						taggedVariables.push({ label: name.full, value: `@${twitter}` })
+					);
+			}
+
+			if (taggedVariables.length) {
+				variables.push({ label: "--------", value: "" }, ...taggedVariables);
 			}
 
 			return (

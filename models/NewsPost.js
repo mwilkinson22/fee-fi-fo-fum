@@ -41,6 +41,9 @@ newsPostSchema.query.fullPost = function() {
 	return this.populate({
 		path: "_author",
 		select: "name frontendName twitter image"
+	}).populate({
+		path: "_people",
+		select: "name slug twitter"
 	});
 };
 

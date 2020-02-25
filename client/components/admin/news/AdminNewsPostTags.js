@@ -102,7 +102,9 @@ class AdminNewsPostTags extends Component {
 
 				switch (key) {
 					case "_people":
-						return post[key].map(_id => options[key].find(({ value }) => value == _id));
+						return post[key].map(({ _id }) =>
+							options[key].find(({ value }) => value == _id)
+						);
 					default:
 						return post[key];
 				}
@@ -194,12 +196,9 @@ function mapStateToProps({ news, people, teams }) {
 	return { fullPosts, peopleList, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchPostList,
-		fetchNewsPost,
-		fetchPeopleList,
-		updateNewsPost
-	}
-)(AdminNewsPostTags);
+export default connect(mapStateToProps, {
+	fetchPostList,
+	fetchNewsPost,
+	fetchPeopleList,
+	updateNewsPost
+})(AdminNewsPostTags);
