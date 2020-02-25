@@ -217,6 +217,7 @@ class NewsPostPage extends Component {
 	}
 
 	appendArticle() {
+		const { ticketLink } = this.props;
 		const { game, post } = this.state;
 
 		let content;
@@ -224,7 +225,24 @@ class NewsPostPage extends Component {
 		switch (post.category) {
 			case "previews": {
 				if (game) {
-					content = <PregameSquadList game={game} />;
+					let ticketLinkElement;
+					if (ticketLink && new Date() < game.date) {
+						ticketLinkElement = (
+							<p>
+								Want to watch the game? Get your tickets{" "}
+								<a href={ticketLink} target="_blank" rel="noopener noreferrer">
+									here
+								</a>
+								!
+							</p>
+						);
+					}
+					content = (
+						<div>
+							{ticketLinkElement}
+							<PregameSquadList game={game} />;
+						</div>
+					);
 				}
 				break;
 			}
@@ -307,7 +325,7 @@ class NewsPostPage extends Component {
 								<TwitterShareButton
 									url={this.getUrl()}
 									title={post.title}
-									via="GiantsFanzine"
+									via="FeeFiFoFumRL"
 								>
 									<TwitterIcon {...shareIconProps} />
 								</TwitterShareButton>
@@ -387,11 +405,11 @@ class NewsPostPage extends Component {
 }
 
 function mapStateToProps({ config, games, news }) {
-	const { authUser, bucketPaths } = config;
+	const { authUser, bucketPaths, ticketLink } = config;
 	const { fullGames } = games;
 	const { fullPosts, postList, redirects } = news;
 
-	return { fullPosts, fullGames, postList, redirects, authUser, bucketPaths };
+	return { fullPosts, fullGames, postList, redirects, authUser, bucketPaths, ticketLink };
 }
 
 async function loadData(store, path) {

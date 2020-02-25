@@ -10,5 +10,6 @@ module.exports = {
 		private_key: process.env.GC_KEY
 	},
 	googleBucketName: process.env.GOOGLE_BUCKET,
-	mongoURI: process.env.MONGO_URI
+	mongoURI: process.env.MONGO_URI,
+	ticketLink: process.env.TICKET_LINK
 };
