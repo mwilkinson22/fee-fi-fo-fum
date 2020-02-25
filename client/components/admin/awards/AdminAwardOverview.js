@@ -37,7 +37,8 @@ class AdminAwardOverview extends Component {
 				.test(
 					"is-taken",
 					"Awards for this year are already in place",
-					year => award.year == year || !_.find(awardsList, a => a.year == year)
+					year =>
+						(award && award.year == year) || !_.find(awardsList, a => a.year == year)
 				)
 				.required()
 				.label("Year"),
