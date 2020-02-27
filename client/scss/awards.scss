@@ -14,7 +14,7 @@
 		text-align: center;
 		font-size: 1.4em;
 		.edit-link {
-			color: $claret;
+			color: $mainColour;
 			font-weight: bold;
 			cursor: pointer;
 		}
@@ -25,8 +25,8 @@
 		font-size: 1.5em;
 		.game-countdown {
 			.value {
-				background: $claret;
-				color: $gold;
+				background: $mainColour;
+				color: $trimColour;
 			}
 		}
 		margin-bottom: 20pt;
@@ -37,8 +37,8 @@
 		text-align: center;
 		h2 {
 			padding: 10pt 4pt;
-			color: $gold;
-			background: darken($claret, 5%);
+			color: $trimColour;
+			background: darken($mainColour, 5%);
 			@media #{$mobile-only} {
 				flex-direction: column;
 			}
@@ -69,10 +69,10 @@
 				h4 {
 					margin: 0pt 10pt;
 					padding: 8pt 0;
-					color: $claret;
+					color: $mainColour;
 					font-size: 1.2em;
 					&:not(:last-child) {
-						border-bottom: solid 2pt $claret;
+						border-bottom: solid 2pt $mainColour;
 					}
 					.alt-colour {
 						color: black;
@@ -140,7 +140,7 @@
 							margin-top: 2pt;
 						}
 						.value {
-							color: $claret;
+							color: $mainColour;
 						}
 						.average {
 							font-weight: 600;
@@ -152,12 +152,12 @@
 
 				&.selected {
 					pointer-events: none;
-					background: $claret;
+					background: $mainColour;
 					color: white;
 					h4 {
-						color: $gold;
+						color: $trimColour;
 						&:not(:last-child) {
-							border-bottom: solid 2pt $gold;
+							border-bottom: solid 2pt $trimColour;
 						}
 						.alt-colour,
 						.subtitle {
@@ -166,7 +166,7 @@
 					}
 					.player-stats {
 						.value {
-							color: $gold;
+							color: $trimColour;
 						}
 					}
 				}

@@ -83,6 +83,17 @@ export const getCoreConfig = req => async dispatch => {
 		config.deviceType = "desktop";
 	}
 
+	//Get Site Branding
+	await dispatch(
+		getSettings([
+			"site_name",
+			"site_social",
+			"site_logo",
+			"site_header_logo",
+			"site_default_description"
+		])
+	);
+
 	dispatch({ type: GET_CORE_CONFIG, payload: config });
 };
 

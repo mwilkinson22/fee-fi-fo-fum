@@ -42,9 +42,6 @@ module.exports = {
 					fallback: "style-loader",
 					use: [
 						{
-							loader: "./config/sassEnvLoader"
-						},
-						{
 							loader: "css-loader",
 							options: {
 								sourceMap: true
@@ -63,6 +60,9 @@ module.exports = {
 							options: {
 								sourceMap: true
 							}
+						},
+						{
+							loader: "./config/sassEnvLoader"
 						}
 					]
 				})

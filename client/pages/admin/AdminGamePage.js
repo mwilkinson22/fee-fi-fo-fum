@@ -28,7 +28,7 @@ import AdminGamePostGameEvents from "../../components/admin/games/AdminGamePostG
 import { fetchGames, reloadGames, fetchGameList } from "../../actions/gamesActions";
 
 //Helpers
-import { getLastGame, getNextGame } from "~/helpers/gameHelper";
+import { getLastGame, getNextGame, getScoreString } from "~/helpers/gameHelper";
 
 class AdminGamePage extends Component {
 	constructor(props) {
@@ -77,27 +77,21 @@ class AdminGamePage extends Component {
 
 	getPageTitle() {
 		const { game } = this.state;
-		const { localTeam } = this.props;
-		const { isAway, score, _opposition, date } = game;
-		let strings;
-		if (score) {
-			strings = [
-				"Giants",
-				" ",
-				score[localTeam],
-				"-",
-				score[_opposition._id],
-				" ",
-				_opposition.name.short
-			];
-		} else {
-			strings = ["Giants", " vs ", _opposition.name.short];
-		}
-		if (isAway) {
-			strings = strings.reverse();
+		const { fullTeams, localTeam } = this.props;
+
+		//Use helper to try and get a score string
+		let string = getScoreString(game, fullTeams[localTeam]);
+
+		//If this fails (i.e. if there are no scores), create a simple H vs A
+		if (!string) {
+			const teams = [fullTeams[localTeam].nickname, "vs", game._opposition.name.short];
+			if (game.isAway) {
+				teams.reverse();
+			}
+			string = teams.join(" ");
 		}
 
-		return strings.join("") + " - " + new Date(date).toString("dd/MM/yyyy");
+		return `${string} - ${game.date.toString("dd/MM/yyyy")}`;
 	}
 
 	renderAdjacentGameLinks() {
@@ -272,8 +266,8 @@ class AdminGamePage extends Component {
 
 function mapStateToProps({ config, games, teams }) {
 	const { fullGames, gameList } = games;
-	const { teamTypes, teamList } = teams;
+	const { fullTeams, teamTypes, teamList } = teams;
 	const { localTeam } = config;
-	return { localTeam, fullGames, teamList, gameList, teamTypes };
+	return { localTeam, fullGames, teamList, gameList, teamTypes, fullTeams };
 }
 export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameList })(AdminGamePage);

@@ -17,7 +17,7 @@ import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
 import { setActiveTeamType } from "~/client/actions/teamsActions";
 
 //Constants
-import { earliestGiantsData } from "~/config/keys";
+import { earliestLocalGames } from "~/config/keys";
 
 class SeasonPage extends Component {
 	constructor(props) {
@@ -53,7 +53,7 @@ class SeasonPage extends Component {
 		if (!results) {
 			results = _.filter(
 				gameList,
-				g => g.date < new Date() && Number(g.date.getFullYear()) >= earliestGiantsData
+				g => g.date < new Date() && Number(g.date.getFullYear()) >= earliestLocalGames
 			);
 			newState.results = results;
 		}
@@ -182,11 +182,12 @@ class SeasonPage extends Component {
 	}
 
 	generateHelmet() {
+		const { fullTeams, localTeam } = this.props;
 		const { year, teamType, page } = this.state;
 		const specifyTeamTypeInMeta = teamType.sortOrder > 1;
 
 		//Title
-		let title = `${year} Huddersfield Giants`;
+		let title = `${year} ${fullTeams[localTeam].name.long}`;
 		if (specifyTeamTypeInMeta) {
 			title += ` ${teamType.name}`;
 		}
@@ -260,9 +261,8 @@ function mapStateToProps({ config, games, teams }) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchGameList, fetchGames, setActiveTeamType }
-	)(SeasonPage),
+	component: connect(mapStateToProps, { fetchGameList, fetchGames, setActiveTeamType })(
+		SeasonPage
+	),
 	loadData
 };

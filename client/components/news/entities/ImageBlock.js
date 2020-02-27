@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import icons from "megadraft/lib/icons";
 
-export default class ImageBlock extends Component {
+class ImageBlock extends Component {
 	constructor(props) {
 		super(props);
 
@@ -15,13 +16,18 @@ export default class ImageBlock extends Component {
 	}
 
 	render() {
+		const { bucketPaths } = this.props;
 		return (
 			<div className="custom-block image-wrapper">
-				<img
-					src={`https://storage.googleapis.com/feefifofum/images/news/inline/${this.props.data.src}`}
-					alt=""
-				/>
+				<img src={`${bucketPaths.imageRoot}news/inline/${this.props.data.src}`} alt="" />
 			</div>
 		);
 	}
 }
+
+function mapStateToProps({ config }) {
+	const { bucketPaths } = config;
+	return { bucketPaths };
+}
+
+export default connect(mapStateToProps)(ImageBlock);

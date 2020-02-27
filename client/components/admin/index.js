@@ -12,6 +12,8 @@ import Logout from "./Logout";
 import AdminAwardPage from "../../pages/admin/AdminAwardPage";
 import AdminAwardList from "../../pages/admin/AdminAwardList";
 
+import AdminBrandingPage from "../../pages/admin/AdminBrandingPage";
+
 import AdminBroadcasterPage from "../../pages/admin/AdminBroadcasterPage";
 import AdminBroadcasterList from "../../pages/admin/AdminBroadcasterList";
 
@@ -74,6 +76,11 @@ class AdminRouter extends Component {
 						<Route path="/admin/awards/:_id" component={AdminAwardPage} />
 						<Route path="/admin/awards" exact component={AdminAwardList} />
 
+						<Route
+							path="/admin/settings/branding/"
+							exact
+							component={AdminBrandingPage}
+						/>
 						<Route
 							path="/admin/settings/broadcasters/new"
 							exact

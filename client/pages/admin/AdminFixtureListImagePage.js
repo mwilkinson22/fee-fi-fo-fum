@@ -127,7 +127,8 @@ class AdminFixtureListImagePage extends Component {
 	}
 
 	getInitialTweetText(year) {
-		let message = `Here they are, Giants fans, your ${year} fixtures!`;
+		const { fullTeams, localTeam } = this.props;
+		let message = `Here they are, ${fullTeams[localTeam].nickname} fans, your ${year} fixtures!`;
 		const caretPoint = message.length;
 		message += "\n\n#COYG #CowbellArmy";
 		return { caretPoint, message };
@@ -243,17 +244,20 @@ class AdminFixtureListImagePage extends Component {
 	}
 }
 
-function mapStateToProps({ competitions, games, social, teams }) {
+function mapStateToProps({ config, competitions, games, social, teams }) {
+	const { localTeam } = config;
 	const { competitionSegmentList } = competitions;
 	const { gameList, postFixtureListImage } = games;
 	const { profiles, defaultProfile } = social;
-	const { teamTypes } = teams;
+	const { fullTeams, teamTypes } = teams;
 	return {
 		competitionSegmentList,
 		gameList,
+		localTeam,
 		postFixtureListImage,
 		profiles,
 		defaultProfile,
+		fullTeams,
 		teamTypes
 	};
 }

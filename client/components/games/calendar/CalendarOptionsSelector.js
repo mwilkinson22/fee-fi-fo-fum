@@ -276,6 +276,7 @@ class CalendarOptionsSelector extends Component {
 	}
 
 	render() {
+		const { localTeam, teamList } = this.props;
 		const { isLoading, objectUrl, validationSchema } = this.state;
 
 		//Wait for games
@@ -294,7 +295,7 @@ class CalendarOptionsSelector extends Component {
 					will be saved as well!
 				</p>
 				<a
-					download="Huddersfield Giants Fixtures.ics"
+					download={`${teamList[localTeam].name.long} Fixtures.ics`}
 					key="downloadLink"
 					ref={this.downloadLink}
 					href={objectUrl}

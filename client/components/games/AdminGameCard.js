@@ -1,8 +1,15 @@
+//Modules
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+
+//Components
 import TeamImage from "../teams/TeamImage";
 
-export default class AdminGameCard extends Component {
+//Helpers
+import { getScoreString } from "~/helpers/gameHelper";
+
+class AdminGameCard extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
@@ -10,22 +17,11 @@ export default class AdminGameCard extends Component {
 
 	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
-		const { game } = nextProps;
-		const { _opposition, isAway, scores } = game;
+		const { game, localTeam, fullTeams } = nextProps;
 
 		//Score
-		if (scores) {
-			const localScore = scores["5c041478e2b66153542b3742"];
-			const oppositionScore = scores[_opposition._id];
-			if (localScore && oppositionScore) {
-				const oppositionName = _opposition.name.short;
-				if (isAway) {
-					newState.scoreString = `${oppositionName} ${oppositionScore}-${localScore} Giants`;
-				} else {
-					newState.scoreString = `Giants ${localScore}-${oppositionScore} ${oppositionName}`;
-				}
-			}
-		}
+		newState.scoreString = getScoreString(game, fullTeams[localTeam]);
+
 		return newState;
 	}
 
@@ -68,3 +64,11 @@ export default class AdminGameCard extends Component {
 		);
 	}
 }
+
+function mapStateToProps({ config, teams }) {
+	const { localTeam } = config;
+	const { fullTeams } = teams;
+	return { localTeam, fullTeams };
+}
+
+export default connect(mapStateToProps)(AdminGameCard);

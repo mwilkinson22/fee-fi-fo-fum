@@ -14,11 +14,14 @@ class HelmetBuilder extends Component {
 			description,
 			baseUrl,
 			initialPath,
-			bucketPaths
+			bucketPaths,
+			site_name,
+			site_social,
+			site_default_description
 		} = this.props;
 
 		//Set Title
-		title = (title ? title + " - " : "") + "Fee Fi Fo Fum";
+		title = `${title ? title + " - " : ""}${site_name}`;
 
 		//Set Canonical
 		if (!canonical) {
@@ -29,11 +32,6 @@ class HelmetBuilder extends Component {
 			}
 		}
 		const url = baseUrl + canonical;
-
-		//Set Author
-		if (!author) {
-			author = "FeeFiFoFumRL";
-		}
 
 		if (!cardImage) {
 			cardImage =
@@ -46,9 +44,13 @@ class HelmetBuilder extends Component {
 			{ property: "og:type", content: "website" },
 			{ name: "twitter:card", content: cardType },
 			{ name: "twitter:title", property: "og:title", content: title },
-			{ name: "twitter:creator", content: `@${author}` },
-			{ name: "twitter:site", content: "@FeeFiFoFumRL" },
-			{ name: "twitter:description", property: "twitter:description", content: description },
+			{ name: "twitter:creator", content: `@${author || site_social}` },
+			{ name: "twitter:site", content: `@${site_social}` },
+			{
+				name: "twitter:description",
+				property: "twitter:description",
+				content: description || site_default_description
+			},
 			{ name: "twitter:image", property: "og:image", content: cardImage },
 			{ property: "og:url", content: url }
 		];
@@ -77,15 +79,20 @@ HelmetBuilder.propTypes = {
 };
 
 HelmetBuilder.defaultProps = {
-	author: "FeeFiFoFumRL",
 	canonical: null,
-	cardType: "summary_large_image",
-	description: "Huddersfield Giants news, stats and reports"
+	cardType: "summary_large_image"
 };
 
 function mapStateToProps({ config }) {
-	const { baseUrl, bucketPaths, initialPath } = config;
-	return { baseUrl, bucketPaths, initialPath };
+	const {
+		baseUrl,
+		bucketPaths,
+		site_name,
+		site_social,
+		site_default_description,
+		initialPath
+	} = config;
+	return { baseUrl, bucketPaths, site_name, site_social, site_default_description, initialPath };
 }
 
 export default connect(mapStateToProps)(HelmetBuilder);

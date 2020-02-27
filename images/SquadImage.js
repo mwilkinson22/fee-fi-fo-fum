@@ -2,6 +2,7 @@ import _ from "lodash";
 import Canvas from "./Canvas";
 import { localTeam } from "~/config/keys";
 import mongoose from "mongoose";
+const Settings = mongoose.model("settings");
 
 export default class SquadImage extends Canvas {
 	constructor(players, options = {}) {
@@ -94,6 +95,13 @@ export default class SquadImage extends Canvas {
 		this.extraInterchanges = players.length > 17;
 	}
 
+	async getBranding() {
+		const settings = await Settings.find({
+			name: { $in: ["site_social", "site_logo"] }
+		}).lean();
+		this.branding = _.fromPairs(settings.map(({ name, value }) => [name, value]));
+	}
+
 	processPlayerPositions([x, y]) {
 		const { sideBarWidth, dividerWidth, mainPanelWidth } = this.positions;
 		const newX = sideBarWidth + dividerWidth * 0.75 + Math.round(mainPanelWidth * x);
@@ -156,7 +164,9 @@ export default class SquadImage extends Canvas {
 			teamBadges,
 			extraInterchanges,
 			players,
-			selector
+			options,
+			selector,
+			branding
 		} = this;
 		const {
 			bannerY,
@@ -172,9 +182,7 @@ export default class SquadImage extends Canvas {
 		const showInterchanges = players.length > 13;
 
 		//Add Main Logo
-		const brandIcon = await this.googleToCanvas(
-			"images/layout/branding/square-logo-with-shadow.png"
-		);
+		const brandIcon = await this.googleToCanvas(`images/layout/branding/${branding.site_logo}`);
 
 		let mainIcon;
 		if (game && game.images.logo) {
@@ -245,12 +253,12 @@ export default class SquadImage extends Canvas {
 			//Standard Text
 			bannerText.push(
 				[{ text: "Created On" }],
-				[{ text: "feefifofum.co.uk", colour: "#FC0" }]
+				[{ text: options.siteUrl.replace(/^www./, ""), colour: "#FC0" }]
 			);
 
 			//Add a twitter handle if we're a row short
 			if (bannerText.length < 4) {
-				bannerText.push([{ text: "@" }, { text: "FeeFiFoFumRL", colour: "#FFF" }]);
+				bannerText.push([{ text: "@" }, { text: branding.site_social, colour: "#FFF" }]);
 			}
 		}
 
@@ -541,6 +549,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async render(forTwitter = false) {
+		await this.getBranding();
 		await this.loadTeamImages();
 		await this.drawBackground();
 		await this.drawSidebar();

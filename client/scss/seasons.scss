@@ -39,7 +39,7 @@
 				color: white;
 			}
 			&.highlight {
-				border-left: solid 5pt $claret;
+				border-left: solid 5pt $mainColour;
 				font-weight: bold;
 			}
 			th {
@@ -115,7 +115,7 @@
 	}
 
 	section.game-filters {
-		background: darken($claret, 5%);
+		background: darken($mainColour, 5%);
 		padding-bottom: 15pt;
 		color: white;
 		h2,
@@ -158,15 +158,15 @@
 						padding: 10pt;
 						position: relative;
 						grid-gap: 10pt;
-						background: darken($claret, 5%);
+						background: darken($mainColour, 5%);
 						color: white;
 						display: grid;
 						grid-template-columns: auto 1fr auto;
 						align-items: center;
 						& > *:nth-child(-n + 3) {
-							color: $gold;
+							color: $trimColour;
 							a:hover {
-								color: lighten($gold, 20%);
+								color: lighten($trimColour, 20%);
 							}
 						}
 						h6 {
@@ -215,7 +215,7 @@
 								background: white;
 								padding: 4pt 8pt;
 								border-radius: 4pt 4pt 0 0;
-								color: $claret;
+								color: $mainColour;
 								font-size: 14pt;
 								box-shadow: inherit;
 								z-index: -1;

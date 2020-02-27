@@ -1,15 +1,12 @@
 import schedule from "node-schedule";
 import axios from "axios";
-import { authGuid } from "~/config/keys";
+import { authGuid, apiUrl } from "~/config/keys";
+
 //Helper Function
 async function apiCall(path, successMessage) {
-	const baseUrl =
-		process.env.NODE_ENV == "development"
-			? "http://localhost:3000/api/"
-			: "https://www.feefifofum.co.uk/api/";
 	let error;
 	try {
-		await axios.get(`${baseUrl}${path}?authGuid=${authGuid}`);
+		await axios.get(`${apiUrl}${path}?authGuid=${authGuid}`);
 	} catch (e) {
 		error = e;
 	}

@@ -35,7 +35,7 @@ import { Redirect } from "react-router-dom";
 
 //Helpers
 import { matchSlugToItem } from "~/helpers/routeHelper";
-import { getLastGame } from "~/helpers/gameHelper";
+import { getLastGame, getScoreString } from "~/helpers/gameHelper";
 import TeamImage from "~/client/components/teams/TeamImage";
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 import playerStatTypes from "~/constants/playerStatTypes";
@@ -269,26 +269,22 @@ class GamePage extends Component {
 	}
 
 	getPageTitle() {
-		const { isAway, scores, _opposition, date } = this.state.game;
-		let strings;
-		if (scores) {
-			strings = [
-				"Huddersfield Giants",
-				" ",
-				scores["5c041478e2b66153542b3742"],
-				"-",
-				scores[_opposition._id],
-				" ",
-				_opposition.name.long
-			];
-		} else {
-			strings = ["Huddersfield Giants", " vs ", _opposition.name.long];
-		}
-		if (isAway) {
-			strings = strings.reverse();
+		const { fullTeams, localTeam } = this.props;
+		const { game } = this.state;
+
+		//Use helper to try and get a score string
+		let string = getScoreString(game, fullTeams[localTeam], true);
+
+		//If this fails (i.e. if there are no scores), create a simple H vs A
+		if (!string) {
+			const teams = [fullTeams[localTeam].name.long, "vs", game._opposition.name.long];
+			if (game.isAway) {
+				teams.reverse();
+			}
+			string = teams.join(" ");
 		}
 
-		return strings.join("") + " - " + date.toString("dd/MM/yyyy");
+		return `${string} - ${game.date.toString("dd/MM/yyyy")}`;
 	}
 
 	generateFanPotm() {

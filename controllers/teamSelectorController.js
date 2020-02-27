@@ -193,5 +193,5 @@ export async function generateImage(req, res, selector) {
 		};
 	});
 
-	return new SquadImage(players, { selector });
+	return new SquadImage(players, { selector, siteUrl: req.get("host") });
 }

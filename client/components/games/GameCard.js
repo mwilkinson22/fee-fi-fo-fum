@@ -12,6 +12,7 @@ import GameLogo from "./GameLogo";
 
 //Helpers
 import { toRgba } from "~/helpers/colourHelper";
+import { getScoreString } from "~/helpers/gameHelper";
 import Countdown from "./Countdown";
 
 class GameCard extends Component {
@@ -22,8 +23,7 @@ class GameCard extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = {};
-		const { game, localTeam } = nextProps;
-		const { _opposition, isAway } = game;
+		const { game, localTeam, fullTeams } = nextProps;
 
 		//Get date
 		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));
@@ -36,19 +36,7 @@ class GameCard extends Component {
 		newState.isFixture = isFixture;
 
 		//Score
-		const score = game.score || game.scoreOverride;
-		if (score && Object.keys(score).length >= 2) {
-			const localScore = score[localTeam];
-			const oppositionScore = score[_opposition._id];
-			if (localScore !== null && oppositionScore !== null) {
-				const oppositionName = _opposition.name.short;
-				if (isAway) {
-					newState.scoreString = `${oppositionName} ${oppositionScore}-${localScore} Giants`;
-				} else {
-					newState.scoreString = `Giants ${localScore}-${oppositionScore} ${oppositionName}`;
-				}
-			}
-		}
+		newState.scoreString = getScoreString(game, fullTeams[localTeam]);
 
 		//Include countdown?
 		newState.includeCountdown = nextProps.includeCountdown && isFixture;
@@ -140,9 +128,10 @@ GameCard.defaultProps = {
 	hideImage: false
 };
 
-function mapStateToProps({ config }) {
+function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
-	return { localTeam };
+	const { fullTeams } = teams;
+	return { localTeam, fullTeams };
 }
 
 export default connect(mapStateToProps)(GameCard);

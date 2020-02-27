@@ -139,7 +139,7 @@ h4,
 h5,
 h6 {
 	@include header;
-	color: $claret;
+	color: $mainColour;
 }
 
 h1 {
@@ -170,7 +170,7 @@ p {
 	a,
 	.pseudo-link {
 		&:not(:hover) {
-			color: $claret;
+			color: $mainColour;
 		}
 	}
 }
@@ -218,8 +218,8 @@ p {
 
 //Text highlighting
 *::selection {
-	color: $gold;
-	background: $claret;
+	color: $trimColour;
+	background: $mainColour;
 }
 
 //Dot Menu

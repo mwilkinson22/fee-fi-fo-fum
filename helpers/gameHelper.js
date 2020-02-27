@@ -56,6 +56,47 @@ export function getDateString(date) {
 	}
 }
 
+export function getScoreString(game, localTeam, useLongNames = false) {
+	//Check we have a score
+	const score = game.score || game.scoreOverride;
+	if (score) {
+		const { _opposition, isAway } = game;
+
+		//Get the scores for each team;
+		const localScore = score[localTeam._id];
+		const oppositionScore = score[_opposition._id];
+
+		//Get Local Team Name
+		const localTeamName = useLongNames ? localTeam.name.long : localTeam.nickname;
+		const oppositionName = _opposition.name[useLongNames ? "long" : "short"];
+
+		//Ensure no null values
+		if (localScore != null && oppositionScore != null) {
+			//Create array
+			const scoreArray = [
+				localTeamName,
+				" ",
+				localScore,
+				"-",
+				oppositionScore,
+				" ",
+				oppositionName
+			];
+
+			//Reverse for away games
+			if (isAway) {
+				scoreArray.reverse();
+			}
+
+			//Return joined array
+			return scoreArray.join("");
+		}
+	}
+
+	//Otherwise return false
+	return false;
+}
+
 function getAdjacentGame(id, gameList, next) {
 	const { _teamType, date } = gameList[id];
 	const list = _.chain(gameList)

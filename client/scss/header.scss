@@ -1,14 +1,8 @@
 header {
 	user-select: none;
-	background-color: $claret;
+	background-color: $mainColour;
 
 	@media #{$desktop-only} {
-		&.staging {
-			&,
-			nav .root-nav-list .nav-section:hover ul {
-				background-color: darken($claret, 15%);
-			}
-		}
 		&.local-dev {
 			&,
 			nav .root-nav-list .nav-section:hover ul {
@@ -62,7 +56,7 @@ header {
 	}
 
 	.active-nav-link {
-		color: $gold;
+		color: $trimColour;
 	}
 
 	.mobile-nav-background,
@@ -111,11 +105,11 @@ header {
 			justify-content: space-evenly;
 			span {
 				width: 100%;
-				background: $gold;
+				background: $trimColour;
 				height: 3pt;
 				display: block;
 				&:first-child {
-					background: lighten($claret, 17%);
+					background: lighten($mainColour, 17%);
 				}
 				&:last-child {
 					background: #fff;
@@ -203,7 +197,7 @@ header {
 					}
 
 					&:nth-last-child(n + 3) .nav-menu-header {
-						border-right: solid thin $gold;
+						border-right: solid thin $trimColour;
 					}
 				}
 				.nav-section:last-child {
@@ -242,7 +236,7 @@ header {
 					&:hover {
 						ul {
 							display: block;
-							background: $claret;
+							background: $mainColour;
 							position: absolute;
 							top: 100%;
 							min-width: 100%;

@@ -103,6 +103,7 @@ class AwardPage extends Component {
 	}
 
 	renderContent() {
+		const { site_name } = this.props;
 		const { currentAwards, editingEnabled } = this.state;
 		let content;
 
@@ -140,7 +141,7 @@ class AwardPage extends Component {
 						/>
 					</div>
 					<div className="form-card intro">
-						Welcome to the voting page for the {currentAwards.year} Fee Fi Fo Fum Fan
+						Welcome to the voting page for the {currentAwards.year} {site_name} Fan
 						Awards! Vote in each category below and make sure to follow our social media
 						to see the results!
 					</div>
@@ -153,8 +154,8 @@ class AwardPage extends Component {
 	}
 
 	render() {
+		const { bucketPaths, currentAwards, site_name } = this.props;
 		const { isLoading } = this.state;
-		const { bucketPaths, currentAwards } = this.props;
 
 		const year = currentAwards ? `${currentAwards.year} ` : "";
 
@@ -162,7 +163,7 @@ class AwardPage extends Component {
 			<div className="award-page">
 				<HelmetBuilder
 					title={`${year}5Fs Awards`}
-					description={`Vote in the ${year}Fee Fi Fo Fum Fan Awards!`}
+					description={`Vote in the ${year}${site_name} Fan Awards!`}
 					cardImage={`${
 						bucketPaths.imageRoot
 					}awards/socialCards/${currentAwards.socialCard || "default.jpg"}`}
@@ -186,11 +187,11 @@ class AwardPage extends Component {
 }
 
 function mapStateToProps({ awards, config, games, people }) {
-	const { bucketPaths } = config;
+	const { bucketPaths, site_name } = config;
 	const { currentAwards } = awards;
 	const { fullGames } = games;
 	const { fullPeople } = people;
-	return { bucketPaths, currentAwards, fullPeople, fullGames };
+	return { bucketPaths, currentAwards, fullPeople, fullGames, site_name };
 }
 
 export default {

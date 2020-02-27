@@ -36,7 +36,7 @@
 		}
 
 		.disclaimer-link {
-			color: $claret;
+			color: $mainColour;
 			font-weight: 600;
 		}
 	}
@@ -78,13 +78,13 @@
 			}
 
 			.disconnect {
-				color: $claret;
+				color: $mainColour;
 				font-weight: 600;
 				cursor: pointer;
 				flex-grow: 1;
 				text-align: right;
 				&:hover {
-					color: $gold;
+					color: $trimColour;
 				}
 			}
 		}
@@ -107,7 +107,7 @@
 		}
 
 		.fetch-preview-image-btn {
-			background: $claret;
+			background: $mainColour;
 			color: white;
 		}
 	}

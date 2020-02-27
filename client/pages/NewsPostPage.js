@@ -147,8 +147,9 @@ class NewsPostPage extends Component {
 	}
 
 	getUrl() {
+		const { baseUrl } = this.props;
 		const { post } = this.state;
-		return `https://www.feefifofum.co.uk/news/post/${post.slug}`;
+		return `${baseUrl}/news/post/${post.slug}`;
 	}
 
 	formatSidebar() {
@@ -268,6 +269,7 @@ class NewsPostPage extends Component {
 	}
 
 	formatPost() {
+		const { social_account, site_name } = this.props;
 		const { post } = this.state;
 		const author = post._author;
 		let authorName;
@@ -325,7 +327,7 @@ class NewsPostPage extends Component {
 								<TwitterShareButton
 									url={this.getUrl()}
 									title={post.title}
-									via="FeeFiFoFumRL"
+									via={social_account}
 								>
 									<TwitterIcon {...shareIconProps} />
 								</TwitterShareButton>
@@ -337,7 +339,7 @@ class NewsPostPage extends Component {
 								</WhatsappShareButton>
 								<EmailShareButton
 									url={this.getUrl()}
-									subject={`Fee Fi Fo Fum - ${post.title}`}
+									subject={`${site_name} - ${post.title}`}
 								>
 									<EmailIcon {...shareIconProps} />
 								</EmailShareButton>
@@ -405,11 +407,22 @@ class NewsPostPage extends Component {
 }
 
 function mapStateToProps({ config, games, news }) {
-	const { authUser, bucketPaths, ticketLink } = config;
+	const { authUser, baseUrl, bucketPaths, site_name, social_account, ticketLink } = config;
 	const { fullGames } = games;
 	const { fullPosts, postList, redirects } = news;
 
-	return { fullPosts, fullGames, postList, redirects, authUser, bucketPaths, ticketLink };
+	return {
+		fullPosts,
+		fullGames,
+		postList,
+		redirects,
+		authUser,
+		baseUrl,
+		bucketPaths,
+		site_name,
+		social_account,
+		ticketLink
+	};
 }
 
 async function loadData(store, path) {

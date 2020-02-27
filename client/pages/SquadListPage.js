@@ -161,12 +161,13 @@ class SquadListPage extends Component {
 	}
 
 	generateHelmet() {
+		const { fullTeams, localTeam, teamTypes } = this.props;
 		const { year, teamType, years } = this.state;
-		const { teamTypes } = this.props;
 		const teamTypeObject = _.find(teamTypes, t => t._id === teamType);
 		const specifyTeamTypeInMeta = _.minBy(_.values(teamTypes), "sortOrder")._id !== teamType;
+
 		//Title
-		let title = `${year} Huddersfield Giants`;
+		let title = `${year} ${fullTeams[localTeam].name.long}`;
 		if (specifyTeamTypeInMeta) {
 			title += ` ${teamTypeObject.name}`;
 		}

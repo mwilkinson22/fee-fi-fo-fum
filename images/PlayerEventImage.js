@@ -3,6 +3,7 @@ import _ from "lodash";
 import mongoose from "mongoose";
 const Person = mongoose.model("people");
 const Team = mongoose.model("teams");
+const Settings = mongoose.model("settings");
 
 //Canvas
 import Canvas from "./Canvas";
@@ -86,6 +87,13 @@ export default class PlayerEventImage extends Canvas {
 		}
 	}
 
+	async getBranding() {
+		const settings = await Settings.findOne({
+			name: "site_logo"
+		}).lean();
+		this.branding = { site_logo: settings.value };
+	}
+
 	async drawBackground() {
 		const { ctx, cWidth, cHeight } = this;
 		const backgroundImage = await this.googleToCanvas("images/layout/canvas/player-event.jpg");
@@ -97,8 +105,9 @@ export default class PlayerEventImage extends Canvas {
 		if (!this.backgroundRendered) {
 			await this.drawBackground();
 		}
+		await this.getBranding();
 		await this.loadTeamBadges();
-		const { ctx, positions, game, cWidth, cHeight, textStyles } = this;
+		const { branding, ctx, positions, game, cWidth, cHeight, textStyles } = this;
 
 		//Add Team Objects
 		let teams = [
@@ -163,7 +172,7 @@ export default class PlayerEventImage extends Canvas {
 		});
 
 		//Add Game and brand logos
-		const brandLogoUrl = `images/layout/branding/square-logo-with-shadow.png`;
+		const brandLogoUrl = `images/layout/branding/${branding.site_logo}`;
 		if (includeGameLogo) {
 			const gameLogoUrl = game.images.logo || brandLogoUrl;
 			const gameLogo = await this.googleToCanvas(gameLogoUrl);

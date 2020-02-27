@@ -1,6 +1,7 @@
 import Canvas from "./Canvas";
 import _ from "lodash";
 import mongoose from "mongoose";
+const Settings = mongoose.model("settings");
 const { localTeam } = require("../config/keys");
 
 //Removed from class so we can use it in constructor
@@ -120,6 +121,13 @@ export default class PregameImage extends Canvas {
 		this.teamIds = game.isAway ? teamIds.reverse() : teamIds;
 	}
 
+	async getBranding() {
+		const settings = await Settings.findOne({
+			name: "site_logo"
+		}).lean();
+		this.branding = { site_logo: settings.value };
+	}
+
 	drawBackground() {
 		const { ctx, cWidth, cHeight } = this;
 		ctx.fillStyle = "#EEE";
@@ -127,7 +135,7 @@ export default class PregameImage extends Canvas {
 	}
 
 	async drawHeader() {
-		const { game, ctx, cWidth, positions, colours, teams, textStyles } = this;
+		const { branding, game, ctx, cWidth, positions, colours, teams, textStyles } = this;
 
 		//Game Title
 		ctx.fillStyle = colours.claret;
@@ -186,9 +194,7 @@ export default class PregameImage extends Canvas {
 		}
 
 		//Right Icon
-		const rightIcon = await this.googleToCanvas(
-			"images/layout/branding/square-logo-with-shadow.png"
-		);
+		const rightIcon = await this.googleToCanvas(`images/layout/branding/${branding.site_logo}`);
 		if (rightIcon) {
 			ctx.fillRect(
 				positions.headerRightIconOffset,
@@ -358,6 +364,9 @@ export default class PregameImage extends Canvas {
 
 	async render(forTwitter = false) {
 		const { ctx, cWidth, positions, teamIds, options } = this;
+
+		//Get Logo
+		await this.getBranding();
 
 		//Populate Teams
 		const Team = mongoose.model("teams");

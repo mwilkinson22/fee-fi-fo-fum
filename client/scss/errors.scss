@@ -46,11 +46,11 @@
 			background: #ccc !important;
 		}
 		td.link {
-			color: $claret;
+			color: $mainColour;
 			cursor: pointer;
 			font-weight: 600;
 			&:hover {
-				color: lighten($claret, 10%);
+				color: lighten($mainColour, 10%);
 			}
 			a {
 				color: inherit;

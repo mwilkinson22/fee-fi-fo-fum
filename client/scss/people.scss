@@ -19,7 +19,7 @@ a .person-image {
 		.person-card {
 			box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 			.trim {
-				color: darken($gold, 7%);
+				color: darken($trimColour, 7%);
 			}
 		}
 	}
@@ -41,13 +41,13 @@ a .person-image {
 			font-family: "Montserrat";
 			font-weight: bold;
 			font-size: 1.2em;
-			color: $claret;
+			color: $mainColour;
 			min-width: 30%;
 			padding: 10pt;
 			min-height: 92pt;
 		}
 		.main {
-			background: $claret;
+			background: $mainColour;
 			flex-grow: 1;
 			justify-content: center;
 			padding: 20pt 10pt 20pt 23%;
@@ -61,7 +61,7 @@ a .person-image {
 					font-size: 1.1em;
 				}
 				span {
-					color: $gold;
+					color: $trimColour;
 					display: block;
 				}
 			}
@@ -135,7 +135,7 @@ a .person-image {
 					color: white;
 					line-height: 1.1;
 					span {
-						color: $gold;
+						color: $trimColour;
 					}
 				}
 				.positions {
@@ -196,7 +196,7 @@ a .person-image {
 				}
 				.overlay {
 					padding: 10pt;
-					background: $claret;
+					background: $mainColour;
 					width: 100%;
 					h1,
 					.social {
@@ -239,7 +239,7 @@ a .person-image {
 				align-items: stretch;
 				min-height: 100%;
 				.overlay {
-					background: darken($claret, 5%);
+					background: darken($mainColour, 5%);
 					position: relative;
 					flex-grow: 1;
 					margin-left: 10%;
@@ -280,7 +280,7 @@ a .person-image {
 						}
 					}
 					.positions {
-						border-top: solid 2pt $gold;
+						border-top: solid 2pt $trimColour;
 						padding: 8pt 0 4pt;
 					}
 
@@ -334,7 +334,7 @@ a .person-image {
 
 	section.player-stats {
 		.section-header {
-			background: darken($claret, 5%);
+			background: darken($mainColour, 5%);
 			padding: 20pt 0;
 			h1,
 			h2,
@@ -382,7 +382,7 @@ a .person-image {
 							font-weight: bold;
 							padding: 4pt 10pt;
 							text-align: right;
-							background-color: $claret;
+							background-color: $mainColour;
 							height: 80%;
 							display: block;
 							border-radius: 4pt 10pt 10pt 4pt;

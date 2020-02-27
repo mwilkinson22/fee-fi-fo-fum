@@ -1,8 +1,9 @@
+import _ from "lodash";
 import Canvas from "./Canvas";
 import mongoose from "mongoose";
-import _ from "lodash";
-import { localTeam } from "~/config/keys";
 const Team = mongoose.model("teams");
+const Settings = mongoose.model("settings");
+import { localTeam } from "~/config/keys";
 
 export default class GameEventImage extends Canvas {
 	constructor(game, event) {
@@ -36,6 +37,13 @@ export default class GameEventImage extends Canvas {
 		//Variables
 		this.game = JSON.parse(JSON.stringify(game));
 		this.event = event;
+	}
+
+	async getBranding() {
+		const settings = await Settings.findOne({
+			name: "site_logo"
+		}).lean();
+		this.branding = { site_logo: settings.value };
 	}
 
 	async drawBackground() {
@@ -103,7 +111,7 @@ export default class GameEventImage extends Canvas {
 	}
 
 	async drawGameInfo() {
-		const { ctx, game, cWidth, cHeight, event, textStyles, colours } = this;
+		const { branding, ctx, game, cWidth, cHeight, event, textStyles, colours } = this;
 
 		//Add Event
 		let text;
@@ -141,8 +149,7 @@ export default class GameEventImage extends Canvas {
 
 		//Add Game Logo
 		const logoWidth = Math.round(cWidth / 4);
-		const gameLogoUrl =
-			game.images.logo || `images/layout/branding/square-logo-with-shadow.png`;
+		const gameLogoUrl = game.images.logo || `images/layout/branding/${branding.site_logo}`;
 		const gameLogo = await this.googleToCanvas(gameLogoUrl);
 		this.contain(
 			gameLogo,
@@ -154,6 +161,7 @@ export default class GameEventImage extends Canvas {
 	}
 
 	async render(forTwitter = false) {
+		await this.getBranding();
 		await this.getTeamInfo();
 		await this.drawBackground();
 		await this.drawTeamBanners();

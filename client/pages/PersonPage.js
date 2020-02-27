@@ -17,7 +17,7 @@ import { fetchGameList, fetchGames } from "../actions/gamesActions";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
-const { earliestGiantsData } = require("~/config/keys");
+const { earliestLocalGames } = require("~/config/keys");
 
 //Helpers
 import { matchSlugToItem } from "~/helpers/routeHelper";
@@ -306,7 +306,7 @@ class PersonPage extends Component {
 		const playedGames = person.playedGames
 			.filter(g => !g.pregameOnly && g.forLocalTeam && g.squadsAnnounced)
 			.map(g => gameList[g._id])
-			.filter(g => Number(g.date.getFullYear()) >= earliestGiantsData);
+			.filter(g => Number(g.date.getFullYear()) >= earliestLocalGames);
 
 		if (playedGames.length) {
 			return <PlayerStatSection person={person} playedGames={playedGames} />;

@@ -3,13 +3,14 @@ import { connect } from "react-redux";
 
 class GameHeaderImage extends Component {
 	render() {
-		const { bucketPaths, game, className, useWebp } = this.props;
+		const { bucketPaths, localTeam, game, className, useWebp, teamList } = this.props;
 		let image;
 		let alt;
 
 		if (game.images.header) {
+			const localTeamName = teamList[localTeam].name.long;
 			image = bucketPaths.images.games + "header/" + game.images.header;
-			alt = `Huddersfield Giants vs ${game._opposition.name.long} - ${game.date.toString(
+			alt = `${localTeamName} vs ${game._opposition.name.long} - ${game.date.toString(
 				"dd/MM/yyyy"
 			)}`;
 		} else if (game._ground.image) {
@@ -32,10 +33,13 @@ class GameHeaderImage extends Component {
 	}
 }
 
-function mapStateToProps({ config }) {
-	const { bucketPaths, webp } = config;
+function mapStateToProps({ config, teams }) {
+	const { bucketPaths, localTeam, webp } = config;
+	const { teamList } = teams;
 	return {
 		bucketPaths,
+		localTeam,
+		teamList,
 		useWebp: webp
 	};
 }

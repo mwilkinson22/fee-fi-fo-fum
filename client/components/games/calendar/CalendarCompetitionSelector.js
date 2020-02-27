@@ -156,6 +156,7 @@ class CalendarCompetitionSelector extends Component {
 	}
 
 	render() {
+		const { fullTeams, localTeam } = this.props;
 		const { isLoading } = this.state;
 
 		//Wait for competitions
@@ -166,8 +167,8 @@ class CalendarCompetitionSelector extends Component {
 		return (
 			<div>
 				<p className="full-span">
-					Use the form below to generate an ics file and add all upcoming Giants fixtures
-					to your personal calendar.
+					Use the form below to generate an ics file and add all upcoming{" "}
+					{fullTeams[localTeam].nickname} fixtures to your personal calendar.
 				</p>
 				<p className="full-span mobile-only">
 					Just open the file directly from your phone or tablet and it should import
@@ -214,11 +215,12 @@ CalendarCompetitionSelector.propTypes = {
 	onNext: PropTypes.func.isRequired
 };
 
-function mapStateToProps({ competitions, games, teams }) {
+function mapStateToProps({ config, competitions, games, teams }) {
+	const { localTeam } = config;
 	const { competitionSegmentList } = competitions;
 	const { gameList } = games;
-	const { activeTeamType, teamTypes } = teams;
-	return { activeTeamType, competitionSegmentList, gameList, teamTypes };
+	const { activeTeamType, fullTeams, teamTypes } = teams;
+	return { activeTeamType, competitionSegmentList, gameList, fullTeams, localTeam, teamTypes };
 }
 
 export default connect(mapStateToProps, { fetchCompetitionSegments })(CalendarCompetitionSelector);

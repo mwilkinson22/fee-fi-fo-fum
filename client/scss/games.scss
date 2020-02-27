@@ -165,9 +165,9 @@
 			align-items: center;
 			justify-content: center;
 			font-weight: 600;
-			background: $claret;
+			background: $mainColour;
 			&:hover {
-				background: darken($claret, 5%);
+				background: darken($mainColour, 5%);
 			}
 			img {
 				max-height: 20pt;
@@ -277,7 +277,7 @@
 					li {
 						padding: 4pt;
 						&:not(:last-child) {
-							border-bottom: solid 1pt $gold;
+							border-bottom: solid 1pt $trimColour;
 						}
 					}
 				}
@@ -318,7 +318,7 @@
 								display: inline-block;
 							}
 							&:not(:last-child) {
-								border-right: solid 1pt $gold;
+								border-right: solid 1pt $trimColour;
 							}
 						}
 					}
@@ -339,7 +339,7 @@
 		}
 		.value {
 			color: white;
-			background: $claret;
+			background: $mainColour;
 		}
 		@media #{$mobile-and-tablet} {
 			.game-countdown {
@@ -426,7 +426,7 @@
 				.summary > div {
 					padding: 4pt;
 					&:not(:last-child) {
-						border-right: solid 2pt $claret;
+						border-right: solid 2pt $mainColour;
 					}
 				}
 			}
@@ -539,7 +539,7 @@
 					justify-content: center;
 				}
 				a:hover {
-					color: $gold !important;
+					color: $trimColour !important;
 				}
 				.points {
 					border-right: solid 8pt;
@@ -574,7 +574,7 @@
 					text-shadow: 1px 1px 1px black;
 					margin-top: 4pt;
 					padding-top: 4pt;
-					border-top: solid thin $gold;
+					border-top: solid thin $trimColour;
 					flex-grow: 1;
 					display: flex;
 					flex-direction: column;
@@ -595,7 +595,7 @@
 							}
 						}
 						.label {
-							color: $gold;
+							color: $trimColour;
 							font-weight: bold;
 						}
 					}
@@ -653,7 +653,7 @@
 		}
 		div {
 			&.team-image-wrapper {
-				background: $claret;
+				background: $mainColour;
 			}
 			display: flex;
 			&:empty {
@@ -665,7 +665,7 @@
 			font-weight: 600;
 			justify-content: center;
 			a:hover {
-				color: $claret;
+				color: $mainColour;
 			}
 			img {
 				max-height: 40pt;
@@ -801,7 +801,7 @@ section.pregame-squads {
 					}
 				}
 				a.player:hover * {
-					color: $gold !important;
+					color: $trimColour !important;
 				}
 				&:first-child {
 					align-items: flex-end;
@@ -871,7 +871,7 @@ section.match-squads {
 						text-align: right;
 					}
 					.label {
-						color: $gold;
+						color: $trimColour;
 					}
 				}
 			}
@@ -1184,7 +1184,7 @@ section.match-squads {
 				margin-bottom: 4pt;
 				display: block;
 				&:hover {
-					color: $claret;
+					color: $mainColour;
 				}
 			}
 
@@ -1334,8 +1334,8 @@ section.match-squads {
 	}
 
 	h6 {
-		background: $claret;
-		color: $gold;
+		background: $mainColour;
+		color: $trimColour;
 		padding: 4pt;
 		font-size: 1.2em;
 	}
@@ -1434,13 +1434,13 @@ section.match-squads {
 			}
 
 			.details {
-				background: $claret;
+				background: $mainColour;
 				h6 {
 					padding: 10pt 10pt 0;
 					font-size: 1.3em;
 					color: white;
 					span {
-						color: $gold;
+						color: $trimColour;
 					}
 					.last-name {
 						display: block;
@@ -1455,7 +1455,7 @@ section.match-squads {
 							@include header;
 
 							&.value {
-								color: $gold;
+								color: $trimColour;
 							}
 
 							&.label {
@@ -1472,14 +1472,14 @@ section.match-squads {
 					.progress-bar {
 						display: block;
 						height: 8pt;
-						background-color: $gold;
+						background-color: $trimColour;
 					}
 				}
 			}
 
 			&.active {
 				transition: background 100ms;
-				background-color: rgba($gold, 0.6);
+				background-color: rgba($trimColour, 0.6);
 				.image img {
 					transition: filter 100ms;
 					-webkit-filter: drop-shadow(0 06px 12px rgba(0, 0, 0, 0.3));
@@ -1494,9 +1494,9 @@ section.match-squads {
 		font-weight: 600;
 
 		&.submit:not(:disabled) {
-			background: $claret;
+			background: $mainColour;
 			&:hover {
-				background: lighten($claret, 5%);
+				background: lighten($mainColour, 5%);
 			}
 		}
 
@@ -1541,7 +1541,7 @@ section.match-squads {
 }
 
 .calendar-dialog {
-	border: 8pt $claret solid;
+	border: 8pt $mainColour solid;
 	background-color: #f4f4f4;
 	display: flex;
 	flex-direction: column;
@@ -1573,7 +1573,7 @@ section.match-squads {
 			li {
 				cursor: pointer;
 				&:hover {
-					background: rgba($claret, 0.2);
+					background: rgba($mainColour, 0.2);
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 export default (req, res, next) => {
 	if (process.env.REDIRECT_URL) {
 		//Check for www
-		let host = req.get("host"); // localhost:3000, feefifofum.co.uk, www.feefifofum.co.uk;
+		let host = req.get("host"); // localhost:3000, sitename.co.uk, www.sitename.co.uk;
 		const www = host.match(/^www\..*/i);
 		if (!www) {
 			host = "www." + host;

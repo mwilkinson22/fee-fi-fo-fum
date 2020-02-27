@@ -1,4 +1,90 @@
-@import "variables";
+/*
+ *
+ * VARIABLES
+ *
+ */
+
+//External files
+//GOOGLE-BUCKET-NAME is replaced through a custom loader
+$googleBucket: "https://storage.googleapis.com/GOOGLE-BUCKET-NAME/";
+$fonts: "#{$googleBucket}fonts/";
+$layoutImages: "#{$googleBucket}images/layout/";
+
+//Colours
+//$mainColour and $trimColour are defined through a custom
+//webpack loader. We set them as transparent beacuse we need
+//some kind of valid colour for the scss to compile.
+$mainColour: transparent;
+$trimColour: transparent;
+
+$twitterBlue: #549ad6;
+
+//Fonts
+@font-face {
+	font-family: "Monstro Solid";
+	src: url("#{$fonts}MonstroSolid.eot"); /* IE9 Compat Modes */
+	src: url("#{$fonts}MonstroSolid.eot?#iefix") format("embedded-opentype"),
+		/* IE6-IE8 */ url("#{$fonts}MonstroSolid.woff") format("woff"),
+		/* Pretty Modern Browsers */ url("#{$fonts}MonstroSolid.ttf") format("truetype"),
+		/* Safari, Android, iOS */ url("#{$fonts}MonstroSolid.svg#svgFontName") format("svg"); /* Legacy iOS */
+}
+
+//Media queries
+$mobile-only: "only screen and (max-width:699px)";
+$mobile-and-tablet: "only screen and (max-width: 777px)";
+$desktop-and-tablet: "only screen and (min-width: 700px)";
+$desktop-only: "only screen and (min-width: 778px)";
+
+//Default properties
+$transition: all 300ms;
+
+//Utility Classes
+@mixin header {
+	font-family: "Montserrat";
+	font-weight: 600;
+	text-transform: uppercase;
+}
+@mixin link {
+	text-decoration: none;
+	cursor: pointer;
+	color: inherit;
+	font-weight: bold;
+	&:hover {
+		color: $trimColour;
+	}
+}
+
+@mixin mobileOnly {
+	@media #{$desktop-only} {
+		display: none !important;
+	}
+}
+@mixin desktopOnly {
+	@media #{$mobile-and-tablet} {
+		display: none !important;
+	}
+}
+
+.mobile-only {
+	@include mobileOnly;
+}
+
+.desktop-only {
+	@include desktopOnly;
+}
+
+@mixin pseudoImage {
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+/*
+ *
+ * STYLING
+ *
+ */
+
 @import "base";
 
 body {
@@ -27,7 +113,7 @@ body {
 			&.with-border {
 				padding: 4pt 14pt;
 				border-radius: 4pt;
-				border: solid thin rgba($claret, 0.2);
+				border: solid thin rgba($mainColour, 0.2);
 			}
 		}
 	}
@@ -72,7 +158,7 @@ body {
 		&.active.hidden + a,
 			/* first visible link after a hidden active link */
 		&.active.hidden ~ .hidden + a {
-			color: $claret !important;
+			color: $mainColour !important;
 			pointer-events: none;
 		}
 
@@ -97,7 +183,7 @@ body {
 			&.active,
 			&.active.hidden + a,
 			&.active.hidden ~ .hidden + a {
-				color: $gold !important;
+				color: $trimColour !important;
 			}
 		}
 	}
@@ -138,14 +224,14 @@ body {
 
 			&:hover,
 			&.sorted {
-				color: $gold;
+				color: $trimColour;
 				.sort-arrow {
 					opacity: 1;
 				}
 			}
 		}
 		th {
-			background: $claret;
+			background: $mainColour;
 			color: white;
 			white-space: nowrap;
 		}
@@ -243,7 +329,7 @@ body {
 		}
 		&.active {
 			pointer-events: none;
-			background: $claret;
+			background: $mainColour;
 			color: white;
 			font-weight: 600;
 		}
@@ -292,7 +378,7 @@ a.card:hover {
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		border-left: solid 10pt $claret;
+		border-left: solid 10pt $mainColour;
 
 		.total {
 			font-size: 2.5em;
@@ -306,7 +392,7 @@ a.card:hover {
 
 		.name + * {
 			padding-top: 4pt;
-			border-top: solid 2pt $claret;
+			border-top: solid 2pt $mainColour;
 		}
 
 		.average,
@@ -323,7 +409,7 @@ a.card:hover {
 				max-height: 120pt;
 			}
 			.donut-segment {
-				stroke: $claret;
+				stroke: $mainColour;
 			}
 			text.total {
 				text-anchor: middle;
@@ -394,7 +480,7 @@ button,
 				background-color: #f8f8f8;
 			}
 			&.active {
-				background: $claret;
+				background: $mainColour;
 				color: white;
 				pointer-events: none;
 			}
@@ -447,7 +533,7 @@ button,
 						display: block;
 						white-space: nowrap;
 						&:hover {
-							color: lighten($claret, 5%);
+							color: lighten($mainColour, 5%);
 						}
 						img {
 							max-height: 30pt;

@@ -14,11 +14,11 @@ class Header extends Component {
 	}
 
 	getSocial() {
-		const { bucketPaths } = this.props;
+		const { bucketPaths, site_social } = this.props;
 		return ["Twitter", "Facebook", "Instagram"].map(social => {
 			return (
 				<a
-					href={`https://www.${social.toLowerCase()}.com/FeeFiFoFumRL`}
+					href={`https://www.${social.toLowerCase()}.com/${site_social}`}
 					target="_blank"
 					rel="noopener noreferrer"
 					key={social}
@@ -145,6 +145,7 @@ class Header extends Component {
 					header: "Settings",
 					subMenuRootLink: "/admin/settings/",
 					subMenu: {
+						Branding: "branding",
 						Broadcasters: "broadcasters",
 						Errors: "errors",
 						Social: "social",
@@ -240,7 +241,7 @@ class Header extends Component {
 	}
 
 	render() {
-		const { database, environment } = this.props;
+		const { database, environment, site_header_logo, site_name } = this.props;
 		const { bucketPaths } = this.props;
 		const social = this.getSocial();
 
@@ -272,8 +273,8 @@ class Header extends Component {
 					<Link to="/">
 						<img
 							className="main-header-logo"
-							src={`${bucketPaths.images.layout}branding/long-no-tagline.png`}
-							alt="Fee Fi Fo Fum Logo"
+							src={`${bucketPaths.images.layout}branding/${site_header_logo}`}
+							alt={`${site_name} Logo`}
 						/>
 					</Link>
 					<div className={`social desktop-only`}>{social}</div>
@@ -297,7 +298,16 @@ class Header extends Component {
 
 function mapStateToProps({ awards, config, teams }) {
 	const { currentAwards } = awards;
-	const { authUser, database, environment, localTeam, bucketPaths } = config;
+	const {
+		authUser,
+		database,
+		environment,
+		localTeam,
+		bucketPaths,
+		site_social,
+		site_header_logo,
+		site_name
+	} = config;
 	const { fullTeams } = teams;
 	return {
 		currentAwards,
@@ -305,6 +315,9 @@ function mapStateToProps({ awards, config, teams }) {
 		environment,
 		authUser,
 		bucketPaths,
+		site_social,
+		site_header_logo,
+		site_name,
 		localTeam,
 		fullTeams
 	};

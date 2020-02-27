@@ -570,7 +570,11 @@ export async function handleEvent(req, res) {
 							image = await generatePregameImage(game, req.body.imageOptions);
 							break;
 						case "matchSquad":
-							image = await generateSquadImage(game, req.body.showOpposition);
+							image = await generateSquadImage(
+								game,
+								req.body.showOpposition,
+								req.get("host")
+							);
 							break;
 						default:
 							image = await new GameEventImage(game, event);
@@ -739,7 +743,7 @@ export async function fetchPregameImage(req, res) {
 	}
 }
 
-async function generateSquadImage(game, showOpposition) {
+async function generateSquadImage(game, showOpposition, siteUrl) {
 	const [gameWithSquads] = await getExtraGameInfo([game], true, true);
 
 	const teamToMatch = showOpposition ? game._opposition._id : localTeam;
@@ -755,7 +759,7 @@ async function generateSquadImage(game, showOpposition) {
 		.map(({ _player, number }) => ({ number, ..._player }))
 		.value();
 
-	return new SquadImage(players, { game: gameWithSquads, showOpposition });
+	return new SquadImage(players, { game: gameWithSquads, showOpposition, siteUrl });
 }
 
 export async function fetchSquadImage(req, res) {
@@ -765,7 +769,11 @@ export async function fetchSquadImage(req, res) {
 	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
 
 	if (game) {
-		const imageClass = await generateSquadImage(game, showOpposition === "true");
+		const imageClass = await generateSquadImage(
+			game,
+			showOpposition === "true",
+			req.get("host")
+		);
 		const image = await imageClass.render(false);
 		res.send(image);
 	}
@@ -1056,7 +1064,7 @@ export async function createCalendar(req, res) {
 			],
 			duration: { hours: 2 },
 			location,
-			url: `https://www.feefifofum.co.uk/games/${slug}`
+			url: `${req.protocol}://${req.get("host")}/games/${slug}`
 		};
 	});
 
@@ -1065,7 +1073,7 @@ export async function createCalendar(req, res) {
 	if (error) {
 		res.status(500).send(error);
 	} else {
-		res.set({ "Content-Disposition": 'attachment; filename="Giants.ics"' });
+		res.set({ "Content-Disposition": 'attachment; filename="Calendar.ics"' });
 		res.send(value);
 	}
 }

@@ -213,6 +213,7 @@ class ShareDialog extends Component {
 	}
 
 	renderDisclaimerDialog() {
+		const { site_name, site_social } = this.props;
 		const { isShowingDisclaimer, service } = this.state;
 
 		if (isShowingDisclaimer) {
@@ -224,7 +225,7 @@ class ShareDialog extends Component {
 							<h6>Sharing to Twitter</h6>
 							<p>
 								Upon clicking the Share button, a Twitter window will pop up asking
-								you to grant access to Fee Fi Fo Fum (the website, not the
+								you to grant access to {site_name} (the website, not the
 								page/group). If you accept, an access token will be saved to your
 								web browser.
 							</p>
@@ -241,7 +242,7 @@ class ShareDialog extends Component {
 								editor, or by revoking it directly on Twitter. If you have any more
 								questions,{" "}
 								<a
-									href="https://twitter.com/FeeFiFoFumRL"
+									href={`https://twitter.com/${site_social}`}
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -351,9 +352,9 @@ class ShareDialog extends Component {
 }
 
 function mapStateToProps({ config, oAuth }) {
-	const { browser, bucketPaths } = config;
+	const { browser, bucketPaths, site_name, site_social } = config;
 	const { authorisedAccounts } = oAuth;
-	return { authorisedAccounts, browser, bucketPaths };
+	return { authorisedAccounts, browser, bucketPaths, site_name, site_social };
 }
 
 ShareDialog.propTypes = {

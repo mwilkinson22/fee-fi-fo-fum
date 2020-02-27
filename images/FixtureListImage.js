@@ -1,6 +1,8 @@
 import Canvas from "./Canvas";
 import _ from "lodash";
 import { easter } from "date-easter";
+import mongoose from "mongoose";
+const Settings = mongoose.model("settings");
 
 export default class FixtureListImage extends Canvas {
 	constructor(games, year) {
@@ -67,6 +69,13 @@ export default class FixtureListImage extends Canvas {
 		this.positions = positions;
 		this.games = _.sortBy(games, g => new Date(g.date));
 		this.year = year;
+	}
+
+	async getBranding() {
+		const settings = await Settings.find({
+			name: { $in: ["site_social", "site_logo"] }
+		}).lean();
+		this.branding = _.fromPairs(settings.map(({ name, value }) => [name, value]));
 	}
 
 	async getTeamImages() {
@@ -193,12 +202,10 @@ export default class FixtureListImage extends Canvas {
 	}
 
 	async drawMiddleColumn() {
-		const { ctx, cWidth, textStyles, positions } = this;
+		const { branding, ctx, cWidth, textStyles, positions } = this;
 
 		// Add Logo
-		const logo = await this.googleToCanvas(
-			`images/layout/branding/square-logo-with-shadow.png`
-		);
+		const logo = await this.googleToCanvas(`images/layout/branding/${branding.site_logo}`);
 
 		this.cover(
 			logo,
@@ -255,7 +262,11 @@ export default class FixtureListImage extends Canvas {
 		//Add Social Tag
 		ctx.font = textStyles.middleText.string;
 		ctx.fillStyle = "#FFF";
-		ctx.fillText("@FeeFiFoFumRL", cWidth / 2, positions.logoY + positions.logoHeight * 1.4);
+		ctx.fillText(
+			`@${branding.site_social}`,
+			cWidth / 2,
+			positions.logoY + positions.logoHeight * 1.4
+		);
 
 		this.resetShadow();
 	}
@@ -470,6 +481,7 @@ export default class FixtureListImage extends Canvas {
 	async render(forTwitter = false) {
 		this.drawBackground();
 
+		await this.getBranding();
 		await this.getTeamImages();
 
 		this.drawFixtures();
