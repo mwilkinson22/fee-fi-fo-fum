@@ -1,8 +1,14 @@
-import Canvas from "./Canvas";
 import _ from "lodash";
+import Canvas from "./Canvas";
 import { easter } from "date-easter";
+
+//Mongoose
 import mongoose from "mongoose";
+const Team = mongoose.model("teams");
 const Settings = mongoose.model("settings");
+
+//Constants
+import { localTeam } from "~/config/keys";
 
 export default class FixtureListImage extends Canvas {
 	constructor(games, year) {
@@ -69,6 +75,14 @@ export default class FixtureListImage extends Canvas {
 		this.positions = positions;
 		this.games = _.sortBy(games, g => new Date(g.date));
 		this.year = year;
+	}
+
+	async getHomeCountry() {
+		const teamObject = await Team.findById(localTeam, "_defaultGround").populate({
+			path: "_defaultGround",
+			populate: { path: "address._city" }
+		});
+		this.homeCountry = teamObject._defaultGround.address._city._country.toString();
 	}
 
 	async getBranding() {
@@ -341,10 +355,10 @@ export default class FixtureListImage extends Canvas {
 	}
 
 	getInternationalGames() {
-		const { games } = this;
+		const { games, homeCountry } = this;
 
 		return _.chain(games)
-			.filter(g => g._ground.address._city._country._id != "5c03f5575b718639dc2bf8b8")
+			.filter(g => g._ground.address._city._country._id != homeCountry)
 			.groupBy(g => g._opposition.name.short)
 			.mapValues(games =>
 				_.chain(games)
@@ -481,6 +495,7 @@ export default class FixtureListImage extends Canvas {
 	async render(forTwitter = false) {
 		this.drawBackground();
 
+		await this.getHomeCountry();
 		await this.getBranding();
 		await this.getTeamImages();
 
