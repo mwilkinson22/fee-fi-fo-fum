@@ -14,6 +14,9 @@ import StatsTables from "../games/StatsTables";
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
 
+//Actions
+import { fetchPeople } from "~/client/actions/peopleActions";
+
 //Helpers
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import { getPlayersByYearAndGender } from "~/helpers/teamHelper";
@@ -35,7 +38,7 @@ class SeasonPlayerStats extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { games, localTeam } = nextProps;
+		const { fetchPeople, fullPeople, games, localTeam } = nextProps;
 		const { filteredGames } = prevState;
 		const newState = { games };
 
@@ -58,6 +61,40 @@ class SeasonPlayerStats extends Component {
 				//Convert to an array with the _player id, to ease sorting
 				.map((s, _player) => ({ _player, stats: PlayerStatsHelper.sumStats(s) }))
 				.value();
+
+			//Loop through the processedStats to see if we have any players not in the
+			//standard team object, for when teams share squads
+			const otherTeamPlayers = newState.processedStats
+				.map(p => p._player)
+				.filter(id => !prevState.players[id]);
+
+			if (otherTeamPlayers.length) {
+				//First, we check the fullPeople object
+				const playersToLoad = otherTeamPlayers.filter(id => !fullPeople[id]);
+
+				//If there are any, then we load (if we haven't already)
+				if (playersToLoad.length && !prevState.isLoadingPlayers) {
+					fetchPeople(playersToLoad);
+					newState.isLoadingPlayers = true;
+				}
+
+				//To get to this point, there have to be players not in the state
+				//players object, but loaded into fullPeople. This means we can
+				//update the players object and set isLoadingPlayers to false
+				if (!playersToLoad.length) {
+					newState.players = {
+						...prevState.players
+					};
+					otherTeamPlayers.forEach(id => {
+						newState.players[id] = { _id: id, _player: fullPeople[id] };
+					});
+					newState.isLoadingPlayers = false;
+				}
+
+				if (!prevState.isLoadingPlayers) {
+					newState.isLoadingPlayers = true;
+				}
+			}
 		}
 		return newState;
 	}
@@ -169,17 +206,17 @@ class SeasonPlayerStats extends Component {
 	}
 
 	render() {
-		const { games, statType, filteredGames } = this.state;
+		const { games, statType, filteredGames, isLoadingPlayers } = this.state;
 
 		let content;
-		if (!filteredGames) {
-			content = [<LoadingPage key="loading" />];
+		if (!filteredGames || isLoadingPlayers) {
+			content = <LoadingPage key="loading" />;
 		} else if (!filteredGames.length) {
-			content = [
+			content = (
 				<div className="container" key="no-game">
 					<h3>No games found</h3>
 				</div>
-			];
+			);
 		} else {
 			content = [
 				<section className="stat-type-switch" key="switch">
@@ -215,7 +252,7 @@ class SeasonPlayerStats extends Component {
 					/>
 				</div>
 			</section>,
-			...content
+			content
 		];
 	}
 }
@@ -227,13 +264,13 @@ SeasonPlayerStats.propTypes = {
 
 SeasonPlayerStats.defaultProps = {};
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, people, teams }) {
 	const { localTeam } = config;
+	const { fullPeople } = people;
 	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam, fullPeople, fullTeams };
 }
 
-export default connect(
-	mapStateToProps,
-	{ getPlayersByYearAndGender }
-)(SeasonPlayerStats);
+export default connect(mapStateToProps, { fetchPeople, getPlayersByYearAndGender })(
+	SeasonPlayerStats
+);
