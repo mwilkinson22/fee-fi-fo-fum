@@ -48,6 +48,7 @@ async function getOAuthClient(req, res, service) {
 //Getters
 export async function getAuthorisedAccounts(req, res) {
 	const { oAuthAccounts } = req.session;
+	const { secret } = req.query;
 
 	if (!oAuthAccounts) {
 		res.send({});
@@ -83,6 +84,12 @@ export async function getAuthorisedAccounts(req, res) {
 
 			if (data) {
 				results[service] = { ...data, access_token: keys.access_token };
+
+				//We allow the token secret to be sent for Admin users, when associating
+				//twitter details
+				if (secret && req.user && req.user.isAdmin) {
+					results[service].access_token_secret = keys.access_token_secret;
+				}
 			} else {
 				delete req.session.oAuthAccounts[service];
 			}

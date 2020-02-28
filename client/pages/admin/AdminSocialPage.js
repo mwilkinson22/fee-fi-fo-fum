@@ -3,6 +3,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Yup from "yup";
+import NewWindow from "react-new-window";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
@@ -18,6 +19,7 @@ import {
 	deleteProfile,
 	validateTwitterCredentials
 } from "~/client/actions/socialActions";
+import { getAuthorisedAccounts } from "~/client/actions/oAuthActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -32,7 +34,7 @@ class AdminProfilePage extends Component {
 			fetchProfiles();
 		}
 
-		this.state = {};
+		this.state = { isAuthorising: false };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -98,7 +100,9 @@ class AdminProfilePage extends Component {
 	}
 
 	getFieldGroups() {
-		const { twitterTestResults } = this.state;
+		const { getAuthorisedAccounts } = this.props;
+		const { isAuthorising, twitterTestResults } = this.state;
+
 		return [
 			{
 				fields: [
@@ -115,22 +119,69 @@ class AdminProfilePage extends Component {
 				]
 			},
 			{
-				render: values => [
-					<button
-						type="button"
-						key="twitter-test-btn"
-						disabled={
-							_.filter(values.twitter, v => v == "").length ||
-							twitterTestResults == "loading"
-						}
-						onClick={() => this.twitterTest(values.twitter)}
-					>
-						Test
-					</button>,
-					this.renderTwitterTestResults()
-				]
+				render: (values, formik) => {
+					const elements = [
+						<button
+							key="twitter-auth-btn"
+							type="button"
+							disabled={isAuthorising}
+							onClick={() => this.authoriseTwitter()}
+						>
+							Connect to Twitter
+						</button>,
+						this.renderTwitterAuthResults(),
+						<button
+							type="button"
+							key="twitter-test-btn"
+							disabled={
+								_.filter(values.twitter, v => v == "").length ||
+								twitterTestResults == "loading"
+							}
+							onClick={() => this.twitterTest(values.twitter)}
+						>
+							Test
+						</button>,
+						this.renderTwitterTestResults()
+					];
+
+					if (isAuthorising) {
+						elements.push(
+							<NewWindow
+								key="twitter-auth-window"
+								url={"/api/oauth/twitter/authorise"}
+								onUnload={async () => {
+									//Get accounts, with secret
+									const { twitter } = await getAuthorisedAccounts(true);
+
+									//Update Formik
+									formik.setFieldValue(
+										"twitter.access_token",
+										twitter.access_token
+									);
+									formik.setFieldValue(
+										"twitter.access_token_secret",
+										twitter.access_token_secret
+									);
+
+									//Update State
+									this.setState({
+										isAuthorising: false,
+										twitterAuthResults: twitter.screen_name
+									});
+								}}
+							/>
+						);
+					}
+
+					return elements;
+				}
 			}
 		];
+	}
+
+	async authoriseTwitter() {
+		//Disable button
+		this.setState({ isAuthorising: true });
 	}
 
 	async twitterTest(values) {
@@ -139,18 +190,27 @@ class AdminProfilePage extends Component {
 		await this.setState({ twitterTestResults });
 	}
 
+	renderTwitterAuthResults() {
+		const { twitterAuthResults } = this.state;
+
+		let result;
+		if (twitterAuthResults) {
+			result = `\u2705 Connected to @${twitterAuthResults}`;
+		}
+		return <label key="auth-result">{result}</label>;
+	}
 	renderTwitterTestResults() {
 		const { twitterTestResults } = this.state;
 
+		let result;
 		if (twitterTestResults && twitterTestResults !== "loading") {
-			let result;
 			if (twitterTestResults.authenticated) {
 				result = `\u2705 Logged in as @${twitterTestResults.user}`;
 			} else {
 				result = `\u274c ${twitterTestResults.error.message}`;
 			}
-			return <label key="result">{result}</label>;
 		}
+		return <label key="test-result">{result}</label>;
 	}
 
 	render() {
@@ -226,5 +286,6 @@ export default connect(mapStateToProps, {
 	createProfile,
 	updateProfile,
 	deleteProfile,
-	validateTwitterCredentials
+	validateTwitterCredentials,
+	getAuthorisedAccounts
 })(AdminProfilePage);
