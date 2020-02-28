@@ -101,7 +101,13 @@ class FanPotmVoting extends Component {
 					</div>
 				);
 			} else {
-				const stats = getGameStarStats(game, _player)
+				const stats = getGameStarStats(game, _player, {
+					T: 1,
+					G: 1,
+					DG: 1,
+					TA: 1,
+					TK: 25
+				})
 					.filter(s => s.key !== "FAN_POTM")
 					.filter((stat, i) => i < 3);
 
