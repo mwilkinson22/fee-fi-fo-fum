@@ -371,7 +371,7 @@ class NewsPostPage extends Component {
 	}
 
 	render() {
-		const { bucketPaths } = this.props;
+		const { bucketPaths, facebookApp } = this.props;
 		const { isLoadingList, isLoadingPost, isLoadingGame, post, redirect } = this.state;
 
 		//Redirect old slugs
@@ -390,7 +390,7 @@ class NewsPostPage extends Component {
 		}
 
 		return (
-			<FacebookProvider appId="1610338439232779">
+			<FacebookProvider appId={facebookApp}>
 				<div className={`news-post ${post.category}`}>
 					<HelmetBuilder
 						title={post.title}
@@ -407,11 +407,20 @@ class NewsPostPage extends Component {
 }
 
 function mapStateToProps({ config, games, news }) {
-	const { authUser, baseUrl, bucketPaths, site_name, social_account, ticketLink } = config;
+	const {
+		authUser,
+		baseUrl,
+		bucketPaths,
+		facebookApp,
+		site_name,
+		social_account,
+		ticketLink
+	} = config;
 	const { fullGames } = games;
 	const { fullPosts, postList, redirects } = news;
 
 	return {
+		facebookApp,
 		fullPosts,
 		fullGames,
 		postList,

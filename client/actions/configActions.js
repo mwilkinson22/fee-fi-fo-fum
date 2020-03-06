@@ -1,5 +1,12 @@
 import { GET_CORE_CONFIG, GET_SETTINGS } from "./types";
-import { localTeam, gaTracking, mongoURI, googleBucketName, ticketLink } from "../../config/keys";
+import {
+	facebookApp,
+	localTeam,
+	gaTracking,
+	mongoURI,
+	googleBucketName,
+	ticketLink
+} from "../../config/keys";
 import { toast } from "react-toastify";
 
 export const getCoreConfig = req => async dispatch => {
@@ -38,7 +45,10 @@ export const getCoreConfig = req => async dispatch => {
 		database: mongoURI.includes("test") ? "test" : "live",
 
 		//Ticket Link
-		ticketLink
+		ticketLink,
+
+		//Facebook App ID
+		facebookApp
 	};
 
 	//Add Bucket Paths

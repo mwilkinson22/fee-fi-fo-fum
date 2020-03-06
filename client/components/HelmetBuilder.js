@@ -17,7 +17,8 @@ class HelmetBuilder extends Component {
 			bucketPaths,
 			site_name,
 			site_social,
-			site_default_description
+			site_default_description,
+			facebookApp
 		} = this.props;
 
 		//Set Title
@@ -48,11 +49,12 @@ class HelmetBuilder extends Component {
 			{ name: "twitter:site", content: `@${site_social}` },
 			{
 				name: "twitter:description",
-				property: "twitter:description",
+				property: "og:description",
 				content: description || site_default_description
 			},
 			{ name: "twitter:image", property: "og:image", content: cardImage },
-			{ property: "og:url", content: url }
+			{ property: "og:url", content: url },
+			{ property: "fb:app_id", content: facebookApp }
 		];
 
 		return (
@@ -84,15 +86,7 @@ HelmetBuilder.defaultProps = {
 };
 
 function mapStateToProps({ config }) {
-	const {
-		baseUrl,
-		bucketPaths,
-		site_name,
-		site_social,
-		site_default_description,
-		initialPath
-	} = config;
-	return { baseUrl, bucketPaths, site_name, site_social, site_default_description, initialPath };
+	return config;
 }
 
 export default connect(mapStateToProps)(HelmetBuilder);

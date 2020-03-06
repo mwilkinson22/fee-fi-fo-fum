@@ -4,6 +4,7 @@ module.exports = {
 	cookieKey: process.env.COOKIE_KEY,
 	defaultSocialProfile: process.env.DEFAULT_SOCIAL_PROFILE,
 	earliestLocalGames: 2017,
+	facebookApp: process.env.FACEBOOK_APP,
 	localTeam: process.env.LOCAL_TEAM,
 	gaTracking: process.env.GA_TRACKING,
 	gc: {
