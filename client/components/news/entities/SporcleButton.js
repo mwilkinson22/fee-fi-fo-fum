@@ -1,23 +1,24 @@
 //Modules
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import TweetEmbed from "react-tweet-embed";
 
 //Megadraft
 import insertDataBlock from "megadraft/lib/insertDataBlock";
 
 //Components
 import PopUpDialog from "../../PopUpDialog";
-import TwitterIcon from "./TwitterIcon";
+import SporcleEmbed from "./SporcleEmbed";
+import SporcleIcon from "./SporcleIcon";
 
-class TwitterButton extends Component {
+class SporcleButton extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			showInput: false,
-			tweetId: "",
-			previewTweetId: null
+			sporcleId: "",
+			previewSporcleId: null,
+			height: 500
 		};
 	}
 
@@ -28,63 +29,72 @@ class TwitterButton extends Component {
 			return;
 		}
 
-		const data = { src: src, type: "tweet", display: "large" };
+		const data = { src: src, type: "sporcle", display: "large" };
 
 		this.props.onChange(insertDataBlock(this.props.editorState, data));
 	}
 
 	renderInput() {
-		const { previewTweetId, tweetId } = this.state;
+		const { height, previewSporcleId, sporcleId } = this.state;
 
 		//Get destroy callback
 		const onDestroy = () =>
-			this.setState({ showInput: false, tweetId: "", previewTweetId: null });
+			this.setState({ showInput: false, sporcleId: "", previewSporcleId: null });
 
 		//Render preview
-		let previewTweet;
-		if (previewTweetId) {
-			previewTweet = (
-				<div className="full-span">
-					<TweetEmbed id={previewTweetId} />
+		let previewQuiz;
+		if (previewSporcleId) {
+			previewQuiz = (
+				<div className="full-span sporcle-preview">
+					{<SporcleEmbed id={previewSporcleId} height={height} />}
 				</div>
 			);
 		}
 
 		return (
 			<PopUpDialog asGrid={true} onDestroy={onDestroy}>
-				<label>Tweet ID</label>
+				<label>Sporcle Quiz ID</label>
 				<input
 					type="text"
 					onChange={ev =>
-						this.setState({ tweetId: ev.target.value, previewTweetId: null })
+						this.setState({ sporcleId: ev.target.value, previewSporcleId: null })
 					}
 				/>
-				{previewTweet}
+				<label>Height (px)</label>
+				<input
+					type="number"
+					value={height}
+					onChange={ev =>
+						this.setState({ height: ev.target.value, previewSporcleId: null })
+					}
+				/>
+				{previewQuiz}
 				<div className="buttons">
 					<button type="button" onClick={onDestroy}>
 						Cancel
 					</button>
 					<button
 						type="button"
-						onClick={() => this.setState({ previewTweetId: tweetId })}
+						onClick={() => this.setState({ previewSporcleId: sporcleId })}
 					>
 						Preview
 					</button>
 					<button
 						type="button"
 						className="confirm"
-						disabled={!tweetId.length}
+						disabled={!sporcleId.length}
 						onClick={() => {
 							this.props.onChange(
 								insertDataBlock(this.props.editorState, {
-									tweetId,
-									type: "twitter"
+									sporcleId,
+									height,
+									type: "sporcle"
 								})
 							);
 							onDestroy();
 						}}
 					>
-						Add Tweet
+						Add Quiz
 					</button>
 				</div>
 			</PopUpDialog>
@@ -105,7 +115,7 @@ class TwitterButton extends Component {
 					title={this.props.title}
 				>
 					<div className="sidemenu__button__icon">
-						<TwitterIcon />
+						<SporcleIcon />
 					</div>
 				</button>
 			);
@@ -113,4 +123,4 @@ class TwitterButton extends Component {
 	}
 }
 
-export default withRouter(TwitterButton);
+export default withRouter(SporcleButton);

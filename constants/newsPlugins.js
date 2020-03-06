@@ -1,6 +1,9 @@
 import ImageBlock from "~/client/components/news/entities/ImageBlock";
 import ImageButton from "~/client/components/news/entities/ImageButton";
 
+import SporcleBlock from "~/client/components/news/entities/SporcleBlock";
+import SporcleButton from "~/client/components/news/entities/SporcleButton";
+
 import TwitterBlock from "~/client/components/news/entities/TwitterBlock";
 import TwitterButton from "~/client/components/news/entities/TwitterButton";
 
@@ -12,6 +15,12 @@ const imagePlugin = {
 	type: "image",
 	buttonComponent: ImageButton,
 	blockComponent: ImageBlock
+};
+const sporclePlugin = {
+	title: "Embed Sporcle Quiz",
+	type: "sporcle",
+	buttonComponent: SporcleButton,
+	blockComponent: SporcleBlock
 };
 const twitterPlugin = {
 	title: "Embed Tweet",
@@ -26,4 +35,4 @@ const youtubePlugin = {
 	blockComponent: YouTubeBlock
 };
 
-export default [imagePlugin, twitterPlugin, youtubePlugin];
+export default [imagePlugin, sporclePlugin, twitterPlugin, youtubePlugin];

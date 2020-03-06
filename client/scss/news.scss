@@ -8,6 +8,10 @@
 		letter-spacing: 0;
 	}
 
+	.sidemenu {
+		z-index: 200;
+	}
+
 	.paragraph {
 		margin-bottom: 20pt;
 		& + .paragraph {
@@ -33,6 +37,14 @@
 			margin: auto;
 			max-width: 100%;
 		}
+
+		&.sporcle-wrapper {
+			.sporcle-iframe {
+				width: 100%;
+				min-width: 100%;
+				min-height: 50vh;
+			}
+		}
 	}
 
 	.youtube-wrapper {
@@ -51,6 +63,10 @@
 			width: 100%;
 			height: 100%;
 		}
+	}
+
+	.sporcle-preview {
+		border: solid 1pt black;
 	}
 }
 
