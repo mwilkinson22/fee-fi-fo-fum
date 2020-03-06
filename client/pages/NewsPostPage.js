@@ -241,7 +241,7 @@ class NewsPostPage extends Component {
 					content = (
 						<div>
 							{ticketLinkElement}
-							<PregameSquadList game={game} />;
+							<PregameSquadList game={game} />
 						</div>
 					);
 				}
