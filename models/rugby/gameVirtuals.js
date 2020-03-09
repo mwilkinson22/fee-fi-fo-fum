@@ -161,7 +161,7 @@ export default gameSchema => {
 		const instance = getInstance(this);
 		if (instance && instance.sharedSquads) {
 			return _.chain(instance && instance.sharedSquads)
-				.filter(({ _team }) => _team == localTeam || _team == _opposition._id)
+				.filter(({ _team }) => _team == localTeam || _team == _opposition._id.toString())
 				.map(({ _team, sharedWith }) => [_team, sharedWith])
 				.fromPairs()
 				.value();
