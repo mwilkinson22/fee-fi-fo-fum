@@ -22,8 +22,8 @@ class GameCard extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = {};
-		const { game, localTeam, fullTeams } = nextProps;
+		const { game, localTeam, fullTeams, isLarge } = nextProps;
+		const newState = { isLarge };
 
 		//Get date
 		const gameDate = prevState.gameDate || Date.parse(new Date(game.date));
@@ -61,6 +61,7 @@ class GameCard extends Component {
 	}
 	render() {
 		const { game, hideImage } = this.props;
+		const { isLarge } = this.state;
 		const opposition = game._opposition;
 		const ground = game._ground;
 		const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMM yyyy`;
@@ -77,7 +78,7 @@ class GameCard extends Component {
 		if (!hideImage) {
 			backgroundImage = (
 				<div className="background-image-wrapper">
-					<GameHeaderImage game={game} />
+					<GameHeaderImage game={game} size={isLarge ? "large-gamecard" : "gamecard"} />
 				</div>
 			);
 		}
@@ -123,11 +124,13 @@ class GameCard extends Component {
 
 GameCard.propTypes = {
 	game: PropTypes.object.isRequired,
-	hideImage: PropTypes.bool
+	hideImage: PropTypes.bool,
+	isLarge: PropTypes.bool
 };
 
 GameCard.defaultProps = {
-	hideImage: false
+	hideImage: false,
+	isLarge: false
 };
 
 function mapStateToProps({ config, teams }) {

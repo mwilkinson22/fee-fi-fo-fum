@@ -214,15 +214,18 @@ class GameList extends Component {
 		if (!games || !filteredGames) {
 			return <LoadingPage />;
 		} else {
-			let isFirst = true;
-			const renderedGames = filteredGames.map(game => {
+			const renderedGames = filteredGames.map((game, i) => {
 				if (isAdmin) {
 					return <AdminGameCard key={game._id} game={game} />;
 				} else {
-					const includeCountdown = isFirst;
-					isFirst = false;
+					const isLarge = i === 0 || (i === filteredGames.length - 1 && i % 2);
 					return (
-						<GameCard key={game._id} game={game} includeCountdown={includeCountdown} />
+						<GameCard
+							key={game._id}
+							game={game}
+							includeCountdown={i === 0}
+							isLarge={isLarge}
+						/>
 					);
 				}
 			});
