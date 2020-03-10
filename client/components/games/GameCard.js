@@ -112,7 +112,7 @@ class GameCard extends Component {
 						</ul>
 					</div>
 					<div className="game-icons">
-						<GameLogo game={game} className="game-logo" />
+						<GameLogo game={game} className="game-logo" size="small" />
 						{broadcastLogo}
 					</div>
 				</div>

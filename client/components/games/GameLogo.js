@@ -1,36 +1,37 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 class GameLogo extends Component {
 	render() {
-		const { bucketPaths, game, useWebp } = this.props;
-		const className = this.props.className || "";
-		let image;
-		let alt;
+		const { bucketPaths, className, game, size, useWebp } = this.props;
 
 		if (game.images.logo) {
-			image = bucketPaths.root + game.images.logo;
-			alt = game.title;
-		}
+			let src = bucketPaths.root + game.images.logo;
 
-		if (image) {
+			//Determine if it's a raster
 			const isRaster =
 				["png", "jpg", "jpeg"].indexOf(
-					image
+					game.images.logo
 						.split(".")
 						.pop()
 						.toLowerCase()
 				) > -1;
 
-			const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
-			return (
-				<img
-					src={useWebp && isRaster ? webp : image}
-					webp={webp}
-					className={className}
-					alt={alt}
-				/>
-			);
+			if (isRaster) {
+				//If a size is defined, look in the corresponding folder
+				if (size) {
+					const splitSrc = src.split("/");
+					const filename = splitSrc.pop();
+					src = `${splitSrc.join("/")}/${size}/${filename}`;
+				}
+
+				//If webp is supported, change the extension
+				if (useWebp) {
+					src = src.replace(/\.[a-z]+$/, ".webp");
+				}
+			}
+			return <img src={src} className={className} alt={game.title} />;
 		} else {
 			return null;
 		}
@@ -44,5 +45,16 @@ function mapStateToProps({ config }) {
 		useWebp: webp
 	};
 }
+
+GameLogo.propTypes = {
+	className: PropTypes.string,
+	game: PropTypes.object.isRequired,
+	size: PropTypes.oneOf([null, "small"])
+};
+
+GameLogo.defaultProps = {
+	className: "",
+	size: null
+};
 
 export default connect(mapStateToProps)(GameLogo);
