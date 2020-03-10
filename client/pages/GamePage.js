@@ -483,7 +483,7 @@ class GamePage extends Component {
 						cardImage={cardImage}
 						cardType="summary_large_image"
 					/>
-					<section className="header">
+					<section className={`header ${game.hideGame ? "hidden-game" : ""}`}>
 						<GameHeaderImage game={game} className="game-header-image" />
 						<div className="game-details">
 							<div className="container">{this.generateHeaderInfoBar()}</div>

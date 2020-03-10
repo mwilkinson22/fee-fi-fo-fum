@@ -84,7 +84,9 @@ class GameCard extends Component {
 		return (
 			<Link
 				to={"/games/" + url}
-				className={`game-card card ${hideImage ? "hidden-image" : ""}`}
+				className={`game-card card ${hideImage ? "hidden-image" : ""} ${
+					game.hideGame ? "hidden-game" : ""
+				}`}
 			>
 				{backgroundImage}
 				<div

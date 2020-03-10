@@ -23,6 +23,7 @@ const gameSchema = new Schema(
 		date: { type: Date, required: true },
 		isAway: { type: Boolean, required: true },
 		slug: { type: String, unique: true, required: true },
+		hideGame: { type: Boolean, default: false },
 
 		//Pre-game fields
 		_referee: { type: Schema.Types.ObjectId, ref: "people", default: null },

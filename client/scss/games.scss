@@ -1604,3 +1604,11 @@ section.match-squads {
 		}
 	}
 }
+
+.game-card,
+.game-page .header {
+	&.hidden-game {
+		opacity: 0.6;
+		filter: grayscale(0.6);
+	}
+}

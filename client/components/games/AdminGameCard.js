@@ -43,7 +43,10 @@ class AdminGameCard extends Component {
 			}
 		}
 		return (
-			<Link to={`/admin/game/${game._id}`} className="game-card admin-game-card card">
+			<Link
+				to={`/admin/game/${game._id}`}
+				className={`game-card admin-game-card card ${game.hideGame ? "hidden-game" : ""}`}
+			>
 				<div
 					className="game-card-content"
 					style={{

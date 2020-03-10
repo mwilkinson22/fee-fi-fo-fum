@@ -237,7 +237,8 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	const fullGames = _.keyBy(game, "_id");
 
 	//Get Game For List
-	const list = await processList();
+	//Again, this is only called after an admin action so include hidden games
+	const list = await processList(true);
 
 	if (refreshSocialImage) {
 		updateSocialMediaCard(id);
@@ -246,8 +247,13 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	res.send({ id, fullGames, ...list });
 }
 
-async function processList() {
-	const games = await Game.find({})
+async function processList(includeHidden) {
+	await Game.updateMany({ hideGame: null }, { hideGame: false }, { multi: true });
+	const query = {};
+	if (!includeHidden) {
+		query.hideGame = { $in: [false, null] };
+	}
+	const games = await Game.find(query)
 		.forList()
 		.lean();
 	const gameList = _.keyBy(games, "_id");
@@ -258,7 +264,7 @@ async function processList() {
 
 //Getters
 export async function getList(req, res) {
-	const list = await processList();
+	const list = await processList(req.user && req.user.isAdmin);
 	res.send(list);
 }
 export async function getBasicGames(req, res) {
@@ -333,7 +339,7 @@ export async function addCrawledGames(req, res) {
 		const result = await Game.bulkWrite(localBulkOperations);
 
 		//Pull new games
-		const list = await processList();
+		const list = await processList(req.user && req.user.isAdmin);
 		const games = await Game.find({ _id: { $in: _.values(result.insertedIds) } }).fullGame(
 			true,
 			true
@@ -824,7 +830,8 @@ async function generateFixtureListImage(year, competitions) {
 		date: { $gte: `${year}-01-01`, $lt: `${Number(year) + 1}-01-01` },
 		_competition: {
 			$in: competitions
-		}
+		},
+		hideGame: false
 	}).fullGame();
 
 	return new FixtureListImage(games, year);

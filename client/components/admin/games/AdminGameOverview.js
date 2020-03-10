@@ -106,6 +106,7 @@ class AdminGameOverview extends Component {
 			round: Yup.number()
 				.min(1)
 				.label("Round"),
+			hideGame: Yup.bool().label("Hide Game"),
 			customTitle: Yup.string().label("Title"),
 			customHashtags: Yup.string().label("Hashtags"),
 			isAway: Yup.string()
@@ -194,6 +195,7 @@ class AdminGameOverview extends Component {
 			_competition: "",
 			_opposition: "",
 			round: "",
+			hideGame: false,
 			customTitle: "",
 			customHashtags: [],
 			isAway: "",
@@ -279,6 +281,10 @@ class AdminGameOverview extends Component {
 					{
 						name: "round",
 						type: fieldTypes.number
+					},
+					{
+						name: "hideGame",
+						type: fieldTypes.boolean
 					}
 				]
 			},
