@@ -262,7 +262,7 @@ class LeagueTable extends Component {
 						value = team.name.short;
 						break;
 					case "team-badge":
-						value = <TeamImage team={team} variant="dark" />; //In case of rowClass, we overwrite this later
+						value = <TeamImage team={team} variant="dark" size="small" />; //In case of rowClass, we overwrite this later
 						break;
 					default:
 						value =
@@ -414,7 +414,9 @@ class LeagueTable extends Component {
 				}
 				if (rowClass) {
 					const team = teamList[row.key];
-					row.data["team-badge"].content = <TeamImage team={team} variant="light" />;
+					row.data["team-badge"].content = (
+						<TeamImage team={team} variant="light" size="small" />
+					);
 					row.className += rowClass.className;
 				}
 				return row;

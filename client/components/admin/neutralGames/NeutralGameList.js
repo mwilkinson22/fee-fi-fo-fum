@@ -88,6 +88,7 @@ class NeutralGameList extends Component {
 													<TeamImage
 														team={teamList[game[key]]}
 														variant="dark"
+														size="medium"
 													/>
 													<span className="team-name">
 														{teamList[game[key]].name.short}
@@ -143,7 +144,4 @@ function mapStateToProps({ competitions, teams }) {
 	return { competitionSegmentList, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ updateNeutralGames }
-)(NeutralGameList);
+export default connect(mapStateToProps, { updateNeutralGames })(NeutralGameList);

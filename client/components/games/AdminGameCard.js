@@ -54,7 +54,7 @@ class AdminGameCard extends Component {
 						color: opposition.colours.text
 					}}
 				>
-					<TeamImage team={opposition} />
+					<TeamImage team={opposition} size="medium" />
 					<div className="game-details-wrapper">
 						<div className="game-details">
 							<h4>

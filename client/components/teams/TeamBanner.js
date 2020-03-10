@@ -27,7 +27,7 @@ export default class TeamBanner extends Component {
 				</div>
 				<div className="container">
 					<h4>
-						<TeamImage team={team} />
+						<TeamImage team={team} size="medium" />
 						<span className="teamname">{team.name.short}</span>
 						{score != null ? <span className="score">{score}</span> : null}
 					</h4>

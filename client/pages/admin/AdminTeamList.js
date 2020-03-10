@@ -22,7 +22,7 @@ class AdminTeamList extends Component {
 								}}
 							>
 								<div className="team-image-wrapper">
-									<TeamImage team={team} />
+									<TeamImage team={team} size="medium" />
 								</div>
 								<div className="team-name">
 									<h6 style={{ color: colours.text }}>{name.short}</h6>

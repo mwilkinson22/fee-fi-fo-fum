@@ -355,6 +355,7 @@ class GamePage extends Component {
 						<TeamImage
 							team={_team == _opposition._id ? _opposition : fullTeams[localTeam]}
 							variant="dark"
+							size="medium"
 							key="image"
 						/>
 					</div>,

@@ -97,7 +97,7 @@ class GameCard extends Component {
 						borderColor: opposition.colours.trim1
 					}}
 				>
-					<TeamImage team={opposition} />
+					<TeamImage team={opposition} size="medium" />
 					<div className="game-details-wrapper">
 						<h4>
 							{this.state.scoreString || `${opposition.name.short} ${homeAwayText}`}

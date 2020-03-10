@@ -148,8 +148,8 @@ class TeamForm extends Component {
 
 		//Badges
 		const badges = {
-			[localTeam]: <TeamImage team={fullTeams[localTeam]} />,
-			[game._opposition._id]: <TeamImage team={game._opposition} />
+			[localTeam]: <TeamImage team={fullTeams[localTeam]} size="medium" />,
+			[game._opposition._id]: <TeamImage team={game._opposition} size="medium" />
 		};
 
 		//Theming
@@ -322,7 +322,7 @@ class TeamForm extends Component {
 
 				const innerContent = [
 					<div className="badge" key="badge">
-						<TeamImage team={teamList[oppositionId]} variant="dark" />
+						<TeamImage team={teamList[oppositionId]} variant="dark" size="medium" />
 					</div>,
 					<div className="date" key="date">
 						{date.toString("dd/MM/yyyy")}
@@ -353,7 +353,7 @@ class TeamForm extends Component {
 						className="header"
 					>
 						<div>
-							<TeamImage team={team} />
+							<TeamImage team={team} size="medium" />
 						</div>
 						Last {games.length == 1 ? "game" : `${games.length} games`}
 					</div>
@@ -418,7 +418,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, neutralGames, fullTeams, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGames, fetchNeutralGames }
-)(TeamForm);
+export default connect(mapStateToProps, { fetchGames, fetchNeutralGames })(TeamForm);

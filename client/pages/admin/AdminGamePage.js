@@ -130,7 +130,7 @@ class AdminGamePage extends Component {
 					style={{ background: team.colours.main, color: team.colours.text }}
 				>
 					<span>{adjacentGame.date.toString("ddd dS MMM")}</span>
-					<TeamImage team={team} />
+					<TeamImage team={team} size="small" />
 					<span>{type == "last" ? "\u25c0" : "\u25b6"}</span>
 				</Link>
 			);

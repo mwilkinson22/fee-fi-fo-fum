@@ -1,12 +1,9 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import _ from "lodash";
-
-//Components
-import TeamImage from "../teams/TeamImage";
 
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
@@ -43,30 +40,13 @@ class GameEvents extends Component {
 	}
 
 	renderEvents(events) {
-		const { includeTeams, localTeam, fullTeams } = this.props;
+		const { localTeam, fullTeams } = this.props;
 		const { game } = this.state;
 		let teams = [fullTeams[localTeam], game._opposition];
 		if (game.isAway) {
 			teams = teams.reverse();
 		}
 		const elements = [];
-
-		//Add Badges
-		if (includeTeams) {
-			const teamImageWrapperClassName = "team-image-wrapper";
-			teams.forEach((team, i) => {
-				elements.push(
-					<div key={team._id + " image"} className={teamImageWrapperClassName}>
-						<TeamImage team={team} variant="light" />
-					</div>
-				);
-				if (i == 0) {
-					elements.push(
-						<div className={`${teamImageWrapperClassName} blank`} key="blank" />
-					);
-				}
-			});
-		}
 
 		//Add Events
 		events.forEach(({ event, stats }) => {
@@ -144,12 +124,7 @@ class GameEvents extends Component {
 }
 
 GameEvents.propTypes = {
-	game: PropTypes.object.isRequired,
-	includeTeams: PropTypes.bool
-};
-
-GameEvents.defaultProps = {
-	includeTeams: false
+	game: PropTypes.object.isRequired
 };
 
 function mapStateToProps({ config, teams }) {

@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Actions
-import { fetchGameList, fetchGames } from "../../actions/gamesActions";
+import { fetchGames } from "../../actions/gamesActions";
 
 //Helpers
 import { validateGameDate } from "../../../helpers/gameHelper";
@@ -313,7 +313,7 @@ class PlayerStatSection extends Component {
 				first: {
 					content: (
 						<Link to={`/games/${slug}`} className="fixture-box">
-							<TeamImage team={_opposition} variant="dark" />
+							<TeamImage team={_opposition} variant="dark" size="small" />
 							<div className="date mobile">{new Date(date).toString("dS MMM")}</div>
 							<div className="date desktop">
 								{new Date(date).toString("ddd dS MMMM")}
@@ -372,7 +372,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { teamTypes, gameList, fullGames, localTeam };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGames }
-)(PlayerStatSection);
+export default connect(mapStateToProps, { fetchGames })(PlayerStatSection);

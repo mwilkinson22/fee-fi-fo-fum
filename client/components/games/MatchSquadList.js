@@ -128,7 +128,7 @@ class MatchSquadList extends Component {
 		} else if (team._id != localTeam) {
 			image = (
 				<div className="image" key={_id}>
-					<TeamImage team={team} />
+					<TeamImage team={team} size="medium" />
 				</div>
 			);
 		} else {

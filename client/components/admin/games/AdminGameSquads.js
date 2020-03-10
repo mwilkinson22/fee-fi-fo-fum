@@ -82,7 +82,7 @@ class AdminGameSquads extends Component {
 
 		const content = teams.map(team => (
 			<div className="form-card" key={team}>
-				<TeamImage team={teamList[team]} variant="light" />
+				<TeamImage team={teamList[team]} variant="light" size="medium" />
 				<SquadSelector
 					currentSquad={this.getCurrentSquad(team)}
 					maxInterchanges={game._competition._parentCompetition.interchangeLimit}

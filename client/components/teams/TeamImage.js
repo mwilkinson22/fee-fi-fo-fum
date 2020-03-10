@@ -1,24 +1,39 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 class TeamImage extends Component {
 	render() {
-		const { bucketPaths, team, useWebp, className, variant } = this.props;
+		const { bucketPaths, team, useWebp, className, size, variant } = this.props;
 		const { name, images } = team;
-		const image = images[variant] || images.main;
+		let src = images[variant] || images.main;
 
+		//Determine if it's a raster
 		const isRaster =
 			["png", "jpg", "jpeg"].indexOf(
-				image
+				src
 					.split(".")
 					.pop()
 					.toLowerCase()
 			) > -1;
-		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
+
+		if (isRaster) {
+			//If a size is defined, look in the corresponding folder
+			if (size) {
+				const splitSrc = src.split("/");
+				const filename = splitSrc.pop();
+				src = `${splitSrc.join("/")}${size}/${filename}`;
+			}
+
+			//If webp is supported, change the extension
+			if (useWebp) {
+				src = src.replace(/\.[a-z]+$/, ".webp");
+			}
+		}
 		return (
 			<img
-				src={`${bucketPaths.images.teams}${useWebp && isRaster ? webp : image}`}
-				className={`team-image ${className || ""}`}
+				src={`${bucketPaths.images.teams}${src}`}
+				className={`team-image ${className}`}
 				alt={name.long}
 				title={name.long}
 				key={team._id + new Date().getTime()}
@@ -34,5 +49,16 @@ function mapStateToProps({ config }) {
 		useWebp: webp
 	};
 }
+
+TeamImage.propTypes = {
+	className: PropTypes.string,
+	team: PropTypes.object.isRequired,
+	size: PropTypes.oneOf([null, "medium", "small"])
+};
+
+TeamImage.defaultProps = {
+	className: "",
+	size: null
+};
 
 export default connect(mapStateToProps)(TeamImage);
