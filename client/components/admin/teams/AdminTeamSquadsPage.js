@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import Select from "react-select";
@@ -71,6 +70,7 @@ class AdminTeamSquadsPage extends Component {
 				<Select
 					styles={selectStyling}
 					options={options}
+					isSearchable={false}
 					onChange={({ value }) => {
 						if (value !== match.params.squad) {
 							history.push(`/admin/teams/${team._id}/squads/${value}`);
