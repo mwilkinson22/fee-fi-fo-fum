@@ -46,7 +46,15 @@ class FileUploader extends Component {
 	}
 
 	async onSubmit() {
-		const { path, isImage, convertImageToWebP, uploadFile, onComplete, onDestroy } = this.props;
+		const {
+			path,
+			isImage,
+			convertImageToWebP,
+			uploadFile,
+			resize,
+			onComplete,
+			onDestroy
+		} = this.props;
 		const { currentFile } = this.state;
 		const res = await fetch(currentFile.preview);
 		const blob = await res.blob();
@@ -57,6 +65,7 @@ class FileUploader extends Component {
 		await formData.append("name", `${currentFile.name}.${currentFile.ext}`);
 		await formData.append("isImage", isImage);
 		await formData.append("convertImageToWebP", convertImageToWebP);
+		await formData.append("resize", JSON.stringify(resize));
 
 		const { name } = await uploadFile(formData);
 		await onComplete(name);
@@ -202,7 +211,8 @@ FileUploader.propTypes = {
 	isImage: PropTypes.bool,
 	path: PropTypes.string.isRequired,
 	onComplete: PropTypes.func.isRequired,
-	onDestroy: PropTypes.func.isRequired
+	onDestroy: PropTypes.func.isRequired,
+	resize: PropTypes.object
 };
 
 FileUploader.defaultProps = {
@@ -211,10 +221,8 @@ FileUploader.defaultProps = {
 	fileNames: [],
 	isImage: false,
 	nameOptions: [],
-	initialPreviewSrc: null
+	initialPreviewSrc: null,
+	resize: {}
 };
 
-export default connect(
-	null,
-	{ uploadFile }
-)(FileUploader);
+export default connect(null, { uploadFile })(FileUploader);

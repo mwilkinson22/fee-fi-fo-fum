@@ -32,7 +32,14 @@ export async function getFiles(req, res) {
 
 //Upload File
 export async function uploadFile(req, res) {
-	const { path, name, isImage, convertImageToWebP, fileSizeLimit } = req.body;
+	const { path, name, fileSizeLimit } = req.body;
+
+	//Convert string properties to necessary types
+	const isImage = req.body.isImage === "true";
+	const convertImageToWebP = req.body.convertImageToWebP === "true";
+	let resize = JSON.parse(req.body.resize);
+
+	//Ensure we're within the limit
 	if (fileSizeLimit && req.file.size / 1024 / 1024 > fileSizeLimit) {
 		res.status(413).send(`Image must be less than ${fileSizeLimit}mb`);
 	} else {
@@ -41,8 +48,40 @@ export async function uploadFile(req, res) {
 
 		//Upload
 		let result;
-		if (isImage === "true") {
-			result = await uploadImageToGoogle(req.file, path, convertImageToWebP === "true");
+		if (isImage) {
+			//Check Resize Variable, only allow for png & jpeg
+			const extension = name
+				.split(".")
+				.pop()
+				.toLowerCase();
+
+			const isJpgOrPng = ["jpg", "jpeg", "png"].indexOf(extension) === -1;
+			if (!resize || !isJpgOrPng) {
+				resize = {};
+			}
+			const { defaultSize, ...alternateSizes } = resize;
+
+			//Upload using the defaultSize, and hold these values
+			//in the result variable
+			result = await uploadImageToGoogle(
+				req.file,
+				path,
+				convertImageToWebP,
+				null,
+				defaultSize
+			);
+
+			//Upload alternate sizes.
+			//No need to return these values
+			for (const size in alternateSizes) {
+				await uploadImageToGoogle(
+					req.file,
+					`${path}${size}/`,
+					convertImageToWebP,
+					null,
+					alternateSizes[size]
+				);
+			}
 		} else {
 			result = await uploadToGoogle(req.file, path);
 		}

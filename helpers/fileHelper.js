@@ -27,11 +27,18 @@ export async function uploadToGoogle({ originalname, buffer, mimeType }, path = 
 	};
 }
 
-export async function uploadImageToGoogle(file, path, webPConvert = true, nameOverride = null) {
+export async function uploadImageToGoogle(
+	file,
+	path,
+	webPConvert = true,
+	nameOverride = null,
+	resize = null
+) {
 	let fileName;
 	const fileNameArray = file.originalname.split(".");
 	const extension = fileNameArray.pop().toLowerCase();
 
+	//Update the name if necessary
 	if (nameOverride) {
 		fileName = nameOverride;
 		file.originalname = `${fileName}.${extension}`;
@@ -39,25 +46,38 @@ export async function uploadImageToGoogle(file, path, webPConvert = true, nameOv
 		fileName = fileNameArray.join(".");
 	}
 
+	//Get a sharp object
+	let image = sharp(file.buffer);
+
+	//Resize if necessary
+	if (resize) {
+		const resizeOptions = {
+			withoutEnlargement: true,
+			...resize
+		};
+		image = image.resize(resizeOptions);
+	}
+
+	//Convert to file type
 	switch (extension) {
 		case "jpg":
 		case "jpeg":
 			file.mimeType = "image/jpeg";
-			file.buffer = await sharp(file.buffer)
-				.jpeg()
-				.toBuffer();
+			image = image.jpeg();
 			break;
 		case "png":
 			file.mimeType = "image/png";
-			file.buffer = await sharp(file.buffer)
-				.png()
-				.toBuffer();
+			image = image.png();
 			break;
 		case "svg":
 			file.mimeType = "image/svg+xml";
 			webPConvert = false;
 			break;
 	}
+
+	//Convert to buffer
+	file.buffer = await image.toBuffer();
+
 	const uploadedImage = await uploadToGoogle(file, path);
 
 	if (webPConvert) {

@@ -35,7 +35,7 @@ class ImageField extends Component {
 
 	renderImageUploader() {
 		const { value, showImageUploader } = this.state;
-		const { path, onChange, acceptSVG, convertToWebP, defaultUploadName } = this.props;
+		const { path, onChange, acceptSVG, convertToWebP, resize, defaultUploadName } = this.props;
 		if (showImageUploader) {
 			const accept = ["jpg", "jpeg", "gif", "png"];
 			if (acceptSVG) {
@@ -51,6 +51,7 @@ class ImageField extends Component {
 					onDestroy={() => this.setState({ showImageUploader: false })}
 					convertImageToWebP={convertToWebP}
 					defaultName={defaultUploadName}
+					resize={resize}
 				/>
 			);
 		}
@@ -106,12 +107,16 @@ ImageField.propTypes = {
 	defaultUploadName: PropTypes.string,
 	value: PropTypes.string.isRequired,
 	path: PropTypes.string.isRequired,
-	onChange: PropTypes.func.isRequired
+	onChange: PropTypes.func.isRequired,
+	//An object, in which the key relates to the subfolder,
+	//and the value is a series of options for sharp.resize()
+	resize: PropTypes.object
 };
 
 ImageField.defaultProps = {
 	acceptSVG: true,
-	convertToWebP: true
+	convertToWebP: true,
+	resize: {}
 };
 
 function mapStateToProps({ config }) {
