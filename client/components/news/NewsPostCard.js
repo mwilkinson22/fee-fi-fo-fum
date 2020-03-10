@@ -1,9 +1,15 @@
+//Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import _ from "lodash";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import newsCategories from "../../../constants/newsCategories";
+
+//Constants
+import newsCategories from "~/constants/newsCategories";
+
+//Helpers
+import { getHeaderImage } from "~/helpers/newsHelper";
 
 class NewsPostCard extends Component {
 	getTitle() {
@@ -17,18 +23,18 @@ class NewsPostCard extends Component {
 
 	generateContent() {
 		const { bucketPaths, post, inArticle, webp } = this.props;
-		const category = _.keyBy(newsCategories, "slug")[post.category];
-		const categoryElement = inArticle ? (
-			<Link to={`/news/category/${category.slug}`}>{category.name}</Link>
-		) : (
-			category.name
-		);
-		let { image } = post;
-		if (image && webp) {
-			const imageArr = image.split(".");
-			imageArr.pop();
-			image = imageArr.join(".") + ".webp";
+
+		//Get Category
+		const category = newsCategories.find(c => c.slug == post.category);
+
+		//Link to category search when not in article
+		let categoryElement;
+		if (inArticle) {
+			categoryElement = <Link to={`/news/category/${category.slug}`}>{category.name}</Link>;
+		} else {
+			categoryElement = category.name;
 		}
+
 		//This doesn't govern visibility, only the classname,
 		//which changes the colour to indicate admin-viewable-only posts
 		const isPublished = post.isPublished && post.dateCreated < new Date();
@@ -37,9 +43,12 @@ class NewsPostCard extends Component {
 			<div
 				className={`post-preview ${isPublished ? "" : "unpublished"}`}
 				style={{
-					backgroundImage: image
-						? `url('${bucketPaths.images.newsHeader}${image}')`
-						: null
+					backgroundImage: `url('${getHeaderImage(
+						post,
+						bucketPaths,
+						webp,
+						inArticle ? null : "card"
+					)}')`
 				}}
 			>
 				<div className="post-meta">

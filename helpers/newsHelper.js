@@ -13,3 +13,31 @@ export function fixDates(posts) {
 		return post;
 	});
 }
+
+export function getHeaderImage(post, bucketPaths, useWebp, size = null) {
+	let src = post.image;
+
+	const isRaster =
+		["png", "jpg", "jpeg"].indexOf(
+			src
+				.split(".")
+				.pop()
+				.toLowerCase()
+		) > -1;
+
+	if (isRaster) {
+		//If a size is defined, look in the corresponding folder
+		if (size) {
+			const splitSrc = src.split("/");
+			const filename = splitSrc.pop();
+			src = `${splitSrc.join("/")}${size}/${filename}`;
+		}
+
+		//If webp is supported, change the extension
+		if (useWebp) {
+			src = src.replace(/\.[a-z]+$/, ".webp");
+		}
+	}
+
+	return bucketPaths.images.newsHeader + src;
+}
