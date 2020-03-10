@@ -125,23 +125,30 @@ app.get("*", async (req, res) => {
 		req.session.save();
 	}
 
-	//Get Basic Config
-	await store.dispatch(getCoreConfig(req));
-	await store.dispatch(setDefaultProfile(keys.defaultSocialProfile));
-	await store.dispatch(fetchCurrentUser());
-	await store.dispatch(fetchCurrentAwards(req.ipAddress));
+	await Promise.all([
+		//Get Basic Config
+		store.dispatch(getCoreConfig(req)),
+		//Set default social profile
+		store.dispatch(setDefaultProfile(keys.defaultSocialProfile)),
+		//Get Current User
+		store.dispatch(fetchCurrentUser()),
+		//Get Current Awards
+		store.dispatch(fetchCurrentAwards(req.ipAddress)),
+		//Fetch all team types
+		store.dispatch(fetchAllTeamTypes()),
+		//Fetch all teams
+		store.dispatch(fetchTeamList()),
+		//Fetch local team
+		store.dispatch(fetchTeam(keys.localTeam))
+	]);
 
-	//Team Types
-	await store.dispatch(fetchAllTeamTypes());
+	//Set active team type
 	const activeTeamType = _.chain(store.getState().teams.teamTypes)
 		.sortBy("sortOrder")
 		.value()[0]._id;
 	await store.dispatch(setActiveTeamType(activeTeamType));
 
-	//Get teams
-	await store.dispatch(fetchTeamList());
-	await store.dispatch(fetchTeam(keys.localTeam));
-
+	//Wait on page-specific promises
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
 			const promise = route.loadData ? route.loadData(store, req.path) : null;
