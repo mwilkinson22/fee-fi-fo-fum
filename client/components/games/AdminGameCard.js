@@ -31,10 +31,16 @@ class AdminGameCard extends Component {
 		const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMM yyyy`;
 		const date = new Date(game.date).toString(dateFormat);
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
+
+		//Create Status Dots
 		const statusDots = [];
 		for (let i = 0; i < 3; i++) {
 			const backgroundColor = i >= game.status ? "red" : "green";
-			statusDots.push(<div style={{ backgroundColor }} key={i} />);
+
+			//Conditionally show pregame squad dot
+			if (i > 0 || game._competition.instance.usesPregameSquads) {
+				statusDots.push(<div style={{ backgroundColor }} key={i} />);
+			}
 		}
 		return (
 			<Link to={`/admin/game/${game._id}`} className="game-card admin-game-card card">
