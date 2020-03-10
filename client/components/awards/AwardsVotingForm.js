@@ -99,6 +99,7 @@ class AwardsVotingForm extends Component {
 					person={player}
 					useWebp={true}
 					variant="player"
+					size="medium"
 					className="player-image"
 				/>
 			</div>
@@ -329,7 +330,4 @@ function mapStateToProps({ awards, games, people }) {
 	return { currentAwards, fullPeople, fullGames, gameList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ submitVotes }
-)(AwardsVotingForm);
+export default connect(mapStateToProps, { submitVotes })(AwardsVotingForm);

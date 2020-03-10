@@ -134,7 +134,7 @@ class MatchSquadList extends Component {
 		} else {
 			image = (
 				<div className="image" key={_id}>
-					<PersonImage person={_player} variant="player" />
+					<PersonImage person={_player} variant="player" size="small" />
 				</div>
 			);
 		}

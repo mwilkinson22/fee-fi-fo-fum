@@ -127,7 +127,7 @@ class ManOfSteelPoints extends Component {
 		if (playerForImage) {
 			playerImage = (
 				<Link to={`/players/${playerForImage.slug}`}>
-					<PersonImage person={playerForImage} />
+					<PersonImage person={playerForImage} size="medium" />
 				</Link>
 			);
 		}

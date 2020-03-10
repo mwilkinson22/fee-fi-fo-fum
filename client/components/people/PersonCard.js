@@ -88,7 +88,7 @@ export default class PersonCard extends Component {
 						{this.additionalData}
 					</div>
 					<div className="person-image-wrapper">
-						<PersonImage person={person} variant={this.personType} />
+						<PersonImage person={person} variant={this.personType} size="medium" />
 					</div>
 				</div>
 			</Link>

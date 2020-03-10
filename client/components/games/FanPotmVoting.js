@@ -135,7 +135,7 @@ class FanPotmVoting extends Component {
 					}}
 				>
 					<div className="image">
-						<PersonImage person={_player} variant="player" />
+						<PersonImage person={_player} variant="player" size="medium" />
 					</div>
 					<div className="details">
 						<h6>
