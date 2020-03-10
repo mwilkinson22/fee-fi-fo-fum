@@ -221,7 +221,8 @@ class AdminNewsPostOverview extends Component {
 				name: "image",
 				type: fieldTypes.image,
 				path: "images/news/headers/",
-				acceptSVG: false
+				acceptSVG: false,
+				resize: { card: { width: 400 } }
 			},
 			{ name: "title", type: fieldTypes.text },
 			{ name: "subtitle", type: fieldTypes.text },

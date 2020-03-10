@@ -105,7 +105,7 @@ class AdminTeamOverview extends Component {
 	}
 
 	getInitialValues() {
-		const { isNew, team, groundOptions } = this.state;
+		const { isNew, team } = this.state;
 
 		const defaultValues = {
 			name: {
@@ -218,7 +218,11 @@ class AdminTeamOverview extends Component {
 			type: fieldTypes.image,
 			path: "images/teams/",
 			acceptSVG: true,
-			defaultUploadName: team ? team.slug : null
+			defaultUploadName: team ? team.slug : null,
+			resize: {
+				medium: { width: 80 },
+				small: { height: 30 }
+			}
 		};
 
 		return [
@@ -319,8 +323,7 @@ function mapStateToProps({ grounds, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchAllGrounds, updateTeam, createTeam, deleteTeam }
-	)(AdminTeamOverview)
+	connect(mapStateToProps, { fetchAllGrounds, updateTeam, createTeam, deleteTeam })(
+		AdminTeamOverview
+	)
 );

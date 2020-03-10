@@ -166,7 +166,8 @@ class AdminCompetitionInstanceOverview extends Component {
 						name: "image",
 						type: fieldTypes.image,
 						path: "images/competitions/",
-						acceptSVG: true
+						acceptSVG: true,
+						resize: { small: { height: 65 } }
 					}
 				]
 			}

@@ -61,7 +61,10 @@ class AdminGameImages extends Component {
 						name: "header",
 						type: fieldTypes.image,
 						path: "images/games/header/",
-						defaultUploadName: game.slug
+						defaultUploadName: game.slug,
+						resize: {
+							gamecard: { height: 400 }
+						}
 					},
 					{
 						name: "midpage",
@@ -74,7 +77,8 @@ class AdminGameImages extends Component {
 						type: fieldTypes.image,
 						path: "images/games/logo/",
 						acceptSVG: true,
-						defaultUploadName: game.slug
+						defaultUploadName: game.slug,
+						resize: { small: { height: 65 } }
 					}
 				]
 			}

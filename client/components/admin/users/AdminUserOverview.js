@@ -134,7 +134,8 @@ class AdminUserOverview extends Component {
 						name: "image",
 						type: fieldTypes.image,
 						acceptSVG: false,
-						path: "images/users/"
+						path: "images/users/",
+						resize: { small: { width: 50, height: 50, fit: "outside" } }
 					}
 				]
 			},

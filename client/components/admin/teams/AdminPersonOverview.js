@@ -251,12 +251,22 @@ class AdminPersonOverview extends Component {
 			},
 			{
 				label: "Images",
-				fields: ["main", "player", "coach", "midpage"].map(type => ({
-					name: `images.${type}`,
-					type: fieldTypes.image,
-					path: `images/people/${type === "midpage" ? "midpage" : "full"}/`,
-					acceptSVG: false
-				}))
+				fields: ["main", "player", "coach", "midpage"].map(type => {
+					let resize = {};
+					if (type !== "midpage") {
+						resize = {
+							medium: { width: 200 },
+							small: { width: 100 }
+						};
+					}
+					return {
+						name: `images.${type}`,
+						type: fieldTypes.image,
+						path: `images/people/${type === "midpage" ? "midpage" : "full"}/`,
+						acceptSVG: false,
+						resize
+					};
+				})
 			}
 		];
 	}

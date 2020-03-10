@@ -97,7 +97,7 @@ class AdminGroundPage extends Component {
 	}
 
 	getInitialValues() {
-		const { ground, isNew, cityOptions } = this.state;
+		const { ground, isNew } = this.state;
 
 		//First we declare the defaults, for new items or those without certain fields
 		const defaultValues = {
@@ -175,7 +175,10 @@ class AdminGroundPage extends Component {
 						type: fieldTypes.image,
 						path: "images/grounds/",
 						acceptSVG: true,
-						defaultUploadName: ground ? ground.slug : null
+						defaultUploadName: ground ? ground.slug : null,
+						resize: {
+							gamecard: { height: 400 }
+						}
 					}
 				]
 			}
@@ -246,8 +249,11 @@ function mapStateToProps({ grounds, locations }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchAllGrounds, fetchCities, createGround, updateGround, deleteGround }
-	)(AdminGroundPage)
+	connect(mapStateToProps, {
+		fetchAllGrounds,
+		fetchCities,
+		createGround,
+		updateGround,
+		deleteGround
+	})(AdminGroundPage)
 );

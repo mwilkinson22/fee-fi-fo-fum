@@ -47,6 +47,7 @@ class ImageButton extends Component {
 				convertImageToWebP={true}
 				defaultName={`${slug}-${new Date().getTime()}`}
 				isImage={true}
+				resize={{ defaultSize: { width: 760 } }}
 				path="images/news/inline/"
 				onComplete={name =>
 					this.props.onChange(
