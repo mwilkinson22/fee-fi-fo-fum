@@ -177,7 +177,8 @@ class AdminGroundPage extends Component {
 						acceptSVG: true,
 						defaultUploadName: ground ? ground.slug : null,
 						resize: {
-							gamecard: { height: 400 }
+							gamecard: { height: 300, width: 620, fit: "cover" },
+							"large-gamecard": { height: 400, width: 1200, fit: "cover" }
 						}
 					}
 				]
