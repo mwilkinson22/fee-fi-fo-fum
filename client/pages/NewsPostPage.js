@@ -316,7 +316,7 @@ class NewsPostPage extends Component {
 						<div className="post-body-header">
 							<div className="post-author">
 								<div className="author-image">
-									<AuthorImage author={author} />
+									<AuthorImage author={author} size="small" />
 								</div>
 								{authorDetails}
 							</div>
