@@ -833,3 +833,117 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 		})
 		.filter(_.identity);
 }
+
+export function getHomePageGames(gameList, teamTypes, competitionSegmentList) {
+	//Get First Team TeamType
+	const firstTeam = _.sortBy(teamTypes, "sortOrder")[0]._id;
+
+	const leagueTableDetails = _.chain(gameList)
+		//Filter by teamType
+		.filter(g => g._teamType == firstTeam)
+		//Get games in reverse order
+		.orderBy("date", "desc")
+		//Map to unique competition and year list
+		.map(({ _competition, date }) => ({
+			_competition,
+			year: date.getFullYear()
+		}))
+		.uniqBy(({ _competition, year }) => `${_competition}${year}`)
+		//Filter to league competitions
+		.filter(({ _competition }) => competitionSegmentList[_competition].type === "League")
+		.value()
+		.shift();
+
+	//Split games into first team fixtures and results
+	const now = new Date();
+	const games = _.chain(gameList)
+		//First Team Games Only
+		.filter(game => game._teamType === firstTeam)
+		//Split into two arrays, results and fixtures
+		.groupBy(({ date }) => (date > now ? "results" : "fixtures"))
+		.value();
+
+	//Create empty array to store required games
+	const gamesForCards = [];
+
+	//Add last game
+	if (games.fixtures && games.fixtures.length) {
+		gamesForCards.push(_.maxBy(games.fixtures, "date")._id);
+	}
+
+	//Add next game
+	if (games.results && games.results.length) {
+		const nextGame = _.minBy(games.results, "date");
+		gamesForCards.push(nextGame._id);
+
+		//Add next home game
+		if (nextGame.isAway) {
+			const nextHomeGame = _.minBy(
+				games.results.filter(g => !g.isAway),
+				"date"
+			);
+			if (nextHomeGame) {
+				gamesForCards(nextHomeGame._id);
+			}
+		}
+	}
+
+	//Get all required games for the League Table
+	//Pass in an empty array for neutralGames, as these can be handled
+	//by the child component with relative ease
+	const gamesForTable = getLeagueTableGames(
+		leagueTableDetails._competition,
+		competitionSegmentList,
+		leagueTableDetails.year,
+		gameList,
+		[]
+	).local;
+
+	return { gamesForTable, gamesForCards, leagueTableDetails };
+}
+
+export function getLeagueTableGames(
+	competition,
+	competitionSegmentList,
+	year,
+	gameList,
+	neutralGames,
+	fromDate = null,
+	toDate = null
+) {
+	const games = {
+		local: [],
+		neutral: []
+	};
+	let competitionSegment;
+	while (competition) {
+		competitionSegment = competitionSegmentList[competition];
+		const l = _.chain(gameList)
+			.filter(
+				game =>
+					game._competition === competitionSegment._id &&
+					validateGameDate(game, "results", year)
+			)
+			.filter(({ date }) => (fromDate ? date >= fromDate : true))
+			.filter(({ date }) => (toDate ? date <= toDate : true))
+			.map(game => game._id)
+			.value();
+
+		const n = _.chain(neutralGames)
+			.filter(
+				game =>
+					game._competition === competitionSegment._id &&
+					validateGameDate(game, "results", year)
+			)
+			.filter(({ date }) => (fromDate ? date >= fromDate : true))
+			.filter(({ date }) => (toDate ? date <= toDate : true))
+			.filter(({ homePoints, awayPoints }) => homePoints != null && awayPoints != null)
+			.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints", "date"]))
+			.value();
+
+		games.local.push(...l);
+		games.neutral.push(...n);
+		competition = competitionSegment._pointsCarriedFrom;
+	}
+	return games;
+}

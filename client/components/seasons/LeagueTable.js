@@ -17,7 +17,7 @@ import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 import { fetchTeamList } from "~/client/actions/teamsActions";
 
 //Helpers
-import { validateGameDate } from "~/helpers/gameHelper";
+import { getLeagueTableGames } from "~/helpers/gameHelper";
 
 class LeagueTable extends Component {
 	constructor(props) {
@@ -123,7 +123,7 @@ class LeagueTable extends Component {
 
 		if (loadGames) {
 			//Set segment as variable, to enable for point inheritance
-			const games = LeagueTable.getGames(
+			const games = getLeagueTableGames(
 				competition,
 				competitionSegmentList,
 				year,
@@ -186,52 +186,6 @@ class LeagueTable extends Component {
 		}
 
 		return newState;
-	}
-
-	static getGames(
-		competition,
-		competitionSegmentList,
-		year,
-		gameList,
-		neutralGames,
-		fromDate = null,
-		toDate = null
-	) {
-		const games = {
-			local: [],
-			neutral: []
-		};
-		let competitionSegment;
-		while (competition) {
-			competitionSegment = competitionSegmentList[competition];
-			const l = _.chain(gameList)
-				.filter(
-					game =>
-						game._competition === competitionSegment._id &&
-						validateGameDate(game, "results", year)
-				)
-				.filter(({ date }) => (fromDate ? date >= fromDate : true))
-				.filter(({ date }) => (toDate ? date <= toDate : true))
-				.map(game => game._id)
-				.value();
-
-			const n = _.chain(neutralGames)
-				.filter(
-					game =>
-						game._competition === competitionSegment._id &&
-						validateGameDate(game, "results", year)
-				)
-				.filter(({ date }) => (fromDate ? date >= fromDate : true))
-				.filter(({ date }) => (toDate ? date <= toDate : true))
-				.filter(({ homePoints, awayPoints }) => homePoints != null && awayPoints != null)
-				.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints", "date"]))
-				.value();
-
-			games.local.push(...l);
-			games.neutral.push(...n);
-			competition = competitionSegment._pointsCarriedFrom;
-		}
-		return games;
 	}
 
 	gameIsMagicWeekend(game) {

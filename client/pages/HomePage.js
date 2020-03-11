@@ -15,6 +15,9 @@ import { fetchGameList, fetchGames } from "../actions/gamesActions";
 import { fetchNeutralGames } from "../actions/neutralGamesActions";
 import { fetchCompetitionSegments } from "../actions/competitionActions";
 
+//Helpers
+import { getHomePageGames } from "~/helpers/gameHelper";
+
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
@@ -70,96 +73,30 @@ class HomePage extends Component {
 				.shift();
 		}
 
-		//Get First Team TeamType
-		const firstTeam = _.sortBy(teamTypes, "sortOrder")[0]._id;
+		//Get all required games
+		const { gamesForTable, gamesForCards, leagueTableDetails } = getHomePageGames(
+			gameList,
+			teamTypes,
+			competitionSegmentList
+		);
 
-		//Get league table data
-		let { leagueTableDetails } = prevState;
-		if (!leagueTableDetails) {
-			leagueTableDetails = _.chain(gameList)
-				//Filter by teamType
-				.filter(g => g._teamType == firstTeam)
-				//Get games in reverse order
-				.orderBy("date", "desc")
-				//Map to unique competition and year list
-				.map(({ _competition, date }) => ({
-					_competition,
-					year: date.getFullYear()
-				}))
-				.uniqBy(({ _competition, year }) => `${_competition}${year}`)
-				//Filter to league competitions
-				.filter(
-					({ _competition }) => competitionSegmentList[_competition].type === "League"
-				)
-				.value()
-				.shift();
-			newState.leagueTableDetails = leagueTableDetails;
-		}
+		//Set League Table Details
+		newState.leagueTableDetails = leagueTableDetails;
 
-		//Work out required games
-		//While we can technically load the LeagueTable games within the child
-		//component, doing so here allows us to prevent duplication
-		if (!prevState.gamesForCards) {
-			//Split games into first team fixtures and results
-			const now = new Date();
-			const games = _.chain(gameList)
-				//First Team Games Only
-				.filter(game => game._teamType === firstTeam)
-				//Split into two arrays, results and fixtures
-				.groupBy(({ date }) => (date > now ? "results" : "fixtures"))
-				.value();
+		//Work out which required games still need to be loaded
+		const gamesToLoad = _.uniq([...gamesForCards, ...gamesForTable]).filter(
+			id => !fullGames[id]
+		);
 
-			//Create empty array to store required games
-			const gamesForCards = [];
-
-			//Add last game
-			if (games.fixtures && games.fixtures.length) {
-				gamesForCards.push(_.maxBy(games.fixtures, "date")._id);
-			}
-
-			//Add next game
-			if (games.results && games.results.length) {
-				const nextGame = _.minBy(games.results, "date");
-				gamesForCards.push(nextGame._id);
-
-				//Add next home game
-				if (nextGame.isAway) {
-					const nextHomeGame = _.minBy(
-						games.results.filter(g => !g.isAway),
-						"date"
-					);
-					if (nextHomeGame) {
-						gamesForCards(nextHomeGame._id);
-					}
-				}
-			}
-
-			//Get all required games for the League Table
-			//Pass in an empty array for neutralGames, as these can be handled
-			//by the child component with relative ease
-			const gamesForTable = LeagueTable.getGames(
-				leagueTableDetails._competition,
-				competitionSegmentList,
-				leagueTableDetails.year,
-				gameList,
-				[]
-			).local;
-
-			//Work out which required games still need to be loaded
-			const gamesToLoad = _.uniq([...gamesForCards, ...gamesForTable]).filter(
-				id => !fullGames[id]
-			);
-
-			if (gamesToLoad.length === 0) {
-				//If we have no more games to load, then we assign the game objects
-				//to newState
-				newState.isLoadingGames = false;
-				newState.gamesForCards = gamesForCards.map(id => fullGames[id]);
-			} else if (!prevState.isLoadingGames) {
-				//Otherwise, if we're not already loading, we do so here
-				fetchGames(gamesToLoad);
-				newState.isLoadingGames = true;
-			}
+		if (gamesToLoad.length === 0) {
+			//If we have no more games to load, then we assign the game objects
+			//to newState
+			newState.isLoadingGames = false;
+			newState.gamesForCards = gamesForCards.map(id => fullGames[id]);
+		} else if (!prevState.isLoadingGames) {
+			//Otherwise, if we're not already loading, we do so here
+			fetchGames(gamesToLoad);
+			newState.isLoadingGames = true;
 		}
 
 		return newState;
@@ -243,10 +180,26 @@ class HomePage extends Component {
 }
 
 async function loadData(store) {
-	return Promise.all([
+	//Get required data
+	await Promise.all([
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchCompetitionSegments()),
 		store.dispatch(fetchGameList())
+	]);
+
+	//Get Games To Load
+	const { gameList } = store.getState().games;
+	const { teamTypes } = store.getState().teams;
+	const { competitionSegmentList } = store.getState().competitions;
+	const { gamesForCards, gamesForTable, leagueTableDetails } = getHomePageGames(
+		gameList,
+		teamTypes,
+		competitionSegmentList
+	);
+
+	return Promise.all([
+		store.dispatch(fetchGames(_.uniq([...gamesForCards, ...gamesForTable]))),
+		store.dispatch(fetchNeutralGames(leagueTableDetails.year))
 	]);
 }
 
