@@ -83,7 +83,7 @@ class AdminTeamSelectorPlayers extends Component {
 		newState.valuesHaveChanged = added.length + removed.length > 0;
 
 		//Get Team
-		if (!fullTeams[team] && !prevState.isLoadingTeam) {
+		if ((!fullTeams[team] || !fullTeams[team].fullData) && !prevState.isLoadingTeam) {
 			fetchTeam(team);
 			newState.isLoadingTeam = true;
 		}

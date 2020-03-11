@@ -42,13 +42,15 @@ async function validateTeamTypeSlug(slug, res, id = null) {
 	}
 }
 
-async function getUpdatedTeam(_id, res) {
+async function getUpdatedTeam(_id, res, fullData) {
 	//To be called after post/put methods
-	const fullTeam = await Team.findById([_id]).fullTeam();
+	let fullTeam = await Team.findById([_id]).fullTeam(fullData);
+	fullTeam = JSON.parse(JSON.stringify(fullTeam));
+
 	const forList = await Team.findById([_id]).forList();
 	res.send({
 		fullTeams: {
-			[_id]: fullTeam
+			[_id]: { ...fullTeam, fullData }
 		},
 		teamList: {
 			[_id]: forList
@@ -66,7 +68,7 @@ export async function createTeam(req, res) {
 	//Handle Plain Text Fields
 	const team = new Team(req.body);
 	await team.save();
-	await getUpdatedTeam(team._id, res);
+	await getUpdatedTeam(team._id, res, true);
 }
 
 export async function updateTeam(req, res) {
@@ -75,7 +77,7 @@ export async function updateTeam(req, res) {
 	if (team) {
 		//Handle Plain Text Fields
 		await Team.updateOne({ _id }, req.body);
-		await getUpdatedTeam(_id, res);
+		await getUpdatedTeam(_id, res, true);
 	}
 }
 
@@ -145,11 +147,19 @@ export async function getList(req, res) {
 	res.send({ teamList });
 }
 
-export async function getTeam(req, res) {
+export async function getBasicTeam(req, res) {
+	await getTeam(req, res, false);
+}
+
+export async function getFullTeam(req, res) {
+	await getTeam(req, res, true);
+}
+
+async function getTeam(req, res, fullData) {
 	const { _id } = req.params;
 	const team = await validateTeam(_id, res, Team.findById(_id).fullTeam());
 	if (team) {
-		await getUpdatedTeam(_id, res);
+		await getUpdatedTeam(_id, res, fullData);
 	}
 }
 
@@ -172,7 +182,7 @@ export async function createSquad(req, res) {
 
 		team.squads.push(newSquad);
 		await team.save();
-		await getUpdatedTeam(_id, res);
+		await getUpdatedTeam(_id, res, true);
 	}
 }
 
@@ -196,7 +206,7 @@ export async function appendSquad(req, res) {
 
 			squad.players.push(...newSquadWithoutDuplicates);
 			await team.save();
-			await getUpdatedTeam(_id, res);
+			await getUpdatedTeam(_id, res, true);
 		}
 	}
 }
@@ -379,7 +389,7 @@ export async function updateSquad(req, res) {
 				}
 
 				await team.save();
-				await getUpdatedTeam(_id, res);
+				await getUpdatedTeam(_id, res, true);
 			}
 		}
 	}

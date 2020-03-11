@@ -16,6 +16,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 //Actions
 import { fetchPeople } from "~/client/actions/peopleActions";
+import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Helpers
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
@@ -26,21 +27,35 @@ class SeasonPlayerStats extends Component {
 	constructor(props) {
 		super(props);
 
-		//Get Players
-		const { localTeam, year, getPlayersByYearAndGender, teamType } = props;
-		const players = getPlayersByYearAndGender(localTeam, year, teamType);
+		const { fullTeams, localTeam, fetchTeam } = props;
+
+		//Ensure we have the squads loaded
+		if (!fullTeams[localTeam].fullData) {
+			fetchTeam(localTeam, "full");
+		}
 
 		this.state = {
 			activeFilters: {},
-			statType: "total",
-			players
+			statType: "total"
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fetchPeople, fullPeople, games, localTeam } = nextProps;
+		const { fetchPeople, fullPeople, games, localTeam, fullTeams, year, teamType } = nextProps;
 		const { filteredGames } = prevState;
-		const newState = { games };
+		const newState = { games, isLoadingTeam: false };
+
+		//Wait on full squad
+		if (!fullTeams[localTeam].fullData) {
+			newState.isLoadingTeam = true;
+			return newState;
+		}
+
+		//Get players
+		let { players } = prevState;
+		if (!players) {
+			players = newState.players = getPlayersByYearAndGender(localTeam, year, teamType);
+		}
 
 		if (filteredGames && filteredGames.length) {
 			newState.processedStats = _.chain(filteredGames)
@@ -66,7 +81,7 @@ class SeasonPlayerStats extends Component {
 			//standard team object, for when teams share squads
 			const otherTeamPlayers = newState.processedStats
 				.map(p => p._player)
-				.filter(id => !prevState.players[id]);
+				.filter(id => !players[id]);
 
 			if (otherTeamPlayers.length) {
 				//First, we check the fullPeople object
@@ -83,7 +98,7 @@ class SeasonPlayerStats extends Component {
 				//update the players object and set isLoadingPlayers to false
 				if (!playersToLoad.length) {
 					newState.players = {
-						...prevState.players
+						...players
 					};
 					otherTeamPlayers.forEach(id => {
 						newState.players[id] = { _id: id, _player: fullPeople[id] };
@@ -206,10 +221,10 @@ class SeasonPlayerStats extends Component {
 	}
 
 	render() {
-		const { games, statType, filteredGames, isLoadingPlayers } = this.state;
+		const { games, statType, filteredGames, isLoadingPlayers, isLoadingTeam } = this.state;
 
 		let content;
-		if (!filteredGames || isLoadingPlayers) {
+		if (!filteredGames || isLoadingPlayers || isLoadingTeam) {
 			content = <LoadingPage key="loading" />;
 		} else if (!filteredGames.length) {
 			content = (
@@ -271,6 +286,6 @@ function mapStateToProps({ config, people, teams }) {
 	return { localTeam, fullPeople, fullTeams };
 }
 
-export default connect(mapStateToProps, { fetchPeople, getPlayersByYearAndGender })(
+export default connect(mapStateToProps, { fetchPeople, fetchTeam, getPlayersByYearAndGender })(
 	SeasonPlayerStats
 );

@@ -14,8 +14,11 @@ export const fetchTeamList = () => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_ALL_TEAMS, payload: res.data });
 };
 
-export const fetchTeam = id => async (dispatch, getState, api) => {
-	const res = await api.get(`/team/${id}`);
+export const fetchTeam = (id, dataLevel) => async (dispatch, getState, api) => {
+	if (dataLevel !== "full") {
+		dataLevel = "basic";
+	}
+	const res = await api.get(`/team/${id}/${dataLevel}`);
 	dispatch({ type: FETCH_TEAM, payload: res.data });
 };
 

@@ -9,19 +9,34 @@ import LoadingPage from "../components/LoadingPage";
 import PersonCard from "../components/people/PersonCard";
 import HelmetBuilder from "../components/HelmetBuilder";
 
+//Actions
+import { fetchTeam } from "~/client/actions/teamsActions";
+
 //Constants
 import coachTypes from "~/constants/coachTypes";
 
 class SquadListPage extends Component {
 	constructor(props) {
 		super(props);
+		const { localTeam, fullTeams, fetchTeam } = props;
+
+		//Ensure we have coaches + squads
+		if (!fullTeams[localTeam].fullData) {
+			fetchTeam(localTeam, "full");
+		}
+
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const newState = {};
+		const newState = { isLoading: false };
 		const { localTeam, fullTeams, match, teamTypes } = nextProps;
 		const team = fullTeams[localTeam];
+
+		if (!team.fullData) {
+			newState.isLoading = true;
+			return newState;
+		}
 
 		//Get Years
 		newState.years = _.chain(team.squads)
@@ -188,9 +203,9 @@ class SquadListPage extends Component {
 	}
 
 	render() {
-		const { years } = this.state;
+		const { isLoading } = this.state;
 
-		if (!years) {
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 
@@ -216,6 +231,12 @@ function mapStateToProps({ config, teams }) {
 	return { localTeam, fullTeams, teamTypes };
 }
 
+async function loadData(store) {
+	const { localTeam } = store.getState().config;
+	return store.dispatch(fetchTeam(localTeam, "full"));
+}
+
 export default {
-	component: connect(mapStateToProps)(SquadListPage)
+	component: connect(mapStateToProps, { fetchTeam })(SquadListPage),
+	loadData
 };

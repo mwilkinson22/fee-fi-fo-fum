@@ -39,7 +39,6 @@ class HeadToHeadStats extends Component {
 			})
 			.value();
 
-		// console.log(processedStats);
 		const groupedStats = _.chain(keys)
 			.map(key => {
 				//No reason to return 'Points'

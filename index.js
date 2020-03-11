@@ -139,7 +139,7 @@ app.get("*", async (req, res) => {
 		//Fetch all teams
 		store.dispatch(fetchTeamList()),
 		//Fetch local team
-		store.dispatch(fetchTeam(keys.localTeam))
+		store.dispatch(fetchTeam(keys.localTeam, "basic"))
 	]);
 
 	//Set active team type

@@ -54,10 +54,9 @@ HeadToHeadStats.propTypes = {
 
 HeadToHeadStats.defaultProps = {};
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(HeadToHeadStats);

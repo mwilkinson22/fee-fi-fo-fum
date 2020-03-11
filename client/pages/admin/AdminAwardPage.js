@@ -131,7 +131,4 @@ function mapStateToProps({ awards }) {
 	const { awardsList } = awards;
 	return { awardsList };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchAwards }
-)(AdminAwardPage);
+export default connect(mapStateToProps, { fetchAwards })(AdminAwardPage);

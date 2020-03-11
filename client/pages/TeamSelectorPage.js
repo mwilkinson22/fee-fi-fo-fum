@@ -71,7 +71,11 @@ class TeamSelectorPage extends Component {
 
 			//Finally, ensure we have all dependencies
 			const { numberFromSquad, numberFromTeam } = newState.selector;
-			if (numberFromTeam && !fullTeams[numberFromTeam] && !prevState.isLoadingTeam) {
+			if (
+				numberFromTeam &&
+				(!fullTeams[numberFromTeam] || !fullTeams[numberFromTeam].fullData) &&
+				!prevState.isLoadingTeam
+			) {
 				//Load team for squad numbers
 				fetchTeam(numberFromTeam);
 				newState.isLoadingTeam = true;

@@ -15,15 +15,20 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 //Actions
 import { fetchGameList } from "~/client/actions/gamesActions";
+import { fetchTeam } from "~/client/actions/teamsActions";
 
 class AdminAwardCategories extends Component {
 	constructor(props) {
 		super(props);
 
-		const { gameList, fetchGameList } = props;
+		const { gameList, fetchGameList, fullTeams, localTeam, fetchTeam } = props;
 
 		if (!gameList) {
 			fetchGameList();
+		}
+
+		if (!fullTeams[localTeam].fullData) {
+			fetchTeam(localTeam, "full");
 		}
 
 		this.state = {};
@@ -40,7 +45,13 @@ class AdminAwardCategories extends Component {
 			teamList
 		} = nextProps;
 		const { _id, categoryId } = match.params;
-		const newState = { isNew: false };
+		const newState = { isLoading: false, isNew: false };
+
+		//Wait on games and local squad
+		if (!gameList || !fullTeams[localTeam].fullData) {
+			newState.isLoading = true;
+			return newState;
+		}
 
 		//Get current award
 		newState.award = awardsList[_id];
@@ -150,14 +161,18 @@ class AdminAwardCategories extends Component {
 	}
 
 	render() {
-		const { isNew, award, category, options } = this.state;
+		const { isNew, award, category, isLoading, options } = this.state;
 
+		//Await dependencies
+		if (isLoading) {
+			return <LoadingPage />;
+		}
+
+		//Only show a form if something is selected
 		let content;
 		if (category || isNew) {
-			content = options ? (
+			content = (
 				<AdminAwardCategoryForm award={award} category={category} options={options} />
-			) : (
-				<LoadingPage />
 			);
 		}
 
@@ -180,8 +195,5 @@ function mapStateToProps({ awards, config, games, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchGameList }
-	)(AdminAwardCategories)
+	connect(mapStateToProps, { fetchGameList, fetchTeam })(AdminAwardCategories)
 );

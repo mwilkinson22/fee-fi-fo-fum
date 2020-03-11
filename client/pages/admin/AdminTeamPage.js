@@ -25,9 +25,11 @@ class AdminTeamPage extends Component {
 		const { fullTeams, teamList, match, fetchTeam } = props;
 		const { _id } = match.params;
 
-		//Team exists, but full team is not yet loaded
-		if (_id && teamList[_id] && !fullTeams[_id]) {
-			fetchTeam(_id);
+		//Team exists, but full team is not yet fully loaded
+		const teamExists = _id && teamList[_id];
+		const team = fullTeams[_id];
+		if (teamExists && (!team || !team.fullData)) {
+			fetchTeam(_id, "full");
 		}
 
 		this.state = {};
@@ -50,7 +52,7 @@ class AdminTeamPage extends Component {
 			}
 
 			//Ensure full team has loaded
-			if (!fullTeams[_id]) {
+			if (!fullTeams[_id] || !fullTeams[_id].fullData) {
 				newState.isLoading = true;
 				return newState;
 			}

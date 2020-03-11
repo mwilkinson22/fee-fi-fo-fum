@@ -80,15 +80,19 @@ teamSchema.query.forList = function() {
 	return this.select("name colours images");
 };
 
-teamSchema.query.fullTeam = function() {
-	return this.populate({
-		path: "squads.players._player",
-		select:
-			"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug"
-	}).populate({
-		path: "coaches._person",
-		select: "name slug images.main images.coach gender"
-	});
+teamSchema.query.fullTeam = function(fullData) {
+	if (fullData) {
+		return this.populate({
+			path: "squads.players._player",
+			select:
+				"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug"
+		}).populate({
+			path: "coaches._person",
+			select: "name slug images.main images.coach gender"
+		});
+	} else {
+		return this.select("name nickname colours images");
+	}
 };
 
 mongoose.model("teams", teamSchema);
