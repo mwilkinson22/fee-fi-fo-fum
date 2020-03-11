@@ -93,6 +93,12 @@ const gameSchema = new Schema(
 			default: []
 		},
 		squadsAnnounced: { type: Boolean, default: false },
+		_kickers: [
+			{
+				_team: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+				_player: { type: Schema.Types.ObjectId, ref: "people", required: true }
+			}
+		],
 
 		//Man of the match
 		_potm: { type: Schema.Types.ObjectId, ref: "people", default: null },
@@ -208,7 +214,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		model = this;
 	} else {
 		//Things to remove for all non-admin loads
-		let propsToRemove = ["events", "externalId", "externalSync", "extraTime"];
+		let propsToRemove = ["events", "externalId", "externalSync", "extraTime", "_kickers"];
 
 		//Things to remove for basics
 		if (!forGamePage) {

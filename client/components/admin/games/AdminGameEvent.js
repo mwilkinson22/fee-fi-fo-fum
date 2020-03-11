@@ -237,6 +237,24 @@ class AdminGameEvent extends Component {
 				//If we've just submitted a try, auto-select conversion
 				newValues.event = "CN";
 
+				//Then try to get the kicker
+				if (game._kickers) {
+					//First, get the scoring team
+					const { _team } = game.playerStats.find(
+						({ _player }) => _player == values.player
+					);
+
+					//Then check to see if they have a designated kicker
+					const kickerEntry = game._kickers.find(k => k._team == _team);
+					if (
+						kickerEntry &&
+						kickerEntry._player &&
+						game.playerStats.find(({ _player }) => _player == kickerEntry._player)
+					) {
+						newValues.player = kickerEntry._player;
+					}
+				}
+
 				//And we set the reply tweet to the one we just posted
 				if (result.tweet_id) {
 					newValues.replyTweet = result.tweet_id;

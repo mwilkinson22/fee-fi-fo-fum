@@ -19,6 +19,7 @@ import AdminGamePregameSquads from "../../components/admin/games/AdminGamePregam
 import AdminGamePregameImage from "../../components/admin/games/AdminGamePregameImage";
 import AdminGameSquads from "../../components/admin/games/AdminGameSquads";
 import AdminGameSquadImage from "../../components/admin/games/AdminGameSquadImage";
+import AdminGameKickers from "../../components/admin/games/AdminGameKickers";
 import AdminGameEvent from "../../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../../components/admin/games/AdminGameStats";
 import AdminGamePostGame from "../../components/admin/games/AdminGamePostGame";
@@ -222,6 +223,7 @@ class AdminGamePage extends Component {
 						render={() => <AdminGameStats scoreOnly={true} />}
 					/>
 					<Route path={`${path}/event`} component={AdminGameEvent} />
+					<Route path={`${path}/kickers`} component={AdminGameKickers} />
 					<Route path={`${path}/squad-images`} component={AdminGameSquadImage} />
 					<Route path={`${path}/squads`} component={AdminGameSquads} />
 					<Route path={`${path}/pregame-image`} component={AdminGamePregameImage} />

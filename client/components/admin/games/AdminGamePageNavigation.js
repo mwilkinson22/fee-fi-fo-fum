@@ -57,6 +57,7 @@ class AdminGamePageNavigation extends Component {
 		//Add Scoring and Stat info
 		if (status >= 2) {
 			submenuItems.push(
+				{ label: "Set Kickers", value: "kickers", group: 1 },
 				{ label: "Add In-Game Event", value: "event", group: 1 },
 				{ label: "Scores", value: "scores", group: 1 }
 			);
