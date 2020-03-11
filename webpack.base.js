@@ -1,5 +1,6 @@
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const path = require("path");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 
 module.exports = {
 	module: {
@@ -74,7 +75,7 @@ module.exports = {
 			"~": path.resolve(".")
 		}
 	},
-	plugins: [new ExtractTextPlugin("styles.css")],
+	plugins: [new LodashModuleReplacementPlugin(), new ExtractTextPlugin("styles.css")],
 	performance: {
 		hints: false
 	}
