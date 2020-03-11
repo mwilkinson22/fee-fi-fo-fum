@@ -19,16 +19,6 @@ $trimColour: transparent;
 
 $twitterBlue: #549ad6;
 
-//Fonts
-@font-face {
-	font-family: "Monstro Solid";
-	src: url("#{$fonts}MonstroSolid.eot"); /* IE9 Compat Modes */
-	src: url("#{$fonts}MonstroSolid.eot?#iefix") format("embedded-opentype"),
-		/* IE6-IE8 */ url("#{$fonts}MonstroSolid.woff") format("woff"),
-		/* Pretty Modern Browsers */ url("#{$fonts}MonstroSolid.ttf") format("truetype"),
-		/* Safari, Android, iOS */ url("#{$fonts}MonstroSolid.svg#svgFontName") format("svg"); /* Legacy iOS */
-}
-
 //Media queries
 $mobile-only: "only screen and (max-width:699px)";
 $mobile-and-tablet: "only screen and (max-width: 777px)";
