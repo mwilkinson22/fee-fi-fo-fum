@@ -63,7 +63,7 @@ function mapStateToProps({ config, teams }) {
 GameHeaderImage.propTypes = {
 	className: PropTypes.string,
 	game: PropTypes.object.isRequired,
-	size: PropTypes.oneOf([null, "medium", "small"])
+	size: PropTypes.oneOf([null, "gamecard", "large-gamecard"])
 };
 
 GameHeaderImage.defaultProps = {
