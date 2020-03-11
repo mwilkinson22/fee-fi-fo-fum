@@ -55,7 +55,7 @@ export async function uploadFile(req, res) {
 				.pop()
 				.toLowerCase();
 
-			const isJpgOrPng = ["jpg", "jpeg", "png"].indexOf(extension) === -1;
+			const isJpgOrPng = ["jpg", "jpeg", "png"].indexOf(extension) > -1;
 			if (!resize || !isJpgOrPng) {
 				resize = {};
 			}
