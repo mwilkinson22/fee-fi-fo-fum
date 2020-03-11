@@ -137,6 +137,9 @@ const gameSchema = new Schema(
 			virtuals: true,
 			transform: function(doc, ret) {
 				delete ret._competition.instances;
+				if (ret.playerStats) {
+					ret.playerStats.forEach(({ stats }) => delete stats._id);
+				}
 				return ret;
 			}
 		},
@@ -204,15 +207,8 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 	if (forAdmin) {
 		model = this;
 	} else {
-		//Things to remove for gamepage
-		let propsToRemove = [
-			"events",
-			"externalId",
-			"externalSync",
-			"extraTime",
-			"fan_potm.votes.ip",
-			"fan_potm.votes.session"
-		];
+		//Things to remove for all non-admin loads
+		let propsToRemove = ["events", "externalId", "externalSync", "extraTime"];
 
 		//Things to remove for basics
 		if (!forGamePage) {
@@ -220,16 +216,21 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"_referee",
 				"_video_referee",
 				"_potm",
-				"_fan_potm",
 				"fan_potm_link",
 				"attendance",
 				"manOfSteel",
-				"fan_potm"
+				"fan_potm",
+				"playerStats._id",
+				"pregameSquads"
 			);
+		} else {
+			//We can't simply add these to the initial declaration or it will prevent
+			//the full fan_potm object being removed
+			propsToRemove.push("fan_potm.votes.ip", "fan_potm.votes.session");
 		}
 
 		//Get required fields
-		model = this.select(propsToRemove.map(p => `-${p}`).join(" "));
+		model = this.select(propsToRemove.map(p => `-${p}`).join(" ")).select({ fan_potm: false });
 	}
 
 	//Populate
