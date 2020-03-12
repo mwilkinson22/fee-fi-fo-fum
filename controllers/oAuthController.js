@@ -94,7 +94,6 @@ export async function getAuthorisedAccounts(req, res) {
 				delete req.session.oAuthAccounts[service];
 			}
 		}
-		req.session.save();
 		res.send(results);
 	}
 }
@@ -148,7 +147,6 @@ export async function callback(req, res) {
 						req.session.oAuthAccounts = {};
 					}
 					req.session.oAuthAccounts[service] = { access_token, access_token_secret };
-					req.session.save();
 				}
 
 				//Return confirmation
@@ -161,7 +159,6 @@ export async function callback(req, res) {
 export async function disconnect(req, res) {
 	const { service } = req.params;
 	delete req.session.oAuthAccounts[service];
-	req.session.save();
 
 	await getAuthorisedAccounts(req, res);
 }

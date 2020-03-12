@@ -122,7 +122,6 @@ app.get("*", async (req, res) => {
 	//Ensure there's a session id
 	if (!req.session.id) {
 		req.session.id = uuid();
-		req.session.save();
 	}
 
 	await Promise.all([
