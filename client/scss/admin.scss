@@ -431,3 +431,17 @@
 		margin-bottom: 8pt;
 	}
 }
+
+.admin-dashboard-page {
+	.card-wrapper {
+		padding: 20pt 0;
+		display: grid;
+		grid-gap: 0 20pt;
+		h2 {
+			grid-column: 1 / -1;
+		}
+		@media #{$desktop-only} {
+			grid-template-columns: repeat(auto-fit, minmax(300pt, 1fr));
+		}
+	}
+}

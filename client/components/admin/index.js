@@ -9,6 +9,8 @@ import ErrorBoundary from "../ErrorBoundary";
 import NotFoundPage from "../../pages/NotFoundPage";
 import Logout from "./Logout";
 
+import AdminDashboard from "../../pages/admin/AdminDashboard";
+
 import AdminAwardPage from "../../pages/admin/AdminAwardPage";
 import AdminAwardList from "../../pages/admin/AdminAwardList";
 
@@ -206,6 +208,7 @@ class AdminRouter extends Component {
 						<Route path="/admin/team-types/" exact component={AdminTeamTypeList} />
 
 						<Route path="/admin/logout" component={Logout} />
+						<Route path="/admin" exact component={AdminDashboard} />
 						<Route path="/admin" component={NotFoundPage} />
 					</Switch>
 				</ErrorBoundary>
