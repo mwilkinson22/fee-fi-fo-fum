@@ -436,8 +436,13 @@
 	.card-wrapper {
 		padding: 20pt 0;
 		display: grid;
-		grid-gap: 0 20pt;
+		grid-gap: 20pt;
+
+		h2 {
+			grid-column: 1 / -1;
+		}
 		.form-card {
+			margin: 0;
 			h6 {
 				margin-bottom: 4pt;
 			}

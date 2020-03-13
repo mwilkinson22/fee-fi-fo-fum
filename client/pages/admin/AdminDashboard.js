@@ -90,18 +90,30 @@ class AdminDashboard extends Component {
 		//Each function below will either render a component or null/undefined.
 		//We call them as functions rather than using <JSX />
 		//so we can more easily access the null data
-		const content = [
-			AdminDashboardTeamsWithoutGrounds({ teams: teamsWithoutGrounds }),
-			AdminDashboardNeutralGames({ neutralGames, teamTypes }),
-			AdminDashboardPlayerDetails({ team, firstTeam }),
-			AdminDashboardBirthdays({ team })
-		];
+		const componentGroups = {
+			"Immediate Action Required": [
+				AdminDashboardTeamsWithoutGrounds({ teams: teamsWithoutGrounds }),
+				AdminDashboardNeutralGames({ neutralGames, teamTypes })
+			],
+			"Action Required": [AdminDashboardPlayerDetails({ team, firstTeam })],
+			"No Action Required": [AdminDashboardBirthdays({ team })]
+		};
+
+		const content = _.map(componentGroups, (allComponents, label) => {
+			const components = allComponents.filter(_.identity);
+			if (components.length) {
+				return (
+					<div className="card-wrapper" key={label}>
+						<h2>{label}</h2>
+						{components}
+					</div>
+				);
+			}
+		}).filter(_.identity);
 
 		return (
 			<section className="admin-dashboard-page">
-				<div className="container">
-					<div className="card-wrapper">{content.filter(_.identity)}</div>
-				</div>
+				<div className="container">{content}</div>
 			</section>
 		);
 	}
