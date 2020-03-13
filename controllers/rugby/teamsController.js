@@ -163,6 +163,11 @@ async function getTeam(req, res, fullData) {
 	}
 }
 
+export async function getTeamsWithoutGrounds(req, res) {
+	const teams = await Team.find({ _defaultGround: null }, "name _id").lean();
+	res.send(teams);
+}
+
 /* ----------------------------------------------------------------
  *
  * Squad Methods

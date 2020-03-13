@@ -22,6 +22,11 @@ export const fetchTeam = (id, dataLevel) => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_TEAM, payload: res.data });
 };
 
+export const fetchTeamsWithoutGrounds = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/teams/withoutGrounds/`);
+	return res.data;
+};
+
 export const setActiveTeamType = _id => async dispatch => {
 	dispatch({ type: SET_ACTIVE_TEAM_TYPE, payload: _id });
 };
