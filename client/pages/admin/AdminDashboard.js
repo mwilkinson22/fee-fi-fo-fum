@@ -7,33 +7,43 @@ import { connect } from "react-redux";
 import LoadingPage from "../../components/LoadingPage";
 
 //Cards
-import AdminDashboardBirthdays from "../../components/admin/dashboard/AdminDashboardBirthdays";
+import AdminDashboardNeutralGames from "../../components/admin/dashboard/AdminDashboardNeutralGames";
 import AdminDashboardPlayerDetails from "../../components/admin/dashboard/AdminDashboardPlayerDetails";
+import AdminDashboardBirthdays from "../../components/admin/dashboard/AdminDashboardBirthdays";
 
 //Actions
+import { fetchNeutralGames } from "~/client/actions/neutralGamesActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 class AdminDashboard extends Component {
 	constructor(props) {
 		super(props);
 
-		const { fullTeams, localTeam, fetchTeam } = props;
+		const { fullTeams, localTeam, fetchTeam, neutralGames, fetchNeutralGames } = props;
 
 		//Ensure we have the full team
 		if (!fullTeams[localTeam].fullData) {
 			fetchTeam(localTeam, "full");
 		}
 
+		//Ensure we have current neutralGames
+		const thisYear = new Date().getFullYear();
+		if (!neutralGames || !neutralGames[thisYear]) {
+			fetchNeutralGames(2021);
+			fetchNeutralGames(thisYear);
+		}
+
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullTeams, localTeam, teamTypes } = nextProps;
+		const { fullTeams, localTeam, teamTypes, neutralGames } = nextProps;
 
 		const newState = { isLoading: false };
 
 		//Await dependencies
-		if (!fullTeams[localTeam].fullData) {
+		const thisYear = new Date().getFullYear();
+		if (!fullTeams[localTeam].fullData || !neutralGames || !neutralGames[thisYear]) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -48,6 +58,7 @@ class AdminDashboard extends Component {
 	}
 
 	render() {
+		const { neutralGames, teamTypes } = this.props;
 		const { firstTeam, isLoading, team } = this.state;
 
 		//Await dependencies
@@ -60,6 +71,7 @@ class AdminDashboard extends Component {
 		//We call them as functions rather than using <JSX />
 		//so we can more easily access the null data
 		const content = [
+			AdminDashboardNeutralGames({ neutralGames, teamTypes }),
 			AdminDashboardPlayerDetails({ team, firstTeam }),
 			AdminDashboardBirthdays({ team })
 		].filter(_.identity);
@@ -74,10 +86,11 @@ class AdminDashboard extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
+	const { neutralGames } = games;
 	const { fullTeams, teamTypes } = teams;
-	return { fullTeams, localTeam, teamTypes };
+	return { fullTeams, localTeam, neutralGames, teamTypes };
 }
 
-export default connect(mapStateToProps, { fetchTeam })(AdminDashboard);
+export default connect(mapStateToProps, { fetchTeam, fetchNeutralGames })(AdminDashboard);
