@@ -69,6 +69,7 @@ class NeutralGameList extends Component {
 													to={`/admin/neutralGame/${game._id}`}
 													className="button"
 													style={{ display: "block" }}
+													tabIndex="-1"
 												>
 													Edit
 												</Link>
@@ -88,7 +89,7 @@ class NeutralGameList extends Component {
 													<TeamImage
 														team={teamList[game[key]]}
 														variant="dark"
-														size="medium"
+														size="small"
 													/>
 													<span className="team-name">
 														{teamList[game[key]].name.short}
