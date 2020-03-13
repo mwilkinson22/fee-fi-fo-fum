@@ -68,7 +68,12 @@ class PersonPage extends Component {
 					const hasCoachedLocalSquad =
 						person.coachingRoles &&
 						person.coachingRoles.find(c => c._team == localTeam);
-					if (isInLocalSquad || hasCoachedLocalSquad) {
+
+					const hasPlayedForLocalTeam =
+						person.playedGames &&
+						person.playedGames.filter(g => g.forLocalTeam && !g.pregameOnly);
+
+					if (isInLocalSquad || hasCoachedLocalSquad || hasPlayedForLocalTeam) {
 						newState.person = person;
 					} else {
 						newState.person = false;

@@ -105,10 +105,6 @@ class SeasonPlayerStats extends Component {
 					});
 					newState.isLoadingPlayers = false;
 				}
-
-				if (!prevState.isLoadingPlayers) {
-					newState.isLoadingPlayers = true;
-				}
 			}
 		}
 		return newState;
