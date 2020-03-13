@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import LoadingPage from "../../components/LoadingPage";
 
 //Cards
+import AdminDashboardBirthdays from "../../components/admin/dashboard/AdminDashboardBirthdays";
 import AdminDashboardPlayerDetails from "../../components/admin/dashboard/AdminDashboardPlayerDetails";
 
 //Actions
@@ -58,9 +59,10 @@ class AdminDashboard extends Component {
 		//Each component below will either render a component or undefined.
 		//We call them as functions rather than using <JSX />
 		//so we can more easily access the null data
-		const content = [AdminDashboardPlayerDetails({ team, firstTeam })]
-			.filter(_.identity)
-			.map((elem, key) => ({ ...elem, key }));
+		const content = [
+			AdminDashboardPlayerDetails({ team, firstTeam }),
+			AdminDashboardBirthdays({ team })
+		].filter(_.identity);
 
 		return (
 			<section className="admin-dashboard-page">

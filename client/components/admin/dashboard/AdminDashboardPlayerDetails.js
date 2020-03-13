@@ -71,7 +71,7 @@ function AdminDashboardPlayerDetails({ team, firstTeam }) {
 				</li>
 			));
 			return (
-				<div className="form-card">
+				<div className="form-card" key="player-details">
 					<h6>Player Details</h6>
 					<p>The following players are missing important information:</p>
 					<ul>{list}</ul>

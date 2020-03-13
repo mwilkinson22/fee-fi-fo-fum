@@ -437,8 +437,14 @@
 		padding: 20pt 0;
 		display: grid;
 		grid-gap: 0 20pt;
-		h2 {
-			grid-column: 1 / -1;
+		.form-card {
+			h6 {
+				margin-bottom: 4pt;
+			}
+			a {
+				display: block;
+				margin-top: 4pt;
+			}
 		}
 		@media #{$desktop-only} {
 			grid-template-columns: repeat(auto-fit, minmax(300pt, 1fr));
