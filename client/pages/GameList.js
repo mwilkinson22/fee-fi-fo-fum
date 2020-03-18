@@ -224,7 +224,7 @@ class GameList extends Component {
 							key={game._id}
 							game={game}
 							includeCountdown={i === 0}
-							isLarge={isLarge}
+							isLarge={Boolean(isLarge)}
 						/>
 					);
 				}
