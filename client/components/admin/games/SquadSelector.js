@@ -19,6 +19,9 @@ class SquadSelector extends Component {
 
 		const { currentSquad, players, team } = props;
 
+		//Create ref for card wrapper
+		this.cardWrapper = React.createRef();
+
 		//Get default styling
 		const { colours } = team;
 		const cardStyling = {
@@ -50,7 +53,8 @@ class SquadSelector extends Component {
 			cardStyling,
 			followWithAGap,
 			players,
-			positionsByNumber
+			positionsByNumber,
+			nameFilter: ""
 		};
 	}
 
@@ -137,6 +141,12 @@ class SquadSelector extends Component {
 			//the destination key as 'true'
 			this.setNextActivePosition({ ...formik.values, [destination]: true });
 		}
+
+		//Clear out the name filter
+		this.setState({ nameFilter: "" });
+
+		//Scroll card wrapper to top
+		this.cardWrapper.current.scrollTop = 0;
 	}
 
 	renderSelectedPlayers(formik) {
@@ -237,7 +247,8 @@ class SquadSelector extends Component {
 			cardStyling,
 			interchangeFilter,
 			players,
-			positionsByNumber
+			positionsByNumber,
+			nameFilter
 		} = this.state;
 		const { values } = formik;
 
@@ -248,11 +259,19 @@ class SquadSelector extends Component {
 			const selectedPlayers = _.filter(values, _.identity);
 
 			//Use that list of IDs to get all unselected players
-			const unselectedPlayers = players.filter(({ _player }) => {
+			let unselectedPlayers = players.filter(({ _player }) => {
 				return !selectedPlayers.find(selected => {
 					return selected == _player._id;
 				});
 			});
+
+			//If we have a name filter, add that here
+			if (nameFilter.length) {
+				const processName = str => str.toLowerCase().replace(/[^a-z]/gi, "");
+				unselectedPlayers = unselectedPlayers.filter(({ _player }) =>
+					processName(_player.name.full).includes(processName(nameFilter))
+				);
+			}
 
 			//Work out if there are any unselected players in this position
 			let forActivePosition = [];
@@ -288,12 +307,6 @@ class SquadSelector extends Component {
 				.map((p, i) => {
 					const { _id } = p._player;
 
-					//Get click action, if there is an active position
-					let onClick;
-					if (activePosition) {
-						onClick = () => this.assignPlayerToPosition(formik, _id, activePosition);
-					}
-
 					//Only show a gap if the player is the last in
 					//the forActivePosition list
 					const withGap =
@@ -303,7 +316,7 @@ class SquadSelector extends Component {
 						<SquadSelectorCard
 							includePositions={true}
 							key={_id}
-							onClick={onClick}
+							onClick={() => this.assignPlayerToPosition(formik, _id, activePosition)}
 							player={p}
 							style={cardStyling}
 							withGap={withGap}
@@ -355,9 +368,16 @@ class SquadSelector extends Component {
 				<h6>Available Players</h6>
 				<div className="active-position-instruction">
 					{instructionString}
+					<input
+						onChange={ev => this.setState({ nameFilter: ev.target.value })}
+						placeholder="Search"
+						value={nameFilter}
+					/>
 					{interchangeFilterDropdown}
 				</div>
-				{cards}
+				<div className="cards" ref={this.cardWrapper}>
+					{cards}
+				</div>
 				{dropdown}
 			</div>
 		);
