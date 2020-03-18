@@ -53,6 +53,7 @@ import requireHttps from "~/middlewares/requireHttps";
 import "./services/passport";
 
 //API Routes
+import adminRoutes from "./routes/adminRoutes";
 import awardRoutes from "./routes/awardRoutes";
 import broadcasterRoutes from "./routes/broadcasterRoutes";
 import errorRoutes from "./routes/errorRoutes";
@@ -97,6 +98,7 @@ app.use(passport.session());
 app.use(express.static("public"));
 
 // API Routes
+adminRoutes(app);
 awardRoutes(app);
 broadcasterRoutes(app);
 errorRoutes(app);

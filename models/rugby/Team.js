@@ -85,10 +85,10 @@ teamSchema.query.fullTeam = function(fullData) {
 		return this.populate({
 			path: "squads.players._player",
 			select:
-				"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug dateOfBirth contractedUntil _hometown"
+				"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug"
 		}).populate({
 			path: "coaches._person",
-			select: "name slug images.main images.coach gender dateOfBirth"
+			select: "name slug images.main images.coach gender"
 		});
 	} else {
 		return this.select("name nickname colours images");

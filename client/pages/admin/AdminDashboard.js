@@ -13,73 +13,46 @@ import AdminDashboardPlayerDetails from "../../components/admin/dashboard/AdminD
 import AdminDashboardBirthdays from "../../components/admin/dashboard/AdminDashboardBirthdays";
 
 //Actions
+import { fetchAdminDashboardData } from "~/client/actions/adminActions";
 import { fetchNeutralGames } from "~/client/actions/neutralGamesActions";
-import { fetchTeam, fetchTeamsWithoutGrounds } from "~/client/actions/teamsActions";
 
 class AdminDashboard extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			fullTeams,
-			localTeam,
-			fetchTeam,
-			neutralGames,
-			fetchNeutralGames,
-			fetchTeamsWithoutGrounds
-		} = props;
-
-		//Ensure we have the full team
-		if (!fullTeams[localTeam].fullData) {
-			fetchTeam(localTeam, "full");
-		}
+		const { neutralGames, fetchNeutralGames, fetchAdminDashboardData } = props;
 
 		//Ensure we have current neutralGames
 		const thisYear = new Date().getFullYear();
 		if (!neutralGames || !neutralGames[thisYear]) {
-			fetchNeutralGames(2021);
 			fetchNeutralGames(thisYear);
 		}
 
 		//Set State
-		this.state = {};
+		this.state = { extraDataLoaded: false };
 
-		//Get teams without grounds
-		fetchTeamsWithoutGrounds().then(teamsWithoutGrounds =>
-			this.setState({ teamsWithoutGrounds })
-		);
+		//Get dashboard data from server
+		fetchAdminDashboardData().then(data => this.setState({ ...data, extraDataLoaded: true }));
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { teamsWithoutGrounds } = prevState;
-		const { fullTeams, localTeam, teamTypes, neutralGames } = nextProps;
+		const { neutralGames } = nextProps;
 
 		const newState = { isLoading: false };
 
 		//Await dependencies
 		const thisYear = new Date().getFullYear();
-		if (
-			!fullTeams[localTeam].fullData ||
-			!neutralGames ||
-			!neutralGames[thisYear] ||
-			!teamsWithoutGrounds
-		) {
+		if (!neutralGames || !neutralGames[thisYear] || !prevState.extraDataLoaded) {
 			newState.isLoading = true;
 			return newState;
 		}
-
-		//Define local team
-		newState.team = fullTeams[localTeam];
-
-		//Define "First Team" team type
-		newState.firstTeam = _.sortBy(teamTypes, "sortOrder")[0];
 
 		return newState;
 	}
 
 	render() {
 		const { neutralGames, teamTypes } = this.props;
-		const { firstTeam, isLoading, team, teamsWithoutGrounds } = this.state;
+		const { birthdays, isLoading, missingPlayerDetails, teamsWithoutGrounds } = this.state;
 
 		//Await dependencies
 		if (isLoading) {
@@ -96,8 +69,8 @@ class AdminDashboard extends Component {
 				AdminDashboardTeamsWithoutGrounds({ teams: teamsWithoutGrounds }),
 				AdminDashboardNeutralGames({ neutralGames, teamTypes })
 			],
-			"Action Required": [AdminDashboardPlayerDetails({ team, firstTeam })],
-			"No Action Required": [AdminDashboardBirthdays({ team })]
+			"Action Required": [AdminDashboardPlayerDetails({ missingPlayerDetails })],
+			"No Action Required": [AdminDashboardBirthdays({ birthdays })]
 		};
 
 		const content = _.map(componentGroups, (allComponents, label) => {
@@ -120,13 +93,12 @@ class AdminDashboard extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, teams }) {
-	const { localTeam } = config;
+function mapStateToProps({ games, teams }) {
 	const { neutralGames } = games;
-	const { fullTeams, teamTypes } = teams;
-	return { fullTeams, localTeam, neutralGames, teamTypes };
+	const { teamTypes } = teams;
+	return { neutralGames, teamTypes };
 }
 
-export default connect(mapStateToProps, { fetchTeam, fetchTeamsWithoutGrounds, fetchNeutralGames })(
+export default connect(mapStateToProps, { fetchAdminDashboardData, fetchNeutralGames })(
 	AdminDashboard
 );

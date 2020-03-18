@@ -7,7 +7,6 @@ import requireAdmin from "../../middlewares/requireAdmin";
 export default app => {
 	//Getters
 	app.get("/api/teamTypes", teamsController.getTeamTypes);
-	app.get("/api/teams/withoutGrounds", teamsController.getTeamsWithoutGrounds);
 	app.get("/api/teams/", teamsController.getList);
 	app.get("/api/team/:_id/full", teamsController.getFullTeam);
 	app.get("/api/team/:_id/basic", teamsController.getBasicTeam);
