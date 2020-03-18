@@ -89,7 +89,8 @@ class AdminDashboard extends Component {
 		//Render all components.
 		//Each function below will either render a component or null/undefined.
 		//We call them as functions rather than using <JSX />
-		//so we can more easily access the null data
+		//so we can more easily check for null/undefined and not show
+		//headers for empty sections
 		const componentGroups = {
 			"Immediate Action Required": [
 				AdminDashboardTeamsWithoutGrounds({ teams: teamsWithoutGrounds }),
