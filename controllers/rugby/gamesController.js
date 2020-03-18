@@ -71,7 +71,7 @@ async function checkFanPotmVote(req, _id) {
 	return game.fan_potm.votes.find(v => v.ip == ipAddress || v.session == session.id);
 }
 
-async function getExtraGameInfo(games, forGamePage, forAdmin) {
+export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 	//Convert to JSON and fix scoreOverride
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));

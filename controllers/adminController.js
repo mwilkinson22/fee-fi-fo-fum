@@ -1,12 +1,17 @@
 //Mongoose
 import _ from "lodash";
 import mongoose from "mongoose";
+const Game = mongoose.model("games");
 const Person = mongoose.model("people");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
 
+//Helpers
+import { getExtraGameInfo } from "./rugby/gamesController";
+
 //Constants
 import { localTeam } from "~/config/keys";
+import gameStatuses from "~/constants/adminDashboardGameStatuses";
 
 export async function getDashboardData(req, res) {
 	//Get the localTeam
@@ -21,6 +26,7 @@ export async function getDashboardData(req, res) {
 	//Create an object with all the data we need
 	const promises = {
 		birthdays: getBirthdays(localTeamObject),
+		gamesWithIssues: getGames(),
 		missingPlayerDetails: getPlayersWithMissingData(localTeamObject, firstTeam),
 		teamsWithoutGrounds: getTeamsWithoutGrounds()
 	};
@@ -160,4 +166,96 @@ async function getPlayersWithMissingData(team, firstTeam) {
 			.filter(_.identity)
 			.value()
 	);
+}
+
+async function getGames() {
+	//Work out the date where we would expect games to have pregame squads.
+	//So first, work out if we're past midday
+	const now = new Date();
+	const todayMidday = new Date().setHours(12, 0, 0);
+
+	//If we're past midday, then we should expect squads for two days time.
+	//Otherwise, we only check for tomorrow.
+	//We add an extra day onto the above values as we then set the time to midnight.
+	const pregameSquadDate = now <= todayMidday ? now.addDays(2) : now.addDays(3);
+	pregameSquadDate.setHours(0, 0, 0);
+
+	//Get games for this year, up to two weeks in advance
+	let games = await Game.find({
+		date: { $gte: `${new Date().getFullYear()}-01-01`, $lte: new Date().addWeeks(2) },
+		hideGame: false
+	})
+		.sort({ date: 1 })
+		.fullGame(true, false);
+
+	//Convert to JSON
+	//Remove all status 3 games to ease the getExtraGameInfo load
+	games = JSON.parse(JSON.stringify(games)).filter(g => g.status < 3);
+
+	//Get eligible players and additional info
+	games = await getExtraGameInfo(games, true, false);
+
+	//Filter out those with issues
+	return games
+		.map(game => {
+			const {
+				_id,
+				_competition,
+				_opposition,
+				eligiblePlayers,
+				playerStats,
+				pregameSquads,
+				squadsAnnounced
+			} = game;
+			const date = new Date(game.date);
+			const teams = [localTeam, _opposition._id];
+
+			//Check we have valid players
+			const teamsWithoutPlayers = teams.filter(
+				id => !eligiblePlayers[id] || !eligiblePlayers[id].length
+			);
+			if (teamsWithoutPlayers.length) {
+				return {
+					error: gameStatuses.ELIGIBLE,
+					teams: teamsWithoutPlayers,
+					_id
+				};
+			}
+
+			//Check for pregame squads
+			if (date < pregameSquadDate && _competition.instance.usesPregameSquads) {
+				const teamsWithoutPregameSquads = teams.filter(id => {
+					const squadEntry = pregameSquads.find(({ _team }) => _team == id);
+					return !squadEntry || !squadEntry.squad || !squadEntry.squad.length;
+				});
+
+				if (teamsWithoutPregameSquads.length) {
+					return {
+						error: gameStatuses.PREGAME,
+						teams: teamsWithoutPregameSquads,
+						_id
+					};
+				}
+			}
+
+			//Check for match squads
+			if (date < now) {
+				const teamsWithoutSquads = teams.filter(
+					id => !playerStats.find(({ _team }) => _team == id)
+				);
+				if (teamsWithoutSquads.length || !squadsAnnounced) {
+					return {
+						error: gameStatuses.SQUAD,
+						teams: teamsWithoutSquads,
+						_id
+					};
+				}
+			}
+
+			//Check for stats
+			if (date < now.addHours(-2) && game.status < 3) {
+				return { error: gameStatuses.STATS, game };
+			}
+		})
+		.filter(_.identity);
 }
