@@ -41,7 +41,17 @@ class SeasonPlayerStats extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fetchPeople, fullPeople, games, localTeam, fullTeams, year, teamType } = nextProps;
+		const {
+			fetchPeople,
+			fullPeople,
+			games,
+			localTeam,
+			fullTeams,
+			year,
+			teamType,
+			getPlayersByYearAndGender
+		} = nextProps;
+
 		const { filteredGames } = prevState;
 		const newState = { games, isLoadingTeam: false };
 
