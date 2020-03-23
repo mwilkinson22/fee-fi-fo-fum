@@ -14,7 +14,7 @@ class SporcleEmbed extends Component {
 				className="sporcle-iframe"
 				style={{ width: "1px", minWidth: "100%", height: `${height}px` }}
 				frameBorder="0"
-				src={`https://www.sporcle.com/framed/?v=8&pm&gid=fd6046375bc&fid=${id}`}
+				src={`https://www.sporcle.com/framed/?v=8&pm&gid=${id}&fid=${id}`}
 			></iframe>
 		);
 	}
