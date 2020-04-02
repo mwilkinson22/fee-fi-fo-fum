@@ -189,8 +189,7 @@ async function getGames() {
 		.fullGame(true, false);
 
 	//Convert to JSON
-	//Remove all status 3 games to ease the getExtraGameInfo load
-	games = JSON.parse(JSON.stringify(games)).filter(g => g.status < 3);
+	games = JSON.parse(JSON.stringify(games));
 
 	//Get eligible players and additional info
 	games = await getExtraGameInfo(games, true, false);
@@ -253,8 +252,22 @@ async function getGames() {
 			}
 
 			//Check for stats
-			if (date < now.addHours(-2) && game.status < 3) {
-				return { error: gameStatuses.STATS, game };
+			if (date < new Date().addHours(-2) && game.status < 3) {
+				return { error: gameStatuses.STATS, _id };
+			}
+
+			//Check for man/woman of steel
+			if (game._competition.instance.manOfSteelPoints) {
+				const nextMondayAfternoon = new Date(date)
+					.next()
+					.monday()
+					.setHours(16, 0, 0);
+
+				const pointsRequired = !game.manOfSteel || game.manOfSteel.length < 3;
+
+				if (now > nextMondayAfternoon && pointsRequired) {
+					return { error: gameStatuses.STEEL[game.gender], _id };
+				}
 			}
 		})
 		.filter(_.identity);

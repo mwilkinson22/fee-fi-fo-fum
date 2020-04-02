@@ -25,6 +25,9 @@ function AdminDashboardGames({ gameList, gamesWithIssues, teamList, teamTypes })
 				case statuses.STATS:
 					url += "stats";
 					break;
+				case statuses.STEEL.M:
+				case statuses.STEEL.F:
+					url += "post-game";
 			}
 
 			//Get Link Text
