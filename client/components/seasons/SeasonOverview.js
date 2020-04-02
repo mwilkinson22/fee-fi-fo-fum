@@ -159,6 +159,12 @@ class SeasonOverview extends Component {
 		}
 	}
 
+	renderManOfSteelTally() {
+		const { games } = this.state;
+
+		console.log(games);
+	}
+
 	render() {
 		const { games } = this.state;
 		if (!games) {
@@ -190,7 +196,4 @@ function mapStateToProps({ competitions, config }) {
 	return { competitionSegmentList, localTeam };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchCompetitionSegments }
-)(SeasonOverview);
+export default connect(mapStateToProps, { fetchCompetitionSegments })(SeasonOverview);

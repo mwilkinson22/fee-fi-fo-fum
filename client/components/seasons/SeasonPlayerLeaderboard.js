@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 //Components
-import PersonImage from "~/client/components/people/PersonImage";
+import LeaderBoard from "./Leaderboard";
 
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
@@ -13,20 +13,25 @@ import playerStatTypes from "~/constants/playerStatTypes";
 //Helpers
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 
-class PlayerLeaderboard extends Component {
+class SeasonPlayerLeaderboard extends Component {
 	//Static so we can call it externally and determine whether to render
 	//Otherwise we can't conditionally render the wrapper
 	static generateOrderedList(key, stats, statType) {
-		const { moreIsBetter } = playerStatTypes[key];
+		const { moreIsBetter, plural, singular } = playerStatTypes[key];
 		return (
 			_.chain(stats)
 				//Get Player and corresponding stat
-				.map(({ _player, stats }) => ({
-					_player,
-					value: stats[key][statType],
-					gameCount: stats[key].gameCount,
-					total: stats[key].total //Possibly the same as value, but used for tooltip
-				}))
+				.map(({ _player, stats }) => {
+					const { gameCount, total } = stats[key];
+					const title = `${total} ${total == 1 ? singular : plural} in ${gameCount} ${
+						gameCount == 1 ? "game" : "games"
+					}`;
+					return {
+						_player,
+						value: stats[key][statType],
+						title
+					};
+				})
 				//Remove null values
 				.reject(({ value }) => value == null)
 				//Remove values of 0, when moreIsBetter = true
@@ -58,7 +63,7 @@ class PlayerLeaderboard extends Component {
 		const { moreIsBetter, plural, singular } = playerStatTypes[key];
 
 		//Order the list
-		let orderedList = PlayerLeaderboard.generateOrderedList(key, stats, statType);
+		let orderedList = SeasonPlayerLeaderboard.generateOrderedList(key, stats, statType);
 
 		//Limit to everyone better than (or equal to) fifth place
 		if (orderedList.length > 5) {
@@ -120,47 +125,29 @@ class PlayerLeaderboard extends Component {
 	}
 
 	render() {
-		const { statKey, players } = this.props;
-		const { list, leader } = this.renderList(statKey);
+		const { statKey, statType, stats, players } = this.props;
 
-		const { plural } = playerStatTypes[statKey];
+		const { moreIsBetter, plural } = playerStatTypes[statKey];
 
-		let title = <h6>{plural}</h6>;
-
-		if (statKey == "TS") {
-			title = (
-				<h6 className="with-condition">
-					Tackle Rate<span>(with at least 20 per game)</span>
-				</h6>
-			);
-		}
-
-		if (list.length) {
-			const playerForImage = players[leader]._player;
-			return (
-				<div className="leaderboard">
-					<div className="leader">
-						<Link to={`/players/${playerForImage.slug}`}>
-							<PersonImage person={playerForImage} variant="player" size="medium" />
-						</Link>
-					</div>
-					<div className="list">
-						{list}
-						{title}
-					</div>
-				</div>
-			);
-		} else {
-			return null;
-		}
+		return (
+			<LeaderBoard
+				higherValueIsBetter={moreIsBetter}
+				list={SeasonPlayerLeaderboard.generateOrderedList(statKey, stats, statType)}
+				players={players}
+				placeCount={5}
+				renderValue={value => PlayerStatsHelper.toString(statKey, value)}
+				title={plural}
+				titleCondition={statKey === "TS" ? "(with at least 20 per game)" : ""}
+			/>
+		);
 	}
 }
 
-PlayerLeaderboard.propTypes = {
+SeasonPlayerLeaderboard.propTypes = {
 	statKey: PropTypes.string.isRequired,
 	players: PropTypes.object.isRequired,
 	statType: PropTypes.string.isRequired,
 	stats: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
-export default PlayerLeaderboard;
+export default SeasonPlayerLeaderboard;

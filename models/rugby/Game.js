@@ -224,7 +224,6 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"_potm",
 				"fan_potm_link",
 				"attendance",
-				"manOfSteel",
 				"fan_potm",
 				"playerStats._id",
 				"pregameSquads"

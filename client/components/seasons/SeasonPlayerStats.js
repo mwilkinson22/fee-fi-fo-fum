@@ -21,7 +21,8 @@ import { fetchTeam } from "~/client/actions/teamsActions";
 //Helpers
 import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
 import { getPlayersByYearAndGender } from "~/helpers/teamHelper";
-import PlayerLeaderboard from "~/client/components/seasons/PlayerLeaderboard";
+import Leaderboard from "~/client/components/seasons/Leaderboard";
+import SeasonPlayerLeaderboard from "~/client/components/seasons/SeasonPlayerLeaderboard";
 
 class SeasonPlayerStats extends Component {
 	constructor(props) {
@@ -140,17 +141,18 @@ class SeasonPlayerStats extends Component {
 		];
 		const groupedStats = _.groupBy(allStats, s => playerStatTypes[s].type);
 
-		return _.map(groupedStats, (stats, group) => {
+		const groupedLeaderboards = _.map(groupedStats, (stats, group) => {
 			const leaderboards = stats
 				.map(key => {
-					const list = PlayerLeaderboard.generateOrderedList(
+					const list = SeasonPlayerLeaderboard.generateOrderedList(
 						key,
 						processedStats,
 						statType
 					);
+
 					if (list.length) {
 						return (
-							<PlayerLeaderboard
+							<SeasonPlayerLeaderboard
 								key={key}
 								statKey={key}
 								players={players}
@@ -170,6 +172,46 @@ class SeasonPlayerStats extends Component {
 				);
 			}
 		});
+
+		//Man/Woman of Steel tally.
+		//Note: This doesn't respsect statType or filteredGames
+		groupedLeaderboards.push(this.renderSteelLeaderboard());
+
+		return groupedLeaderboards;
+	}
+
+	renderSteelLeaderboard() {
+		const { games, players } = this.state;
+
+		//Get all man of steel points
+		const steelPoints = _.chain(games)
+			//Get all current man of steel entries
+			.map("manOfSteel")
+			.flatten()
+			//Filter down to those who have played for the local team
+			.filter(({ _player }) => players[_player])
+			//Group by player id
+			.groupBy("_player")
+			//Pull off array of points for each player, convert to array
+			.map((pointsList, _player) => ({
+				_player,
+				value: _.sumBy(pointsList, "points")
+			}))
+			//Order descendingly
+			.orderBy("value", "desc")
+			.value();
+
+		if (steelPoints.length) {
+			const { gender } = players[steelPoints[0]._player]._player;
+			return (
+				<div className="leaderboard-wrapper" key="steel">
+					<h2>{gender === "M" ? "Man" : "Woman"} of Steel</h2>
+					<div className="leaderboards">
+						<Leaderboard list={steelPoints} players={players} />
+					</div>
+				</div>
+			);
+		}
 	}
 
 	renderStatTables() {
