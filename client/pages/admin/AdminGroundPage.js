@@ -122,16 +122,28 @@ class AdminGroundPage extends Component {
 			return defaultValues;
 		} else {
 			//If we have a ground, pull the corresponding values
-			const values = _.mapValues(defaultValues, (defaultValue, key) =>
-				ground.hasOwnProperty(key) ? ground[key] : defaultValue
-			);
+			const values = _.mapValues(defaultValues, (defaultValue, key) => {
+				let value;
+				switch (key) {
+					case "address":
+						value = _.mapValues(ground.address, (currentValue, subkey) => {
+							let addressValue;
 
-			//Convert potential null values to empty strings
-			values.address.street2 = values.address.street2 || "";
-			values.image = values.image || "";
+							if (subkey === "_city") {
+								addressValue = ground.address._city._id;
+							} else {
+								addressValue = ground.address[subkey];
+							}
 
-			//Convert City ObjectId to dropdown Option
-			values.address._city = ground.address._city._id;
+							return addressValue != null ? addressValue : defaultValue[subkey];
+						});
+						break;
+					default:
+						value = ground[key];
+				}
+
+				return value != null ? value : defaultValue;
+			});
 
 			return values;
 		}
