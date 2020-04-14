@@ -223,7 +223,6 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"_video_referee",
 				"_potm",
 				"fan_potm_link",
-				"attendance",
 				"fan_potm",
 				"playerStats._id",
 				"pregameSquads"
