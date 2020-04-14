@@ -159,12 +159,6 @@ class SeasonOverview extends Component {
 		}
 	}
 
-	renderManOfSteelTally() {
-		const { games } = this.state;
-
-		console.log(games);
-	}
-
 	render() {
 		const { games } = this.state;
 		if (!games) {
