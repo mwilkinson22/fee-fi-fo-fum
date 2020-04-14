@@ -40,7 +40,7 @@ class CalendarOptionsSelector extends Component {
 		const validationSchema = Yup.object().shape({
 			teams: Yup.string().label("Teams"),
 			teamName: Yup.string().label("Team Names"),
-			teamTypes: Yup.string().label("Team Types"),
+			displayTeamTypes: Yup.string().label("Team Types"),
 			venue: Yup.string().label("Venues"),
 			withBroadcaster: Yup.bool().label("Broadcaster")
 		});
@@ -131,21 +131,21 @@ class CalendarOptionsSelector extends Component {
 		}
 
 		//Set teamType dropdown options
-		if (!prevState.options.teamTypes) {
+		if (!prevState.options.displayTeamTypes) {
 			newState.options = prevState.options;
-			newState.options.teamTypes = [{ label: "Ignore", value: "none" }];
+			newState.options.displayTeamTypes = [{ label: "Ignore", value: "none" }];
 
 			//If we have multiple and one of them is first team, we offer an
 			//"all but first" option
 			if (includedTeamTypes.length > 1 && includedTeamTypes.find(t => t.sortOrder == 1)) {
-				newState.options.teamTypes.push({
+				newState.options.displayTeamTypes.push({
 					label: "Include (except for First Team)",
 					value: "allButFirst"
 				});
 			}
 
 			//Then we add an include all
-			newState.options.teamTypes.push({ label: "Include", value: "all" });
+			newState.options.displayTeamTypes.push({ label: "Include", value: "all" });
 		}
 
 		return newState;
@@ -155,13 +155,14 @@ class CalendarOptionsSelector extends Component {
 		const { options } = this.state;
 
 		//Get Default TeamTypes option
-		const teamTypes =
-			options.teamTypes.find(({ value }) => value == "allButFirst") || options.teamTypes[0];
+		const displayTeamTypes =
+			options.displayTeamTypes.find(({ value }) => value == "allButFirst") ||
+			options.displayTeamTypes[0];
 
 		return {
 			teams: "oppositionOnly",
 			teamName: "short",
-			teamTypes: teamTypes.value,
+			displayTeamTypes: displayTeamTypes.value,
 			venue: "none",
 			withBroadcaster: false
 		};
@@ -187,8 +188,8 @@ class CalendarOptionsSelector extends Component {
 						isSearchable: false
 					},
 					{
-						name: "teamTypes",
-						options: options.teamTypes,
+						name: "displayTeamTypes",
+						options: options.displayTeamTypes,
 						type: fieldTypes.select,
 						isSearchable: false
 					},

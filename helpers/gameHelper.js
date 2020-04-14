@@ -651,6 +651,14 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 	}
 }
 
+export const calendarStringOptions = {
+	teamName: ["short", "long"],
+	teams: ["oppositionOnly", "localVs", "homeAway"],
+	displayTeamTypes: ["all", "allButFirst", "none"],
+	venue: ["short", "long", "none"],
+	withBroadcaster: [true, false]
+};
+
 export function convertGameToCalendarString(game, options, teamTypes, localTeamName) {
 	const { _opposition, isAway, _broadcaster, _teamType } = game;
 
@@ -677,8 +685,8 @@ export function convertGameToCalendarString(game, options, teamTypes, localTeamN
 	//Add TeamType
 	const teamType = teamTypes[_teamType];
 	if (
-		options.teamTypes === "all" ||
-		(options.teamTypes === "allButFirst" && teamType.sortOrder > 1)
+		options.displayTeamTypes === "all" ||
+		(options.displayTeamTypes === "allButFirst" && teamType.sortOrder > 1)
 	) {
 		str += ` ${teamTypes[_teamType].name}`;
 	}

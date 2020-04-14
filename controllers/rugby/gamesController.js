@@ -19,7 +19,11 @@ import coachTypes from "~/constants/coachTypes";
 //Helpers
 import { getRedirects } from "../genericController";
 import { postToSocial } from "../oAuthController";
-import { parseExternalGame, convertGameToCalendarString } from "~/helpers/gameHelper";
+import {
+	parseExternalGame,
+	convertGameToCalendarString,
+	calendarStringOptions
+} from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
 //Images
@@ -1023,7 +1027,90 @@ export async function submitPostGameEvents(req, res) {
 }
 
 //Calendar
-export async function createCalendar(req, res) {
+export async function subscribeToCalendar(req, res) {
+	const query = {
+		date: { $gt: new Date() },
+		hideGame: false
+	};
+
+	//Set default options
+	const options = {
+		teams: "oppositionOnly",
+		teamName: "long",
+		teamTypes: "allButFirst",
+		venue: "short",
+		withBroadcaster: true
+	};
+
+	//Loop through req.query to find option overrides
+	for (const option in req.query) {
+		//Check for teamType flag
+		if (option === "teamTypes") {
+			//Get Team Type ids from slug
+			const teamTypes = await TeamType.find(
+				{ slug: { $in: req.query[option].split(",") } },
+				"_id"
+			).lean();
+
+			//If teamTypes are declared but none are valid, throw an error
+			if (!teamTypes || !teamTypes.length) {
+				res.status(404).send("Invalid value for parameter teamTypes");
+				return;
+			}
+
+			//Otherwise, add to query object
+			query._teamType = { $in: teamTypes.map(t => t._id) };
+		}
+
+		//Separate logic for withBroadcaster as we need to cast the string to a bool
+		else if (option === "withBroadcaster") {
+			switch (req.query[option].toLowerCase()) {
+				case "true":
+					options.withBroadcaster = true;
+					break;
+				case "false":
+					options.withBroadcaster = false;
+					break;
+				default:
+					res.status(404).send(
+						"Invalid value for parameter 'withBroadcaster'. Must be true or false"
+					);
+					return;
+			}
+		}
+
+		//Anything else needs just to be a valid option type
+		else if (calendarStringOptions[option]) {
+			//Ensure the given value is valid
+			const value = req.query[option];
+			if (calendarStringOptions[option].indexOf(value) > -1) {
+				options[option] = value;
+			} else {
+				res.status(404).send(
+					`Invalid value for parameter '${option}'. Must be one of: ${calendarStringOptions[
+						option
+					]
+						.map(o => `"${o}"`)
+						.join(", ")}`
+				);
+				return;
+			}
+		}
+	}
+
+	await createCalendarFile(query, options, req, res);
+}
+
+export async function createCustomCalendar(req, res) {
+	const { games, options } = req.body;
+	const query = {
+		_id: { $in: games }
+	};
+
+	await createCalendarFile(query, options, req, res);
+}
+
+async function createCalendarFile(query, options, req, res) {
 	//Get Team Types
 	const teamTypes = await TeamType.find({}, "name sortOrder").lean();
 
@@ -1031,11 +1118,7 @@ export async function createCalendar(req, res) {
 	const localTeamName = await Team.findById(localTeam, "name").lean();
 
 	//Get Games
-	let games = await Game.find({
-		_id: {
-			$in: req.body.games
-		}
-	}).fullGame();
+	let games = await Game.find(query).fullGame();
 	games = JSON.parse(JSON.stringify(games));
 
 	//Create Event Data
@@ -1057,7 +1140,7 @@ export async function createCalendar(req, res) {
 		return {
 			title: convertGameToCalendarString(
 				g,
-				req.body.options,
+				options,
 				_.keyBy(teamTypes, "_id"),
 				localTeamName.name
 			),
@@ -1080,7 +1163,10 @@ export async function createCalendar(req, res) {
 	if (error) {
 		res.status(500).send(error);
 	} else {
-		res.set({ "Content-Disposition": 'attachment; filename="Calendar.ics"' });
+		//Set header
+		res.set({
+			"Content-Disposition": `attachment; filename="${localTeamName.name.long} Fixture Calendar.ics"`
+		});
 		res.send(value);
 	}
 }
