@@ -1027,7 +1027,7 @@ export async function submitPostGameEvents(req, res) {
 }
 
 //Calendar
-export async function subscribeToCalendar(req, res) {
+export async function getCalendar(req, res) {
 	const query = {
 		date: { $gt: new Date() },
 		hideGame: false
@@ -1042,24 +1042,27 @@ export async function subscribeToCalendar(req, res) {
 		withBroadcaster: true
 	};
 
+	//Get Team Types
+	const teamTypes = await TeamType.find({}, "name slug sortOrder").lean();
+
 	//Loop through req.query to find option overrides
 	for (const option in req.query) {
 		//Check for teamType flag
 		if (option === "teamTypes") {
 			//Get Team Type ids from slug
-			const teamTypes = await TeamType.find(
-				{ slug: { $in: req.query[option].split(",") } },
-				"_id"
-			).lean();
+			const selectedTeamTypes = req.query[option].split(",");
+			const validTeamTypes = teamTypes.filter(({ slug }) =>
+				selectedTeamTypes.find(t => t == slug)
+			);
 
 			//If teamTypes are declared but none are valid, throw an error
-			if (!teamTypes || !teamTypes.length) {
+			if (!validTeamTypes || !validTeamTypes.length) {
 				res.status(404).send("Invalid value for parameter teamTypes");
 				return;
 			}
 
 			//Otherwise, add to query object
-			query._teamType = { $in: teamTypes.map(t => t._id) };
+			query._teamType = { $in: validTeamTypes.map(t => t._id) };
 		}
 
 		//Separate logic for withBroadcaster as we need to cast the string to a bool
@@ -1097,22 +1100,6 @@ export async function subscribeToCalendar(req, res) {
 			}
 		}
 	}
-
-	await createCalendarFile(query, options, req, res);
-}
-
-export async function createCustomCalendar(req, res) {
-	const { games, options } = req.body;
-	const query = {
-		_id: { $in: games }
-	};
-
-	await createCalendarFile(query, options, req, res);
-}
-
-async function createCalendarFile(query, options, req, res) {
-	//Get Team Types
-	const teamTypes = await TeamType.find({}, "name sortOrder").lean();
 
 	//Get Local Team Name
 	const localTeamName = await Team.findById(localTeam, "name").lean();

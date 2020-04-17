@@ -6,7 +6,7 @@ import requireAdmin from "../../middlewares/requireAdmin";
 
 export default app => {
 	//Getters
-	app.get("/calendar/", gamesController.subscribeToCalendar);
+	app.get("/calendar/", gamesController.getCalendar);
 	app.get("/api/games/admin/:ids", requireAdmin, gamesController.getGamesForAdmin);
 	app.get("/api/games/gamepage/:ids", gamesController.getGamesForGamePage);
 	app.get("/api/games/basic/:ids", gamesController.getBasicGames);
@@ -39,7 +39,6 @@ export default app => {
 
 	//Post
 	app.post("/api/games/:_game/fan-potm-vote/:_player", gamesController.saveFanPotmVote);
-	app.post("/api/games/calendar", gamesController.createCustomCalendar);
 	app.post("/api/games/crawled", gamesController.addCrawledGames);
 	app.post("/api/games/fixtureListImage/", requireAdmin, gamesController.postFixtureListImage);
 	app.post("/api/games", requireAdmin, gamesController.addGame);
