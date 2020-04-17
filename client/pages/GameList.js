@@ -15,7 +15,7 @@ import AdminGameCard from "~/client/components/games/AdminGameCard";
 import CalendarDialog from "../components/games/calendar/CalendarDialog";
 
 //Actions
-import { fetchGames, fetchGameList, getCalendar } from "../actions/gamesActions";
+import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import { setActiveTeamType } from "../actions/teamsActions";
 
 //Helpers
@@ -350,7 +350,6 @@ export default {
 	component: connect(mapStateToProps, {
 		fetchGames,
 		fetchGameList,
-		getCalendar,
 		setActiveTeamType
 	})(GameList),
 	loadData

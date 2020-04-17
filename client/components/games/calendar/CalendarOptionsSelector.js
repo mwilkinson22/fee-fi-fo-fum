@@ -10,7 +10,7 @@ import BasicForm from "../../admin/BasicForm";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { fetchGames, getCalendar } from "~/client/actions/gamesActions";
+import { fetchGames } from "~/client/actions/gamesActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -22,16 +22,29 @@ class CalendarOptionsSelector extends Component {
 	constructor(props) {
 		super(props);
 
-		const { games, fullGames, fetchGames, localTeam, teamList } = props;
+		const {
+			showAllTeamTypes,
+			selectedTeamTypes,
+			gameList,
+			fullGames,
+			fetchGames,
+			localTeam,
+			teamList
+		} = props;
+
+		const now = new Date();
+		const gamesRequired = _.chain(gameList)
+			.filter(g => g.date > now)
+			.filter(g => showAllTeamTypes || selectedTeamTypes.indexOf(g._teamType) > -1)
+			.sortBy("date")
+			.map("_id")
+			.value();
 
 		//Ensure we have all the games we need
-		const gamesToLoad = games.filter(id => !fullGames[id]);
+		const gamesToLoad = gamesRequired.filter(id => !fullGames[id]);
 		if (gamesToLoad.length) {
 			fetchGames(gamesToLoad, "basic");
 		}
-
-		//Create Ref for the hidden download link
-		this.downloadLink = React.createRef();
 
 		//Get Local Team
 		const localTeamName = teamList[localTeam].name;
@@ -67,22 +80,24 @@ class CalendarOptionsSelector extends Component {
 		];
 
 		//Set State
-		this.state = { localTeamName, options, validationSchema };
+		this.state = { gamesRequired, localTeamName, options, validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { games, fullGames, teamTypes } = nextProps;
+		const { fullGames, teamTypes } = nextProps;
+		const { gamesRequired } = prevState;
+
 		const newState = { isLoading: false };
 
 		//Await all games
-		if (games.filter(id => !fullGames[id]).length) {
+		if (gamesRequired.filter(id => !fullGames[id]).length) {
 			newState.isLoading = true;
 			return newState;
 		}
 
 		//Get Game Objects
 		const gameObjects = _.sortBy(
-			games.map(id => fullGames[id]),
+			gamesRequired.map(id => fullGames[id]),
 			"date"
 		);
 
@@ -92,7 +107,7 @@ class CalendarOptionsSelector extends Component {
 		);
 
 		//Get Example Games
-		if (!prevState.exampleGames) {
+		if (!prevState.exampleGames && gameObjects.length) {
 			//First, pick the first game from each team type
 			newState.exampleGames = _.chain(gameObjects)
 				.groupBy("_teamType")
@@ -104,7 +119,15 @@ class CalendarOptionsSelector extends Component {
 			if (!newState.exampleGames.filter(g => g._broadcaster).length) {
 				const broadcastedGame = gameObjects.find(g => g._broadcaster);
 				if (broadcastedGame) {
+					//If we find a broadcasted game, add it on
 					newState.exampleGames.push(broadcastedGame);
+				} else {
+					//If not, update the first game to have a broadcaster,
+					//just so we have something for the examples
+					newState.exampleGames[0] = {
+						...newState.exampleGames[0],
+						_broadcaster: { name: "BBC" }
+					};
 				}
 			}
 
@@ -152,27 +175,63 @@ class CalendarOptionsSelector extends Component {
 	}
 
 	getInitialValues() {
+		const { initialOptions, selectedTeamTypes, showAllTeamTypes } = this.props;
 		const { options } = this.state;
 
-		//Get Default TeamTypes option
-		const displayTeamTypes =
-			options.displayTeamTypes.find(({ value }) => value == "allButFirst") ||
-			options.displayTeamTypes[0];
+		//Get default displayTeamTypes option
+		let displayTeamTypes;
+		if (!showAllTeamTypes && selectedTeamTypes.length === 1) {
+			//If one team type is selected, we default to "hide"
+			displayTeamTypes = options.displayTeamTypes[0].value;
+		} else {
+			//Otherwise, we take the second option.
+			//Either "include" or "include all but first team"
+			displayTeamTypes = options.displayTeamTypes[1].value;
+		}
 
-		return {
+		//Set default values
+		const defaultValues = {
 			teams: "oppositionOnly",
 			teamName: "short",
-			displayTeamTypes: displayTeamTypes.value,
-			venue: "none",
-			withBroadcaster: false
+			displayTeamTypes,
+			venue: "short",
+			withBroadcaster: true
 		};
+
+		//If we have initialOptions (i.e. if we're editing),
+		//then we override the defaults here
+		if (initialOptions) {
+			for (const key in defaultValues) {
+				const initialValue = initialOptions[key];
+
+				//If (somehow) no value is found, we simply skip this key
+				if (initialValue == null) {
+					continue;
+				}
+
+				//The displayTeamType options can change based on the selected teamTypes,
+				//so we only override if initialOptions.displayTeamType is still valid
+				if (key === "displayTeamTypes") {
+					const optionInDropdown = options.displayTeamTypes.find(
+						({ value }) => value == initialValue
+					);
+					if (!optionInDropdown) {
+						continue;
+					}
+				}
+
+				//If we get to this point, we're good to override
+				defaultValues[key] = initialValue;
+			}
+		}
+
+		return defaultValues;
 	}
 
 	getFieldGroups() {
-		const { fullGames, games } = this.props;
-		const { failedDownload, options } = this.state;
+		const { options } = this.state;
 
-		const fieldGroups = [
+		return [
 			{
 				fields: [
 					{
@@ -198,59 +257,19 @@ class CalendarOptionsSelector extends Component {
 						options: options.venue,
 						type: fieldTypes.select,
 						isSearchable: false
+					},
+					{
+						name: "withBroadcaster",
+						options: options.withBroadcaster,
+						type: fieldTypes.select,
+						isSearchable: false
 					}
 				]
+			},
+			{
+				render: values => this.renderExamples(values)
 			}
 		];
-
-		//Check for broadcasters
-		if (games.map(id => fullGames[id]).filter(g => g._broadcaster).length) {
-			fieldGroups[0].fields.push({
-				name: "withBroadcaster",
-				options: options.withBroadcaster,
-				type: fieldTypes.select,
-				isSearchable: false
-			});
-		}
-
-		//Render Preview
-		fieldGroups.push({ render: values => this.renderExamples(values) });
-
-		//Render Error
-		if (failedDownload) {
-			fieldGroups.push({
-				render: () => (
-					<p className="error" key="error">
-						Error downloading, please try again
-					</p>
-				)
-			});
-		}
-
-		return fieldGroups;
-	}
-
-	async handleSubmit(options) {
-		const { games, getCalendar } = this.props;
-
-		//Remove error
-		this.setState({ failedDownload: false });
-
-		//Get Calendar Data
-		const data = await getCalendar(games, options);
-
-		if (data) {
-			//Convert to Blob
-			const file = new Blob([data], { type: "text/calendar" });
-
-			//Apply to hidden link
-			this.setState({ objectUrl: URL.createObjectURL(file) });
-
-			//"Download"
-			this.downloadLink.current.click();
-		} else {
-			this.setState({ failedDownload: true });
-		}
 	}
 
 	renderBackButton() {
@@ -264,21 +283,25 @@ class CalendarOptionsSelector extends Component {
 	renderExamples(options) {
 		const { teamTypes } = this.props;
 		const { exampleGames, localTeamName } = this.state;
-		const list = exampleGames.map(g => (
-			<li key={g._id}>{convertGameToCalendarString(g, options, teamTypes, localTeamName)}</li>
-		));
+		if (exampleGames && exampleGames.length) {
+			const list = exampleGames.map(g => (
+				<li key={g._id}>
+					{convertGameToCalendarString(g, options, teamTypes, localTeamName)}
+				</li>
+			));
 
-		return (
-			<div key="examples">
-				<h6>Examples</h6>
-				<ul>{list}</ul>
-			</div>
-		);
+			return (
+				<div key="examples">
+					<h6>Examples</h6>
+					<ul>{list}</ul>
+				</div>
+			);
+		}
 	}
 
 	render() {
-		const { localTeam, teamList } = this.props;
-		const { isLoading, objectUrl, validationSchema } = this.state;
+		const { onNext } = this.props;
+		const { isLoading, validationSchema } = this.state;
 
 		//Wait for games
 		if (isLoading) {
@@ -288,28 +311,18 @@ class CalendarOptionsSelector extends Component {
 		return (
 			<div>
 				<p>
-					And finally, use the options below to configure how your calendar entries will
+					Use the options below to configure how the titles of your calendar entries will
 					be formatted.
 				</p>
-				<p>
-					These options only affect the title of the entries. The date, time and venue
-					will be saved as well!
-				</p>
-				<a
-					download={`${teamList[localTeam].name.long} Fixtures.ics`}
-					key="downloadLink"
-					ref={this.downloadLink}
-					href={objectUrl}
-				/>
 				<BasicForm
 					fieldGroups={this.getFieldGroups()}
 					initialValues={this.getInitialValues()}
 					isInitialValid={true}
 					itemType="Calendar"
 					isNew={false}
-					onSubmit={values => this.handleSubmit(values)}
+					onSubmit={options => onNext(options)}
 					replaceResetButton={this.renderBackButton()}
-					submitButtonText="Download to Calendar"
+					submitButtonText="Next"
 					useFormCard={false}
 					validationSchema={validationSchema}
 				/>
@@ -319,8 +332,11 @@ class CalendarOptionsSelector extends Component {
 }
 
 CalendarOptionsSelector.propTypes = {
-	games: PropTypes.array,
-	onBack: PropTypes.func.isRequired
+	initialOptions: PropTypes.object,
+	selectedTeamTypes: PropTypes.arrayOf(PropTypes.string),
+	showAllTeamTypes: PropTypes.bool,
+	onBack: PropTypes.func.isRequired,
+	onNext: PropTypes.func.isRequired
 };
 
 function mapStateToProps({ config, games, teams }) {
@@ -330,4 +346,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, fullGames, gameList, teamList, teamTypes };
 }
 
-export default connect(mapStateToProps, { fetchGames, getCalendar })(CalendarOptionsSelector);
+export default connect(mapStateToProps, { fetchGames })(CalendarOptionsSelector);

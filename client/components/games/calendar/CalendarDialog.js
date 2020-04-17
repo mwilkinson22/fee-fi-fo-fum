@@ -7,12 +7,9 @@ import PropTypes from "prop-types";
 import PopUpDialog from "../../PopUpDialog";
 
 //Dialog Pages
-import CalendarCompetitionSelector from "./CalendarCompetitionSelector";
-import CalendarGameSelector from "./CalendarGameSelector";
+import CalendarTeamTypeSelector from "./CalendarTeamTypeSelector";
 import CalendarOptionsSelector from "./CalendarOptionsSelector";
-
-//Actions
-import { fetchGames, getCalendar } from "../../../actions/gamesActions";
+import CalendarOutcome from "./CalendarOutcome";
 
 class CalendarDialog extends Component {
 	constructor(props) {
@@ -22,37 +19,46 @@ class CalendarDialog extends Component {
 	}
 
 	renderContentDialog() {
-		const { competitions, editCompetitions, games, editGames } = this.state;
+		const {
+			selectedTeamTypes,
+			showAllTeamTypes,
+			editTeamTypes,
+			options,
+			editOptions
+		} = this.state;
 
 		//First, select competitions
-		if (!competitions || editCompetitions) {
+		if (!selectedTeamTypes || editTeamTypes) {
 			return (
-				<CalendarCompetitionSelector
-					initialCompetitions={competitions}
-					onNext={competitions =>
-						this.setState({ competitions, editCompetitions: false })
+				<CalendarTeamTypeSelector
+					initialTeamTypes={selectedTeamTypes}
+					initialShowAll={showAllTeamTypes}
+					onNext={(selectedTeamTypes, showAllTeamTypes) =>
+						this.setState({ selectedTeamTypes, showAllTeamTypes, editTeamTypes: false })
 					}
 				/>
 			);
 		}
 
-		//Select games
-		if (!games || editGames) {
+		//Set Options
+		if (!options || editOptions) {
 			return (
-				<CalendarGameSelector
-					competitions={competitions}
-					initialGames={games}
-					onBack={() => this.setState({ editCompetitions: true, games: null })}
-					onNext={games => this.setState({ games, editGames: false })}
+				<CalendarOptionsSelector
+					initialOptions={options}
+					selectedTeamTypes={selectedTeamTypes}
+					showAllTeamTypes={showAllTeamTypes}
+					onBack={() => this.setState({ editTeamTypes: true })}
+					onNext={options => this.setState({ options, editOptions: false })}
 				/>
 			);
 		}
 
-		//Set Options
 		return (
-			<CalendarOptionsSelector
-				games={games}
-				onBack={() => this.setState({ editGames: true })}
+			<CalendarOutcome
+				onBack={() => this.setState({ editOptions: true })}
+				options={options}
+				selectedTeamTypes={selectedTeamTypes}
+				showAllTeamTypes={showAllTeamTypes}
 			/>
 		);
 	}
@@ -62,7 +68,7 @@ class CalendarDialog extends Component {
 
 		return (
 			<PopUpDialog onDestroy={onDestroy} className="calendar-dialog">
-				<h6>Download Fixture Calendar</h6>
+				<h6>Subscribe to Fixtures</h6>
 				{this.renderContentDialog()}
 			</PopUpDialog>
 		);
@@ -80,4 +86,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, activeTeamType, fullTeams, teamTypes };
 }
 
-export default connect(mapStateToProps, { fetchGames, getCalendar })(CalendarDialog);
+export default connect(mapStateToProps)(CalendarDialog);

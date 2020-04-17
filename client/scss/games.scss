@@ -1552,13 +1552,22 @@ section.match-squads {
 		background: transparent;
 	}
 
-	ul {
+	p:not(:last-child) {
+		margin-bottom: 8pt;
+	}
+
+	ul.clickable {
 		li {
 			display: flex;
 			justify-content: flex-start;
 			padding: 6pt;
 			user-select: none;
+			cursor: pointer;
 			font-weight: 600;
+
+			&:hover {
+				background: rgba($mainColour, 0.2);
+			}
 
 			&:not(:last-child) {
 				border-bottom: solid 1pt #e4e4e4;
@@ -1569,21 +1578,11 @@ section.match-squads {
 				pointer-events: none;
 			}
 		}
-		&.clickable {
-			li {
-				cursor: pointer;
-				&:hover {
-					background: rgba($mainColour, 0.2);
-				}
-			}
-		}
 	}
 
 	.disabled {
 		opacity: 0.3;
-		* {
-			pointer-events: none;
-		}
+		pointer-events: none !important;
 	}
 
 	.scrollable {
@@ -1601,6 +1600,16 @@ section.match-squads {
 		h6 {
 			font-size: 1em;
 			margin: 4pt 0 0;
+		}
+	}
+
+	.copy-dialog {
+		button {
+			width: 100%;
+		}
+		input {
+			width: 100%;
+			font-size: 0.8em;
 		}
 	}
 }

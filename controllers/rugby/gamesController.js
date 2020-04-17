@@ -1036,7 +1036,7 @@ export async function subscribeToCalendar(req, res) {
 	//Set default options
 	const options = {
 		teams: "oppositionOnly",
-		teamName: "long",
+		teamName: "short",
 		displayTeamTypes: "allButFirst",
 		venue: "short",
 		withBroadcaster: true
