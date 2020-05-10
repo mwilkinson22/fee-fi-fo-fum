@@ -1,3 +1,27 @@
+.team-page {
+	.squad-list,
+	.out-of-contract {
+		padding-bottom: 20pt;
+	}
+	.out-of-contract {
+		.box {
+			h6,
+			.list {
+				padding: 10pt;
+			}
+			h6 {
+				background: $mainColour;
+				color: $trimColour;
+				width: 100%;
+				font-size: 1.1em;
+			}
+			.list {
+				background: white;
+			}
+		}
+	}
+}
+
 .team-banner {
 	position: relative;
 	overflow: hidden;

@@ -2,6 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 //Components
 import SubMenu from "~/client/components/SubMenu";
@@ -168,10 +169,12 @@ class SquadListPage extends Component {
 		}
 
 		return (
-			<div className="person-card-grouping">
-				{playerCards}
-				{coachCards}
-			</div>
+			<section className="squad-list">
+				<div className="person-card-grouping">
+					{playerCards}
+					{coachCards}
+				</div>
+			</section>
 		);
 	}
 
@@ -202,6 +205,46 @@ class SquadListPage extends Component {
 		return <HelmetBuilder title={title} canonical={canonical} />;
 	}
 
+	generateOutOfContract() {
+		const { squad, year } = this.state;
+
+		//Only show for current & future years
+		const thisYear = Number(new Date().getFullYear());
+		if (year >= thisYear) {
+			const outOfContractPlayers = squad.filter(
+				({ _player }) => _player.contractedUntil == year
+			);
+
+			if (outOfContractPlayers.length) {
+				const list = outOfContractPlayers.map(({ _player }, i) => {
+					const result = [
+						<Link key={_player._id} to={`/players/${_player.slug}`}>
+							{_player.name.full}
+						</Link>
+					];
+
+					//Conditionally add a comma
+					if (i < outOfContractPlayers.length - 1) {
+						result.push(<span key={`comma-${i}`}>,&nbsp;</span>);
+					}
+
+					return result;
+				});
+
+				return (
+					<section className="out-of-contract">
+						<div className="container">
+							<div className="box card">
+								<h6>Out of Contract {year}</h6>
+								<div className="list">{list}</div>
+							</div>
+						</div>
+					</section>
+				);
+			}
+		}
+	}
+
 	render() {
 		const { isLoading } = this.state;
 
@@ -220,6 +263,7 @@ class SquadListPage extends Component {
 					</div>
 				</section>
 				{this.generateSquadList()}
+				{this.generateOutOfContract()}
 			</div>
 		);
 	}
