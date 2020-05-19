@@ -57,7 +57,8 @@ class AdminFixtureListImagePage extends Component {
 				.label("Profile"),
 			tweet: Yup.string()
 				.required()
-				.label("Tweet")
+				.label("Tweet"),
+			fixturesOnly: Yup.bool().label("Fixtures Only?")
 		});
 
 		this.state = { validationSchema };
@@ -122,7 +123,8 @@ class AdminFixtureListImagePage extends Component {
 			_competitions: options.competitions[0].options
 				.filter(({ value }) => competitionSegmentList[value].type !== "Friendly")
 				.map(o => o.value),
-			_profile: defaultProfile || options.profiles[0].value
+			_profile: defaultProfile || options.profiles[0].value,
+			fixturesOnly: true
 		};
 	}
 
@@ -152,6 +154,10 @@ class AdminFixtureListImagePage extends Component {
 						options: options.competitions,
 						isMulti: true,
 						isNested: true
+					},
+					{
+						name: "fixturesOnly",
+						type: fieldTypes.boolean
 					},
 					{
 						name: "tweet",
@@ -193,7 +199,11 @@ class AdminFixtureListImagePage extends Component {
 		this.setState({ previewImage: false });
 
 		//Get the image
-		const image = await previewFixtureListImage(year, values._competitions.join(","));
+		const image = await previewFixtureListImage(
+			year,
+			values._competitions.join(","),
+			values.fixturesOnly
+		);
 		this.setState({ previewImage: image });
 	}
 

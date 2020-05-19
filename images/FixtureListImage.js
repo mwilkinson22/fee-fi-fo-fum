@@ -24,8 +24,16 @@ export default class FixtureListImage extends Canvas {
 
 		//Use box positioning to sort height
 		const maxGamesPerColumn = Math.ceil(games.length / 2);
-		const cHeight =
+		let cHeight =
 			maxGamesPerColumn * (positions.boxHeight + positions.boxYMargin) + positions.boxYMargin;
+
+		//Enable min height
+		const minHeight = cWidth * 0.3;
+		positions.gameYOffset = 0;
+		if (cHeight < minHeight) {
+			positions.gameYOffset = (minHeight - cHeight) / 2;
+			cHeight = minHeight;
+		}
 
 		//Logo Positioning
 		positions.logoWidth = cWidth * 0.1;
@@ -151,11 +159,11 @@ export default class FixtureListImage extends Canvas {
 		const { ctx, cWidth, games, images, textStyles } = this;
 
 		//Get Positions
-		const { boxHeight, boxWidth, boxXMargin, boxYMargin } = this.positions;
+		const { boxHeight, boxWidth, boxXMargin, boxYMargin, gameYOffset } = this.positions;
 
 		//Starting values
 		let x = boxXMargin;
-		let y = boxYMargin;
+		let y = boxYMargin + gameYOffset;
 		let badgeX = 0;
 		const badgePadding = cWidth * 0.01;
 
@@ -207,7 +215,7 @@ export default class FixtureListImage extends Canvas {
 				//Move to the right column
 				x = (cWidth / 3) * 2 + boxXMargin;
 				badgeX = (cWidth / 3) * 2;
-				y = boxYMargin;
+				y = boxYMargin + gameYOffset;
 				if (games.length % 2) {
 					y += boxHeight / 2;
 				}
@@ -398,6 +406,10 @@ export default class FixtureListImage extends Canvas {
 		let bodyRows;
 
 		const easterGames = games.filter(g => g.date > friday && g.date < tuesday);
+		if (easterGames.length === 0) {
+			return false;
+		}
+
 		if (easterGames.length === 1) {
 			const game = easterGames[0];
 			switch (game.date.getDay()) {

@@ -829,32 +829,56 @@ export async function fetchEventImage(req, res) {
 	}
 }
 
-async function generateFixtureListImage(year, competitions) {
+async function generateFixtureListImage(year, competitions, fixturesOnly) {
+	let fromDate;
+
+	if (fixturesOnly) {
+		fromDate = new Date().toString("yyyy-MM-dd");
+	} else {
+		fromDate = `${year}-01-01`;
+	}
+
 	const games = await Game.find({
-		date: { $gte: `${year}-01-01`, $lt: `${Number(year) + 1}-01-01` },
+		date: { $gte: fromDate, $lt: `${Number(year) + 1}-01-01` },
 		_competition: {
 			$in: competitions
 		},
 		hideGame: false
 	}).fullGame();
 
-	return new FixtureListImage(games, year);
+	if (games.length) {
+		return new FixtureListImage(games, year);
+	} else {
+		return false;
+	}
 }
 
 export async function fetchFixtureListImage(req, res) {
 	const { year, competitions } = req.params;
+	const fixturesOnly = req.query.fixturesOnly === "true";
 
-	const imageClass = await generateFixtureListImage(year, competitions.split(","));
-	const image = await imageClass.render(false);
-	res.send(image);
+	const imageClass = await generateFixtureListImage(year, competitions.split(","), fixturesOnly);
+
+	if (imageClass) {
+		const image = await imageClass.render(false);
+		res.send(image);
+	} else {
+		res.status(400).send("No valid games found");
+	}
 }
 
 export async function postFixtureListImage(req, res) {
-	const { year, _competitions, _profile, tweet } = req.body;
+	const { year, _competitions, _profile, tweet, fixturesOnly } = req.body;
 	const twitterClient = await twitter(_profile);
 
 	//Render Image
-	const imageClass = await generateFixtureListImage(year, _competitions);
+	const imageClass = await generateFixtureListImage(year, _competitions, fixturesOnly);
+
+	if (!imageClass) {
+		res.status(400).send("No valid games found");
+		return;
+	}
+
 	const image = await imageClass.render(true);
 
 	//Upload image
