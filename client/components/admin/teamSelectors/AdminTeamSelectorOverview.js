@@ -54,9 +54,9 @@ class AdminTeamSelectorOverview extends Component {
 
 		//Get full team, if necessary
 		if (team && (!fullTeams[team] || !fullTeams[team].fullData) && !prevState.isLoadingTeam) {
-			fetchTeam(team);
+			fetchTeam(team, "full");
 			newState.isLoadingTeam = true;
-		} else if (fullTeams[team]) {
+		} else if (fullTeams[team] && fullTeams[team].fullData) {
 			newState.isLoadingTeam = false;
 		}
 
