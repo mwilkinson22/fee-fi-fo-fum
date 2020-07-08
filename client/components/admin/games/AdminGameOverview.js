@@ -88,40 +88,22 @@ class AdminGameOverview extends Component {
 
 		//Validation Schema
 		const rawValidationSchema = {
-			date: Yup.date()
-				.required()
-				.label("Date"),
-			time: Yup.string()
-				.required()
-				.label("Time"),
-			_teamType: Yup.string()
-				.required()
-				.label("Team Type"),
-			_competition: Yup.string()
-				.required()
-				.label("Competition"),
-			_opposition: Yup.string()
-				.required()
-				.label("Opposition"),
-			round: Yup.number()
-				.min(1)
-				.label("Round"),
+			date: Yup.date().required().label("Date"),
+			time: Yup.string().required().label("Time"),
+			_teamType: Yup.string().required().label("Team Type"),
+			_competition: Yup.string().required().label("Competition"),
+			_opposition: Yup.string().required().label("Opposition"),
+			round: Yup.number().min(1).label("Round"),
 			hideGame: Yup.bool().label("Hide Game"),
 			customTitle: Yup.string().label("Title"),
 			customHashtags: Yup.string().label("Hashtags"),
-			isAway: Yup.string()
-				.required()
-				.label("Home/Away"),
-			_ground: Yup.string()
-				.required()
-				.label("Ground"),
+			isAway: Yup.string().required().label("Home/Away"),
+			_ground: Yup.string().required().label("Ground"),
 			_broadcaster: Yup.string().label("Broadcaster"),
-			_referee: Yup.string()
-				.label("Referee")
-				.nullable(),
-			_video_referee: Yup.string()
-				.label("Video Referee")
-				.nullable()
+			_referee: Yup.string().label("Referee").nullable(),
+			_video_referee: Yup.string().label("Video Referee").nullable(),
+			externalSync: Yup.bool().label("Sync Externally?"),
+			externalId: Yup.number().label("External ID")
 		};
 
 		if (!newState.isNew) {
@@ -202,7 +184,9 @@ class AdminGameOverview extends Component {
 			_ground: "auto",
 			_broadcaster: "",
 			_referee: "",
-			_video_referee: ""
+			_video_referee: "",
+			externalSync: false,
+			externalId: ""
 		};
 
 		if (isNew) {
@@ -342,6 +326,19 @@ class AdminGameOverview extends Component {
 						type: fieldTypes.select,
 						options: options._referee,
 						isClearable: true
+					}
+				]
+			},
+			{
+				label: "External Sync",
+				fields: [
+					{
+						name: "externalSync",
+						type: fieldTypes.boolean
+					},
+					{
+						name: "externalId",
+						type: fieldTypes.number
 					}
 				]
 			}
