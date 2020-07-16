@@ -233,7 +233,13 @@ export default class SquadImage extends Canvas {
 			]);
 
 			//Ground
-			bannerText.push([{ text: game._ground.name }]);
+			let groundText;
+			if (game._ground) {
+				groundText = game._ground.name;
+			} else {
+				groundText = "Venue TBD";
+			}
+			bannerText.push([{ text: groundText }]);
 
 			//Hashtag
 			const { hashtags } = game;

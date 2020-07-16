@@ -38,7 +38,12 @@ export default class GameSocialCardImage extends Canvas {
 	async drawBackground() {
 		const { cWidth, cHeight, game } = this;
 
-		const src = "images/grounds/" + (game._ground.image || "pitch.jpg");
+		let src = "images/grounds/";
+		if (game._ground && game._ground.image) {
+			src += game._ground.image;
+		} else {
+			src += "pitch.jpg";
+		}
 		const sharpFiltering = img => sharp(img).blur(3);
 
 		const backgroundImage = await this.googleToCanvas(src, sharpFiltering);
@@ -161,11 +166,13 @@ export default class GameSocialCardImage extends Canvas {
 
 		//Work out whether or not to show the time
 		const dateStringFormat = `${game.hasTime ? "HH:mm " : ""}dddd dS MMM yyyy`;
-		const details = [
-			new Date(game.date).toString(dateStringFormat),
-			game.title,
-			`${game._ground.name}, ${game._ground.address._city.name}`
-		];
+		const details = [new Date(game.date).toString(dateStringFormat), game.title];
+		if (game._ground) {
+			details.push(`${game._ground.name}, ${game._ground.address._city.name}`);
+		} else {
+			details.push("Venue TBD");
+		}
+
 		this.textBuilder(
 			details.map(t => [{ text: t.toUpperCase() }]),
 			cWidth / 2,

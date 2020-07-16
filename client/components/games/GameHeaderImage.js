@@ -15,7 +15,7 @@ class GameHeaderImage extends Component {
 			alt = `${localTeamName} vs ${game._opposition.name.long} - ${game.date.toString(
 				"dd/MM/yyyy"
 			)}`;
-		} else if (game._ground.image) {
+		} else if (game._ground && game._ground.image) {
 			src = bucketPaths.images.grounds + game._ground.image;
 			alt = game._ground.name;
 		} else {

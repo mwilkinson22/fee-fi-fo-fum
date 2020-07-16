@@ -1138,17 +1138,8 @@ export async function getCalendar(req, res) {
 		const { _ground, slug, title } = g;
 		const date = new Date(g.date);
 
-		//Determine Ground
-		const { address } = _ground;
-		const locationArr = [
-			_ground.name,
-			address.street,
-			address.street2,
-			address._city.name,
-			address._city._country.name
-		];
-		const location = _.filter(locationArr, _.identity).join(", ");
-		return {
+		//Create Basic Object
+		const calObject = {
 			title: convertGameToCalendarString(
 				g,
 				options,
@@ -1164,9 +1155,23 @@ export async function getCalendar(req, res) {
 				date.getMinutes()
 			],
 			duration: { hours: 2 },
-			location,
 			url: `${req.protocol}://${req.get("host")}/games/${slug}`
 		};
+
+		//Conditionally add Ground
+		if (_ground) {
+			const { address } = _ground;
+
+			const locationArr = [
+				_ground.name,
+				address.street,
+				address.street2,
+				address._city.name,
+				address._city._country.name
+			];
+			calObject.location = _.filter(locationArr, _.identity).join(", ");
+		}
+		return calObject;
 	});
 
 	//Create Events

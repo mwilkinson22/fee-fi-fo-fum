@@ -28,7 +28,9 @@ class AdminCompetitionSegmentCrawler extends Component {
 			fetchCompetitionSegments();
 		}
 
-		this.state = {};
+		this.state = {
+			autoPickGround: true
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -235,9 +237,6 @@ class AdminCompetitionSegmentCrawler extends Component {
 				//Get Opposition
 				game._opposition = teamMap[game.isAway ? g.home : g.away];
 
-				//Auto-detect ground
-				game._ground = "auto";
-
 				return game;
 			});
 
@@ -257,7 +256,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 	renderGameList() {
 		const { teamList } = this.props;
-		const { filteredGames, isSubmitting } = this.state;
+		const { autoPickGround, filteredGames, isSubmitting } = this.state;
 
 		if (filteredGames) {
 			if (isSubmitting) {
@@ -355,7 +354,13 @@ class AdminCompetitionSegmentCrawler extends Component {
 					.value().length;
 
 				const buttons = (
-					<div className="form-card">
+					<div className="form-card grid">
+						<label>Automatically assign ground?</label>
+						<BooleanSwitch
+							name={`bool-auto-pick`}
+							value={autoPickGround}
+							onChange={() => this.setState({ autoPickGround: !autoPickGround })}
+						/>
 						<div className="buttons">
 							<button
 								type="button"
@@ -423,13 +428,18 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 	async handleSubmit() {
 		const { addCrawledGames } = this.props;
-		const { filteredGames } = this.state;
+		const { autoPickGround, filteredGames } = this.state;
 
 		//Set submitting state
 		this.setState({ isSubmitting: true });
 
 		//Only send the "included" games
 		const games = _.mapValues(filteredGames, games => games.filter(g => g.include));
+
+		//Conditionally auto-pick grounds
+		if (autoPickGround && filteredGames.local) {
+			games.local = games.local.map(g => ({ ...g, _ground: "auto" }));
+		}
 
 		//Submit to server
 		await addCrawledGames(games);

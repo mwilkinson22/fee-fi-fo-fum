@@ -63,7 +63,9 @@ class GameCard extends Component {
 		const { game, hideImage } = this.props;
 		const { isLarge } = this.state;
 		const opposition = game._opposition;
-		const ground = game._ground;
+		const groundString = game._ground
+			? `${game._ground.name}, ${game._ground.address._city.name}`
+			: "Venue TBD";
 		const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMM yyyy`;
 		const date = game.date.toString(dateFormat);
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
@@ -105,9 +107,7 @@ class GameCard extends Component {
 						</h4>
 						<ul>
 							<li className="date">{date.toLocaleString()}</li>
-							<li>
-								{ground.name}, {ground.address._city.name}
-							</li>
+							<li>{groundString}</li>
 							<li>{title}</li>
 							{this.generateCountdown()}
 						</ul>

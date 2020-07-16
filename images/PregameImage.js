@@ -154,7 +154,12 @@ export default class PregameImage extends Canvas {
 		const date = new Date(game.date).toString("ddd dS MMM - HH:mm");
 		ctx.fillText(date, cWidth * 0.25, positions.bannerText);
 
-		const ground = `${game._ground.name}, ${game._ground.address._city.name}`;
+		let ground;
+		if (game._ground) {
+			ground = `${game._ground.name}, ${game._ground.address._city.name}`;
+		} else {
+			ground = "Venue TBD";
+		}
 		ctx.fillText(ground, cWidth * 0.5, positions.bannerText);
 
 		let hashtag = "#";

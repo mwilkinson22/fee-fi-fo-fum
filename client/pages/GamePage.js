@@ -114,10 +114,12 @@ class GamePage extends Component {
 	generateHeaderInfoBar() {
 		const { game } = this.state;
 		const dateFormat = `dddd dS MMM yyyy${game.hasTime ? " H:mm" : ""}`;
+		const groundString = game._ground
+			? `${game._ground.name}, ${game._ground.address._city.name}`
+			: "Venue TBD";
+
 		const fields = [
-			<span key="ground">
-				{game._ground.name}, {game._ground.address._city.name}
-			</span>,
+			<span key="ground">{groundString}</span>,
 			<span key="date">{game.date.toString(dateFormat)}</span>,
 			<span key="title">{game.title}</span>
 		];

@@ -84,7 +84,7 @@ class CalendarOptionsSelector extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullGames, teamTypes } = nextProps;
+		const { fullGames, selectedTeamTypes, teamTypes } = nextProps;
 		const { gamesRequired } = prevState;
 
 		const newState = { isLoading: false };
@@ -101,10 +101,8 @@ class CalendarOptionsSelector extends Component {
 			"date"
 		);
 
-		//Get Team Types
-		const includedTeamTypes = _.uniqBy(gameObjects, "_teamType").map(
-			g => teamTypes[g._teamType]
-		);
+		//Get Selected Team Type Objects
+		const selectedTeamTypeObjects = selectedTeamTypes.map(id => teamTypes[id]);
 
 		//Get Example Games
 		if (!prevState.exampleGames && gameObjects.length) {
@@ -160,7 +158,10 @@ class CalendarOptionsSelector extends Component {
 
 			//If we have multiple and one of them is first team, we offer an
 			//"all but first" option
-			if (includedTeamTypes.length > 1 && includedTeamTypes.find(t => t.sortOrder == 1)) {
+			if (
+				selectedTeamTypes.length > 1 &&
+				selectedTeamTypeObjects.find(t => t.sortOrder === 1)
+			) {
 				newState.options.displayTeamTypes.push({
 					label: "Include (except for First Team)",
 					value: "allButFirst"

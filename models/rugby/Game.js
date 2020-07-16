@@ -13,7 +13,7 @@ const gameSchema = new Schema(
 	{
 		//Basic Required Fields
 		_competition: { type: Schema.Types.ObjectId, ref: "competitionSegments", required: true },
-		_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+		_ground: { type: Schema.Types.ObjectId, ref: "grounds" },
 		_opposition: { type: Schema.Types.ObjectId, ref: "teams", required: true },
 		_teamType: {
 			type: Schema.Types.ObjectId,

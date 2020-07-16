@@ -366,7 +366,7 @@ export default class FixtureListImage extends Canvas {
 		const { games, homeCountry } = this;
 
 		return _.chain(games)
-			.filter(g => g._ground.address._city._country._id != homeCountry)
+			.filter(g => g._ground && g._ground.address._city._country._id != homeCountry)
 			.groupBy(g => g._opposition.name.short)
 			.mapValues(games =>
 				_.chain(games)
