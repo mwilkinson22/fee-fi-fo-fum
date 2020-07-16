@@ -20,6 +20,7 @@ const gameSchema = new Schema(
 			ref: "teamTypes",
 			required: true
 		},
+		dateRange: { type: Number, default: null },
 		date: { type: Date, required: true },
 		isAway: { type: Boolean, required: true },
 		slug: { type: String, unique: true, required: true },
@@ -203,7 +204,7 @@ gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType 
 
 //Queries
 gameSchema.query.forList = function() {
-	return this.select("date _teamType slug _competition _opposition");
+	return this.select("date _teamType slug _competition _opposition dateRange");
 };
 
 gameSchema.query.fullGame = function(forGamePage, forAdmin) {

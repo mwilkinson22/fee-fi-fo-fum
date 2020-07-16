@@ -12,7 +12,7 @@ import GameLogo from "./GameLogo";
 
 //Helpers
 import { toRgba } from "~/helpers/colourHelper";
-import { getScoreString } from "~/helpers/gameHelper";
+import { formatDate, getScoreString } from "~/helpers/gameHelper";
 import Countdown from "./Countdown";
 
 class GameCard extends Component {
@@ -45,9 +45,10 @@ class GameCard extends Component {
 	}
 
 	generateCountdown() {
+		const { game } = this.props;
 		const { includeCountdown } = this.state;
-		if (includeCountdown) {
-			const opposition = this.props.game._opposition;
+		if (includeCountdown && !game.dateRange) {
+			const opposition = game._opposition;
 			return (
 				<Countdown
 					date={this.state.gameDate}
@@ -66,8 +67,6 @@ class GameCard extends Component {
 		const groundString = game._ground
 			? `${game._ground.name}, ${game._ground.address._city.name}`
 			: "Venue TBD";
-		const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMM yyyy`;
-		const date = game.date.toString(dateFormat);
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const url = game.slug;
 		const title = game.title;
@@ -84,6 +83,7 @@ class GameCard extends Component {
 				</div>
 			);
 		}
+
 		return (
 			<Link
 				to={"/games/" + url}
@@ -106,7 +106,7 @@ class GameCard extends Component {
 							{this.state.scoreString || `${opposition.name.short} ${homeAwayText}`}
 						</h4>
 						<ul>
-							<li className="date">{date.toLocaleString()}</li>
+							<li className="date">{formatDate(game)}</li>
 							<li>{groundString}</li>
 							<li>{title}</li>
 							{this.generateCountdown()}

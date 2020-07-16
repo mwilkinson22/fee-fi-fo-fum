@@ -5,6 +5,8 @@ import { localTeam } from "~/config/keys";
 import sharp from "sharp";
 const Team = mongoose.model("teams");
 
+import { formatDate } from "~/helpers/gameHelper";
+
 export default class GameSocialCardImage extends Canvas {
 	constructor(game) {
 		//Set Dimensions
@@ -164,9 +166,17 @@ export default class GameSocialCardImage extends Canvas {
 		ctx.fillStyle = "#EEEEEE";
 		ctx.font = textStyles.details.string;
 
-		//Work out whether or not to show the time
-		const dateStringFormat = `${game.hasTime ? "HH:mm " : ""}dddd dS MMM yyyy`;
-		const details = [new Date(game.date).toString(dateStringFormat), game.title];
+		//Set array for strings
+		const details = [];
+
+		//Add Date
+		game.date = new Date(game.date);
+		details.push(formatDate(game));
+
+		//Add Title
+		details.push(game.title);
+
+		//Add Ground
 		if (game._ground) {
 			details.push(`${game._ground.name}, ${game._ground.address._city.name}`);
 		} else {

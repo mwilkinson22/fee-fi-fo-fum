@@ -28,6 +28,42 @@ export function fixDates(games) {
 	});
 }
 
+export function formatDate(game, monthFormat = "MMMM", yearFormat = "yyyy") {
+	const { dateRange, date, hasTime } = game;
+
+	let string = "";
+
+	if (dateRange) {
+		const altDate = new Date(date).addDays(dateRange);
+		const firstDate = new Date(Math.min(date, altDate));
+		const secondDate = new Date(Math.max(date, altDate));
+
+		//Check if the two are in the same month
+		const sameMonth = firstDate.toString("M") === secondDate.toString("M");
+
+		//If not, we include the month when adding the first date
+		const firstDateFormat = `ddd dS${sameMonth ? "" : ` ${monthFormat}`}`;
+		string += firstDate.toString(firstDateFormat);
+
+		//Add the second date, with trailing slash
+		string += secondDate.toString(`/ddd dS ${monthFormat}`);
+	} else {
+		string += date.toString(`dddd dS ${monthFormat}`);
+	}
+
+	//Add year
+	if (yearFormat) {
+		string += date.toString(` ${yearFormat}`);
+	}
+
+	//Add Time
+	if (hasTime) {
+		string += date.toString(" HH:mm");
+	}
+
+	return string;
+}
+
 export function getDateString(date) {
 	//Get the current dates, set to midnight
 	const gameDate = new Date(date.toDateString());
