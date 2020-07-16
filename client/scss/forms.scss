@@ -117,6 +117,9 @@
 		white-space: nowrap;
 		padding-right: 8pt;
 		font-weight: bold;
+		&.invalid {
+			color: #900;
+		}
 		&.required::after {
 			content: "*";
 			color: $mainColour;

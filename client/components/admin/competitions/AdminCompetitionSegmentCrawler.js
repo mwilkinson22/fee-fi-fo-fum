@@ -34,13 +34,19 @@ class AdminCompetitionSegmentCrawler extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { competitionSegmentList, match } = nextProps;
+		const { competitionSegmentList, match, teamList } = nextProps;
 		const newState = { isLoading: false };
 
-		if (!competitionSegmentList) {
+		if (!competitionSegmentList || !teamList) {
 			newState.isLoading = true;
 			return newState;
 		}
+
+		//Get Team Options
+		newState.teamOptions = _.chain(teamList)
+			.map(t => ({ value: t._id, label: t.name.long }))
+			.sortBy("label")
+			.value();
 
 		//Get the current segment
 		newState.segment = competitionSegmentList[match.params._id] || false;
@@ -100,7 +106,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 	async handleCrawlAction() {
 		const { crawlNewFixtures } = this.props;
-		const { segment } = this.state;
+		const { teamOptions, segment } = this.state;
 
 		//Set crawling status and clear out any existing data
 		this.resetState(true);
@@ -122,7 +128,23 @@ class AdminCompetitionSegmentCrawler extends Component {
 			.flatten()
 			.uniq()
 			.sort()
-			.map(team => [team, ""])
+			.map(team => {
+				//Get all matching teams
+				const matchingTeams = teamOptions.filter(({ label }) =>
+					label.toLowerCase().includes(team.toLowerCase())
+				);
+
+				//If we have exactly one match, assign it here
+				let value;
+				if (matchingTeams.length === 1) {
+					value = matchingTeams[0].value;
+				} else {
+					value = "";
+				}
+
+				//Return as array
+				return [team, value];
+			})
 			.fromPairs()
 			.value();
 
@@ -131,31 +153,28 @@ class AdminCompetitionSegmentCrawler extends Component {
 	}
 
 	renderTeamMapper() {
-		const { teamList } = this.props;
-		const { crawledGames, teamMap, teamMapConfirmed } = this.state;
+		const { crawledGames, teamOptions, teamMap, teamMapConfirmed } = this.state;
 
-		//Get Team Options
-		const options = _.chain(teamList)
-			.map(t => ({ value: t._id, label: t.name.long }))
-			.sortBy("label")
-			.value();
-
-		//Add "skip" option
-		options.unshift({ label: "Skip games for this team", value: "skip" });
+		const teamOptionsWithSkip = [
+			{ label: "Skip games for this team", value: "skip" },
+			...teamOptions
+		];
 
 		if (teamMap && !teamMapConfirmed) {
 			if (crawledGames.length) {
 				//Get labels and dropdowns
 				const inputs = _.map(teamMap, (currentValue, label) => [
-					<label key={`${label}-label`}>{label}</label>,
+					<label key={`${label}-label`} className={teamMap[label] ? "" : "invalid"}>
+						{label}
+					</label>,
 					<Select
 						key={`${label}-dropdown`}
 						onChange={({ value }) =>
 							this.setState({ teamMap: { ...teamMap, [label]: value } })
 						}
-						options={options}
+						options={teamOptionsWithSkip}
 						styles={selectStyling}
-						value={options.find(({ value }) => value == currentValue)}
+						value={teamOptionsWithSkip.find(({ value }) => value == currentValue)}
 					/>
 				]);
 
