@@ -34,6 +34,8 @@ export function formatDate(game, monthFormat = "MMMM", yearFormat = "yyyy") {
 	let string = "";
 
 	if (dateRange) {
+		const divider = Math.abs(dateRange) > 1 ? "-" : "/";
+
 		const altDate = new Date(date).addDays(dateRange);
 		const firstDate = new Date(Math.min(date, altDate));
 		const secondDate = new Date(Math.max(date, altDate));
@@ -45,8 +47,8 @@ export function formatDate(game, monthFormat = "MMMM", yearFormat = "yyyy") {
 		const firstDateFormat = `ddd dS${sameMonth ? "" : ` ${monthFormat}`}`;
 		string += firstDate.toString(firstDateFormat);
 
-		//Add the second date, with trailing slash
-		string += secondDate.toString(`/ddd dS ${monthFormat}`);
+		//Add the second date, with trailing slash or hyphen
+		string += secondDate.toString(`${divider}ddd dS ${monthFormat}`);
 	} else {
 		string += date.toString(`dddd dS ${monthFormat}`);
 	}

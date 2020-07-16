@@ -22,7 +22,8 @@ import { postToSocial } from "../oAuthController";
 import {
 	parseExternalGame,
 	convertGameToCalendarString,
-	calendarStringOptions
+	calendarStringOptions,
+	formatDate
 } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
@@ -1135,8 +1136,10 @@ export async function getCalendar(req, res) {
 	//Create Event Data
 	const events = games.map(g => {
 		//Set Basic Variables
-		const { _ground, slug, title } = g;
-		const date = new Date(g.date);
+		const { _ground, slug, title, dateRange, hasTime } = g;
+
+		//Create date object
+		g.date = new Date(g.date);
 
 		//Create Basic Object
 		const calObject = {
@@ -1147,16 +1150,43 @@ export async function getCalendar(req, res) {
 				localTeamName.name
 			),
 			description: title,
-			start: [
-				date.getFullYear(),
-				date.getMonth() + 1,
-				date.getDate(),
-				date.getHours(),
-				date.getMinutes()
-			],
-			duration: { hours: 2 },
 			url: `${req.protocol}://${req.get("host")}/games/${slug}`
 		};
+
+		//Set date and duration
+		if (dateRange) {
+			//If this game has a date range, we set it here, and assume no time is defined
+			const altDate = new Date(g.date).addDays(dateRange);
+
+			//Work out first and last dates
+			const startDate = new Date(Math.min(g.date, altDate));
+			const endDate = new Date(Math.max(g.date, altDate));
+
+			//Update calObject
+			calObject.start = [
+				startDate.getFullYear(),
+				startDate.getMonth() + 1,
+				startDate.getDate()
+			];
+			calObject.end = [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate()];
+
+			//Update description
+			calObject.description += "\n\nDate and kick-off time not yet confirmed";
+			calObject.description += `\n\nThis game will take place between ${formatDate(g)}`;
+		} else {
+			//Otherwise, we know the date and set it
+			calObject.start = [g.date.getFullYear(), g.date.getMonth() + 1, g.date.getDate()];
+
+			//If the game has a time, then we add it here and se the duration property
+			//Otherwise, we leave off the time and set an end property
+			if (hasTime) {
+				calObject.start.push(g.date.getHours(), g.date.getMinutes());
+				calObject.duration = { hours: 2 };
+			} else {
+				calObject.end = calObject.start;
+				calObject.description += "\nKick-off time not yet confirmed";
+			}
+		}
 
 		//Conditionally add Ground
 		if (_ground) {
