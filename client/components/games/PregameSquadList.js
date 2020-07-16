@@ -21,7 +21,7 @@ class PregameSquadList extends Component {
 		return { game, previousGame };
 	}
 
-	setDueDate() {
+	renderDueDate() {
 		const { game } = this.state;
 
 		//Create due date - 2 days before kick off
@@ -155,7 +155,7 @@ class PregameSquadList extends Component {
 	}
 
 	render() {
-		const { pregameSquads } = this.state.game;
+		const { dateRange, pregameSquads } = this.state.game;
 		let content;
 		let squadsFound = false;
 
@@ -164,15 +164,19 @@ class PregameSquadList extends Component {
 			squadsFound = true;
 		}
 
-		if (!content) {
-			content = this.setDueDate();
+		if (!content && !dateRange) {
+			content = this.renderDueDate();
 		}
 
-		return (
-			<section className={`pregame-squads ${squadsFound ? "with-squads" : ""}`}>
-				{content}
-			</section>
-		);
+		if (content) {
+			return (
+				<section className={`pregame-squads ${squadsFound ? "with-squads" : ""}`}>
+					{content}
+				</section>
+			);
+		} else {
+			return null;
+		}
 	}
 }
 

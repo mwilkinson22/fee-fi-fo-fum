@@ -91,6 +91,7 @@ class AdminGameOverview extends Component {
 			date: Yup.date()
 				.required()
 				.label("Date"),
+			dateRange: Yup.number().label("Date Range"),
 			time: Yup.string()
 				.required()
 				.label("Time"),
@@ -190,6 +191,7 @@ class AdminGameOverview extends Component {
 
 		const defaultValues = {
 			date: "",
+			dateRange: "",
 			time: "",
 			_teamType: "",
 			_competition: "",
@@ -262,6 +264,7 @@ class AdminGameOverview extends Component {
 			{
 				fields: [
 					{ name: "date", type: fieldTypes.date },
+					{ name: "dateRange", type: fieldTypes.number },
 					{ name: "time", type: fieldTypes.time },
 					{
 						name: "_teamType",

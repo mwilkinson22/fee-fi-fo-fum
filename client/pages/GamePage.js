@@ -35,7 +35,7 @@ import { Redirect } from "react-router-dom";
 
 //Helpers
 import { matchSlugToItem } from "~/helpers/routeHelper";
-import { getLastGame, getScoreString } from "~/helpers/gameHelper";
+import { formatDate, getLastGame, getScoreString } from "~/helpers/gameHelper";
 import TeamImage from "~/client/components/teams/TeamImage";
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
 import playerStatTypes from "~/constants/playerStatTypes";
@@ -113,14 +113,13 @@ class GamePage extends Component {
 
 	generateHeaderInfoBar() {
 		const { game } = this.state;
-		const dateFormat = `dddd dS MMM yyyy${game.hasTime ? " H:mm" : ""}`;
 		const groundString = game._ground
 			? `${game._ground.name}, ${game._ground.address._city.name}`
 			: "Venue TBD";
 
 		const fields = [
 			<span key="ground">{groundString}</span>,
-			<span key="date">{game.date.toString(dateFormat)}</span>,
+			<span key="date">{formatDate(game, "MMM")}</span>,
 			<span key="title">{game.title}</span>
 		];
 
@@ -176,7 +175,7 @@ class GamePage extends Component {
 
 	generateCountdown() {
 		const { isFixture, game } = this.state;
-		if (isFixture) {
+		if (isFixture && !game.dateRange) {
 			return (
 				<section className="countdown">
 					<div className="container">
