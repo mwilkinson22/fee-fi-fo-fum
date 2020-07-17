@@ -55,7 +55,7 @@ export const crawlAndUpdateNeutralGames = () => async (dispatch, getState, api) 
 	if (gameCount === 0) {
 		toast.error("No games to update");
 	} else {
+		dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
 		toast.success(`Updated ${gameCount} ${gameCount.length === 1 ? "game" : "games"}`);
 	}
-	dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
 };
