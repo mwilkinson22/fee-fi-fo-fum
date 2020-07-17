@@ -432,6 +432,9 @@ export async function crawlNewGames(req, res) {
 					game.home = row.querySelector(".home").rawText.trim();
 					game.away = row.querySelector(".away").rawText.trim();
 
+					//Get External ID
+					game.externalId = row.querySelector("a").attributes.href.replace(/\D/g, "");
+
 					//Get Time
 					const time = row
 						.querySelector(".ko")
