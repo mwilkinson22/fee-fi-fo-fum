@@ -2,6 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 //Components
 import SquadSelector from "./SquadSelector";
@@ -82,7 +83,9 @@ class AdminGameSquads extends Component {
 
 		const content = teams.map(team => (
 			<div className="form-card" key={team}>
-				<TeamImage team={teamList[team]} variant="light" size="medium" />
+				<Link to={`/admin/teams/${team}/squads`}>
+					<TeamImage team={teamList[team]} variant="dark" size="medium" />
+				</Link>
 				<SquadSelector
 					currentSquad={this.getCurrentSquad(team)}
 					maxInterchanges={game._competition._parentCompetition.interchangeLimit}
