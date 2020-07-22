@@ -117,6 +117,14 @@
 					align-items: center;
 					border-radius: 4pt;
 					overflow: hidden;
+					height: 100%;
+
+					.team-image-wrapper {
+						flex-grow: 1;
+						display: flex;
+						align-items: center;
+					}
+
 					img {
 						max-width: 100%;
 						max-height: 70pt;

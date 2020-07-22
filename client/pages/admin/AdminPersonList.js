@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 //Components
 import LoadingPage from "../../components/LoadingPage";
+import Searcher from "../../components/admin/Searcher";
 
 //Actions
 import { fetchPeopleList } from "~/client/actions/peopleActions";
@@ -27,28 +28,6 @@ class AdminPersonList extends Component {
 	static getDerivedStateFromProps(nextProps) {
 		const { peopleList } = nextProps;
 		return { peopleList };
-	}
-
-	handleInputChange(value) {
-		const { peopleList } = this.state;
-
-		//Normalise input
-		const regex = new RegExp("((?![A-Za-z]).)", "gi");
-		const filterName = value.replace(regex, "").toLowerCase();
-
-		//Save filtered people to state
-		let filteredPeople;
-		if (filterName.length > 2) {
-			filteredPeople = _.chain(peopleList)
-				.filter(({ name }) => {
-					const fullName = (name.first + name.last).replace(regex, "").toLowerCase();
-					return fullName.includes(filterName);
-				})
-				.sortBy(["name.last", "name.first"])
-				.value();
-		}
-
-		this.setState({ filteredPeople, selectedPerson: 0 });
 	}
 
 	handleInputKeypress(ev) {
@@ -79,13 +58,11 @@ class AdminPersonList extends Component {
 	}
 
 	renderList() {
-		const { filteredPeople, selectedPerson } = this.state;
-		let content;
+		const { filteredPeople, searchValueEntered, selectedPerson } = this.state;
+		let list;
 
-		if (filteredPeople == null) {
-			content = <li>Enter 3 or more letters to search</li>;
-		} else if (filteredPeople.length) {
-			content = filteredPeople.map((person, i) => (
+		if (filteredPeople && filteredPeople.length) {
+			list = filteredPeople.map((person, i) => (
 				<li
 					key={person._id}
 					className={selectedPerson === i ? "selected" : ""}
@@ -97,20 +74,15 @@ class AdminPersonList extends Component {
 					</Link>
 				</li>
 			));
+		} else if (searchValueEntered) {
+			list = <li>No people found</li>;
 		} else {
-			content = <li>No people found</li>;
+			return null;
 		}
 
 		return (
 			<div className="card form-card">
-				<input
-					type="text"
-					placeholder="Search By Name"
-					className="name-filter"
-					onChange={ev => this.handleInputChange(ev.target.value)}
-					onKeyDown={ev => this.handleInputKeypress(ev)}
-				/>
-				<ul className="plain-list">{content}</ul>
+				<ul className="plain-list">{list}</ul>
 			</div>
 		);
 	}
@@ -143,14 +115,47 @@ class AdminPersonList extends Component {
 		));
 	}
 
+	renderSearcher() {
+		const { peopleList } = this.props;
+		return (
+			<Searcher
+				data={peopleList}
+				handleFilter={({ name }, searchString, convert) => {
+					const fullName = convert(name.first + name.last);
+					return fullName.includes(searchString);
+				}}
+				onChange={(filteredPeople, searchValueEntered) =>
+					this.setState({
+						filteredPeople: _.sortBy(filteredPeople, ["name.first", "name.last"]),
+						selectedPerson: 0,
+						searchValueEntered
+					})
+				}
+				onKeyDown={ev => this.handleInputKeypress(ev)}
+			/>
+		);
+	}
+
 	render() {
 		const { peopleList } = this.state;
+
 		let content;
 		if (!peopleList) {
 			content = <LoadingPage />;
 		} else {
-			content = this.renderList();
+			content = (
+				<section className="list">
+					<div className="container">
+						<Link className="nav-card card" to={`/admin/people/new`}>
+							Add a New Person
+						</Link>
+						{this.renderSearcher()}
+						{this.renderList()}
+					</div>
+				</section>
+			);
 		}
+
 		return (
 			<div className="admin-person-list">
 				<HelmetBuilder title="People" />
@@ -159,14 +164,7 @@ class AdminPersonList extends Component {
 						<h1>People</h1>
 					</div>
 				</section>
-				<section className="list">
-					<div className="container">
-						<Link className="nav-card card" to={`/admin/people/new`}>
-							Add a New Person
-						</Link>
-						{content}
-					</div>
-				</section>
+				{content}
 			</div>
 		);
 	}

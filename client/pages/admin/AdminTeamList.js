@@ -1,13 +1,24 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+
+//Components
+import Searcher from "../../components/admin/Searcher";
 import TeamImage from "../../components/teams/TeamImage";
 
 class AdminTeamList extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = { filteredTeamList: props.teamList };
+	}
+
 	renderList() {
-		const { localTeam, teamList } = this.props;
-		return _.chain(teamList)
+		const { localTeam } = this.props;
+		const { filteredTeamList } = this.state;
+		const list = _.chain(filteredTeamList)
 			.sortBy(({ _id, name }) => `${_id == localTeam ? 0 : 1}${name.long}`)
 			.sortBy()
 			.map(team => {
@@ -42,9 +53,20 @@ class AdminTeamList extends Component {
 				);
 			})
 			.value();
+
+		if (list.length) {
+			return <ul>{list}</ul>;
+		} else {
+			return (
+				<div className="form-card">
+					<p>No teams found</p>
+				</div>
+			);
+		}
 	}
 
 	render() {
+		const { teamList } = this.props;
 		return (
 			<div className="admin-page admin-team-list">
 				<section className="page-header">
@@ -55,7 +77,17 @@ class AdminTeamList extends Component {
 						<Link to="/admin/teams/new" className="nav-card">
 							Add New Team
 						</Link>
-						<ul>{this.renderList()}</ul>
+						<Searcher
+							data={teamList}
+							emptySearchReturnsAll={true}
+							handleFilter={({ name }, searchString, convert) =>
+								convert(name.short).includes(searchString) ||
+								convert(name.long).includes(searchString)
+							}
+							minimumSearchValue={0}
+							onChange={filteredTeamList => this.setState({ filteredTeamList })}
+						/>
+						{this.renderList()}
 					</div>
 				</section>
 			</div>

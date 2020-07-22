@@ -568,58 +568,114 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 				}
 				break;
 			case "RFL":
-				//This currently just loads scores, as there are no opta stats on the rfl site
-				for (const ha in teams) {
-					const team = teams[ha];
+				{
+					//Check if we have a stats table
+					const hasStats = html.querySelector(`#home table`);
 
-					//Create nested object
-					results[team] = {};
+					for (const ha in teams) {
+						const team = teams[ha];
 
-					//Get Rows
-					const lists = html.querySelectorAll(".tryScorersRow ul");
-					const rows = lists[ha == "home" ? 0 : 1].querySelectorAll("li");
-					for (const row of rows) {
-						const title = row.querySelector("h4 span");
-						if (title) {
-							let stat;
-							//Get Key From Text
-							switch (title.rawText.trim()) {
-								case "Tries":
-									stat = "T";
-									break;
-								case "Goals":
-									stat = "G";
-									break;
-								case "Drop Goals":
-									stat = "DG";
-									break;
+						//Create nested object
+						results[team] = {};
+
+						if (hasStats) {
+							//Get Table Element
+							const table = html.querySelector(`#${ha} table`);
+
+							//Get column index. We go nth from the right due to inconsistent colspan
+							const tableHeaderCells = table.querySelectorAll("th a");
+							const tableHeaderCellCount = tableHeaderCells.length;
+
+							for (const stat in statTypeIndexes) {
+								for (let i = 1; i <= tableHeaderCellCount; i++) {
+									if (
+										tableHeaderCells[
+											tableHeaderCellCount - i
+										].innerHTML.trim() == stat
+									) {
+										statTypeIndexes[stat] = i;
+										break;
+									}
+								}
 							}
-							const statList = row.text
-								.replace(new RegExp(`^${title.rawText.trim()}`, "gi"), "")
-								.trim();
-							if (stat && statList.length) {
-								statList.split(",").forEach(s => {
-									let [name, count] = s.split(/(?=\(\d)/);
 
-									//Get Name
-									name = name.trim();
-									if (!name) {
-										return true;
-									}
+							//Loop Players
+							const playerRows = table.querySelectorAll("tr");
+							for (const i in playerRows) {
+								if (i === 0) {
+									//Skip header
+									continue;
+								}
+								const row = playerRows[i];
+								const rowCells = row.querySelectorAll("td");
+								const rowCellCount = rowCells.length;
 
-									//Get Total
-									let total;
-									if (count) {
-										total = Number(count.replace(/\D/gi, ""));
-									} else {
-										total = 1;
-									}
+								if (!rowCellCount) {
+									continue;
+								}
 
-									if (!results[team][name]) {
-										results[team][name] = { stats: {} };
+								const name = rowCells[0].rawText.trim();
+								results[team][name] = {
+									stats: {}
+								};
+								for (const stat in statTypeIndexes) {
+									const index = statTypeIndexes[stat];
+									const cell = rowCells[rowCellCount - index];
+									let value;
+									if (cell) {
+										value = cell.innerHTML.replace(/\D+/gi, "");
 									}
-									results[team][name].stats[stat] = total;
-								});
+									results[team][name].stats[stat] = Number(value || 0);
+								}
+							}
+						} else {
+							//Get Rows
+							const lists = html.querySelectorAll(".tryScorersRow ul");
+							const rows = lists[ha == "home" ? 0 : 1].querySelectorAll("li");
+							for (const row of rows) {
+								const title = row.querySelector("h4 span");
+								if (title) {
+									let stat;
+									//Get Key From Text
+									switch (title.rawText.trim()) {
+										case "Tries":
+											stat = "T";
+											break;
+										case "Goals":
+											stat = "G";
+											break;
+										case "Drop Goals":
+											stat = "DG";
+											break;
+									}
+									const statList = row.text
+										.replace(new RegExp(`^${title.rawText.trim()}`, "gi"), "")
+										.trim();
+									if (stat && statList.length) {
+										statList.split(",").forEach(s => {
+											let [name, count] = s.split(/(?=\d)/);
+
+											//Get Name
+											name = name.trim();
+											if (!name) {
+												return true;
+											}
+
+											//Get Total
+											let total;
+											if (count) {
+												total = Number(count.replace(/\D/gi, ""));
+											} else {
+												total = 1;
+											}
+
+											if (!results[team][name]) {
+												results[team][name] = { stats: {} };
+											}
+											results[team][name].stats[stat] = total;
+										});
+									}
+								}
 							}
 						}
 					}

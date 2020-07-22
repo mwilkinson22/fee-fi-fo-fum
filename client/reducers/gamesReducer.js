@@ -78,18 +78,35 @@ export default function(state = { fullGames: {} }, action) {
 			};
 
 		case UPDATE_NEUTRAL_GAMES: {
-			//As it stands, we can only bulk-update games from one year at a time
-			//If this changes, this will need reworking
-			const year = new Date(_.sample(action.payload).date).getFullYear();
+			//We get an object back with year keys and possibly a "deleted" key
+			//First we pull off the deleted object
+			const { deleted, ...gamesByYear } = action.payload;
+
+			//Then we create a base object, based on the current neturalGames state
+			const neutralGames = { ...state.neutralGames };
+
+			//Then we loop through all current games to make sure we remove
+			//any deleted ones
+			if (deleted) {
+				for (const year in neutralGames) {
+					deleted.forEach(id => delete neutralGames[year][id]);
+				}
+			}
+
+			//Then, loop through each year and add it to the object
+			for (const year in gamesByYear) {
+				const currentValues = neutralGames[year] || {};
+
+				neutralGames[year] = {
+					...currentValues,
+					...fixDates(gamesByYear[year])
+				};
+			}
+
+			//Finally, push this to the state
 			return {
 				...state,
-				neutralGames: {
-					...state.neutralGames,
-					[year]: {
-						...state.neutralGames[year],
-						...fixDates(action.payload)
-					}
-				}
+				neutralGames
 			};
 		}
 

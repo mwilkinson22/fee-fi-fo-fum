@@ -3,7 +3,6 @@ export function canCrawlFixtures(segment) {
 	return (
 		segment.externalCompId &&
 		_parentCompetition.webcrawlFormat &&
-		_parentCompetition.webcrawlUrl &&
-		_parentCompetition.webcrawlFixturesPage
+		_parentCompetition.webcrawlUrl
 	);
 }

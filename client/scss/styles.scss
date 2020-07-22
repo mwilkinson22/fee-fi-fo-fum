@@ -179,6 +179,25 @@ body {
 	}
 }
 
+.table-wrapper {
+	.table thead th {
+		position: sticky;
+		top: 0;
+		z-index: 2;
+	}
+
+	@media #{$mobile-and-tablet} {
+		overflow: auto;
+		max-width: 100%;
+		max-height: 90vh;
+
+		.table tbody td,
+		.table tbody th {
+			white-space: nowrap;
+		}
+	}
+}
+
 .table {
 	user-select: none;
 	box-shadow: 2pt 2pt 2pt rgba(black, 0.4);
