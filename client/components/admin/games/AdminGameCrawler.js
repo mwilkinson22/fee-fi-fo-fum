@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 
 //Components;
 import LoadingPage from "../../LoadingPage";
-import { FastField } from "formik";
 
 //Actions
 import { crawlGame } from "../../../actions/gamesActions";
@@ -86,7 +85,7 @@ class AdminGameCrawler extends Component {
 
 	renderPlayers() {
 		const { game } = this.props;
-		const { crawlData } = this.state;
+		const { crawlData, nameMatch } = this.state;
 
 		return _.map(crawlData.results, (players, team) => {
 			let options = _.chain(crawlData.playersToName)
@@ -116,24 +115,49 @@ class AdminGameCrawler extends Component {
 					game.eligiblePlayers[team],
 					p => p._player._id == player._player
 				);
+
+				let matchResult;
+				if (match) {
+					matchResult = `${player.match} match: ${match._player.name.full}`;
+				} else {
+					matchResult = (
+						<select
+							onChange={({ target }) =>
+								this.setState({
+									nameMatch: {
+										...nameMatch,
+										[team]: {
+											...nameMatch[team],
+											[name]: target.value
+										}
+									}
+								})
+							}
+						>
+							{options}
+						</select>
+					);
+				}
+
 				return [
 					<div className={`match-type ${player.match}`} key="matchType" />,
 					<div className="name" key="name">
 						{name}
 					</div>,
 					<div className="match" key="match">
-						{match ? (
-							`${player.match} match: ${match._player.name.full}`
-						) : (
-							<FastField name={`nameMatch.${team}.${name}`} component={"select"}>
-								{options}
-							</FastField>
-						)}
+						{matchResult}
 					</div>
 				];
 			});
 			return (
 				<div key={team} className="player-rows">
+					<div />
+					<div className="name header">
+						<strong>Crawled Name</strong>
+					</div>
+					<div className="match header">
+						<strong>Matched Player</strong>
+					</div>
 					{playerRows}
 				</div>
 			);
@@ -157,14 +181,17 @@ class AdminGameCrawler extends Component {
 		const { crawlData, nameMatch } = this.state;
 		const namesToUpdate = [];
 
+		//Use a separate object to prevent multiple setFieldValue calls
+		const newValues = {};
+
 		_.each(teams, team => {
 			//Update Stats
-			_.each(nameMatch[team], (_id, name) => {
+			_.each(nameMatch[team], (_id, crawledName) => {
 				if (!_id || _id == "null") {
 					return true;
 				}
 
-				const playerResults = crawlData.results[team][name];
+				const playerResults = crawlData.results[team][crawledName];
 				if (playerResults && playerResults.stats) {
 					const { stats } = playerResults;
 
@@ -174,10 +201,10 @@ class AdminGameCrawler extends Component {
 						delete stats.G;
 					}
 
-					formikProps.setFieldValue(`${_id}`, {
+					newValues[_id] = {
 						...formikProps.values[_id],
 						...stats
-					});
+					};
 				}
 			});
 
@@ -187,6 +214,12 @@ class AdminGameCrawler extends Component {
 				.filter(p => p.match == "partial")
 				.each(({ _player, name }) => namesToUpdate.push({ _player, name }))
 				.value();
+		});
+
+		//Update formik
+		formikProps.setValues({
+			...formikProps.values,
+			...newValues
 		});
 
 		//Update External Names

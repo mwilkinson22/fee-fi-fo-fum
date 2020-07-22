@@ -653,7 +653,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 										.trim();
 									if (stat && statList.length) {
 										statList.split(",").forEach(s => {
-											let [name, count] = s.split(/(?=\(\d)/);
+											let [name, count] = s.split(/(?=\d)/);
 
 											//Get Name
 											name = name.trim();
