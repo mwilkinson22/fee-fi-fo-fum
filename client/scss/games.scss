@@ -1114,7 +1114,7 @@ section.match-squads {
 		.admin-game-stat-crawler {
 			.player-rows-wrapper {
 				display: grid;
-
+				margin-top: 10pt;
 				grid-template-columns: 1fr;
 				@media #{$desktop-and-tablet} {
 					grid-template-columns: repeat(2, 1fr);
