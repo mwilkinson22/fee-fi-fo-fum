@@ -148,13 +148,15 @@ class NeutralGameList extends Component {
 						.value();
 					return (
 						<Form>
-							<Table
-								columns={columns}
-								rows={rows}
-								sortBy={{ key: "date", asc: true }}
-								defaultSortable={false}
-								className="neutral-game-table"
-							/>
+							<div className="table-wrapper">
+								<Table
+									columns={columns}
+									rows={rows}
+									sortBy={{ key: "date", asc: true }}
+									defaultSortable={false}
+									className="neutral-game-table"
+								/>
+							</div>
 							<div className="form-card">
 								<div className="buttons">
 									<button type="submit">Save</button>
