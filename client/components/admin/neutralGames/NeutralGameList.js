@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import Table from "../../Table";
 import TeamImage from "../../teams/TeamImage";
 import BooleanSlider from "../fields/Boolean";
+import DeleteButtons from "../fields/DeleteButtons";
 
 //Actions
 import { updateNeutralGames } from "~/client/actions/neutralGamesActions";
@@ -67,7 +68,7 @@ class NeutralGameList extends Component {
 				onSubmit={values => this.handleSubmit(values)}
 				initialValues={this.getInitialValues()}
 				enableReinitialize={true}
-				render={({ values }) => {
+				render={({ values, submitForm }) => {
 					const rows = _.chain(games)
 						.sortBy("date")
 						.map(game => {
@@ -146,6 +147,31 @@ class NeutralGameList extends Component {
 							};
 						})
 						.value();
+
+					//Get Buttons
+					const gamesToDelete = _.filter(values, g => g.delete).length;
+					let buttons;
+					if (gamesToDelete) {
+						let deleteText = `Delete ${gamesToDelete} `;
+
+						const gamesToSave = _.reject(values, g => g.delete).length;
+						if (gamesToSave) {
+							deleteText += `& Save ${gamesToSave} `;
+						}
+
+						deleteText += gamesToDelete + gamesToSave === 1 ? "Game" : "Games";
+
+						buttons = (
+							<DeleteButtons deleteText={deleteText} onDelete={() => submitForm()} />
+						);
+					} else {
+						buttons = (
+							<div className="buttons">
+								<button type="submit">Save</button>
+							</div>
+						);
+					}
+
 					return (
 						<Form>
 							<div className="table-wrapper">
@@ -157,11 +183,7 @@ class NeutralGameList extends Component {
 									className="neutral-game-table"
 								/>
 							</div>
-							<div className="form-card">
-								<div className="buttons">
-									<button type="submit">Save</button>
-								</div>
-							</div>
+							<div className="form-card">{buttons}</div>
 						</Form>
 					);
 				}}
