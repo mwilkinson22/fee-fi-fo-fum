@@ -1,11 +1,17 @@
+//Modules
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form, Field } from "formik";
-import Table from "../../Table";
+import { Formik, Form, FastField } from "formik";
 import { Link } from "react-router-dom";
-import { updateNeutralGames } from "~/client/actions/neutralGamesActions";
+
+//Components
+import Table from "../../Table";
 import TeamImage from "../../teams/TeamImage";
+import BooleanSlider from "../fields/Boolean";
+
+//Actions
+import { updateNeutralGames } from "~/client/actions/neutralGamesActions";
 
 class NeutralGameList extends Component {
 	constructor(props) {
@@ -13,15 +19,23 @@ class NeutralGameList extends Component {
 		this.state = {};
 	}
 
+	static getDerivedStateFromProps(nextProps) {
+		const { games } = nextProps;
+		const newState = { games };
+
+		return newState;
+	}
+
 	getInitialValues() {
-		const { games } = this.props;
+		const { games } = this.state;
 		return _.chain(games)
 			.map(game => {
 				return [
 					game._id,
 					{
 						homePoints: game.homePoints === null ? "" : game.homePoints,
-						awayPoints: game.awayPoints === null ? "" : game.awayPoints
+						awayPoints: game.awayPoints === null ? "" : game.awayPoints,
+						delete: false
 					}
 				];
 			})
@@ -35,7 +49,8 @@ class NeutralGameList extends Component {
 	}
 
 	render() {
-		const { games, competitionSegmentList, teamList } = this.props;
+		const { competitionSegmentList, teamList } = this.props;
+		const { games } = this.state;
 
 		const columns = [
 			{ key: "date", label: "Date" },
@@ -44,14 +59,15 @@ class NeutralGameList extends Component {
 			{ key: "homePoints", label: "Home Points" },
 			{ key: "awayPoints", label: "Away Points" },
 			{ key: "_awayTeam", label: "Away Team", className: "team-badge" },
-			{ key: "edit", label: "" }
+			{ key: "edit", label: "" },
+			{ key: "delete", label: "Delete" }
 		];
 		return (
 			<Formik
 				onSubmit={values => this.handleSubmit(values)}
 				initialValues={this.getInitialValues()}
 				enableReinitialize={true}
-				render={() => {
+				render={({ values }) => {
 					const rows = _.chain(games)
 						.sortBy("date")
 						.map(game => {
@@ -99,7 +115,19 @@ class NeutralGameList extends Component {
 											break;
 										case "homePoints":
 										case "awayPoints":
-											result.content = <Field type="number" name={name} />;
+											result.content = (
+												<FastField type="number" name={name} />
+											);
+											break;
+										case "delete":
+											result.content = (
+												<FastField
+													name={name}
+													render={({ field }) => (
+														<BooleanSlider {...field} />
+													)}
+												/>
+											);
 											break;
 										default:
 											result.content = game[key];
@@ -113,7 +141,8 @@ class NeutralGameList extends Component {
 
 							return {
 								key: game._id,
-								data
+								data,
+								className: values[game._id].delete ? "disabled" : ""
 							};
 						})
 						.value();

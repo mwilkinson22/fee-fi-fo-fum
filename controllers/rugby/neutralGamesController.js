@@ -48,7 +48,22 @@ export async function getYears(req, res) {
 async function getUpdatedNeutralGames(ids, res) {
 	//To be called after post/put methods
 	const games = await NeutralGame.find({ _id: { $in: ids } }).lean();
-	res.send(_.keyBy(games, "_id"));
+
+	//First, create a nested object of games grouped by year
+	const gamesByYear = _.chain(games)
+		.groupBy(g => new Date(g.date).getFullYear())
+		.mapValues(games => _.keyBy(games, "_id"))
+		.value();
+
+	//Look for any deleted games
+	const deleted = ids.filter(id => !games.find(g => g._id == id));
+
+	const result = {
+		...gamesByYear,
+		deleted
+	};
+
+	res.send(result);
 }
 
 //Setters
@@ -63,13 +78,21 @@ export async function createNeutralGames(req, res) {
 }
 
 export async function updateGames(req, res) {
-	const bulkOperation = _.map(req.body, (data, id) => {
-		return {
-			updateOne: {
-				filter: { _id: id },
-				update: data
-			}
-		};
+	const bulkOperation = _.map(req.body, (data, _id) => {
+		if (data.delete) {
+			return {
+				deleteOne: {
+					filter: { _id }
+				}
+			};
+		} else {
+			return {
+				updateOne: {
+					filter: { _id },
+					update: data
+				}
+			};
+		}
 	});
 	if (bulkOperation.length > 0) {
 		await NeutralGame.bulkWrite(bulkOperation);
