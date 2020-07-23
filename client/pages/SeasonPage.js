@@ -16,9 +16,6 @@ import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
 import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
 import { setActiveTeamType } from "~/client/actions/teamsActions";
 
-//Constants
-import { earliestLocalGames } from "~/config/keys";
-
 class SeasonPage extends Component {
 	constructor(props) {
 		super(props);
@@ -40,7 +37,8 @@ class SeasonPage extends Component {
 			fullGames,
 			fetchGames,
 			activeTeamType,
-			setActiveTeamType
+			setActiveTeamType,
+			earliestLocalGames
 		} = nextProps;
 
 		//Ensure the game list is loaded
@@ -254,10 +252,18 @@ async function loadData(store) {
 }
 
 function mapStateToProps({ config, games, teams }) {
-	const { localTeam } = config;
+	const { earliestLocalGames, localTeam } = config;
 	const { gameList, fullGames } = games;
 	const { fullTeams, teamTypes, activeTeamType } = teams;
-	return { localTeam, gameList, fullGames, fullTeams, teamTypes, activeTeamType };
+	return {
+		earliestLocalGames,
+		localTeam,
+		gameList,
+		fullGames,
+		fullTeams,
+		teamTypes,
+		activeTeamType
+	};
 }
 
 export default {
