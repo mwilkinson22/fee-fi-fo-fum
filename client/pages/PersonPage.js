@@ -17,7 +17,6 @@ import { fetchGameList, fetchGames } from "../actions/gamesActions";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
-const { earliestLocalGames } = require("~/config/keys");
 
 //Helpers
 import { matchSlugToItem } from "~/helpers/routeHelper";
@@ -298,7 +297,7 @@ class PersonPage extends Component {
 
 	getPlayerStatsSection() {
 		const { person } = this.state;
-		const { gameList } = this.props;
+		const { earliestLocalGames, gameList } = this.props;
 
 		if (!person.playedGames) {
 			return null;
@@ -399,10 +398,19 @@ class PersonPage extends Component {
 }
 
 function mapStateToProps({ config, games, people }) {
-	const { authUser, bucketPaths, localTeam } = config;
+	const { authUser, bucketPaths, earliestLocalGames, localTeam } = config;
 	const { gameList } = games;
 	const { fullPeople, redirects, peopleList } = people;
-	return { authUser, bucketPaths, localTeam, gameList, fullPeople, redirects, peopleList };
+	return {
+		authUser,
+		bucketPaths,
+		earliestLocalGames,
+		localTeam,
+		gameList,
+		fullPeople,
+		redirects,
+		peopleList
+	};
 }
 
 async function loadData(store, path) {

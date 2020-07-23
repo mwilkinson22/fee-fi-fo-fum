@@ -5,6 +5,7 @@ import {
 	gaTracking,
 	mongoURI,
 	googleBucketName,
+	earliestLocalGames,
 	ticketLink
 } from "../../config/keys";
 import { toast } from "react-toastify";
@@ -48,7 +49,10 @@ export const getCoreConfig = req => async dispatch => {
 		ticketLink,
 
 		//Facebook App ID
-		facebookApp
+		facebookApp,
+
+		//Earliest local games to show
+		earliestLocalGames: Number(earliestLocalGames) || 0
 	};
 
 	//Add Bucket Paths

@@ -3,7 +3,7 @@ module.exports = {
 	authGuid: process.env.AUTH_GUID,
 	cookieKey: process.env.COOKIE_KEY,
 	defaultSocialProfile: process.env.DEFAULT_SOCIAL_PROFILE,
-	earliestLocalGames: process.env.EARLIEST_LOCAL || 0,
+	earliestLocalGames: process.env.EARLIEST_LOCAL,
 	facebookApp: process.env.FACEBOOK_APP,
 	localTeam: process.env.LOCAL_TEAM,
 	gaTracking: process.env.GA_TRACKING,
