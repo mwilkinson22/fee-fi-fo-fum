@@ -10,14 +10,26 @@ class PopUpDialog extends Component {
 		}
 	}
 	render() {
-		const { asGrid, children, className, fullSize, closeButtonText, onDestroy } = this.props;
+		const {
+			asCard,
+			asGrid,
+			children,
+			className,
+			fullSize,
+			closeButtonText,
+			onDestroy
+		} = this.props;
 
-		let dialogClassName = ["pop-up-dialog", "form-card"];
+		let dialogClassName = ["pop-up-dialog"];
+
+		if (asCard) {
+			dialogClassName.push("form-card");
+			if (asGrid) {
+				dialogClassName.push("grid");
+			}
+		}
 		if (fullSize) {
 			dialogClassName.push("full-size");
-		}
-		if (asGrid) {
-			dialogClassName.push("grid");
 		}
 		if (className) {
 			dialogClassName.push(className);
@@ -41,6 +53,7 @@ class PopUpDialog extends Component {
 }
 
 PopUpDialog.propTypes = {
+	asCard: PropTypes.bool,
 	asGrid: PropTypes.bool,
 	children: PropTypes.node.isRequired,
 	clickBackgroundToClose: PropTypes.bool,
@@ -51,6 +64,7 @@ PopUpDialog.propTypes = {
 };
 
 PopUpDialog.defaultProps = {
+	asCard: true,
 	asGrid: false,
 	fullSize: false,
 	clickBackgroundToClose: true,

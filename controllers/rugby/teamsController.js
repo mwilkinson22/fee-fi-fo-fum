@@ -406,7 +406,7 @@ export async function addCoach(req, res) {
 	if (team) {
 		team.coaches.push(req.body);
 		await team.save();
-		await getTeam(req, res);
+		await getUpdatedTeam(_id, res, true);
 	}
 }
 
