@@ -2,15 +2,15 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../BasicForm";
 import LoadingPage from "~/client/components/LoadingPage";
+import PopUpBasicForm from "../PopUpBasicForm";
 
 //Actions
-import { fetchPeopleList } from "~/client/actions/peopleActions";
+import { fetchPeopleList, createPerson } from "~/client/actions/peopleActions";
 import { addCoach } from "~/client/actions/teamsActions";
 
 //Constants
@@ -49,11 +49,12 @@ class AdminTeamAddCoach extends Component {
 				.label("From"),
 			to: Yup.date().label("To")
 		});
-		this.state = { options, validationSchema };
+		this.state = { options, validationSchema, showNonCoaches: false };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { team, peopleList } = nextProps;
+		const { showNonCoaches } = prevState;
 
 		const newState = {
 			isLoading: false,
@@ -68,7 +69,7 @@ class AdminTeamAddCoach extends Component {
 		newState.options = {
 			...prevState.options,
 			_person: _.chain(peopleList)
-				.filter("isCoach")
+				.filter(p => showNonCoaches || p.isCoach)
 				.map(({ _id, name }) => ({
 					value: _id,
 					label: `${name.first} ${name.last}`
@@ -91,14 +92,33 @@ class AdminTeamAddCoach extends Component {
 	}
 
 	getFieldGroups() {
-		const { options } = this.state;
+		const { options, showNonCoaches } = this.state;
 		return [
+			{
+				render: () => (
+					<div className="buttons" key="btns">
+						<button
+							type="button"
+							onClick={() => this.setState({ showNonCoaches: !showNonCoaches })}
+						>
+							{showNonCoaches ? "Hide" : "Show"} Non-Coaches
+						</button>
+						<button
+							type="button"
+							onClick={() => this.setState({ addNewCoachDialog: true })}
+						>
+							Add New Coach
+						</button>
+					</div>
+				)
+			},
 			{
 				fields: [
 					{
 						name: "_person",
 						type: fieldTypes.select,
-						options: options._person
+						options: options._person,
+						fastField: false
 					},
 					{ name: "_teamType", type: fieldTypes.select, options: options.teamTypes },
 					{ name: "role", type: fieldTypes.select, options: options.roles },
@@ -107,6 +127,71 @@ class AdminTeamAddCoach extends Component {
 				]
 			}
 		];
+	}
+
+	renderNewCoachDialog() {
+		const { addNewCoachDialog } = this.state;
+		const { createPerson } = this.props;
+
+		if (addNewCoachDialog) {
+			const validationSchema = Yup.object().shape({
+				name: Yup.object().shape({
+					first: Yup.string()
+						.label("First Name")
+						.required(),
+					last: Yup.string()
+						.label("Last Name")
+						.required()
+				}),
+				gender: Yup.string()
+					.label("Gender")
+					.required()
+			});
+
+			const fieldGroups = [
+				{
+					fields: [
+						{ name: "name.first", type: fieldTypes.text },
+						{ name: "name.last", type: fieldTypes.text },
+						{
+							name: "gender",
+							type: fieldTypes.radio,
+							options: [
+								{ label: "Male", value: "M" },
+								{ label: "Female", value: "F" }
+							]
+						}
+					],
+					label: "Add New Coach"
+				}
+			];
+
+			const initialValues = {
+				name: {
+					first: "",
+					last: ""
+				},
+				gender: "M",
+				isCoach: true
+			};
+			return (
+				<PopUpBasicForm
+					onDestroy={() => this.setState({ addNewCoachDialog: false })}
+					fieldGroups={fieldGroups}
+					initialValues={initialValues}
+					isNew={true}
+					itemType="Coach"
+					onSubmit={async values => {
+						//Create new coach
+						await createPerson(values);
+
+						//Kill dialog
+						this.setState({ addNewCoachDialog: false });
+					}}
+					validationSchema={validationSchema}
+				/>
+			);
+		}
 	}
 
 	render() {
@@ -119,17 +204,20 @@ class AdminTeamAddCoach extends Component {
 		}
 
 		return (
-			<BasicForm
-				fieldGroups={this.getFieldGroups()}
-				initialValues={this.getInitialValues()}
-				isNew={true}
-				itemType="Coach"
-				onSubmit={(values, formikProps) => {
-					addCoach(team._id, values);
-					formikProps.resetForm();
-				}}
-				validationSchema={validationSchema}
-			/>
+			<div>
+				<BasicForm
+					fieldGroups={this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isNew={true}
+					itemType="Coach"
+					onSubmit={(values, formikProps) => {
+						addCoach(team._id, values);
+						formikProps.resetForm();
+					}}
+					validationSchema={validationSchema}
+				/>
+				{this.renderNewCoachDialog()}
+			</div>
 		);
 	}
 }
@@ -142,4 +230,6 @@ function mapStateToProps({ people, teams }) {
 }
 
 // export default form;
-export default connect(mapStateToProps, { fetchPeopleList, addCoach })(AdminTeamAddCoach);
+export default connect(mapStateToProps, { fetchPeopleList, addCoach, createPerson })(
+	AdminTeamAddCoach
+);
