@@ -404,6 +404,10 @@ export async function addCoach(req, res) {
 	const { _id } = req.params;
 	const team = await validateTeam(_id, res);
 	if (team) {
+		//Ensure player is a coach
+		await Person.updateOne({ _id: req.body._person }, { isCoach: true });
+
+		//Update coaches array
 		team.coaches.push(req.body);
 		await team.save();
 		await getUpdatedTeam(_id, res, true);
