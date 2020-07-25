@@ -162,7 +162,7 @@ class AdminTeamCurrentCoaches extends Component {
 		const coaches = _.chain(values)
 			.map((data, _id) => {
 				if (!data.deleteCoach) {
-					return { ...data, role: data.role.value, _id };
+					return { ...data, _id };
 				}
 			})
 			.filter(_.identity)
@@ -193,7 +193,4 @@ function mapStateToProps({ teams }) {
 	return { teamTypes };
 }
 
-export default connect(
-	mapStateToProps,
-	{ updateTeam }
-)(AdminTeamCurrentCoaches);
+export default connect(mapStateToProps, { updateTeam })(AdminTeamCurrentCoaches);
