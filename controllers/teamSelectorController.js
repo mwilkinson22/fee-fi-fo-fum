@@ -165,8 +165,11 @@ export async function deleteTeamSelector(req, res) {
 
 export async function submitUserChoices(req, res) {
 	const { _id } = req.params;
-	const selector = await fetchTeamSelector(_id, res);
-	if (selector) {
+	const selectorExists = await fetchTeamSelector(_id, res);
+	if (selectorExists) {
+		//Get object to update
+		const selector = await TeamSelector.findById(_id, "choices");
+
 		//Work out if we're adding an entry or updating //Check to see if we've already voted
 		const { ipAddress } = req;
 		const currentVote = selector.choices.find(c => c.ip === ipAddress);
