@@ -5,6 +5,7 @@ const collectionName = "teamSelectors";
 const TeamSelector = mongoose.model(collectionName);
 const Team = mongoose.model("teams");
 const Person = mongoose.model("people");
+const Game = mongoose.model("games");
 
 //Constants
 import { teamSelectors as listProperties } from "~/constants/listProperties";
@@ -14,49 +15,64 @@ import SquadImage from "~/images/SquadImage";
 
 //Helper
 import { postToSocial } from "./oAuthController";
+import { getTeamSelectorValues as getValuesFromGame } from "./rugby/gamesController";
 
-export async function validateTeamSelector(_id, res) {
+export async function fetchTeamSelector(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
-	}
-
-	const selector = await TeamSelector.findById(_id);
-	if (selector) {
-		return selector;
-	} else {
-		res.status(404).send(`No selector found with id ${_id}`);
 		return false;
 	}
-}
 
-export async function getTeamSelector(req, res) {
-	const { _id } = req.params;
-
+	//Try to get a basic selector
 	let selector = await TeamSelector.findById(_id).populate({
 		path: "players",
 		select: "name playingPositions"
 	});
 
+	if (!selector) {
+		res.status(404).send(`No selector found with id ${_id}`);
+		return false;
+	}
+
 	//Convert to json object
 	selector = JSON.parse(JSON.stringify(selector));
 
-	//Set choices for active user
-	const activeUserChoices = selector.choices.find(({ ip }) => ip == req.ipAddress);
-	if (activeUserChoices) {
-		selector.activeUserChoices = activeUserChoices.squad;
+	//Dynamically populate game data
+	if (selector._game) {
+		const values = await getValuesFromGame(selector._game, res);
+		selector = {
+			...selector,
+			...values
+		};
 	}
 
-	//Remove other choices for non-admins
-	if (!req.user || !req.user.isAdmin) {
-		delete selector.choices;
-	}
+	return selector;
+}
 
-	res.send(selector);
+export async function getTeamSelector(req, res) {
+	const { _id } = req.params;
+
+	const selector = await fetchTeamSelector(_id, res);
+
+	if (selector) {
+		//Set choices for active user
+		const activeUserChoices = selector.choices.find(({ ip }) => ip == req.ipAddress);
+		if (activeUserChoices) {
+			selector.activeUserChoices = activeUserChoices.squad;
+		}
+
+		//Remove other choices for non-admins
+		if (!req.user || !req.user.isAdmin) {
+			delete selector.choices;
+		}
+
+		res.send(selector);
+	}
 }
 
 export async function getPreviewImage(req, res) {
 	const { _id } = req.params;
-	const selector = await validateTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res);
 
 	if (selector) {
 		const image = await generateImage(req, res, selector);
@@ -73,6 +89,38 @@ export async function getAllTeamSelectors(req, res) {
 	res.send(_.keyBy(selectors, "_id"));
 }
 
+export async function getTeamSelectorForGame(req, res) {
+	const { _game } = req.params;
+
+	//Ensure the game exists
+	const game = await Game.findById(_game, "slug").lean();
+	if (!game) {
+		res.status(404).send(`Could not find a game with the id ${_game}`);
+	}
+
+	//Check for an existing selector
+	const selector = await TeamSelector.findOne({ _game }, "_id").lean();
+	if (selector) {
+		req.params._id = selector._id;
+	} else {
+		//Fill with dummy data, as this will be dynamically populated by the API
+		const values = {
+			title: `game-${game.slug}`,
+			slug: game.slug,
+			players: [],
+			_game
+		};
+
+		//Create a new selector
+		const newSelector = new TeamSelector(values);
+		await newSelector.save();
+
+		req.params._id = newSelector._id;
+	}
+
+	await getTeamSelector(req, res);
+}
+
 export async function createTeamSelector(req, res) {
 	const selector = new TeamSelector(req.body);
 	await selector.save();
@@ -83,9 +131,20 @@ export async function createTeamSelector(req, res) {
 	await getTeamSelector(req, res);
 }
 
+export async function updateGameSelector(_game) {
+	//We only do this where a selector already exists
+	//Otherwise we wait for one to be created on the fly.
+	const selector = await TeamSelector.findOne({ _game }, "_id").lean();
+
+	if (selector) {
+		const values = await getValuesFromGame(_game);
+		await TeamSelector.update({ _game }, values);
+	}
+}
+
 export async function updateTeamSelector(req, res) {
 	const { _id } = req.params;
-	const selector = await validateTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res);
 	if (selector) {
 		await selector.updateOne(req.body);
 		await getTeamSelector(req, res);
@@ -94,7 +153,7 @@ export async function updateTeamSelector(req, res) {
 
 export async function deleteTeamSelector(req, res) {
 	const { _id } = req.params;
-	const selector = await validateTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res);
 	if (selector) {
 		await selector.remove();
 		res.send({});
@@ -103,7 +162,7 @@ export async function deleteTeamSelector(req, res) {
 
 export async function submitUserChoices(req, res) {
 	const { _id } = req.params;
-	const selector = await validateTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res);
 	if (selector) {
 		//Work out if we're adding an entry or updating //Check to see if we've already voted
 		const { ipAddress } = req;
@@ -128,7 +187,7 @@ export async function submitUserChoices(req, res) {
 
 export async function shareSelector(req, res) {
 	const { _id } = req.params;
-	const selector = await validateTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res);
 
 	if (selector) {
 		const { service, text } = req.body;
