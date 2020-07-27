@@ -55,6 +55,9 @@ class AdminTeamSelectorPlayers extends Component {
 		//Get Current Selector
 		newState.selector = selectors[match.params._id];
 
+		//Readonly status for dynamic selectors
+		newState.readOnly = Boolean(newState.selector._game);
+
 		//Reset data on page change
 		//Store in the async format, for ease of formatting
 		let { players, squad, team } = prevState;
@@ -129,7 +132,11 @@ class AdminTeamSelectorPlayers extends Component {
 	}
 
 	renderIndividualAdder() {
-		const { options, players } = this.state;
+		const { options, players, readOnly } = this.state;
+
+		if (readOnly) {
+			return null;
+		}
 
 		return (
 			<div className="form-card">
@@ -155,17 +162,20 @@ class AdminTeamSelectorPlayers extends Component {
 	}
 
 	renderSquadAdder() {
-		return (
-			<div className="form-card grid">
-				<h6>Add by squad</h6>
-				<label>Team</label>
-				{this.renderTeamSelector()}
-				<label>Squad</label>
-				{this.renderSquadSelector()}
-				<label>Players</label>
-				{this.renderSquadPlayerList()}
-			</div>
-		);
+		const { readOnly } = this.state;
+		if (!readOnly) {
+			return (
+				<div className="form-card grid">
+					<h6>Add by squad</h6>
+					<label>Team</label>
+					{this.renderTeamSelector()}
+					<label>Squad</label>
+					{this.renderSquadSelector()}
+					<label>Players</label>
+					{this.renderSquadPlayerList()}
+				</div>
+			);
+		}
 	}
 
 	renderTeamSelector() {
@@ -281,20 +291,22 @@ class AdminTeamSelectorPlayers extends Component {
 	}
 
 	renderCurrentPlayers() {
-		const { players } = this.state;
+		const { players, readOnly } = this.state;
 
 		if (players && players.length) {
 			const list = _.chain(players)
 				.sortBy("label")
 				.map(p => (
 					<div
-						className="actionable-player remove"
+						className={`actionable-player remove ${readOnly ? "read-only" : ""}`}
 						key={p.value}
-						onClick={() =>
-							this.setState({
-								players: players.filter(({ value }) => value !== p.value)
-							})
-						}
+						onClick={() => {
+							if (!readOnly) {
+								this.setState({
+									players: players.filter(({ value }) => value !== p.value)
+								});
+							}
+						}}
 					>
 						{p.label}
 					</div>
@@ -310,7 +322,11 @@ class AdminTeamSelectorPlayers extends Component {
 	}
 
 	renderButtons() {
-		const { valuesHaveChanged } = this.state;
+		const { readOnly, valuesHaveChanged } = this.state;
+
+		if (readOnly) {
+			return null;
+		}
 
 		return (
 			<div className="form-card">

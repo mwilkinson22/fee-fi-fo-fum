@@ -153,11 +153,25 @@
 	}
 }
 
+.admin-team-selector-page {
+	.page-header {
+		.disclaimer {
+			font-style: italic;
+			text-align: center;
+			margin-bottom: 10pt;
+		}
+	}
+}
+
 .admin-team-selector-players-page {
 	.actionable-player {
 		user-select: none;
 		padding: 4pt 8pt;
 		cursor: pointer;
+
+		&.read-only {
+			pointer-events: none;
+		}
 
 		@media #{$desktop-only} {
 			display: inline-flex;

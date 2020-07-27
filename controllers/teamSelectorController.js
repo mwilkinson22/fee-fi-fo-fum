@@ -84,7 +84,10 @@ export async function getPreviewImage(req, res) {
 }
 
 export async function getAllTeamSelectors(req, res) {
-	const selectors = await TeamSelector.find({}, listProperties.join(" ")).lean();
+	const selectors = await TeamSelector.find({}, listProperties.join(" ")).populate({
+		path: "_game",
+		select: "slug"
+	});
 
 	res.send(_.keyBy(selectors, "_id"));
 }

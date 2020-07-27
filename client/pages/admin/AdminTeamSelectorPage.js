@@ -100,6 +100,17 @@ class AdminTeamSelectorPage extends Component {
 			);
 		}
 
+		//Dynamic content disclaimer
+		let dynamicContent;
+		if (selector._game) {
+			dynamicContent = (
+				<p className="disclaimer">
+					This selector cannot be manually edited, as its content is dynamically generated
+					from <Link to={`/admin/game/${selector._game}`}>this game</Link>
+				</p>
+			);
+		}
+
 		return (
 			<section className="page-header">
 				<HelmetBuilder title={title} />
@@ -109,6 +120,7 @@ class AdminTeamSelectorPage extends Component {
 					</Link>
 					{frontendLink}
 					<h1>{title}</h1>
+					{dynamicContent}
 				</div>
 				{submenu}
 			</section>
