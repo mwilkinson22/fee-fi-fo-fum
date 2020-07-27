@@ -5,10 +5,10 @@ const Game = mongoose.model(collectionName);
 const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
-const ics = require("ics");
 
 //Modules
 import _ from "lodash";
+const ics = require("ics");
 import twitter from "~/services/twitter";
 
 //Constants
@@ -19,6 +19,7 @@ import coachTypes from "~/constants/coachTypes";
 //Helpers
 import { getRedirects } from "../genericController";
 import { postToSocial } from "../oAuthController";
+
 import {
 	parseExternalGame,
 	convertGameToCalendarString,
@@ -91,11 +92,18 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 
 	if (forGamePage) {
 		//Work out required player fields
-		const playerSelect = ["name", "nickname", "images.main", "images.player", "slug", "gender"];
+		const playerSelect = [
+			"name",
+			"nickname",
+			"images.main",
+			"images.player",
+			"slug",
+			"gender",
+			"playingPositions"
+		];
 		let adminPlayerPopulate = {};
 		if (forAdmin) {
 			playerSelect.push(
-				"playingPositions",
 				"displayNicknameInCanvases",
 				"squadNameWhenDuplicate",
 				"_sponsor",
@@ -189,7 +197,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 						teamsToCheck.push(...game.sharedSquads[id]);
 					}
 
-					//Loop through the abbove array
+					//Loop through the above array
 					const squad = _.chain(teamsToCheck)
 						.map(teamToCheck => {
 							//Get the team whose squad we'll be pulling
@@ -1248,4 +1256,57 @@ export async function saveFanPotmVote(req, res) {
 		//Return vote
 		res.send({ hadAlreadyVoted: Boolean(currentVote), choice: _player });
 	}
+}
+
+//Get values for corresponding team selectors
+export async function getTeamSelectorValues(_id, res) {
+	//Load the game
+	const basicGame = await validateGame(_id, res, Game.findById(_id).fullGame(true, false));
+	const [game] = await getExtraGameInfo([basicGame], true, false);
+	game.date = new Date(game.date);
+
+	//Load team type
+	const teamType = await TeamType.findById(game._teamType, "name sortOrder").lean();
+
+	//Load team
+	const team = await Team.findById(localTeam, "squads");
+
+	//Create a basic values object
+	const values = {
+		interchanges: 4,
+		slug: game.slug,
+		defaultSocialText: `Check out my Starting 17 for #${game.hashtags[0]}!\n\nvia {site_social}\n{url}`,
+		numberFromTeam: localTeam
+	};
+
+	//Generate a title
+	values.title = game._opposition.name.short;
+	if (teamType.sortOrder > 1) {
+		values.title += ` ${teamType.name}`;
+	}
+	values.title += ` - ${game.date.toString("dd/MM/yyyy")}`;
+
+	//Add players
+	let players = game.eligiblePlayers[localTeam];
+	if (game._competition.instance.usesPregameSquads) {
+		const pregameSquad = game.pregameSquads.find(({ _team }) => _team == localTeam);
+		if (pregameSquad && pregameSquad.squad) {
+			players = players.filter(({ _player }) =>
+				pregameSquad.squad.find(p => p == _player._id)
+			);
+		}
+	}
+	values.players = players.map(({ _player }) =>
+		_.pick(_player, ["_id", "name", "playingPositions"])
+	);
+
+	//Add squad for numbers
+	const correspondingSquad = team.squads.find(
+		({ year, _teamType }) => year == game.date.getFullYear() && _teamType == game._teamType
+	);
+	if (correspondingSquad) {
+		values.numberFromSquad = correspondingSquad._id;
+	}
+
+	return values;
 }

@@ -14,8 +14,8 @@ class ImageField extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { value } = nextProps;
-		return { value };
+		const { readOnly, value } = nextProps;
+		return { readOnly, value };
 	}
 
 	renderImageSelector() {
@@ -57,8 +57,34 @@ class ImageField extends Component {
 		}
 	}
 
+	renderButtons() {
+		const { onChange } = this.props;
+		const { readOnly, value } = this.state;
+		if (!readOnly) {
+			return (
+				<div className="buttons">
+					<button type="button" disabled={!value} onClick={() => onChange("")}>
+						Clear
+					</button>
+					<button
+						type="button"
+						onClick={() => this.setState({ showImageUploader: true })}
+					>
+						Upload
+					</button>
+					<button
+						type="button"
+						onClick={() => this.setState({ showImageSelector: true })}
+					>
+						Choose
+					</button>
+				</div>
+			);
+		}
+	}
+
 	render() {
-		const { bucketPaths, onChange, path } = this.props;
+		const { bucketPaths, path } = this.props;
 		const { value } = this.state;
 
 		let content;
@@ -79,23 +105,7 @@ class ImageField extends Component {
 				{content}
 				{this.renderImageSelector()}
 				{this.renderImageUploader()}
-				<div className="buttons">
-					<button type="button" disabled={!value} onClick={() => onChange("")}>
-						Clear
-					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ showImageUploader: true })}
-					>
-						Upload
-					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ showImageSelector: true })}
-					>
-						Choose
-					</button>
-				</div>
+				{this.renderButtons()}
 			</div>
 		);
 	}
@@ -108,6 +118,7 @@ ImageField.propTypes = {
 	value: PropTypes.string.isRequired,
 	path: PropTypes.string.isRequired,
 	onChange: PropTypes.func.isRequired,
+	readOnly: PropTypes.bool,
 	//An object, in which the key relates to the subfolder,
 	//and the value is a series of options for sharp.resize()
 	resize: PropTypes.object
@@ -116,6 +127,7 @@ ImageField.propTypes = {
 ImageField.defaultProps = {
 	acceptSVG: true,
 	convertToWebP: true,
+	readOnly: false,
 	resize: {}
 };
 

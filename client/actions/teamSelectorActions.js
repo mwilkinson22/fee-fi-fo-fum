@@ -6,6 +6,11 @@ export const fetchTeamSelector = id => async (dispatch, getState, api) => {
 	dispatch({ type: FETCH_TEAM_SELECTOR, payload: res.data });
 };
 
+export const fetchTeamSelectorForGame = id => async (dispatch, getState, api) => {
+	const res = await api.get(`/teamSelectors/game/${id}`);
+	dispatch({ type: FETCH_TEAM_SELECTOR, payload: res.data });
+};
+
 export const fetchPreviewImage = id => async (dispatch, getState, api) => {
 	const res = await api.get(`/teamSelectors/${id}/previewImage`);
 	if (res.data) {

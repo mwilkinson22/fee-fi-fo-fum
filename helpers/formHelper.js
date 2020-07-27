@@ -144,6 +144,14 @@ export function renderInput(field) {
 				break;
 		}
 
+		//Customise readonly property where necessary
+		switch (type) {
+			case fieldTypes.select:
+			case fieldTypes.creatableSelect:
+			case fieldTypes.asyncSelect:
+				formikProps.field.isDisabled = field.readOnly;
+		}
+
 		//Wire in custom onChange
 		//Mainly used to set unsavedChanges
 		if (customOnChange) {

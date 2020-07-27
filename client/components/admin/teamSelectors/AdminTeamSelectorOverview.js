@@ -43,6 +43,7 @@ class AdminTeamSelectorOverview extends Component {
 		//Get Current Selector
 		if (!newState.isNew) {
 			newState.selector = selectors[match.params._id] || false;
+			newState.readOnly = Boolean(newState.selector._game);
 
 			//Upon selector change, update the squad number
 			//team back
@@ -130,7 +131,7 @@ class AdminTeamSelectorOverview extends Component {
 	}
 
 	getFieldGroups() {
-		const { isLoadingTeam, options, team } = this.state;
+		const { isLoadingTeam, options, readOnly, team } = this.state;
 
 		return [
 			{
@@ -159,7 +160,7 @@ class AdminTeamSelectorOverview extends Component {
 								form.setFieldValue("numberFromSquad", "");
 							}
 						},
-						isDisabled: isLoadingTeam,
+						isDisabled: readOnly || isLoadingTeam,
 						isClearable: true
 					},
 					{
@@ -167,7 +168,7 @@ class AdminTeamSelectorOverview extends Component {
 						type: fieldTypes.select,
 						options: options.squads,
 						isNested: true,
-						isDisabled: !team || isLoadingTeam,
+						isDisabled: readOnly || !team || isLoadingTeam,
 						isClearable: true
 					}
 				]
@@ -206,7 +207,7 @@ class AdminTeamSelectorOverview extends Component {
 
 	render() {
 		const { createTeamSelector, updateTeamSelector, deleteTeamSelector } = this.props;
-		const { isNew, selector, validationSchema } = this.state;
+		const { isNew, readOnly, selector, validationSchema } = this.state;
 
 		//Handle props specifically for create/update
 		let formProps;
@@ -236,6 +237,7 @@ class AdminTeamSelectorOverview extends Component {
 						onReset={() => {
 							this.setState({ team: selector && selector.numberFromTeam });
 						}}
+						readOnly={readOnly}
 						validationSchema={validationSchema}
 						{...formProps}
 					/>

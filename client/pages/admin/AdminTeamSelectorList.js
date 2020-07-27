@@ -29,23 +29,36 @@ class AdminTeamSelectorList extends Component {
 		return { selectorList };
 	}
 
-	renderList() {
+	renderLists() {
 		const { selectorList } = this.state;
 
 		if (!Object.keys(selectorList).length) {
-			return "No team selectors found";
+			return <div className="card form-card">No team selectors found</div>;
 		}
 
-		const list = _.chain(selectorList)
-			.sortBy("title")
-			.map(({ _id, title }) => (
-				<li key={_id}>
-					<Link to={`/admin/team-selectors/${_id}`}>{title}</Link>
-				</li>
-			))
-			.value();
+		return _.chain(selectorList)
+			.groupBy(l => (l._game ? "Game" : "Custom"))
+			.map((selectors, type) => {
+				const getDisplayValue = ({ title, _game }) => (_game ? _game.slug : title);
 
-		return <ul className="plain-list">{list}</ul>;
+				const list = _.chain(selectors)
+					.sortBy(getDisplayValue)
+					.map(s => (
+						<li key={s._id}>
+							<Link to={`/admin/team-selectors/${s._id}`}>{getDisplayValue(s)}</Link>
+						</li>
+					))
+					.value();
+
+				return (
+					<div className="card form-card" key={type}>
+						<h6>{type} Selectors</h6>
+						<ul className="plain-list">{list}</ul>
+					</div>
+				);
+			})
+			.sortBy("key")
+			.value();
 	}
 
 	render() {
@@ -54,7 +67,7 @@ class AdminTeamSelectorList extends Component {
 		if (!selectorList) {
 			content = <LoadingPage />;
 		} else {
-			content = <div className="card form-card">{this.renderList()}</div>;
+			content = this.renderLists();
 		}
 		return (
 			<div className="admin-country-list">

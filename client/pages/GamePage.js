@@ -14,6 +14,7 @@ import BroadcasterImage from "../components/broadcasters/BroadcasterImage";
 import TeamBanner from "../components/teams/TeamBanner";
 import TeamForm from "../components/games/TeamForm";
 import PregameSquadList from "../components/games/PregameSquadList";
+import GameTeamSelector from "../components/games/GameTeamSelector";
 import MatchSquadList from "../components/games/MatchSquadList";
 import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
@@ -198,6 +199,27 @@ class GamePage extends Component {
 			return null;
 		} else {
 			return <PregameSquadList game={game} previousGame={previousGame} />;
+		}
+	}
+
+	generateTeamSelector() {
+		const { localTeam } = this.props;
+		const { game } = this.state;
+
+		//Ensure squads aren't announced
+		if (game.squadsAnnounced) {
+			return null;
+		}
+
+		//Check we have eligible players
+		let showSelector = game.eligiblePlayers[localTeam].length;
+		if (game._competition.instance.usesPregameSquads) {
+			const pregameSquad = game.pregameSquads.find(({ _team }) => _team == localTeam);
+			showSelector = pregameSquad && pregameSquad.squad && pregameSquad.squad.length;
+		}
+
+		if (showSelector) {
+			return <GameTeamSelector game={game} />;
 		}
 	}
 
@@ -498,8 +520,9 @@ class GamePage extends Component {
 					{this.generateManOfSteel()}
 					{this.generateFanPotm()}
 					{this.generateNewsPosts()}
-					{this.generatePregameList()}
 					{this.generateForm()}
+					{this.generatePregameList()}
+					{this.generateTeamSelector()}
 					{this.generateSquads()}
 					{this.generateStats()}
 					{this.generateLeagueTable()}
