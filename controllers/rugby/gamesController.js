@@ -1275,7 +1275,7 @@ export async function getTeamSelectorValues(_id, res) {
 	const values = {
 		interchanges: 4,
 		slug: game.slug,
-		defaultSocialText: `Check out my Starting 17 for #${game.hashtags[0]}!\n\n{url}`,
+		defaultSocialText: `Check out my Starting 17 for #${game.hashtags[0]}!\n\nvia {site_social}\n{url}`,
 		numberFromTeam: localTeam
 	};
 

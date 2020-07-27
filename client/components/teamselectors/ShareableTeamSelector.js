@@ -74,17 +74,25 @@ class ShareableTeamSelector extends Component {
 	}
 
 	renderSecondColumn() {
-		const { baseUrl, fetchPreviewImage, shareTeamSelector, urlFormatter } = this.props;
+		const {
+			baseUrl,
+			fetchPreviewImage,
+			shareTeamSelector,
+			site_social,
+			urlFormatter
+		} = this.props;
 		const { editMode, selector } = this.state;
 
 		//Get Initial Share Values
-		let initialContent = "";
+		let initialContent = selector.defaultSocialText || "";
 
-		//Replace URL token
+		//Get Tokens
 		const url = `${baseUrl}/${urlFormatter(selector)}`;
-		if (selector.defaultSocialText) {
-			initialContent = selector.defaultSocialText.replace(/{url}/gi, url);
-		}
+
+		//Replace tokens
+		initialContent = initialContent
+			.replace(/{url}/gi, url)
+			.replace(/@*{site_social}/gi, "@" + site_social);
 
 		if (selector.activeUserChoices && !editMode) {
 			return (
@@ -185,9 +193,9 @@ ShareableTeamSelector.defaultProps = {
 };
 
 function mapStateToProps({ config, teams }) {
-	const { baseUrl, localTeam } = config;
+	const { baseUrl, localTeam, site_social } = config;
 	const { fullTeams } = teams;
-	return { baseUrl, fullTeams, localTeam };
+	return { baseUrl, fullTeams, localTeam, site_social };
 }
 
 export default connect(mapStateToProps, {
