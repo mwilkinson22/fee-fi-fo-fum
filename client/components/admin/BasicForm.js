@@ -36,7 +36,8 @@ class BasicForm extends Component {
 			"fieldGroups",
 			"initialValues",
 			"isNew",
-			"validationSchema"
+			"validationSchema",
+			"readOnly"
 		]);
 
 		if (!newState.enableRedirectBoolean) {
@@ -48,11 +49,27 @@ class BasicForm extends Component {
 
 	getFieldGroups(values) {
 		const { fieldGroups } = this.props;
+		const { readOnly } = this.state;
+
+		//Get Groups
+		let groups;
 		if (typeof fieldGroups === "function") {
-			return fieldGroups(values);
+			groups = fieldGroups(values);
 		} else {
-			return fieldGroups;
+			groups = fieldGroups;
 		}
+
+		//Conditionally add readonly
+		if (readOnly) {
+			groups = groups.map(group => {
+				if (group.fields) {
+					group.fields = group.fields.map(f => ({ ...f, readOnly }));
+				}
+				return group;
+			});
+		}
+
+		return groups;
 	}
 
 	validateFieldGroups(values) {
@@ -271,7 +288,11 @@ class BasicForm extends Component {
 			submitButtonText,
 			useFormCard
 		} = this.props;
-		const { disableRedirect, enableRedirectBoolean, isNew } = this.state;
+		const { disableRedirect, enableRedirectBoolean, isNew, readOnly } = this.state;
+
+		if (readOnly) {
+			return null;
+		}
 
 		//Get text for submit button
 		if (!submitButtonText) {
@@ -358,7 +379,7 @@ class BasicForm extends Component {
 			useFormCard,
 			useGrid
 		} = this.props;
-		const { initialValues, validationSchema } = this.state;
+		const { initialValues, readOnly, validationSchema } = this.state;
 
 		const divClass = [className];
 		if (useFormCard) {
@@ -375,7 +396,9 @@ class BasicForm extends Component {
 				isInitialValid={isInitialValid}
 				initialValues={initialValues}
 				onReset={onReset}
-				onSubmit={(values, formikProps) => this.handleSubmit(values, formikProps)}
+				onSubmit={(values, formikProps) =>
+					readOnly ? {} : this.handleSubmit(values, formikProps)
+				}
 				validationSchema={validationSchema}
 				render={formikProps => {
 					const { errors, initialValues, values, touched, isSubmitting } = formikProps;
@@ -430,6 +453,7 @@ BasicForm.propTypes = {
 	onReset: PropTypes.func,
 	onSubmit: PropTypes.func.isRequired, //values => Action(id, values)
 	promptOnExit: PropTypes.bool,
+	readOnly: PropTypes.bool,
 	redirectOnDelete: PropTypes.string,
 	replaceResetButton: PropTypes.node,
 	//Either a simple string, or a callback passing in form values and action result
@@ -447,6 +471,7 @@ BasicForm.defaultProps = {
 	fastFieldByDefault: true,
 	isInitialValid: false,
 	promptOnExit: true,
+	readOnly: false,
 	redirectOnDelete: `/admin/`,
 	replaceResetButton: null,
 	submitButtonText: null,
