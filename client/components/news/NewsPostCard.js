@@ -53,7 +53,7 @@ class NewsPostCard extends Component {
 			>
 				<div className="post-meta">
 					{this.getTitle()}
-					<h6>
+					<h6 className="post-meta-category-and-date">
 						<span>{categoryElement}</span>
 						<span>{post.dateCreated.toString("dddd dS MMM yyyy H:mm")}</span>
 					</h6>
@@ -75,7 +75,7 @@ class NewsPostCard extends Component {
 				url = `/news/post/${slug}`;
 			}
 			return (
-				<Link to={url} className="card">
+				<Link to={url} className="card news-post-card">
 					{this.generateContent()}
 				</Link>
 			);

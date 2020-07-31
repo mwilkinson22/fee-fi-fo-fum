@@ -1622,3 +1622,11 @@ section.match-squads {
 		filter: grayscale(0.6);
 	}
 }
+
+.admin-game-news {
+	.category-wrapper:not(:last-child) {
+		margin-bottom: 10pt;
+		padding-bottom: 30pt;
+		border-bottom: solid 1pt #e4e4e4;
+	}
+}
