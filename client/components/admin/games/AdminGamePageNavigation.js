@@ -30,7 +30,8 @@ class AdminGamePageNavigation extends Component {
 		//Standard Options, always present on existing games
 		const submenuItems = [
 			{ label: "Overview", value: "", group: 0 },
-			{ label: "Images", value: "images", group: 0 }
+			{ label: "Images", value: "images", group: 0 },
+			{ label: "News", value: "news", group: 0 }
 		];
 
 		//Pregame Squads + Canvas Image

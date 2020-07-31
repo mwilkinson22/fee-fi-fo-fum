@@ -63,7 +63,7 @@
 		}
 	}
 
-	h6 {
+	h6:not(.post-meta-category-and-date) {
 		user-select: none;
 		font-size: 1.4em;
 		margin-bottom: 10pt;
