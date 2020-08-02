@@ -30,20 +30,23 @@ class ShareableTeamSelector extends Component {
 
 		//Ensure we have all dependencies
 		const { numberFromSquad, numberFromTeam } = newState.selector;
-		if (
-			numberFromTeam &&
-			(!fullTeams[numberFromTeam] || !fullTeams[numberFromTeam].fullData) &&
-			!prevState.isLoadingTeam
-		) {
-			//Load team for squad numbers
-			fetchTeam(numberFromTeam, "full");
-			newState.isLoadingTeam = true;
-		} else if (fullTeams[numberFromTeam]) {
-			const squad = fullTeams[numberFromTeam].squads.find(
-				({ _id }) => _id == numberFromSquad
-			);
-			newState.squadNumbers = squad ? squad.players : [];
-			newState.isLoadingTeam = false;
+
+		//Wait for squad numbers
+		if (numberFromTeam && numberFromSquad) {
+			if (fullTeams[numberFromTeam] && fullTeams[numberFromTeam].fullData) {
+				//If we already have full data for this team,
+				//add squad numbers to state
+				const squad = fullTeams[numberFromTeam].squads.find(
+					({ _id }) => _id == numberFromSquad
+				);
+				newState.squadNumbers = squad ? squad.players : [];
+				newState.isLoadingTeam = false;
+			} else if (!prevState.isLoadingTeam) {
+				//Otherwise load the team, if we're not alredy
+				fetchTeam(numberFromTeam, "full");
+				newState.isLoadingTeam = true;
+			}
+			//Otherwise, we're already loading the team, so we just wait
 		}
 
 		//If a player is missing from the preselected values
