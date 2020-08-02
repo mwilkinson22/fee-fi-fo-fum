@@ -218,7 +218,7 @@ class NewsPostPage extends Component {
 	}
 
 	appendArticle() {
-		const { ticketLink } = this.props;
+		//const { ticketLink } = this.props;
 		const { game, post } = this.state;
 
 		let content;
@@ -226,21 +226,21 @@ class NewsPostPage extends Component {
 		switch (post.category) {
 			case "previews": {
 				if (game) {
-					let ticketLinkElement;
-					if (ticketLink && new Date() < game.date) {
-						ticketLinkElement = (
-							<p>
-								Want to watch the game? Get your tickets{" "}
-								<a href={ticketLink} target="_blank" rel="noopener noreferrer">
-									here
-								</a>
-								!
-							</p>
-						);
-					}
+					// let ticketLinkElement;
+					// if (ticketLink && new Date() < game.date) {
+					// 	ticketLinkElement = (
+					// 		<p>
+					// 			Want to watch the game? Get your tickets{" "}
+					// 			<a href={ticketLink} target="_blank" rel="noopener noreferrer">
+					// 				here
+					// 			</a>
+					// 			!
+					// 		</p>
+					// 	);
+					// }
 					content = (
 						<div>
-							{ticketLinkElement}
+							{/*ticketLinkElement*/}
 							<PregameSquadList game={game} />
 						</div>
 					);
