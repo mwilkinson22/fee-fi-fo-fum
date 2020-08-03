@@ -3,6 +3,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
+import { Notifier } from "@airbrake/browser";
 
 //Components
 import ErrorPrintout from "./ErrorPrintout";
@@ -18,6 +19,15 @@ class ErrorBoundary extends Component {
 		super(props);
 
 		this.state = initialState;
+
+		const { airbrakeId, airbrakeKey } = props;
+
+		if (airbrakeId && airbrakeKey) {
+			this.airbrake = new Notifier({
+				projectId: airbrakeId,
+				projectKey: airbrakeKey
+			});
+		}
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -68,6 +78,14 @@ class ErrorBoundary extends Component {
 			//Send to server
 			sendError(errorObject);
 		}
+
+		//Send error to airbrake
+		if (this.airbrake) {
+			this.airbrake.notify({
+				error,
+				params: { info }
+			});
+		}
 	}
 	render() {
 		if (this.state.message) {
@@ -83,15 +101,10 @@ class ErrorBoundary extends Component {
 }
 
 function mapStateToProps({ config, errors }) {
-	const { authUser, browser, deviceType } = config;
+	const { authUser, airbrakeId, airbrakeKey, browser, deviceType } = config;
 	const { sentErrors } = errors;
 
-	return { authUser, browser, deviceType, sentErrors };
+	return { authUser, airbrakeId, airbrakeKey, browser, deviceType, sentErrors };
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{ sendError }
-	)(ErrorBoundary)
-);
+export default withRouter(connect(mapStateToProps, { sendError })(ErrorBoundary));

@@ -1,4 +1,6 @@
 module.exports = {
+	airbrakeId: process.env.AIRBRAKE_PROJECT_ID,
+	airbrakeKey: process.env.AIRBRAKE_API_KEY,
 	apiUrl: process.env.API_URL,
 	authGuid: process.env.AUTH_GUID,
 	cookieKey: process.env.COOKIE_KEY,

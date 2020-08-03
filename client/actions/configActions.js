@@ -6,7 +6,9 @@ import {
 	mongoURI,
 	googleBucketName,
 	earliestLocalGames,
-	ticketLink
+	ticketLink,
+	airbrakeId,
+	airbrakeKey
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -52,7 +54,11 @@ export const getCoreConfig = req => async dispatch => {
 		facebookApp,
 
 		//Earliest local games to show
-		earliestLocalGames: Number(earliestLocalGames) || 0
+		earliestLocalGames: Number(earliestLocalGames) || 0,
+
+		//Set Airbrake Info
+		airbrakeId,
+		airbrakeKey
 	};
 
 	//Add Bucket Paths
