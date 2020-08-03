@@ -316,6 +316,15 @@ async function getGames(req, res, forGamePage, forAdmin) {
 		}
 	}
 
+	if (!forAdmin) {
+		//Strip the ip and session data
+		for (const game of games) {
+			if (game.fan_potm) {
+				game.fan_potm.votes = game.fan_potm.votes.map(v => _.pick(v, ["_id", "choice"]));
+			}
+		}
+	}
+
 	res.send(_.keyBy(games, "_id"));
 }
 
