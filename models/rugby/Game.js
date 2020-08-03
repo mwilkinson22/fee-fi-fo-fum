@@ -228,14 +228,10 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"playerStats._id",
 				"pregameSquads"
 			);
-		} else {
-			//We can't simply add these to the initial declaration or it will prevent
-			//the full fan_potm object being removed
-			propsToRemove.push("fan_potm.votes.ip", "fan_potm.votes.session");
 		}
 
 		//Get required fields
-		model = this.select(propsToRemove.map(p => `-${p}`).join(" ")).select({ fan_potm: false });
+		model = this.select(propsToRemove.map(p => `-${p}`).join(" "));
 	}
 
 	//Populate
