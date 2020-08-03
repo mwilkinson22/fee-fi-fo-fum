@@ -128,7 +128,9 @@
 		.cards {
 			overflow: auto;
 			max-height: 70vh;
-			height: 485pt;
+			@media #{$desktop-and-tablet} {
+				height: 485pt;
+			}
 		}
 	}
 
