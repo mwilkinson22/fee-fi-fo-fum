@@ -13,6 +13,8 @@ import passport from "passport";
 import bodyParser from "body-parser";
 import useragent from "express-useragent";
 import uuid from "uuid/v4";
+const Airbrake = require("@airbrake/node");
+const airbrakeExpress = require("@airbrake/node/dist/instrumentation/express");
 
 //Models
 import "./models/Award";
@@ -73,6 +75,15 @@ mongoose.connect(keys.mongoURI, {
 	useUnifiedTopology: true
 });
 
+//Prepare airbrake
+let airbrake;
+if (keys.airbrakeId && keys.airbrakeKey) {
+	airbrake = new Airbrake.Notifier({
+		projectId: keys.airbrakeId,
+		projectKey: keys.airbrakeKey
+	});
+}
+
 //Render App with middleware
 const app = express();
 app.use(bodyParser.json());
@@ -83,6 +94,9 @@ app.use((req, res, done) => {
 	req.ipAddress = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
 	done();
 });
+if (airbrake) {
+	app.use(airbrakeExpress.makeMiddleware(airbrake));
+}
 
 //Set up passport
 app.use(
@@ -177,6 +191,11 @@ app.get("*", async (req, res) => {
 		res.send(content);
 	});
 });
+
+//Final airbrake error handler
+if (airbrake) {
+	app.use(airbrakeExpress.makeErrorHandler(airbrake));
+}
 
 if (process.env.NODE_ENV !== "development") {
 	require("./scheduledTasks");
