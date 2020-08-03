@@ -58,7 +58,7 @@ class AdminGameEventList extends Component {
 					key="image"
 					className={`image ${this.state.visibleEventImage === _id ? "visible" : ""}`}
 				>
-					<img src={tweet_image} />
+					<img src={tweet_image.replace(/^http:/, "https:")} />
 				</div>
 			);
 		}
