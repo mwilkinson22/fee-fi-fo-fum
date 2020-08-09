@@ -15,6 +15,7 @@ import useragent from "express-useragent";
 import uuid from "uuid/v4";
 const Airbrake = require("@airbrake/node");
 const airbrakeExpress = require("@airbrake/node/dist/instrumentation/express");
+import "source-map-support/register";
 
 //Models
 import "./models/Award";
