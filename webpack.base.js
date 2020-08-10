@@ -1,6 +1,9 @@
 const path = require("path");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
+//Determine sourcemap settings
+const devtool = process.env.NODE_ENV === "production" ? "source-map" : "eval-source-map";
+
 module.exports = {
 	module: {
 		rules: [
@@ -77,5 +80,6 @@ module.exports = {
 	plugins: [new ExtractTextPlugin("styles.css")],
 	performance: {
 		hints: false
-	}
+	},
+	devtool
 };
