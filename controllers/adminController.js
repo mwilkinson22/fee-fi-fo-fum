@@ -28,7 +28,8 @@ export async function getDashboardData(req, res) {
 		birthdays: getBirthdays(localTeamObject),
 		gamesWithIssues: getGames(),
 		missingPlayerDetails: getPlayersWithMissingData(localTeamObject, firstTeam),
-		teamsWithoutGrounds: getTeamsWithoutGrounds()
+		teamsWithoutGrounds: getTeamsWithoutGrounds(),
+		gamesWithoutReferees: getGamesWithoutRefs(firstTeam)
 	};
 
 	//Await results
@@ -271,4 +272,17 @@ async function getGames() {
 			}
 		})
 		.filter(_.identity);
+}
+
+async function getGamesWithoutRefs(firstTeam) {
+	const games = await Game.find(
+		{
+			_teamType: firstTeam,
+			playerStats: { $exists: true, $not: { $size: 0 } },
+			_referee: null
+		},
+		"_opposition date"
+	).populate({ path: "_opposition", select: "name" });
+
+	return games;
 }
