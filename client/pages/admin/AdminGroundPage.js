@@ -82,10 +82,7 @@ class AdminGroundPage extends Component {
 					.when("_city", newCityTest)
 					.label("New City Country")
 			}),
-			parking: Yup.object().shape({
-				stadium: Yup.boolean().label("Stadium Parking"),
-				roadside: Yup.boolean().label("Roadside Parking")
-			}),
+			parking: Yup.string().label("Parking"),
 			image: Yup.string().label("Image")
 		});
 
@@ -136,6 +133,13 @@ class AdminGroundPage extends Component {
 		//Render options for country selector
 		newState.countryOptions = _.map(countries, c => ({ label: c.name, value: c._id }));
 
+		//Parking options
+		newState.parkingOptions = [
+			{ label: "None", value: "" },
+			{ label: "Stadium", value: "stadium" },
+			{ label: "Street", value: "street" }
+		];
+
 		return newState;
 	}
 
@@ -157,10 +161,7 @@ class AdminGroundPage extends Component {
 				newCityName: "",
 				newCityCountry: ""
 			},
-			parking: {
-				stadium: false,
-				roadside: false
-			},
+			parking: "",
 			image: ""
 		};
 
@@ -197,7 +198,7 @@ class AdminGroundPage extends Component {
 	}
 
 	getFieldGroups(values) {
-		const { cityOptions, countryOptions, ground } = this.state;
+		const { cityOptions, countryOptions, ground, parkingOptions } = this.state;
 
 		//Add basic address fields
 		const addressFields = [
@@ -242,10 +243,7 @@ class AdminGroundPage extends Component {
 			},
 			{
 				label: "Travel",
-				fields: [
-					{ name: "parking.stadium", type: fieldTypes.boolean },
-					{ name: "parking.roadside", type: fieldTypes.boolean }
-				]
+				fields: [{ name: "parking", type: fieldTypes.radio, options: parkingOptions }]
 			},
 			{
 				label: "Image",

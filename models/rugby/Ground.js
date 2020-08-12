@@ -5,14 +5,7 @@ const AddressSchema = require("./Address");
 const groundSchema = new Schema({
 	name: { type: String, required: true },
 	address: AddressSchema,
-	parking: {
-		stadium: { type: Boolean, default: false },
-		roadside: { type: Boolean, default: false },
-		nearby: {
-			address: AddressSchema,
-			estimatedCost: Number
-		}
-	},
+	parking: { type: String, enum: ["stadium", "street", null] },
 	directions: [
 		{
 			method: { type: String, enum: ["train", "bus", "walk"] },
