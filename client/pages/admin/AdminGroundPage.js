@@ -11,7 +11,7 @@ import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
 
 //Actions
-import { fetchCities } from "~/client/actions/locationActions";
+import { createCity, fetchCountries, fetchCities } from "~/client/actions/locationActions";
 import {
 	fetchAllGrounds,
 	createGround,
@@ -27,8 +27,16 @@ class AdminGroundPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { groundList, fetchAllGrounds, cities, fetchCities } = props;
+		const {
+			groundList,
+			fetchAllGrounds,
+			cities,
+			fetchCities,
+			countries,
+			fetchCountries
+		} = props;
 
+		//Get dependencies
 		if (!groundList) {
 			fetchAllGrounds();
 		}
@@ -36,6 +44,17 @@ class AdminGroundPage extends Component {
 		if (!cities) {
 			fetchCities();
 		}
+
+		if (!countries) {
+			fetchCountries();
+		}
+
+		//Check for "new city" field requirement
+		const newCityTest = {
+			is: "new",
+			then: Yup.string().required(),
+			otherwise: Yup.string()
+		};
 
 		const validationSchema = Yup.object().shape({
 			name: Yup.string()
@@ -47,7 +66,7 @@ class AdminGroundPage extends Component {
 					.required()
 					.label("Street"),
 				street2: Yup.string().label("Street 2"),
-				_city: Yup.mixed()
+				_city: Yup.string()
 					.label("City")
 					.required(),
 				postcode: Yup.string()
@@ -55,7 +74,13 @@ class AdminGroundPage extends Component {
 					.label("Postcode"),
 				googlePlaceId: Yup.string()
 					.required()
-					.label("Google Place ID")
+					.label("Google Place ID"),
+				newCityName: Yup.string()
+					.when("_city", newCityTest)
+					.label("New City Name"),
+				newCityCountry: Yup.string()
+					.when("_city", newCityTest)
+					.label("New City Country")
 			}),
 			parking: Yup.object().shape({
 				stadium: Yup.boolean().label("Stadium Parking"),
@@ -68,7 +93,7 @@ class AdminGroundPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { groundList, match, cities } = nextProps;
+		const { groundList, match, cities, countries } = nextProps;
 		const newState = { isLoading: false };
 
 		const { _id } = match.params;
@@ -76,8 +101,8 @@ class AdminGroundPage extends Component {
 		//Check whether an _id param has been passed
 		newState.isNew = !_id;
 
-		//Await cities and (in edit mode) the groundList
-		if (!cities || (!newState.isNew && !groundList)) {
+		//Await cities, countries and (in edit mode) the groundList
+		if (!cities || !countries || (!newState.isNew && !groundList)) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -88,10 +113,28 @@ class AdminGroundPage extends Component {
 		}
 
 		//Render options for the city selector
-		newState.cityOptions = cities.map(city => ({
-			label: `${city.name}, ${city._country.name}`,
-			value: city._id
-		}));
+		newState.cityOptions = _.chain(cities)
+			.groupBy("_country.name")
+			.map((cities, country) => {
+				const options = _.chain(cities)
+					.map(({ name, _id }) => ({
+						label: name,
+						value: _id
+					}))
+					.sortBy("label")
+					.value();
+
+				return {
+					label: country,
+					options
+				};
+			})
+			.sortBy("label")
+			.value();
+		newState.cityOptions.unshift({ label: "Add New City", value: "new" });
+
+		//Render options for country selector
+		newState.countryOptions = _.map(countries, c => ({ label: c.name, value: c._id }));
 
 		return newState;
 	}
@@ -107,8 +150,12 @@ class AdminGroundPage extends Component {
 				street: "",
 				street2: "",
 				_city: "",
+				newCity: "",
+				_country: "",
 				postcode: "",
-				googlePlaceId: ""
+				googlePlaceId: "",
+				newCityName: "",
+				newCityCountry: ""
 			},
 			parking: {
 				stadium: false,
@@ -149,8 +196,39 @@ class AdminGroundPage extends Component {
 		}
 	}
 
-	getFieldGroups() {
-		const { cityOptions, ground } = this.state;
+	getFieldGroups(values) {
+		const { cityOptions, countryOptions, ground } = this.state;
+
+		//Add basic address fields
+		const addressFields = [
+			{ name: "address.street", type: fieldTypes.text },
+			{ name: "address.street2", type: fieldTypes.text },
+			{
+				name: "address._city",
+				type: fieldTypes.select,
+				options: cityOptions,
+				isNested: true
+			}
+		];
+
+		//Conditionally add newCity fields
+		if (values.address._city === "new") {
+			addressFields.push(
+				{ name: "address.newCityName", type: fieldTypes.text },
+				{
+					name: "address.newCityCountry",
+					type: fieldTypes.select,
+					options: countryOptions
+				}
+			);
+		}
+
+		//Add postcode + google id
+		addressFields.push(
+			{ name: "address.postcode", type: fieldTypes.text },
+			{ name: "address.googlePlaceId", type: fieldTypes.text }
+		);
+
 		return [
 			{
 				fields: [
@@ -160,17 +238,7 @@ class AdminGroundPage extends Component {
 			},
 			{
 				label: "Address",
-				fields: [
-					{ name: "address.street", type: fieldTypes.text },
-					{ name: "address.street2", type: fieldTypes.text },
-					{
-						name: "address._city",
-						type: fieldTypes.select,
-						options: cityOptions
-					},
-					{ name: "address.postcode", type: fieldTypes.text },
-					{ name: "address.googlePlaceId", type: fieldTypes.text }
-				]
+				fields: addressFields
 			},
 			{
 				label: "Travel",
@@ -198,9 +266,33 @@ class AdminGroundPage extends Component {
 		];
 	}
 
+	async handleSubmit(values) {
+		const { createCity, createGround, updateGround } = this.props;
+		const { ground, isNew } = this.state;
+
+		//Conditionally create new city
+		if (values.address._city === "new") {
+			values.address._city = await createCity({
+				name: values.address.newCityName,
+				_country: values.address.newCityCountry
+			});
+		}
+
+		//Remove newCity values
+		delete values.address.newCityName;
+		delete values.address.newCityCountry;
+
+		//Upsert city
+		if (isNew) {
+			return createGround(values);
+		} else {
+			return updateGround(ground._id, values);
+		}
+	}
+
 	render() {
 		const { ground, isNew, isLoading, validationSchema } = this.state;
-		const { createGround, updateGround, deleteGround } = this.props;
+		const { deleteGround } = this.props;
 
 		//Wait for cities and groundlist to load
 		if (isLoading) {
@@ -219,13 +311,11 @@ class AdminGroundPage extends Component {
 		let formProps;
 		if (isNew) {
 			formProps = {
-				onSubmit: values => createGround(values),
 				redirectOnSubmit: id => `/admin/grounds/${id}`
 			};
 		} else {
 			formProps = {
 				onDelete: () => deleteGround(ground._id),
-				onSubmit: values => updateGround(ground._id, values),
 				redirectOnDelete: "/admin/grounds/"
 			};
 		}
@@ -241,10 +331,11 @@ class AdminGroundPage extends Component {
 				<section className="form">
 					<div className="container">
 						<BasicForm
-							fieldGroups={this.getFieldGroups()}
+							fieldGroups={values => this.getFieldGroups(values)}
 							initialValues={this.getInitialValues()}
 							isNew={isNew}
 							itemType="Ground"
+							onSubmit={values => this.handleSubmit(values)}
 							validationSchema={validationSchema}
 							{...formProps}
 						/>
@@ -257,13 +348,15 @@ class AdminGroundPage extends Component {
 
 function mapStateToProps({ grounds, locations }) {
 	const { groundList } = grounds;
-	const { cities } = locations;
-	return { cities, groundList };
+	const { cities, countries } = locations;
+	return { cities, countries, groundList };
 }
 
 export default withRouter(
 	connect(mapStateToProps, {
 		fetchAllGrounds,
+		createCity,
+		fetchCountries,
 		fetchCities,
 		createGround,
 		updateGround,
