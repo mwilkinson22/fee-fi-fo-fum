@@ -186,7 +186,13 @@ p {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	position: relative;
-	padding: 0 1%;
+
+	@media #{$desktop-only} {
+		padding: 0 1%;
+	}
+	@media #{$mobile-and-tablet} {
+		padding: 0 10pt;
+	}
 
 	&.no-padding {
 		padding: 0;

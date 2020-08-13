@@ -15,7 +15,7 @@ export default class TeamBanner extends Component {
 		const { team, className, score } = this.state;
 		return (
 			<div
-				className={`team-banner ${className || ""}`}
+				className={`team-banner ${score ? "with-score" : ""} ${className || ""}`}
 				style={{
 					backgroundColor: team.colours.main,
 					color: team.colours.text

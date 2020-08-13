@@ -11,9 +11,15 @@ a .person-image {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	padding-top: 20%;
 	transition: box-shadow 200ms;
 	-webkit-font-smoothing: antialiased;
+
+	@media #{$mobile-only} {
+		padding-top: 20pt;
+	}
+	@media #{$desktop-and-tablet} {
+		padding-top: 20%;
+	}
 
 	&:hover {
 		.person-card {

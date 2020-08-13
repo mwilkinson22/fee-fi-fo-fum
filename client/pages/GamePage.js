@@ -181,7 +181,7 @@ class GamePage extends Component {
 			return (
 				<section className="countdown">
 					<div className="container">
-						<h3>Countdown to Kickoff</h3>
+						<h2>Countdown to Kickoff</h2>
 						<Countdown
 							date={game.date}
 							onFinish={() => this.setState({ isFixture: false })}

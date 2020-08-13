@@ -64,9 +64,16 @@ class GameCard extends Component {
 		const { game, hideImage } = this.props;
 		const { isLarge } = this.state;
 		const opposition = game._opposition;
-		const groundString = game._ground
-			? `${game._ground.name}, ${game._ground.address._city.name}`
-			: "Venue TBD";
+
+		//Ground variables
+		let groundString;
+		let groundClass;
+		if (game._ground) {
+			groundString = `${game._ground.name}, ${game._ground.address._city.name}`;
+		} else {
+			groundString = "Venue TBD";
+			groundClass = "no-ground";
+		}
 		const homeAwayText = game.isAway ? "(A)" : "(H)";
 		const url = game.slug;
 		const title = game.title;
@@ -107,7 +114,7 @@ class GameCard extends Component {
 						</h4>
 						<ul>
 							<li className="date">{formatDate(game)}</li>
-							<li>{groundString}</li>
+							<li className={groundClass}>{groundString}</li>
 							<li>{title}</li>
 							{this.generateCountdown()}
 						</ul>

@@ -214,6 +214,11 @@ class TeamForm extends Component {
 			);
 		});
 
+		let drawsDiv;
+		if (results.D) {
+			drawsDiv = <div>Draws: {results.D}</div>;
+		}
+
 		return (
 			<div className="head-to-head" key="h2h">
 				<h2>Head to Head</h2>
@@ -222,7 +227,7 @@ class TeamForm extends Component {
 					<div>
 						{fullTeams[localTeam].name.short} wins: {results.W}
 					</div>
-					<div>Draws: {results.D}</div>
+					{drawsDiv}
 					<div>
 						{game._opposition.name.short} wins: {results.L}
 					</div>

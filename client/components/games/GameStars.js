@@ -67,7 +67,7 @@ class GameStars extends Component {
 									)}
 									{value}&nbsp;
 								</span>
-								<span className="label">{label} </span>
+								<span className="label">{label}</span>
 							</div>
 						);
 					})

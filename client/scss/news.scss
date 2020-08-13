@@ -294,6 +294,11 @@
 		height: 100%;
 	}
 	@media #{$mobile-only} {
+		.card {
+			.post-meta .title {
+				font-size: 10pt;
+			}
+		}
 		grid-template-columns: 1fr;
 	}
 

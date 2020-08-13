@@ -5,10 +5,6 @@
 	justify-content: flex-end;
 	position: relative;
 
-	&:not(.hidden-image) {
-		padding-top: 30%;
-	}
-
 	.background-image-wrapper {
 		position: absolute;
 		left: 0;
@@ -46,35 +42,62 @@
 			margin-right: 10pt;
 			pointer-events: none;
 		}
-		h4 {
-			color: inherit;
-			font-size: 1.5em;
-			font-weight: bold;
-		}
 		.game-details-wrapper {
 			flex-grow: 1;
 			font-weight: 400;
+			h4 {
+				color: inherit;
+				font-weight: bold;
+
+				@media #{$desktop-and-tablet} {
+					font-size: 1.5em;
+				}
+			}
 			.date {
 				font-weight: 600;
 			}
 			.game-countdown {
 				margin-top: 4pt;
 				display: block;
-				@media #{$mobile-only} {
-					display: grid;
-					grid-template-columns: 1fr 1fr;
+			}
+
+			@media #{$mobile-only} {
+				ul {
+					font-size: 0.9em;
+					.game-countdown {
+						display: grid;
+						grid-template-columns: 1fr 1fr;
+					}
 				}
 			}
 		}
 	}
 
 	@media #{$mobile-only} {
-		.game-icons {
-			display: none;
+		.game-card-content {
+			flex-direction: column;
+			h4,
+			li {
+				text-align: center;
+			}
+			img {
+				max-height: 30pt;
+			}
+			li.no-ground,
+			.game-icons {
+				display: none;
+			}
+			.game-details-wrapper {
+				width: 100%;
+				padding: 0 4pt;
+			}
 		}
 	}
 
 	@media #{$desktop-and-tablet} {
+		&:not(.hidden-image) {
+			padding-top: 30%;
+		}
 		.game-icons {
 			display: flex;
 			flex-direction: column;
@@ -145,7 +168,12 @@
 			text-transform: uppercase;
 		}
 		&:not(:last-child) {
-			margin-right: 10pt;
+			@media #{$mobile-only} {
+				margin-right: 4pt;
+			}
+			@media #{$desktop-and-tablet} {
+				margin-right: 10pt;
+			}
 		}
 	}
 }
@@ -204,18 +232,25 @@
 	overflow: hidden;
 	h2 {
 		text-align: center;
-		font-size: 2em;
 		margin-bottom: 8pt;
 		display: block;
 		width: 100%;
+		@media #{$mobile-only} {
+			font-size: 16pt;
+		}
+		@media #{$desktop-and-tablet} {
+			font-size: 2em;
+		}
 	}
 	section:not(.header) {
-		padding: 18pt 0;
 		&:nth-child(odd) {
 			background-color: rgba(255, 255, 255, 0.3);
 		}
-		@media #{$mobile-and-tablet} {
-			padding: 4pt 0;
+		@media #{$mobile-only} {
+			padding: 10pt 0;
+		}
+		@media #{$desktop-and-tablet} {
+			padding: 18pt 0;
 		}
 	}
 	section.header {
@@ -261,6 +296,11 @@
 
 		.team-banners {
 			box-shadow: 0 4pt 4pt rgba(0, 0, 0, 0.3);
+			@media #{$mobile-and-tablet} {
+				.team-banner:not(.with-score) {
+					text-align: center;
+				}
+			}
 		}
 
 		@media #{$mobile-and-tablet} {
@@ -329,7 +369,6 @@
 
 	section.countdown {
 		text-align: center;
-		font-size: 20pt;
 		transition: height 300ms, opacity 300ms, padding 300ms;
 		&.completed {
 			height: 0;
@@ -341,12 +380,14 @@
 			color: white;
 			background: $mainColour;
 		}
-		@media #{$mobile-and-tablet} {
-			.game-countdown {
-				text-align: left;
+		.game-countdown {
+			@media #{$desktop-and-tablet} {
+				font-size: 20pt;
 			}
-			.group {
-				display: block;
+			@media #{$mobile-and-tablet} {
+				.group {
+					margin-bottom: 3pt;
+				}
 			}
 		}
 	}
@@ -371,16 +412,9 @@
 					.team-boxes {
 						@include header;
 						font-size: 16pt;
-						padding: 12pt 8pt;
 						display: flex;
 						align-items: center;
 						justify-content: space-around;
-						flex-direction: column;
-						height: 70pt;
-						img {
-							max-height: 30pt;
-							margin: 0 4pt;
-						}
 					}
 					.details {
 						grid-column-end: span 2;
@@ -399,6 +433,42 @@
 						}
 					}
 				}
+				@media #{$desktop-and-tablet} {
+					.game {
+						.team-boxes {
+							padding: 12pt 8pt;
+							height: 70pt;
+							flex-direction: column;
+						}
+						img {
+							max-height: 60pt;
+							margin: 0 4pt;
+						}
+					}
+				}
+				@media #{$mobile-only} {
+					flex-direction: column-reverse;
+					.game {
+						.team-boxes {
+							flex-direction: row;
+							padding: 8pt;
+
+							&:nth-child(2) {
+								flex-direction: row-reverse;
+							}
+
+							img {
+								max-height: 30pt;
+								margin: 0 4pt;
+							}
+						}
+						.details {
+							.title {
+								display: none;
+							}
+						}
+					}
+				}
 			}
 			.summary {
 				@include header;
@@ -409,6 +479,7 @@
 				border-top: solid thin #ccc;
 				padding: 4pt 0;
 				&:last-child {
+					border-bottom: solid thin #ccc;
 					margin-bottom: 10pt;
 				}
 			}
@@ -440,9 +511,20 @@
 					flex-grow: 1;
 				}
 				.teams {
+					justify-content: space-around;
+				}
+				@media #{$mobile-only} {
 					flex-direction: column;
 					.team {
-						flex-grow: 0;
+						flex-grow: 1;
+					}
+				}
+				@media #{$desktop-and-tablet} {
+					.teams {
+						flex-direction: column;
+						.team {
+							flex-grow: 0;
+						}
 					}
 				}
 			}
@@ -450,9 +532,9 @@
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
+				flex-direction: row;
 				.team {
 					flex-grow: 1;
-					margin: 10pt;
 					box-shadow: 2pt 2pt 2pt #555;
 					.header {
 						@include header;
@@ -461,7 +543,6 @@
 						justify-content: center;
 					}
 					img {
-						max-height: 60pt;
 						max-width: 100%;
 						padding: 8pt 4pt;
 					}
@@ -473,10 +554,6 @@
 						}
 						.game {
 							background: #fafafa;
-							flex-basis: 0;
-							flex-grow: 1;
-							display: flex;
-							flex-direction: column;
 							.badge {
 								flex-grow: 1;
 								display: grid;
@@ -502,6 +579,50 @@
 									background: #444;
 								}
 							}
+						}
+					}
+					@media #{$desktop-and-tablet} {
+						margin: 10pt;
+						.games {
+							.game {
+								flex-basis: 0;
+								flex-grow: 1;
+								display: flex;
+								flex-direction: column;
+							}
+						}
+						img {
+							max-height: 60pt;
+						}
+					}
+					@media #{$mobile-only} {
+						margin: 10pt 2pt;
+						justify-content: space-between;
+						.games {
+							flex-direction: column-reverse;
+							.game {
+								display: grid;
+								grid-template-columns: 1fr 1fr;
+								grid-template-rows: 1fr 1fr;
+								align-items: center;
+								padding-right: 10pt;
+
+								&:not(:first-child) {
+									border-bottom: solid 1pt #bbb;
+								}
+
+								.badge {
+									grid-row: 1/3;
+								}
+								.score {
+									border-radius: 10pt;
+									margin-bottom: 4pt;
+									font-size: 0.8em;
+								}
+							}
+						}
+						img {
+							max-height: 40pt;
 						}
 					}
 				}
@@ -570,8 +691,20 @@
 		}
 	}
 	section.game-stars {
+		h2 {
+			margin-bottom: -20pt !important;
+		}
 		.person-card-grouping {
 			.person-card {
+				@media #{$mobile-only} {
+					.trim,
+					.person-image-wrapper {
+						display: none;
+					}
+					.main {
+						padding: 10pt;
+					}
+				}
 				.game-star-stats {
 					@include header;
 					text-shadow: 1px 1px 1px black;
@@ -580,11 +713,24 @@
 					border-top: solid thin $trimColour;
 					flex-grow: 1;
 					display: flex;
-					flex-direction: column;
-					.row {
-						&:not(:first-child) {
-							margin-top: 4pt;
+					@media #{$desktop-and-tablet} {
+						flex-direction: column;
+						.row {
+							&:not(:first-child) {
+								margin-top: 4pt;
+							}
 						}
+					}
+					@media #{$mobile-only} {
+						flex-wrap: wrap;
+						.row {
+							&:not(:last-child) .label::after {
+								content: ",\00a0";
+							}
+						}
+					}
+
+					.row {
 						.label,
 						.value {
 							display: inline-block;
@@ -749,6 +895,7 @@ section.pregame-squads {
 		display: flex;
 		flex-wrap: wrap;
 		width: 100%;
+		justify-content: center;
 		.team-block {
 			min-width: 340px;
 			position: relative;
@@ -815,7 +962,6 @@ section.pregame-squads {
 	}
 	.team-blocks {
 		@media #{$mobile-and-tablet} {
-			flex-direction: column;
 			.team-block {
 				text-shadow: none;
 				.player {

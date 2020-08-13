@@ -46,9 +46,6 @@
 				font-weight: 600;
 				&.team-badge {
 					text-align: center;
-					img {
-						max-height: 20pt;
-					}
 				}
 				&.team-name {
 					text-align: left;
@@ -77,9 +74,26 @@
 				bottom: 0;
 				margin: auto;
 			}
+			.team-badge {
+				img {
+					max-height: 20pt;
+				}
+			}
 		}
 	}
 	@media #{$mobile-only} {
+		font-size: 0.9em;
+		td,
+		th {
+			padding: 4pt;
+			&.team-badge {
+				padding-left: 0;
+				padding-right: 0;
+				img {
+					max-height: 16pt;
+				}
+			}
+		}
 		.team-name,
 		.Pld,
 		.F,

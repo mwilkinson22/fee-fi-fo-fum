@@ -224,7 +224,7 @@ class Header extends Component {
 
 			return (
 				<div className={`nav-wrapper ${i == 1 ? "admin" : "main"}`} key={i}>
-					<div className="container">
+					<div className="container no-mobile-tablet-padding">
 						<ul className={`root-nav-list`}>{items}</ul>
 					</div>
 				</div>

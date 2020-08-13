@@ -346,8 +346,13 @@ body {
 
 	@media #{$mobile-only} {
 		flex-direction: column;
-		div:not(.active) + div:not(.active) {
-			border-top: solid thin #eee;
+		div {
+			border: solid 1pt #555;
+			border-radius: 4pt;
+			overflow: hidden;
+			&:not(:last-child) {
+				margin-bottom: 4pt;
+			}
 		}
 	}
 	@media #{$desktop-and-tablet} {
