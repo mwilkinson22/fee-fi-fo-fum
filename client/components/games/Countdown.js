@@ -41,12 +41,17 @@ class Countdown extends Component {
 		//Don't show 0 days, etc
 		let valueFound = false;
 		["Days", "Hours", "Minutes", "Seconds"].forEach(segment => {
-			const value = this.state[segment.toLowerCase()] || null;
+			let value = this.state[segment.toLowerCase()] || null;
 
 			if (Number(value)) {
 				valueFound = true;
 			} else if (!valueFound) {
 				return false;
+			}
+
+			//Don't render actual numbers on server-side, to prevent "jumps"
+			if (typeof window === "undefined") {
+				value = "-";
 			}
 
 			elements.push(
