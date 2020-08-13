@@ -28,6 +28,15 @@ if (duplicatedTypes.length) {
 class App extends Component {
 	constructor(props) {
 		super(props);
+
+		//Clear initial state from DOM
+		if (typeof window !== "undefined") {
+			const initialState = document.querySelector("#initial-state-script");
+
+			if (initialState) {
+				initialState.remove();
+			}
+		}
 	}
 
 	componentDidMount() {
