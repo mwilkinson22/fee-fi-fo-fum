@@ -638,6 +638,42 @@
 			}
 		}
 	}
+	section.game-ground {
+		.wrapper {
+			display: flex;
+			flex-direction: column;
+
+			.ground-info {
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-end;
+				background-size: cover;
+				background-position: center;
+
+				.text-wrapper {
+					background-color: rgba(30, 30, 30, 0.8);
+					color: white;
+					padding: 8pt;
+					margin-top: 60pt;
+					.address {
+						li {
+							opacity: 1;
+						}
+						li:first-child {
+							font-weight: bold;
+						}
+						li:not(:last-child)::after {
+							content: ",";
+						}
+					}
+				}
+			}
+
+			.map-wrapper {
+				height: 300pt;
+			}
+		}
+	}
 }
 
 .game-events-wrapper {
@@ -1118,7 +1154,7 @@ section.match-squads {
 		.admin-game-stat-crawler {
 			.player-rows-wrapper {
 				display: grid;
-				margin-top: 10pt;
+				margin-top: 15%;
 				grid-template-columns: 1fr;
 				@media #{$desktop-and-tablet} {
 					grid-template-columns: repeat(2, 1fr);

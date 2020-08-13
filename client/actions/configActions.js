@@ -6,9 +6,11 @@ import {
 	mongoURI,
 	googleBucketName,
 	earliestLocalGames,
+	fansCanAttend,
 	ticketLink,
 	airbrakeId,
-	airbrakeKey
+	airbrakeKey,
+	googleMapsKey
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -41,6 +43,9 @@ export const getCoreConfig = req => async dispatch => {
 		//Set Analytics Key
 		gaTracking,
 
+		//Google Maps API Key
+		googleMapsKey,
+
 		//Prod or Dev
 		environment: process.env.NODE_ENV,
 
@@ -58,7 +63,10 @@ export const getCoreConfig = req => async dispatch => {
 
 		//Set Airbrake Info
 		airbrakeId,
-		airbrakeKey
+		airbrakeKey,
+
+		//Fans Can Attend Games?
+		fansCanAttend
 	};
 
 	//Add Bucket Paths

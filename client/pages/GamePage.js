@@ -24,6 +24,7 @@ import GameStars from "../components/games/GameStars";
 import LeagueTable from "~/client/components/seasons/LeagueTable";
 import StatsTables from "~/client/components/games/StatsTables";
 import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
+import GameGround from "../components/games/GameGround";
 import PageSwitch from "../components/PageSwitch";
 
 //Actions
@@ -326,6 +327,15 @@ class GamePage extends Component {
 		}
 	}
 
+	generateGameGround() {
+		const { fansCanAttend } = this.props;
+		const { game, isFixture } = this.state;
+
+		if (fansCanAttend && isFixture && game._ground) {
+			return <GameGround ground={game._ground} />;
+		}
+	}
+
 	generateStats() {
 		const { game } = this.state;
 		if (game._competition.instance.scoreOnly || game.status < 3) {
@@ -523,6 +533,7 @@ class GamePage extends Component {
 					{this.generateForm()}
 					{this.generatePregameList()}
 					{this.generateTeamSelector()}
+					{this.generateGameGround()}
 					{this.generateSquads()}
 					{this.generateStats()}
 					{this.generateLeagueTable()}
@@ -534,7 +545,7 @@ class GamePage extends Component {
 
 function mapStateToProps({ games, config, teams, news }) {
 	const { fullGames, redirects, gameList } = games;
-	const { localTeam, authUser, bucketPaths } = config;
+	const { localTeam, authUser, bucketPaths, fansCanAttend } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
 	return {
@@ -545,7 +556,8 @@ function mapStateToProps({ games, config, teams, news }) {
 		authUser,
 		bucketPaths,
 		gameList,
-		fullTeams
+		fullTeams,
+		fansCanAttend
 	};
 }
 
