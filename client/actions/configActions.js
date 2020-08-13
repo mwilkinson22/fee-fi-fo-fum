@@ -6,6 +6,7 @@ import {
 	mongoURI,
 	googleBucketName,
 	earliestLocalGames,
+	fansCanAttend,
 	ticketLink,
 	airbrakeId,
 	airbrakeKey
@@ -58,7 +59,10 @@ export const getCoreConfig = req => async dispatch => {
 
 		//Set Airbrake Info
 		airbrakeId,
-		airbrakeKey
+		airbrakeKey,
+
+		//Fans Can Attend Games?
+		fansCanAttend
 	};
 
 	//Add Bucket Paths

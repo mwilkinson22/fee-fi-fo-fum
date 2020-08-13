@@ -7,6 +7,7 @@ module.exports = {
 	defaultSocialProfile: process.env.DEFAULT_SOCIAL_PROFILE,
 	earliestLocalGames: process.env.EARLIEST_LOCAL,
 	facebookApp: process.env.FACEBOOK_APP,
+	fansCanAttend: process.env.FANS_CAN_ATTEND !== "0",
 	localTeam: process.env.LOCAL_TEAM,
 	gaTracking: process.env.GA_TRACKING,
 	gc: {
