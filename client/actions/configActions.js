@@ -9,7 +9,8 @@ import {
 	fansCanAttend,
 	ticketLink,
 	airbrakeId,
-	airbrakeKey
+	airbrakeKey,
+	googleMapsKey
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -41,6 +42,9 @@ export const getCoreConfig = req => async dispatch => {
 
 		//Set Analytics Key
 		gaTracking,
+
+		//Google Maps API Key
+		googleMapsKey,
 
 		//Prod or Dev
 		environment: process.env.NODE_ENV,
