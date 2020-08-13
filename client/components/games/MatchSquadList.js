@@ -149,7 +149,7 @@ class MatchSquadList extends Component {
 			}
 		};
 
-		const content = [image, this.renderNameBar(_player.name.last, _player.number, team)];
+		const content = [image, this.renderNameBar(_player.name.last, player.number, team)];
 
 		//Add GameStar stats
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
