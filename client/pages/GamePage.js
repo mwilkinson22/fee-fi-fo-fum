@@ -205,10 +205,10 @@ class GamePage extends Component {
 
 	generateTeamSelector() {
 		const { localTeam } = this.props;
-		const { game } = this.state;
+		const { game, isFixture } = this.state;
 
-		//Ensure squads aren't announced
-		if (game.squadsAnnounced) {
+		//Ensure it's a fixture with no squads announced
+		if (game.squadsAnnounced || !isFixture) {
 			return null;
 		}
 
