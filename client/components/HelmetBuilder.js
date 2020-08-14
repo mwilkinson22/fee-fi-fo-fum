@@ -42,19 +42,26 @@ class HelmetBuilder extends Component {
 
 		//Set Meta
 		const meta = [
+			//Facebook
 			{ property: "og:type", content: "website" },
+			{ property: "og:title", content: title },
+			{
+				property: "og:description",
+				content: description || site_default_description
+			},
+			{ property: "og:url", content: url },
+			{ property: "og:image", content: cardImage },
+			{ property: "fb:app_id", content: facebookApp },
+			//Twitter
 			{ name: "twitter:card", content: cardType },
-			{ name: "twitter:title", property: "og:title", content: title },
+			{ name: "twitter:title", content: title },
 			{ name: "twitter:creator", content: `@${author || site_social}` },
 			{ name: "twitter:site", content: `@${site_social}` },
 			{
 				name: "twitter:description",
-				property: "og:description",
 				content: description || site_default_description
 			},
-			{ name: "twitter:image", property: "og:image", content: cardImage },
-			{ property: "og:url", content: url },
-			{ property: "fb:app_id", content: facebookApp }
+			{ name: "twitter:image", content: cardImage }
 		];
 
 		return (
