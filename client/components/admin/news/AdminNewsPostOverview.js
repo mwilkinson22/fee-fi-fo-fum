@@ -179,6 +179,7 @@ class AdminNewsPostOverview extends Component {
 					defaultValues.title = titleArr.join(" ");
 				}
 			}
+			defaultValues.isPublished = false;
 
 			return defaultValues;
 		} else {
@@ -200,7 +201,7 @@ class AdminNewsPostOverview extends Component {
 			values.timeCreated = post.dateCreated.toString("HH:mm");
 
 			//Add Published Status
-			values.isPublished = post.isPublished;
+			values.isPublished = post.isPublished || false;
 
 			return values;
 		}
