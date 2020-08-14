@@ -94,10 +94,18 @@ export async function updatePost(req, res) {
 		res.status(404).send(`No post found with id ${_id}`);
 		return false;
 	} else {
-		const values = _.mapValues(req.body, v => (v == "" ? null : v));
-		values.dateModified = new Date();
-		await newsPost.updateOne(values);
+		const values = _.mapValues(req.body, v => (v === "" ? null : v));
 
+		//Update created date on publish
+		if (values.isPublished && !newsPost.isPublished) {
+			values.dateCreated = new Date();
+		}
+
+		//Update modified date
+		values.dateModified = new Date();
+
+		//Update post
+		await newsPost.updateOne(values);
 		await getUpdatedPost(_id, res);
 	}
 }
