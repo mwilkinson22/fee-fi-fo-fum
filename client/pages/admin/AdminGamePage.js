@@ -23,6 +23,7 @@ import AdminGameSquadImage from "../../components/admin/games/AdminGameSquadImag
 import AdminGameKickers from "../../components/admin/games/AdminGameKickers";
 import AdminGameEvent from "../../components/admin/games/AdminGameEvent";
 import AdminGameStats from "../../components/admin/games/AdminGameStats";
+import AdminGameOverrideGameStar from "../../components/admin/games/AdminGameOverrideGameStar";
 import AdminGamePostGame from "../../components/admin/games/AdminGamePostGame";
 import AdminGamePostGameEvents from "../../components/admin/games/AdminGamePostGameEvents";
 
@@ -215,6 +216,10 @@ class AdminGamePage extends Component {
 				<Switch>
 					<Route path={`${path}/post-game-events`} component={AdminGamePostGameEvents} />
 					<Route path={`${path}/post-game`} component={AdminGamePostGame} />
+					<Route
+						path={`${path}/override-gamestar`}
+						component={AdminGameOverrideGameStar}
+					/>
 					<Route
 						path={`${path}/stats`}
 						render={() => <AdminGameStats scoreOnly={scoreOnly} />}

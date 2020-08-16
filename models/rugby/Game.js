@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 //Constants
 const PlayerStatsCollectionSchema = require("./PlayerStatsCollection");
 import gameEvents from "~/constants/gameEvents";
+import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
 import getGameVirtuals from "./gameVirtuals";
@@ -121,6 +122,12 @@ const gameSchema = new Schema(
 		//Post-game fields
 		attendance: { type: Number, default: null },
 		extraTime: { type: Boolean, default: false },
+		overrideGameStarStats: [
+			{
+				_player: { type: Schema.Types.ObjectId, ref: "people " },
+				stats: [{ type: String, enum: Object.keys(playerStatTypes) }]
+			}
+		],
 		manOfSteel: {
 			type: [
 				{
@@ -226,7 +233,8 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"fan_potm_link",
 				"fan_potm",
 				"playerStats._id",
-				"pregameSquads"
+				"pregameSquads",
+				"overrideGameStarStats"
 			);
 		}
 

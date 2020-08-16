@@ -66,6 +66,11 @@ class AdminGamePageNavigation extends Component {
 			//Add a stats page when the competition allows it
 			if (!_competition.instance.scoreOnly) {
 				submenuItems.push({ label: "Stats", value: "stats", group: 2 });
+				submenuItems.push({
+					label: "Override GameStar Stats",
+					value: "override-gamestar",
+					group: 2
+				});
 			}
 
 			submenuItems.push({ label: "Post-Game Data", value: "post-game", group: 2 });

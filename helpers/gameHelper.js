@@ -169,6 +169,7 @@ export function getNextGame(id, gameList) {
 }
 
 export function getGameStarStats(game, player, overwriteThreshold = {}) {
+	//Convert stat types into an objects with overwrite threshold if necessary
 	const statTypes = _.chain(playerStatTypes)
 		.cloneDeep()
 		.map((obj, key) => {
@@ -184,25 +185,41 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 		.filter(s => s.requiredForGameStar !== null)
 		.value();
 
+	//Process player stats
 	const processedStats = PlayerStatsHelper.processStats(
 		game.playerStats.find(p => p._player == player._id).stats
 	);
+
+	//Check for overrideGameStarStats defined at a game level;
+	let overrideData;
+	if (game.overrideGameStarStats) {
+		overrideData = game.overrideGameStarStats.find(({ _player }) => _player == player._id);
+	}
+
+	//Loop through stat types and work out which values should be preserved
 	const values = _.chain(statTypes)
 		.map(({ key, moreIsBetter, requiredForGameStar }) => {
 			let isValid;
 
 			const value = processedStats[key];
 
-			//Check basic threshold
-			if (value) {
-				isValid = moreIsBetter
-					? value >= requiredForGameStar
-					: value <= requiredForGameStar;
-			}
+			if (overrideData) {
+				isValid = overrideData.stats.find(stat => stat == key);
+			} else {
+				//Check basic threshold
+				if (value) {
+					isValid = moreIsBetter
+						? value >= requiredForGameStar
+						: value <= requiredForGameStar;
+				}
 
-			//Check for exceptions
-			if ((key == "TS" && processedStats.TK < 25) || (key == "KS" && processedStats.G < 4)) {
-				isValid = false;
+				//Check for exceptions
+				if (
+					(key == "TS" && processedStats.TK < 25) ||
+					(key == "KS" && processedStats.G < 4)
+				) {
+					isValid = false;
+				}
 			}
 
 			if (isValid) {
@@ -216,6 +233,9 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 				} else {
 					starPoints = requiredForGameStar + 1;
 				}
+
+				//In case of game override, prevent negative starPoints
+				starPoints = Math.max(starPoints, 1);
 				return { key, value, starPoints };
 			}
 		})
