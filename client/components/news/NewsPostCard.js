@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
@@ -22,7 +21,7 @@ class NewsPostCard extends Component {
 	}
 
 	generateContent() {
-		const { bucketPaths, post, inArticle, webp } = this.props;
+		const { bucketPaths, post, inArticle, webp, hideImage } = this.props;
 
 		//Get Category
 		const category = newsCategories.find(c => c.slug == post.category);
@@ -41,7 +40,9 @@ class NewsPostCard extends Component {
 
 		return (
 			<div
-				className={`post-preview ${isPublished ? "" : "unpublished"}`}
+				className={`post-preview${isPublished ? "" : " unpublished"}${
+					hideImage ? " hide-image" : ""
+				}`}
 				style={{
 					backgroundImage: `url('${getHeaderImage(
 						post,
@@ -75,7 +76,7 @@ class NewsPostCard extends Component {
 				url = `/news/post/${slug}`;
 			}
 			return (
-				<Link to={url} className="card news-post-card">
+				<Link to={url} className={"card news-post-card"}>
 					{this.generateContent()}
 				</Link>
 			);
@@ -84,12 +85,14 @@ class NewsPostCard extends Component {
 }
 
 NewsPostCard.propTypes = {
+	hideImage: PropTypes.bool,
 	inArticle: PropTypes.bool,
 	isAdminList: PropTypes.bool,
 	post: PropTypes.object.isRequired
 };
 
 NewsPostCard.defaultProps = {
+	hideImage: false,
 	isAdminList: false,
 	inArticle: false
 };

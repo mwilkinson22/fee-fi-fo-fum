@@ -37,7 +37,9 @@ class AdminNewsList extends Component {
 			const posts = _.chain(postList)
 				.sortBy("dateCreated")
 				.reverse()
-				.map(post => <NewsPostCard post={post} isAdminList={true} key={post._id} />)
+				.map(post => (
+					<NewsPostCard post={post} isAdminList={true} key={post._id} hideImage={true} />
+				))
 				.value();
 			content = <div className="container post-list">{posts}</div>;
 		}
@@ -63,7 +65,4 @@ function mapStateToProps({ news }) {
 	return { postList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchPostList }
-)(AdminNewsList);
+export default connect(mapStateToProps, { fetchPostList })(AdminNewsList);
