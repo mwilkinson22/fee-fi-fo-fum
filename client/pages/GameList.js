@@ -73,12 +73,16 @@ class GameList extends Component {
 			.sort()
 			.reverse()
 			.value();
-		if (newState.isAdmin) {
-			newState.years = ["fixtures", ...newState.years];
-		}
 
 		//Get Active Year
-		newState.year = match.params.year || newState.years[0];
+		newState.year = match.params.year;
+
+		if (!newState.year) {
+			newState.year = newState.listType === "fixtures" ? "fixtures" : newState.years[0];
+		}
+
+		//Add fixtures
+		newState.years.unshift("fixtures");
 
 		//Get Valid Team Types for this year
 		newState.teamTypes = _.chain(gameList)
@@ -151,55 +155,50 @@ class GameList extends Component {
 	}
 
 	generatePageHeader() {
-		const { listType, years, teamType, isAdmin } = this.state;
-
-		//For non-admin fixtures, we simply return text
-		if (!isAdmin && listType === "fixtures") {
-			return "Fixtures";
-		}
+		const { years, teamType, isAdmin } = this.state;
 
 		//Otherwise we dynamically render a select
-		let options;
-		if (isAdmin) {
-			options = _.map(years, year => {
-				return (
-					<option key={year} value={year}>
-						{year === "fixtures" ? "All Fixtures" : `${year} Results`}
-					</option>
-				);
-			});
-		} else {
-			options = _.map(years, year => {
-				return (
-					<option key={year} value={year}>
-						{year}
-					</option>
-				);
-			});
-		}
+		const options = _.map(years, year => {
+			return (
+				<option key={year} value={year}>
+					{year === "fixtures" ? "Fixtures" : `${year} Results`}
+				</option>
+			);
+		});
 
 		//Create Select
 		let rootUrl;
 		if (isAdmin) {
 			rootUrl = `/admin/games`;
 		} else {
-			rootUrl = `/games/results`;
+			rootUrl = `/games`;
 		}
 		const content = [
 			<select
 				key="year-selector"
-				onChange={ev =>
-					this.props.history.push(`${rootUrl}/${ev.target.value}/${teamType.slug}`)
-				}
+				onChange={ev => {
+					//Start with the root url
+					let url = rootUrl;
+
+					//Add either fixtures or results year
+					const { value } = ev.target;
+					if (isAdmin || value === "fixtures") {
+						url += `/${value}`;
+					} else {
+						url += `/results/${value}`;
+					}
+
+					//Add teamtype
+					url += `/${teamType.slug}`;
+
+					//Push new url
+					this.props.history.push(url);
+				}}
 				value={this.state.year}
 			>
 				{options}
 			</select>
 		];
-
-		if (!isAdmin) {
-			content.push(<span key="results-header"> Results</span>);
-		}
 
 		return content;
 	}
