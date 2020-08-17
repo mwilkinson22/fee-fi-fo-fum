@@ -243,7 +243,7 @@ export default class LeagueTable extends Canvas {
 		ctx.textAlign = "center";
 		ctx.fillStyle = customStyling.color;
 		ctx.font = textStyles.bold.string;
-		let textX = cWidth - positions.standardColumnWidth / 2;
+		let textX = cWidth - positions.standardColumnWidth * 0.65;
 		const textY = positions.rowHeight;
 		const reversedColumns = [...columns].reverse();
 		for (const column of reversedColumns) {
@@ -341,7 +341,10 @@ export default class LeagueTable extends Canvas {
 
 					//Update textX
 					const otherColumns = columns.length - 1;
-					textX += cWidth - otherColumns * positions.standardColumnWidth;
+					textX +=
+						cWidth -
+						otherColumns * positions.standardColumnWidth -
+						positions.standardColumnWidth * 0.15;
 				} else {
 					//Set Alignment
 					ctx.textAlign = "center";
