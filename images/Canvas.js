@@ -95,6 +95,10 @@ export default class Canvas {
 			.split(".")
 			.pop()
 			.toLowerCase();
+
+		//Ensure no trailing slash
+		file = file.replace(/^\//, "");
+
 		let [buffer] = await googleBucket.file(file).download();
 
 		if (fileType == "svg") {

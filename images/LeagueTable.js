@@ -90,7 +90,7 @@ export default class LeagueTable extends Canvas {
 		for (const team of teams) {
 			this.teams[team._id] = { name: team.name.short };
 			this.teams[team._id].image = await this.googleToCanvas(
-				`/images/teams/${team.images.dark || team.images.main}`
+				`images/teams/${team.images.dark || team.images.main}`
 			);
 		}
 	}
