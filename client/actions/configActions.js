@@ -15,7 +15,13 @@ import {
 import { toast } from "react-toastify";
 
 export const getCoreConfig = req => async dispatch => {
-	const { headers, ipAddress, useragent, protocol, originalUrl } = req;
+	const { headers, ipAddress, useragent, originalUrl } = req;
+	let { protocol } = req;
+
+	//Check Heroku proxy for https
+	if (req.get("x-forwarded-proto") === "https") {
+		protocol = "https";
+	}
 
 	const { browser } = useragent;
 	const config = {
