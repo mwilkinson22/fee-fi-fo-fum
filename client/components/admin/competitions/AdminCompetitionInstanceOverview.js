@@ -74,6 +74,7 @@ class AdminCompetitionInstanceOverview extends Component {
 				)
 				.label("Teams"),
 			sponsor: Yup.string().label("Sponsor"),
+			totalRounds: Yup.string().label("Total Rounds"),
 			image: Yup.string().label("Image"),
 			manOfSteelPoints: Yup.bool().label("Man of Steel Points"),
 			scoreOnly: Yup.bool().label("Score Only"),
@@ -99,6 +100,7 @@ class AdminCompetitionInstanceOverview extends Component {
 			year: "",
 			teams: [],
 			sponsor: "",
+			totalRounds: "",
 			manOfSteelPoints: false,
 			scoreOnly: true,
 			usesPregameSquads: false,
@@ -152,6 +154,7 @@ class AdminCompetitionInstanceOverview extends Component {
 				fields: [
 					{ name: "year", type: fieldTypes.number },
 					{ name: "sponsor", type: fieldTypes.text },
+					{ name: "totalRounds", type: fieldTypes.number },
 					{ name: "usesPregameSquads", type: fieldTypes.boolean },
 					{ name: "manOfSteelPoints", type: fieldTypes.boolean },
 					{ name: "scoreOnly", type: fieldTypes.boolean },

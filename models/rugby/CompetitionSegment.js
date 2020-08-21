@@ -61,7 +61,8 @@ const competitionSegmentSchema = new Schema(
 						_team: { type: Schema.Types.ObjectId, ref: "teams", required: true },
 						sharedWith: [{ type: Schema.Types.ObjectId, ref: "teams", required: true }]
 					}
-				]
+				],
+				totalRounds: { type: Number, default: null }
 			}
 		],
 		externalCompId: { type: Number, default: null },
