@@ -35,6 +35,7 @@ class BasicSocialForm extends Component {
 
 	static getDerivedStateFromProps(nextProps) {
 		const {
+			enforceTwitter,
 			profiles,
 			replyTweet,
 			addtionalFieldValidationSchema,
@@ -62,7 +63,7 @@ class BasicSocialForm extends Component {
 			channels: Yup.array()
 				.of(Yup.string())
 				.min(1)
-				.label("Channels"),
+				.label(enforceTwitter ? "Additional Channels" : "Channels"),
 			_profile: Yup.string().label("Social Profile"),
 			content: Yup.string()
 				.required()
@@ -72,10 +73,10 @@ class BasicSocialForm extends Component {
 
 		//Create dropdown options
 		newState.options = {};
-		newState.options.channels = [
-			{ label: "Twitter", value: "twitter" },
-			{ label: "Facebook", value: "facebook" }
-		];
+		newState.options.channels = [{ label: "Facebook", value: "facebook" }];
+		if (!enforceTwitter) {
+			newState.options.channels.unshift({ label: "Twitter", value: "twitter" });
+		}
 
 		newState.options.profiles = _.chain(profiles)
 			.reject("archived")
@@ -100,7 +101,13 @@ class BasicSocialForm extends Component {
 	}
 
 	getFieldGroups(values) {
-		const { label, variables, variableInstruction, additionalFieldsComeAfter } = this.props;
+		const {
+			enforceTwitter,
+			label,
+			variables,
+			variableInstruction,
+			additionalFieldsComeAfter
+		} = this.props;
 		const { options, getPreviewImage, previewImage } = this.state;
 		let { additionalFieldGroups } = this.state;
 
@@ -114,7 +121,8 @@ class BasicSocialForm extends Component {
 		];
 
 		//Work out whether we need Twitter-based fields
-		const twitterRequired = values.channels && values.channels.find(v => v === "twitter");
+		const twitterRequired =
+			enforceTwitter || (values.channels && values.channels.find(v => v === "twitter"));
 
 		//Add composer
 		const composerField = {
@@ -189,15 +197,26 @@ class BasicSocialForm extends Component {
 			}
 
 			fieldGroups.push({
-				render: () => <div className="full-span">{content}</div>
+				render: () => (
+					<div className="full-span" key="preview">
+						{content}
+					</div>
+				)
 			});
 		}
 
 		return fieldGroups;
 	}
 
-	async handleSubmit(values) {
-		const { submitOverride, simpleSocialPost } = this.props;
+	async handleSubmit(rawValues) {
+		const { enforceTwitter, submitOverride, simpleSocialPost } = this.props;
+
+		const values = { ...rawValues };
+		if (enforceTwitter) {
+			const channels = values.channels || [];
+			channels.push("twitter");
+			values.channels = channels;
+		}
 
 		//Clear preview
 		this.setState({ previewImage: null });
@@ -243,6 +262,7 @@ BasicSocialForm.propTypes = {
 	addtionalFieldGroups: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
 	additionalFieldInitialValues: PropTypes.object,
 	addtionalFieldValidationSchema: PropTypes.object,
+	enforceTwitter: PropTypes.bool,
 	getPreviewImage: PropTypes.func,
 	initialContent: PropTypes.string,
 	label: PropTypes.string,
@@ -259,6 +279,7 @@ BasicSocialForm.defaultProps = {
 	additionalFieldGroups: null,
 	additionalFieldInitialValues: {},
 	addtionalFieldValidationSchema: {},
+	enforceTwitter: false,
 	getPreviewImage: null,
 	initialContent: "",
 	label: "Post to Social",

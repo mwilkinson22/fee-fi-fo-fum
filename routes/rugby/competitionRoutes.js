@@ -7,6 +7,11 @@ import requireAdmin from "~/middlewares/requireAdmin";
 export default app => {
 	//Get
 	app.get(
+		"/api/competitions/segments/:_segment/instance/:_instance/image/:imageType",
+		requireAdmin,
+		competitionController.fetchCompetitionInstanceImage
+	);
+	app.get(
 		"/api/competitions/segments/:_segment/crawlNewGames",
 		requireAdmin,
 		competitionController.crawlNewGames
@@ -15,6 +20,11 @@ export default app => {
 	app.get("/api/competitions", competitionController.getCompetitions);
 
 	//Post
+	app.post(
+		"/api/competitions/segments/:_segment/instance/:_instance/image",
+		requireAdmin,
+		competitionController.postCompetitionInstanceImage
+	);
 	app.post(
 		"/api/competitions/segments/:segmentId/instance",
 		requireAdmin,

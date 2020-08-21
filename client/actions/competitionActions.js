@@ -98,3 +98,32 @@ export const crawlNewFixtures = segment => async (dispatch, getState, api) => {
 		return res.data;
 	}
 };
+
+export const fetchInstanceImage = (segmentId, instanceId, imageType) => async (
+	dispatch,
+	getState,
+	api
+) => {
+	const res = await api.get(
+		`/competitions/segments/${segmentId}/instance/${instanceId}/image/${imageType}`
+	);
+
+	if (res.data) {
+		return res.data;
+	}
+};
+
+export const postInstanceImage = (segmentId, instanceId, data) => async (
+	dispatch,
+	getState,
+	api
+) => {
+	const res = await api.post(
+		`/competitions/segments/${segmentId}/instance/${instanceId}/image/`,
+		data
+	);
+
+	if (res.data) {
+		return res.data;
+	}
+};

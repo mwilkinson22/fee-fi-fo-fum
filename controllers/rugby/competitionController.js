@@ -2,6 +2,7 @@
 import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
+import twitter from "~/services/twitter";
 
 //Mongoose
 import mongoose from "mongoose";
@@ -9,6 +10,13 @@ const Competition = mongoose.model("competitions");
 const Segment = mongoose.model("competitionSegments");
 const Game = mongoose.model("games");
 const NeutralGames = mongoose.model("neutralGames");
+
+//Images
+import LeagueTable from "~/images/LeagueTable";
+
+//Constants
+import { localTeam } from "~/config/keys";
+import { postToSocial } from "../oAuthController";
 
 //Helpers
 function getGameQuery(_competition, year = null) {
@@ -459,4 +467,92 @@ export async function crawlNewGames(req, res) {
 	}
 
 	res.send(games);
+}
+
+//Graphics
+async function generateCompetitionInstanceImage(imageType, segment, instance, res) {
+	switch (imageType) {
+		case "leagueTable":
+			return new LeagueTable(segment, instance.year, [localTeam]);
+		default: {
+			res.status(400).send(`Invalid imageType specified: ${imageType}`);
+		}
+	}
+}
+
+export async function fetchCompetitionInstanceImage(req, res) {
+	const { _segment, _instance, imageType } = req.params;
+
+	//Validate segment
+	const segment = await validateSegment(_segment, res);
+	if (segment) {
+		//Validate instance
+		const instance = await validateInstance(segment, _instance);
+		if (instance) {
+			//Get Image
+			const image = await generateCompetitionInstanceImage(imageType, segment, instance, res);
+			if (image) {
+				const output = await image.render(false);
+				res.send(output);
+			}
+		}
+	}
+}
+
+export async function postCompetitionInstanceImage(req, res) {
+	const { _segment, _instance } = req.params;
+	const { imageType, _profile, content, replyTweet, channels } = req.body;
+
+	//Validate segment
+	const segment = await validateSegment(_segment, res);
+	if (segment) {
+		//Validate instance
+		const instance = await validateInstance(segment, _instance);
+		if (instance) {
+			//Get Twitter Client for uploading images
+			const twitterClient = await twitter(_profile);
+
+			//Get Base64 Image
+			const image = await generateCompetitionInstanceImage(imageType, segment, instance, res);
+			if (image) {
+				const media_data = await image.render(true);
+
+				//Upload to twitter
+				const upload = await twitterClient.post("media/upload", {
+					media_data
+				});
+
+				//Get Media Id String
+				const { media_id_string } = upload.data;
+				const media_ids = [media_id_string];
+
+				//Post Tweet
+				let postedTweet, tweetError;
+				try {
+					postedTweet = await twitterClient.post("statuses/update", {
+						status: content,
+						in_reply_to_status_id: replyTweet,
+						auto_populate_reply_metadata: true,
+						tweet_mode: "extended",
+						media_ids
+					});
+				} catch (e) {
+					tweetError = e;
+				}
+
+				if (tweetError) {
+					res.status(tweetError.statusCode).send(`(Twitter) - ${tweetError.message}`);
+					return;
+				}
+
+				//Post to Facebook
+				if (channels.find(c => c == "facebook")) {
+					const tweetMediaObject = postedTweet.data.entities.media;
+					const images = tweetMediaObject.map(t => t.media_url);
+					await postToSocial("facebook", content, { _profile, images });
+				}
+			}
+			res.send({});
+		}
+	}
 }

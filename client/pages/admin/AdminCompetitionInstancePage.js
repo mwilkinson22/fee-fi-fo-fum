@@ -10,6 +10,7 @@ import AdminCompetitionInstanceSpecialRounds from "../../components/admin/compet
 import AdminCompetitionInstanceAdjustments from "../../components/admin/competitions/AdminCompetitionInstanceAdjustments";
 import AdminCompetitionInstanceStyle from "../../components/admin/competitions/AdminCompetitionInstanceStyle";
 import AdminCompetitionInstanceSharedSquads from "../../components/admin/competitions/AdminCompetitionInstanceSharedSquads";
+import AdminCompetitionInstanceImage from "../../components/admin/competitions/AdminCompetitionInstanceImage";
 import SubMenu from "../../components/SubMenu";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
@@ -96,7 +97,8 @@ class AdminCompetitionInstancePage extends Component {
 			if (segment.type === "League" && instance.teams) {
 				items.push(
 					{ label: "Adjustments", slug: "adjustments" },
-					{ label: "Table Styling", slug: "style" }
+					{ label: "Table Styling", slug: "style" },
+					{ label: "Images", slug: "images" }
 				);
 			}
 
@@ -131,6 +133,11 @@ class AdminCompetitionInstancePage extends Component {
 		return (
 			<ErrorBoundary>
 				<Switch>
+					<Route
+						path={`${root}/:instanceId/images`}
+						exact
+						component={AdminCompetitionInstanceImage}
+					/>
 					<Route
 						path={`${root}/:instanceId/style`}
 						exact
