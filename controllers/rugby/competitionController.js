@@ -13,6 +13,7 @@ const NeutralGame = mongoose.model("neutralGames");
 
 //Images
 import LeagueTable from "~/images/LeagueTable";
+import MinMaxLeagueTable from "~/images/MinMaxLeagueTable";
 
 //Constants
 import { localTeam } from "~/config/keys";
@@ -498,11 +499,24 @@ export async function processLeagueTableData(segmentId, year) {
 	//Get Date Filter
 	const date = { $gte: `${year}-01-01`, $lte: `${Number(year) + 1}-01-01` };
 
+	//Work out competitions
+	const competitions = [segment._id];
+
+	let segmentToLoop = segment;
+	while (segmentToLoop._pointsCarriedFrom) {
+		//Push this entry to the array
+		competitions.push(segmentToLoop._pointsCarriedFrom);
+
+		segmentToLoop = await Segment.findById(
+			segmentToLoop._pointsCarriedFrom,
+			"_pointsCarriedFrom"
+		).lean();
+	}
+
 	//Local Games
 	const localGames = await Game.find({
-		_opposition: { $in: instance.teams },
 		date,
-		_competition: segmentId
+		_competition: { $in: competitions }
 	}).populate("_competition");
 
 	//Standardise game array
@@ -525,9 +539,7 @@ export async function processLeagueTableData(segmentId, year) {
 	const neutralGames = await NeutralGame.find(
 		{
 			date,
-			_competition: segmentId,
-			_homeTeam: { $in: instance.teams },
-			_awayTeam: { $in: instance.teams },
+			_competition: { $in: competitions },
 			homePoints: { $ne: null },
 			awayPoints: { $ne: null }
 		},
@@ -611,6 +623,8 @@ async function generateCompetitionInstanceImage(imageType, segment, instance, re
 	switch (imageType) {
 		case "leagueTable":
 			return new LeagueTable(segment, instance.year, [localTeam]);
+		case "minMaxTable":
+			return new MinMaxLeagueTable(segment, instance.year, [localTeam]);
 		default: {
 			res.status(400).send(`Invalid imageType specified: ${imageType}`);
 		}
