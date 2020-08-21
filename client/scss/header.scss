@@ -21,10 +21,6 @@ header {
 	top: 0;
 	z-index: 10;
 
-	.main-header-logo {
-		height: 30pt;
-	}
-
 	.social {
 		justify-content: flex-end;
 		display: flex;
@@ -63,10 +59,8 @@ header {
 	.nav-hamburger {
 		@include mobileOnly;
 	}
-}
 
-@media #{$mobile-and-tablet} {
-	header {
+	@media #{$mobile-and-tablet} {
 		z-index: 1000;
 		.container {
 			display: flex;
@@ -74,9 +68,16 @@ header {
 			justify-content: center;
 		}
 
-		.main-header-logo {
-			margin: 8pt 0;
-			height: 24pt;
+		a {
+			display: flex;
+			align-content: center;
+			justify-content: center;
+
+			.main-header-logo {
+				margin: 8pt 0;
+				max-height: 24pt;
+				max-width: 70%;
+			}
 		}
 
 		.mobile-nav-background {
@@ -103,11 +104,14 @@ header {
 			display: flex;
 			flex-direction: column;
 			justify-content: space-evenly;
+			cursor: pointer;
 			span {
+				margin: 1pt 0;
 				width: 100%;
 				background: $trimColour;
 				height: 3pt;
 				display: block;
+				border-radius: 1pt;
 				&:first-child {
 					background: lighten($mainColour, 17%);
 				}
@@ -172,10 +176,12 @@ header {
 			}
 		}
 	}
-}
 
-@media #{$desktop-only} {
-	header {
+	@media #{$desktop-only} {
+		.main-header-logo {
+			height: 30pt;
+		}
+
 		.top-bar {
 			display: flex;
 			justify-content: space-between;
