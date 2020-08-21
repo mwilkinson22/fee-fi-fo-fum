@@ -295,7 +295,7 @@
 		}
 	}
 	.post-preview {
-		height: 100%;
+		flex-grow: 1;
 	}
 	@media #{$mobile-only} {
 		.card {
