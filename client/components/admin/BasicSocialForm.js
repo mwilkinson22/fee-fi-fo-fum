@@ -28,8 +28,37 @@ class BasicSocialForm extends Component {
 			}
 		}
 
-		//Validation Schema
-		const validationSchema = Yup.object().shape({
+		this.state = {
+			previewImage: null
+		};
+	}
+
+	static getDerivedStateFromProps(nextProps) {
+		const {
+			profiles,
+			replyTweet,
+			addtionalFieldValidationSchema,
+			additionalFieldGroups,
+			additionalFieldInitialValues,
+			getPreviewImage
+		} = nextProps;
+
+		const newState = {
+			isLoading: false,
+			replyTweet,
+			additionalFieldGroups,
+			additionalFieldInitialValues,
+			getPreviewImage
+		};
+
+		//Wait for profiles
+		if (!profiles) {
+			return { isLoading: true };
+		}
+
+		//Create Validation Schema
+		newState.validationSchema = Yup.object().shape({
+			...addtionalFieldValidationSchema,
 			channels: Yup.array()
 				.of(Yup.string())
 				.min(1)
@@ -40,18 +69,6 @@ class BasicSocialForm extends Component {
 				.label("Content"),
 			replyTweet: Yup.string().label("Reply Tweet ID")
 		});
-
-		this.state = { validationSchema };
-	}
-
-	static getDerivedStateFromProps(nextProps) {
-		const { profiles, replyTweet } = nextProps;
-		const newState = { isLoading: false, replyTweet };
-
-		//Wait for profiles
-		if (!profiles) {
-			return { isLoading: true };
-		}
 
 		//Create dropdown options
 		newState.options = {};
@@ -71,9 +88,10 @@ class BasicSocialForm extends Component {
 
 	getInitialValues() {
 		const { defaultProfile, initialContent } = this.props;
-		const { options, replyTweet } = this.state;
+		const { additionalFieldInitialValues, options, replyTweet } = this.state;
 
 		return {
+			...additionalFieldInitialValues,
 			_profile: defaultProfile,
 			channels: options.channels.map(o => o.value),
 			content: initialContent,
@@ -82,8 +100,12 @@ class BasicSocialForm extends Component {
 	}
 
 	getFieldGroups(values) {
-		const { label, variables, variableInstruction } = this.props;
-		const { options } = this.state;
+		const { label, variables, variableInstruction, additionalFieldsComeAfter } = this.props;
+		const { options, getPreviewImage, previewImage } = this.state;
+		let { additionalFieldGroups } = this.state;
+
+		//Set initial fieldgroup array
+		const fieldGroups = [{ label }];
 
 		//Set initial field array
 		const fields = [
@@ -112,12 +134,75 @@ class BasicSocialForm extends Component {
 			fields.push({ name: "replyTweet", type: fieldTypes.text });
 		}
 
-		return [{ label, fields }];
+		//If additionalFieldGroups is a function, get the returned object
+		if (typeof additionalFieldGroups === "function") {
+			additionalFieldGroups = additionalFieldGroups(values);
+		}
+
+		//Add everything to fieldgroup object
+		if (additionalFieldsComeAfter) {
+			fieldGroups.push({ fields }, ...additionalFieldGroups);
+		} else {
+			fieldGroups.push(...additionalFieldGroups, { fields });
+		}
+
+		//Add Preview Fields
+		if (getPreviewImage) {
+			fieldGroups.push({
+				render: () => (
+					<div className="buttons" key="preview-buttons">
+						<button
+							type="button"
+							disabled={previewImage === "Loading"}
+							onClick={async () => {
+								//Set State to loading
+								this.setState({ previewImage: "Loading" });
+
+								//Get Image
+								const image = await getPreviewImage(values);
+
+								//Set state to image
+								this.setState({ previewImage: image });
+							}}
+						>
+							Get Preview
+						</button>
+						<button
+							type="button"
+							disabled={!previewImage || previewImage == "Loading"}
+							onClick={() => this.setState({ previewImage: null })}
+						>
+							Clear Preview
+						</button>
+					</div>
+				)
+			});
+		}
+
+		//Add preview
+		if (previewImage) {
+			let content;
+			if (previewImage === "Loading") {
+				content = <LoadingPage />;
+			} else {
+				content = <img src={previewImage} />;
+			}
+
+			fieldGroups.push({
+				render: () => <div className="full-span">{content}</div>
+			});
+		}
+
+		return fieldGroups;
 	}
 
 	async handleSubmit(values) {
 		const { submitOverride, simpleSocialPost } = this.props;
 
+		//Clear preview
+		this.setState({ previewImage: null });
+
+		//Get submit function
 		const submit = submitOverride || simpleSocialPost;
 
 		await submit(values);
@@ -154,6 +239,11 @@ class BasicSocialForm extends Component {
 }
 
 BasicSocialForm.propTypes = {
+	additionalFieldsComeAfter: PropTypes.bool,
+	addtionalFieldGroups: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
+	additionalFieldInitialValues: PropTypes.object,
+	addtionalFieldValidationSchema: PropTypes.object,
+	getPreviewImage: PropTypes.func,
 	initialContent: PropTypes.string,
 	label: PropTypes.string,
 	replyTweet: PropTypes.string,
@@ -165,6 +255,11 @@ BasicSocialForm.propTypes = {
 };
 
 BasicSocialForm.defaultProps = {
+	additionalFieldsComeAfter: false,
+	additionalFieldGroups: null,
+	additionalFieldInitialValues: {},
+	addtionalFieldValidationSchema: {},
+	getPreviewImage: null,
 	initialContent: "",
 	label: "Post to Social",
 	replyTweet: "",
