@@ -7,27 +7,37 @@ import { uploadToGoogle, uploadImageToGoogle } from "~/helpers/fileHelper";
 //Get File List
 export async function getFiles(req, res) {
 	const { path } = req.params;
+
+	//Get excluded extensions
 	const exclude = (req.query.exclude || "webp").split(",");
+
+	//Check for subfolders
+	const showSubfolders = req.query.subfolders || false;
 
 	const request = await bucket.getFiles({
 		autoPaginate: false,
 		directory: decodeURIComponent(path)
 	});
 
-	const files = request[0];
-	res.send(
-		files
-			.map(f => {
-				const { timeCreated: created, updated, size } = f.metadata;
-				return {
-					created,
-					updated,
-					size,
-					name: f.name.replace(path, "")
-				};
-			})
-			.filter(f => f.name.length && exclude.indexOf(f.name.split(".").pop()) === -1)
-	);
+	const files = request[0]
+		//Map to the object format we need
+		.map(f => {
+			const { timeCreated: created, updated, size } = f.metadata;
+			return {
+				created,
+				updated,
+				size,
+				name: f.name.replace(path, "")
+			};
+		})
+		//Remove root folder option
+		.filter(f => f.name.length)
+		//Remove those with "exclude" extensions
+		.filter(f => exclude.indexOf(f.name.split(".").pop()) === -1)
+		//Remove anything with a forward slash (i.e. from subdirectories)
+		.filter(f => showSubfolders || !f.name.includes("/"));
+
+	res.send(files);
 }
 
 //Upload File
