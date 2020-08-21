@@ -161,7 +161,7 @@ class GameList extends Component {
 		const options = _.map(years, year => {
 			return (
 				<option key={year} value={year}>
-					{year === "fixtures" ? "Fixtures" : `${year} Results`}
+					{year === "fixtures" ? "All Fixtures" : `${year} Results`}
 				</option>
 			);
 		});
