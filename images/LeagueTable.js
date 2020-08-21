@@ -62,19 +62,6 @@ export default class LeagueTable extends Canvas {
 		this.columns = ["position", "_team", "Pld", "W", "D", "L", "F", "A", "Diff", "Pts"];
 	}
 
-	async getSegment(_id) {
-		this.segments[_id] = await Segment.findById(_id, [
-			"_pointsCarriedFrom",
-			"instances"
-		]).lean();
-
-		//Pull _pointsCarriedFrom values
-		const { _pointsCarriedFrom } = this.segments[_id];
-		if (_pointsCarriedFrom && !this.segments[_pointsCarriedFrom]) {
-			await this.getSegment(_pointsCarriedFrom);
-		}
-	}
-
 	async getTeams() {
 		const { instance } = this;
 
@@ -243,15 +230,12 @@ export default class LeagueTable extends Canvas {
 
 	async render(forTwitter = false) {
 		const { positions, _segment, year } = this;
-		//Create Segments Object
-		this.segments = {};
 
-		//Call getSegments. This will loop when necessary,
-		//to get _pointsCarriedFrom segments
-		await this.getSegment(_segment);
+		//Get Segment
+		this.segment = await Segment.findById(_segment, ["instances"]).lean();
 
 		//Get Instance
-		this.instance = this.segments[_segment].instances.find(i => i.year == year);
+		this.instance = this.segment.instances.find(i => i.year == year);
 
 		//Get Teams
 		await this.getTeams();
@@ -260,8 +244,7 @@ export default class LeagueTable extends Canvas {
 		this.table = await processLeagueTableData(_segment, year);
 
 		//Set Canvas Height
-		this.canvas.height = this.cHeight =
-			positions.rowHeight * (this.instance.teams.length + 1.5);
+		this.canvas.height = this.cHeight = positions.rowHeight * (this.table.length + 1.5);
 
 		//Draw Header
 		await this.drawHeader();
