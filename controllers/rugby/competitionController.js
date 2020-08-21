@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 const Competition = mongoose.model("competitions");
 const Segment = mongoose.model("competitionSegments");
 const Game = mongoose.model("games");
-const NeutralGames = mongoose.model("neutralGames");
+const NeutralGame = mongoose.model("neutralGames");
 
 //Images
 import LeagueTable from "~/images/LeagueTable";
@@ -31,7 +31,10 @@ function getGameQuery(_competition, year = null) {
 }
 async function validateCompetition(_id, res) {
 	if (!_id) {
-		res.status(400).send(`No id provided`);
+		if (res) {
+			res.status(400).send(`No id provided`);
+		}
+		return;
 	}
 
 	const competition = await Competition.findById(_id);
@@ -45,7 +48,10 @@ async function validateCompetition(_id, res) {
 
 async function validateSegment(_id, res) {
 	if (!_id) {
-		res.status(400).send(`No segment id provided`);
+		if (res) {
+			res.status(400).send(`No segment id provided`);
+		}
+		return;
 	}
 
 	const segment = await Segment.findById(_id);
@@ -59,7 +65,10 @@ async function validateSegment(_id, res) {
 
 async function validateInstance(segment, _id, res) {
 	if (!_id) {
-		res.status(400).send(`No instance id provided`);
+		if (res) {
+			res.status(400).send(`No instance id provided`);
+		}
+		return;
 	}
 
 	const instance = segment.instances.find(instance => instance._id == _id);
@@ -180,7 +189,7 @@ export async function updateInstance(req, res) {
 						{ ...query, _opposition: { $nin: req.body.teams } },
 						"slug _opposition"
 					).lean();
-					const neutralGames = await NeutralGames.find(
+					const neutralGames = await NeutralGame.find(
 						{
 							...query,
 							$or: [
@@ -270,7 +279,7 @@ export async function deleteInstance(req, res) {
 			//Ensure no games rely on the segment
 			const query = getGameQuery(segmentId, instance.year);
 			const games = await Game.find(query, "slug");
-			const neutralGames = await NeutralGames.find(query, "_id");
+			const neutralGames = await NeutralGame.find(query, "_id");
 
 			const totalGames = games.length + neutralGames.length;
 
@@ -467,6 +476,134 @@ export async function crawlNewGames(req, res) {
 	}
 
 	res.send(games);
+}
+
+//Get League Table Data
+export async function processLeagueTableData(segmentId, year) {
+	//Validate Segment
+	const segment = await validateSegment(segmentId);
+	if (!segment) {
+		return { error: `Invalid segmentId: '${segmentId}'` };
+	}
+	if (segment.type !== "League") {
+		return { error: "Segment must be of type 'League'" };
+	}
+
+	//Validate instance
+	const instance = segment.instances.find(instance => instance.year == year);
+	if (!instance) {
+		return { error: `Invalid instanceId: '${segmentId}'` };
+	}
+
+	//Get Date Filter
+	const date = { $gte: `${year}-01-01`, $lte: `${Number(year) + 1}-01-01` };
+
+	//Local Games
+	const localGames = await Game.find({
+		_opposition: { $in: instance.teams },
+		date,
+		_competition: segmentId
+	}).populate("_competition");
+
+	//Standardise game array
+	const games = localGames
+		//Ensure we only get games with scores
+		.filter(g => g.status >= 2)
+		//Convert to neutral game format
+		.map(g => {
+			const _homeTeam = g.isAway ? g._opposition.toString() : localTeam;
+			const _awayTeam = g.isAway ? localTeam : g._opposition.toString();
+			return {
+				_homeTeam,
+				_awayTeam,
+				homePoints: g.score[_homeTeam],
+				awayPoints: g.score[_awayTeam]
+			};
+		});
+
+	//Get Neutral Games
+	const neutralGames = await NeutralGame.find(
+		{
+			date,
+			_competition: segmentId,
+			_homeTeam: { $in: instance.teams },
+			_awayTeam: { $in: instance.teams },
+			homePoints: { $ne: null },
+			awayPoints: { $ne: null }
+		},
+		"_homeTeam _awayTeam homePoints awayPoints"
+	).lean();
+
+	//Add to collection
+	games.push(
+		...neutralGames.map(g => ({
+			...g,
+			_homeTeam: g._homeTeam.toString(),
+			_awayTeam: g._awayTeam.toString()
+		}))
+	);
+
+	//Loop through teams and get data from games
+	return _.chain(instance.teams)
+		.map(_team => {
+			//Add Team ID to object
+			//We set pts here so we can include pts adjustments,
+			//whilst also calculating points based on W, L & D adjustments
+			const row = { _team, W: 0, D: 0, L: 0, F: 0, A: 0, Pts: 0 };
+
+			//Loop Games
+			games
+				.filter(g => g._homeTeam == _team || g._awayTeam == _team)
+				.forEach(g => {
+					let thisTeamsPoints, oppositionPoints;
+
+					if (g._homeTeam == _team) {
+						thisTeamsPoints = g.homePoints;
+						oppositionPoints = g.awayPoints;
+					} else {
+						thisTeamsPoints = g.awayPoints;
+						oppositionPoints = g.homePoints;
+					}
+
+					//Add points
+					row.F += thisTeamsPoints;
+					row.A += oppositionPoints;
+
+					//Add result
+					if (thisTeamsPoints > oppositionPoints) {
+						row.W += 1;
+					} else if (thisTeamsPoints < oppositionPoints) {
+						row.L += 1;
+					} else {
+						row.D += 1;
+					}
+				});
+
+			//Get adjustments
+			const adjustments =
+				instance.adjustments && instance.adjustments.find(a => a._team.toString() == _team);
+			if (adjustments) {
+				for (const key in adjustments) {
+					if (key !== "_id" && key !== "_team") {
+						row[key] += adjustments[key];
+					}
+				}
+			}
+
+			//Calculate Diff, Pld and Pts
+			row.Pld = row.W + row.D + row.L;
+			row.Diff = row.F - row.A;
+			row.Pts += row.W * 2 + row.D;
+
+			//Return Row
+			return row;
+		})
+		.orderBy(
+			["Pts", "Diff", ({ F, A }) => (F && A ? F / A : 0)],
+			["desc", "desc", "desc", "asc"]
+		)
+		.map((g, i) => ({ ...g, position: i + 1 }))
+		.value();
 }
 
 //Graphics
