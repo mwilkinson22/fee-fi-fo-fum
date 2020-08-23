@@ -125,7 +125,7 @@ export default class Canvas {
 		}
 	}
 	fit(contain, src, dx, dy, dw, dh, options) {
-		let { xAlign, yAlign, ctx } = options;
+		let { xAlign, yAlign, ctx, zoom } = options;
 
 		//Allow square values
 		if (dh === null) {
@@ -213,6 +213,30 @@ export default class Canvas {
 						sy += initialSh - sh;
 						break;
 				}
+			}
+		}
+
+		if (zoom) {
+			const initialSw = sw;
+			const initialSh = sh;
+			sw = sw / zoom;
+			sh = sh / zoom;
+
+			switch (xAlign) {
+				case "center":
+					sx += (initialSw - sw) / 2;
+					break;
+				case "right":
+					sx += initialSw - sw;
+					break;
+			}
+			switch (yAlign) {
+				case "center":
+					sy += (initialSh - sh) / 2;
+					break;
+				case "bottom":
+					sy += initialSh - sh;
+					break;
 			}
 		}
 
