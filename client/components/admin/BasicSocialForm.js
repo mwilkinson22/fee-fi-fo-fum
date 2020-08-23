@@ -198,7 +198,7 @@ class BasicSocialForm extends Component {
 
 			fieldGroups.push({
 				render: () => (
-					<div className="full-span" key="preview">
+					<div className="full-span preview-image" key="preview">
 						{content}
 					</div>
 				)

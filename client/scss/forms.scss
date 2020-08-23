@@ -35,6 +35,12 @@
 			display: none;
 		}
 	}
+	.preview-image {
+		max-width: 100%;
+		left: 0;
+		right: 0;
+		margin: auto;
+	}
 	.plain-list {
 		font-size: 1.2em;
 		li {
