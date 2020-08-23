@@ -28,7 +28,9 @@ function getInstance(doc) {
 		"manOfSteelPoints",
 		"scoreOnly",
 		"usesPregameSquads",
-		"sharedSquads"
+		"sharedSquads",
+		"totalRounds",
+		"leagueTableColours"
 	]);
 
 	//Custom Title

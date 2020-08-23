@@ -136,8 +136,20 @@ class AdminGamePostGameEvents extends Component {
 				{ label: "Multiple Player Stats", value: "grouped-player-stats" }
 			];
 
-			if (newState.game._competition.type === "League") {
+			const { _competition } = newState.game;
+			if (_competition.type === "League") {
 				newState.eventTypes.push({ label: "League Table", value: "league-table" });
+			}
+
+			if (
+				_competition.type === "League" &&
+				_competition.instance.totalRounds &&
+				_competition.instance.leagueTableColours
+			) {
+				newState.eventTypes.push({
+					label: "Min/Max League Table",
+					value: "min-max-league-table"
+				});
 			}
 
 			//Conditionally add Man of Steel and Fans' POTM event types

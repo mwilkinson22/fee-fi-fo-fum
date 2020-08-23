@@ -38,6 +38,7 @@ import PlayerEventImage from "~/images/PlayerEventImage";
 import TeamStatsImage from "~/images/TeamStatsImage";
 import MultiplePlayerStats from "~/images/MultiplePlayerStats";
 import LeagueTable from "~/images/LeagueTable";
+import MinMaxLeagueTable from "~/images/MinMaxLeagueTable";
 
 //Utility Functions
 async function validateGame(_id, res, promise = null) {
@@ -966,6 +967,12 @@ async function generatePostGameEventImage(game, data, res) {
 					localTeam,
 					game._opposition._id
 				]);
+			}
+			case "min-max-league-table": {
+				return new MinMaxLeagueTable(
+					game._competition._id,
+					new Date(game.date).getFullYear()
+				);
 			}
 		}
 	}
