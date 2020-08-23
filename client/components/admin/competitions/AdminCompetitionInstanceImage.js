@@ -32,7 +32,10 @@ class AdminCompetitionInstanceImages extends Component {
 		//Get Options
 		newState.options = [];
 
-		if (newState.segment.type === "League") {
+		if (newState.instance.totalRounds) {
+			newState.options.push({ label: "Min/Max Table", value: "minMaxTable" });
+		}
+		if (newState.segment.type === "League" && newState.instance.leagueTableColours) {
 			newState.options.push({ label: "League Table", value: "leagueTable" });
 		}
 
