@@ -50,8 +50,9 @@ class SeasonOverview extends Component {
 
 	renderLeagueTables() {
 		const { year, leagues } = this.state;
-
-		return leagues.map(c => <LeagueTable key={c._id} competition={c._id} year={year} />);
+		if (Number(year)) {
+			return leagues.map(c => <LeagueTable key={c._id} competition={c._id} year={year} />);
+		}
 	}
 
 	renderOverviewTable() {
@@ -179,7 +180,7 @@ class SeasonOverview extends Component {
 
 SeasonOverview.propTypes = {
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
-	year: PropTypes.number.isRequired
+	year: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired
 };
 
 SeasonOverview.defaultProps = {};

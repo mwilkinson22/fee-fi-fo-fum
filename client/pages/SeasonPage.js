@@ -31,6 +31,7 @@ class SeasonPage extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const newState = { isLoadingGameList: false };
 		const {
+			authUser,
 			match,
 			teamTypes: teamTypesList,
 			gameList,
@@ -40,6 +41,8 @@ class SeasonPage extends Component {
 			setActiveTeamType,
 			earliestLocalGames
 		} = nextProps;
+
+		const allowAllYears = authUser && authUser.isAdmin;
 
 		//Ensure the game list is loaded
 		if (!gameList) {
@@ -63,17 +66,26 @@ class SeasonPage extends Component {
 				.sort()
 				.reverse()
 				.value();
+
+			if (allowAllYears) {
+				years.unshift("All");
+			}
+
 			newState.years = years;
 		}
 
 		//Get Active Year
-		newState.year = years.find(y => y == match.params.year) || years[0];
+		newState.year = years.find(y => y == match.params.year);
+
+		if (!newState.year || (!Number(newState.year) && !allowAllYears)) {
+			newState.year = years.filter(Number)[0];
+		}
 
 		//Get TeamTypes
 		let { teamTypes } = prevState;
 		if (newState.year !== prevState.year) {
 			teamTypes = _.chain(results)
-				.filter(game => game.date.getFullYear() == newState.year)
+				.filter(game => newState.year === "All" || game.date.getFullYear() == newState.year)
 				.map(game => teamTypesList[game._teamType])
 				.uniqBy("_id")
 				.sortBy("sortOrder")
@@ -119,10 +131,11 @@ class SeasonPage extends Component {
 			newState.teamType._id != prevState.teamType._id ||
 			prevState.isLoadingGames
 		) {
-			const gamesRequired = results.filter(
-				({ date, _teamType }) =>
-					date.getFullYear() == newState.year && _teamType == newState.teamType._id
-			);
+			const gamesRequired = results
+				.filter(
+					({ date }) => newState.year === "All" || date.getFullYear() == newState.year
+				)
+				.filter(({ _teamType }) => _teamType == newState.teamType._id);
 
 			const gamesToLoad = gamesRequired.filter(g => !fullGames[g._id]).map(g => g._id);
 			if (gamesToLoad.length && !prevState.isLoadingGames) {
@@ -153,7 +166,7 @@ class SeasonPage extends Component {
 			>
 				{options}
 			</select>,
-			<span key="results-header"> Season</span>
+			<span key="results-header"> Season{year === "All" ? "s" : ""}</span>
 		];
 	}
 
@@ -191,6 +204,10 @@ class SeasonPage extends Component {
 		}
 		title += " Season";
 
+		if (year === "All") {
+			title += "s";
+		}
+
 		//Canonical
 		let canonical = `/season/${year}/${teamType.slug}/${page}`;
 
@@ -208,6 +225,7 @@ class SeasonPage extends Component {
 				year,
 				teamType
 			};
+
 			switch (page) {
 				case "overview":
 					return <SeasonOverview {...props} />;
@@ -252,10 +270,11 @@ async function loadData(store) {
 }
 
 function mapStateToProps({ config, games, teams }) {
-	const { earliestLocalGames, localTeam } = config;
+	const { authUser, earliestLocalGames, localTeam } = config;
 	const { gameList, fullGames } = games;
 	const { fullTeams, teamTypes, activeTeamType } = teams;
 	return {
+		authUser,
 		earliestLocalGames,
 		localTeam,
 		gameList,

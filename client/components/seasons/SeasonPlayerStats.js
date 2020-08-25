@@ -270,6 +270,7 @@ class SeasonPlayerStats extends Component {
 
 	render() {
 		const { games, statType, filteredGames, isLoadingPlayers, isLoadingTeam } = this.state;
+		const { year } = this.props;
 
 		let content;
 		if (!filteredGames || isLoadingPlayers || isLoadingTeam) {
@@ -309,6 +310,7 @@ class SeasonPlayerStats extends Component {
 			<section className="game-filters" key="filters">
 				<div className="container">
 					<GameFilters
+						addToFromDates={year === "All"}
 						games={games}
 						onFilterChange={filteredGames => this.setState({ filteredGames })}
 						friendliesByDefault={false}
