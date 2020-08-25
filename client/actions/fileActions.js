@@ -15,8 +15,8 @@ export const getFiles = (path, includeSubfolders, exclude) => async (dispatch, g
 		query.push(`exclude=${exclude.join(",")}`);
 	}
 
-	if (exclude.length) {
-		url += `?${exclude.join("&")}`;
+	if (query.length) {
+		url += `?${query.join("&")}`;
 	}
 
 	const res = await api.get(url);
