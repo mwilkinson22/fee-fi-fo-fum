@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, Switch, Route } from "react-router-dom";
@@ -14,6 +13,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 //Pages
 import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
 import AdminPlayerDetails from "~/client/components/admin/teams/AdminPlayerDetails";
+import AdminCoachDetails from "~/client/components/admin/teams/AdminCoachDetails";
 import AdminRefereeDetails from "~/client/components/admin/teams/AdminRefereeDetails";
 
 //Actions
@@ -71,6 +71,9 @@ class AdminPersonPage extends Component {
 			if (person.isPlayer) {
 				submenuItems.push({ label: "Player Details", slug: "player" });
 			}
+			if (person.isCoach) {
+				submenuItems.push({ label: "Coach Details", slug: "coach" });
+			}
 			if (person.isReferee) {
 				submenuItems.push({ label: "Referee Details", slug: "referee" });
 			}
@@ -91,6 +94,11 @@ class AdminPersonPage extends Component {
 							<Route
 								path="/admin/people/:_id/referee"
 								component={AdminRefereeDetails}
+							/>
+							<Route path="/admin/people/:_id/coach" component={AdminCoachDetails} />
+							<Route
+								path="/admin/people/:_id/player"
+								component={AdminPlayerDetails}
 							/>
 							<Route
 								path="/admin/people/:_id/player"
@@ -145,7 +153,4 @@ function mapStateToProps({ people }) {
 	const { fullPeople, peopleList } = people;
 	return { fullPeople, peopleList };
 }
-export default connect(
-	mapStateToProps,
-	{ fetchPerson, fetchPeopleList }
-)(AdminPersonPage);
+export default connect(mapStateToProps, { fetchPerson, fetchPeopleList })(AdminPersonPage);
