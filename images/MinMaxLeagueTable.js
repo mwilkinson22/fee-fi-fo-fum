@@ -310,8 +310,12 @@ export default class MinMax extends Canvas {
 			ctx.fillRect(x, y, positions.columnWidth, h);
 
 			//Add Image
-			let imageH = h - positions.rowHeight * 2;
-			let imageY = y + positions.rowHeight;
+			let imageH = h;
+			let imageY = y;
+			if (column.Pts < column.maxPts) {
+				imageH -= positions.rowHeight * 2;
+				imageY += positions.rowHeight;
+			}
 			let maxHeightRelativeToColumn = 6;
 			if (h > positions.columnWidth * maxHeightRelativeToColumn) {
 				const initialImageH = imageH;
@@ -322,30 +326,32 @@ export default class MinMax extends Canvas {
 			this.cover(team.image, x, imageY, positions.columnWidth, imageH);
 			ctx.globalAlpha = 1;
 
-			//Add min points
-			ctx.fillStyle = team.colours.trim1;
-			ctx.fillRect(
-				x,
-				y + h - positions.rowHeight,
-				positions.columnWidth,
-				positions.rowHeight
-			);
-			ctx.fillStyle = team.colours.main;
-			ctx.fillText(
-				column.Pts,
-				x + positions.columnWidth / 2,
-				y + h - positions.rowHeight * 0.25
-			);
+			if (column.Pts < column.maxPts) {
+				//Add min points
+				ctx.fillStyle = team.colours.trim1;
+				ctx.fillRect(
+					x,
+					y + h - positions.rowHeight,
+					positions.columnWidth,
+					positions.rowHeight
+				);
+				ctx.fillStyle = team.colours.main;
+				ctx.fillText(
+					column.Pts,
+					x + positions.columnWidth / 2,
+					y + h - positions.rowHeight * 0.25
+				);
 
-			//Add max points
-			ctx.fillStyle = team.colours.trim1;
-			ctx.fillRect(x, y, positions.columnWidth, positions.rowHeight);
-			ctx.fillStyle = team.colours.main;
-			ctx.fillText(
-				column.maxPts,
-				x + positions.columnWidth / 2,
-				y + positions.rowHeight * 0.75
-			);
+				//Add max points
+				ctx.fillStyle = team.colours.trim1;
+				ctx.fillRect(x, y, positions.columnWidth, positions.rowHeight);
+				ctx.fillStyle = team.colours.main;
+				ctx.fillText(
+					column.maxPts,
+					x + positions.columnWidth / 2,
+					y + positions.rowHeight * 0.75
+				);
+			}
 
 			//Add outline
 			ctx.strokeStyle = team.colours.trim1;
