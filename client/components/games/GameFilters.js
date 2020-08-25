@@ -14,7 +14,7 @@ class GameFilters extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { games, friendliesByDefault, onFilterChange } = nextProps;
+		const { games, friendliesByDefault, onFilterChange, addToFromDates } = nextProps;
 		let { activeFilters } = prevState;
 		let newState = {};
 
@@ -69,11 +69,22 @@ class GameFilters extends Component {
 				venue: allOption
 			};
 
+			if (addToFromDates) {
+				filters.fromDate = {
+					name: "From",
+					type: "date"
+				};
+				filters.toDate = {
+					name: "To",
+					type: "date"
+				};
+			}
+
 			newState = { games, filters, activeFilters };
 		}
 
 		//Pass filtered games into callback
-		const { _competition, _opposition, venue } = activeFilters;
+		const { _competition, _opposition, venue, fromDate, toDate } = activeFilters;
 		newState.filteredGames = games.filter(g => {
 			let isValid = true;
 
@@ -90,6 +101,14 @@ class GameFilters extends Component {
 			//Competition
 			if (isValid && _competition && _competition.length) {
 				isValid = _competition.find(c => c.value == g._competition._id);
+			}
+
+			//Date Filters
+			if (isValid && fromDate) {
+				isValid = new Date(fromDate) < g.date;
+			}
+			if (isValid && toDate) {
+				isValid = new Date(toDate) > g.date;
 			}
 
 			return isValid;
@@ -121,17 +140,35 @@ class GameFilters extends Component {
 		//Get currently selected Options
 		const value = activeFilters[key];
 
+		//Get input
+		let input;
+		switch (key) {
+			case "fromDate":
+			case "toDate":
+				input = (
+					<input
+						type="date"
+						onChange={ev => this.updateActiveFilters(key, ev.target.value)}
+					/>
+				);
+				break;
+			default:
+				input = (
+					<Select
+						{...filterData}
+						styles={selectStyling}
+						value={value}
+						isSearchable={false}
+						onChange={option => this.updateActiveFilters(key, option)}
+						placeholder="All"
+					/>
+				);
+		}
+
 		return (
 			<div key={key} className="list-filter">
 				<h4>{name}</h4>
-				<Select
-					{...filterData}
-					styles={selectStyling}
-					value={value}
-					isSearchable={false}
-					onChange={option => this.updateActiveFilters(key, option)}
-					placeholder="All"
-				/>
+				{input}
 			</div>
 		);
 	}
@@ -151,12 +188,14 @@ class GameFilters extends Component {
 }
 
 GameFilters.propTypes = {
+	addToFromDates: PropTypes.bool,
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
 	onFilterChange: PropTypes.func.isRequired,
 	friendliesByDefault: PropTypes.bool
 };
 
 GameFilters.defaultProps = {
+	addToFromDates: false,
 	friendliesByDefault: true
 };
 
