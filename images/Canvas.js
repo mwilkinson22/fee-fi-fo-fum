@@ -90,6 +90,18 @@ export default class Canvas {
 		}
 	}
 
+	drawLine(startX, startY, endX, endY, ctx = null) {
+		if (!ctx) {
+			ctx = this.ctx;
+		}
+
+		ctx.beginPath();
+		ctx.moveTo(startX, startY);
+		ctx.lineTo(endX, endY);
+		ctx.closePath();
+		ctx.stroke();
+	}
+
 	async googleToCanvas(file, withSharp) {
 		const fileType = file
 			.split(".")

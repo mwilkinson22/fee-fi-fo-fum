@@ -37,6 +37,8 @@ export default class MinMax extends Canvas {
 			headerImageWidth: cWidth * 0.15
 		};
 
+		this.positions.labelWidth = this.positions.columnWidth * 3;
+
 		//Variables
 		this._segment = _segment;
 		this.year = year;
@@ -83,7 +85,7 @@ export default class MinMax extends Canvas {
 	}
 
 	calculateThresholds() {
-		const { instance, tableData } = this;
+		const { instance, tableData, positions } = this;
 
 		//First, loop through each team and work out their minimum + maximum points
 		for (const team of tableData) {
@@ -109,12 +111,89 @@ export default class MinMax extends Canvas {
 
 			this.leagueBoundaries[c.className] = value;
 		});
+
+		this.positions.topOfRows = positions.headerHeight + positions.rowHeight * 0.55;
+		//Work out how many points to no longer be eligible for top
+		const lowestRankedTopTeam = tableData[this.leagueBoundaries.top - 1];
+		if (lowestRankedTopTeam) {
+			this.thresholds.minimumPointsForTop = lowestRankedTopTeam.Pts;
+			const rowsToSkip = this.thresholds.maxPts - this.thresholds.minimumPointsForTop;
+			this.positions.minimumPointsForTopY =
+				this.positions.topOfRows + (rowsToSkip + 1) * positions.rowHeight;
+		}
+
+		//Work out how many points to be guaranteed top
+		const highestRankedNotTopTeam = tableData[this.leagueBoundaries.top];
+		if (highestRankedNotTopTeam) {
+			this.thresholds.pointsForGuaranteedTop = highestRankedNotTopTeam.maxPts + 1;
+			const rowsToFill = this.thresholds.maxPts - this.thresholds.pointsForGuaranteedTop + 1;
+			this.positions.pointsForGuaranteedTopH =
+				this.positions.topOfRows + rowsToFill * positions.rowHeight - 2;
+		}
 	}
 
 	drawBackground() {
-		const { ctx, cWidth, cHeight } = this;
+		const { ctx, cWidth, cHeight, leagueBoundaries, positions, textStyles } = this;
+
+		//Draw Main Background
 		ctx.fillStyle = "#e4e4e4";
 		ctx.fillRect(0, 0, cWidth, cHeight);
+		ctx.lineWidth = 2;
+
+		//Handle text variables
+		ctx.font = textStyles.points.string;
+		const textOptions = {
+			maxWidth: positions.labelWidth,
+			lineHeight: 2
+		};
+		const textX = cWidth - (positions.labelWidth + positions.columnPadding) / 2;
+
+		//Minimum For Top
+		if (positions.minimumPointsForTopY) {
+			const y = positions.minimumPointsForTopY;
+			//Background
+			ctx.fillStyle = "#FFAAAA";
+			ctx.fillRect(0, y, cWidth, cHeight - y);
+
+			//Line
+			ctx.strokeStyle = "#C00";
+			this.drawLine(0, y, cWidth, y);
+
+			//Text
+			ctx.fillStyle = "#000000";
+			this.textBuilder(
+				[[{ text: `CAN NO LONGER` }], [{ text: `MAKE THE TOP ${leagueBoundaries.top}` }]],
+				textX,
+				y + positions.rowHeight,
+				textOptions
+			);
+		}
+
+		//Guaranteed Top
+		if (positions.pointsForGuaranteedTopH) {
+			//Background
+			ctx.fillStyle = "#62ae67";
+			ctx.fillRect(0, 0, cWidth, positions.pointsForGuaranteedTopH);
+
+			//Line
+			ctx.strokeStyle = "#090";
+			this.drawLine(
+				0,
+				positions.pointsForGuaranteedTopH,
+				cWidth,
+				positions.pointsForGuaranteedTopH
+			);
+
+			//Text
+			ctx.fillStyle = "#000000";
+
+			this.textBuilder(
+				[[{ text: "GUARANTEED" }], [{ text: `TOP ${leagueBoundaries.top} FINISH` }]],
+				textX,
+				positions.pointsForGuaranteedTopH - positions.rowHeight,
+				textOptions
+			);
+		}
 	}
 
 	async drawHeader() {
@@ -303,7 +382,8 @@ export default class MinMax extends Canvas {
 
 		//Set Canvas Width
 		this.canvas.width = this.cWidth =
-			(positions.columnWidth + positions.columnPadding) * (this.tableData.length + 1);
+			(positions.columnWidth + positions.columnPadding) * (this.tableData.length + 1) +
+			positions.labelWidth;
 		//Set Canvas Height
 		this.canvas.height = this.cHeight =
 			positions.rowHeight * (this.thresholds.maxPts - this.thresholds.minPts + 2) +
