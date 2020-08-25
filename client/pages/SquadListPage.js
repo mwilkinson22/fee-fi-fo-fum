@@ -212,7 +212,7 @@ class SquadListPage extends Component {
 		const thisYear = Number(new Date().getFullYear());
 		if (year >= thisYear) {
 			const outOfContractPlayers = squad.filter(
-				({ _player }) => _player.contractedUntil == year
+				({ _player }) => _player.contractedUntil == year && !_player.removeFromOocList
 			);
 
 			if (outOfContractPlayers.length) {

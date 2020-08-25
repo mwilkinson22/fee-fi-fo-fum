@@ -85,7 +85,7 @@ teamSchema.query.fullTeam = function(fullData) {
 		return this.populate({
 			path: "squads.players._player",
 			select:
-				"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug contractedUntil"
+				"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug contractedUntil removeFromOocList"
 		}).populate({
 			path: "coaches._person",
 			select: "name slug images.main images.coach gender"

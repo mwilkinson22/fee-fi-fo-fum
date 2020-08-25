@@ -22,6 +22,7 @@ class AdminPlayerDetails extends Component {
 				.min(1895)
 				.max(Number(new Date().getFullYear()) + 20)
 				.label("Contracted Until"),
+			removeFromOocList: Yup.boolean().label("Remove from OOC list?"),
 			position1: Yup.mixed().label("Main Position"),
 			position2: Yup.mixed().label("Secondary Position"),
 			otherPositions: Yup.mixed().label("Other Positions"),
@@ -55,10 +56,11 @@ class AdminPlayerDetails extends Component {
 	}
 
 	getInitialValues() {
-		const { person, positions } = this.state;
+		const { person } = this.state;
 
 		const defaultValues = {
 			contractedUntil: "",
+			removeFromOocList: false,
 			position1: "",
 			position2: "",
 			otherPositions: [],
@@ -118,6 +120,7 @@ class AdminPlayerDetails extends Component {
 						options: positions
 					},
 					{ name: "contractedUntil", type: fieldTypes.number },
+					{ name: "removeFromOocList", type: fieldTypes.boolean },
 					{ name: "displayNicknameInCanvases", type: fieldTypes.boolean },
 					{ name: "squadNameWhenDuplicate", type: fieldTypes.text },
 					{ name: "externalName", type: fieldTypes.text }
@@ -222,7 +225,4 @@ function mapStateToProps({ people }) {
 	return { fullPeople };
 }
 // export default form;
-export default connect(
-	mapStateToProps,
-	{ updatePerson }
-)(AdminPlayerDetails);
+export default connect(mapStateToProps, { updatePerson })(AdminPlayerDetails);

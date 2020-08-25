@@ -34,6 +34,7 @@ const personSchema = new Schema(
 		squadNameWhenDuplicate: { type: String, default: null },
 		externalName: { type: String, default: null },
 		contractedUntil: { type: Number, default: null },
+		removeFromOocList: { type: Boolean, default: false },
 		playingPositions: [{ type: String, default: null, enum: positionEnums }],
 		additionalPlayerStats: [
 			{
