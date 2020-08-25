@@ -460,12 +460,21 @@ export async function crawlNewGames(req, res) {
 					}
 
 					//Get Time
-					const time = row
-						.querySelector(".ko")
-						.rawText.trim()
-						//Split by "UK: " and pop to get the local time for intl games
-						.split("UK: ")
-						.pop();
+					const timeElements = row.querySelectorAll(".ko").map(e => e.rawText.trim());
+
+					//Check for games with multiple timeszones
+					let time = "00:00";
+					if (timeElements.length === 1) {
+						time = timeElements[0];
+					} else {
+						const ukTimeElem = timeElements.find(e => e.match(" UK"));
+						if (ukTimeElem) {
+							const ukTime = ukTimeElem.match(/\d+:\d+/);
+							if (ukTime) {
+								time = ukTime[0];
+							}
+						}
+					}
 
 					game.date = new Date(`${date} ${time}:00`);
 
