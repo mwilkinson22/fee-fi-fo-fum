@@ -79,8 +79,7 @@ export async function getLegacyPost(req, res) {
 
 //Create Post
 export async function createPost(req, res) {
-	const values = _.mapValues(req.body, v => (v == "" ? null : v));
-	const post = new NewsPost(values);
+	const post = new NewsPost(req.body);
 	await post.save();
 
 	await getUpdatedPost(post._id, res);
