@@ -99,13 +99,13 @@ class AdminTeamCurrentCoaches extends Component {
 						const rows = _.chain(coaches)
 							.orderBy(["from", "to"], ["desc", "desc"])
 							.map(coach => {
-								const { name, slug } = coach._person;
+								const { name, _id } = coach._person;
 
 								//Get Core Fields
 								const disabled = values[coach._id] && values[coach._id].deleteCoach;
 								const data = {};
 								data.name = (
-									<Link to={`/admin/people/${slug}`}>
+									<Link to={`/admin/people/${_id}`}>
 										{name.first} {name.last}
 									</Link>
 								);
