@@ -29,6 +29,8 @@ class PlayerStatSection extends Component {
 		const { authUser, playedGames, fullGames, teamTypes, fetchGames, person } = nextProps;
 		const newState = { isLoading: false };
 
+		const allowAll = authUser && authUser.isAdmin;
+
 		//Get all active years
 		let { years } = prevState;
 		if (!years) {
@@ -40,7 +42,7 @@ class PlayerStatSection extends Component {
 				.value();
 
 			//Add "all" for admin user
-			if (authUser && authUser.isAdmin) {
+			if (allowAll) {
 				years.unshift("All");
 			}
 
@@ -48,7 +50,10 @@ class PlayerStatSection extends Component {
 		}
 
 		//Active year
-		newState.year = prevState.year || _.max(years.filter(Number));
+		newState.year = prevState.year;
+		if (!newState.year || (!Number(newState.year) && !allowAll)) {
+			newState.year = _.max(years.filter(Number));
+		}
 
 		//This year's games
 		const playedGamesThisYear = playedGames.filter(game =>
