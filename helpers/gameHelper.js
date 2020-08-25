@@ -12,8 +12,10 @@ const playerStatTypes = require("~/constants/playerStatTypes");
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
 
-	if (listType === "results") {
+	if (listType === "results" && year) {
 		return game.date <= now && game.date.getFullYear() == year;
+	} else if (listType === "results") {
+		return game.date <= now;
 	} else {
 		return game.date > now;
 	}

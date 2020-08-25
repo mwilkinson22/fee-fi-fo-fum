@@ -26,7 +26,7 @@ class PlayerStatSection extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { playedGames, fullGames, teamTypes, fetchGames, person } = nextProps;
+		const { authUser, playedGames, fullGames, teamTypes, fetchGames, person } = nextProps;
 		const newState = { isLoading: false };
 
 		//Get all active years
@@ -38,15 +38,21 @@ class PlayerStatSection extends Component {
 				.sort()
 				.reverse()
 				.value();
+
+			//Add "all" for admin user
+			if (authUser && authUser.isAdmin) {
+				years.unshift("All");
+			}
+
 			newState.years = years;
 		}
 
 		//Active year
-		newState.year = prevState.year || _.max(years);
+		newState.year = prevState.year || _.max(years.filter(Number));
 
 		//This year's games
 		const playedGamesThisYear = playedGames.filter(game =>
-			validateGameDate(game, "results", newState.year)
+			validateGameDate(game, "results", newState.year === "All" ? null : newState.year)
 		);
 
 		//On year change (or on initial load), reset the team types
@@ -366,10 +372,10 @@ class PlayerStatSection extends Component {
 }
 
 function mapStateToProps({ config, games, teams }) {
-	const { localTeam } = config;
+	const { authUser, localTeam } = config;
 	const { teamTypes } = teams;
 	const { gameList, fullGames } = games;
-	return { teamTypes, gameList, fullGames, localTeam };
+	return { authUser, teamTypes, gameList, fullGames, localTeam };
 }
 
 export default connect(mapStateToProps, { fetchGames })(PlayerStatSection);
