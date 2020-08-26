@@ -4,9 +4,11 @@ import {
 	FETCH_ALL_COMPETITION_SEGMENTS,
 	FETCH_ALL_COMPETITIONS,
 	FETCH_COMPETITION,
-	FETCH_COMPETITION_SEGMENT
+	FETCH_COMPETITION_SEGMENT,
+	FETCH_LEAGUE_TABLE_DATA
 } from "./types";
 import { toast } from "react-toastify";
+import { createLeagueTableString } from "~/helpers/competitionHelper";
 
 export const fetchCompetitions = () => async (dispatch, getState, api) => {
 	const res = await api.get("/competitions");
@@ -125,5 +127,36 @@ export const postInstanceImage = (segmentId, instanceId, data) => async (
 
 	if (res.data) {
 		return res.data;
+	}
+};
+
+export const fetchLeagueTableData = (_competition, year, fromDate, toDate) => async (
+	dispatch,
+	getState,
+	api
+) => {
+	//Create root URL
+	let url = `/competitions/leagueTableData/${_competition}/${year}`;
+
+	//Add date params
+	const dateFormat = "yyyy-MM-dd";
+	const query = [];
+	if (fromDate) {
+		query.push(`fromDate=${fromDate.toString(dateFormat)}`);
+	}
+	if (toDate) {
+		query.push(`toDate=${toDate.toString(dateFormat)}`);
+	}
+	if (query.length) {
+		url += `?${query.join("&")}`;
+	}
+	const res = await api.get(url);
+
+	if (res.data) {
+		dispatch({
+			type: FETCH_LEAGUE_TABLE_DATA,
+			key: createLeagueTableString(_competition, year, fromDate, toDate),
+			payload: res.data
+		});
 	}
 };

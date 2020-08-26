@@ -6,3 +6,12 @@ export function canCrawlFixtures(segment) {
 		_parentCompetition.webcrawlUrl
 	);
 }
+
+export function createLeagueTableString(_competition, year, fromDate, toDate) {
+	return [
+		_competition,
+		year,
+		fromDate ? fromDate.toString("yyyy-MM-dd") : `none`,
+		toDate ? toDate.toString("yyyy-MM-dd") : `none`
+	].join("-");
+}

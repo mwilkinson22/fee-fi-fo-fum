@@ -15,6 +15,7 @@ export const FETCH_COMPETITION = "fetch_competition";
 export const FETCH_COMPETITION_SEGMENT = "fetch_competition_segment";
 export const DELETE_COMPETITION = "delete_competition";
 export const DELETE_COMPETITION_SEGMENT = "delete_competition_segment";
+export const FETCH_LEAGUE_TABLE_DATA = "fetch_league_table_data";
 
 //Games
 export const FETCH_GAMES = "fetch_games";

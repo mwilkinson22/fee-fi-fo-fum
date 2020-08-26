@@ -4,10 +4,11 @@ import {
 	FETCH_ALL_COMPETITION_SEGMENTS,
 	FETCH_ALL_COMPETITIONS,
 	FETCH_COMPETITION,
-	FETCH_COMPETITION_SEGMENT
+	FETCH_COMPETITION_SEGMENT,
+	FETCH_LEAGUE_TABLE_DATA
 } from "../actions/types";
 
-export default function(state = {}, action) {
+export default function(state = { leagueTableData: {} }, action) {
 	switch (action.type) {
 		case FETCH_ALL_COMPETITIONS:
 			return {
@@ -58,6 +59,16 @@ export default function(state = {}, action) {
 			return {
 				...state,
 				competitionSegmentList
+			};
+		}
+
+		case FETCH_LEAGUE_TABLE_DATA: {
+			return {
+				...state,
+				leagueTableData: {
+					...state.leagueTableData,
+					[action.key]: action.payload
+				}
 			};
 		}
 
