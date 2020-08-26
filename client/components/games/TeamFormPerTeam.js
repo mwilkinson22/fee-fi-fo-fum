@@ -232,7 +232,7 @@ class TeamFormPerTeam extends Component {
 
 			//Finally, return this box either as a link or a div
 			if (slug) {
-				return <Link to={`/games/slug`} {...renderedGameProps} />;
+				return <Link to={`/games/${slug}`} {...renderedGameProps} />;
 			} else {
 				return <div {...renderedGameProps} />;
 			}
