@@ -587,6 +587,7 @@
 					@media #{$desktop-and-tablet} {
 						margin: 10pt;
 						.games {
+							flex-direction: row-reverse;
 							.game {
 								flex-basis: 0;
 								flex-grow: 1;
@@ -602,7 +603,7 @@
 						margin: 10pt 2pt;
 						justify-content: space-between;
 						.games {
-							flex-direction: column-reverse;
+							flex-direction: column;
 							.game {
 								display: grid;
 								grid-template-columns: 1fr 1fr;
