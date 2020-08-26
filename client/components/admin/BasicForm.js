@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { withRouter, Prompt } from "react-router-dom";
-import PropTypes from "prop-types";
 import { Formik, Form } from "formik";
 import { convertToRaw } from "draft-js";
 import { diff } from "deep-object-diff";
@@ -13,6 +12,7 @@ import BooleanField from "./fields/Boolean";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
+import { propTypes, defaultProps } from "~/constants/formPropTypes";
 
 //Helpers
 import { extractYupData, renderFieldGroup, getTouchedNestedErrors } from "~/helpers/formHelper";
@@ -424,60 +424,7 @@ class BasicForm extends Component {
 	}
 }
 
-BasicForm.propTypes = {
-	alterValuesBeforeSubmit: PropTypes.func,
-	className: PropTypes.string,
-	enableRedirectBoolean: PropTypes.bool,
-	fastFieldByDefault: PropTypes.bool,
-	fieldGroups: PropTypes.oneOfType([
-		PropTypes.func,
-		PropTypes.arrayOf(
-			PropTypes.shape({
-				label: PropTypes.string,
-				fields: PropTypes.arrayOf(
-					PropTypes.shape({
-						name: PropTypes.string.isRequired,
-						type: PropTypes.oneOf(_.values(fieldTypes))
-					})
-				),
-				//IMPORTANT! Fields produced by render will not go through processFields
-				render: PropTypes.func //values => <FieldArray />
-			})
-		)
-	]).isRequired,
-	initialValues: PropTypes.object.isRequired,
-	isInitialValid: PropTypes.bool,
-	isNew: PropTypes.bool.isRequired,
-	itemType: PropTypes.string.isRequired,
-	onDelete: PropTypes.func, // Action
-	onReset: PropTypes.func,
-	onSubmit: PropTypes.func.isRequired, //values => Action(id, values)
-	promptOnExit: PropTypes.bool,
-	readOnly: PropTypes.bool,
-	redirectOnDelete: PropTypes.string,
-	replaceResetButton: PropTypes.node,
-	//Either a simple string, or a callback passing in form values and action result
-	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-	submitButtonText: PropTypes.string,
-	testMode: PropTypes.bool,
-	useGrid: PropTypes.bool,
-	useFormCard: PropTypes.bool,
-	validationSchema: PropTypes.object.isRequired
-};
-
-BasicForm.defaultProps = {
-	className: "",
-	enableRedirectBoolean: false,
-	fastFieldByDefault: true,
-	isInitialValid: false,
-	promptOnExit: true,
-	readOnly: false,
-	redirectOnDelete: `/admin/`,
-	replaceResetButton: null,
-	submitButtonText: null,
-	testMode: false,
-	useGrid: true,
-	useFormCard: true
-};
+BasicForm.propTypes = propTypes;
+BasicForm.defaultProps = defaultProps;
 
 export default withRouter(BasicForm);

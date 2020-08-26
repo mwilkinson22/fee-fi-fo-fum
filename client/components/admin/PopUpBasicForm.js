@@ -5,6 +5,9 @@ import React, { Component } from "react";
 import PopUpDialog from "../PopUpDialog";
 import BasicForm from "./BasicForm";
 
+//Constants
+import { propTypes, defaultProps } from "~/constants/formPropTypes";
+
 class PopUpBasicForm extends Component {
 	render() {
 		const { onDestroy, ...formProps } = this.props;
@@ -16,7 +19,7 @@ class PopUpBasicForm extends Component {
 	}
 }
 
-PopUpBasicForm.propTypes = BasicForm.propTypes;
-PopUpBasicForm.defaultProps = BasicForm.defaultProps;
+PopUpBasicForm.propTypes = propTypes;
+PopUpBasicForm.defaultProps = defaultProps;
 
 export default PopUpBasicForm;
