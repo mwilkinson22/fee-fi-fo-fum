@@ -963,10 +963,21 @@ async function generatePostGameEventImage(game, data, res) {
 				return image;
 			}
 			case "league-table": {
-				return new LeagueTable(game._competition._id, new Date(game.date).getFullYear(), [
-					localTeam,
-					game._opposition._id
-				]);
+				const teamsToHighlight = [localTeam, game._opposition._id];
+				const date = new Date(game.date);
+				const options = {
+					fromDate: `${date.getFullYear()}-01-01`,
+					toDate: date
+						.next()
+						.tuesday()
+						.toString("yyyy-MM-dd")
+				};
+				return new LeagueTable(
+					game._competition._id,
+					new Date(game.date).getFullYear(),
+					teamsToHighlight,
+					options
+				);
 			}
 			case "min-max-league-table": {
 				return new MinMaxLeagueTable(

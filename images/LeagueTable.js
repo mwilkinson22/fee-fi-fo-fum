@@ -11,7 +11,7 @@ import Canvas from "./Canvas";
 import { processLeagueTableData } from "~/controllers/rugby/competitionController";
 
 export default class LeagueTable extends Canvas {
-	constructor(_segment, year, teamsToHighlight) {
+	constructor(_segment, year, teamsToHighlight, options = {}) {
 		//Set Dimensions
 		const cWidth = 1000;
 
@@ -40,6 +40,7 @@ export default class LeagueTable extends Canvas {
 		this._segment = _segment;
 		this.year = year;
 		this.teamsToHighlight = teamsToHighlight;
+		this.options = options;
 
 		//Constants
 		const textSize = this.positions.rowHeight * 0.35;
@@ -229,7 +230,7 @@ export default class LeagueTable extends Canvas {
 	}
 
 	async render(forTwitter = false) {
-		const { positions, _segment, year } = this;
+		const { positions, _segment, options, year } = this;
 
 		//Get Segment
 		this.segment = await Segment.findById(_segment, ["instances"]).lean();
@@ -241,7 +242,7 @@ export default class LeagueTable extends Canvas {
 		await this.getTeams();
 
 		//Get Table
-		this.table = await processLeagueTableData(_segment, year);
+		this.table = await processLeagueTableData(_segment, year, options);
 
 		//Set Canvas Height
 		this.canvas.height = this.cHeight = positions.rowHeight * (this.table.length + 1.5);

@@ -489,7 +489,14 @@ export async function crawlNewGames(req, res) {
 }
 
 //Get League Table Data
-export async function processLeagueTableData(segmentId, year) {
+export async function processLeagueTableData(segmentId, year, options = {}) {
+	//Set default options
+	options = {
+		fromDate: `${year}-01-01 00:00:00`,
+		toDate: `${year + 1}-01-01 00:00:00`,
+		...options
+	};
+
 	//Validate Segment
 	const segment = await validateSegment(segmentId);
 	if (!segment) {
@@ -506,7 +513,7 @@ export async function processLeagueTableData(segmentId, year) {
 	}
 
 	//Get Date Filter
-	const date = { $gte: `${year}-01-01`, $lte: `${Number(year) + 1}-01-01` };
+	const date = { $gte: options.fromDate, $lte: options.toDate };
 
 	//Work out competitions
 	const competitions = [segment._id];
