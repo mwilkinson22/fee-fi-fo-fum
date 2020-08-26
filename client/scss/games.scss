@@ -1724,6 +1724,7 @@ section.match-squads {
 	flex-wrap: wrap;
 	flex-direction: row;
 	text-align: center;
+	align-items: center;
 	.team {
 		flex-grow: 1;
 		box-shadow: 2pt 2pt 2pt #555;
