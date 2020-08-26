@@ -351,7 +351,7 @@ class NewsPostPage extends Component {
 								editorState={post.editorState}
 								readOnly={true}
 								onChange={() => {}}
-								plugins={newsPlugins}
+								plugins={newsPlugins(post)}
 							/>
 							{this.appendArticle()}
 						</div>

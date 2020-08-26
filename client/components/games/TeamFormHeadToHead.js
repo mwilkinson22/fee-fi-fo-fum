@@ -10,11 +10,17 @@ import LoadingPage from "../LoadingPage";
 import TeamImage from "../teams/TeamImage";
 
 //Actions
-import { fetchGames } from "~/client/actions/gamesActions";
+import { fetchGames, fetchGameList } from "~/client/actions/gamesActions";
 
 class TeamFormHeadToHead extends Component {
 	constructor(props) {
 		super(props);
+
+		const { gameList, fetchGameList } = this.props;
+
+		if (!gameList) {
+			fetchGameList();
+		}
 
 		this.state = {};
 	}
@@ -22,7 +28,13 @@ class TeamFormHeadToHead extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { allCompetitions, game, fullGames, gameList, fetchGames } = nextProps;
 		const { gamesRequired } = prevState;
-		const newState = { gamesRequired };
+		const newState = { isLoadingList: false, gamesRequired };
+
+		//Wait on gamelist (only necessary within news posts)
+		if (!gameList) {
+			newState.isLoadingList = true;
+			return newState;
+		}
 
 		//Only run on initial load and gamechange
 		if (!prevState.game || prevState.game._id != nextProps.game._id) {
@@ -67,8 +79,8 @@ class TeamFormHeadToHead extends Component {
 	}
 
 	renderBoxes() {
-		const { fullGames, fullTeams, game, localTeam } = this.props;
-		const { gamesRequired } = this.state;
+		const { fullGames, fullTeams, localTeam } = this.props;
+		const { gamesRequired, game } = this.state;
 
 		//Aggregate Stats
 		const results = {
@@ -160,7 +172,7 @@ class TeamFormHeadToHead extends Component {
 		}
 
 		return (
-			<div className="head-to-head">
+			<div className="head-to-head-form">
 				<div className="games">{games}</div>
 				<div className="summary">
 					<div>
@@ -184,8 +196,8 @@ class TeamFormHeadToHead extends Component {
 	}
 
 	render() {
-		const { isLoading } = this.state;
-		if (isLoading) {
+		const { isLoading, isLoadingList } = this.state;
+		if (isLoading || isLoadingList) {
 			return <LoadingPage />;
 		}
 
@@ -209,4 +221,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, fullTeams };
 }
 
-export default connect(mapStateToProps, { fetchGames })(TeamFormHeadToHead);
+export default connect(mapStateToProps, { fetchGames, fetchGameList })(TeamFormHeadToHead);

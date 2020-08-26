@@ -10,6 +10,9 @@ import TwitterButton from "~/client/components/news/entities/TwitterButton";
 import YouTubeBlock from "~/client/components/news/entities/YouTubeBlock";
 import YouTubeButton from "~/client/components/news/entities/YouTubeButton";
 
+import TeamFormBlock from "~/client/components/news/entities/TeamFormBlock";
+import HeadToHeadButton from "~/client/components/news/entities/TeamFormButton";
+
 const imagePlugin = {
 	title: "Add Image",
 	type: "image",
@@ -35,4 +38,22 @@ const youtubePlugin = {
 	blockComponent: YouTubeBlock
 };
 
-export default [imagePlugin, sporclePlugin, twitterPlugin, youtubePlugin];
+const teamFormPlugin = {
+	title: "Team Form",
+	type: "team-form",
+	buttonComponent: HeadToHeadButton,
+	blockComponent: TeamFormBlock
+};
+
+export default post => {
+	const plugins = [imagePlugin, sporclePlugin, twitterPlugin, youtubePlugin];
+
+	if (post) {
+		//Add Game Preview Plugins
+		if (post.category === "previews") {
+			plugins.push(teamFormPlugin);
+		}
+	}
+
+	return plugins;
+};

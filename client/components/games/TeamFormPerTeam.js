@@ -10,13 +10,13 @@ import LoadingPage from "../LoadingPage";
 import TeamImage from "../teams/TeamImage";
 
 //Actions
-import { fetchGames } from "~/client/actions/gamesActions";
+import { fetchGames, fetchGameList } from "~/client/actions/gamesActions";
 import { fetchNeutralGames } from "~/client/actions/neutralGamesActions";
 
 class TeamFormPerTeam extends Component {
 	constructor(props) {
 		super(props);
-		const { neutralGames, fetchNeutralGames, game } = props;
+		const { neutralGames, fetchNeutralGames, game, gameList, fetchGameList } = props;
 
 		//Load Neutral Games for game year and previous year
 		const year = game.date.getFullYear();
@@ -30,20 +30,24 @@ class TeamFormPerTeam extends Component {
 			fetchNeutralGames(year - 1);
 		}
 
+		if (!gameList) {
+			fetchGameList();
+		}
+
 		this.state = { isLoadingNeutral };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { allCompetitions, game, neutralGames, fullGames, gameList, fetchGames } = nextProps;
 		const { gamesRequired } = prevState;
-		const newState = { gamesRequired, isLoadingNeutral: false };
+		const newState = { gamesRequired, isLoadingLists: false };
 
 		//Get the year of the main reference game
 		const year = game.date.getFullYear();
 
-		//Wait on all neutral games to be loaded
-		if (!neutralGames || !neutralGames[year] || !neutralGames[year - 1]) {
-			newState.isLoadingNeutral = true;
+		//Wait on all neutral games and the gameList to be loaded
+		if (!gameList || !neutralGames || !neutralGames[year] || !neutralGames[year - 1]) {
+			newState.isLoadingLists = true;
 			return newState;
 		}
 
@@ -252,10 +256,10 @@ class TeamFormPerTeam extends Component {
 
 	render() {
 		const { includeHeader } = this.props;
-		const { game, gamesRequired, isLoading, isLoadingNeutral } = this.state;
+		const { game, gamesRequired, isLoading, isLoadingLists } = this.state;
 
 		//Wait on dependencies
-		if (isLoading || isLoadingNeutral) {
+		if (isLoading || isLoadingLists) {
 			return <LoadingPage />;
 		} else if (!gamesRequired) {
 			return null;
@@ -268,7 +272,7 @@ class TeamFormPerTeam extends Component {
 		}
 
 		return (
-			<div className="teams">
+			<div className="per-team-form">
 				{header}
 				{this.renderTable(!game.isAway)}
 				{this.renderTable(game.isAway)}
@@ -295,4 +299,6 @@ function mapStateToProps({ config, games, teams }) {
 	return { localTeam, gameList, fullGames, neutralGames, fullTeams, teamList };
 }
 
-export default connect(mapStateToProps, { fetchGames, fetchNeutralGames })(TeamFormPerTeam);
+export default connect(mapStateToProps, { fetchGames, fetchGameList, fetchNeutralGames })(
+	TeamFormPerTeam
+);

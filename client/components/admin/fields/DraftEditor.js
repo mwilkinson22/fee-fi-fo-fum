@@ -52,7 +52,7 @@ class DraftEditor extends Component {
 	}
 
 	render() {
-		const { value, onChange } = this.props;
+		const { value, onChange, post } = this.props;
 
 		return (
 			<MegadraftEditor
@@ -60,7 +60,7 @@ class DraftEditor extends Component {
 				onChange={onChange}
 				actions={this.customActions()}
 				entityInputs={this.customEntityInputs()}
-				plugins={newsPlugins}
+				plugins={newsPlugins(post)}
 			/>
 		);
 	}
@@ -68,7 +68,8 @@ class DraftEditor extends Component {
 
 DraftEditor.propTypes = {
 	value: PropTypes.object.isRequired,
-	onChange: PropTypes.func.isRequired
+	onChange: PropTypes.func.isRequired,
+	post: PropTypes.object.isRequired
 };
 
 DraftEditor.defaultProps = {};

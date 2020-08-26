@@ -52,9 +52,10 @@ class AdminNewsPostContent extends Component {
 	}
 
 	getFieldGroups() {
+		const { post } = this.state;
 		return [
 			{
-				fields: [{ name: "content", type: fieldTypes.draft }]
+				fields: [{ name: "content", type: fieldTypes.draft, post }]
 			}
 		];
 	}
