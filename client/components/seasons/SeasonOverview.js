@@ -180,7 +180,7 @@ class SeasonOverview extends Component {
 
 SeasonOverview.propTypes = {
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
-	year: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired
+	year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
 };
 
 SeasonOverview.defaultProps = {};
