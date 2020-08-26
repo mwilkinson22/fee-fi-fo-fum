@@ -489,6 +489,17 @@ export async function crawlNewGames(req, res) {
 }
 
 //Get League Table Data
+export async function getLeagueTableData(req, res) {
+	const { _segment, year } = req.params;
+	const data = await processLeagueTableData(_segment, year, req.query);
+
+	if (data && data.error) {
+		res.status(406).send(data.error);
+	} else {
+		res.send(data);
+	}
+}
+
 export async function processLeagueTableData(segmentId, year, options = {}) {
 	//Set default options
 	options = {

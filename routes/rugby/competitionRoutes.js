@@ -7,6 +7,10 @@ import requireAdmin from "~/middlewares/requireAdmin";
 export default app => {
 	//Get
 	app.get(
+		"/api/competitions/leagueTableData/:_segment/:year",
+		competitionController.getLeagueTableData
+	);
+	app.get(
 		"/api/competitions/segments/:_segment/instance/:_instance/image/:imageType",
 		requireAdmin,
 		competitionController.fetchCompetitionInstanceImage
