@@ -958,7 +958,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 		.filter(_.identity);
 }
 
-export function getHomePageGames(gameList, teamTypes, competitionSegmentList) {
+export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList) {
 	//Get First Team TeamType
 	const firstTeam = _.sortBy(teamTypes, "sortOrder")[0]._id;
 
@@ -1012,62 +1012,5 @@ export function getHomePageGames(gameList, teamTypes, competitionSegmentList) {
 		}
 	}
 
-	//Get all required games for the League Table
-	//Pass in an empty array for neutralGames, as these can be handled
-	//by the child component with relative ease
-	const gamesForTable = getLeagueTableGames(
-		leagueTableDetails._competition,
-		competitionSegmentList,
-		leagueTableDetails.year,
-		gameList,
-		[]
-	).local;
-
-	return { gamesForTable, gamesForCards, leagueTableDetails };
-}
-
-export function getLeagueTableGames(
-	competition,
-	competitionSegmentList,
-	year,
-	gameList,
-	neutralGames,
-	fromDate = null,
-	toDate = null
-) {
-	const games = {
-		local: [],
-		neutral: []
-	};
-	let competitionSegment;
-	while (competition) {
-		competitionSegment = competitionSegmentList[competition];
-		const l = _.chain(gameList)
-			.filter(
-				game =>
-					game._competition === competitionSegment._id &&
-					validateGameDate(game, "results", year)
-			)
-			.filter(({ date }) => (fromDate ? date >= fromDate : true))
-			.filter(({ date }) => (toDate ? date <= toDate : true))
-			.map(game => game._id)
-			.value();
-
-		const n = _.chain(neutralGames)
-			.filter(
-				game =>
-					game._competition === competitionSegment._id &&
-					validateGameDate(game, "results", year)
-			)
-			.filter(({ date }) => (fromDate ? date >= fromDate : true))
-			.filter(({ date }) => (toDate ? date <= toDate : true))
-			.filter(({ homePoints, awayPoints }) => homePoints != null && awayPoints != null)
-			.map(g => _.pick(g, ["_homeTeam", "_awayTeam", "homePoints", "awayPoints", "date"]))
-			.value();
-
-		games.local.push(...l);
-		games.neutral.push(...n);
-		competition = competitionSegment._pointsCarriedFrom;
-	}
-	return games;
+	return { gamesForCards, leagueTableDetails };
 }

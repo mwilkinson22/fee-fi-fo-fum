@@ -12,11 +12,10 @@ import LeagueTable from "../components/seasons/LeagueTable";
 //Actions
 import { fetchPostList } from "../actions/newsActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
-import { fetchNeutralGames } from "../actions/neutralGamesActions";
-import { fetchCompetitionSegments } from "../actions/competitionActions";
+import { fetchCompetitionSegments, fetchLeagueTableData } from "../actions/competitionActions";
 
 //Helpers
-import { getHomePageGames } from "~/helpers/gameHelper";
+import { getHomePageGameInfo } from "~/helpers/gameHelper";
 
 class HomePage extends Component {
 	constructor(props) {
@@ -74,7 +73,7 @@ class HomePage extends Component {
 		}
 
 		//Get all required games
-		const { gamesForTable, gamesForCards, leagueTableDetails } = getHomePageGames(
+		const { gamesForCards, leagueTableDetails } = getHomePageGameInfo(
 			gameList,
 			teamTypes,
 			competitionSegmentList
@@ -84,9 +83,7 @@ class HomePage extends Component {
 		newState.leagueTableDetails = leagueTableDetails;
 
 		//Work out which required games still need to be loaded
-		const gamesToLoad = _.uniq([...gamesForCards, ...gamesForTable]).filter(
-			id => !fullGames[id]
-		);
+		const gamesToLoad = gamesForCards.filter(id => !fullGames[id]);
 
 		if (gamesToLoad.length === 0) {
 			//If we have no more games to load, then we assign the game objects
@@ -139,11 +136,7 @@ class HomePage extends Component {
 	}
 
 	renderLeagueTable() {
-		const { isLoadingGames, leagueTableDetails } = this.state;
-
-		if (isLoadingGames) {
-			return <LoadingPage />;
-		}
+		const { leagueTableDetails } = this.state;
 
 		if (leagueTableDetails) {
 			return (
@@ -187,28 +180,32 @@ async function loadData(store) {
 		store.dispatch(fetchGameList())
 	]);
 
-	//Get Games To Load
+	//Get Required Redux Lists
 	const { gameList } = store.getState().games;
 	const { teamTypes } = store.getState().teams;
 	const { competitionSegmentList } = store.getState().competitions;
-	const { gamesForCards, gamesForTable, leagueTableDetails } = getHomePageGames(
+
+	//Get game & league table data
+	const { gamesForCards, leagueTableDetails } = getHomePageGameInfo(
 		gameList,
 		teamTypes,
 		competitionSegmentList
 	);
 
 	return Promise.all([
-		store.dispatch(fetchGames(_.uniq([...gamesForCards, ...gamesForTable]))),
-		store.dispatch(fetchNeutralGames(leagueTableDetails.year))
+		store.dispatch(fetchGames(gamesForCards)),
+		store.dispatch(
+			fetchLeagueTableData(leagueTableDetails._competition, leagueTableDetails.year)
+		)
 	]);
 }
 
 function mapStateToProps({ news, games, competitions, teams }) {
 	const { postList } = news;
 	const { competitionSegmentList } = competitions;
-	const { gameList, fullGames, neutralGames } = games;
+	const { gameList, fullGames } = games;
 	const { teamTypes } = teams;
-	return { postList, gameList, fullGames, neutralGames, competitionSegmentList, teamTypes };
+	return { postList, gameList, fullGames, competitionSegmentList, teamTypes };
 }
 
 export default {
@@ -216,8 +213,7 @@ export default {
 		fetchPostList,
 		fetchGameList,
 		fetchGames,
-		fetchCompetitionSegments,
-		fetchNeutralGames
+		fetchCompetitionSegments
 	})(HomePage),
 	loadData
 };
