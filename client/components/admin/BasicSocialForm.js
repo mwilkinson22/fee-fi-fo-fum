@@ -276,7 +276,7 @@ BasicSocialForm.propTypes = {
 
 BasicSocialForm.defaultProps = {
 	additionalFieldsComeAfter: false,
-	additionalFieldGroups: null,
+	additionalFieldGroups: [],
 	additionalFieldInitialValues: {},
 	addtionalFieldValidationSchema: {},
 	enforceTwitter: false,
