@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const collectionName = "newsPosts";
 const NewsPost = mongoose.model(collectionName);
 const SlugRedirect = mongoose.model("slugRedirect");
+import { EditorState, convertToRaw } from "draft-js";
 
 //Helpers
 import { getRedirects } from "./genericController";
@@ -79,7 +80,13 @@ export async function getLegacyPost(req, res) {
 
 //Create Post
 export async function createPost(req, res) {
-	const post = new NewsPost(req.body);
+	const values = req.body;
+	if (!values.content) {
+		values.content = JSON.stringify(
+			convertToRaw(EditorState.createEmpty().getCurrentContent())
+		);
+	}
+	const post = new NewsPost(values);
 	await post.save();
 
 	await getUpdatedPost(post._id, res);
