@@ -1,26 +1,37 @@
+//Polyfills
 import "@babel/polyfill";
 import { polyfill } from "es6-promise"; //IE Support
+
+//React
 import React from "react";
-import ReactDOM from "react-dom";
+import { hydrate } from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import { createStore, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-import { Provider } from "react-redux";
-import Routes from "./Routes";
 import { renderRoutes } from "react-router-config";
+
+//Redux
+import { createStore, applyMiddleware } from "redux";
+import { Provider } from "react-redux";
+import thunk from "redux-thunk";
 import reducers from "./reducers/combinedReducer";
+
+//Modules
 import axios from "axios";
 import { toast } from "react-toastify";
+
+//Constants
+import Routes from "./Routes";
 
 //Stylesheets
 import "./scss/styles.scss";
 
-polyfill(); //IE Support
+//IE Support
+polyfill();
 
+//Create an axios API reference
 const axiosInstance = axios.create({
 	baseURL: "/api"
 });
-//Set Axios Error Handling
+//Assign it custom error handling
 axiosInstance.interceptors.response.use(
 	function(response) {
 		return response;
@@ -45,13 +56,16 @@ axiosInstance.interceptors.response.use(
 		return error;
 	}
 );
+
+//Create a redux store
 const store = createStore(
 	reducers,
 	window.INITIAL_STATE,
 	applyMiddleware(thunk.withExtraArgument(axiosInstance))
 );
 
-ReactDOM.hydrate(
+//Enable isomorphic JS
+hydrate(
 	<Provider store={store}>
 		<BrowserRouter>
 			<div>{renderRoutes(Routes)}</div>
