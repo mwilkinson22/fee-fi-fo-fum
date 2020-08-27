@@ -1,10 +1,13 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserJSPlugin = require("terser-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 //Determine sourcemap settings
 const devtool = process.env.NODE_ENV === "production" ? "source-map" : "eval-source-map";
 
 module.exports = {
+	devtool,
 	module: {
 		rules: [
 			{
@@ -42,13 +45,16 @@ module.exports = {
 			{
 				test: /\.scss$/,
 				use: [
+					//Saves to styles.css
 					MiniCssExtractPlugin.loader,
+					//Handles imports
 					{
 						loader: "css-loader",
 						options: {
 							sourceMap: true
 						}
 					},
+					//Processes css through autoprefixer
 					{
 						loader: "postcss-loader",
 						options: {
@@ -57,12 +63,14 @@ module.exports = {
 							plugins: [require("autoprefixer")()]
 						}
 					},
+					//Converts sass to css
 					{
 						loader: "fast-sass-loader",
 						options: {
 							sourceMap: true
 						}
 					},
+					//Maps environment variables into scss variables
 					{
 						loader: "./config/sassEnvLoader"
 					}
@@ -70,14 +78,26 @@ module.exports = {
 			}
 		]
 	},
+	plugins: [new MiniCssExtractPlugin({ filename: "styles.css" })],
+	performance: {
+		hints: false
+	},
 	resolve: {
 		alias: {
 			"~": path.resolve(".")
 		}
 	},
-	plugins: [new MiniCssExtractPlugin({ filename: "styles.css" })],
-	performance: {
-		hints: false
-	},
-	devtool
+
+	optimization: {
+		minimizer: [
+			new TerserJSPlugin({
+				terserOptions: {
+					output: {
+						comments: false
+					}
+				}
+			}),
+			new OptimizeCSSAssetsPlugin({})
+		]
+	}
 };
