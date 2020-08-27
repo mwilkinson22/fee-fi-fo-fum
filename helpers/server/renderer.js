@@ -6,15 +6,20 @@ import { renderRoutes } from "react-router-config";
 import serialize from "serialize-javascript";
 import { Helmet } from "react-helmet";
 import Routes from "../../client/Routes";
+import path from "path";
+import { ChunkExtractor } from "@loadable/server";
 
 export default (req, store, context) => {
-	const content = renderToString(
+	const statsFile = path.resolve("./public/loadable-stats.json");
+	const chunkExtractor = new ChunkExtractor({ statsFile });
+	const app = chunkExtractor.collectChunks(
 		<Provider store={store}>
 			<StaticRouter location={req.path} context={context}>
 				<div>{renderRoutes(Routes)}</div>
 			</StaticRouter>
 		</Provider>
 	);
+	const content = renderToString(app);
 
 	const helmet = Helmet.renderStatic();
 	return `
@@ -32,7 +37,7 @@ export default (req, store, context) => {
 			<body>
 				<div id="root">${content}</div>
 				<script id="initial-state-script">window.INITIAL_STATE = ${serialize(store.getState())}</script>
-				<script src="/bundle.js"></script>
+				${chunkExtractor.getScriptTags()}
 			</body>
 		</html>
 	`;
