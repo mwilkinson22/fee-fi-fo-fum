@@ -7,10 +7,10 @@ import AsyncSelect from "react-select/async";
 import CreatableSelect from "react-select/creatable";
 
 //Input Components
-import BooleanField from "~/client/components/admin/fields/Boolean";
-import Radio from "~/client/components/admin/fields/Radio";
-import ImageField from "~/client/components/admin/fields/ImageField";
-import DraftEditor from "~/client/components/admin/fields/DraftEditor";
+import BooleanSlider from "~/client/components/fields/BooleanSlider";
+import Radio from "~/client/components/fields/Radio";
+import ImageField from "~/client/components/fields/ImageField";
+import DraftEditor from "~/client/components/fields/DraftEditor";
 import TweetComposer from "~/client/components/TweetComposer";
 
 //Constants
@@ -172,7 +172,7 @@ export function renderInput(field) {
 		//Get the main component
 		switch (type) {
 			case fieldTypes.boolean:
-				return <BooleanField {...mainProps} />;
+				return <BooleanSlider {...mainProps} />;
 			case fieldTypes.radio:
 				return <Radio {...mainProps} />;
 			case fieldTypes.creatableSelect:

@@ -11,7 +11,7 @@ import { addCategory, updateCategory, deleteCategory } from "~/client/actions/aw
 
 //Components
 import BasicForm from "../BasicForm";
-import DeleteButtons from "../fields/DeleteButtons";
+import DeleteButtons from "../../fields/DeleteButtons";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -267,8 +267,5 @@ function mapStateToProps({ awards }) {
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ addCategory, updateCategory, deleteCategory }
-	)(AdminAwardCategories)
+	connect(mapStateToProps, { addCategory, updateCategory, deleteCategory })(AdminAwardCategories)
 );

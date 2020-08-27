@@ -7,7 +7,7 @@ import Select from "react-select";
 
 //Components
 import SquadSelectorCard from "./SquadSelectorCard";
-import PopUpDialog from "../../PopUpDialog";
+import PopUpDialog from "../PopUpDialog";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";

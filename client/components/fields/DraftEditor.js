@@ -7,8 +7,8 @@ import actions from "megadraft/lib/actions/default";
 import LinkInput from "megadraft/lib/entity_inputs/LinkInput";
 
 //Components
-import LinkIcon from "../../news/entities/LinkIcon";
-import InternalLinkInput from "../../news/entities/InternalLinkInput";
+import LinkIcon from "../news/entities/LinkIcon";
+import InternalLinkInput from "../news/entities/InternalLinkInput";
 
 //Constants
 import newsPlugins from "~/constants/newsPlugins";

@@ -8,8 +8,8 @@ import { Link } from "react-router-dom";
 //Components
 import Table from "../../Table";
 import TeamImage from "../../teams/TeamImage";
-import BooleanSlider from "../fields/Boolean";
-import DeleteButtons from "../fields/DeleteButtons";
+import BooleanSlider from "../../fields/BooleanSlider";
+import DeleteButtons from "../../fields/DeleteButtons";
 
 //Actions
 import { updateNeutralGames } from "~/client/actions/neutralGamesActions";

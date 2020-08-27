@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 //Components
-import SquadSelector from "../admin/games/SquadSelector";
+import SquadSelector from "./SquadSelector";
 import ShareDialog from "../social/ShareDialog";
 import LoadingPage from "../LoadingPage";
 

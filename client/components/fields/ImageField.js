@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 //Components
-import ImageSelector from "../ImageSelector";
-import FileUploader from "../FileUploader";
+import ImageSelector from "../admin/ImageSelector";
+import FileUploader from "../admin/FileUploader";
 
 class ImageField extends Component {
 	constructor(props) {

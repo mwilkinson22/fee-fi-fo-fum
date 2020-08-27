@@ -13,7 +13,7 @@ import { updateCompetitionInstance } from "~/client/actions/competitionActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
-import DeleteButtons from "../fields/DeleteButtons";
+import DeleteButtons from "../../fields/DeleteButtons";
 
 class AdminCompetitionInstanceOverview extends Component {
 	constructor(props) {

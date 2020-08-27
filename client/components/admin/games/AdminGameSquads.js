@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Components
-import SquadSelector from "./SquadSelector";
+import SquadSelector from "../../teamselectors/SquadSelector";
 
 //Actions
 import { markSquadAsAnnounced, setSquad } from "../../../actions/gamesActions";

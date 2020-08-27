@@ -10,7 +10,7 @@ import { diff } from "deep-object-diff";
 
 //Components
 import LoadingPage from "../../LoadingPage";
-import DeleteButtons from "../fields/DeleteButtons";
+import DeleteButtons from "../../fields/DeleteButtons";
 
 //Actions
 import { previewPostGameEventImage, submitPostGameEvents } from "~/client/actions/gamesActions";

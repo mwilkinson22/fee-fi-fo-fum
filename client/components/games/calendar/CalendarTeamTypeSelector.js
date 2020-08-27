@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 //Components
-import BooleanField from "../../admin/fields/Boolean";
+import BooleanSlider from "../../fields/BooleanSlider";
 import LoadingPage from "../../LoadingPage";
 
 class CalendarTeamTypeSelector extends Component {
@@ -65,7 +65,7 @@ class CalendarTeamTypeSelector extends Component {
 				//Render list item
 				return (
 					<li className={showAll ? "disabled" : ""} onClick={changeEvent} key={_id}>
-						<BooleanField
+						<BooleanSlider
 							name={_id}
 							value={selectedTeamTypes[_id]}
 							onChange={changeEvent}
@@ -79,7 +79,7 @@ class CalendarTeamTypeSelector extends Component {
 		return [
 			<ul key="list" className="clickable">
 				<li onClick={() => this.setState({ showAll: !showAll })}>
-					<BooleanField name="show-all" value={showAll} onChange={() => {}} />
+					<BooleanSlider name="show-all" value={showAll} onChange={() => {}} />
 					<span>Include all team types</span>
 				</li>
 				{list}

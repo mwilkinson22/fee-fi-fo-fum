@@ -3,14 +3,12 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components
 import BasicForm from "../../components/admin/BasicForm";
 import NotFoundPage from "../NotFoundPage";
 import LoadingPage from "../../components/LoadingPage";
-import DeleteButtons from "../../components/admin/fields/DeleteButtons";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
@@ -152,8 +150,7 @@ function mapStateToProps({ locations }) {
 }
 
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchCountries, createCountry, updateCountry, deleteCountry }
-	)(AdminCountryPage)
+	connect(mapStateToProps, { fetchCountries, createCountry, updateCountry, deleteCountry })(
+		AdminCountryPage
+	)
 );

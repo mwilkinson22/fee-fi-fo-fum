@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 //Components
-import DeleteButtons from "./admin/fields/DeleteButtons";
+import DeleteButtons from "./fields/DeleteButtons";
 import LoadingPage from "./LoadingPage";
 import Table from "./Table";
 import ErrorPrintout from "./ErrorPrintout";
@@ -268,7 +268,9 @@ function mapStateToProps({ errors }) {
 	return { errorList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ archiveError, archiveAllErrors, fetchErrors, unarchiveError }
-)(ErrorList);
+export default connect(mapStateToProps, {
+	archiveError,
+	archiveAllErrors,
+	fetchErrors,
+	unarchiveError
+})(ErrorList);

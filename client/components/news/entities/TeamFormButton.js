@@ -6,8 +6,8 @@ import { withRouter } from "react-router-dom";
 import insertDataBlock from "megadraft/lib/insertDataBlock";
 
 //Components
-import BooleanSlider from "../../admin/fields/Boolean";
-import Radio from "../../admin/fields/Radio";
+import BooleanSlider from "../../fields/BooleanSlider";
+import Radio from "../../fields/Radio";
 import PopUpDialog from "../../PopUpDialog";
 
 class TeamFormButton extends Component {

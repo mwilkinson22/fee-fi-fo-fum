@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 
 //Components
-import ThreeDots from "../../ThreeDots";
+import ThreeDots from "../ThreeDots";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";

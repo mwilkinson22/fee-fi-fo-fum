@@ -7,8 +7,8 @@ import { convertToRaw } from "draft-js";
 import { diff } from "deep-object-diff";
 
 //Components
-import DeleteButtons from "./fields/DeleteButtons";
-import BooleanField from "./fields/Boolean";
+import DeleteButtons from "../fields/DeleteButtons";
+import BooleanSlider from "../fields/BooleanSlider";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -340,7 +340,7 @@ class BasicForm extends Component {
 			content.unshift(
 				<hr key="redirect-bool-divider" />,
 				<label key="redirect-bool-label">Disable Redirect on Submit?</label>,
-				<BooleanField
+				<BooleanSlider
 					value={disableRedirect}
 					name="disable-redirect"
 					key="redirect-bool"

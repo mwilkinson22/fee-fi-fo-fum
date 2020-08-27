@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import Select from "react-select";
 
 //Components
-import BooleanSwitch from "../fields/Boolean";
+import BooleanSlider from "../../fields/BooleanSlider";
 import LoadingPage from "../../LoadingPage";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 
@@ -320,7 +320,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 						//Create Bool Switch
 						const bool = (
-							<BooleanSwitch
+							<BooleanSlider
 								key={`${i}-switch`}
 								name={`bool-${type}-${i}`}
 								value={game.include}
@@ -375,7 +375,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 				const buttons = (
 					<div className="form-card grid">
 						<label>Automatically assign ground?</label>
-						<BooleanSwitch
+						<BooleanSlider
 							name={`bool-auto-pick`}
 							value={autoPickGround}
 							onChange={() => this.setState({ autoPickGround: !autoPickGround })}
