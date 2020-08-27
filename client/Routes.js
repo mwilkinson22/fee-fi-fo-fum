@@ -1,8 +1,8 @@
+/* eslint-disable react/display-name */
 import React from "react";
 import App from "./App";
 import { Redirect } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import AwardPage from "./pages/AwardPage";
 import GamePage from "./pages/GamePage";
 import GameList from "./pages/GameList";
 import PersonPage from "./pages/PersonPage";
@@ -12,12 +12,16 @@ import NewsListPage from "./pages/NewsListPage";
 import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import TeamSelectorPage from "./pages/TeamSelectorPage";
-import AdminRouter from "./components/admin";
+import LoadingPage from "./components/LoadingPage";
 import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
+import loadable from "@loadable/component";
+
+//Reusable fallback
+const fallback = <LoadingPage />;
 
 const awardRoutes = [
 	{
-		...AwardPage,
+		component: loadable(() => import("./pages/AwardPage"), { fallback }),
 		path: "/awards"
 	}
 ];
@@ -159,7 +163,7 @@ export default [
 				exact: true
 			},
 			{
-				...AdminRouter,
+				component: loadable(() => import("./components/admin/index.js"), { fallback }),
 				path: "/admin"
 			},
 			{

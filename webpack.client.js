@@ -13,7 +13,8 @@ const config = {
 	//output file
 	output: {
 		filename: "[name].[contenthash].bundle.js",
-		path: path.resolve(__dirname, "public")
+		path: path.resolve(__dirname, "public"),
+		publicPath: "/"
 	},
 
 	optimization: {

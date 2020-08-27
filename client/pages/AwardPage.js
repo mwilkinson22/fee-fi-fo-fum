@@ -194,6 +194,4 @@ function mapStateToProps({ awards, config, games, people }) {
 	return { bucketPaths, currentAwards, fullPeople, fullGames, site_name };
 }
 
-export default {
-	component: connect(mapStateToProps, { fetchGames, fetchPeople })(AwardPage)
-};
+export default connect(mapStateToProps, { fetchGames, fetchPeople })(AwardPage);
