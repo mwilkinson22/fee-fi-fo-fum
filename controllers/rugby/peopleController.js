@@ -76,9 +76,12 @@ async function getPlayedGames(_id) {
 
 		let forLocalTeam;
 		if (pregameOnly) {
-			forLocalTeam = Boolean(
-				game.pregameSquads.find(s => s._team == localTeam).squad.find(p => p == _id)
-			);
+			const localTeamPregameSquad = game.pregameSquads.find(s => s._team == localTeam);
+			if (localTeamPregameSquad && localTeamPregameSquad.squad) {
+				forLocalTeam = Boolean(localTeamPregameSquad.squad.find(p => p == _id));
+			} else {
+				forLocalTeam = false;
+			}
 		} else {
 			forLocalTeam = playerStatEntry._team == localTeam;
 		}
