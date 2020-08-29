@@ -541,7 +541,7 @@ export async function handleEvent(req, res) {
 	//If the event is valid
 	let game = await validateGame(_id, res, Game.findById(_id).eventImage());
 	if (game) {
-		const { postTweet, tweet, replyTweet, _profile } = req.body;
+		const { postTweet, postToFacebook, tweet, replyTweet, _profile } = req.body;
 
 		//Create Event Object
 		const eventObject = {
@@ -647,12 +647,14 @@ export async function handleEvent(req, res) {
 				eventObject.tweet_image = tweetMediaObject[0].media_url;
 			}
 
-			//Post to ifttt
-			const facebookImages = [];
-			if (eventObject.tweet_image) {
-				facebookImages.push(eventObject.tweet_image);
+			if (postToFacebook) {
+				//Post to ifttt
+				const facebookImages = [];
+				if (eventObject.tweet_image) {
+					facebookImages.push(eventObject.tweet_image);
+				}
+				await postToSocial("facebook", tweet, { _profile, images: facebookImages });
 			}
-			await postToSocial("facebook", tweet, { _profile, images: facebookImages });
 		}
 
 		//Add Event

@@ -45,7 +45,8 @@ class AdminGameEvent extends Component {
 					return !isPlayerEvent || player;
 				})
 				.label("Player"),
-			postTweet: Yup.boolean().label("Post to Social?"),
+			postTweet: Yup.boolean().label("Post to Twitter?"),
+			postToFacebook: Yup.boolean().label("Post to Facebook?"),
 			tweet: Yup.string().label("Tweet"),
 			replyTweet: Yup.string().label("Reply To Tweet")
 		});
@@ -149,6 +150,7 @@ class AdminGameEvent extends Component {
 			event: event[0].value,
 			player: "",
 			postTweet: true,
+			postToFacebook: true,
 			tweet,
 			replyTweet: ""
 		};
@@ -184,6 +186,7 @@ class AdminGameEvent extends Component {
 		//Twitter Fields
 		if (postTweet) {
 			fields.push(
+				{ name: "postToFacebook", type: fieldTypes.boolean },
 				{
 					name: "tweet",
 					type: fieldTypes.tweet,
@@ -204,7 +207,7 @@ class AdminGameEvent extends Component {
 		const { game } = this.state;
 
 		//Set previewImage to false, to enforce LoadingPage
-		await this.setState({ previewImage: false });
+		this.setState({ previewImage: false });
 
 		//Create the options
 		const options = {
@@ -215,7 +218,7 @@ class AdminGameEvent extends Component {
 
 		//Get the image
 		const image = await previewPlayerEventImage(game._id, options);
-		await this.setState({ previewImage: image });
+		this.setState({ previewImage: image });
 	}
 
 	async handleSubmit(values, { setSubmitting, setValues }) {
@@ -261,14 +264,15 @@ class AdminGameEvent extends Component {
 				}
 			}
 
-			//Persist profile and postTweet
-			const { _profile, postTweet } = values;
+			//Persist profile, postTweet and postToFacebook
+			const { _profile, postTweet, postToFacebook } = values;
 
 			//Set these values, maintaining the current profile and postTweet status
 			setValues({
 				...newValues,
 				_profile,
-				postTweet
+				postTweet,
+				postToFacebook
 			});
 		}
 
