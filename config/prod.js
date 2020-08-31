@@ -18,6 +18,11 @@ module.exports = {
 	googleMapsKey: process.env.GOOGLE_MAPS,
 	mainColour: process.env.MAIN_COLOUR,
 	mongoURI: process.env.MONGO_URI,
+	sites: {
+		dev: process.env.SITES_DEV,
+		test: process.env.SITES_TEST,
+		live: process.env.SITES_LIVE
+	},
 	ticketLink: process.env.TICKET_LINK,
 	trimColour: process.env.TRIM_COLOUR
 };

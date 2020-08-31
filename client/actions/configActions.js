@@ -10,7 +10,8 @@ import {
 	ticketLink,
 	airbrakeId,
 	airbrakeKey,
-	googleMapsKey
+	googleMapsKey,
+	sites
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -72,7 +73,10 @@ export const getCoreConfig = req => async dispatch => {
 		airbrakeKey,
 
 		//Fans Can Attend Games?
-		fansCanAttend
+		fansCanAttend,
+
+		//Sites
+		sites
 	};
 
 	//Add Bucket Paths

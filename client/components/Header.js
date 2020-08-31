@@ -34,7 +34,15 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
-		const { localTeam, fullTeams, authUser, currentAwards } = this.props;
+		const {
+			localTeam,
+			fullTeams,
+			authUser,
+			currentAwards,
+			sites,
+			baseUrl,
+			location
+		} = this.props;
 		const navMenus = [
 			[
 				{
@@ -160,6 +168,22 @@ class Header extends Component {
 				});
 			}
 
+			//Add "View On" sites
+			const viewOnSites = {};
+			for (const siteType in sites) {
+				if (sites[siteType] && sites[siteType] !== baseUrl) {
+					viewOnSites[siteType] = sites[siteType] + location.pathname;
+				}
+			}
+
+			if (_.values(viewOnSites).length) {
+				adminMenu.push({
+					header: "View On",
+					externalLink: true,
+					subMenu: viewOnSites
+				});
+			}
+
 			navMenus.push(adminMenu);
 		}
 
@@ -180,17 +204,25 @@ class Header extends Component {
 
 				let sectionHeader;
 				if (section.headerLink) {
-					sectionHeader = (
-						<NavLink
-							activeClassName={activeClassName}
-							className={headerClassName}
-							to={section.headerLink}
-							onClick={() => this.setState({ showMobileNav: false })}
-							exact={section.exactNav}
-						>
-							{section.header}
-						</NavLink>
-					);
+					if (section.externalLink) {
+						sectionHeader = (
+							<a href={section.headerLink} target="_blank" rel="noopener noreferrer">
+								{section.header}
+							</a>
+						);
+					} else {
+						sectionHeader = (
+							<NavLink
+								activeClassName={activeClassName}
+								className={headerClassName}
+								to={section.headerLink}
+								onClick={() => this.setState({ showMobileNav: false })}
+								exact={section.exactNav}
+							>
+								{section.header}
+							</NavLink>
+						);
+					}
 				} else {
 					sectionHeader = <div className={headerClassName}>{section.header}</div>;
 				}
@@ -199,8 +231,15 @@ class Header extends Component {
 
 				if (section.subMenu) {
 					const sectionBodyContent = _.map(section.subMenu, (link, name) => {
-						return (
-							<li key={section.header + name} className="submenu">
+						let linkElement;
+						if (section.externalLink) {
+							linkElement = (
+								<a href={link} target="_blank" rel="noopener noreferrer">
+									{name}
+								</a>
+							);
+						} else {
+							linkElement = (
 								<NavLink
 									activeClassName={activeClassName}
 									to={section.subMenuRootLink + link}
@@ -208,6 +247,11 @@ class Header extends Component {
 								>
 									{name}
 								</NavLink>
+							);
+						}
+						return (
+							<li key={section.header + name} className="submenu">
+								{linkElement}
 							</li>
 						);
 					});
@@ -306,7 +350,9 @@ function mapStateToProps({ awards, config, teams }) {
 		bucketPaths,
 		site_social,
 		site_header_logo,
-		site_name
+		site_name,
+		sites,
+		baseUrl
 	} = config;
 	const { fullTeams } = teams;
 	return {
@@ -319,7 +365,9 @@ function mapStateToProps({ awards, config, teams }) {
 		site_header_logo,
 		site_name,
 		localTeam,
-		fullTeams
+		fullTeams,
+		sites,
+		baseUrl
 	};
 }
 
