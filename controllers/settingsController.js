@@ -10,15 +10,16 @@ export async function ensureRequiredSettingsAreSet() {
 	const requiredSettings = {
 		facebook_app_id: false,
 		facebook_app_secret: true,
-		twitter_consumer_key: false,
-		twitter_consumer_secret: true,
-		twitter_access_token: true,
-		twitter_access_token_secret: true,
+		privacyPolicy: false,
 		site_name: false,
 		site_social: false,
 		site_logo: false,
 		site_header_logo: false,
-		site_default_description: false
+		site_default_description: false,
+		twitter_consumer_key: false,
+		twitter_consumer_secret: true,
+		twitter_access_token: true,
+		twitter_access_token_secret: true
 	};
 
 	//Get all current settings loaded in

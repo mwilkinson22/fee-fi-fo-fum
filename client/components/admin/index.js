@@ -48,6 +48,8 @@ import AdminNewsPostPage from "../../pages/admin/AdminNewsPostPage";
 import AdminPersonPage from "../../pages/admin/AdminPersonPage";
 import AdminPersonList from "../../pages/admin/AdminPersonList";
 
+import AdminPrivacyPolicy from "../../pages/admin/AdminPrivacyPolicy";
+
 import AdminSocialList from "../../pages/admin/AdminSocialList";
 import AdminSocialPage from "../../pages/admin/AdminSocialPage";
 
@@ -164,6 +166,12 @@ class AdminRouter extends Component {
 						<Route path="/admin/people/new" exact component={AdminPersonPage} />
 						<Route path="/admin/people/:_id" component={AdminPersonPage} />
 						<Route path="/admin/people/" exact component={AdminPersonList} />
+
+						<Route
+							path="/admin/settings/privacy-policy"
+							exact
+							component={AdminPrivacyPolicy}
+						/>
 
 						<Route path="/admin/settings/errors" component={AdminErrorPage} />
 

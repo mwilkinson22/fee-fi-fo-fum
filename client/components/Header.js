@@ -157,6 +157,7 @@ class Header extends Component {
 						Broadcasters: "broadcasters",
 						Errors: "errors",
 						Facebook: "facebook",
+						"Privacy Policy": "privacy-policy",
 						Social: "social",
 						Twitter: "twitter",
 						Users: "users"

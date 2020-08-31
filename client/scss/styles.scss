@@ -636,6 +636,12 @@ button,
 	}
 }
 
+.privacy-policy-page {
+	p:not(:last-child) {
+		margin-bottom: 10pt;
+	}
+}
+
 @import "../../node_modules/megadraft/lib/styles/megadraft";
 @import "toast";
 @import "header";

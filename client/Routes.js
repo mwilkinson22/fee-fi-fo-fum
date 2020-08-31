@@ -13,6 +13,7 @@ import NewsPostPage from "./pages/NewsPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import TeamSelectorPage from "./pages/TeamSelectorPage";
 import LoadingPage from "./components/LoadingPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
 import loadable from "@loadable/component";
 
@@ -161,6 +162,10 @@ export default [
 				...HomePage,
 				path: "/",
 				exact: true
+			},
+			{
+				...PrivacyPolicyPage,
+				path: "/privacy"
 			},
 			{
 				component: loadable(() => import("./components/admin/index.js"), { fallback }),
