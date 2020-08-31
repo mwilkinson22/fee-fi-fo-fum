@@ -501,10 +501,19 @@ export async function getLeagueTableData(req, res) {
 }
 
 export async function processLeagueTableData(segmentId, year, options = {}) {
+	//Work out default toDate
+	let toDate;
+	const now = new Date();
+	if (year == now.getFullYear()) {
+		toDate = now.toString("yyyy-MM-dd HH:mm:ss");
+	} else {
+		toDate = `${year + 1}-01-01 00:00:00`;
+	}
+
 	//Set default options
 	options = {
 		fromDate: `${year}-01-01 00:00:00`,
-		toDate: `${year + 1}-01-01 00:00:00`,
+		toDate,
 		...options
 	};
 
