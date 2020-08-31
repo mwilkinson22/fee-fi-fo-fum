@@ -8,6 +8,8 @@ export async function ensureRequiredSettingsAreSet() {
 	//Each key is a setting name, matched a boolean that governs the
 	//requireAdminToView property
 	const requiredSettings = {
+		facebook_app_id: false,
+		facebook_app_secret: true,
 		twitter_consumer_key: false,
 		twitter_consumer_secret: true,
 		twitter_access_token: true,

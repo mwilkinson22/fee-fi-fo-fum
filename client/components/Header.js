@@ -156,6 +156,7 @@ class Header extends Component {
 						Branding: "branding",
 						Broadcasters: "broadcasters",
 						Errors: "errors",
+						Facebook: "facebook",
 						Social: "social",
 						Twitter: "twitter",
 						Users: "users"

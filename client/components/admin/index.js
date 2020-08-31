@@ -63,6 +63,7 @@ import AdminTeamSelectorPage from "../../pages/admin/AdminTeamSelectorPage";
 import AdminTeamTypeList from "../../pages/admin/AdminTeamTypeList";
 import AdminTeamTypePage from "../../pages/admin/AdminTeamTypePage";
 
+import AdminFacebookAppPage from "../../pages/admin/AdminFacebookAppPage";
 import AdminTwitterAppPage from "../../pages/admin/AdminTwitterAppPage";
 
 import AdminUserList from "../../pages/admin/AdminUserList";
@@ -177,6 +178,12 @@ class AdminRouter extends Component {
 							component={AdminSocialPage}
 						/>
 						<Route path="/admin/settings/social/" exact component={AdminSocialList} />
+
+						<Route
+							path="/admin/settings/facebook/"
+							exact
+							component={AdminFacebookAppPage}
+						/>
 
 						<Route
 							path="/admin/settings/twitter/"
