@@ -2,6 +2,7 @@ const path = require("path");
 const merge = require("webpack-merge");
 const baseConfig = require("./webpack.base");
 const LoadablePlugin = require("@loadable/webpack-plugin");
+const isProduction = process.env.NODE_ENV === "production";
 
 const config = {
 	//Tell webpack the root file
@@ -12,7 +13,7 @@ const config = {
 
 	//output file
 	output: {
-		filename: "[name].[contenthash].bundle.js",
+		filename: isProduction ? "[name].[contenthash].bundle.js" : "[name].bundle.js",
 		path: path.resolve(__dirname, "public"),
 		publicPath: "/"
 	},

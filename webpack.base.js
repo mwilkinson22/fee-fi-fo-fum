@@ -2,12 +2,10 @@ const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-
-//Determine sourcemap settings
-const devtool = process.env.NODE_ENV === "production" ? "source-map" : "eval-source-map";
+const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
-	devtool,
+	devtool: isProduction ? "source-map" : "eval-source-map",
 	module: {
 		rules: [
 			{
