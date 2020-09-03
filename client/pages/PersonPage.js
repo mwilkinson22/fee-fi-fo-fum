@@ -38,7 +38,15 @@ class PersonPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { peopleList, redirects, fullPeople, fetchPerson, match, localTeam } = nextProps;
+		const {
+			peopleList,
+			redirects,
+			fullPeople,
+			fetchPerson,
+			match,
+			localTeam,
+			authUser
+		} = nextProps;
 		const { slug } = match.params;
 		const newState = { redirect: null };
 
@@ -59,23 +67,28 @@ class PersonPage extends Component {
 				} else {
 					const person = fullPeople[_id];
 
-					//Ensure they have a connection to the local team
-					const isInLocalSquad =
-						person.squadEntries &&
-						person.squadEntries.find(s => s.team._id == localTeam);
-
-					const hasCoachedLocalSquad =
-						person.coachingRoles &&
-						person.coachingRoles.find(c => c._team == localTeam);
-
-					const hasPlayedForLocalTeam =
-						person.playedGames &&
-						person.playedGames.filter(g => g.forLocalTeam && !g.pregameOnly);
-
-					if (isInLocalSquad || hasCoachedLocalSquad || hasPlayedForLocalTeam) {
+					//Always display for admins
+					if (authUser && authUser.isAdmin) {
 						newState.person = person;
 					} else {
-						newState.person = false;
+						//Ensure they have a connection to the local team
+						const isInLocalSquad =
+							person.squadEntries &&
+							person.squadEntries.find(s => s.team._id == localTeam);
+
+						const hasCoachedLocalSquad =
+							person.coachingRoles &&
+							person.coachingRoles.find(c => c._team == localTeam);
+
+						const hasPlayedForLocalTeam =
+							person.playedGames &&
+							person.playedGames.find(g => g.forLocalTeam && !g.pregameOnly);
+
+						if (isInLocalSquad || hasCoachedLocalSquad || hasPlayedForLocalTeam) {
+							newState.person = person;
+						} else {
+							newState.person = false;
+						}
 					}
 				}
 			}
