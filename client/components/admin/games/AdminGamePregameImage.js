@@ -335,6 +335,7 @@ class AdminGamePregameImage extends Component {
 			tweet,
 			replyTweet,
 			postTweet: true,
+			postToFacebook: true,
 			event: "pregameSquad",
 			imageOptions: this.generateQueryString(values, false)
 		};

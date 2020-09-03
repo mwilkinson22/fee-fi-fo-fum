@@ -162,6 +162,7 @@ class AdminGameSquadImage extends Component {
 
 		//Add additional event data
 		event.postTweet = true;
+		event.postToFacebook = true;
 		event.event = "matchSquad";
 
 		//Get Posted Tweet
