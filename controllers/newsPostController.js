@@ -86,6 +86,12 @@ export async function createPost(req, res) {
 			convertToRaw(EditorState.createEmpty().getCurrentContent())
 		);
 	}
+
+	//Set date values
+	const now = new Date().toISOString();
+	values.dateCreated = now;
+	values.dateModified = now;
+
 	const post = new NewsPost(values);
 	await post.save();
 
@@ -102,13 +108,14 @@ export async function updatePost(req, res) {
 	} else {
 		const values = _.mapValues(req.body, v => (v === "" ? null : v));
 
+		//Update modified date
+		const now = new Date().toISOString();
+		values.dateModified = now;
+
 		//Update created date on publish
 		if (values.isPublished && !newsPost.isPublished) {
-			values.dateCreated = new Date();
+			values.dateCreated = now;
 		}
-
-		//Update modified date
-		values.dateModified = new Date();
 
 		//Update post
 		await newsPost.updateOne(values);
