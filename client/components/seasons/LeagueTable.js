@@ -120,6 +120,14 @@ class LeagueTable extends Component {
 			{ key: "Pts", label: "Pts", title: "Points" }
 		];
 
+		if (newState.instance.usesWinPc) {
+			newState.columns.push({
+				key: "WinPc",
+				label: "Win %",
+				title: "Win Percentage"
+			});
+		}
+
 		newState.rows = leagueTableData[tableString];
 
 		return newState;
@@ -141,29 +149,22 @@ class LeagueTable extends Component {
 				//Badge is added later so we know whether to go for light or dark variant
 				values["team-name"] = team.name.short;
 
+				//Convert to table data
+				const data = _.mapValues(values, (value, key) => {
+					switch (key) {
+						case "WinPc":
+							return { content: Number(value.toFixed(2)) + "%" };
+						default:
+							return { content: value };
+					}
+				});
+
 				//Format to row
 				return {
 					key: values._team,
-					data: _.mapValues(values, v => ({ content: v }))
+					data
 				};
 			})
-			.orderBy(
-				[
-					"data.Pts.content",
-					"data.Diff.content",
-					({ data }) => {
-						const F = data.F.content;
-						const A = data.A.content;
-						if (F && A) {
-							return F / A;
-						} else {
-							return 0;
-						}
-					},
-					"data.team-name.content"
-				],
-				["desc", "desc", "desc", "asc"]
-			)
 			.map((row, pos) => {
 				//Add the position (increment to allow for 0-indexing)
 				row.data.position.content = pos + 1;

@@ -78,7 +78,8 @@ class AdminCompetitionInstanceOverview extends Component {
 			image: Yup.string().label("Image"),
 			manOfSteelPoints: Yup.bool().label("Man of Steel Points"),
 			scoreOnly: Yup.bool().label("Score Only"),
-			usesPregameSquads: Yup.bool().label("Uses Pregame Squads")
+			usesPregameSquads: Yup.bool().label("Uses Pregame Squads"),
+			usesWinPc: Yup.bool().label("Uses Win Percentage?")
 		});
 
 		//Convert teamlist to dropdown options
@@ -104,7 +105,8 @@ class AdminCompetitionInstanceOverview extends Component {
 			manOfSteelPoints: false,
 			scoreOnly: true,
 			usesPregameSquads: false,
-			image: ""
+			image: "",
+			usesWinPc: false
 		};
 
 		//Check if we have an instance to copy, for new items
@@ -147,34 +149,40 @@ class AdminCompetitionInstanceOverview extends Component {
 	}
 
 	getFieldGroups() {
-		const { teams } = this.state;
+		const { segment, teams } = this.state;
 
-		return [
-			{
-				fields: [
-					{ name: "year", type: fieldTypes.number },
-					{ name: "sponsor", type: fieldTypes.text },
-					{ name: "totalRounds", type: fieldTypes.number },
-					{ name: "usesPregameSquads", type: fieldTypes.boolean },
-					{ name: "manOfSteelPoints", type: fieldTypes.boolean },
-					{ name: "scoreOnly", type: fieldTypes.boolean },
-					{
-						name: "teams",
-						type: fieldTypes.select,
-						closeMenuOnSelect: false,
-						isMulti: true,
-						options: teams
-					},
-					{
-						name: "image",
-						type: fieldTypes.image,
-						path: "images/competitions/",
-						acceptSVG: true,
-						resize: { small: { height: 65 } }
-					}
-				]
-			}
+		const fields = [
+			{ name: "year", type: fieldTypes.number },
+			{ name: "sponsor", type: fieldTypes.text },
+			{ name: "totalRounds", type: fieldTypes.number },
+			{ name: "usesPregameSquads", type: fieldTypes.boolean },
+			{ name: "manOfSteelPoints", type: fieldTypes.boolean },
+			{ name: "scoreOnly", type: fieldTypes.boolean }
 		];
+
+		//Win PC
+		if (segment.type == "League") {
+			fields.push({ name: "usesWinPc", type: fieldTypes.boolean });
+		}
+
+		fields.push(
+			{
+				name: "teams",
+				type: fieldTypes.select,
+				closeMenuOnSelect: false,
+				isMulti: true,
+				options: teams
+			},
+			{
+				name: "image",
+				type: fieldTypes.image,
+				path: "images/competitions/",
+				acceptSVG: true,
+				resize: { small: { height: 65 } }
+			}
+		);
+
+		return [{ fields }];
 	}
 
 	render() {

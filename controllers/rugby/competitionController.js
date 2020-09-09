@@ -591,6 +591,20 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 		}))
 	);
 
+	//Get sorting logic
+	let tableSorting;
+	if (instance.usesWinPc) {
+		tableSorting = [
+			["WinPc", ({ F, A }) => (F && A ? F / A : 0)],
+			["desc", "desc", "asc"]
+		];
+	} else {
+		tableSorting = [
+			["Pts", "Diff", ({ F, A }) => (F && A ? F / A : 0)],
+			["desc", "desc", "desc", "asc"]
+		];
+	}
+
 	//Loop through teams and get data from games
 	return _.chain(instance.teams)
 		.map(_team => {
@@ -638,18 +652,21 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 				}
 			}
 
-			//Calculate Diff, Pld and Pts
+			//Calculate Diff, Pld, Pts & WinPC
 			row.Pld = row.W + row.D + row.L;
 			row.Diff = row.F - row.A;
 			row.Pts += row.W * 2 + row.D;
 
+			if (row.Pld === 0) {
+				row.WinPc = 0;
+			} else {
+				row.WinPc = (row.W / row.Pld) * 100;
+			}
+
 			//Return Row
 			return row;
 		})
-		.orderBy(
-			["Pts", "Diff", ({ F, A }) => (F && A ? F / A : 0)],
-			["desc", "desc", "desc", "asc"]
-		)
+		.orderBy(...tableSorting)
 		.map((g, i) => ({ ...g, position: i + 1 }))
 		.value();
 }
