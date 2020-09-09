@@ -15,11 +15,28 @@ export default class Canvas {
 			gold: "#FFCC00"
 		};
 
+		this.initialise(w, h);
+	}
+
+	initialise(w, h) {
 		this.canvas = createCanvas(w, h);
 		this.ctx = this.canvas.getContext("2d");
 		this.cWidth = w;
 		this.cHeight = h;
 	}
+
+	resizeCanvas(w, h) {
+		if (w) {
+			this.cWidth = w;
+			this.ctx.canvas.width = w;
+		}
+
+		if (h) {
+			this.cHeight = h;
+			this.ctx.canvas.height = h;
+		}
+	}
+
 	registerFonts(fontList) {
 		fontList.map(font => {
 			const { file, family, ...data } = font;

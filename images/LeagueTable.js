@@ -118,11 +118,21 @@ export default class LeagueTable extends Canvas {
 				break;
 			}
 
+			//Right padding for Win %
+			if (column === "Win %") {
+				textX -= positions.standardColumnWidth / 4;
+			}
+
 			//Draw Text
 			ctx.fillText(column, textX, textY);
 
 			//Update textX
 			textX -= positions.standardColumnWidth;
+
+			//Left padding for Win %
+			if (column === "Win %") {
+				textX -= positions.standardColumnWidth / 4;
+			}
 		}
 	}
 
@@ -206,7 +216,13 @@ export default class LeagueTable extends Canvas {
 					);
 
 					//Update textX
-					const otherColumns = columns.length - 1;
+					let otherColumns = columns.length - 1;
+
+					//Add extra space for Win %
+					if (columns.includes("Win %")) {
+						otherColumns += 0.5;
+					}
+
 					textX +=
 						cWidth -
 						otherColumns * positions.standardColumnWidth -
@@ -219,8 +235,17 @@ export default class LeagueTable extends Canvas {
 					const useBold = ["position", "Pts"].indexOf(column) > -1;
 					ctx.font = textStyles[useBold ? "bold" : "regular"].string;
 
+					//Get Value
+					let value;
+					if (column === "Win %") {
+						value = Number(row.WinPc.toFixed(2)) + "%";
+						textX += positions.standardColumnWidth / 4;
+					} else {
+						value = row[column];
+					}
+
 					//Add Text
-					ctx.fillText(row[column], textX + positions.standardColumnWidth * 0.5, textY);
+					ctx.fillText(value, textX + positions.standardColumnWidth * 0.5, textY);
 
 					//Update textX
 					textX += positions.standardColumnWidth;
@@ -244,8 +269,13 @@ export default class LeagueTable extends Canvas {
 		//Get Table
 		this.table = await processLeagueTableData(_segment, year, options);
 
-		//Set Canvas Height
-		this.canvas.height = this.cHeight = positions.rowHeight * (this.table.length + 1.5);
+		//Resize
+		let w = this.cWidth;
+		if (this.instance.usesWinPc) {
+			w += positions.standardColumnWidth * 1.5;
+			this.columns.push("Win %");
+		}
+		this.resizeCanvas(w, positions.rowHeight * (this.table.length + 1.5));
 
 		//Draw Header
 		await this.drawHeader();
