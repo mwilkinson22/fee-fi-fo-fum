@@ -3,6 +3,7 @@ import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
 import twitter from "~/services/twitter";
+import https from "https";
 
 //Mongoose
 import mongoose from "mongoose";
@@ -358,8 +359,17 @@ export async function crawlNewGames(req, res) {
 	const url = `${webcrawlUrl}${webcrawlFixturesPage}?${paramString}`;
 
 	//Load HTML
-	const { data } = await axios.get(url);
-	const html = parse(data);
+	let html;
+	try {
+		const httpsAgent = new https.Agent({
+			rejectUnauthorized: false
+		});
+		const { data } = await axios.get(url, { httpsAgent });
+		html = parse(data);
+	} catch (e) {
+		res.status(500).send({ toLog: e });
+		return;
+	}
 
 	//Get empty object to store games
 	const games = [];
