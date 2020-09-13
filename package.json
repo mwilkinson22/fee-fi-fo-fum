@@ -48,6 +48,7 @@
 		"express-useragent": "^1.0.15",
 		"formik": "^1.5.8",
 		"google-maps-react": "^2.0.6",
+		"https": "^1.0.0",
 		"ics": "^2.22.1",
 		"lodash": "^4.17.19",
 		"megadraft": "^0.6.16",

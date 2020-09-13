@@ -2,6 +2,7 @@
 import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
+import https from "https";
 
 //Helpers
 import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
@@ -486,7 +487,10 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 	//Load HTML
 	let html;
 	try {
-		const { data } = await axios.get(url);
+		const httpsAgent = new https.Agent({
+			rejectUnauthorized: false
+		});
+		const { data } = await axios.get(url, { httpsAgent });
 		html = parse(data);
 	} catch (e) {
 		return { error: e };
