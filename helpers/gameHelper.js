@@ -484,8 +484,13 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 	const url = `${webcrawlUrl}${webcrawlReportPage}/${id}`;
 
 	//Load HTML
-	const { data } = await axios.get(url);
-	const html = parse(data);
+	let html;
+	try {
+		const { data } = await axios.get(url);
+		html = parse(data);
+	} catch (e) {
+		return { error: e };
+	}
 
 	//Get Teams
 	const teams = _.chain(game.playerStats)

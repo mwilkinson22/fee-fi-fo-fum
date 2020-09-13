@@ -752,7 +752,11 @@ export async function fetchExternalGame(req, res) {
 			false,
 			req.query.includeScoringStats == "true"
 		);
-		res.send(result);
+		if (result.error) {
+			res.status(500).send({ toLog: result.error, errorMessage: "UHOH" });
+		} else {
+			res.send(result);
+		}
 	}
 }
 

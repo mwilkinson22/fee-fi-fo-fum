@@ -134,7 +134,7 @@ export async function crawlAndUpdate(req, res) {
 
 	for (const game of games) {
 		const results = await parseExternalGame(game, true);
-		if (results) {
+		if (results && !results.error) {
 			values[game._id] = results;
 		}
 	}

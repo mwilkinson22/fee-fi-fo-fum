@@ -166,14 +166,27 @@ class AdminGameCrawler extends Component {
 
 	async onRequest(includeScoringStats) {
 		const { game, crawlGame } = this.props;
-		await this.setState({ isLoading: true });
+
+		//Enable loading spinner
+		this.setState({ isLoading: true, externalError: false });
+
+		//Get data
 		const crawlData = await crawlGame(game._id, includeScoringStats);
 
-		const nameMatch = _.mapValues(crawlData.results, players => {
-			return _.mapValues(players, ({ _player }) => _player);
-		});
+		//Set up newState object
+		const newState = { isLoading: false };
 
-		await this.setState({ crawlData, nameMatch, isLoading: false });
+		//Allow for errors
+		if (crawlData) {
+			newState.crawlData = crawlData;
+			newState.nameMatch = _.mapValues(crawlData.results, players => {
+				return _.mapValues(players, ({ _player }) => _player);
+			});
+		} else {
+			newState.externalError = true;
+		}
+
+		this.setState(newState);
 	}
 
 	async onSubmit() {
@@ -235,7 +248,7 @@ class AdminGameCrawler extends Component {
 		const { scoreOnly } = this.props;
 		if (scoreOnly) {
 			return (
-				<div className="buttons">
+				<div className="buttons" key="buttons">
 					<button type="button" onClick={async () => this.onRequest(true)}>
 						Get Scores
 					</button>
@@ -243,7 +256,7 @@ class AdminGameCrawler extends Component {
 			);
 		} else {
 			return (
-				<div className="buttons">
+				<div className="buttons" key="buttons">
 					<button type="button" onClick={async () => this.onRequest(false)}>
 						Get Stats
 					</button>
@@ -256,7 +269,7 @@ class AdminGameCrawler extends Component {
 	}
 
 	render() {
-		const { isLoading, crawlData } = this.state;
+		const { externalError, isLoading, crawlData } = this.state;
 		let content;
 
 		if (isLoading) {
@@ -289,7 +302,15 @@ class AdminGameCrawler extends Component {
 				</div>
 			];
 		} else {
-			content = this.renderButtons();
+			let error;
+			if (externalError) {
+				error = (
+					<span key="error" className="full-span error">
+						Could not load external data
+					</span>
+				);
+			}
+			content = [error, this.renderButtons()];
 		}
 
 		return (
