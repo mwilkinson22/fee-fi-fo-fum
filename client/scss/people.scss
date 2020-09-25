@@ -429,3 +429,25 @@ a .person-image {
 		}
 	}
 }
+
+.admin-player-details-page {
+	.game-list-link {
+		@include link;
+	}
+
+	.player-game-list {
+		li {
+			a {
+				color: black !important;
+				&:hover {
+					color: $mainColour !important;
+				}
+				padding: 2pt 0;
+			}
+			&:not(first-child) h6 {
+				margin: 8pt 0 0;
+				font-size: 15pt;
+			}
+		}
+	}
+}

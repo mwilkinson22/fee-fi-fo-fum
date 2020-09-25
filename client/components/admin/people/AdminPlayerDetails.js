@@ -9,6 +9,7 @@ import { updatePerson } from "~/client/actions/peopleActions";
 
 //Components
 import BasicForm from "../BasicForm";
+import AdminPlayerGameList from "./AdminPlayerGameList";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
@@ -42,7 +43,7 @@ class AdminPlayerDetails extends Component {
 			.filter(_.identity)
 			.value();
 
-		this.state = { validationSchema, positions };
+		this.state = { validationSchema, positions, showGameList: false };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -155,7 +156,11 @@ class AdminPlayerDetails extends Component {
 			}
 
 			content.push(
-				<strong className="full-span" key="game-count">
+				<strong
+					className="full-span game-list-link"
+					key="game-count"
+					onClick={() => this.setState({ showGameList: true })}
+				>
 					{gamesPlayedString.map((a, i) => (i == 0 ? a : a.toLowerCase())).join(" and ")}
 				</strong>
 			);
@@ -181,7 +186,24 @@ class AdminPlayerDetails extends Component {
 		}
 
 		if (content.length > 1) {
-			return <div className="form-card grid">{content}</div>;
+			return (
+				<div className="form-card grid">
+					{content}
+					{this.renderGameList()}
+				</div>
+			);
+		}
+	}
+
+	renderGameList() {
+		const { person, showGameList } = this.state;
+		if (showGameList) {
+			return (
+				<AdminPlayerGameList
+					onDestroy={() => this.setState({ showGameList: false })}
+					playedGames={person.playedGames}
+				/>
+			);
 		}
 	}
 
@@ -203,7 +225,7 @@ class AdminPlayerDetails extends Component {
 		const { person, validationSchema } = this.state;
 
 		return (
-			<div>
+			<div className="admin-player-details-page">
 				<BasicForm
 					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 					fieldGroups={this.getFieldGroups()}

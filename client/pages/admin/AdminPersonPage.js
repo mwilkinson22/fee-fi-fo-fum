@@ -12,7 +12,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 
 //Pages
 import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
-import AdminPlayerDetails from "~/client/components/admin/teams/AdminPlayerDetails";
+import AdminPlayerDetails from "~/client/components/admin/people/AdminPlayerDetails";
 import AdminCoachDetails from "~/client/components/admin/teams/AdminCoachDetails";
 import AdminRefereeDetails from "~/client/components/admin/teams/AdminRefereeDetails";
 
