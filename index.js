@@ -198,7 +198,7 @@ if (airbrake) {
 	app.use(airbrakeExpress.makeErrorHandler(airbrake));
 }
 
-if (process.env.NODE_ENV !== "development") {
+if (process.env.RUN_SCHEDULED_TASKS) {
 	require("./scheduledTasks");
 }
 
