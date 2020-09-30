@@ -506,7 +506,7 @@ export async function getLeagueTableData(req, res) {
 	if (data && data.error) {
 		res.status(406).send(data.error);
 	} else {
-		res.send(data);
+		res.send({ data, loaded: new Date() });
 	}
 }
 

@@ -49,7 +49,10 @@ class LeagueTable extends Component {
 		const tableString = createLeagueTableString(competition, year, fromDate, toDate);
 
 		//Get League Table Data
-		if (!leagueTableData[tableString]) {
+		if (
+			!leagueTableData[tableString] ||
+			new Date(leagueTableData[tableString].loaded) < new Date().addMinutes(-5)
+		) {
 			fetchLeagueTableData(competition, year, fromDate, toDate);
 		}
 
@@ -128,7 +131,7 @@ class LeagueTable extends Component {
 			});
 		}
 
-		newState.rows = leagueTableData[tableString];
+		newState.rows = leagueTableData[tableString].data;
 
 		return newState;
 	}
