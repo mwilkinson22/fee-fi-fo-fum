@@ -21,15 +21,14 @@ export async function getDashboardData(req, res) {
 	const teamTypes = await TeamType.find({})
 		.sort({ sortOrder: 1 })
 		.lean();
-	const firstTeam = teamTypes[0];
+	const firstTeam = teamTypes[0]._id.toString();
 
 	//Create an object with all the data we need
 	const promises = {
 		birthdays: getBirthdays(localTeamObject),
-		gamesWithIssues: getGames(),
+		gamesWithIssues: getGames(firstTeam),
 		missingPlayerDetails: getPlayersWithMissingData(localTeamObject, firstTeam),
-		teamsWithoutGrounds: getTeamsWithoutGrounds(),
-		gamesWithoutReferees: getGamesWithoutRefs(firstTeam)
+		teamsWithoutGrounds: getTeamsWithoutGrounds()
 	};
 
 	//Await results
@@ -85,7 +84,7 @@ async function getBirthdays(team) {
 					(nextBirthday - person.dateOfBirth) / (1000 * 60 * 60 * 24 * 365)
 				);
 
-				return { ...person, daysToGo, age };
+				return { ...person, daysToGo, age, nextBirthday };
 			})
 			//Order
 			.sortBy("daysToGo")
@@ -113,9 +112,9 @@ async function getPlayersWithMissingData(team, firstTeam) {
 	const thisYear = Number(new Date().getFullYear());
 	const playerIds = _.chain(team.squads)
 		//Filter by year & teamtype
-		.filter(s => s.year >= thisYear && s._teamType == firstTeam._id.toString())
+		.filter(s => s.year >= thisYear && s._teamType == firstTeam)
 		//Get players
-		.map(({ players }) => players.map(p => p._player))
+		.map(({ players }) => players.filter(p => !p.onLoan).map(p => p._player))
 		.flatten()
 		//Remove duplicates
 		.uniq()
@@ -169,7 +168,7 @@ async function getPlayersWithMissingData(team, firstTeam) {
 	);
 }
 
-async function getGames() {
+async function getGames(firstTeam) {
 	//Work out the date where we would expect games to have pregame squads.
 	//So first, work out if we're past midday
 	const now = new Date();
@@ -178,7 +177,7 @@ async function getGames() {
 	//If we're past midday, then we should expect squads for two days time.
 	//Otherwise, we only check for tomorrow.
 	//We add an extra day onto the above values as we then set the time to midnight.
-	const pregameSquadDate = now <= todayMidday ? now.addDays(2) : now.addDays(3);
+	const pregameSquadDate = now <= todayMidday ? new Date().addDays(2) : new Date().addDays(3);
 	pregameSquadDate.setHours(0, 0, 0);
 
 	//Get games for this year, up to two weeks in advance
@@ -205,7 +204,9 @@ async function getGames() {
 				eligiblePlayers,
 				playerStats,
 				pregameSquads,
-				squadsAnnounced
+				squadsAnnounced,
+				_teamType,
+				_referee
 			} = game;
 			const date = new Date(game.date);
 			const teams = [localTeam, _opposition._id];
@@ -257,6 +258,14 @@ async function getGames() {
 				return { error: gameStatuses.STATS, _id };
 			}
 
+			//Check for referees
+			if (date < now && _teamType == firstTeam && !_referee) {
+				return {
+					error: gameStatuses.REFEREE,
+					_id
+				};
+			}
+
 			//Check for man/woman of steel
 			if (game._competition.instance.manOfSteelPoints) {
 				const nextMondayAfternoon = new Date(date)
@@ -272,17 +281,4 @@ async function getGames() {
 			}
 		})
 		.filter(_.identity);
-}
-
-async function getGamesWithoutRefs(firstTeam) {
-	const games = await Game.find(
-		{
-			_teamType: firstTeam,
-			playerStats: { $exists: true, $not: { $size: 0 } },
-			_referee: null
-		},
-		"_opposition date"
-	).populate({ path: "_opposition", select: "name" });
-
-	return games;
 }

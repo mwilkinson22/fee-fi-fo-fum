@@ -10,7 +10,6 @@ import LoadingPage from "../../components/LoadingPage";
 import AdminDashboardGames from "../../components/admin/dashboard/AdminDashboardGames";
 import AdminDashboardNeutralGames from "../../components/admin/dashboard/AdminDashboardNeutralGames";
 import AdminDashboardTeamsWithoutGrounds from "../../components/admin/dashboard/AdminDashboardTeamsWithoutGrounds";
-import AdminDashboardGamesWithoutReferees from "../../components/admin/dashboard/AdminDashboardGamesWithoutReferees";
 import AdminDashboardPlayerDetails from "../../components/admin/dashboard/AdminDashboardPlayerDetails";
 import AdminDashboardBirthdays from "../../components/admin/dashboard/AdminDashboardBirthdays";
 
@@ -45,7 +44,12 @@ class AdminDashboard extends Component {
 		this.state = { extraDataLoaded: false };
 
 		//Get dashboard data from server
-		fetchAdminDashboardData().then(data => this.setState({ ...data, extraDataLoaded: true }));
+		//Check "window" to prevent calling twice from SSR
+		if (typeof window != "undefined") {
+			fetchAdminDashboardData().then(data =>
+				this.setState({ ...data, extraDataLoaded: true })
+			);
+		}
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -70,8 +74,7 @@ class AdminDashboard extends Component {
 			gamesWithIssues,
 			isLoading,
 			missingPlayerDetails,
-			teamsWithoutGrounds,
-			gamesWithoutReferees
+			teamsWithoutGrounds
 		} = this.state;
 
 		//Await dependencies
@@ -88,8 +91,7 @@ class AdminDashboard extends Component {
 			"Immediate Action Required": [
 				AdminDashboardTeamsWithoutGrounds({ teams: teamsWithoutGrounds }),
 				AdminDashboardGames({ gamesWithIssues, gameList, teamList, teamTypes }),
-				AdminDashboardNeutralGames({ neutralGames, teamTypes }),
-				AdminDashboardGamesWithoutReferees({ games: gamesWithoutReferees })
+				AdminDashboardNeutralGames({ neutralGames, teamTypes })
 			],
 			"Action Required": [AdminDashboardPlayerDetails({ missingPlayerDetails })],
 			"No Action Required": [AdminDashboardBirthdays({ birthdays })]

@@ -6,14 +6,14 @@ import { Link } from "react-router-dom";
 function AdminDashboardBirthdays({ birthdays }) {
 	//If we have players with issues, return a card
 	if (birthdays && birthdays.length) {
-		const list = birthdays.map(({ _id, daysToGo, name, dateOfBirth, age }) => (
+		const list = birthdays.map(({ _id, daysToGo, name, age, nextBirthday }) => (
 			<li key={_id}>
 				<Link to={`/admin/people/${_id}`}>
 					{name.first} {name.last}
 				</Link>
 				<p>
 					{age} in {daysToGo} {daysToGo.length === 1 ? "day" : "days"} (
-					{new Date(dateOfBirth).toString("dddd dS MMMM")})
+					{new Date(nextBirthday).toString("dddd dS MMMM")})
 				</p>
 			</li>
 		));
