@@ -48,7 +48,9 @@ class SquadListPage extends Component {
 			.value();
 
 		//Get Active Year
-		newState.year = match.params.year || newState.years[0];
+		newState.year = newState.years.includes(match.params.year)
+			? match.params.year
+			: newState.years[0];
 
 		//Get TeamTypes
 		newState.teamTypes = _.chain(team.squads)
