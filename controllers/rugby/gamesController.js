@@ -5,6 +5,7 @@ const Game = mongoose.model(collectionName);
 const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
+const SlugRedirect = mongoose.model("slugRedirect");
 
 //Modules
 import _ from "lodash";
@@ -424,6 +425,24 @@ export async function updateGame(req, res) {
 	const game = await validateGame(_id, res);
 	if (game) {
 		const values = await processGround(req.body);
+
+		//If we're editing the date, check whether we need to update the slug
+		if (values.date) {
+			const oldDate = new Date(game.date).toString("yyyy-MM-dd");
+			const newDate = new Date(values.date).toString("yyyy-MM-dd");
+			if (!oldDate !== newDate) {
+				//Update slug
+				values.slug = await Game.generateSlug(values);
+
+				//Add slug redirect
+				const slugRedirect = new SlugRedirect({
+					oldSlug: game.slug,
+					collectionName: "games",
+					itemId: _id
+				});
+				await slugRedirect.save();
+			}
+		}
 
 		//In case we're updating the post-game settings, convert fan_potm
 		//to dot notation, so we don't overwrite the votes
