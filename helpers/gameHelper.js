@@ -379,7 +379,7 @@ export function convertTeamToSelect(
 	}
 }
 
-export function getDynamicOptions(values, neutral, props) {
+export function getDynamicOptions(values, neutral, props, year) {
 	const options = {
 		_competition: [],
 		teams: [],
@@ -388,8 +388,8 @@ export function getDynamicOptions(values, neutral, props) {
 	const { competitionSegmentList, teamList, localTeam } = props;
 
 	//Pull all valid competition for the selected date and team type
-	if (values.date && values._teamType) {
-		const currentYear = new Date(values.date).getFullYear();
+	if ((values.date || year) && values._teamType) {
+		const currentYear = year || new Date(values.date).getFullYear();
 		const currentTeamType = values._teamType;
 
 		options._competition = _.chain(competitionSegmentList)

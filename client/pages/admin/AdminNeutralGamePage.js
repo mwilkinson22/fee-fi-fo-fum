@@ -84,11 +84,12 @@ class AdminNeutralGamePage extends Component {
 				.label("Date");
 		} else {
 			const year = new Date(newState.game.date).getFullYear();
+			const yearError = `Only dates in ${year} are valid for this game`;
 			dateValidation = Yup.date()
 				.required()
 				.label("Date")
-				.min(`${year}-01-01`)
-				.max(`${year}-12-31`);
+				.min(`${year}-01-01`, yearError)
+				.max(`${year}-12-31`, yearError);
 		}
 
 		//Set validation schema
@@ -175,9 +176,17 @@ class AdminNeutralGamePage extends Component {
 	}
 
 	getFieldGroups(values) {
-		const { isNew, teamTypes } = this.state;
+		const { game, isNew, teamTypes } = this.state;
 
-		const options = getDynamicOptions(values, true, this.props);
+		const options = getDynamicOptions(
+			values,
+			true,
+			this.props,
+			// For existing games, we pass in the year,
+			// to prevent clearing the other read-only fields if
+			// the date is cleared (firefox bug)
+			isNew ? null : game.date.getFullYear()
+		);
 
 		return [
 			{

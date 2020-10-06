@@ -128,9 +128,10 @@ class AdminGameOverview extends Component {
 		if (!newState.isNew) {
 			//Add a year limit to the game date
 			const year = newState.game.date.getFullYear();
+			const yearError = `Only dates in ${year} are valid for this game`;
 			rawValidationSchema.date = rawValidationSchema.date
-				.min(`${year}-01-01`)
-				.max(`${year}-12-31`);
+				.min(`${year}-01-01`, yearError)
+				.max(`${year}-12-31`, yearError);
 
 			//Add Score Override
 			rawValidationSchema.scoreOverride = Yup.object().shape({
@@ -258,7 +259,16 @@ class AdminGameOverview extends Component {
 	getFieldGroups(values) {
 		const { localTeam } = this.props;
 		const { game, isNew, options } = this.state;
-		const dynamicOptions = getDynamicOptions(values, false, this.props);
+
+		const dynamicOptions = getDynamicOptions(
+			values,
+			false,
+			this.props,
+			// For existing games, we pass in the year,
+			// to prevent clearing the other read-only fields if
+			// the date is cleared (firefox bug)
+			isNew ? null : game.date.getFullYear()
+		);
 
 		const fieldGroups = [
 			{
