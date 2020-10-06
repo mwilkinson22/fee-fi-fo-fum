@@ -717,24 +717,31 @@ section.pregame-squads {
 				}
 			}
 			@media #{$desktop-only} {
-				& > .team-image {
-					opacity: 0.5;
-					max-height: 70%;
-					position: absolute;
-					top: 0;
-					bottom: 0;
-					margin: auto;
-				}
-				&:first-child {
-					& > .team-image {
-						left: 0;
-						transform: translateX(-30%);
+				&.single-block {
+					.team-image {
+						max-height: 40pt;
 					}
 				}
-				&:last-child {
+				&:not(.single-block) {
 					& > .team-image {
-						right: 0;
-						transform: translateX(30%);
+						opacity: 0.5;
+						max-height: 70%;
+						position: absolute;
+						top: 0;
+						bottom: 0;
+						margin: auto;
+					}
+					&:first-child {
+						& > .team-image {
+							left: 0;
+							transform: translateX(-30%);
+						}
+					}
+					&:last-child {
+						& > .team-image {
+							right: 0;
+							transform: translateX(30%);
+						}
 					}
 				}
 			}
@@ -775,27 +782,36 @@ section.pregame-squads {
 		}
 		@media #{$desktop-only} {
 			.team-block {
-				text-shadow: inherit;
-				.player {
+				&.single-block {
 					.number {
-						min-width: 36pt;
-						padding: 0 10pt;
+						margin-right: 6pt;
 					}
 				}
-				a.player:hover * {
-					color: $trimColour !important;
-				}
-				&:first-child {
-					align-items: flex-end;
-					.player {
-						flex-direction: row-reverse;
-					}
-				}
-				&:last-child {
-					align-items: flex-start;
+
+				&:not(.single-block) {
+					text-shadow: inherit;
+					justify-content: center;
 					.player {
 						.number {
-							text-align: right;
+							min-width: 36pt;
+							padding: 0 10pt;
+						}
+					}
+					a.player:hover * {
+						color: $trimColour !important;
+					}
+					&:first-child {
+						align-items: flex-end;
+						.player {
+							flex-direction: row-reverse;
+						}
+					}
+					&:last-child {
+						align-items: flex-start;
+						.player {
+							.number {
+								text-align: right;
+							}
 						}
 					}
 				}
