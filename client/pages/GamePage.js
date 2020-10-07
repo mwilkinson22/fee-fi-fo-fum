@@ -36,6 +36,7 @@ import { fetchPostList } from "~/client/actions/newsActions";
 import { Redirect } from "react-router-dom";
 
 //Helpers
+import { scrollToElement } from "~/helpers/genericHelper";
 import { matchSlugToItem } from "~/helpers/routeHelper";
 import { formatDate, getLastGame, getScoreString } from "~/helpers/gameHelper";
 import TeamImage from "~/client/components/teams/TeamImage";
@@ -57,6 +58,13 @@ class GamePage extends Component {
 		}
 
 		this.state = {};
+	}
+
+	componentDidMount() {
+		const scrollableElements = {
+			selector: ".game-page-team-selector"
+		};
+		scrollToElement(this.props.location, scrollableElements);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -530,9 +538,9 @@ class GamePage extends Component {
 					{this.generateManOfSteel()}
 					{this.generateFanPotm()}
 					{this.generateNewsPosts()}
-					{this.generateForm()}
 					{this.generatePregameList()}
 					{this.generateTeamSelector()}
+					{this.generateForm()}
 					{this.generateGameGround()}
 					{this.generateSquads()}
 					{this.generateStats()}
