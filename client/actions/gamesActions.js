@@ -191,7 +191,10 @@ export const addCrawledGames = games => async (dispatch, getState, api) => {
 		}
 
 		if (neutral) {
-			gameCount.push(`${neutral.length} neutral ${neutral.length === 1 ? "game" : "games"}`);
+			const neutralGameCount = _.flatten(_.map(neutral, _.values)).length;
+			gameCount.push(
+				`${neutralGameCount} neutral ${neutralGameCount === 1 ? "game" : "games"}`
+			);
 
 			if (getState().games.neutralGames) {
 				dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: neutral });

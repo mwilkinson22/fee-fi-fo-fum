@@ -20,6 +20,7 @@ import coachTypes from "~/constants/coachTypes";
 //Helpers
 import { getRedirects } from "../genericController";
 import { postToSocial } from "../oAuthController";
+import { getUpdatedNeutralGames } from "./neutralGamesController";
 
 import {
 	parseExternalGame,
@@ -388,9 +389,9 @@ export async function addCrawledGames(req, res) {
 		const result = await NeutralGame.bulkWrite(neutralBulkOperations);
 
 		//Return new games
-		savedData.neutral = await NeutralGame.find({
-			_id: { $in: _.values(result.insertedIds) }
-		}).lean();
+		savedData.neutral = await getUpdatedNeutralGames(
+			_.map(result.insertedIds, id => id.toString())
+		);
 	}
 
 	res.send(savedData);

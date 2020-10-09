@@ -45,7 +45,7 @@ export async function getYears(req, res) {
 	res.send(years);
 }
 
-async function getUpdatedNeutralGames(ids, res) {
+export async function getUpdatedNeutralGames(ids, res) {
 	//To be called after post/put methods
 	const games = await NeutralGame.find({ _id: { $in: ids } }).lean();
 
@@ -63,7 +63,11 @@ async function getUpdatedNeutralGames(ids, res) {
 		deleted
 	};
 
-	res.send(result);
+	if (res) {
+		res.send(result);
+	} else {
+		return result;
+	}
 }
 
 //Setters
