@@ -129,8 +129,8 @@ class AdminGamePostGameEvents extends Component {
 			//Get Event Types
 			const { genderedString } = newState.game;
 			newState.eventTypes = [
-				{ label: "Text Only", value: "text-only" },
 				{ label: "Match Breakdown Intro", value: "breakdown-intro" },
+				{ label: "Text Only", value: "text-only" },
 				{ label: "Team Stats", value: "team-stats" },
 				{ label: "Single Player Stats", value: "player-stats" },
 				{ label: "Multiple Player Stats", value: "grouped-player-stats" }
