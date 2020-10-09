@@ -51,7 +51,7 @@ class GameFilters extends Component {
 				},
 				_opposition: {
 					name: "Opposition",
-					options: [allOption, ...oppositionOptions],
+					options: oppositionOptions,
 					isMulti: true,
 					placeHolder: "All"
 				},
