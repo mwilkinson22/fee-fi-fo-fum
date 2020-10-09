@@ -9,7 +9,7 @@ import { fetchGames } from "../../actions/gamesActions";
 
 //Helpers
 import { validateGameDate } from "../../../helpers/gameHelper";
-import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
+import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
 import playerStatTypes from "../../../constants/playerStatTypes";
 
 //Components
@@ -225,7 +225,7 @@ class PlayerStatSection extends Component {
 			Defence: ["TK", "MT", "TS", "P"]
 		};
 
-		const totalStats = PlayerStatsHelper.sumStats(
+		const totalStats = getTotalsAndAverages(
 			_.map(filteredGames, game => game.playerStats[0].stats)
 		);
 
@@ -313,7 +313,7 @@ class PlayerStatSection extends Component {
 						return null;
 					}
 					return {
-						content: PlayerStatsHelper.toString(key, val),
+						content: statToString(key, val),
 						sortValue: val,
 						title: `${playerStatTypes[key].plural} against ${game._opposition.name.short}`
 					};

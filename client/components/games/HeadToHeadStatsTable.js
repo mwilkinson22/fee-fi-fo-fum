@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 
 class HeadToHeadStats extends Component {
 	constructor(props) {
@@ -34,7 +34,7 @@ class HeadToHeadStats extends Component {
 			.mapValues(obj => {
 				const stats = _.map(obj, "stats");
 				const summedStats = _.fromPairs(keys.map(key => [key, _.sumBy(stats, key)]));
-				const processedStats = PlayerStatsHelper.processStats(summedStats);
+				const processedStats = calculateAdditionalStats(summedStats);
 				return processedStats;
 			})
 			.value();
@@ -103,13 +103,13 @@ class HeadToHeadStats extends Component {
 
 			return [
 				<div className={`value${homeHighlight ? " highlighted" : ""}`} key="homeValue">
-					{PlayerStatsHelper.toString(key, homeValue)}
+					{statToString(key, homeValue)}
 				</div>,
 				<div className="name" key="name">
 					{playerStatTypes[key].plural}
 				</div>,
 				<div className={`value${awayHighlight ? " highlighted" : ""}`} key="awayValue">
-					{PlayerStatsHelper.toString(key, awayValue)}
+					{statToString(key, awayValue)}
 				</div>,
 				<div key="stat-bar-wrapper" className="stat-bar-wrapper">
 					<div className="stat-bar" style={{ backgroundColor: statBarColours[1] }}>

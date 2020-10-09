@@ -19,7 +19,7 @@ import { fetchPeople } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Helpers
-import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
+import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
 import { getPlayersByYearAndGender } from "~/helpers/teamHelper";
 import Leaderboard from "~/client/components/seasons/Leaderboard";
 import SeasonPlayerLeaderboard from "~/client/components/seasons/SeasonPlayerLeaderboard";
@@ -85,7 +85,7 @@ class SeasonPlayerStats extends Component {
 				//Pull off only the stats for each player
 				.mapValues(a => a.map(p => p.stats))
 				//Convert to an array with the _player id, to ease sorting
-				.map((s, _player) => ({ _player, stats: PlayerStatsHelper.sumStats(s) }))
+				.map((s, _player) => ({ _player, stats: getTotalsAndAverages(s) }))
 				.value();
 
 			//Loop through the processedStats to see if we have any players not in the
@@ -236,7 +236,7 @@ class SeasonPlayerStats extends Component {
 				const value = data[statType];
 				const nullValue = playerStatTypes[key].moreIsBetter ? -1 : 10000000000;
 				return {
-					content: PlayerStatsHelper.toString(key, value),
+					content: statToString(key, value),
 					sortValue: value != null ? value : nullValue
 				};
 			});

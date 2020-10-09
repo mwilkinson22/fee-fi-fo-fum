@@ -26,6 +26,7 @@ import StatsTables from "~/client/components/games/StatsTables";
 import ManOfSteelPoints from "~/client/components/games/ManOfSteelPoints";
 import GameGround from "../components/games/GameGround";
 import PageSwitch from "../components/PageSwitch";
+import TeamImage from "~/client/components/teams/TeamImage";
 
 //Actions
 import { fetchGames, fetchGameList } from "../actions/gamesActions";
@@ -34,14 +35,13 @@ import { fetchPostList } from "~/client/actions/newsActions";
 
 //Constants
 import { Redirect } from "react-router-dom";
+import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
+import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 import { scrollToElement } from "~/helpers/genericHelper";
 import { matchSlugToItem } from "~/helpers/routeHelper";
 import { formatDate, getLastGame, getScoreString } from "~/helpers/gameHelper";
-import TeamImage from "~/client/components/teams/TeamImage";
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
-import playerStatTypes from "~/constants/playerStatTypes";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -418,14 +418,14 @@ class GamePage extends Component {
 					};
 				}
 
-				const formattedStats = _.chain(PlayerStatsHelper.processStats(stats))
+				const formattedStats = _.chain(calculateAdditionalStats(stats))
 					.mapValues()
 					.mapValues((val, key) => {
 						if (!playerStatTypes[key]) {
 							return null;
 						}
 						return {
-							content: PlayerStatsHelper.toString(key, val),
+							content: statToString(key, val),
 							sortValue: val
 						};
 					})

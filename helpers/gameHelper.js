@@ -5,7 +5,7 @@ import axios from "axios";
 import https from "https";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 
 //Constants
 const playerStatTypes = require("~/constants/playerStatTypes");
@@ -189,7 +189,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 		.value();
 
 	//Process player stats
-	const processedStats = PlayerStatsHelper.processStats(
+	const processedStats = calculateAdditionalStats(
 		game.playerStats.find(p => p._player == player._id).stats
 	);
 
@@ -270,8 +270,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 					if (!values.find(v => v.key == "TK")) {
 						const { TK, MI } = game.playerStats.find(p => p._player == player.id).stats;
 						//Show Tackles
-						valueString =
-							PlayerStatsHelper.toString(key, value) + ` (${TK}/${TK + MI})`;
+						valueString = statToString(key, value) + ` (${TK}/${TK + MI})`;
 
 						//Factor Total tackles into starPoints
 						starPoints = value / 100 + TK / 25;
@@ -282,7 +281,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 					break;
 			}
 			if (!valueString) {
-				valueString = PlayerStatsHelper.toString(key, value);
+				valueString = statToString(key, value);
 			}
 
 			//Label
@@ -834,7 +833,7 @@ export function convertGameToCalendarString(game, options, teamTypes, localTeamN
 
 export function formatPlayerStatsForImage(game, player, statTypes, textStyles, colours, sizes) {
 	const { stats } = game.playerStats.find(({ _player }) => _player._id == player);
-	const processedStats = PlayerStatsHelper.processStats(stats);
+	const processedStats = calculateAdditionalStats(stats);
 	return statTypes
 		.map(key => {
 			let row;
@@ -926,7 +925,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 					//Only use toString if it's not metres,
 					//as we don't want "120m Metres"
 					const valueAsString =
-						key === "M" ? value.toString() : PlayerStatsHelper.toString(key, value, 2);
+						key === "M" ? value.toString() : statToString(key, value, 2);
 
 					//Pick label based on value
 					let label;

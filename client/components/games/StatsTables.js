@@ -1,10 +1,17 @@
+//Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import _ from "lodash";
-import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
-import playerStatTypes from "../../../constants/playerStatTypes";
+
+//Components
 import Table from "../Table";
+
+//Constants
+import playerStatTypes from "../../../constants/playerStatTypes";
+
+//Helpers
+import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
 
 class StatsTables extends Component {
 	constructor(props) {
@@ -114,7 +121,7 @@ class StatsTables extends Component {
 			const data = rows.map(row => {
 				return _.mapValues(row.data, stat => stat.sortValue);
 			});
-			const summedStats = PlayerStatsHelper.sumStats(data);
+			const summedStats = getTotalsAndAverages(data);
 
 			//Get Labels
 			const first = [];
@@ -146,12 +153,12 @@ class StatsTables extends Component {
 
 					const totalSpan = (
 						<span className="total" key="total" title={`Total ${stat.plural}`}>
-							{PlayerStatsHelper.toString(key, total)}
+							{statToString(key, total)}
 						</span>
 					);
 					const averageSpan = (
 						<span className="average" key="average" title={`Average ${stat.plural}`}>
-							{PlayerStatsHelper.toString(key, average)}
+							{statToString(key, average)}
 						</span>
 					);
 

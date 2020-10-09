@@ -11,7 +11,7 @@ import { localTeam } from "~/config/keys";
 import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 
 export default class TeamStatsImage extends Canvas {
 	constructor(game, statTypes) {
@@ -114,7 +114,7 @@ export default class TeamStatsImage extends Canvas {
 				const summedStats = _.fromPairs(
 					Object.keys(playerStatTypes).map(key => [key, _.sumBy(stats, key)])
 				);
-				const processedStats = PlayerStatsHelper.processStats(summedStats);
+				const processedStats = calculateAdditionalStats(summedStats);
 				return processedStats;
 			})
 			.value();
@@ -150,7 +150,7 @@ export default class TeamStatsImage extends Canvas {
 				ctx.font = textStyles[useBoldFont ? "boldValue" : "value"].string;
 
 				//Convert value to string
-				const text = PlayerStatsHelper.toString(key, value, 2);
+				const text = statToString(key, value, 2);
 
 				this.textBuilder([[{ text }]], x, y + rowHeight * 0.3);
 			});

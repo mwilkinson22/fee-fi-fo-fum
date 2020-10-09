@@ -11,7 +11,7 @@ import LeaderBoard from "./Leaderboard";
 import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
-import PlayerStatsHelper from "~/client/helperClasses/PlayerStatsHelper";
+import { statToString } from "~/helpers/statsHelper";
 
 class SeasonPlayerLeaderboard extends Component {
 	//Static so we can call it externally and determine whether to render
@@ -115,7 +115,7 @@ class SeasonPlayerLeaderboard extends Component {
 						{names}
 					</div>,
 					<div className="value" key="value">
-						{PlayerStatsHelper.toString(key, arr[0].value)}
+						{statToString(key, arr[0].value)}
 					</div>
 				];
 			})
@@ -135,7 +135,7 @@ class SeasonPlayerLeaderboard extends Component {
 				list={SeasonPlayerLeaderboard.generateOrderedList(statKey, stats, statType)}
 				players={players}
 				placeCount={5}
-				renderValue={value => PlayerStatsHelper.toString(statKey, value)}
+				renderValue={value => statToString(statKey, value)}
 				title={plural}
 				titleCondition={statKey === "TS" ? "(with at least 20 per game)" : ""}
 			/>

@@ -15,7 +15,7 @@ import HeadToHeadStatsTable from "../games/HeadToHeadStatsTable";
 import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
-import PlayerStatsHelper from "../../helperClasses/PlayerStatsHelper";
+import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
 
 //Actions
 import { submitVotes } from "~/client/actions/awardActions";
@@ -125,13 +125,13 @@ class AwardsVotingForm extends Component {
 				.value();
 
 			//Get Stats
-			const summedStats = PlayerStatsHelper.sumStats(rawStats);
+			const summedStats = getTotalsAndAverages(rawStats);
 			const renderedStats = nomineeObject.stats.map(key => {
 				let averageSpan;
 				if (!playerStatTypes[key].isAverage) {
 					averageSpan = (
 						<span className="average">
-							({PlayerStatsHelper.toString(key, summedStats[key].average)} per game)
+							({statToString(key, summedStats[key].average)} per game)
 						</span>
 					);
 				}
@@ -140,7 +140,7 @@ class AwardsVotingForm extends Component {
 						<span className="value">
 							{key === "M"
 								? summedStats[key].total
-								: PlayerStatsHelper.toString(key, summedStats[key].total)}
+								: statToString(key, summedStats[key].total)}
 						</span>
 						&nbsp;
 						<span className="label">{playerStatTypes[key].plural}</span>
