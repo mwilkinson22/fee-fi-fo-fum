@@ -148,29 +148,30 @@ class LeagueTable extends Component {
 				//Get Team
 				const team = teamList[values._team];
 
+				//Clone values
+				const data = { ...values };
+
 				//Add Team Name
 				//Badge is added later so we know whether to go for light or dark variant
-				values["team-name"] = team.name.short;
+				data["team-name"] = team.name.short;
 
 				//Convert to table data
-				const data = _.mapValues(values, (value, key) => {
-					switch (key) {
-						case "WinPc":
-							return { content: Number(value.toFixed(2)) + "%" };
-						default:
-							return { content: value };
-					}
-				});
+				if (data.WinPc) {
+					data.WinPc = {
+						content: Number(data.WinPc.toFixed(2)) + "%",
+						sortValue: data.WinPc
+					};
+				}
 
 				//Format to row
 				return {
-					key: values._team,
+					key: data._team,
 					data
 				};
 			})
 			.map((row, pos) => {
 				//Add the position (increment to allow for 0-indexing)
-				row.data.position.content = pos + 1;
+				row.data.position = pos + 1;
 
 				//Set blank className
 				const classNames = [];
@@ -195,9 +196,9 @@ class LeagueTable extends Component {
 
 				//Add badge
 				const team = teamList[row.key];
-				row.data["team-badge"] = {
-					content: <TeamImage size="small" team={team} variant={badgeVariant} />
-				};
+				row.data["team-badge"] = (
+					<TeamImage size="small" team={team} variant={badgeVariant} />
+				);
 
 				//Add classes
 				if (classNames.length) {

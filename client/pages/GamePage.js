@@ -35,10 +35,9 @@ import { fetchPostList } from "~/client/actions/newsActions";
 
 //Constants
 import { Redirect } from "react-router-dom";
-import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
-import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
+import { calculateAdditionalStats } from "~/helpers/statsHelper";
 import { scrollToElement } from "~/helpers/genericHelper";
 import { matchSlugToItem } from "~/helpers/routeHelper";
 import { formatDate, getLastGame, getScoreString } from "~/helpers/gameHelper";
@@ -380,7 +379,7 @@ class GamePage extends Component {
 
 		//Process game stats into rows
 		const { isAway, _opposition, eligiblePlayers } = game;
-		const rows = _.chain(filteredGame.playerStats)
+		const rowData = _.chain(filteredGame.playerStats)
 			.map(p => ({ ...p, isAway: p._team == _opposition._id ? !isAway : isAway }))
 			.orderBy(["isAway", "position"], ["asc", "asc"])
 			.map((p, sortValue) => {
@@ -418,23 +417,11 @@ class GamePage extends Component {
 					};
 				}
 
-				const formattedStats = _.chain(calculateAdditionalStats(stats))
-					.mapValues()
-					.mapValues((val, key) => {
-						if (!playerStatTypes[key]) {
-							return null;
-						}
-						return {
-							content: statToString(key, val),
-							sortValue: val
-						};
-					})
-					.pickBy(_.identity)
-					.value();
+				const calculatedStats = calculateAdditionalStats(stats);
 
 				const data = {
 					first,
-					...formattedStats
+					...calculatedStats
 				};
 				return { key: slug, data };
 			})
@@ -449,7 +436,7 @@ class GamePage extends Component {
 						onChange={statTableTeam => this.setState({ statTableTeam })}
 						options={tableSelectorOptions}
 					/>
-					<StatsTables rows={rows} firstColumnHeader="Player" />
+					<StatsTables rowData={rowData} firstColumnHeader="Player" />
 				</div>
 			</section>
 		);

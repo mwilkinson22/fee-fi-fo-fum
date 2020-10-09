@@ -19,7 +19,7 @@ import { fetchPeople } from "~/client/actions/peopleActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Helpers
-import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
+import { getTotalsAndAverages } from "~/helpers/statsHelper";
 import { getPlayersByYearAndGender } from "~/helpers/teamHelper";
 import Leaderboard from "~/client/components/seasons/Leaderboard";
 import SeasonPlayerLeaderboard from "~/client/components/seasons/SeasonPlayerLeaderboard";
@@ -232,21 +232,12 @@ class SeasonPlayerStats extends Component {
 			};
 
 			//Stat Columns
-			const statData = _.mapValues(stats, (data, key) => {
-				const value = data[statType];
-				const nullValue = playerStatTypes[key].moreIsBetter ? -1 : 10000000000;
-				return {
-					content: statToString(key, value),
-					sortValue: value != null ? value : nullValue
-				};
-			});
+			const statData = _.mapValues(stats, data => data[statType]);
 
-			const games = {
-				content: _.chain(stats)
-					.map("gameCount")
-					.max()
-					.value()
-			};
+			const games = _.chain(stats)
+				.map("gameCount")
+				.max()
+				.value();
 
 			return {
 				key: _player,
@@ -257,11 +248,12 @@ class SeasonPlayerStats extends Component {
 				}
 			};
 		});
+
 		return (
 			<StatsTables
-				rows={rows}
+				rowData={rows}
 				firstColumnHeader="Player"
-				showTotal={false}
+				showTotal={statType === "total"}
 				showAverage={false}
 				addGames={statType !== "best"}
 			/>

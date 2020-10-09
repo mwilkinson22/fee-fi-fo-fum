@@ -11,7 +11,7 @@ import Table from "../Table";
 import playerStatTypes from "../../../constants/playerStatTypes";
 
 //Helpers
-import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
+import { getTotalsAndAverages, resolveStatObject, statToString } from "~/helpers/statsHelper";
 
 class StatsTables extends Component {
 	constructor(props) {
@@ -22,24 +22,37 @@ class StatsTables extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { rows, addGames } = nextProps;
+		const { rowData, addGames, customStatTypes } = nextProps;
 
-		const statTypes = _.chain(rows)
+		//Get Standard Stat Types
+		//End up with an array of statObjects
+		const standardStatTypes = _.chain(rowData)
 			.map(row => _.keys(row.data))
 			.flatten()
 			.uniq()
-			.filter(key => playerStatTypes[key] !== undefined)
-			.groupBy(key => playerStatTypes[key].type)
-			.reverse()
+			.map(resolveStatObject)
+			.filter(_.identity)
 			.value();
 
-		const tabs = _.keys(statTypes);
+		//Create array with standard and custom stat types
+		const statTypes = [...standardStatTypes, ...customStatTypes];
+
+		//Create grouped object
+		const groupedStatTypes = _.groupBy(statTypes, "type");
+
+		const tabs = _.keys(groupedStatTypes);
 		let { activeTab } = prevState;
 		if (tabs.indexOf(activeTab) === -1) {
 			activeTab = tabs[0];
 		}
 
-		return { statTypes, rows, activeTab, addGames };
+		return {
+			groupedStatTypes,
+			statTypes,
+			rowData,
+			activeTab,
+			addGames
+		};
 	}
 
 	handleTableHeaderClick(inputKey = null, enforcedDirection = null) {
@@ -63,10 +76,10 @@ class StatsTables extends Component {
 	}
 
 	renderTabs() {
-		const { statTypes, activeTab } = this.state;
+		const { groupedStatTypes, activeTab } = this.state;
 		return (
 			<div className="stat-table-tabs">
-				{_.map(statTypes, (keys, statType) => (
+				{_.map(groupedStatTypes, (keys, statType) => (
 					<div
 						className={`stat-table-tab ${statType === activeTab ? "active" : ""}`}
 						onClick={() => this.handleTabClick(statType)}
@@ -79,48 +92,94 @@ class StatsTables extends Component {
 		);
 	}
 
+	renderRows() {
+		const { rowData, statTypes } = this.state;
+		return rowData.map(({ data, ...row }) => {
+			row.data = _.mapValues(data, (value, key) => {
+				switch (key) {
+					case "first":
+						//already formatted
+						return value;
+					case "games":
+						return {
+							content: value
+						};
+					default: {
+						if (typeof value === "object" && value != null) {
+							//Something we've pre-formatted
+							return value;
+						}
+
+						const statObject = statTypes.find(s => s.key == key);
+						if (statObject) {
+							const nullValue = statObject.moreIsBetter ? -1 : 10000000000;
+							return {
+								content: statToString(statObject, value),
+								sortValue: value != null ? value : nullValue
+							};
+						} else {
+							//If we get here, it means we've passed in a custom column
+							//to rowData and haven't defined it in customStatTypes.
+							//The value should never render, as it won't belong to any tabs
+							//but adding this prevents an error
+							return { content: value };
+						}
+					}
+				}
+			});
+
+			return row;
+		});
+	}
+
 	renderColumns() {
-		const { statTypes, activeTab, addGames } = this.state;
+		const { groupedStatTypes, activeTab, addGames } = this.state;
 		const { firstColumnHeader } = this.props;
-		const columnsFromStatType = statTypes[activeTab].map(key => {
-			const stat = playerStatTypes[key];
+		const columns = groupedStatTypes[activeTab].map(keyOrCustomStatType => {
+			const { key, plural, moreIsBetter } = keyOrCustomStatType;
 			return {
 				key,
-				label: stat.plural,
-				defaultAscSort: !stat.moreIsBetter
+				label: plural,
+				defaultAscSort: !moreIsBetter
 			};
 		});
 
-		const columns = [
-			{
-				key: "first",
-				label: firstColumnHeader,
-				defaultAscSort: true,
-				dataUsesTh: true
-			}
-		];
-
 		if (addGames) {
-			columns.push({
+			columns.unshift({
 				key: "games",
 				label: "Games"
 			});
 		}
 
-		columns.push(...columnsFromStatType);
+		columns.unshift({
+			key: "first",
+			label: firstColumnHeader,
+			defaultAscSort: true,
+			dataUsesTh: true
+		});
 
 		return columns;
 	}
 
 	renderFoot() {
 		const { showTotal, showAverage } = this.props;
-		const { statTypes, activeTab, rows } = this.state;
-		if (rows.length < 2 || (!showTotal && !showAverage)) {
+		const { groupedStatTypes, activeTab, rowData } = this.state;
+		if (rowData.length < 2 || (!showTotal && !showAverage)) {
 			return null;
 		} else {
-			const data = rows.map(row => {
-				return _.mapValues(row.data, stat => stat.sortValue);
+			const data = rowData.map(row => {
+				return _.mapValues(row.data, stat => {
+					if (typeof stat === "object" && stat != null) {
+						//For future reference, don't change this to use ?? or anything similar.
+						//Sometimes stat.sortValue is null, and this is a valid value, statHelper
+						//will handle it appropriately
+						return stat.hasOwnProperty("sortValue") ? stat.sortValue : stat.content;
+					} else {
+						return stat;
+					}
+				});
 			});
+
 			const summedStats = getTotalsAndAverages(data);
 
 			//Get Labels
@@ -141,9 +200,9 @@ class StatsTables extends Component {
 			}
 
 			//Get Data
-			const foot = _.chain(statTypes[activeTab])
-				.map(key => {
-					const stat = playerStatTypes[key];
+			const foot = _.chain(groupedStatTypes[activeTab])
+				.map(keyOrCustomStatType => {
+					const { key, ...statObject } = resolveStatObject(keyOrCustomStatType);
 					let { total, average } = summedStats[key];
 					const content = [];
 
@@ -152,17 +211,21 @@ class StatsTables extends Component {
 					}
 
 					const totalSpan = (
-						<span className="total" key="total" title={`Total ${stat.plural}`}>
-							{statToString(key, total)}
+						<span className="total" key="total" title={`Total ${statObject.plural}`}>
+							{statToString(keyOrCustomStatType, total)}
 						</span>
 					);
 					const averageSpan = (
-						<span className="average" key="average" title={`Average ${stat.plural}`}>
-							{statToString(key, average)}
+						<span
+							className="average"
+							key="average"
+							title={`Average ${statObject.plural}`}
+						>
+							{statToString(keyOrCustomStatType, average)}
 						</span>
 					);
 
-					if (stat.isAverage) {
+					if (statObject.isAverage) {
 						//For Avg Gain, Tackle and Kicking Success, we
 						//just show the one value regardless of settings
 						content.push(averageSpan);
@@ -193,7 +256,7 @@ class StatsTables extends Component {
 				<div className="stat-table-wrapper">
 					<Table
 						columns={this.renderColumns()}
-						rows={this.state.rows}
+						rows={this.renderRows()}
 						sortBy={{ key: "first", asc: true }}
 						foot={this.renderFoot()}
 						stickyHead={true}
@@ -207,14 +270,27 @@ class StatsTables extends Component {
 
 StatsTables.propTypes = {
 	firstColumnHeader: PropTypes.string,
-	rows: Table.propTypes.rows,
+	rowData: Table.propTypes.rows,
 	showAverage: PropTypes.bool,
 	showTotal: PropTypes.bool,
-	addGames: PropTypes.bool
+	addGames: PropTypes.bool,
+
+	//E.g. [ { key: "M100", type: "Milestones", singular: "Player Over 100m", plural: "Players over 100m" } ]
+	customStatTypes: PropTypes.arrayOf(
+		PropTypes.shape({
+			key: PropTypes.string.isRequired,
+			singular: PropTypes.string.isRequired,
+			plural: PropTypes.string.isRequired,
+			type: PropTypes.string.isRequired,
+			unit: PropTypes.string, //defaults to null
+			moreIsBetter: PropTypes.bool //defaults to true
+		})
+	)
 };
 
 StatsTables.defaultProps = {
 	addGames: false,
+	customStatTypes: [],
 	firstColumnHeader: "",
 	showAverage: true,
 	showTotal: true

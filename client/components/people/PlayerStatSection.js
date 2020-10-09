@@ -305,7 +305,7 @@ class PlayerStatSection extends Component {
 	getStatsTables() {
 		const { filteredGames } = this.state;
 
-		const rows = _.map(filteredGames, game => {
+		const rowData = _.map(filteredGames, game => {
 			const { slug, _opposition, date, title } = game;
 			const stats = _.chain(game.playerStats[0].stats)
 				.mapValues((val, key) => {
@@ -343,7 +343,7 @@ class PlayerStatSection extends Component {
 		return (
 			<div className="container" key="tables">
 				<h2>Games</h2>
-				<StatsTables listType="player" rows={rows} firstColumnHeader="Games" />
+				<StatsTables listType="player" rowData={rowData} firstColumnHeader="Games" />
 			</div>
 		);
 	}
