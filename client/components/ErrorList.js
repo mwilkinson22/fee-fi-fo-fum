@@ -104,10 +104,7 @@ class ErrorList extends Component {
 					switch (key) {
 						case "date": {
 							const date = new Date(error.date).toString("yyyy-MM-dd HH:mm:ss");
-							value = {
-								content: date,
-								sortValue: date
-							};
+							value = date;
 							break;
 						}
 						case "_user": {
@@ -121,7 +118,7 @@ class ErrorList extends Component {
 									sortValue: error[key].name.full
 								};
 							} else {
-								value = { content: "-" };
+								value = "-";
 							}
 							break;
 						}
@@ -158,7 +155,7 @@ class ErrorList extends Component {
 							}
 							break;
 						default:
-							value = { content: error[key] };
+							value = error[key];
 							break;
 					}
 

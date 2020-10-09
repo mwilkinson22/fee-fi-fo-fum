@@ -261,7 +261,7 @@ class AdminGamePostGame extends Component {
 							}))
 							.map(data => ({
 								key: data.player,
-								data: _.mapValues(data, content => ({ content }))
+								data
 							}))
 							.value();
 						return (

@@ -59,8 +59,8 @@ class AdminTeamSelectorChoiceTally extends Component {
 			.map(({ _id, name, total }) => ({
 				key: _id,
 				data: {
-					total: { content: total },
-					player: { content: name.full }
+					total,
+					player: name.full
 				}
 			}));
 

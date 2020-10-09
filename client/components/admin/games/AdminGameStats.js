@@ -178,14 +178,12 @@ class AdminGameStats extends Component {
 					//Check for an error
 					const error = errors && errors[key];
 
-					return {
-						content: renderInput({
-							name: `${_player._id}.${key}`,
-							type: fieldTypes.number,
-							title: error || `${_player.name.full} ${playerStatTypes[key].plural}`,
-							className: error ? "error" : ""
-						})
-					};
+					return renderInput({
+						name: `${_player._id}.${key}`,
+						type: fieldTypes.number,
+						title: error || `${_player.name.full} ${playerStatTypes[key].plural}`,
+						className: error ? "error" : ""
+					});
 				});
 
 				return {

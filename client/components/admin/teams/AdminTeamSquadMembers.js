@@ -211,7 +211,7 @@ class AdminTeamSquadMembers extends Component {
 
 							return {
 								key: _player._id,
-								data: _.mapValues(data, content => ({ content }))
+								data
 							};
 						})
 						.filter(_.identity)

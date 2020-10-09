@@ -78,11 +78,11 @@ class NeutralGameList extends Component {
 							const data = _.chain(columns)
 								.map(column => {
 									const { key } = column;
-									const result = {};
+									let result;
 									const name = `${game._id}.${key}`;
 									switch (key) {
 										case "edit":
-											result.content = (
+											result = (
 												<Link
 													to={`/admin/neutralGame/${game._id}`}
 													className="button"
@@ -94,15 +94,17 @@ class NeutralGameList extends Component {
 											);
 											break;
 										case "_competition":
-											result.content = competitionSegment.name;
+											result = competitionSegment.name;
 											break;
 										case "date":
-											result.content = game.date.toString("ddd dS MMM HH:mm");
-											result.sortValue = game.date.toString("yyyyMMddHHmmss");
+											result = {
+												content: game.date.toString("ddd dS MMM HH:mm"),
+												sortValue: game.date.toString("yyyyMMddHHmmss")
+											};
 											break;
 										case "_homeTeam":
 										case "_awayTeam":
-											result.content = (
+											result = (
 												<div>
 													<TeamImage
 														team={teamList[game[key]]}
@@ -117,19 +119,17 @@ class NeutralGameList extends Component {
 											break;
 										case "homePoints":
 										case "awayPoints":
-											result.content = (
-												<FastField type="number" name={name} />
-											);
+											result = <FastField type="number" name={name} />;
 											break;
 										case "delete":
-											result.content = (
+											result = (
 												<FastField name={name}>
 													{({ field }) => <BooleanSlider {...field} />}
 												</FastField>
 											);
 											break;
 										default:
-											result.content = game[key];
+											result = game[key];
 											break;
 									}
 

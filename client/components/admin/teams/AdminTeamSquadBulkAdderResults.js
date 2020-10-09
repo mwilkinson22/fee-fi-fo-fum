@@ -201,7 +201,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 
 							return {
 								key: i,
-								data: _.mapValues(data, content => ({ content })),
+								data,
 								className: `${className} ${disabled ? "disabled" : ""}`
 							};
 						})

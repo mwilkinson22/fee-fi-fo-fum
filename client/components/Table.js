@@ -95,6 +95,30 @@ class Table extends Component {
 
 	processBody() {
 		let { columns, rows, sortBy, labelAsDefaultTitle, keyAsClassName } = this.state;
+
+		//Convert raw data to object with "content" field, if necessary
+		rows = rows.map(row => {
+			//Clone Data
+			const data = { ...row.data };
+
+			//Loop through cloned object, if the value is a node (as opposed to
+			//an object with a content key), we convert it to an object
+			for (const key in data) {
+				const rowData = data[key];
+				if (React.isValidElement(rowData) || typeof rowData !== "object") {
+					data[key] = {
+						content: rowData
+					};
+				}
+			}
+
+			//Return the newly processed data, plus a clone of the other row properties
+			return {
+				...row,
+				data
+			};
+		});
+
 		//Reorder rows
 		if (sortBy && sortBy.key) {
 			rows = _.sortBy(rows, row => {
@@ -133,14 +157,13 @@ class Table extends Component {
 
 								cellProps.className = classNames.join(" ");
 
-								//Click Events
-								cellProps.onClick = data.onClick;
-
 								//Handle missing values
 								if (data === undefined) {
 									cellProps.children = "-";
 									cellProps.title = column.title || column.label;
 								} else {
+									//Click Events
+									cellProps.onClick = data.onClick;
 									cellProps.children = data.content;
 									cellProps.title =
 										data.title ||
@@ -214,13 +237,16 @@ Table.propTypes = {
 		PropTypes.shape({
 			key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 			data: PropTypes.objectOf(
-				PropTypes.shape({
-					content: PropTypes.node.isRequired,
-					onClick: PropTypes.func,
-					sortValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-					title: PropTypes.string
-				})
-			),
+				PropTypes.oneOfType([
+					PropTypes.node,
+					PropTypes.shape({
+						content: PropTypes.node.isRequired,
+						onClick: PropTypes.func,
+						sortValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+						title: PropTypes.string
+					})
+				])
+			).isRequired,
 			className: PropTypes.string,
 			onClick: PropTypes.func
 		})

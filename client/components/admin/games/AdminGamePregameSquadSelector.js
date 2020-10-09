@@ -156,19 +156,13 @@ class AdminGamePregameSquadSelector extends Component {
 
 			//Get row data
 			const data = {
-				checkbox: {
-					content: currentIndex > -1 ? "✔" : " "
-				},
+				checkbox: currentIndex > -1 ? "✔" : " ",
 				number: {
 					content: squadMember.number || " ",
 					sortValue: squadMember.number || `${name.first} ${name.last}`
 				},
-				first: {
-					content: name.first
-				},
-				last: {
-					content: name.last
-				}
+				first: name.first,
+				last: name.last
 			};
 
 			return { key: _id, data, onClick };

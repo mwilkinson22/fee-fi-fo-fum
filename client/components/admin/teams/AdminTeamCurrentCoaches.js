@@ -139,7 +139,7 @@ class AdminTeamCurrentCoaches extends Component {
 
 								return {
 									key: coach._id || Math.random(),
-									data: _.mapValues(data, content => ({ content }))
+									data
 								};
 							})
 							.value();

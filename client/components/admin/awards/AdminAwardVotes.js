@@ -88,11 +88,9 @@ class AdminAwardVotes extends Component {
 					return {
 						key,
 						data: {
-							nominee: { content: nominee },
-							votes: { content: arr.length },
-							pc: {
-								content: Math.round((arr.length / votes.length) * 10000) / 100 + "%"
-							}
+							nominee,
+							votes: arr.length,
+							pc: Math.round((arr.length / votes.length) * 10000) / 100 + "%"
 						}
 					};
 				})
@@ -139,7 +137,4 @@ function mapStateToProps({ awards, games, people, teams }) {
 	return { awardsList, gameList, peopleList, teamList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchGameList, fetchPeopleList }
-)(AdminAwardVotes);
+export default connect(mapStateToProps, { fetchGameList, fetchPeopleList })(AdminAwardVotes);

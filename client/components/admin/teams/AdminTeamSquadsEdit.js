@@ -150,7 +150,7 @@ class AdminTeamSquadsEdit extends Component {
 
 							return {
 								key: _player._id,
-								data: _.mapValues(data, content => ({ content })),
+								data,
 								className: disabled ? "disabled" : ""
 							};
 						})
