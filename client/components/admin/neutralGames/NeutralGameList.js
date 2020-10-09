@@ -68,7 +68,8 @@ class NeutralGameList extends Component {
 				onSubmit={values => this.handleSubmit(values)}
 				initialValues={this.getInitialValues()}
 				enableReinitialize={true}
-				render={({ values, submitForm }) => {
+			>
+				{({ values, submitForm }) => {
 					const rows = _.chain(games)
 						.sortBy("date")
 						.map(game => {
@@ -122,12 +123,9 @@ class NeutralGameList extends Component {
 											break;
 										case "delete":
 											result.content = (
-												<FastField
-													name={name}
-													render={({ field }) => (
-														<BooleanSlider {...field} />
-													)}
-												/>
+												<FastField name={name}>
+													{({ field }) => <BooleanSlider {...field} />}
+												</FastField>
 											);
 											break;
 										default:
@@ -187,7 +185,7 @@ class NeutralGameList extends Component {
 						</Form>
 					);
 				}}
-			/>
+			</Formik>
 		);
 	}
 }

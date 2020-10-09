@@ -498,7 +498,8 @@ class SquadSelector extends Component {
 				initialValues={this.props.currentSquad}
 				onSubmit={onSubmit}
 				validate={values => this.validate(values)}
-				render={formik => {
+			>
+				{formik => {
 					let disableButtons;
 					if (customValidation) {
 						disableButtons = Object.keys(this.validate(formik.values)).length > 0;
@@ -516,7 +517,7 @@ class SquadSelector extends Component {
 						</Form>
 					);
 				}}
-			/>
+			</Formik>
 		);
 	}
 }

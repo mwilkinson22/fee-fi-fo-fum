@@ -210,9 +210,8 @@ class AwardsVotingForm extends Component {
 		}
 
 		return (
-			<Field
-				key={category._id + nomineeObject._id}
-				render={({ form }) => {
+			<Field key={category._id + nomineeObject._id}>
+				{({ form }) => {
 					return (
 						<div
 							className={`nominee ${
@@ -227,7 +226,7 @@ class AwardsVotingForm extends Component {
 						</div>
 					);
 				}}
-			/>
+			</Field>
 		);
 	}
 
@@ -279,7 +278,8 @@ class AwardsVotingForm extends Component {
 				initialValues={this.getDefaults()}
 				validationSchema={validationSchema}
 				onSubmit={values => this.handleSubmit(values)}
-				render={({ values, errors, touched }) => {
+			>
+				{({ values, errors, touched }) => {
 					const categories = currentAwards.categories.map(c => {
 						const { _id, name, awardType, description, nominees } = c;
 						return (
@@ -318,7 +318,7 @@ class AwardsVotingForm extends Component {
 						</Form>
 					);
 				}}
-			/>
+			</Formik>
 		);
 	}
 }

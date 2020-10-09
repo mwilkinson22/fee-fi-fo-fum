@@ -235,7 +235,8 @@ class AdminGameSquadImage extends Component {
 				initialValues={this.getInitialValues()}
 				onSubmit={(values, formik) => this.handleSubmit(values, formik)}
 				validationSchema={validationSchema}
-				render={({ isSubmitting, setFieldValue, values }) => (
+			>
+				{({ isSubmitting, setFieldValue, values }) => (
 					<Form>
 						<div className="form-card grid">
 							{this.renderMainForm()}
@@ -255,7 +256,7 @@ class AdminGameSquadImage extends Component {
 						/>
 					</Form>
 				)}
-			/>
+			</Formik>
 		);
 	}
 }

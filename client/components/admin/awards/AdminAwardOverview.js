@@ -146,9 +146,8 @@ class AdminAwardOverview extends Component {
 				<div className="full-span" key="category-sorter-wrapper">
 					<h6>Categories</h6>
 					<ul className="plain-list">
-						<FieldArray
-							name="categories"
-							render={({ move }) => {
+						<FieldArray name="categories">
+							{({ move }) => {
 								return values.categories.map((id, i) => (
 									<li key={id} className="award-category-sorter-row">
 										<button
@@ -173,7 +172,7 @@ class AdminAwardOverview extends Component {
 									</li>
 								));
 							}}
-						/>
+						</FieldArray>
 					</ul>
 				</div>
 			);

@@ -85,11 +85,9 @@ class AdminCompetitionInstanceOverview extends Component {
 				},
 				{
 					render: () => [
-						<FieldArray
-							key={`button-${i}`}
-							name="specialRounds"
-							render={({ remove }) => <DeleteButtons onDelete={() => remove(i)} />}
-						/>,
+						<FieldArray key={`button-${i}`} name="specialRounds">
+							{({ remove }) => <DeleteButtons onDelete={() => remove(i)} />}
+						</FieldArray>,
 						<hr key={`hr-${i}`} />
 					]
 				}
@@ -98,10 +96,8 @@ class AdminCompetitionInstanceOverview extends Component {
 
 		fields.push({
 			render: () => (
-				<FieldArray
-					key="add-more"
-					name="specialRounds"
-					render={({ push }) => (
+				<FieldArray key="add-more" name="specialRounds">
+					{({ push }) => (
 						<div className="buttons">
 							<button
 								type="button"
@@ -118,7 +114,7 @@ class AdminCompetitionInstanceOverview extends Component {
 							</button>
 						</div>
 					)}
-				/>
+				</FieldArray>
 			)
 		});
 

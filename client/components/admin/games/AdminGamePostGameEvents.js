@@ -552,9 +552,8 @@ class AdminGamePostGameEvents extends Component {
 
 			//Get "Movement" buttons
 			const movementButtons = (
-				<FieldArray
-					name="tweets"
-					render={({ move }) => (
+				<FieldArray name="tweets">
+					{({ move }) => (
 						<div>
 							<button
 								onClick={() => {
@@ -612,7 +611,7 @@ class AdminGamePostGameEvents extends Component {
 							</button>
 						</div>
 					)}
-				/>
+				</FieldArray>
 			);
 
 			let renderedFields, preview, deleteButtons;
@@ -664,9 +663,8 @@ class AdminGamePostGameEvents extends Component {
 
 				//Get "delete" fields
 				deleteButtons = (
-					<FieldArray
-						name="tweets"
-						render={({ remove }) => (
+					<FieldArray name="tweets">
+						{({ remove }) => (
 							<DeleteButtons
 								deleteText="Remove from Thread"
 								onDelete={() => {
@@ -685,7 +683,7 @@ class AdminGamePostGameEvents extends Component {
 								}}
 							/>
 						)}
-					/>
+					</FieldArray>
 				);
 			}
 
@@ -727,9 +725,8 @@ class AdminGamePostGameEvents extends Component {
 					value={newEventType}
 				/>
 				<div className="buttons">
-					<FieldArray
-						name="tweets"
-						render={({ push }) => (
+					<FieldArray name="tweets">
+						{({ push }) => (
 							<button
 								onClick={() =>
 									push(this.getNewTweetInitialValues(newEventType.value))
@@ -739,7 +736,7 @@ class AdminGamePostGameEvents extends Component {
 								Add Tweet
 							</button>
 						)}
-					/>
+					</FieldArray>
 				</div>
 			</div>
 		);
@@ -786,7 +783,8 @@ class AdminGamePostGameEvents extends Component {
 				initialValues={this.getInitialValues()}
 				onSubmit={values => this.handleSubmit(values)}
 				validationSchema={validationSchema}
-				render={formikProps => {
+			>
+				{formikProps => {
 					//Check to see if there are unsaved and unposted changes before navigating away
 					let preventNavigation = formikProps.values.tweets.length > 0;
 
@@ -829,7 +827,7 @@ class AdminGamePostGameEvents extends Component {
 						</Form>
 					);
 				}}
-			/>
+			</Formik>
 		);
 	}
 }

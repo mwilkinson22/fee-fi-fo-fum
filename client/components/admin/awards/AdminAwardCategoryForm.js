@@ -108,10 +108,8 @@ class AdminAwardCategories extends Component {
 		//And finally a group to add new nominees
 		const addNomineeGroup = {
 			render: () => (
-				<FieldArray
-					name="nominees"
-					key="add-nominee"
-					render={({ push }) => [
+				<FieldArray name="nominees" key="add-nominee">
+					{({ push }) => [
 						<div className="buttons" key="buttons">
 							<button
 								type="button"
@@ -122,7 +120,7 @@ class AdminAwardCategories extends Component {
 						</div>,
 						<hr key="hr" />
 					]}
-				/>
+				</FieldArray>
 			)
 		};
 
@@ -193,10 +191,8 @@ class AdminAwardCategories extends Component {
 
 	renderArrayFields(i, nominees) {
 		return [
-			<FieldArray
-				key={`array-fields-${i}`}
-				name="nominees"
-				render={({ move, remove }) => [
+			<FieldArray key={`array-fields-${i}`} name="nominees">
+				{({ move, remove }) => [
 					<div key="move" className="move-buttons">
 						<button
 							type="button"
@@ -221,7 +217,8 @@ class AdminAwardCategories extends Component {
 						deleteText="Remove Nominee"
 					/>
 				]}
-			/>,
+			</FieldArray>,
+
 			<hr key={`hr${i}`} />
 		];
 	}

@@ -51,8 +51,8 @@ class AdminGamePregameSquadSelector extends Component {
 		//If there are no eligible players, there's no need to show any buttons
 		if (eligiblePlayers.length) {
 			return (
-				<FieldArray
-					render={({ form }) => {
+				<FieldArray>
+					{({ form }) => {
 						//Set a "Load Last squad" button
 						let lastSquadButton;
 						if (team._id == localTeam && lastGame) {
@@ -96,7 +96,7 @@ class AdminGamePregameSquadSelector extends Component {
 							</div>
 						);
 					}}
-				/>
+				</FieldArray>
 			);
 		}
 	}
@@ -115,9 +115,8 @@ class AdminGamePregameSquadSelector extends Component {
 		}
 
 		return (
-			<FieldArray
-				name={team._id}
-				render={formik => {
+			<FieldArray name={team._id}>
+				{formik => {
 					const footer = {
 						checkbox: "✔", //This keeps the width consistent
 						last: `Total: ${formik.form.values[team._id].length}`
@@ -134,7 +133,7 @@ class AdminGamePregameSquadSelector extends Component {
 						/>
 					);
 				}}
-			/>
+			</FieldArray>
 		);
 	}
 

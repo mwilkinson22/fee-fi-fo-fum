@@ -305,7 +305,8 @@ class AdminGameEvent extends Component {
 					initialValues={this.getInitialValues()}
 					onSubmit={(values, formik) => this.handleSubmit(values, formik)}
 					validationSchema={validationSchema}
-					render={({ errors, isSubmitting, setFieldValue, values }) => {
+				>
+					{({ errors, isSubmitting, setFieldValue, values }) => {
 						const disabled = isSubmitting || Object.keys(errors).length;
 						return (
 							<Form>
@@ -343,7 +344,7 @@ class AdminGameEvent extends Component {
 							</Form>
 						);
 					}}
-				/>
+				</Formik>
 			</div>
 		);
 	}

@@ -49,7 +49,11 @@ export function renderField(field, validationSchema, fastFieldByDefault = true) 
 
 	if (field.type == fieldTypes.fieldArray) {
 		const key = field.key || field.name + "-fieldArray";
-		return <FieldArray name={field.name} render={field.render} key={key} />;
+		return (
+			<FieldArray name={field.name} key={key}>
+				{field.render}
+			</FieldArray>
+		);
 	} else {
 		//Pull meta data from yup
 		const yupField = extractYupData(field.name, validationSchema);

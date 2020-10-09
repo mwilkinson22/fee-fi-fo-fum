@@ -400,7 +400,8 @@ class BasicForm extends Component {
 					readOnly ? {} : this.handleSubmit(values, formikProps)
 				}
 				validationSchema={validationSchema}
-				render={formikProps => {
+			>
+				{formikProps => {
 					const { errors, initialValues, values, touched, isSubmitting } = formikProps;
 
 					const formHasChanged = Object.keys(diff(values, initialValues)).length > 0;
@@ -419,7 +420,7 @@ class BasicForm extends Component {
 						</Form>
 					);
 				}}
-			/>
+			</Formik>
 		);
 	}
 }
