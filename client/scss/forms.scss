@@ -237,6 +237,10 @@
 	.table {
 		margin-bottom: 20pt;
 		box-shadow: none;
+		input[type="text"],
+		input[type="number"] {
+			min-width: 50pt;
+		}
 	}
 
 	.image-selector-field-wrapper {

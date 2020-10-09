@@ -206,7 +206,7 @@ body {
 	td {
 		padding: 4pt 8pt;
 		text-align: left;
-		input,
+		& > input,
 		.react-select,
 		&.stretch {
 			width: 100%;
@@ -297,13 +297,6 @@ body {
 	.list-filter {
 		width: 100%;
 		padding: 0 8pt;
-		input {
-			width: 100%;
-			padding: 4pt 8pt;
-			font: inherit;
-			border-radius: 4pt;
-			outline: none;
-		}
 	}
 
 	@media #{$desktop-only} {
