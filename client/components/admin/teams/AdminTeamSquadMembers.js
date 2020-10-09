@@ -218,7 +218,9 @@ class AdminTeamSquadMembers extends Component {
 						.value();
 
 					return (
-						<Table key="table" rows={rows} columns={columns} defaultSortable={false} />
+						<div className="table-wrapper" key="table">
+							<Table rows={rows} columns={columns} defaultSortable={false} />
+						</div>
 					);
 				}
 			}
