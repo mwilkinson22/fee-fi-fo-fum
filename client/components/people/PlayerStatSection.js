@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 
 //Actions
 import { fetchGames } from "../../actions/gamesActions";
@@ -17,7 +16,7 @@ import SingleStatBox from "../stats/SingleStatBox";
 import LoadingPage from "../LoadingPage";
 import StatsTables from "../games/StatsTables";
 import GameFilters from "../games/GameFilters";
-import TeamImage from "../teams/TeamImage";
+import StatTableGameCell from "../games/StatTableGameCell";
 
 class PlayerStatSection extends Component {
 	constructor(props) {
@@ -306,7 +305,7 @@ class PlayerStatSection extends Component {
 		const { filteredGames } = this.state;
 
 		const rowData = _.map(filteredGames, game => {
-			const { slug, _opposition, date, title } = game;
+			const { slug, date, title } = game;
 			const stats = _.chain(game.playerStats[0].stats)
 				.mapValues((val, key) => {
 					if (!playerStatTypes[key]) {
@@ -322,16 +321,7 @@ class PlayerStatSection extends Component {
 				.value();
 			const data = {
 				first: {
-					content: (
-						<Link to={`/games/${slug}`} className="fixture-box">
-							<TeamImage team={_opposition} variant="dark" size="small" />
-							<div className="date mobile">{new Date(date).toString("dS MMM")}</div>
-							<div className="date desktop">
-								{new Date(date).toString("ddd dS MMMM")}
-							</div>
-							<div className="title">{title}</div>
-						</Link>
-					),
+					content: <StatTableGameCell game={game} />,
 					sortValue: date.toString("yyyyMMdd"),
 					title
 				},
