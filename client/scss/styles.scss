@@ -315,6 +315,7 @@ body {
 .page-switch {
 	display: flex;
 	margin-bottom: 14pt;
+	user-select: none;
 	div {
 		flex-grow: 1;
 		width: 100%;
@@ -322,6 +323,10 @@ body {
 		background: #fff;
 		cursor: pointer;
 		text-align: center;
+		display: flex;
+		align-content: center;
+		justify-content: center;
+		align-items: center;
 		&:hover {
 			background: #eee;
 		}
