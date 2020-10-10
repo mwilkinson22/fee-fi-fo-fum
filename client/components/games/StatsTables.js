@@ -30,7 +30,7 @@ class StatsTables extends Component {
 			.map(row => _.keys(row.data))
 			.flatten()
 			.uniq()
-			.map(resolveStatObject)
+			.map(key => resolveStatObject(key))
 			.filter(_.identity)
 			.value();
 
@@ -162,7 +162,7 @@ class StatsTables extends Component {
 	}
 
 	renderFoot() {
-		const { showTotal, showAverage } = this.props;
+		const { customStatTypes, showTotal, showAverage } = this.props;
 		const { groupedStatTypes, activeTab, rowData } = this.state;
 		if (rowData.length < 2 || (!showTotal && !showAverage)) {
 			return null;
@@ -180,7 +180,7 @@ class StatsTables extends Component {
 				});
 			});
 
-			const summedStats = getTotalsAndAverages(data);
+			const summedStats = getTotalsAndAverages(data, customStatTypes);
 
 			//Get Labels
 			const first = [];
@@ -202,7 +202,15 @@ class StatsTables extends Component {
 			//Get Data
 			const foot = _.chain(groupedStatTypes[activeTab])
 				.map(keyOrCustomStatType => {
-					const { key, ...statObject } = resolveStatObject(keyOrCustomStatType);
+					const statObject = resolveStatObject(keyOrCustomStatType, customStatTypes);
+
+					//Null check
+					if (!statObject) {
+						return null;
+					}
+
+					const { key } = statObject;
+
 					let { total, average } = summedStats[key];
 					const content = [];
 
@@ -240,6 +248,7 @@ class StatsTables extends Component {
 
 					return [key, content];
 				})
+				.filter(_.identity)
 				.fromPairs()
 				.value();
 			return {

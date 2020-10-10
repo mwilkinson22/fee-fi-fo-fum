@@ -43,7 +43,7 @@ export function statToString(keyOrObject, value, maxDecimals = 2) {
 	}
 
 	const statObject = resolveStatObject(keyOrObject);
-	const unit = statObject.unit || "";
+	const unit = statObject && statObject.unit ? statObject.unit : "";
 	const decimalMultiplier = Math.pow(10, maxDecimals);
 
 	return `${Math.round(value * decimalMultiplier) / decimalMultiplier}${unit}`;
@@ -55,7 +55,7 @@ export function statToString(keyOrObject, value, maxDecimals = 2) {
  * and an isCustomStat bool
  * @param { string | object } keyOrStatObject
  */
-export function resolveStatObject(keyOrStatObject) {
+export function resolveStatObject(keyOrStatObject, customStatTypes = []) {
 	//Set defaults
 	const statObject = {
 		moreIsBetter: true,
@@ -64,8 +64,16 @@ export function resolveStatObject(keyOrStatObject) {
 	};
 
 	if (typeof keyOrStatObject === "string") {
-		//If the param is a string, then we check the constants file
-		if (!playerStatTypes[keyOrStatObject]) {
+		//If the param is a string, then we first look for customStatTypes
+		let statType = customStatTypes.find(({ key }) => key == keyOrStatObject);
+
+		//Otherwise, we check the constants file
+		if (!statType) {
+			statType = playerStatTypes[keyOrStatObject];
+		}
+
+		//If nothing is found, quit
+		if (!statType) {
 			return null;
 		}
 
@@ -86,7 +94,7 @@ export function resolveStatObject(keyOrStatObject) {
  *
  * @param { Array } arrayOfStats - An array of stat collection objects
  */
-export function getTotalsAndAverages(arrayOfStats) {
+export function getTotalsAndAverages(arrayOfStats, customStatTypes = []) {
 	//First, calculate which stats we need,
 	//creating an array of stat keys
 	const allFoundStatKeys = arrayOfStats
@@ -97,13 +105,15 @@ export function getTotalsAndAverages(arrayOfStats) {
 			return Object.keys(fullStatCollection);
 		})
 		.flat();
-	const statKeysToProcess = _.uniq(allFoundStatKeys).filter(key => resolveStatObject(key));
+	const statKeysToProcess = _.uniq(allFoundStatKeys).filter(key =>
+		resolveStatObject(key, customStatTypes)
+	);
 
 	//Loop through these keys and get the aggregate values for each one
 	//Return as a pair
 	const summedStatsArray = statKeysToProcess.map(keyOrStatObject => {
 		//Get the stat type
-		const { key, ...statObject } = resolveStatObject(keyOrStatObject);
+		const { key, ...statObject } = resolveStatObject(keyOrStatObject, customStatTypes);
 
 		//Work out how many games have a value for this type
 		const gameCount = _.sumBy(arrayOfStats, obj => {
@@ -137,7 +147,8 @@ export function getTotalsAndAverages(arrayOfStats) {
 	const summedStatTotals = _.mapValues(summedStats, stat => stat.total);
 	const summedStatsWithFixedTotals = calculateAdditionalStats(summedStatTotals);
 	for (const key in summedStats) {
-		if (resolveStatObject(key).isAverage) {
+		const statObject = resolveStatObject(key, customStatTypes);
+		if (statObject && statObject.isAverage) {
 			summedStats[key].total = summedStatsWithFixedTotals[key];
 			summedStats[key].average = summedStatsWithFixedTotals[key];
 		}
