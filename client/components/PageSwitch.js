@@ -19,7 +19,7 @@ class PageSwitch extends Component {
 						key={value}
 						className={`${className || ""} ${value == currentValue ? "active" : ""}`}
 					>
-						{label}
+						{label || value}
 					</div>
 				))}
 			</div>
@@ -33,7 +33,7 @@ PageSwitch.propTypes = {
 	options: PropTypes.arrayOf(
 		PropTypes.shape({
 			className: PropTypes.string,
-			label: PropTypes.string.isRequired,
+			label: PropTypes.string,
 			value: PropTypes.string.isRequired
 		})
 	).isRequired
