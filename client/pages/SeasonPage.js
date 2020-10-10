@@ -11,6 +11,7 @@ import LoadingPage from "../components/LoadingPage";
 import NotFoundPage from "~/client/pages/NotFoundPage";
 import SeasonOverview from "~/client/components/seasons/SeasonOverview";
 import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
+import SeasonGameStats from "~/client/components/seasons/SeasonGameStats";
 
 //Actions
 import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
@@ -180,7 +181,8 @@ class SeasonPage extends Component {
 		const { teamType, year } = this.state;
 		const pages = [
 			{ slug: "overview", label: "Overview" },
-			{ slug: "player-stats", label: "Player Stats" }
+			{ slug: "player-stats", label: "Player Stats" },
+			{ slug: "game-stats", label: "Game Stats" }
 		];
 
 		return (
@@ -231,6 +233,8 @@ class SeasonPage extends Component {
 					return <SeasonOverview {...props} />;
 				case "player-stats":
 					return <SeasonPlayerStats {...props} />;
+				case "game-stats":
+					return <SeasonGameStats {...props} />;
 				default:
 					return <NotFoundPage />;
 			}
