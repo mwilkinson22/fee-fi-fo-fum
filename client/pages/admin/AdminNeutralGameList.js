@@ -225,13 +225,10 @@ function mapStateToProps({ games, teams, competitions }) {
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	{
-		fetchCompetitionSegments,
-		fetchNeutralGames,
-		fetchNeutralGameYears,
-		crawlAndUpdateNeutralGames,
-		setActiveTeamType
-	}
-)(AdminNeutralGameList);
+export default connect(mapStateToProps, {
+	fetchCompetitionSegments,
+	fetchNeutralGames,
+	fetchNeutralGameYears,
+	crawlAndUpdateNeutralGames,
+	setActiveTeamType
+})(AdminNeutralGameList);

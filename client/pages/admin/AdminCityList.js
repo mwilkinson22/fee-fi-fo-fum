@@ -82,7 +82,4 @@ function mapStateToProps({ locations }) {
 	return { cities };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchCities }
-)(AdminCityList);
+export default connect(mapStateToProps, { fetchCities })(AdminCityList);

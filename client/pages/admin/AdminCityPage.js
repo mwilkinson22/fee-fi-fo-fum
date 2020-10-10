@@ -55,12 +55,8 @@ class AdminCityPage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			_country: Yup.mixed()
-				.required()
-				.label("Country")
+			name: Yup.string().required().label("Name"),
+			_country: Yup.mixed().required().label("Country")
 		});
 
 		//Get Current City
@@ -167,10 +163,6 @@ function mapStateToProps({ locations }) {
 	const { countries, cities } = locations;
 	return { countries, cities };
 }
+const mapDispatchToProps = { fetchCountries, fetchCities, createCity, updateCity, deleteCity };
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchCountries, fetchCities, createCity, updateCity, deleteCity }
-	)(AdminCityPage)
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminCityPage));

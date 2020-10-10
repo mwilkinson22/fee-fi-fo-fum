@@ -54,9 +54,10 @@ class NewsListPage extends Component {
 	}
 
 	generateHeader() {
-		const categories = [{ name: "All", slug: "all" }, ...newsCategories].map(
-			({ slug, name }) => ({ slug, label: name })
-		);
+		const categories = [
+			{ name: "All", slug: "all" },
+			...newsCategories
+		].map(({ slug, name }) => ({ slug, label: name }));
 		return (
 			<section className="page-header">
 				<div className="container">
@@ -140,9 +141,6 @@ async function loadData(store) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchPostList }
-	)(NewsListPage),
+	component: connect(mapStateToProps, { fetchPostList })(NewsListPage),
 	loadData
 };

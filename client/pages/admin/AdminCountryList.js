@@ -80,7 +80,4 @@ function mapStateToProps({ locations }) {
 	return { countries };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchCountries }
-)(AdminCountryList);
+export default connect(mapStateToProps, { fetchCountries })(AdminCountryList);

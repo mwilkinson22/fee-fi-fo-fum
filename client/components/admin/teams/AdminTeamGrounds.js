@@ -144,8 +144,5 @@ function mapStateToProps({ grounds, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(
-		mapStateToProps,
-		{ fetchAllGrounds, updateTeam }
-	)(AdminTeamGrounds)
+	connect(mapStateToProps, { fetchAllGrounds, updateTeam })(AdminTeamGrounds)
 );

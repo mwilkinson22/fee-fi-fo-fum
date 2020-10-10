@@ -81,7 +81,4 @@ function mapStateToProps({ sponsors }) {
 	return { sponsorList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchSponsors }
-)(AdminSponsorList);
+export default connect(mapStateToProps, { fetchSponsors })(AdminSponsorList);

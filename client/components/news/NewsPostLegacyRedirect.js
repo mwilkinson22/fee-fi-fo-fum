@@ -43,9 +43,6 @@ function loadData(store, path) {
 }
 
 export default {
-	component: connect(
-		mapStateToProps,
-		{ fetchLegacyNewsPost }
-	)(NewsPostLegacyRedirect),
+	component: connect(mapStateToProps, { fetchLegacyNewsPost })(NewsPostLegacyRedirect),
 	loadData: loadData
 };

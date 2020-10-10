@@ -83,7 +83,4 @@ function mapStateToProps({ awards }) {
 	return { awardsList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchAwards }
-)(AdminAwardList);
+export default connect(mapStateToProps, { fetchAwards })(AdminAwardList);

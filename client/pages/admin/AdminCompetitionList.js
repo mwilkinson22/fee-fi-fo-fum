@@ -81,7 +81,4 @@ function mapStateToProps({ competitions }) {
 	return { competitionList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchCompetitions }
-)(AdminCompetitionList);
+export default connect(mapStateToProps, { fetchCompetitions })(AdminCompetitionList);

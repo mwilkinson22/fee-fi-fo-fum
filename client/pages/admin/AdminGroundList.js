@@ -82,7 +82,4 @@ function mapStateToProps({ grounds }) {
 	return { groundList };
 }
 
-export default connect(
-	mapStateToProps,
-	{ fetchAllGrounds }
-)(AdminGroundList);
+export default connect(mapStateToProps, { fetchAllGrounds })(AdminGroundList);
