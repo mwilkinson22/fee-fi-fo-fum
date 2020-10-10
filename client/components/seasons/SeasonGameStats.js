@@ -16,6 +16,7 @@ import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Helpers
 import { calculateAdditionalStats, getTotalsAndAverages } from "~/helpers/statsHelper";
+import { localTeam } from "~/config/keys";
 
 class SeasonGameStats extends Component {
 	constructor(props) {
@@ -57,10 +58,17 @@ class SeasonGameStats extends Component {
 				//Get separate local and team stats
 				.map(g => {
 					//Grab only the necessary properties
-					const game = _.pick(g, ["_id", "date", "_opposition", "title", "slug"]);
+					const game = _.pick(g, [
+						"_id",
+						"date",
+						"_opposition",
+						"title",
+						"slug",
+						"playerStats"
+					]);
 
 					//Group the stats by local and opposition
-					game.stats = _.chain(g.playerStats)
+					game.stats = _.chain(game.playerStats)
 						.groupBy(({ _team }) => (_team === localTeam ? "local" : "opposition"))
 						.mapValues(playerStatArray =>
 							getTotalsAndAverages(playerStatArray.map(s => s.stats))
@@ -132,6 +140,9 @@ class SeasonGameStats extends Component {
 	renderTable() {
 		const { gamesWithProcessedStats, options, totalOrIndividual, teamToLoad } = this.state;
 
+		//Create a custom stat type object to be populated as we scan games
+		let customStatTypes = {};
+
 		//Create Rows
 		const rowData = gamesWithProcessedStats.map(game => {
 			const first = {
@@ -183,6 +194,64 @@ class SeasonGameStats extends Component {
 			//Recalculate non-db stats
 			stats = calculateAdditionalStats(stats);
 
+			//Work out milestone stats
+			if (totalOrIndividual === options.totalOrIndividual.Total) {
+				const statsToProcess = {};
+
+				//Check for metres
+				const metresFound = game.playerStats.filter(p => p.stats.M).length;
+				if (metresFound) {
+					customStatTypes.M100 = "Players Making 100m";
+					statsToProcess.M100 = game.playerStats.filter(
+						p => p.stats.M && p.stats.M >= 100
+					);
+				}
+
+				//Check for tackles & tackle success
+				const tacklesFound = game.playerStats.filter(p => p.stats.TK).length;
+				if (tacklesFound) {
+					customStatTypes.TK30 = "Players Making 30 Tackles";
+					statsToProcess.TK30 = game.playerStats.filter(
+						p => p.stats.TK & (p.stats.TK >= 30)
+					);
+
+					customStatTypes.TS95 =
+						"Players with a 95% Tackle Success Rate (min. 20 tackles)";
+					statsToProcess.TS95 = game.playerStats.filter(p => {
+						const processedStats = calculateAdditionalStats(p.stats);
+						return (
+							processedStats.TS > 95 && processedStats.TK + processedStats.MI >= 20
+						);
+					});
+				}
+
+				//Process stats
+				for (const statType in statsToProcess) {
+					const teamCounts = _.chain(statsToProcess[statType])
+						.groupBy(({ _team }) => (_team == localTeam ? "local" : "opposition"))
+						.mapValues("length")
+						.value();
+
+					const localCount = teamCounts.local || 0;
+					const oppositionCount = teamCounts.opposition || 0;
+
+					switch (teamToLoad) {
+						case options.teamToLoad.Local:
+							stats[statType] = localCount;
+							break;
+						case options.teamToLoad.Opposition:
+							stats[statType] = oppositionCount;
+							break;
+						case options.teamToLoad.Combined:
+							stats[statType] = localCount + oppositionCount;
+							break;
+						case options.teamToLoad.Differential:
+							stats[statType] = localCount - oppositionCount;
+							break;
+					}
+				}
+			}
+
 			return {
 				key: game._id,
 				data: {
@@ -192,12 +261,22 @@ class SeasonGameStats extends Component {
 			};
 		});
 
+		//Convert custom stat types to array
+		customStatTypes = _.map(customStatTypes, (label, key) => ({
+			key,
+			singular: label,
+			plural: label,
+			type: "Player Stats",
+			moreIsBetter: true
+		}));
+
 		return (
 			<div className="container">
 				<h2>Stats</h2>
 				<StatsTables
-					rowData={rowData}
+					customStatTypes={customStatTypes}
 					firstColumnHeader="Game"
+					rowData={rowData}
 					showTotal={true}
 					showAverage={false}
 				/>
