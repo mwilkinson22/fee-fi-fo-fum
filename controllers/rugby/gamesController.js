@@ -93,7 +93,13 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		return game;
 	});
 
-	if (forGamePage) {
+	if (!forGamePage) {
+		//We load pregame squads on the server to properly calculate status.
+		//For a "basic" load, we remove it here
+		for (const game of games) {
+			delete game.pregameSquads;
+		}
+	} else {
 		//Work out required player fields
 		const playerSelect = [
 			"name",
@@ -269,9 +275,7 @@ async function processList(includeHidden) {
 	if (!includeHidden) {
 		query.hideGame = { $in: [false, null] };
 	}
-	const games = await Game.find(query)
-		.forList()
-		.lean();
+	const games = await Game.find(query).forList().lean();
 	const gameList = _.keyBy(games, "_id");
 
 	const redirects = await getRedirects(gameList, collectionName);
@@ -993,10 +997,7 @@ async function generatePostGameEventImage(game, data, res) {
 				const date = new Date(game.date);
 				const options = {
 					fromDate: `${date.getFullYear()}-01-01`,
-					toDate: date
-						.next()
-						.tuesday()
-						.toString("yyyy-MM-dd")
+					toDate: date.next().tuesday().toString("yyyy-MM-dd")
 				};
 				return new LeagueTable(
 					game._competition._id,
