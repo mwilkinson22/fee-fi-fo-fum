@@ -200,7 +200,7 @@ class SeasonGameStats extends Component {
 				//Check for metres
 				const metresFound = game.playerStats.filter(p => p.stats.M).length;
 				if (metresFound) {
-					customStatTypes.M100 = "Players Making 100m";
+					customStatTypes.M100 = "Made 100m";
 					statsToProcess.M100 = game.playerStats.filter(
 						p => p.stats.M && p.stats.M >= 100
 					);
@@ -209,12 +209,12 @@ class SeasonGameStats extends Component {
 				//Check for tackles & tackle success
 				const tacklesFound = game.playerStats.filter(p => p.stats.TK).length;
 				if (tacklesFound) {
-					customStatTypes.TK30 = "Players Making 30 Tackles";
+					customStatTypes.TK30 = "Made 30 Tackles";
 					statsToProcess.TK30 = game.playerStats.filter(
 						p => p.stats.TK & (p.stats.TK >= 30)
 					);
 
-					customStatTypes.TS95 = "Players with 95% Tackle Rate (at least 20)";
+					customStatTypes.TS95 = "Had a 95% Tackle Rate (min. 20 tackles)";
 					statsToProcess.TS95 = game.playerStats.filter(p => {
 						const processedStats = calculateAdditionalStats(p.stats);
 						return (
@@ -264,7 +264,7 @@ class SeasonGameStats extends Component {
 			key,
 			singular: label,
 			plural: label,
-			type: "Player Stats",
+			type: "Players Who…",
 			moreIsBetter: true,
 			headerClassName: "mobile-wrap custom-game-stat-header"
 		}));
