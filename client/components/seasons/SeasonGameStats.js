@@ -319,21 +319,19 @@ class SeasonGameStats extends Component {
 		const { year } = this.props;
 		const { games } = this.state;
 
-		return (
-			<div>
-				<section className="game-filters" key="filters">
-					<div className="container">
-						<GameFilters
-							addToFromDates={year === "All"}
-							games={games}
-							onFilterChange={filteredGames => this.setState({ filteredGames })}
-							friendliesByDefault={false}
-						/>
-					</div>
-				</section>
-				{this.renderContent()}
-			</div>
-		);
+		return [
+			<section className="game-filters" key="filters">
+				<div className="container">
+					<GameFilters
+						addToFromDates={year === "All"}
+						games={games}
+						onFilterChange={filteredGames => this.setState({ filteredGames })}
+						friendliesByDefault={false}
+					/>
+				</div>
+			</section>,
+			this.renderContent()
+		];
 	}
 }
 
