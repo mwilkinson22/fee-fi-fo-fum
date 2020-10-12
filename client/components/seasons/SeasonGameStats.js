@@ -16,7 +16,6 @@ import { fetchTeam } from "~/client/actions/teamsActions";
 
 //Helpers
 import { calculateAdditionalStats, getTotalsAndAverages } from "~/helpers/statsHelper";
-import { localTeam } from "~/config/keys";
 
 class SeasonGameStats extends Component {
 	constructor(props) {
@@ -137,6 +136,7 @@ class SeasonGameStats extends Component {
 	}
 
 	renderTable() {
+		const { localTeam } = this.props;
 		const { gamesWithProcessedStats, options, totalOrIndividual, teamToLoad } = this.state;
 
 		//Create a custom stat type object to be populated as we scan games
