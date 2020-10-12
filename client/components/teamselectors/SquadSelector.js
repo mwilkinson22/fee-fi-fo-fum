@@ -88,11 +88,7 @@ class SquadSelector extends Component {
 		potentialRowCount.push(highestCurrentPosition);
 
 		//Return the biggest value
-		return _.chain(potentialRowCount)
-			.map(Number)
-			.filter(_.identity)
-			.max()
-			.value();
+		return _.chain(potentialRowCount).map(Number).filter(_.identity).max().value();
 	}
 
 	setNextActivePosition(values, hasMounted = true) {
@@ -333,9 +329,15 @@ class SquadSelector extends Component {
 			if (!unselectedPlayers.length) {
 				instructionString = "";
 			} else {
-				const activePositionString = positionsByNumber[activePosition]
+				let activePositionString = positionsByNumber[activePosition]
 					? positionsByNumber[activePosition].name
 					: "Interchange";
+				//Conditionally add left/right
+				if ([2, 3, 8, 11].includes(activePosition)) {
+					activePositionString = "Right " + activePositionString;
+				} else if ([4, 5, 10, 12].includes(activePosition)) {
+					activePositionString = "Left " + activePositionString;
+				}
 				instructionString = `Add #${activePosition} - ${activePositionString}`;
 			}
 		} else {
@@ -375,8 +377,8 @@ class SquadSelector extends Component {
 					/>
 					{interchangeFilterDropdown}
 				</div>
-				<div className="cards" ref={this.cardWrapper}>
-					{cards}
+				<div className="cards-wrapper" ref={this.cardWrapper}>
+					<div className="cards">{cards}</div>
 				</div>
 				{dropdown}
 			</div>

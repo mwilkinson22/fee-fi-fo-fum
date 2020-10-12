@@ -40,8 +40,14 @@
 			}
 		}
 
+		.position,
+		.actions {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
 		.position {
-			text-align: center;
 			box-sizing: content-box;
 			min-width: 18pt;
 			border-left-width: 8pt;
@@ -58,6 +64,10 @@
 			border-left-style: solid;
 			border-left-width: 6pt;
 			border-color: inherit;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: center;
 			.positions {
 				font-weight: normal;
 			}
@@ -125,11 +135,29 @@
 			border-radius: 4pt;
 		}
 
-		.cards {
+		.cards-wrapper {
 			overflow: auto;
 			max-height: 70vh;
 			@media #{$desktop-and-tablet} {
 				height: 485pt;
+			}
+		}
+
+		.squad-selector-card {
+			&:not(.with-gap):not(:last-child) {
+				box-shadow: none;
+			}
+		}
+		@media #{$desktop-and-tablet} {
+			.cards:hover {
+				.squad-selector-card.clickable {
+					&:not(:hover) {
+						opacity: 0.95;
+					}
+				}
+			}
+			.squad-selector-card {
+				transition: opacity 200ms;
 			}
 		}
 	}
