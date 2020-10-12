@@ -117,8 +117,14 @@
 		padding-top: 5pt;
 		border-top: solid 1pt #ddd;
 	}
-	section.page-header + section {
-		padding-top: 40pt;
+	section.season-overview {
+		@media #{$mobile-only} {
+			padding-top: 20pt;
+		}
+
+		@media #{$desktop-and-tablet} {
+			padding-top: 40pt;
+		}
 	}
 
 	section.season-overview {
@@ -128,22 +134,31 @@
 		}
 	}
 
-	section.game-filters {
-		background: darken($mainColour, 5%);
-		padding-bottom: 15pt;
-		color: white;
-		h2,
-		h4 {
-			color: white;
+	section.stat-type-switch {
+		padding: 1.8em 0;
+		h3 {
+			text-align: center;
+			font-size: 1.8em;
+			&:not(:first-child) {
+				margin-top: 1em;
+			}
+		}
+		.page-switch {
+			margin: 0;
 		}
 	}
 
-	section.stat-type-switch {
-		padding: 20pt 0;
-	}
-
 	section.player-leaderboards {
+		@media #{$mobile-only} {
+			.container {
+				padding: 0;
+			}
+		}
 		.leaderboard-wrapper {
+			background: #eee;
+			margin-bottom: 20pt;
+			padding: 20pt;
+			box-shadow: 2pt 2pt 2pt rgba(0, 0, 0, 0.5);
 			.leaderboards {
 				display: grid;
 				grid-gap: 20pt;
@@ -161,17 +176,14 @@
 						display: block;
 						img {
 							position: absolute;
-							max-width: 100%;
-							left: 0;
-							right: 0;
 							margin: auto;
 						}
 					}
 					.list {
 						@include header;
-						padding: 10pt;
+						padding: 1em;
 						position: relative;
-						grid-gap: 10pt;
+						grid-gap: 0.9em;
 						background: darken($mainColour, 5%);
 						color: white;
 						display: grid;
@@ -203,21 +215,23 @@
 			@media #{$mobile-only} {
 				h2 {
 					margin: 0;
-				}
-				&:not(:first-child) h2 {
-					margin-top: 10pt;
-					padding-top: 10pt;
-					border-top: solid 2pt;
+					font-size: 1.5em;
 				}
 				.leaderboards {
+					max-height: 70vh;
+					overflow: auto;
 					.leaderboard {
+						z-index: 1;
 						flex-direction: column;
 						.leader {
 							width: 100%;
 							z-index: -1;
-							height: 180pt;
+							height: 8em;
 							img {
 								max-height: 100%;
+								max-width: 50%;
+								left: 40%;
+								right: 0;
 								top: 0;
 							}
 						}
@@ -230,7 +244,7 @@
 								padding: 4pt 8pt;
 								border-radius: 4pt 4pt 0 0;
 								color: $mainColour;
-								font-size: 14pt;
+								font-size: 1em;
 								box-shadow: inherit;
 								z-index: -1;
 							}
@@ -239,12 +253,7 @@
 				}
 			}
 			@media #{$desktop-and-tablet} {
-				background: #eee;
-				margin-bottom: 20pt;
-				padding: 20pt;
 				border-radius: 4pt;
-				box-shadow: 2pt 2pt 2pt rgba(0, 0, 0, 0.5);
-
 				.leaderboards {
 					grid-template-columns: repeat(auto-fill, minmax(310pt, 1fr));
 					.leaderboard {
@@ -263,7 +272,10 @@
 
 							img {
 								max-height: calc(100% + 30pt);
+								max-width: 100%;
 								bottom: 0;
+								left: 0;
+								right: 0;
 							}
 						}
 
@@ -291,6 +303,12 @@
 	section.player-stat-tables {
 		tbody th {
 			text-align: left;
+		}
+	}
+
+	@media #{$mobile-only} {
+		.custom-game-stat-header {
+			min-width: 8em;
 		}
 	}
 }

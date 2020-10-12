@@ -125,16 +125,15 @@ class SeasonGameStats extends Component {
 			formattedOptions.pop();
 		}
 
-		return (
-			<div>
-				<h2>{header}</h2>
-				<PageSwitch
-					currentValue={this.state[name]}
-					onChange={value => this.handlePageSwitch(name, value)}
-					options={formattedOptions}
-				/>
-			</div>
-		);
+		return [
+			<h3 key={`header-${name}`}>{header}</h3>,
+			<PageSwitch
+				currentValue={this.state[name]}
+				onChange={value => this.handlePageSwitch(name, value)}
+				options={formattedOptions}
+				key={`page-switch-${name}`}
+			/>
+		];
 	}
 
 	renderTable() {
@@ -215,8 +214,7 @@ class SeasonGameStats extends Component {
 						p => p.stats.TK & (p.stats.TK >= 30)
 					);
 
-					customStatTypes.TS95 =
-						"Players with a 95% Tackle Success Rate (min. 20 tackles)";
+					customStatTypes.TS95 = "Players with 95% Tackle Rate (at least 20)";
 					statsToProcess.TS95 = game.playerStats.filter(p => {
 						const processedStats = calculateAdditionalStats(p.stats);
 						return (
@@ -267,20 +265,18 @@ class SeasonGameStats extends Component {
 			singular: label,
 			plural: label,
 			type: "Player Stats",
-			moreIsBetter: true
+			moreIsBetter: true,
+			headerClassName: "mobile-wrap custom-game-stat-header"
 		}));
 
 		return (
-			<div className="container">
-				<h2>Stats</h2>
-				<StatsTables
-					customStatTypes={customStatTypes}
-					firstColumnHeader="Game"
-					rowData={rowData}
-					showTotal={true}
-					showAverage={false}
-				/>
-			</div>
+			<StatsTables
+				customStatTypes={customStatTypes}
+				firstColumnHeader="Game"
+				rowData={rowData}
+				showTotal={true}
+				showAverage={false}
+			/>
 		);
 	}
 

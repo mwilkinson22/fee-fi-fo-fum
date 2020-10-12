@@ -71,8 +71,14 @@
 
 	h6:not(.post-meta-category-and-date) {
 		user-select: none;
-		font-size: 1.4em;
 		margin-bottom: 10pt;
+
+		@media #{$desktop-only} {
+			font-size: 1.4em;
+		}
+		@media #{$mobile-and-tablet} {
+			font-size: 1.2em;
+		}
 		&:not(:first-child) {
 			margin-top: 10pt;
 		}
@@ -95,7 +101,7 @@
 	.form-textarea {
 		font-family: inherit;
 		padding: 2pt 4pt;
-		font-size: 12pt;
+		font-size: 1em;
 		outline: none;
 		border: solid thin #ddd;
 		resize: vertical;

@@ -49,14 +49,6 @@
 		z-index: 2;
 	}
 
-	.team-image {
-		height: 40pt;
-		width: 50pt;
-		margin: 4pt 12pt 4pt 4pt;
-		object-fit: contain;
-		@include desktopOnly;
-	}
-
 	h4 {
 		display: flex;
 		align-items: center;
@@ -67,13 +59,26 @@
 		}
 	}
 	@media #{$mobile-and-tablet} {
+		padding: 0.3em;
+
 		h4 {
 			font-size: 12pt;
 			padding: 4pt;
 		}
+
+		.team-image {
+			max-height: 2.4em;
+		}
 	}
 
 	@media #{$desktop-only} {
+		.team-image {
+			width: 2em;
+			height: 1.5em;
+			object-fit: contain;
+			margin: 0.3em;
+			margin-right: 0.6em;
+		}
 		.container {
 			&::after,
 			&::before {

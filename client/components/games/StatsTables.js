@@ -135,12 +135,14 @@ class StatsTables extends Component {
 	renderColumns() {
 		const { groupedStatTypes, activeTab, addGames } = this.state;
 		const { firstColumnHeader } = this.props;
-		const columns = groupedStatTypes[activeTab].map(keyOrCustomStatType => {
-			const { key, plural, moreIsBetter } = keyOrCustomStatType;
+		const columns = groupedStatTypes[activeTab].map(statType => {
+			const { key, plural, moreIsBetter, className, headerClassName } = statType;
 			return {
 				key,
 				label: plural,
-				defaultAscSort: !moreIsBetter
+				defaultAscSort: !moreIsBetter,
+				className,
+				headerClassName
 			};
 		});
 
@@ -292,7 +294,9 @@ StatsTables.propTypes = {
 			plural: PropTypes.string.isRequired,
 			type: PropTypes.string.isRequired,
 			unit: PropTypes.string, //defaults to null
-			moreIsBetter: PropTypes.bool //defaults to true
+			moreIsBetter: PropTypes.bool, //defaults to true,
+			className: PropTypes.string,
+			headerClassName: PropTypes.string
 		})
 	)
 };

@@ -114,6 +114,10 @@
 
 	&:not(.hide-image) {
 		padding-top: 30%;
+
+		@media #{$small-mobile} {
+			padding-top: 20%;
+		}
 	}
 
 	&:hover p {
@@ -133,7 +137,7 @@
 		justify-content: space-between;
 		.title {
 			color: $trimColour;
-			font-size: 14pt;
+			font-size: 1.1em;
 			margin-bottom: 6pt;
 		}
 		h6 {
@@ -321,7 +325,7 @@
 		display: flex;
 		flex-direction: column;
 		h6 {
-			font-size: 8pt;
+			font-size: 0.8em;
 		}
 	}
 	.post-preview {
@@ -330,7 +334,7 @@
 	@media #{$mobile-only} {
 		.card {
 			.post-meta .title {
-				font-size: 10pt;
+				font-size: 0.85em;
 			}
 		}
 		grid-template-columns: 1fr;

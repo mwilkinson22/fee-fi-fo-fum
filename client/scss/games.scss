@@ -1,5 +1,4 @@
 .game-card {
-	font-size: 12pt;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
@@ -50,7 +49,7 @@
 				font-weight: bold;
 
 				@media #{$desktop-and-tablet} {
-					font-size: 1.5em;
+					font-size: 1.4em;
 				}
 			}
 			.date {
@@ -154,11 +153,9 @@
 		display: inline-block;
 		.value {
 			width: 2em;
-			-webkit-box-sizing: border-box;
-			-moz-box-sizing: border-box;
 			box-sizing: border-box;
 			display: inline-block;
-			padding: 4pt;
+			padding: 0.3em;
 			text-align: center;
 			background: #fff;
 			color: #222;
@@ -181,9 +178,13 @@
 .game-list-page {
 	.extra-buttons {
 		padding-top: 10pt;
-		display: grid;
-		@media #{$desktop-only} {
-			grid-template-columns: 1fr 1fr 1fr;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+
+		@media #{$mobile-only} {
+			flex-direction: column;
 		}
 		button {
 			margin: 0 8pt;
@@ -194,6 +195,8 @@
 			justify-content: center;
 			font-weight: 600;
 			background: $mainColour;
+			padding-left: 0.8em;
+			padding-right: 0.8em;
 			&:hover {
 				background: darken($mainColour, 5%);
 			}
@@ -205,7 +208,7 @@
 	}
 	.game-list {
 		display: grid;
-		padding-bottom: 20pt;
+		padding: 20pt 0;
 
 		@media #{$mobile-and-tablet} {
 			grid-gap: 10pt;
@@ -236,7 +239,7 @@
 		display: block;
 		width: 100%;
 		@media #{$mobile-only} {
-			font-size: 16pt;
+			font-size: 1.4em;
 		}
 		@media #{$desktop-and-tablet} {
 			font-size: 2em;
@@ -280,9 +283,14 @@
 				padding: 0;
 
 				.broadcaster-logo {
-					height: 20pt;
+					height: 1.6em;
 					padding: 2pt;
 				}
+			}
+			ul li {
+				display: flex;
+				align-items: center;
+				justify-content: center;
 			}
 			.hashtag {
 				text-transform: none;
@@ -297,8 +305,17 @@
 		.team-banners {
 			box-shadow: 0 4pt 4pt rgba(0, 0, 0, 0.3);
 			@media #{$mobile-and-tablet} {
-				.team-banner:not(.with-score) {
-					text-align: center;
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				.team-banner h4 {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+				}
+
+				.teamname {
+					display: none;
 				}
 			}
 		}
@@ -452,8 +469,7 @@
 			.man-of-steel-table {
 				@include header;
 				& > * {
-					padding: 12pt 20pt;
-					font-size: 1.2em;
+					padding: 0.7em 1.4em;
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
@@ -474,6 +490,11 @@
 			@media #{$mobile-and-tablet} {
 				padding-bottom: 10pt;
 				flex-direction: column;
+				.player-image-wrapper {
+					.person-image {
+						max-height: 100pt;
+					}
+				}
 			}
 		}
 
@@ -491,6 +512,12 @@
 			margin-bottom: -20pt !important;
 		}
 		.person-card-grouping {
+			@media #{$mobile-only} {
+				.person-card-wrapper {
+					padding-top: 0.2em;
+				}
+			}
+
 			.person-card {
 				@media #{$mobile-only} {
 					.trim,
@@ -624,18 +651,15 @@
 		background: #f4f4f4;
 		box-shadow: 2pt 2pt 2pt #888;
 		justify-content: center;
-		div:not(.team-image-wrapper) {
-			height: 100%;
-			border-top: solid thin #ccc;
-		}
+
 		h6 {
 			text-align: center;
-			font-size: 16pt;
+			font-size: 1.1em;
 		}
-		div {
-			&.team-image-wrapper {
-				background: $mainColour;
-			}
+		.event-label,
+		.scorers {
+			height: 100%;
+			border-top: solid thin #ccc;
 			display: flex;
 			&:empty {
 				padding: 0 !important;
@@ -659,12 +683,13 @@
 			.team-image-wrapper {
 				display: none;
 			}
-			.event-label,
-			.scorers {
+			.event-label {
 				grid-column: 1/-1;
+				padding-bottom: 0;
 			}
-			div:not(.event-label) {
+			.scorers {
 				border: none;
+				text-align: center;
 			}
 		}
 		@media #{$desktop-and-tablet} {
@@ -1396,13 +1421,14 @@ section.match-squads {
 
 	.players {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
 		grid-gap: 20pt;
 		.player {
 			margin-top: 8pt;
 			display: flex;
 			flex-direction: column;
 			background: rgba(#fff, 0.4);
+			font-size: 0.7em;
 
 			&.disabled {
 				pointer-events: none;
@@ -1641,7 +1667,7 @@ section.match-squads {
 			margin: 4pt 8pt;
 			.team-boxes {
 				@include header;
-				font-size: 16pt;
+				font-size: 1.4em;
 				display: flex;
 				align-items: center;
 				justify-content: space-around;
@@ -1662,6 +1688,10 @@ section.match-squads {
 					font-size: 8pt;
 				}
 			}
+			img {
+				max-height: 2em;
+				margin: 0 4pt;
+			}
 		}
 		@media #{$desktop-and-tablet} {
 			.game {
@@ -1669,10 +1699,6 @@ section.match-squads {
 					padding: 12pt 8pt;
 					height: 70pt;
 					flex-direction: column;
-				}
-				img {
-					max-height: 60pt;
-					margin: 0 4pt;
 				}
 			}
 		}
@@ -1685,11 +1711,6 @@ section.match-squads {
 
 					&:nth-child(2) {
 						flex-direction: row-reverse;
-					}
-
-					img {
-						max-height: 30pt;
-						margin: 0 4pt;
 					}
 				}
 				.details {
@@ -1834,5 +1855,15 @@ section.match-squads {
 				max-height: 40pt;
 			}
 		}
+	}
+}
+
+section.game-filters {
+	background: darken($mainColour, 5%);
+	padding: 15pt 0;
+	color: white;
+	h2,
+	h4 {
+		color: white;
 	}
 }

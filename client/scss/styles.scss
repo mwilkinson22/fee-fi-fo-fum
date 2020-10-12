@@ -20,6 +20,7 @@ $trimColour: transparent;
 $twitterBlue: #549ad6;
 
 //Media queries
+$small-mobile: "only screen and (max-width:370px)";
 $mobile-only: "only screen and (max-width:700px)";
 $mobile-and-tablet: "only screen and (max-width: 778px)";
 $desktop-and-tablet: "only screen and (min-width: 700px)";
@@ -79,6 +80,9 @@ $transition: all 300ms;
 
 body {
 	background: #ddd;
+	@media #{$small-mobile} {
+		font-size: 0.8em;
+	}
 }
 
 *::-webkit-scrollbar {
@@ -98,7 +102,7 @@ body {
 	margin-bottom: 0;
 	padding-top: 10pt;
 	h1 {
-		margin: 0;
+		margin: 0 0 0.2em;
 		select {
 			&.with-border {
 				padding: 4pt 14pt;
@@ -119,6 +123,10 @@ body {
 		transform: translateY(90%);
 		display: block;
 		margin-bottom: 40pt;
+		@media #{$mobile-only} {
+			height: 10pt;
+			margin-bottom: 20pt;
+		}
 	}
 
 	&.no-margin::after {
@@ -131,11 +139,11 @@ body {
 	a,
 	.pseudo-link {
 		cursor: pointer;
-		padding: 0 8pt;
+		padding: 0 0.5em;
 		display: inline-block;
 		color: #aaa;
 		font-weight: bold;
-		font-size: 14pt;
+		font-size: 1.15em;
 		transition: color 100ms;
 
 		&.hidden {
@@ -176,6 +184,10 @@ body {
 				color: $trimColour !important;
 			}
 		}
+	}
+
+	@media #{$mobile-only} {
+		font-size: 0.9em;
 	}
 }
 
@@ -225,7 +237,7 @@ body {
 		th.sortable {
 			cursor: pointer;
 			.sort-arrow {
-				width: 11pt;
+				width: 0.8em;
 				display: inline-block;
 				text-align: center;
 				opacity: 0;
@@ -292,7 +304,6 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-top: 10pt;
 
 	.list-filter {
 		width: 100%;
@@ -300,6 +311,7 @@ body {
 	}
 
 	@media #{$desktop-only} {
+		margin-top: 10pt;
 		.list-filter {
 			flex-grow: 1;
 		}
@@ -508,11 +520,13 @@ button,
 		table {
 			width: 100%;
 			th.sortable {
-				padding-left: 11pt;
+				padding-left: 0.8em;
 			}
 			th,
 			td {
 				text-align: center;
+				vertical-align: middle;
+				padding: 0.3em;
 			}
 			th:first-child {
 				left: 0;
@@ -539,12 +553,11 @@ button,
 					a {
 						padding: 4pt;
 						display: block;
-						white-space: nowrap;
 						&:hover {
 							color: lighten($mainColour, 5%);
 						}
 						img {
-							max-height: 30pt;
+							max-height: 2em;
 						}
 						.title {
 							font-weight: normal;
@@ -565,10 +578,10 @@ button,
 					}
 				}
 			}
-			td,
-			th {
-				vertical-align: middle;
-				padding: 4pt;
+			@media #{$mobile-only} {
+				.mobile-wrap {
+					white-space: normal;
+				}
 			}
 		}
 	}

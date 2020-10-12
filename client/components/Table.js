@@ -53,7 +53,8 @@ class Table extends Component {
 						const classNames = [
 							isSortable ? "sortable" : "",
 							keyAsClassName ? column.key : "",
-							column.className || ""
+							column.className || "",
+							column.headerClassName || ""
 						];
 
 						let useAscArrow;
@@ -76,7 +77,7 @@ class Table extends Component {
 							<th
 								key={column.key}
 								onClick={isSortable ? () => this.handleSort(column.key) : null}
-								className={classNames.filter(Boolean).join(" ")}
+								className={classNames.filter(Boolean).join(" ").trim() || null}
 								title={column.title || null}
 								style={headerStyling}
 								colSpan={i === 0 ? initialHeaderSpan : 1}
@@ -141,7 +142,7 @@ class Table extends Component {
 			<tbody>
 				{rows.map(row => {
 					return (
-						<tr key={row.key} onClick={row.onClick} className={row.className || ""}>
+						<tr key={row.key} onClick={row.onClick} className={row.className}>
 							{columns.map(column => {
 								const data = row.data[column.key];
 								const cellProps = { key: `${row.key}-${column.key}` };
@@ -155,7 +156,8 @@ class Table extends Component {
 									classNames.push(column.className);
 								}
 
-								cellProps.className = classNames.join(" ");
+								cellProps.className =
+									classNames.filter(Boolean).join(" ").trim() || null;
 
 								//Handle missing values
 								if (data === undefined) {
@@ -230,7 +232,8 @@ Table.propTypes = {
 			sortable: PropTypes.bool,
 			defaultAscSort: PropTypes.bool,
 			dataUsesTh: PropTypes.bool,
-			className: PropTypes.string
+			className: PropTypes.string,
+			headerClassName: PropTypes.string
 		})
 	).isRequired,
 	rows: PropTypes.arrayOf(

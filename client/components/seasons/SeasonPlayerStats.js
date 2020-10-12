@@ -228,16 +228,14 @@ class SeasonPlayerStats extends Component {
 						{p._player.name.full}
 					</Link>
 				),
-				sortValue
+				sortValue,
+				className: "mobile-wrap"
 			};
 
 			//Stat Columns
 			const statData = _.mapValues(stats, data => data[statType]);
 
-			const games = _.chain(stats)
-				.map("gameCount")
-				.max()
-				.value();
+			const games = _.chain(stats).map("gameCount").max().value();
 
 			return {
 				key: _player,

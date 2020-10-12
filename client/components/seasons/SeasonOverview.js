@@ -66,10 +66,7 @@ class SeasonOverview extends Component {
 			.map(({ slug, score, _opposition }) => {
 				const margin = score[localTeam] - score[_opposition._id];
 
-				let scoreString = _.values(score)
-					.sort()
-					.reverse()
-					.join("-");
+				let scoreString = _.values(score).sort().reverse().join("-");
 
 				if (margin > 0) {
 					scoreString += " Win";
@@ -168,7 +165,6 @@ class SeasonOverview extends Component {
 
 		return (
 			<section className="season-overview">
-				<h2>Overview</h2>
 				<div className="container">
 					{this.renderOverviewTable()}
 					{this.renderLeagueTables()}

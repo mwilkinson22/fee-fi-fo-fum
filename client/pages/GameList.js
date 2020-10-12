@@ -298,7 +298,7 @@ class GameList extends Component {
 						onClick={() => this.setState({ showCalendarDialog: true })}
 					>
 						<img src={`${bucketPaths.images.layout}icons/calendar.png`} alt="" />
-						Add to calendar
+						Add fixtures to calendar
 					</button>
 				</div>
 			);
@@ -307,16 +307,20 @@ class GameList extends Component {
 		return (
 			<div className="game-list-page">
 				<HelmetBuilder title={pageTitle} canonical={`${rootUrl}/${teamType.slug}`} />
-				<section className="page-header">
+				<section className="page-header no-margin">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
 						{this.generateTeamTypeMenu()}
 						{adminLinks}
+						{calendarLink}
+					</div>
+				</section>
+				<section className="game-filters">
+					<div className="container">
 						<GameFilters
 							games={games || []}
 							onFilterChange={filteredGames => this.setState({ filteredGames })}
 						/>
-						{calendarLink}
 					</div>
 				</section>
 				{this.renderCalendarDialog()}

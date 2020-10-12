@@ -17,7 +17,10 @@ class PageSwitch extends Component {
 					<div
 						onClick={() => onChange(value)}
 						key={value}
-						className={`${className || ""} ${value == currentValue ? "active" : ""}`}
+						className={
+							`${className || ""} ${value == currentValue ? "active" : ""}`.trim() ||
+							null
+						}
 					>
 						{label || value}
 					</div>
