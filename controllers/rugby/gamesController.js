@@ -435,7 +435,7 @@ export async function updateGame(req, res) {
 		if (values.date) {
 			const oldDate = new Date(game.date).toString("yyyy-MM-dd");
 			const newDate = new Date(values.date).toString("yyyy-MM-dd");
-			if (!oldDate !== newDate) {
+			if (oldDate !== newDate) {
 				//Update slug
 				values.slug = await Game.generateSlug(values);
 
