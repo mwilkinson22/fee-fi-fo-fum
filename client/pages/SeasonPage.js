@@ -210,6 +210,15 @@ class SeasonPage extends Component {
 			title += "s";
 		}
 
+		switch (page) {
+			case "player-stats":
+				title = `Player Stats - ${title}`;
+				break;
+			case "game-stats":
+				title = `Game Stats - ${title}`;
+				break;
+		}
+
 		//Canonical
 		let canonical = `/season/${year}/${teamType.slug}/${page}`;
 
