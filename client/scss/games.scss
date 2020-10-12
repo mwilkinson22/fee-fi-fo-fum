@@ -513,7 +513,7 @@
 		}
 		.person-card-grouping {
 			@media #{$mobile-only} {
-				.person-card-wrapper {
+				.person-card-wrapper:not(:first-child) {
 					padding-top: 0.2em;
 				}
 			}
