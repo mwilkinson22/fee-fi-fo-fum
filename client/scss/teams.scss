@@ -76,8 +76,7 @@
 			width: 2em;
 			height: 1.5em;
 			object-fit: contain;
-			margin: 0.3em;
-			margin-right: 0.6em;
+			margin: 0.3em 0.6em 0.3em 0.3em;
 		}
 		.container {
 			&::after,
@@ -89,19 +88,16 @@
 				background: inherit;
 				height: 100%;
 				width: 14pt;
-				-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 				clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 			}
 
 			&::before {
 				right: 100%;
 				transform: translateX(1px);
-				-webkit-clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 				clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 			}
 			&::after {
 				left: 100%;
-				-webkit-clip-path: polygon(100% 0, 0% 100%, 0 0);
 				clip-path: polygon(100% 0, 0% 100%, 0 0);
 			}
 		}

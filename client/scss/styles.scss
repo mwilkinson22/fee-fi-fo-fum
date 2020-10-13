@@ -379,18 +379,14 @@ a.card:hover {
 	box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 }
 .single-stat-boxes {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-gap: 20pt;
 	align-items: center;
 	justify-content: center;
 	user-select: none;
 
-	display: grid;
-	grid-gap: 20pt;
-
 	.single-stat-box {
 		height: 100%;
-		display: block;
 		background: #f4f4f4;
 		display: flex;
 		flex-grow: 1;
