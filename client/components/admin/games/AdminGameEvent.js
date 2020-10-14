@@ -283,7 +283,9 @@ class AdminGameEvent extends Component {
 	renderPreview() {
 		const { previewImage } = this.state;
 		if (previewImage) {
-			return <img src={previewImage} className="full-span preview-image" />;
+			return (
+				<img src={previewImage} className="full-span preview-image" alt="Preview Image" />
+			);
 		} else if (previewImage === false) {
 			return <LoadingPage className="full-span" />;
 		} else {

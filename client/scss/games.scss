@@ -38,8 +38,10 @@
 			width: 50pt;
 			height: 50pt;
 			object-fit: contain;
-			margin-right: 10pt;
 			pointer-events: none;
+			@media #{$desktop-and-tablet} {
+				margin-right: 10pt;
+			}
 		}
 		.game-details-wrapper {
 			flex-grow: 1;
@@ -66,6 +68,17 @@
 					.game-countdown {
 						display: grid;
 						grid-template-columns: 1fr 1fr;
+						.group {
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							.label {
+								margin: 0 4pt;
+							}
+							&:nth-child(odd):not(:last-child) {
+								flex-direction: row-reverse;
+							}
+						}
 					}
 				}
 			}
@@ -120,16 +133,8 @@
 			align-items: center;
 			justify-content: space-between;
 			flex-wrap: wrap;
-			.game-details {
-				padding-right: 10pt;
-				flex-grow: 100000000;
-			}
 			.game-status {
 				flex-grow: 1;
-			}
-			@media #{$mobile-only} {
-				flex-direction: column;
-				align-items: flex-start;
 			}
 		}
 		.game-status {
@@ -142,6 +147,23 @@
 				height: 10pt;
 				border-radius: 100%;
 				margin: 0 4pt;
+			}
+		}
+		@media #{$mobile-only} {
+			margin-bottom: 8pt;
+			.game-details-wrapper {
+				flex-direction: column;
+			}
+			.game-status {
+				margin: 4pt 0;
+			}
+		}
+		@media #{$desktop-and-tablet} {
+			.game-details-wrapper {
+				.game-details {
+					padding-right: 10pt;
+					flex-grow: 100000000;
+				}
 			}
 		}
 	}
@@ -206,10 +228,13 @@
 			}
 		}
 	}
+	.game-list,
+	.admin-game-list {
+		padding-top: 20pt;
+		padding-bottom: 20pt;
+	}
 	.game-list {
 		display: grid;
-		padding: 20pt 0;
-
 		@media #{$mobile-and-tablet} {
 			grid-gap: 10pt;
 		}
@@ -1137,8 +1162,9 @@ section.match-squads {
 		.admin-game-stat-crawler {
 			.player-rows-wrapper {
 				display: grid;
-				margin-top: 15%;
+				margin-top: 10pt;
 				grid-template-columns: 1fr;
+				grid-gap: 20pt;
 				@media #{$desktop-and-tablet} {
 					grid-template-columns: repeat(2, 1fr);
 				}
@@ -1150,6 +1176,13 @@ section.match-squads {
 					.name,
 					.match {
 						padding: 2pt 8pt;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						text-align: center;
+						&:not(:nth-last-child(-n + 2)) {
+							border-bottom: solid thin #ddd;
+						}
 					}
 
 					.name {
@@ -1172,13 +1205,13 @@ section.match-squads {
 					}
 
 					@media #{$mobile-only} {
-						grid-template-columns: max-content 1fr;
+						grid-template-columns: max-content 1fr 1fr;
 						text-align: center;
-						.match-type {
-							grid-row-end: span 2;
-						}
-						.match:not(:last-child) {
-							border-bottom: solid thin #ddd;
+						.name,
+						.match {
+							&:not(:nth-last-child(-n + 2)) {
+								border-bottom: solid thin #ddd;
+							}
 						}
 					}
 				}

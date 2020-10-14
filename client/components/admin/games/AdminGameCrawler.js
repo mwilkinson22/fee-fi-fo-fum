@@ -314,11 +314,9 @@ class AdminGameCrawler extends Component {
 		}
 
 		return (
-			<div className="container">
-				<div className="form-card admin-game-stat-crawler">
-					<h6>Crawl Game Externally</h6>
-					{content}
-				</div>
+			<div className="form-card admin-game-stat-crawler">
+				<h6>Crawl Game Externally</h6>
+				{content}
 			</div>
 		);
 	}

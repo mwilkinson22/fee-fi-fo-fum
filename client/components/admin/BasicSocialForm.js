@@ -193,7 +193,7 @@ class BasicSocialForm extends Component {
 			if (previewImage === "Loading") {
 				content = <LoadingPage />;
 			} else {
-				content = <img src={previewImage} />;
+				content = <img src={previewImage} alt="Preview Image" className="preview-image" />;
 			}
 
 			fieldGroups.push({
