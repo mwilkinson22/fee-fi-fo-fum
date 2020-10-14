@@ -120,7 +120,7 @@ export function renderInput(field) {
 	}
 
 	//Get Render Method
-	const render = formikProps => {
+	const children = formikProps => {
 		//Update default onChange method for custom Select component
 		switch (type) {
 			case fieldTypes.select:
@@ -267,7 +267,7 @@ export function renderInput(field) {
 	const fieldProps = {
 		name,
 		key: name,
-		render
+		children
 	};
 
 	if (fastField) {
