@@ -72,12 +72,18 @@
 			position: absolute;
 			border-color: transparent;
 			pointer-events: none;
-			overflow: hidden;
 			.url,
 			.hashtag {
 				color: #19d;
 				cursor: pointer;
 			}
+		}
+
+		//Ensures even scrolling in firefox
+		.tweet-composer-formatted:after {
+			content: "";
+			display: block;
+			height: 1px;
 		}
 	}
 	.tweet-composer-footer {
