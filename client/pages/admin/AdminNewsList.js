@@ -41,7 +41,7 @@ class AdminNewsList extends Component {
 					<NewsPostCard post={post} isAdminList={true} key={post._id} hideImage={true} />
 				))
 				.value();
-			content = <div className="container post-list">{posts}</div>;
+			content = <div className="container news-post-list">{posts}</div>;
 		}
 
 		return (

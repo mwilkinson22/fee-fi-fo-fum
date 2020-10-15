@@ -20,8 +20,8 @@ class BasicSocialForm extends Component {
 		super(props);
 
 		//Ensure we have an admin user
-		const { authUser, fetchProfiles, profiles } = props;
-		if (authUser && authUser.isAdmin) {
+		const { authUser, fetchProfiles, profiles, includeProfileSelector } = props;
+		if (authUser && authUser.isAdmin && includeProfileSelector) {
 			//Get Social Media Profiles
 			if (!profiles) {
 				fetchProfiles();
@@ -41,7 +41,10 @@ class BasicSocialForm extends Component {
 			addtionalFieldValidationSchema,
 			additionalFieldGroups,
 			additionalFieldInitialValues,
-			getPreviewImage
+			getPreviewImage,
+			includeChannelSelector,
+			includeProfileSelector,
+			includeReplyTweetField
 		} = nextProps;
 
 		const newState = {
@@ -53,51 +56,85 @@ class BasicSocialForm extends Component {
 		};
 
 		//Wait for profiles
-		if (!profiles) {
+		if (includeProfileSelector && !profiles) {
 			return { isLoading: true };
 		}
 
 		//Create Validation Schema
-		newState.validationSchema = Yup.object().shape({
+		const rawValidationSchema = {
 			...addtionalFieldValidationSchema,
-			channels: Yup.array()
-				.of(Yup.string())
-				.min(1)
-				.label(enforceTwitter ? "Additional Channels" : "Channels"),
-			_profile: Yup.string().label("Social Profile"),
 			content: Yup.string()
 				.required()
-				.label("Content"),
-			replyTweet: Yup.string().label("Reply Tweet ID")
-		});
+				.label("Content")
+		};
 
 		//Create dropdown options
 		newState.options = {};
-		newState.options.channels = [{ label: "Facebook", value: "facebook" }];
-		if (!enforceTwitter) {
-			newState.options.channels.unshift({ label: "Twitter", value: "twitter" });
+
+		//Add Channel Selector data
+		if (includeChannelSelector) {
+			//Options
+			newState.options.channels = [{ label: "Facebook", value: "facebook" }];
+			if (!enforceTwitter) {
+				newState.options.channels.unshift({ label: "Twitter", value: "twitter" });
+			}
+
+			//Validation
+			rawValidationSchema.channels = Yup.array()
+				.of(Yup.string())
+				.min(1)
+				.label(enforceTwitter ? "Additional Channels" : "Channels");
 		}
 
-		newState.options.profiles = _.chain(profiles)
-			.reject("archived")
-			.map(({ name, _id }) => ({ value: _id, label: name }))
-			.sortBy("label")
-			.value();
+		if (includeProfileSelector) {
+			//Options
+			newState.options.profiles = _.chain(profiles)
+				.reject("archived")
+				.map(({ name, _id }) => ({ value: _id, label: name }))
+				.sortBy("label")
+				.value();
+
+			//Validation
+			rawValidationSchema._profile = Yup.string().label("Social Profile");
+		}
+
+		if (includeReplyTweetField) {
+			rawValidationSchema.reply = Yup.string().label("Reply Tweet ID");
+		}
+
+		newState.validationSchema = Yup.object().shape(rawValidationSchema);
 
 		return newState;
 	}
 
 	getInitialValues() {
-		const { defaultProfile, initialContent } = this.props;
+		const {
+			defaultProfile,
+			initialContent,
+			includeChannelSelector,
+			includeProfileSelector,
+			includeReplyTweetField
+		} = this.props;
 		const { additionalFieldInitialValues, options, replyTweet } = this.state;
 
-		return {
+		const values = {
 			...additionalFieldInitialValues,
-			_profile: defaultProfile,
-			channels: options.channels.map(o => o.value),
-			content: initialContent,
-			replyTweet
+			content: initialContent
 		};
+
+		if (includeChannelSelector) {
+			values.channels = options.channels.map(o => o.value);
+		}
+
+		if (includeProfileSelector) {
+			values._profile = defaultProfile;
+		}
+
+		if (includeReplyTweetField) {
+			values.replyTweet = replyTweet;
+		}
+
+		return values;
 	}
 
 	getFieldGroups(values) {
@@ -106,7 +143,10 @@ class BasicSocialForm extends Component {
 			label,
 			variables,
 			variableInstruction,
-			additionalFieldsComeAfter
+			additionalFieldsComeAfter,
+			includeChannelSelector,
+			includeProfileSelector,
+			includeReplyTweetField
 		} = this.props;
 		const { options, getPreviewImage, previewImage } = this.state;
 		let { additionalFieldGroups } = this.state;
@@ -115,10 +155,20 @@ class BasicSocialForm extends Component {
 		const fieldGroups = [{ label }];
 
 		//Set initial field array
-		const fields = [
-			{ name: "_profile", type: fieldTypes.select, options: options.profiles },
-			{ name: "channels", type: fieldTypes.select, options: options.channels, isMulti: true }
-		];
+		const fields = [];
+
+		//Conditionally add profile & channels
+		if (includeProfileSelector) {
+			fields.push({ name: "_profile", type: fieldTypes.select, options: options.profiles });
+		}
+		if (includeChannelSelector) {
+			fields.push({
+				name: "channels",
+				type: fieldTypes.select,
+				options: options.channels,
+				isMulti: true
+			});
+		}
 
 		//Work out whether we need Twitter-based fields
 		const twitterRequired =
@@ -138,7 +188,7 @@ class BasicSocialForm extends Component {
 		fields.push(composerField);
 
 		//Conditionally add reply tweet field
-		if (twitterRequired) {
+		if (twitterRequired && includeReplyTweetField) {
 			fields.push({ name: "replyTweet", type: fieldTypes.text });
 		}
 
@@ -228,7 +278,7 @@ class BasicSocialForm extends Component {
 	}
 
 	render() {
-		const { authUser } = this.props;
+		const { authUser, replaceResetButton, retrieveValues, submitButtonText } = this.props;
 		const { isLoading, validationSchema } = this.state;
 
 		//Safeguard from non-admin users
@@ -250,7 +300,9 @@ class BasicSocialForm extends Component {
 				isNew={false}
 				itemType={"Post"}
 				onSubmit={values => this.handleSubmit(values)}
-				submitButtonText="Post to Social"
+				replaceResetButton={replaceResetButton}
+				retrieveValues={retrieveValues}
+				submitButtonText={submitButtonText}
 				validationSchema={validationSchema}
 			/>
 		);
@@ -262,11 +314,18 @@ BasicSocialForm.propTypes = {
 	addtionalFieldGroups: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
 	additionalFieldInitialValues: PropTypes.object,
 	addtionalFieldValidationSchema: PropTypes.object,
+	checkValues: PropTypes.func,
 	enforceTwitter: PropTypes.bool,
 	getPreviewImage: PropTypes.func,
 	initialContent: PropTypes.string,
+	includeChannelSelector: PropTypes.bool,
+	includeProfileSelector: PropTypes.bool,
+	includeReplyTweetField: PropTypes.bool,
 	label: PropTypes.string,
+	replaceResetButton: PropTypes.node,
 	replyTweet: PropTypes.string,
+	retrieveValues: PropTypes.func,
+	submitButtonText: PropTypes.string,
 	submitOverride: PropTypes.func,
 	variableInstruction: PropTypes.string,
 	variables: PropTypes.arrayOf(
@@ -279,11 +338,18 @@ BasicSocialForm.defaultProps = {
 	additionalFieldGroups: [],
 	additionalFieldInitialValues: {},
 	addtionalFieldValidationSchema: {},
+	checkValues: null,
 	enforceTwitter: false,
 	getPreviewImage: null,
+	includeChannelSelector: true,
+	includeProfileSelector: true,
+	includeReplyTweetField: true,
 	initialContent: "",
 	label: "Post to Social",
+	replaceResetButton: null,
 	replyTweet: "",
+	retrieveValues: null,
+	submitButtonText: "Post to Social",
 	variables: [],
 	variableInstruction: "Add Variable"
 };

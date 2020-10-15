@@ -117,3 +117,28 @@ export async function simpleSocialPost(req, res) {
 
 	res.send({});
 }
+
+export async function simpleSocialThreadPost(req, res) {
+	let { channels, _profile, posts, replyTweet, joinForFacebook } = req.body;
+
+	for (const channel of channels) {
+		if (channel === "facebook" && joinForFacebook) {
+			const content = posts.map(p => p.content).join("\n\n");
+			await postToSocial(channel, content, { _profile });
+		} else {
+			for (const post of posts) {
+				const result = await postToSocial(channel, post.content, {
+					_profile,
+					replyTweet
+				});
+
+				//Update reply tweet
+				if (channel === "twitter" && result.success) {
+					replyTweet = result.post.id_str;
+				}
+			}
+		}
+	}
+
+	res.send({});
+}

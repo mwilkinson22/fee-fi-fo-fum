@@ -36,6 +36,7 @@ export const propTypes = {
 	replaceResetButton: PropTypes.node,
 	//Either a simple string, or a callback passing in form values and action result
 	redirectOnSubmit: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+	retrieveValues: PropTypes.func,
 	submitButtonText: PropTypes.string,
 	testMode: PropTypes.bool,
 	useGrid: PropTypes.bool,
@@ -52,6 +53,7 @@ export const defaultProps = {
 	readOnly: false,
 	redirectOnDelete: `/admin/`,
 	replaceResetButton: null,
+	retrieveValues: null,
 	submitButtonText: null,
 	testMode: false,
 	useGrid: true,

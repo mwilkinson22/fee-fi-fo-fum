@@ -2,6 +2,7 @@ import * as SocialController from "../controllers/socialController";
 import requireAdmin from "../middlewares/requireAdmin";
 
 export default app => {
+	app.post("/api/social/simplePostThread", requireAdmin, SocialController.simpleSocialThreadPost);
 	app.post("/api/social/simplePost", requireAdmin, SocialController.simpleSocialPost);
 	app.post(
 		"/api/socialProfiles/validateTwitter",

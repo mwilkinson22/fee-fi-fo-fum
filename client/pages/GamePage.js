@@ -290,7 +290,7 @@ class GamePage extends Component {
 				<section className="news">
 					<h2>News</h2>
 					<div className="container">
-						<div className="post-list">{gamePosts}</div>
+						<div className="news-post-list">{gamePosts}</div>
 					</div>
 				</section>
 			);
@@ -451,10 +451,15 @@ class GamePage extends Component {
 			let toDate;
 			if (dayOfWeek == 1) {
 				//If it's a Monday, advance to tuesday
-				toDate = _.clone(date).next().tuesday();
+				toDate = _.clone(date)
+					.next()
+					.tuesday();
 			} else {
 				//Otherwise get midnight the next monday
-				toDate = _.clone(date).next().monday().at("00:00:00");
+				toDate = _.clone(date)
+					.next()
+					.monday()
+					.at("00:00:00");
 			}
 
 			return (

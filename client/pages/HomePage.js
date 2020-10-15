@@ -110,7 +110,7 @@ class HomePage extends Component {
 			return (
 				<div className="container">
 					<h2>Latest News</h2>
-					<div className="post-list">{postCards}</div>
+					<div className="news-post-list">{postCards}</div>
 				</div>
 			);
 		}

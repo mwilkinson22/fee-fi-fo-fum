@@ -376,6 +376,7 @@ class BasicForm extends Component {
 			isInitialValid,
 			onReset,
 			promptOnExit,
+			retrieveValues,
 			useFormCard,
 			useGrid
 		} = this.props;
@@ -404,9 +405,13 @@ class BasicForm extends Component {
 				{formikProps => {
 					const { errors, initialValues, values, touched, isSubmitting } = formikProps;
 
+					if (retrieveValues) {
+						retrieveValues(values);
+					}
+
 					const formHasChanged = Object.keys(diff(values, initialValues)).length > 0;
 					return (
-						<Form>
+						<Form className={className}>
 							<Prompt
 								when={promptOnExit && !isSubmitting && formHasChanged}
 								message="You have unsaved changes. Are you sure you want to navigate away?"

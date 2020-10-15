@@ -127,8 +127,8 @@ class Header extends Component {
 					headerLink: "/admin/people"
 				},
 				{
-					header: "Sponsors",
-					headerLink: "/admin/sponsors"
+					header: "Social Thread",
+					headerLink: "/admin/social-thread"
 				},
 				{
 					header: "Teams",
@@ -159,6 +159,7 @@ class Header extends Component {
 						Facebook: "facebook",
 						"Privacy Policy": "privacy-policy",
 						Social: "social",
+						Sponsors: "sponsors",
 						Twitter: "twitter",
 						Users: "users"
 					}

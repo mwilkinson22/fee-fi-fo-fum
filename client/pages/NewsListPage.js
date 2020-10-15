@@ -78,7 +78,7 @@ class NewsListPage extends Component {
 			const postPreviews = _.map(posts, post => {
 				return <NewsPostPreview post={post} includeContent={false} key={post.slug} />;
 			});
-			return <div className="post-list">{postPreviews}</div>;
+			return <div className="news-post-list">{postPreviews}</div>;
 		}
 	}
 
@@ -116,7 +116,7 @@ class NewsListPage extends Component {
 				pageTitle += " - " + _.keyBy(newsCategories, "slug")[category].name;
 			}
 			return (
-				<div className="post-list-page">
+				<div className="news-post-list-page">
 					<HelmetBuilder title={pageTitle} canonical={`/news/category/${category}`} />
 					{this.generateHeader()}
 					<section className="posts">

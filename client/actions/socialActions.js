@@ -45,6 +45,13 @@ export const simpleSocialPost = data => async (dispatch, getState, api) => {
 	}
 };
 
+export const simpleSocialPostThread = data => async (dispatch, getState, api) => {
+	const res = await api.post("/social/simplePostThread", data);
+	if (res.data) {
+		toast.success("Thread successfully posted");
+	}
+};
+
 export const validateTwitterCredentials = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/socialProfiles/validateTwitter`, data);
 	return res.data;

@@ -53,6 +53,8 @@ import AdminPrivacyPolicy from "../../pages/admin/AdminPrivacyPolicy";
 import AdminSocialList from "../../pages/admin/AdminSocialList";
 import AdminSocialPage from "../../pages/admin/AdminSocialPage";
 
+import AdminBasicSocialThreadPage from "../../pages/admin/AdminBasicSocialThreadPage";
+
 import AdminSponsorList from "../../pages/admin/AdminSponsorList";
 import AdminSponsorPage from "../../pages/admin/AdminSponsorPage";
 
@@ -194,6 +196,22 @@ class AdminRouter extends Component {
 						/>
 
 						<Route
+							path="/admin/settings/sponsors/new"
+							exact
+							component={AdminSponsorPage}
+						/>
+						<Route
+							path="/admin/settings/sponsors/:_id"
+							exact
+							component={AdminSponsorPage}
+						/>
+						<Route
+							path="/admin/settings/sponsors/"
+							exact
+							component={AdminSponsorList}
+						/>
+
+						<Route
 							path="/admin/settings/twitter/"
 							exact
 							component={AdminTwitterAppPage}
@@ -203,9 +221,11 @@ class AdminRouter extends Component {
 						<Route path="/admin/settings/users/:_id" component={AdminUserPage} />
 						<Route path="/admin/settings/users/" exact component={AdminUserList} />
 
-						<Route path="/admin/sponsors/new" exact component={AdminSponsorPage} />
-						<Route path="/admin/sponsors/:_id" exact component={AdminSponsorPage} />
-						<Route path="/admin/sponsors/" exact component={AdminSponsorList} />
+						<Route
+							path="/admin/social-thread"
+							exact
+							component={AdminBasicSocialThreadPage}
+						/>
 
 						<Route path="/admin/teams/new" component={AdminTeamPage} />
 						<Route path="/admin/teams/:_id" component={AdminTeamPage} />
