@@ -34,7 +34,8 @@ class SocialPostThreader extends Component {
 		}
 
 		//Set post types
-		const postTypes = props.customPostTypes;
+		const postTypes = { ...props.customPostTypes };
+
 		//If we have no custom post types, or if we need to add the default,
 		//we do so here
 		const insertDefaultType =
@@ -56,7 +57,11 @@ class SocialPostThreader extends Component {
 		//We wait for profiles and create those options in getDerivedStateFromProps
 		const options = {};
 		options.postTypes = _.map(postTypes, ({ label }, value) => ({ label, value }));
-		options.channels = ["Twitter", "Facebook"].map(label => ({
+		const channels = ["Facebook"];
+		if (!props.enforceTwitter) {
+			channels.unshift("Twitter");
+		}
+		options.channels = channels.map(label => ({
 			label,
 			value: label.toLowerCase()
 		}));
@@ -99,7 +104,7 @@ class SocialPostThreader extends Component {
 	}
 
 	async handleSubmit(settings) {
-		let { onSubmit, simpleSocialPostThread } = this.props;
+		let { enforceTwitter, onSubmit, simpleSocialPostThread } = this.props;
 		const { currentPost, postTypes, posts } = this.state;
 
 		let error;
@@ -147,8 +152,18 @@ class SocialPostThreader extends Component {
 				onSubmit = simpleSocialPostThread;
 			}
 
+			//Set up payload
+			const payload = { posts, ...settings };
+			if (enforceTwitter) {
+				if (payload.channels) {
+					payload.channels.push("twitter");
+				} else {
+					payload.channels = ["twitter"];
+				}
+			}
+
 			//Set up channels
-			await onSubmit({ posts, ...settings });
+			await onSubmit(payload);
 		}
 	}
 
@@ -437,7 +452,7 @@ class SocialPostThreader extends Component {
 	}
 
 	getSettingsFieldGroups(values) {
-		const { allowFacebookJoin } = this.props;
+		const { allowFacebookJoin, enforceTwitter } = this.props;
 		const { error, options } = this.state;
 
 		//Field Groups
@@ -450,14 +465,19 @@ class SocialPostThreader extends Component {
 						type: fieldTypes.select,
 						options: options.channels,
 						isMulti: true
-					},
-					{ name: "replyTweet", type: fieldTypes.text }
+					}
 				]
 			}
 		];
 
+		//Add replyTweet
+		const channels = values.channels || [];
+		if (enforceTwitter || channels.find(v => v === "twitter")) {
+			fieldGroups[0].fields.push({ name: "replyTweet", type: fieldTypes.text });
+		}
+
 		//Add facebook join bool
-		if (allowFacebookJoin && values.channels.find(v => v === "facebook")) {
+		if (allowFacebookJoin && channels.find(v => v === "facebook")) {
 			fieldGroups[0].fields.push({ name: "joinForFacebook", type: fieldTypes.boolean });
 		}
 
@@ -476,7 +496,7 @@ class SocialPostThreader extends Component {
 	}
 
 	renderSettings() {
-		const { allowFacebookJoin, defaultProfile } = this.props;
+		const { allowFacebookJoin, defaultProfile, enforceTwitter } = this.props;
 		const { isLoading, options } = this.state;
 
 		//Await Profiles
@@ -491,9 +511,13 @@ class SocialPostThreader extends Component {
 		//Initial Values
 		const initialValues = {
 			_profile: defaultProfile || options.profiles[0].value,
-			channels: ["twitter"],
+			channels: [],
 			replyTweet: ""
 		};
+
+		if (!enforceTwitter) {
+			initialValues.channels.push("twitter");
+		}
 
 		//Validation Schema
 		const rawValidationSchema = {
@@ -502,7 +526,7 @@ class SocialPostThreader extends Component {
 				.required(),
 			channels: Yup.array()
 				.of(Yup.string())
-				.label("Channels"),
+				.label(`${enforceTwitter ? "Additional " : ""}Channels`),
 			replyTweet: Yup.string().label("Reply Tweet ID"),
 			joinForFacebook: Yup.bool().label("Single Facebook post?")
 		};
@@ -558,6 +582,7 @@ SocialPostThreader.propTypes = {
 			)
 		})
 	),
+	enforceTwitter: PropTypes.bool,
 	includeDefaultPostType: PropTypes.bool,
 	initialPosts: PropTypes.arrayOf(PropTypes.shape({ content: PropTypes.string.isRequired })),
 	onSubmit: PropTypes.func,
@@ -567,6 +592,7 @@ SocialPostThreader.propTypes = {
 SocialPostThreader.defaultProps = {
 	allowFacebookJoin: false,
 	customPostTypes: {},
+	enforceTwitter: true,
 	includeDefaultPostType: true,
 	initialPosts: [],
 	onSubmit: null, //defaults to socialActions.simpleSocialPostThread
