@@ -8,7 +8,7 @@ function AdminBasicSocialThreadPage() {
 	return (
 		<section className="basic-social-thread-page">
 			<div className="container">
-				<SocialPostThreader />
+				<SocialPostThreader allowFacebookJoin={true} />
 			</div>
 		</section>
 	);

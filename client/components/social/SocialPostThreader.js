@@ -10,6 +10,7 @@ import { diff } from "deep-object-diff";
 import DeleteButtons from "~/client/components/fields/DeleteButtons";
 import BasicForm from "~/client/components/admin/BasicForm";
 import BasicSocialForm from "~/client/components/admin/BasicSocialForm";
+import PopUpDialog from "~/client/components/PopUpDialog";
 
 //Actions
 import { fetchProfiles, simpleSocialPostThread } from "~/client/actions/socialActions";
@@ -17,6 +18,10 @@ import LoadingPage from "~/client/components/LoadingPage";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
+const defaultPostTypeKey = "text-only";
+
+//Internal key incrementer
+let lastKey = 1;
 
 class SocialPostThreader extends Component {
 	constructor(props) {
@@ -28,18 +33,52 @@ class SocialPostThreader extends Component {
 			fetchProfiles();
 		}
 
+		//Set post types
+		const postTypes = props.customPostTypes;
+		//If we have no custom post types, or if we need to add the default,
+		//we do so here
+		const insertDefaultType =
+			!Object.keys(postTypes).length ||
+			(props.includeDefaultPostType && !postTypes[defaultPostTypeKey]);
+		if (insertDefaultType) {
+			postTypes[defaultPostTypeKey] = {
+				label: "Text Only"
+			};
+		}
+
+		//If we've got custom post types but no custom onSubmit,
+		//warn the user as this will likely not work as expected
+		if (Object.keys(props.customPostTypes).length && !props.onSubmit) {
+			console.warn("Custom post types have been provided with no custom onSubmit method");
+		}
+
+		//Create dropdown options for postTypes and channels.
+		//We wait for profiles and create those options in getDerivedStateFromProps
+		const options = {};
+		options.postTypes = _.map(postTypes, ({ label }, value) => ({ label, value }));
+		options.channels = ["Twitter", "Facebook"].map(label => ({
+			label,
+			value: label.toLowerCase()
+		}));
+
 		//Set ref for post list, so we can autoscroll
 		this.postList = React.createRef();
 
+		//Get initial posts, assign an internal key
+		const posts = props.initialPosts.map(post => ({ ...post, key: lastKey++ }));
+
 		//Set initial state
 		this.state = {
-			posts: props.initialPosts,
 			currentPost: null,
-			currentlyBeingReordered: []
+			currentlyBeingReordered: [],
+			options,
+			posts,
+			postTypes,
+			showTypeSelector: false
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const { profiles } = nextProps;
 		const newState = { isLoading: false };
 
@@ -49,7 +88,8 @@ class SocialPostThreader extends Component {
 		}
 
 		//Convert profiles to options
-		newState.profiles = _.chain(profiles)
+		newState.options = prevState.options;
+		newState.options.profiles = _.chain(profiles)
 			.reject("archived")
 			.map(({ name, _id }) => ({ value: _id, label: name }))
 			.sortBy("label")
@@ -60,36 +100,45 @@ class SocialPostThreader extends Component {
 
 	async handleSubmit(settings) {
 		let { onSubmit, simpleSocialPostThread } = this.props;
-		const { posts } = this.state;
+		const { currentPost, postTypes, posts } = this.state;
 
 		let error;
+
+		//Check we don't have a post open, to avoid accidentally submitting
+		//unsaved changes
+		if (currentPost) {
+			error = "Save or discard current post to submit";
+		}
 		//Ensure we have posts
-		if (!posts.length) {
+		else if (!posts.length) {
 			error = "At least one post must be added";
 		}
+		//Ensure posts are all valid
+		else {
+			for (const i in posts) {
+				const post = posts[i];
+				const postType = postTypes[post.type];
+				const yupSchema = postType.additionalFieldValidationSchema;
 
-		//Ensure all posts have content
-		const emptyPosts = [];
-		posts.forEach(({ content }, i) => {
-			if (!content.trim().length) {
-				emptyPosts.push(i + 1);
+				if (yupSchema) {
+					const values = { content: post.content, ...post.additionalValues };
+					const schema = Yup.object().shape(yupSchema);
+					post.isInvalid = !(await schema.isValid(values));
+				} else {
+					post.isInvalid = post.content.trim().length === 0;
+				}
 			}
-		});
-		if (emptyPosts.length) {
-			const isPlural = emptyPosts.length !== 1;
-			error = `Empty posts cannot be submitted. `;
-			error += `Add content to ${isPlural ? "posts" : "post"} `;
-			if (isPlural) {
-				const lastPost = emptyPosts.pop();
-				error += `${emptyPosts.join(", ")} & ${lastPost}`;
-			} else {
-				error += emptyPosts[0];
+			const invalidPosts = posts.filter(p => p.isInvalid);
+
+			if (invalidPosts.length) {
+				error = `Validation errors found on ${invalidPosts.length} ${
+					invalidPosts.length === 1 ? "post" : "posts"
+				} `;
 			}
-			error += `, or delete ${isPlural ? "them" : "it"}.`;
 		}
 
-		//Update error in state
-		this.setState({ error });
+		//Update error and invalid posts
+		this.setState({ error, posts });
 
 		//If we're error free, submit the data
 		if (!error) {
@@ -112,20 +161,33 @@ class SocialPostThreader extends Component {
 		}
 
 		//Compare current post and unsaved changes
-		if (Object.keys(diff(posts[currentPost], this.unsavedValues)).length) {
+		const post = posts[currentPost];
+		const savedValues = { content: post.content };
+		if (post.additionalValues) {
+			Object.assign(savedValues, post.additionalValues);
+		}
+
+		if (Object.keys(diff(savedValues, this.unsavedValues)).length) {
 			return confirm("Discard changes to current post?");
 		}
 
 		return true;
 	}
 
-	add() {
-		const { defaultNewPostContent } = this.props;
-		const { posts } = this.state;
+	add(type) {
+		const { postTypes, posts } = this.state;
 
 		if (this.confirmWeCanChangeCurrentPost()) {
+			//Get post type
+			const postType = postTypes[type];
+
 			//Push new post
-			posts.push({ content: defaultNewPostContent });
+			posts.push({
+				type,
+				content: postType.initialContent || "",
+				additionalValues: postType.additionalFieldInitialValues,
+				key: lastKey++
+			});
 
 			//Update state
 			this.setState({ error: null, posts, currentPost: posts.length - 1 }, () => {
@@ -139,10 +201,14 @@ class SocialPostThreader extends Component {
 	update(values) {
 		const { currentPost, posts } = this.state;
 
+		const { content, ...additionalValues } = values;
+
 		//Insert combined object into array
 		posts[currentPost] = {
 			...posts[currentPost],
-			...values
+			additionalValues,
+			content,
+			isInvalid: false
 		};
 
 		//Update post list and remove currentPost
@@ -197,8 +263,51 @@ class SocialPostThreader extends Component {
 		}
 	}
 
+	renderTypeSelector() {
+		const { options, showTypeSelector } = this.state;
+		const onDestroy = () => this.setState({ showTypeSelector: false });
+		if (showTypeSelector) {
+			const list = options.postTypes.map(({ label, value }) => (
+				<li
+					key={value}
+					onClick={() => {
+						onDestroy();
+						this.add(value);
+					}}
+				>
+					{label}
+				</li>
+			));
+			return (
+				<PopUpDialog className="type-selector" onDestroy={onDestroy}>
+					<h6>Choose Type</h6>
+					<ul className="plain-list">{list}</ul>
+				</PopUpDialog>
+			);
+		}
+	}
+
+	renderAddPostListItem() {
+		const { options } = this.state;
+
+		//Click handler
+		let onClick;
+		if (options.postTypes.length === 1) {
+			onClick = () => this.add(options.postTypes[0].value);
+		} else {
+			onClick = () => this.setState({ showTypeSelector: true });
+		}
+
+		//Type Selector
+		return (
+			<li key="Add New" className="new" onClick={onClick}>
+				<strong>Add New Post</strong>
+			</li>
+		);
+	}
+
 	renderPostList() {
-		const { currentlyBeingReordered, currentPost, posts } = this.state;
+		const { currentlyBeingReordered, currentPost, postTypes, posts } = this.state;
 
 		//Convert current posts to list
 		const list = posts.map((post, i) => {
@@ -242,6 +351,8 @@ class SocialPostThreader extends Component {
 			const classNames = [];
 			if (isActive) {
 				classNames.push("active");
+			} else if (post.isInvalid) {
+				classNames.push("invalid");
 			}
 
 			if (reorderIndex) {
@@ -249,10 +360,15 @@ class SocialPostThreader extends Component {
 			}
 			const className = classNames.length ? classNames.join(" ") : null;
 
+			//Type string
+			const postType = postTypes[post.type].label;
+
 			return (
 				<li key={i} className={className} onClick={onClick}>
 					<div className="post-header">
-						<strong>Post {reorderIndex ? "" : `#${i + 1}`}</strong>
+						<strong>
+							#{i + 1} - {postType}
+						</strong>
 						{reorderButtons}
 					</div>
 					{post.content}
@@ -261,12 +377,8 @@ class SocialPostThreader extends Component {
 			);
 		});
 
-		//Button to add new post
-		list.push(
-			<li key="Add New" className="new" onClick={() => this.add()}>
-				Add New Post
-			</li>
-		);
+		//"Add" method
+		list.push(this.renderAddPostListItem());
 
 		return (
 			<div className="form-card no-padding social-post-list">
@@ -277,7 +389,7 @@ class SocialPostThreader extends Component {
 	}
 
 	renderActivePost() {
-		const { currentPost, posts } = this.state;
+		const { currentPost, postTypes, posts } = this.state;
 		if (currentPost === null || !posts[currentPost]) {
 			//Empty div to preserve the grid layout
 			return <div />;
@@ -286,6 +398,9 @@ class SocialPostThreader extends Component {
 		//Get current post
 		const post = posts[currentPost];
 
+		//Get post type
+		const postType = postTypes[post.type];
+
 		//Swap out reset button
 		const discardButton = (
 			<button type="button" onClick={() => this.setState({ currentPost: null })}>
@@ -293,13 +408,26 @@ class SocialPostThreader extends Component {
 			</button>
 		);
 
+		//Pull dynamic props from post type
+		const props = _.pick(postType, [
+			"additionalFieldsComeAfter",
+			"additionalFieldGroups",
+			"additionalFieldValidationSchema",
+			"getPreviewImage",
+			"variableInstruction",
+			"variables"
+		]);
+
 		return (
 			<BasicSocialForm
+				{...props}
+				additionalFieldInitialValues={post.additionalValues}
+				key={post.key}
 				includeChannelSelector={false}
 				includeProfileSelector={false}
 				includeReplyTweetField={false}
 				initialContent={post.content}
-				label={`Update Post ${currentPost + 1}`}
+				label={`Update ${postType.label} Post ${currentPost + 1}`}
 				replaceResetButton={discardButton}
 				retrieveValues={values => (this.unsavedValues = values)}
 				submitButtonText="Update Post"
@@ -309,27 +437,27 @@ class SocialPostThreader extends Component {
 	}
 
 	getSettingsFieldGroups(values) {
-		const { error, profiles } = this.state;
-
-		//Create Channel Options
-		const channels = ["Twitter", "Facebook"].map(label => ({
-			label,
-			value: label.toLowerCase()
-		}));
+		const { allowFacebookJoin } = this.props;
+		const { error, options } = this.state;
 
 		//Field Groups
 		const fieldGroups = [
 			{
 				fields: [
-					{ name: "_profile", type: fieldTypes.select, options: profiles },
-					{ name: "channels", type: fieldTypes.select, options: channels, isMulti: true },
+					{ name: "_profile", type: fieldTypes.select, options: options.profiles },
+					{
+						name: "channels",
+						type: fieldTypes.select,
+						options: options.channels,
+						isMulti: true
+					},
 					{ name: "replyTweet", type: fieldTypes.text }
 				]
 			}
 		];
 
 		//Add facebook join bool
-		if (values.channels.find(v => v === "facebook")) {
+		if (allowFacebookJoin && values.channels.find(v => v === "facebook")) {
 			fieldGroups[0].fields.push({ name: "joinForFacebook", type: fieldTypes.boolean });
 		}
 
@@ -348,8 +476,8 @@ class SocialPostThreader extends Component {
 	}
 
 	renderSettings() {
-		const { defaultProfile } = this.props;
-		const { isLoading, profiles } = this.state;
+		const { allowFacebookJoin, defaultProfile } = this.props;
+		const { isLoading, options } = this.state;
 
 		//Await Profiles
 		if (isLoading) {
@@ -362,13 +490,13 @@ class SocialPostThreader extends Component {
 
 		//Initial Values
 		const initialValues = {
-			_profile: defaultProfile || profiles[0].value,
+			_profile: defaultProfile || options.profiles[0].value,
 			channels: ["twitter"],
-			replyTweet: "",
-			joinForFacebook: true
+			replyTweet: ""
 		};
 
-		const validationSchema = Yup.object().shape({
+		//Validation Schema
+		const rawValidationSchema = {
 			_profile: Yup.string()
 				.label("Profile")
 				.required(),
@@ -377,7 +505,14 @@ class SocialPostThreader extends Component {
 				.label("Channels"),
 			replyTweet: Yup.string().label("Reply Tweet ID"),
 			joinForFacebook: Yup.bool().label("Single Facebook post?")
-		});
+		};
+
+		if (allowFacebookJoin) {
+			initialValues.joinForFacebook = true;
+			rawValidationSchema.joinForFacebook = Yup.bool().label("Single Facebook post?");
+		}
+
+		const validationSchema = Yup.object().shape(rawValidationSchema);
 
 		return (
 			<BasicForm
@@ -400,20 +535,39 @@ class SocialPostThreader extends Component {
 				{this.renderPostList()}
 				{this.renderActivePost()}
 				{this.renderSettings()}
+				{this.renderTypeSelector()}
 			</div>
 		);
 	}
 }
 
 SocialPostThreader.propTypes = {
-	defaultNewPostContent: PropTypes.string,
+	allowFacebookJoin: PropTypes.bool,
+	customPostTypes: PropTypes.objectOf(
+		PropTypes.shape({
+			additionalFieldsComeAfter: PropTypes.bool,
+			additionalFieldGroups: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
+			additionalFieldInitialValues: PropTypes.object,
+			additionalFieldValidationSchema: PropTypes.object,
+			initialContent: PropTypes.string,
+			getPreviewImage: PropTypes.func,
+			label: PropTypes.string.isRequired,
+			variableInstruction: PropTypes.string,
+			variables: PropTypes.arrayOf(
+				PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
+			)
+		})
+	),
+	includeDefaultPostType: PropTypes.bool,
 	initialPosts: PropTypes.arrayOf(PropTypes.shape({ content: PropTypes.string.isRequired })),
 	onSubmit: PropTypes.func,
 	replyTweet: PropTypes.string
 };
 
 SocialPostThreader.defaultProps = {
-	defaultNewPostContent: "",
+	allowFacebookJoin: false,
+	customPostTypes: {},
+	includeDefaultPostType: true,
 	initialPosts: [],
 	onSubmit: null, //defaults to socialActions.simpleSocialPostThread
 	replyTweet: ""
