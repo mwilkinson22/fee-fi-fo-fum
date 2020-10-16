@@ -128,6 +128,9 @@ header {
 					border-top: solid thin #888;
 				}
 			}
+			.nav-wrapper.admin {
+				background-color: darken($mainColour, 15%);
+			}
 			z-index: 1000;
 			position: absolute;
 			min-width: 50%;
@@ -154,10 +157,11 @@ header {
 						border-bottom: solid thin #333;
 					}
 
-					a {
+					a,
+					& > div {
+						padding: 8pt 20pt;
 						width: 100%;
 						display: block;
-						padding: 8pt 20pt;
 					}
 
 					ul li a {
@@ -202,11 +206,11 @@ header {
 						}
 					}
 
-					&:nth-last-child(n + 3) .nav-menu-header {
+					&:nth-last-child(n + 2):not(:nth-last-child(3)) .nav-menu-header {
 						border-right: solid thin $trimColour;
 					}
 				}
-				.nav-section:last-child {
+				.nav-section:nth-last-child(2) {
 					flex-grow: 1;
 					text-align: right;
 				}

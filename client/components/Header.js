@@ -192,7 +192,8 @@ class Header extends Component {
 			const items = _.sortBy(navMenu, s => {
 				switch (s.header) {
 					case "Logout":
-						return "ZZZZZZ";
+					case "View On":
+						return "ZZZZZZ" + s.header;
 					case "Home":
 					case "Admin":
 						return -1;
