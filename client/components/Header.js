@@ -92,14 +92,6 @@ class Header extends Component {
 					exactNav: true
 				},
 				{
-					header: "Awards",
-					headerLink: "/admin/awards"
-				},
-				{
-					header: "Competitions",
-					headerLink: "/admin/competitions"
-				},
-				{
 					header: "Games",
 					headerLink: "/admin/games",
 					subMenuRootLink: "/admin/",
@@ -127,20 +119,26 @@ class Header extends Component {
 					headerLink: "/admin/people"
 				},
 				{
+					header: "Seasons",
+					subMenuRootLink: "/admin/",
+					subMenu: {
+						Awards: "awards",
+						Competitions: "competitions"
+					}
+				},
+				{
 					header: "Social Thread",
 					headerLink: "/admin/social-thread"
 				},
 				{
 					header: "Teams",
-					headerLink: "/admin/teams"
-				},
-				{
-					header: "Team Selectors",
-					headerLink: "/admin/team-selectors"
-				},
-				{
-					header: "Team Types",
-					headerLink: "/admin/team-types"
+					headerLink: "/admin/teams",
+					subMenuRootLink: "/admin/",
+					subMenu: {
+						Selectors: "team-selectors",
+						Teams: "teams",
+						Types: "team-types"
+					}
 				},
 				{
 					header: "Logout",
