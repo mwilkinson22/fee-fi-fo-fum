@@ -95,7 +95,7 @@ class AdminCompetitionInstanceImages extends Component {
 				<BasicSocialForm
 					additionalFieldInitialValues={{ imageType: options[0].value }}
 					additionalFieldGroups={this.getFieldGroups()}
-					addtionalFieldValidationSchema={validationSchema}
+					additionalFieldValidationSchema={validationSchema}
 					enforceTwitter={true}
 					getPreviewImage={values => this.handlePreview(values)}
 					label={`Post ${instance.year} ${segment.name} Image`}

@@ -38,7 +38,7 @@ class BasicSocialForm extends Component {
 			enforceTwitter,
 			profiles,
 			replyTweet,
-			addtionalFieldValidationSchema,
+			additionalFieldValidationSchema,
 			additionalFieldGroups,
 			additionalFieldInitialValues,
 			getPreviewImage,
@@ -62,7 +62,7 @@ class BasicSocialForm extends Component {
 
 		//Create Validation Schema
 		const rawValidationSchema = {
-			...addtionalFieldValidationSchema,
+			...additionalFieldValidationSchema,
 			content: Yup.string()
 				.required()
 				.label("Content")
@@ -99,7 +99,7 @@ class BasicSocialForm extends Component {
 		}
 
 		if (includeReplyTweetField) {
-			rawValidationSchema.reply = Yup.string().label("Reply Tweet ID");
+			rawValidationSchema.replyTweet = Yup.string().label("Reply Tweet ID");
 		}
 
 		newState.validationSchema = Yup.object().shape(rawValidationSchema);
@@ -311,9 +311,9 @@ class BasicSocialForm extends Component {
 
 BasicSocialForm.propTypes = {
 	additionalFieldsComeAfter: PropTypes.bool,
-	addtionalFieldGroups: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
+	additionalFieldGroups: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
 	additionalFieldInitialValues: PropTypes.object,
-	addtionalFieldValidationSchema: PropTypes.object,
+	additionalFieldValidationSchema: PropTypes.object,
 	checkValues: PropTypes.func,
 	enforceTwitter: PropTypes.bool,
 	getPreviewImage: PropTypes.func,
@@ -337,7 +337,7 @@ BasicSocialForm.defaultProps = {
 	additionalFieldsComeAfter: false,
 	additionalFieldGroups: [],
 	additionalFieldInitialValues: {},
-	addtionalFieldValidationSchema: {},
+	additionalFieldValidationSchema: {},
 	checkValues: null,
 	enforceTwitter: false,
 	getPreviewImage: null,
