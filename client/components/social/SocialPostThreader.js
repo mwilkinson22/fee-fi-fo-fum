@@ -433,10 +433,13 @@ class SocialPostThreader extends Component {
 			"variables"
 		]);
 
+		//Get additional values
+		const additionalValues = { ...post.additionalValues, type: post.type };
+
 		return (
 			<BasicSocialForm
 				{...props}
-				additionalFieldInitialValues={post.additionalValues}
+				additionalFieldInitialValues={additionalValues}
 				key={post.key}
 				includeChannelSelector={false}
 				includeProfileSelector={false}
