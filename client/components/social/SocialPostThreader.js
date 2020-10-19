@@ -56,7 +56,11 @@ class SocialPostThreader extends Component {
 		//Create dropdown options for postTypes and channels.
 		//We wait for profiles and create those options in getDerivedStateFromProps
 		const options = {};
-		options.postTypes = _.map(postTypes, ({ label }, value) => ({ label, value }));
+		options.postTypes = _.map(postTypes, ({ label, group }, value) => ({
+			label,
+			value,
+			group
+		}));
 		const channels = ["Facebook"];
 		if (!props.enforceTwitter) {
 			channels.unshift("Twitter");
@@ -282,17 +286,35 @@ class SocialPostThreader extends Component {
 		const { options, showTypeSelector } = this.state;
 		const onDestroy = () => this.setState({ showTypeSelector: false });
 		if (showTypeSelector) {
-			const list = options.postTypes.map(({ label, value }) => (
-				<li
-					key={value}
-					onClick={() => {
-						onDestroy();
-						this.add(value);
-					}}
-				>
-					{label}
-				</li>
-			));
+			const list = [];
+			_.chain(options.postTypes)
+				.groupBy("group")
+				.map((types, group) => {
+					//Add header
+					if (group !== "undefined") {
+						list.push(
+							<li key={`group-${group}`} className="header">
+								<strong>{group}</strong>
+							</li>
+						);
+					}
+					//Add each type
+					types.forEach(({ label, value }) =>
+						list.push(
+							<li
+								key={value}
+								className="clickable"
+								onClick={() => {
+									onDestroy();
+									this.add(value);
+								}}
+							>
+								{label}
+							</li>
+						)
+					);
+				})
+				.value();
 			return (
 				<PopUpDialog className="type-selector" onDestroy={onDestroy}>
 					<h6>Choose Type</h6>

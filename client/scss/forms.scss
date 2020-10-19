@@ -63,8 +63,8 @@
 				color: #aaa !important;
 			}
 
-			&:not(:last-child) {
-				border-bottom: solid thin #ddd;
+			&:not(:first-child) {
+				border-top: solid thin #ddd;
 			}
 		}
 	}
