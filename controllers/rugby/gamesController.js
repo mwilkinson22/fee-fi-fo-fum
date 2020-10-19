@@ -275,7 +275,9 @@ async function processList(includeHidden) {
 	if (!includeHidden) {
 		query.hideGame = { $in: [false, null] };
 	}
-	const games = await Game.find(query).forList().lean();
+	const games = await Game.find(query)
+		.forList()
+		.lean();
 	const gameList = _.keyBy(games, "_id");
 
 	const redirects = await getRedirects(gameList, collectionName);
@@ -967,37 +969,39 @@ export async function postFixtureListImage(req, res) {
 }
 
 async function generatePostGameEventImage(game, data, res) {
-	const { customHeader, eventType, _player, stats, playersAndStats } = data;
+	const { customHeader, type, _player, playersAndStats } = data;
 
-	if (!eventType) {
+	if (!type) {
 		res.status(400).send("No event type specified");
 	} else {
 		//Pull the correct image, based on event type
-		switch (eventType) {
+		switch (type) {
 			case "breakdown-intro":
-				return new GameEventImage(game, eventType);
+				return new GameEventImage(game, type);
 			case "team-stats":
-				return new TeamStatsImage(game, stats);
+				return new TeamStatsImage(game, data.teamStats);
 			case "player-stats": {
 				const image = new PlayerEventImage(_player, { game });
 				await image.drawGameData();
-				await image.drawGameStats(stats);
+				await image.drawGameStats(data.playerStats);
 				return image;
 			}
 			case "grouped-player-stats":
 			case "fan-potm-options":
 			case "steel-points": {
-				const image = new MultiplePlayerStats(game, playersAndStats, eventType, {
+				return new MultiplePlayerStats(game, playersAndStats, type, {
 					customHeader
 				});
-				return image;
 			}
 			case "league-table": {
 				const teamsToHighlight = [localTeam, game._opposition._id];
 				const date = new Date(game.date);
 				const options = {
 					fromDate: `${date.getFullYear()}-01-01`,
-					toDate: date.next().tuesday().toString("yyyy-MM-dd")
+					toDate: date
+						.next()
+						.tuesday()
+						.toString("yyyy-MM-dd")
 				};
 				return new LeagueTable(
 					game._competition._id,
@@ -1039,19 +1043,19 @@ export async function submitPostGameEvents(req, res) {
 
 	if (basicGame) {
 		const [game] = await getExtraGameInfo([basicGame], true, true);
-		let { replyTweet, _profile, postToFacebook, tweets } = req.body;
+		let { replyTweet, _profile, channels, posts } = req.body;
 
 		//Get Twitter Client for uploading images
 		const twitterClient = await twitter(_profile);
 
-		//Loop through tweets and render images
+		//Loop through posts and render images for twitter
 		const images = {};
-		for (const i in tweets) {
-			const tweet = tweets[i];
-			if (tweet.eventType !== "text-only") {
+		for (const i in posts) {
+			const post = posts[i];
+			if (post.type !== "text-only") {
 				//Create base64 image
-				console.info(`Creating Image for Tweet #${Number(i) + 1} of ${tweets.length}...`);
-				const image = await generatePostGameEventImage(game, tweets[i]);
+				console.info(`Creating Image for Tweet #${Number(i) + 1} of ${posts.length}...`);
+				const image = await generatePostGameEventImage(game, posts[i].additionalValues);
 				const media_data = await image.render(true);
 
 				console.info(`Uploading Image...`);
@@ -1068,15 +1072,15 @@ export async function submitPostGameEvents(req, res) {
 
 		//Post Tweets
 		const imageUrls = {};
-		for (const i in tweets) {
-			const { text } = tweets[i];
+		for (const i in posts) {
+			const { content } = posts[i];
 
 			const media_strings = [];
 			if (images[i]) {
 				media_strings.push(images[i]);
 			}
-			console.info(`Posting Tweet #${Number(i) + 1} of ${tweets.length}...`);
-			const result = await postToSocial("twitter", text, {
+			console.info(`Posting Tweet #${Number(i) + 1} of ${posts.length}...`);
+			const result = await postToSocial("twitter", content, {
 				_profile,
 				media_strings,
 				replyTweet
@@ -1095,14 +1099,14 @@ export async function submitPostGameEvents(req, res) {
 		}
 
 		//Handle facebook
-		if (postToFacebook) {
-			for (const i in tweets) {
+		if (channels.find(c => c === "facebook")) {
+			for (const i in posts) {
 				const images = [];
 				if (imageUrls[i]) {
 					images.push(imageUrls[i]);
 				}
-				console.info(`Posting Facebook Post #${Number(i) + 1} of ${tweets.length}...`);
-				await postToSocial("facebook", tweets[i].text, {
+				console.info(`Posting Facebook Post #${Number(i) + 1} of ${posts.length}...`);
+				await postToSocial("facebook", posts[i].content, {
 					_profile,
 					images
 				});
