@@ -6,6 +6,7 @@ export const propTypes = {
 	alterValuesBeforeSubmit: PropTypes.func,
 	className: PropTypes.string,
 	enableRedirectBoolean: PropTypes.bool,
+	enforceDisable: PropTypes.bool,
 	fastFieldByDefault: PropTypes.bool,
 	fieldGroups: PropTypes.oneOfType([
 		PropTypes.func,
@@ -47,6 +48,7 @@ export const propTypes = {
 export const defaultProps = {
 	className: "",
 	enableRedirectBoolean: false,
+	enforceDisable: false,
 	fastFieldByDefault: true,
 	isInitialValid: false,
 	promptOnExit: true,

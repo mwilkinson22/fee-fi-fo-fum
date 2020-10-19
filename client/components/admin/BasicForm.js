@@ -285,6 +285,7 @@ class BasicForm extends Component {
 			isInitialValid,
 			itemType,
 			replaceResetButton,
+			enforceDisable,
 			submitButtonText,
 			useFormCard
 		} = this.props;
@@ -313,10 +314,11 @@ class BasicForm extends Component {
 		}
 
 		//Work out whether buttons are disabled
-		const disableButtons = (!formHasChanged && !isInitialValid) || isSubmitting;
+		const disableReset = (!formHasChanged && !isInitialValid) || isSubmitting;
+		const disableSubmit = enforceDisable || disableReset;
 
 		const resetButton = replaceResetButton || (
-			<button type="reset" disabled={disableButtons}>
+			<button type="reset" disabled={disableReset}>
 				Reset
 			</button>
 		);
@@ -327,8 +329,8 @@ class BasicForm extends Component {
 				{resetButton}
 				<button
 					type="submit"
-					className={disableButtons ? "" : "confirm"}
-					disabled={disableButtons}
+					className={disableSubmit ? "" : "confirm"}
+					disabled={disableSubmit}
 				>
 					{submitButtonText}
 				</button>
