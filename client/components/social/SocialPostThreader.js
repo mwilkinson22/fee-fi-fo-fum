@@ -113,14 +113,9 @@ class SocialPostThreader extends Component {
 
 		let error;
 
-		//Check we don't have a post open, to avoid accidentally submitting
-		//unsaved changes
-		if (currentPost) {
-			error = "Save or discard current post to submit";
-		}
-		//Ensure we have posts
-		else if (!posts.length) {
-			error = "At least one post must be added";
+		//Ensure we have posts and none are being edited
+		if (currentPost || !posts.length) {
+			error = true;
 		}
 		//Ensure posts are all valid
 		else {
@@ -140,14 +135,12 @@ class SocialPostThreader extends Component {
 			const invalidPosts = posts.filter(p => p.isInvalid);
 
 			if (invalidPosts.length) {
-				error = `Validation errors found on ${invalidPosts.length} ${
-					invalidPosts.length === 1 ? "post" : "posts"
-				} `;
+				error = true;
 			}
 		}
 
 		//Update error and invalid posts
-		this.setState({ error, posts });
+		this.setState({ posts });
 
 		//If we're error free, submit the data
 		if (!error) {
@@ -476,9 +469,9 @@ class SocialPostThreader extends Component {
 		);
 	}
 
-	getSettingsFieldGroups(values) {
+	getSettingsFieldGroups(values, error) {
 		const { allowFacebookJoin, enforceTwitter } = this.props;
-		const { error, options } = this.state;
+		const { options } = this.state;
 
 		//Field Groups
 		const fieldGroups = [
@@ -506,7 +499,7 @@ class SocialPostThreader extends Component {
 			fieldGroups[0].fields.push({ name: "joinForFacebook", type: fieldTypes.boolean });
 		}
 
-		//Add error
+		//Conditionally add error message
 		if (error) {
 			fieldGroups.push({
 				render: () => (
@@ -518,6 +511,27 @@ class SocialPostThreader extends Component {
 		}
 
 		return fieldGroups;
+	}
+
+	checkForErrors() {
+		const { currentPost, posts } = this.state;
+
+		//Check we don't have a post open, to avoid accidentally submitting
+		//unsaved changes
+		if (currentPost !== null) {
+			return "Save or discard current post to submit";
+		}
+		//Ensure we have posts
+		else if (!posts.length) {
+			return "At least one post must be added";
+		}
+
+		const invalidPosts = posts.filter(p => p.isInvalid);
+		if (invalidPosts.length) {
+			return `Validation errors found on ${invalidPosts.length} ${
+				invalidPosts.length === 1 ? "post" : "posts"
+			} `;
+		}
 	}
 
 	renderSettings() {
@@ -540,6 +554,7 @@ class SocialPostThreader extends Component {
 			replyTweet: ""
 		};
 
+		//Conditionally enforce twitter
 		if (!enforceTwitter) {
 			initialValues.channels.push("twitter");
 		}
@@ -556,17 +571,24 @@ class SocialPostThreader extends Component {
 			joinForFacebook: Yup.bool().label("Single Facebook post?")
 		};
 
+		//Conditionally allow facebook merging
 		if (allowFacebookJoin) {
 			initialValues.joinForFacebook = true;
 			rawValidationSchema.joinForFacebook = Yup.bool().label("Single Facebook post?");
 		}
 
+		//Convert validation schema to Yup
 		const validationSchema = Yup.object().shape(rawValidationSchema);
+
+		//Get Field Groups
+		const error = this.checkForErrors();
+		const fieldGroups = values => this.getSettingsFieldGroups(values, error);
 
 		return (
 			<BasicForm
 				className="settings"
-				fieldGroups={values => this.getSettingsFieldGroups(values)}
+				enforceDisable={Boolean(error)}
+				fieldGroups={fieldGroups}
 				initialValues={initialValues}
 				isInitialValid={true}
 				isNew={true}
