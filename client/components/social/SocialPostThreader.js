@@ -609,7 +609,13 @@ SocialPostThreader.propTypes = {
 	),
 	enforceTwitter: PropTypes.bool,
 	includeDefaultPostType: PropTypes.bool,
-	initialPosts: PropTypes.arrayOf(PropTypes.shape({ content: PropTypes.string.isRequired })),
+	initialPosts: PropTypes.arrayOf(
+		PropTypes.shape({
+			content: PropTypes.string.isRequired,
+			type: PropTypes.string.isRequired,
+			additionalValues: PropTypes.object
+		})
+	),
 	onSubmit: PropTypes.func,
 	replyTweet: PropTypes.string
 };

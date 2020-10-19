@@ -3,6 +3,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { FieldArray } from "formik";
+import * as Yup from "yup";
 
 //Components
 import SocialPostThreader from "~/client/components/social/SocialPostThreader";
@@ -16,7 +17,7 @@ import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
 import { convertTeamToSelect } from "~/helpers/gameHelper";
-import * as Yup from "yup";
+import { getTotalsAndAverages } from "~/helpers/statsHelper";
 import { renderField } from "~/helpers/formHelper";
 
 class AdminGamePostGameEvents extends Component {
@@ -73,7 +74,13 @@ class AdminGamePostGameEvents extends Component {
 			postType.variables = variables;
 		}
 
-		this.state = { postTypes };
+		//Define templates as a key => label pair
+		const templates = {
+			blank: "No Template",
+			postGameStats: "Post-Game Breakdown"
+		};
+
+		this.state = { game, options, postTypes, templates };
 	}
 
 	defineOptions(game) {
@@ -85,6 +92,7 @@ class AdminGamePostGameEvents extends Component {
 		//
 		// The standard playerStatType entries,
 		// grouped by Scoring, Attack and Defence
+		const allGameStats = getTotalsAndAverages(game.playerStats.map(p => p.stats));
 		options.teamStats = _.chain(playerStatTypes)
 			.mapValues((stat, value) => ({
 				value,
@@ -92,7 +100,11 @@ class AdminGamePostGameEvents extends Component {
 				group: stat.type
 			}))
 			.groupBy("group")
-			.map((options, label) => ({ label, options: _.sortBy(options, "label") }))
+			.map((options, label) => {
+				//Remove stats where both teams have 0
+				const filteredOptions = options.filter(({ value }) => allGameStats[value].total);
+				return { label, options: filteredOptions };
+			})
 			.value();
 
 		// Player Stats
@@ -293,7 +305,8 @@ class AdminGamePostGameEvents extends Component {
 		if (game._competition.type === "League") {
 			postTypes["league-table"] = {
 				group: "League",
-				label: "League Table"
+				label: "League Table",
+				initialContent: "Here's how the table's looking after this weekend's fixtures."
 			};
 
 			//Min-max league table
@@ -311,7 +324,8 @@ class AdminGamePostGameEvents extends Component {
 			postTypes["fan-potm-options"] = {
 				additionalFields: [fields.playersAndStats(true, game.fan_potm.options)],
 				group: "Awards",
-				label: `Fans' ${game.genderedString} of the Match`
+				label: `Fans' ${game.genderedString} of the Match`,
+				initialContent: `Here are your nominees for ${game.genderedString} of the Match:`
 			};
 		}
 
@@ -321,7 +335,8 @@ class AdminGamePostGameEvents extends Component {
 			postTypes["steel-points"] = {
 				additionalFields: [fields.playersAndStats(true, players)],
 				group: "Awards",
-				label: `${game.genderedString} of Steel Points`
+				label: `${game.genderedString} of Steel Points`,
+				initialContent: `Here are your ${game.genderedString} of Steel point winners:`
 			};
 		}
 		return postTypes;
@@ -476,13 +491,150 @@ class AdminGamePostGameEvents extends Component {
 		);
 	}
 
+	getInitialPosts(template) {
+		const { game, options, postTypes } = this.state;
+		const initialPosts = [];
+		switch (template) {
+			case "blank": {
+				break;
+			}
+
+			case "postGameStats": {
+				//Intro
+				initialPosts.push({
+					type: "breakdown-intro"
+				});
+
+				//Attacking Stats
+				const attackingStats = options.teamStats[1].options.map(s => s.value);
+				initialPosts.push({
+					type: "team-stats",
+					content: "In attack, ",
+					additionalValues: { teamStats: attackingStats }
+				});
+
+				//Defensive Stats
+				const defenceStats = options.teamStats[2].options.map(s => s.value);
+				initialPosts.push({
+					type: "team-stats",
+					content: "In defence, ",
+					additionalValues: { teamStats: defenceStats }
+				});
+
+				//Add some individual efforts
+				for (let i = 0; i < 3; i++) {
+					initialPosts.push({
+						type: "player-stats"
+					});
+				}
+
+				//Add some attack & defence multi-stats
+				initialPosts.push({
+					type: "grouped-player-stats",
+					content: "Elsewhere in attack, ",
+					additionalValues: {
+						customHeader: "ATTACK"
+					}
+				});
+
+				initialPosts.push({
+					type: "grouped-player-stats",
+					content: "Elsewhere in defence, ",
+					additionalValues: {
+						customHeader: "DEFENCE"
+					}
+				});
+
+				//League Table
+				if (postTypes["league-table"]) {
+					initialPosts.push({
+						type: "league-table"
+					});
+				}
+
+				//Man/Woman of Steel
+				if (postTypes["steel-points"]) {
+					initialPosts.push({
+						type: "steel-points"
+					});
+				}
+
+				//Fans' Player of the Match
+				if (postTypes["fan-potm-options"]) {
+					initialPosts.push({
+						type: "fan-potm-options"
+					});
+				}
+				break;
+			}
+
+			default: {
+				throw new Error(`No template defined for '${template}'`);
+			}
+		}
+
+		//Auto-add initial values
+		initialPosts.map(post => {
+			//If content is undefined, pull the default
+			if (post.content === undefined) {
+				post.content = postTypes[post.type].initialContent;
+			}
+
+			//Otherwise, add on the game hashtags
+			else {
+				post.content += `\n\n`;
+				post.content += game.hashtags.map(t => `#${t}`).join(" ");
+			}
+
+			//Add additionalValues
+			if (!post.additionalValues) {
+				post.additionalValues = {};
+			}
+			//Default Additional Values
+			const defaultValues = postTypes[post.type].additionalFieldInitialValues;
+
+			//Custom Additional Values
+			const customValues = post.additionalValues || {};
+
+			post.additionalValues = { ...defaultValues, ...customValues };
+
+			//Set invalid flag so we can track what needs changing
+			post.isInvalid = true;
+		});
+
+		//Update state
+		this.setState({ initialPosts });
+	}
+
 	render() {
-		const { match, submitPostGameEvents } = this.props;
-		const { postTypes } = this.state;
+		const { submitPostGameEvents } = this.props;
+		const { game, postTypes, initialPosts, templates } = this.state;
+
+		if (!initialPosts) {
+			const list = _.map(templates, (label, template) => {
+				return (
+					<li
+						className="clickable"
+						onClick={() => this.getInitialPosts(template)}
+						key={template}
+					>
+						{label}
+					</li>
+				);
+			});
+			return (
+				<div className="form-card">
+					<h6>Select Template</h6>
+					<ul className="plain-list">{list}</ul>
+				</div>
+			);
+		}
+
 		return (
 			<SocialPostThreader
 				customPostTypes={postTypes}
-				onSubmit={values => submitPostGameEvents(match.params._id, values)}
+				initialPosts={initialPosts}
+				onSubmit={values => submitPostGameEvents(game._id, values)}
 			/>
 		);
 	}

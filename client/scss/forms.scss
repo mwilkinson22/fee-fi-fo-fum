@@ -44,14 +44,17 @@
 	.plain-list {
 		font-size: 1.2em;
 		li {
+			&.clickable,
 			a {
 				width: 100%;
 				font-weight: 600;
 				display: block;
-				padding: 6pt 0;
+				padding: 6pt;
 				color: black !important;
+				cursor: pointer;
 				&:hover {
 					color: lighten($mainColour, 5%) !important;
+					background: #ddd;
 				}
 			}
 

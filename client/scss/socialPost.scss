@@ -68,15 +68,11 @@
 	.type-selector {
 		li {
 			font-size: 0.8em;
-			padding: 6pt;
+			padding: 6pt 0;
 			border: none;
 			&.header {
 				margin-top: 6pt;
 				border: none !important;
-			}
-			&.clickable:hover {
-				background-color: #ddd;
-				cursor: pointer;
 			}
 		}
 	}
