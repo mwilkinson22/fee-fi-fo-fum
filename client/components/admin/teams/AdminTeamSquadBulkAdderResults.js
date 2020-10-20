@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import * as Yup from "yup";
@@ -160,15 +160,16 @@ class AdminTeamSquadBulkAdderResults extends Component {
 							//Name
 							//We make this an array so we can conditionally display
 							//the name input fields
-							data.name = [
+							const nameFields = [
 								renderInput({
 									name: baseName("_player"),
 									type: fieldTypes.select,
 									options: [...defaultOptions, ...options]
 								})
 							];
+
 							if (values[i]._player === "new") {
-								data.name.push(
+								nameFields.push(
 									renderInput({
 										name: baseName("name.first"),
 										type: fieldTypes.text
@@ -179,6 +180,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 									})
 								);
 							}
+							data.name = <Fragment>{nameFields}</Fragment>;
 
 							//Loan
 							data.onLoan = renderInput({
