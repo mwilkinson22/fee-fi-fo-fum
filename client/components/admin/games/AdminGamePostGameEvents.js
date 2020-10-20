@@ -396,7 +396,7 @@ class AdminGamePostGameEvents extends Component {
 							type: fieldTypes.fieldArray,
 							key: `playersAndStats.${i}.fieldArray`,
 							render: ({ move, remove }) => (
-								<div className="buttons">
+								<div className="buttons" key={`${i}-buttons`}>
 									<button type="button" onClick={() => remove(i)}>
 										Remove Player
 									</button>
@@ -431,7 +431,7 @@ class AdminGamePostGameEvents extends Component {
 					type: fieldTypes.fieldArray,
 					key: `playersAndStats.add`,
 					render: ({ push }) => (
-						<div className="buttons">
+						<div className="buttons" key="add-button">
 							<button type="button" onClick={() => push({ _player: "", stats: [] })}>
 								Add Player
 							</button>
@@ -454,7 +454,7 @@ class AdminGamePostGameEvents extends Component {
 	renderBulkAddStatButtons(values) {
 		const fieldName = "teamStats";
 		return (
-			<FieldArray name={fieldName}>
+			<FieldArray name={fieldName} key="bulk-add">
 				{({ push }) => {
 					//Get stats grouped by type
 					const groupedStats = _.chain(playerStatTypes)
