@@ -81,7 +81,7 @@ async function checkFanPotmVote(req, _id) {
 }
 
 export async function getExtraGameInfo(games, forGamePage, forAdmin) {
-	//Convert to JSON and fix scoreOverride
+	//Convert to JSON and fix scoreOverride and fan_potm.votes
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
 		if (game.scoreOverride && game.scoreOverride.length) {
@@ -90,6 +90,15 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 				.mapValues("points")
 				.value();
 		}
+
+		//Convert fan_potm votes to simple count
+		if (game.fan_potm && game.fan_potm.votes && game.fan_potm.votes.length) {
+			game.fan_potm.votes = _.chain(game.fan_potm.votes)
+				.groupBy("choice")
+				.mapValues("length")
+				.value();
+		}
+
 		return game;
 	});
 
@@ -321,15 +330,6 @@ async function getGames(req, res, forGamePage, forAdmin) {
 			const currentVote = await checkFanPotmVote(req, game._id);
 			if (currentVote) {
 				game.activeUserFanPotmVote = currentVote.choice;
-			}
-		}
-	}
-
-	if (!forAdmin) {
-		//Strip the ip and session data
-		for (const game of games) {
-			if (game.fan_potm) {
-				game.fan_potm.votes = game.fan_potm.votes.map(v => _.pick(v, ["_id", "choice"]));
 			}
 		}
 	}

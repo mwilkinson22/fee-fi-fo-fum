@@ -149,7 +149,7 @@ const gameSchema = new Schema(
 	{
 		toJSON: {
 			virtuals: true,
-			transform: function (doc, ret) {
+			transform: function(doc, ret) {
 				delete ret._competition.instances;
 				if (ret.playerStats) {
 					ret.playerStats.forEach(({ stats }) => delete stats._id);
@@ -167,7 +167,7 @@ const gameSchema = new Schema(
 getGameVirtuals(gameSchema);
 
 //Methods
-gameSchema.statics.generateSlug = async function ({ _opposition, date, _teamType }) {
+gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType }) {
 	//Get Team
 	const Team = mongoose.model("teams");
 	const team = await Team.findById(_opposition, "name.short");
@@ -210,11 +210,11 @@ gameSchema.statics.generateSlug = async function ({ _opposition, date, _teamType
 };
 
 //Queries
-gameSchema.query.forList = function () {
+gameSchema.query.forList = function() {
 	return this.select("date _teamType slug _competition _opposition dateRange");
 };
 
-gameSchema.query.fullGame = function (forGamePage, forAdmin) {
+gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 	let model;
 
 	//Select
@@ -229,9 +229,6 @@ gameSchema.query.fullGame = function (forGamePage, forAdmin) {
 			propsToRemove.push(
 				"_referee",
 				"_video_referee",
-				"_potm",
-				"fan_potm_link",
-				"fan_potm",
 				"playerStats._id",
 				//"pregameSquads", - we need pregamesquads to calculate status. So we load it here, then remove it before returning to server
 				"overrideGameStarStats"
@@ -297,7 +294,7 @@ gameSchema.query.fullGame = function (forGamePage, forAdmin) {
 		});
 };
 
-gameSchema.query.crawl = function () {
+gameSchema.query.crawl = function() {
 	return this.select("externalId _competition playerStats date isAway _opposition")
 		.populate({
 			path: "playerStats._player",
@@ -313,7 +310,7 @@ gameSchema.query.crawl = function () {
 		});
 };
 
-gameSchema.query.eventImage = function () {
+gameSchema.query.eventImage = function() {
 	return this.select({
 		slug: 0,
 		_referee: 0,

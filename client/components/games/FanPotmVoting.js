@@ -40,15 +40,14 @@ class FanPotmVoting extends Component {
 		newState.deadline = new Date(newState.game.fan_potm.deadline);
 		newState.votingClosed = new Date() > newState.deadline;
 
-		if (newState.votingClosed) {
-			newState.results = _.chain(newState.game.fan_potm.votes)
-				.groupBy("choice")
-				.map((votes, player) => [
-					player,
-					Math.round((votes.length / newState.game.fan_potm.votes.length) * 1000) / 10
-				])
-				.fromPairs()
-				.value();
+		if (newState.game.fan_potm.votes && newState.votingClosed) {
+			const { votes } = newState.game.fan_potm;
+			const totalVotes = _.sum(_.values(votes));
+			newState.results = {};
+			for (const _player in votes) {
+				const playerVotes = votes[_player];
+				newState.results[_player] = Math.round((playerVotes / totalVotes) * 1000) / 10;
+			}
 		}
 
 		return newState;
@@ -97,7 +96,7 @@ class FanPotmVoting extends Component {
 					<div className="result">
 						{winningStar}
 						{percentage}%
-						<span className="progress-bar" style={{ width: `${percentage}%` }}></span>
+						<span className="progress-bar" style={{ width: `${percentage}%` }} />
 					</div>
 				);
 			} else {

@@ -241,29 +241,27 @@ class AdminGamePostGame extends Component {
 			},
 			{
 				render: () => {
-					if (game.fan_potm && game.fan_potm.votes.length) {
+					if (game.fan_potm && Object.keys(game.fan_potm.votes).length) {
 						const columns = [
 							{ key: "player", label: "Player" },
 							{ key: "pc", label: "%" },
 							{ key: "votes", label: "Votes" }
 						];
 
-						const rows = _.chain(game.fan_potm.votes)
-							.groupBy("choice")
-							.mapValues("length")
-							.map((votes, player) => ({
+						const totalVotes = _.sum(_.values(game.fan_potm.votes));
+
+						const rows = _.map(game.fan_potm.votes, (votes, player) => {
+							const data = {
 								votes,
 								player: options.players.localTeam.find(o => o.value == player)
 									.label,
-								pc:
-									Math.round((votes / game.fan_potm.votes.length) * 1000) / 10 +
-									"%"
-							}))
-							.map(data => ({
-								key: data.player,
+								pc: Math.round((votes / totalVotes) * 1000) / 10 + "%"
+							};
+							return {
+								key: player,
 								data
-							}))
-							.value();
+							};
+						});
 						return (
 							<Table
 								className="full-span"
