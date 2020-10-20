@@ -384,12 +384,12 @@ class BasicForm extends Component {
 		} = this.props;
 		const { initialValues, readOnly, validationSchema } = this.state;
 
-		const divClass = [className];
+		let divClass;
 		if (useFormCard) {
-			divClass.push("form-card");
+			divClass = "form-card";
 
 			if (useGrid) {
-				divClass.push("grid");
+				divClass += " grid";
 			}
 		}
 
@@ -418,7 +418,7 @@ class BasicForm extends Component {
 								when={promptOnExit && !isSubmitting && formHasChanged}
 								message="You have unsaved changes. Are you sure you want to navigate away?"
 							/>
-							<div className={divClass.join(" ")}>
+							<div className={divClass}>
 								{this.renderFields(values, formikProps)}
 								{this.renderErrors(errors, touched)}
 								{this.renderSubmitButtons(formHasChanged, isSubmitting)}

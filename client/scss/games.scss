@@ -1219,7 +1219,7 @@ section.match-squads {
 		}
 	}
 	.admin-pregame-squad-page {
-		.pregame-wrapper {
+		.pregame-wrapper > div {
 			display: grid;
 			grid-gap: 10pt;
 
