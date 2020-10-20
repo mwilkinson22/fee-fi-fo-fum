@@ -7,9 +7,9 @@ import { connect } from "react-redux";
 import { fetchGames } from "../../actions/gamesActions";
 
 //Helpers
-import { validateGameDate } from "../../../helpers/gameHelper";
+import { validateGameDate } from "~/helpers/gameHelper";
 import { getTotalsAndAverages, statToString } from "~/helpers/statsHelper";
-import playerStatTypes from "../../../constants/playerStatTypes";
+import playerStatTypes from "~/constants/playerStatTypes";
 
 //Components
 import SingleStatBox from "../stats/SingleStatBox";
@@ -302,10 +302,13 @@ class PlayerStatSection extends Component {
 	}
 
 	getStatsTables() {
+		const { _id, gender } = this.props.person;
 		const { filteredGames } = this.state;
+		const genderedString = gender === "M" ? "Man" : "Woman";
 
 		const rowData = _.map(filteredGames, game => {
-			const { slug, date, title } = game;
+			const { _potm, fan_potm_winners, slug, date, title, manOfSteel } = game;
+
 			const stats = _.chain(game.playerStats[0].stats)
 				.mapValues((val, key) => {
 					if (!playerStatTypes[key]) {
@@ -319,6 +322,38 @@ class PlayerStatSection extends Component {
 				})
 				.pickBy(_.identity)
 				.value();
+
+			//Add Man/Woman of Steel Stats
+			if (manOfSteel && manOfSteel.length) {
+				const steelObject = manOfSteel.find(({ _player }) => _player == _id);
+				const steelPoints = steelObject ? steelObject.points : 0;
+				stats.steel = {
+					content: steelPoints,
+					sortValue: steelPoints,
+					title: `${steelPoints} ${genderedString} of Steel ${
+						steelPoints === 1 ? "point" : "points"
+					}`
+				};
+			}
+
+			//Add Player of the Match points
+			if (_potm) {
+				const won = _potm == _id;
+				stats.potm = {
+					content: won ? "\u2714" : "\u2716",
+					sortValue: won ? 1 : 0,
+					title: `${genderedString} of the Match`
+				};
+			}
+			if (fan_potm_winners) {
+				const won = fan_potm_winners.find(p => p == _id);
+				stats.fan_potm = {
+					content: won ? "\u2714" : "\u2716",
+					sortValue: won ? 1 : 0,
+					title: `Fans' ${genderedString} of the Match`
+				};
+			}
+
 			const data = {
 				first: {
 					content: <StatTableGameCell game={game} />,
@@ -330,10 +365,48 @@ class PlayerStatSection extends Component {
 			return { key: slug, data };
 		});
 
+		//Create Custom Stat Types
+		const customStatTypes = _.chain(rowData)
+			.map(g => Object.keys(g.data))
+			.flatten()
+			.uniq()
+			.reject(s => s === "first" || playerStatTypes[s])
+			.map(key => {
+				let label;
+				switch (key) {
+					case "steel":
+						label = `${genderedString} of Steel Points`;
+						break;
+					case "potm":
+						label = `${genderedString} of the Match`;
+						break;
+					case "fan_potm":
+						label = `Fans' ${genderedString} of the Match`;
+						break;
+					default:
+						return null;
+				}
+				return {
+					key,
+					singular: label,
+					plural: label,
+					type: "Scoring",
+					moreIsBetter: true
+				};
+			})
+			.filter(_.identity)
+			.orderBy("key", "desc")
+			.value();
+
 		return (
 			<div className="container" key="tables">
 				<h2>Games</h2>
-				<StatsTables listType="player" rowData={rowData} firstColumnHeader="Games" />
+				<StatsTables
+					customStatTypes={customStatTypes}
+					listType="player"
+					rowData={rowData}
+					firstColumnHeader="Games"
+				/>
 			</div>
 		);
 	}
