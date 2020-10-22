@@ -491,8 +491,8 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 		});
 		const { data } = await axios.get(url, { httpsAgent });
 		html = parse(data);
-	} catch (e) {
-		return { error: e };
+	} catch (error) {
+		return { error };
 	}
 
 	//Get Teams
@@ -511,21 +511,27 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 
 	if (justGetScores) {
 		let results;
-		if (webcrawlFormat == "SL") {
-			results = html
-				.querySelectorAll(".matchreportheader .col-2 h2")
-				.map(e => Number(e.text));
-		} else if (webcrawlFormat == "RFL") {
-			results = html
-				.querySelector(".overview h3")
-				.text.match(/\d+/g)
-				.map(Number);
+		try {
+			if (webcrawlFormat == "SL") {
+				results = html
+					.querySelectorAll(".matchreportheader .col-2 h2")
+					.map(e => Number(e.text));
+			} else if (webcrawlFormat == "RFL") {
+				results = html
+					.querySelector(".overview h3")
+					.text.match(/\d+/g)
+					.map(Number);
+			}
+		} catch (error) {
+			return { error };
 		}
 
-		return {
-			homePoints: results[0],
-			awayPoints: results[1]
-		};
+		if (results) {
+			return {
+				homePoints: results[0],
+				awayPoints: results[1]
+			};
+		}
 	} else {
 		//Get Stat Types
 		const statTypeIndexes = _.chain(playerStatTypes)
