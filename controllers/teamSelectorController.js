@@ -17,7 +17,7 @@ import SquadImage from "~/images/SquadImage";
 import { postToSocial } from "./oAuthController";
 import { getTeamSelectorValues as getValuesFromGame } from "./rugby/gamesController";
 
-export async function fetchTeamSelector(_id, res) {
+export async function fetchTeamSelector(_id, res, returnAsMongooseObject) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
 		return false;
@@ -32,6 +32,10 @@ export async function fetchTeamSelector(_id, res) {
 	if (!selector) {
 		res.status(404).send(`No selector found with id ${_id}`);
 		return false;
+	}
+
+	if (returnAsMongooseObject) {
+		return selector;
 	}
 
 	//Convert to json object
@@ -156,7 +160,7 @@ export async function updateTeamSelector(req, res) {
 
 export async function deleteTeamSelector(req, res) {
 	const { _id } = req.params;
-	const selector = await fetchTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res, true);
 	if (selector) {
 		await selector.remove();
 		res.send({});
