@@ -52,7 +52,8 @@ class HomePage extends Component {
 			fullGames,
 			fetchGames,
 			competitionSegmentList,
-			teamTypes
+			teamTypes,
+			fansCanAttend
 		} = nextProps;
 
 		const newState = { isLoading: false };
@@ -76,7 +77,8 @@ class HomePage extends Component {
 		const { gamesForCards, leagueTableDetails } = getHomePageGameInfo(
 			gameList,
 			teamTypes,
-			competitionSegmentList
+			competitionSegmentList,
+			fansCanAttend
 		);
 
 		//Set League Table Details
@@ -200,12 +202,13 @@ async function loadData(store) {
 	]);
 }
 
-function mapStateToProps({ news, games, competitions, teams }) {
+function mapStateToProps({ config, news, games, competitions, teams }) {
+	const { fansCanAttend } = config;
 	const { postList } = news;
 	const { competitionSegmentList } = competitions;
 	const { gameList, fullGames } = games;
 	const { teamTypes } = teams;
-	return { postList, gameList, fullGames, competitionSegmentList, teamTypes };
+	return { fansCanAttend, postList, gameList, fullGames, competitionSegmentList, teamTypes };
 }
 
 export default {

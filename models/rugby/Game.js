@@ -211,7 +211,7 @@ gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType 
 
 //Queries
 gameSchema.query.forList = function() {
-	return this.select("date _teamType slug _competition _opposition dateRange");
+	return this.select("date _teamType slug _competition _opposition dateRange isAway");
 };
 
 gameSchema.query.fullGame = function(forGamePage, forAdmin) {

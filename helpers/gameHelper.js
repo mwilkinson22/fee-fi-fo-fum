@@ -972,7 +972,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 		.filter(_.identity);
 }
 
-export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList) {
+export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList, fansCanAttend) {
 	//Get First Team TeamType
 	const firstTeam = _.sortBy(teamTypes, "sortOrder")[0]._id;
 
@@ -1015,13 +1015,13 @@ export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList)
 		gamesForCards.push(nextGame._id);
 
 		//Add next home game
-		if (nextGame.isAway) {
+		if (fansCanAttend && nextGame.isAway) {
 			const nextHomeGame = _.minBy(
 				games.results.filter(g => !g.isAway),
 				"date"
 			);
 			if (nextHomeGame) {
-				gamesForCards(nextHomeGame._id);
+				gamesForCards.push(nextHomeGame._id);
 			}
 		}
 	}
