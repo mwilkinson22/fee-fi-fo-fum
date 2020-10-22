@@ -15,9 +15,9 @@ class AdminTeamSelectorList extends Component {
 	constructor(props) {
 		super(props);
 
-		const { selectorList, fetchAllTeamSelectors } = props;
+		const { haveLoadedAll, fetchAllTeamSelectors } = props;
 
-		if (!selectorList) {
+		if (!haveLoadedAll) {
 			fetchAllTeamSelectors();
 		}
 
@@ -25,12 +25,12 @@ class AdminTeamSelectorList extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { selectorList } = nextProps;
-		return { selectorList };
+		const { haveLoadedAll } = nextProps;
+		return { isLoading: !haveLoadedAll };
 	}
 
 	renderLists() {
-		const { selectorList } = this.state;
+		const { selectorList } = this.props;
 
 		if (!Object.keys(selectorList).length) {
 			return <div className="card form-card">No team selectors found</div>;
@@ -62,9 +62,9 @@ class AdminTeamSelectorList extends Component {
 	}
 
 	render() {
-		const { selectorList } = this.state;
+		const { isLoading } = this.state;
 		let content;
-		if (!selectorList) {
+		if (isLoading) {
 			content = <LoadingPage />;
 		} else {
 			content = this.renderLists();
@@ -91,8 +91,8 @@ class AdminTeamSelectorList extends Component {
 }
 
 function mapStateToProps({ teamSelectors }) {
-	const { selectorList } = teamSelectors;
-	return { selectorList };
+	const { haveLoadedAll, selectorList } = teamSelectors;
+	return { haveLoadedAll, selectorList };
 }
 
 export default connect(mapStateToProps, { fetchAllTeamSelectors })(AdminTeamSelectorList);

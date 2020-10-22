@@ -7,7 +7,7 @@ import {
 
 import { teamSelectors as listProperties } from "~/constants/listProperties";
 
-export default function(state = { selectors: {} }, action) {
+export default function(state = { selectors: {}, haveLoadedAll: false }, action) {
 	switch (action.type) {
 		case FETCH_TEAM_SELECTOR: {
 			return {
@@ -26,7 +26,8 @@ export default function(state = { selectors: {} }, action) {
 		case FETCH_TEAM_SELECTOR_LIST: {
 			return {
 				...state,
-				selectorList: action.payload
+				selectorList: action.payload,
+				haveLoadedAll: true
 			};
 		}
 
