@@ -462,16 +462,25 @@ class GamePage extends Component {
 					.at("00:00:00");
 			}
 
+			let content;
+			if (typeof window === "undefined") {
+				content = <LoadingPage />;
+			} else {
+				content = (
+					<LeagueTable
+						competition={_competition._id}
+						year={date.getFullYear()}
+						toDate={toDate}
+						highlightTeams={[localTeam, _opposition._id]}
+					/>
+				);
+			}
+
 			return (
 				<section className="league-table">
 					<div className="container">
 						<h2>After this round</h2>
-						<LeagueTable
-							competition={_competition._id}
-							year={date.getFullYear()}
-							toDate={toDate}
-							highlightTeams={[localTeam, _opposition._id]}
-						/>
+						{content}
 					</div>
 				</section>
 			);
@@ -559,12 +568,7 @@ function mapStateToProps({ games, config, teams, news }) {
 
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
-	const { localTeam } = store.getState().config;
-	await Promise.all([
-		store.dispatch(fetchPostList()),
-		store.dispatch(fetchGameList()),
-		store.dispatch(fetchTeam(localTeam))
-	]);
+	await Promise.all([store.dispatch(fetchPostList()), store.dispatch(fetchGameList())]);
 
 	const { gameList, redirects } = store.getState().games;
 

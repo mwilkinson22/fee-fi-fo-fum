@@ -19,7 +19,7 @@ import { fetchGames, fetchGameList } from "../actions/gamesActions";
 import { setActiveTeamType } from "../actions/teamsActions";
 
 //Helpers
-import { validateGameDate } from "../../helpers/gameHelper";
+import { validateGameDate } from "~/helpers/gameHelper";
 
 class GameList extends Component {
 	constructor(props) {
@@ -142,6 +142,11 @@ class GameList extends Component {
 			.value();
 		const gamesToLoad = _.reject(gameIds, game => fullGames[game]);
 
+		//Prevent loading games on SSR
+		if (typeof window === "undefined") {
+			return newState;
+		}
+
 		if (!gamesToLoad.length) {
 			newState.games = _.map(gameIds, id => fullGames[id]);
 			newState.isLoadingGames = false;
@@ -173,7 +178,7 @@ class GameList extends Component {
 		} else {
 			rootUrl = `/games`;
 		}
-		const content = [
+		return [
 			<select
 				key="year-selector"
 				onChange={ev => {
@@ -199,8 +204,6 @@ class GameList extends Component {
 				{options}
 			</select>
 		];
-
-		return content;
 	}
 
 	generateTeamTypeMenu() {

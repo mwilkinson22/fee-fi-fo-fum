@@ -28,15 +28,15 @@ class TeamFormHeadToHead extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const { allCompetitions, game, fullGames, gameList, fetchGames } = nextProps;
 		const { gamesRequired } = prevState;
-		const newState = { isLoadingList: false, gamesRequired };
+		const newState = { isLoadingList: false, gamesRequired, isSSR: false };
 
-		//Wait on gamelist (only necessary within news posts)
+		//Wait on game list (only necessary within news posts)
 		if (!gameList) {
 			newState.isLoadingList = true;
 			return newState;
 		}
 
-		//Only run on initial load and gamechange
+		//Only run on initial load and game change
 		if (!prevState.game || prevState.game._id != nextProps.game._id) {
 			//Add Game to state
 			newState.game = game;
@@ -65,6 +65,12 @@ class TeamFormHeadToHead extends Component {
 
 		//Determine which games we're waiting on
 		const gamesToLoad = newState.gamesRequired.filter(id => !fullGames[id]);
+
+		//Prevent loading games on SSR
+		if (typeof window === "undefined") {
+			newState.isSSR = true;
+			return newState;
+		}
 
 		//If "isLoading" hasn't been set to true, and we're missing games
 		if (!prevState.isLoading && gamesToLoad.length) {
@@ -196,8 +202,8 @@ class TeamFormHeadToHead extends Component {
 	}
 
 	render() {
-		const { isLoading, isLoadingList } = this.state;
-		if (isLoading || isLoadingList) {
+		const { isLoading, isLoadingList, isSSR } = this.state;
+		if (isLoading || isLoadingList || isSSR) {
 			return <LoadingPage />;
 		}
 

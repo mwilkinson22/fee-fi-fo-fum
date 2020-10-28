@@ -7,11 +7,13 @@ import { connect } from "react-redux";
 import LeagueTable from "../seasons/LeagueTable";
 import TeamFormHeadToHead from "./TeamFormHeadToHead";
 import TeamFormPerTeam from "./TeamFormPerTeam";
+import LoadingPage from "~/client/components/LoadingPage";
 
 class TeamForm extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		const isSSR = typeof window === "undefined";
+		this.state = { isSSR };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -26,8 +28,11 @@ class TeamForm extends Component {
 
 	renderTable() {
 		const { localTeam } = this.props;
-		const { game, showTable } = this.state;
+		const { game, showTable, isSSR } = this.state;
 		if (showTable) {
+			if (isSSR) {
+				return <LoadingPage />;
+			}
 			return (
 				<div>
 					<LeagueTable

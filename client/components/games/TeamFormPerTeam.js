@@ -18,23 +18,27 @@ class TeamFormPerTeam extends Component {
 		super(props);
 		const { neutralGames, fetchNeutralGames, game, gameList, fetchGameList } = props;
 
-		//Load Neutral Games for game year and previous year
-		const year = game.date.getFullYear();
+		const isSSR = typeof window === "undefined";
+
 		let isLoadingNeutral = false;
-		if (!neutralGames || !neutralGames[year]) {
-			isLoadingNeutral = true;
-			fetchNeutralGames(year);
-		}
-		if (!neutralGames || !neutralGames[year - 1]) {
-			isLoadingNeutral = true;
-			fetchNeutralGames(year - 1);
+		if (!isSSR) {
+			//Load Neutral Games for game year and previous year
+			const year = game.date.getFullYear();
+			if (!neutralGames || !neutralGames[year]) {
+				isLoadingNeutral = true;
+				fetchNeutralGames(year);
+			}
+			if (!neutralGames || !neutralGames[year - 1]) {
+				isLoadingNeutral = true;
+				fetchNeutralGames(year - 1);
+			}
+
+			if (!gameList) {
+				fetchGameList();
+			}
 		}
 
-		if (!gameList) {
-			fetchGameList();
-		}
-
-		this.state = { isLoadingNeutral };
+		this.state = { isLoadingNeutral, isSSR };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -256,10 +260,10 @@ class TeamFormPerTeam extends Component {
 
 	render() {
 		const { includeHeader } = this.props;
-		const { game, gamesRequired, isLoading, isLoadingLists } = this.state;
+		const { game, gamesRequired, isLoading, isLoadingLists, isSSR } = this.state;
 
 		//Wait on dependencies
-		if (isLoading || isLoadingLists) {
+		if (isLoading || isLoadingLists || isSSR) {
 			return <LoadingPage />;
 		} else if (!gamesRequired) {
 			return null;

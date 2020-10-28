@@ -73,10 +73,16 @@ import AdminTwitterAppPage from "../../pages/admin/AdminTwitterAppPage";
 import AdminUserList from "../../pages/admin/AdminUserList";
 import AdminUserPage from "../../pages/admin/AdminUserPage";
 
+import LoadingPage from "../LoadingPage";
+
 class AdminRouter extends Component {
 	render() {
 		let content;
-		if (this.props.authUser) {
+		if (typeof window === "undefined") {
+			//Don't bother with SSR rendering, we'll never
+			//need these pages for SEO and it prevents double-loading of all the data
+			content = <LoadingPage />;
+		} else if (this.props.authUser) {
 			content = (
 				<ErrorBoundary>
 					<Switch>

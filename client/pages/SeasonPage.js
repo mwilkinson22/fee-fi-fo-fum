@@ -30,7 +30,7 @@ class SeasonPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = { isLoadingGameList: false };
+		const newState = { isLoadingGameList: false, isSSR: false };
 		const {
 			authUser,
 			match,
@@ -123,6 +123,12 @@ class SeasonPage extends Component {
 		//If we have a teamtype but no page (i.e. /seasons/2019/first/), redirect to the page
 		if (!match.params.page && newState.teamType) {
 			newState.redirect = `${newState.teamType.slug}/overview`;
+		}
+
+		//Prevent SSR loading of fullGames, as this will never be rendered
+		if (typeof window === "undefined") {
+			newState.isSSR = true;
+			return newState;
 		}
 
 		//On initial pageload, if something changes, or while games are loading, check for games to load
@@ -227,8 +233,8 @@ class SeasonPage extends Component {
 	}
 
 	renderContent() {
-		const { page, games, year, teamType, isLoadingGames } = this.state;
-		if (isLoadingGames) {
+		const { page, games, year, teamType, isLoadingGames, isSSR } = this.state;
+		if (isLoadingGames || isSSR) {
 			return <LoadingPage />;
 		} else {
 			const props = {
