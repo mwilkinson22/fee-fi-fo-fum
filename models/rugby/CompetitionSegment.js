@@ -55,6 +55,7 @@ const competitionSegmentSchema = new Schema(
 				],
 				usesPregameSquads: { type: Boolean, default: true },
 				manOfSteelPoints: { type: Boolean, default: false },
+				manOfSteelPointsGoneDark: { type: Boolean, default: false },
 				scoreOnly: { type: Boolean, default: true },
 				sharedSquads: [
 					{

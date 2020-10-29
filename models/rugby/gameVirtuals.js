@@ -26,6 +26,7 @@ function getInstance(doc) {
 		"specialRounds",
 		"sponsor",
 		"manOfSteelPoints",
+		"manOfSteelPointsGoneDark",
 		"scoreOnly",
 		"usesPregameSquads",
 		"sharedSquads",

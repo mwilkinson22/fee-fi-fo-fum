@@ -15,7 +15,7 @@ import { updateCompetitionInstance } from "~/client/actions/competitionActions";
 import * as fieldTypes from "~/constants/formFieldTypes";
 import DeleteButtons from "../../fields/DeleteButtons";
 
-class AdminCompetitionInstanceOverview extends Component {
+class AdminCompetitionInstanceSpecialRounds extends Component {
 	constructor(props) {
 		super(props);
 
@@ -161,4 +161,4 @@ function mapStateToProps({ competitions }) {
 
 export default connect(mapStateToProps, {
 	updateCompetitionInstance
-})(AdminCompetitionInstanceOverview);
+})(AdminCompetitionInstanceSpecialRounds);

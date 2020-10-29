@@ -267,7 +267,10 @@ async function getGames(firstTeam) {
 			}
 
 			//Check for man/woman of steel
-			if (game._competition.instance.manOfSteelPoints) {
+			if (
+				game._competition.instance.manOfSteelPoints &&
+				!game._competition.instance.manOfSteelPointsGoneDark
+			) {
 				const nextMondayAfternoon = new Date(date)
 					.next()
 					.monday()

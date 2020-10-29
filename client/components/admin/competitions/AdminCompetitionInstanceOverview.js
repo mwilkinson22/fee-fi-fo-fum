@@ -77,6 +77,7 @@ class AdminCompetitionInstanceOverview extends Component {
 			totalRounds: Yup.string().label("Total Rounds"),
 			image: Yup.string().label("Image"),
 			manOfSteelPoints: Yup.bool().label("Man of Steel Points"),
+			manOfSteelPointsGoneDark: Yup.bool().label("Have Points 'Gone Dark'?"),
 			scoreOnly: Yup.bool().label("Score Only"),
 			usesPregameSquads: Yup.bool().label("Uses Pregame Squads"),
 			usesWinPc: Yup.bool().label("Uses Win Percentage?")
@@ -103,6 +104,7 @@ class AdminCompetitionInstanceOverview extends Component {
 			sponsor: "",
 			totalRounds: "",
 			manOfSteelPoints: false,
+			manOfSteelPointsGoneDark: false,
 			scoreOnly: true,
 			usesPregameSquads: false,
 			image: "",
@@ -148,7 +150,7 @@ class AdminCompetitionInstanceOverview extends Component {
 		}
 	}
 
-	getFieldGroups() {
+	getFieldGroups(values) {
 		const { segment, teams } = this.state;
 
 		const fields = [
@@ -156,9 +158,13 @@ class AdminCompetitionInstanceOverview extends Component {
 			{ name: "sponsor", type: fieldTypes.text },
 			{ name: "totalRounds", type: fieldTypes.number },
 			{ name: "usesPregameSquads", type: fieldTypes.boolean },
-			{ name: "manOfSteelPoints", type: fieldTypes.boolean },
-			{ name: "scoreOnly", type: fieldTypes.boolean }
+			{ name: "scoreOnly", type: fieldTypes.boolean },
+			{ name: "manOfSteelPoints", type: fieldTypes.boolean }
 		];
+
+		if (values.manOfSteelPoints) {
+			fields.push({ name: "manOfSteelPointsGoneDark", type: fieldTypes.boolean });
+		}
 
 		//Win PC
 		if (segment.type == "League") {
@@ -216,7 +222,7 @@ class AdminCompetitionInstanceOverview extends Component {
 			<section className="form">
 				<div className="container">
 					<BasicForm
-						fieldGroups={this.getFieldGroups()}
+						fieldGroups={values => this.getFieldGroups(values)}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}
 						itemType="Instance"
