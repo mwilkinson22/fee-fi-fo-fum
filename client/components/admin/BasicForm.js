@@ -3,7 +3,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { withRouter, Prompt } from "react-router-dom";
 import { Formik, Form } from "formik";
-import { convertToRaw } from "draft-js";
+import { editorStateToJSON } from "megadraft";
 import { diff } from "deep-object-diff";
 
 //Components
@@ -123,8 +123,11 @@ class BasicForm extends Component {
 			//Convert value
 			let newValue;
 			if (field && field.type === fieldTypes.draft) {
-				//For rich text fields, simply convert to raw
-				newValue = JSON.stringify(convertToRaw(val.getCurrentContent()));
+				//Convert megadraft to raw JSON.
+				//editorStateToJSON actually returns a JSON.stringify result with
+				//newlines and spaces, so we parse and re-stringify to compress for the
+				//database
+				newValue = JSON.stringify(JSON.parse(editorStateToJSON(val)));
 			} else if (Array.isArray(val)) {
 				//For arrays, go recursive, with isArray set to true
 				newValue = this.processValues(val, fields, [...parentPath, key], true);

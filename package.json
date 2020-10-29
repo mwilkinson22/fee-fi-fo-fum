@@ -50,6 +50,7 @@
 		"google-maps-react": "^2.0.6",
 		"https": "^1.0.0",
 		"ics": "^2.22.1",
+		"immutable": "3.8.2",
 		"lodash": "^4.17.19",
 		"megadraft": "^0.7.4",
 		"mongoose": "^5.9.28",
@@ -84,6 +85,11 @@
 		"twit": "^2.2.11",
 		"uuid": "^3.4.0",
 		"yup": "^0.26.10"
+	},
+	"resolutions": {
+		"draft-js/immutable": "3.8.2",
+		"draft-js-mention-plugin/immutable": "3.8.2",
+		"megadraft/draft-js": "0.11.7"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.10.5",
