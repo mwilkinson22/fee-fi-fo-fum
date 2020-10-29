@@ -182,41 +182,31 @@ export default class PregameImage extends Canvas {
 		}
 
 		if (leftIcon) {
-			ctx.fillRect(
-				positions.headerLeftIconOffset,
-				positions.headerIconTop,
-				positions.headerIconWidth,
-				positions.headerIconHeight
-			);
-			this.contain(
-				leftIcon,
-				positions.headerLeftIconOffset +
-					positions.headerIconWidth * positions.headerIconPadding,
-				positions.headerIconTop + positions.headerIconHeight * positions.headerIconPadding,
-				positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
-				positions.headerIconHeight * (1 - positions.headerIconPadding * 2)
-			);
+			this.addHeaderIcon(leftIcon, positions.headerLeftIconOffset);
 		}
 
 		//Right Icon
 		const rightIcon = await this.googleToCanvas(`images/layout/branding/${branding.site_logo}`);
 		if (rightIcon) {
-			ctx.fillRect(
-				positions.headerRightIconOffset,
-				positions.headerIconTop,
-				positions.headerIconWidth,
-				positions.headerIconHeight
-			);
-			this.contain(
-				rightIcon,
-				positions.headerRightIconOffset +
-					positions.headerIconWidth * positions.headerIconPadding,
-				positions.headerIconTop + positions.headerIconHeight * positions.headerIconPadding,
-
-				positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
-				positions.headerIconHeight * (1 - positions.headerIconPadding * 2)
-			);
+			this.addHeaderIcon(rightIcon, positions.headerRightIconOffset);
 		}
+	}
+
+	addHeaderIcon(icon, offset) {
+		const { ctx, positions } = this;
+		ctx.fillRect(
+			offset,
+			positions.headerIconTop,
+			positions.headerIconWidth,
+			positions.headerIconHeight
+		);
+		this.contain(
+			icon,
+			offset + positions.headerIconWidth * positions.headerIconPadding,
+			positions.headerIconTop + positions.headerIconHeight * positions.headerIconPadding,
+			positions.headerIconWidth * (1 - positions.headerIconPadding * 2),
+			positions.headerIconHeight * (1 - positions.headerIconPadding * 2)
+		);
 	}
 
 	async drawTeamBlock(team, align) {

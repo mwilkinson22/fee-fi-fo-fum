@@ -380,7 +380,7 @@ export async function crawlNewGames(req, res) {
 			let date;
 			html.querySelector(".row.matches div").childNodes.forEach(row => {
 				//Add Date
-				if (row.tagName === "h3") {
+				if (row.tagName === "H3") {
 					//Convert Date to Array
 					const dateAsArray = row.rawText.split(" ");
 
@@ -392,7 +392,7 @@ export async function crawlNewGames(req, res) {
 
 					//Create day string
 					date = dateAsArray.join(" ");
-				} else if (row.tagName === "div" && row.classNames.indexOf("fixture-card") > -1) {
+				} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
 					//Check for teams
 					const [home, away] = row
 						.querySelectorAll(".team-name")
@@ -440,7 +440,7 @@ export async function crawlNewGames(req, res) {
 			html.querySelectorAll("section.competition").forEach(section => {
 				//Get the date
 				const dateAsArray = section.childNodes
-					.find(n => n.tagName === "h2")
+					.find(n => n.tagName === "H2")
 					.rawText.split(" ");
 
 				//Remove day of week
@@ -472,7 +472,7 @@ export async function crawlNewGames(req, res) {
 					//Get Time
 					const timeElements = row.querySelectorAll(".ko").map(e => e.rawText.trim());
 
-					//Check for games with multiple timeszones
+					//Check for games with multiple timezones
 					let time = "00:00";
 					if (timeElements.length === 1) {
 						time = timeElements[0];

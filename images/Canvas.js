@@ -149,8 +149,7 @@ export default class Canvas {
 				buffer = await withSharp(buffer);
 				buffer = await buffer.toBuffer();
 			}
-			const image = await loadImage(buffer);
-			return image;
+			return await loadImage(buffer);
 		}
 	}
 	fit(contain, src, dx, dy, dw, dh, options) {
@@ -340,7 +339,7 @@ export default class Canvas {
 		ctx.fillStyle = this.ctx.fillStyle;
 		ctx.font = this.ctx.font;
 
-		let rowY = 0 + yPadding;
+		let rowY = yPadding;
 
 		//Draw Text
 		ctx.textAlign = "left";
