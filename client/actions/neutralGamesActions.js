@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_NEUTRAL_GAMES,
@@ -50,10 +51,11 @@ export const crawlNeutralGames = () => async (dispatch, getState, api) => {
 };
 
 export const crawlAndUpdateNeutralGames = () => async (dispatch, getState, api) => {
+	toast.success("Checking for games...");
 	const res = await api.get(`/neutralGames/crawl/update`);
-	const gameCount = Object.keys(res.data).length;
+	const gameCount = _.flatten(_.map(res.data, games => _.values(games))).length;
 	if (gameCount === 0) {
-		toast.error("No games to update");
+		toast.success("No games to update");
 	} else {
 		dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
 		toast.success(`Updated ${gameCount} ${gameCount.length === 1 ? "game" : "games"}`);

@@ -34,6 +34,12 @@
 	font-size: 1.4em;
 	display: inline-block;
 	width: 100%;
+
+	&.disabled {
+		pointer-events: none;
+		opacity: 0.5;
+		background: #333;
+	}
 }
 
 .admin-page {

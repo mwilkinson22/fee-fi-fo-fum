@@ -37,7 +37,9 @@ class AdminNeutralGameList extends Component {
 			fetchNeutralGameYears();
 		}
 
-		this.state = {};
+		this.state = {
+			isSyncingGames: false
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -119,6 +121,21 @@ class AdminNeutralGameList extends Component {
 		return newState;
 	}
 
+	async handleCrawlAndUpdate() {
+		const { crawlAndUpdateNeutralGames } = this.props;
+		const { isSyncing } = this.state;
+		if (!isSyncing) {
+			//Disable button
+			this.setState({ isSyncing: true });
+
+			//Perform sync
+			await crawlAndUpdateNeutralGames();
+
+			//Re-enable button
+			this.setState({ isSyncing: false });
+		}
+	}
+
 	generatePageHeader() {
 		const { neutralGameYears } = this.props;
 		const options = _.map(neutralGameYears, year => {
@@ -157,7 +174,7 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { year, games, teamTypeRedirect, isLoadingGames } = this.state;
+		const { year, games, teamTypeRedirect, isLoadingGames, isSyncing } = this.state;
 
 		if (!year || isLoadingGames) {
 			return <LoadingPage />;
@@ -195,10 +212,10 @@ class AdminNeutralGameList extends Component {
 							Manually add a new game
 						</Link>
 						<div
-							className="nav-card card"
-							onClick={() => this.props.crawlAndUpdateNeutralGames()}
+							className={`nav-card card${isSyncing ? " disabled" : ""}`}
+							onClick={() => this.handleCrawlAndUpdate()}
 						>
-							Force a sync
+							{isSyncing ? "Forcing" : "Force"} a sync
 						</div>
 						{gamesToEditSection}
 						<h3>All Games</h3>
