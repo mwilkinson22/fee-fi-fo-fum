@@ -10,7 +10,7 @@ module.exports = {
 		rules: [
 			{
 				test: /\.css$/,
-				loaders: [
+				use: [
 					"style-loader",
 					{
 						loader: "postcss-loader",
@@ -26,9 +26,14 @@ module.exports = {
 			{
 				test: /\.m?js$/,
 				loader: "babel-loader",
-				exclude: /node_modules\/(?!(kareem|he)\/).*/,
+				exclude: /node_modules\/(?!(kareem|he|node-html-parser)\/).*/,
 				options: {
-					plugins: ["@babel/plugin-transform-arrow-functions", "@loadable/babel-plugin"],
+					plugins: [
+						"@babel/plugin-proposal-optional-chaining",
+						"@babel/plugin-proposal-nullish-coalescing-operator",
+						"@babel/plugin-transform-arrow-functions",
+						"@loadable/babel-plugin"
+					],
 					presets: [
 						"@babel/preset-react",
 						[
