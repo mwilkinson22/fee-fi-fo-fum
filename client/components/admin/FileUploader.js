@@ -15,7 +15,7 @@ class FileUploader extends Component {
 		this.inputRef = React.createRef();
 
 		//Create State
-		this.state = {};
+		this.state = { isSubmitting: false };
 	}
 
 	onChange(ev) {
@@ -55,6 +55,7 @@ class FileUploader extends Component {
 			onComplete,
 			onDestroy
 		} = this.props;
+		this.setState({ isSubmitting: true });
 		const { currentFile } = this.state;
 		const res = await fetch(currentFile.preview);
 		const blob = await res.blob();
@@ -89,7 +90,7 @@ class FileUploader extends Component {
 		const { currentFile } = this.state;
 
 		if (isImage && currentFile && currentFile.preview) {
-			return <img src={currentFile.preview} />;
+			return <img src={currentFile.preview} alt="Preview" />;
 		}
 	}
 
@@ -150,7 +151,7 @@ class FileUploader extends Component {
 
 	renderButtons() {
 		const { onDestroy } = this.props;
-		const { currentFile } = this.state;
+		const { currentFile, isSubmitting } = this.state;
 
 		if (currentFile) {
 			return (
@@ -161,10 +162,12 @@ class FileUploader extends Component {
 					<button
 						type="button"
 						className="confirm"
-						disabled={!currentFile.name.length || !this.validateFileName()}
+						disabled={
+							!currentFile.name.length || !this.validateFileName() || isSubmitting
+						}
 						onClick={() => this.onSubmit(this.state.image)}
 					>
-						Upload
+						{isSubmitting ? "Uploading" : "Upload"}
 					</button>
 				</div>
 			);
