@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 
-export default class Boolean extends Component {
+//Pass in an onChange property which takes no arguments
+//Something like onChange={ () => this.setState({ myBool: !this.state.myBool }) }
+
+export default class BooleanSlider extends Component {
 	constructor(props) {
 		super(props);
 
