@@ -19,10 +19,10 @@ export default class YouTubeBlock extends Component {
 	}
 
 	render() {
-		const { videoId } = this.props.data;
+		const { videoId, videoStartTime } = this.props.data;
 		return (
 			<div className="custom-block youtube-wrapper">
-				<YouTubeVideo videoId={videoId} />
+				<YouTubeVideo videoId={videoId} startTime={videoStartTime} />
 			</div>
 		);
 	}

@@ -17,6 +17,7 @@ class YouTubeButton extends Component {
 		this.state = {
 			showInput: false,
 			videoId: "",
+			videoStartTime: 0,
 			previewVideoId: null
 		};
 	}
@@ -34,7 +35,7 @@ class YouTubeButton extends Component {
 	}
 
 	renderInput() {
-		const { previewVideoId, videoId } = this.state;
+		const { previewVideoId, videoId, videoStartTime } = this.state;
 
 		//Get destroy callback
 		const onDestroy = () =>
@@ -45,7 +46,7 @@ class YouTubeButton extends Component {
 		if (previewVideoId) {
 			previewVideo = (
 				<div className="full-span">
-					<YouTubeVideo videoId={previewVideoId} />
+					<YouTubeVideo videoId={previewVideoId} startTime={videoStartTime} />
 				</div>
 			);
 		}
@@ -57,6 +58,13 @@ class YouTubeButton extends Component {
 					type="text"
 					onChange={ev =>
 						this.setState({ videoId: ev.target.value, previewVideoId: null })
+					}
+				/>
+				<label>Start Time</label>
+				<input
+					type="number"
+					onChange={ev =>
+						this.setState({ videoStartTime: ev.target.value, previewVideoId: null })
 					}
 				/>
 				{previewVideo}
@@ -78,6 +86,7 @@ class YouTubeButton extends Component {
 							this.props.onChange(
 								insertDataBlock(this.props.editorState, {
 									videoId,
+									videoStartTime,
 									type: "youtube"
 								})
 							);
