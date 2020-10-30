@@ -1,6 +1,9 @@
 import ImageBlock from "~/client/components/news/entities/ImageBlock";
 import ImageButton from "~/client/components/news/entities/ImageButton";
 
+import VideoBlock from "~/client/components/news/entities/VideoBlock";
+import VideoButton from "~/client/components/news/entities/VideoButton";
+
 import SporcleBlock from "~/client/components/news/entities/SporcleBlock";
 import SporcleButton from "~/client/components/news/entities/SporcleButton";
 
@@ -18,6 +21,13 @@ const imagePlugin = {
 	type: "image",
 	buttonComponent: ImageButton,
 	blockComponent: ImageBlock
+};
+
+const videoPlugin = {
+	title: "Add Video",
+	type: "video",
+	buttonComponent: VideoButton,
+	blockComponent: VideoBlock
 };
 const sporclePlugin = {
 	title: "Embed Sporcle Quiz",
@@ -46,7 +56,7 @@ const teamFormPlugin = {
 };
 
 export default post => {
-	const plugins = [imagePlugin, sporclePlugin, twitterPlugin, youtubePlugin];
+	const plugins = [imagePlugin, videoPlugin, sporclePlugin, twitterPlugin, youtubePlugin];
 
 	if (post) {
 		//Add Game Preview Plugins
