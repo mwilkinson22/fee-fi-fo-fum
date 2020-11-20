@@ -48,7 +48,7 @@ class SquadListPage extends Component {
 			.value();
 
 		//Get Active Year
-		newState.year = newState.years.includes(match.params.year)
+		newState.year = newState.years.includes(Number(match.params.year))
 			? match.params.year
 			: newState.years[0];
 
@@ -118,7 +118,9 @@ class SquadListPage extends Component {
 		return [
 			<select
 				key="year-selector"
-				onChange={ev => this.props.history.push(`/squads/${ev.target.value}`)}
+				onChange={ev => {
+					this.props.history.push(`/squads/${ev.target.value}`);
+				}}
 				value={year}
 			>
 				{options}
