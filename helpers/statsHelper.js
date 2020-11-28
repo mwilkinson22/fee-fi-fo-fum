@@ -54,6 +54,7 @@ export function statToString(keyOrObject, value, maxDecimals = 2) {
  * that represents a custom stat type, and returns the key, a statObject
  * and an isCustomStat bool
  * @param { string | object } keyOrStatObject
+ * @param { Array } customStatTypes
  */
 export function resolveStatObject(keyOrStatObject, customStatTypes = []) {
 	//Set defaults
@@ -93,18 +94,19 @@ export function resolveStatObject(keyOrStatObject, customStatTypes = []) {
  * for every game passed in, but be missing metres and tackles for cup games
  *
  * @param { Array } arrayOfStats - An array of stat collection objects
+ * @param { Array } customStatTypes
  */
 export function getTotalsAndAverages(arrayOfStats, customStatTypes = []) {
 	//First, calculate which stats we need,
 	//creating an array of stat keys
-	const allFoundStatKeys = arrayOfStats
-		.map(statCollection => {
+	const allFoundStatKeys = _.flatten(
+		arrayOfStats.map(statCollection => {
 			//For each stat object, ensure we have average gain, tackle success, etc
 			const fullStatCollection = calculateAdditionalStats(statCollection);
 			//Return the stat keys
 			return Object.keys(fullStatCollection);
 		})
-		.flat();
+	);
 	const statKeysToProcess = _.uniq(allFoundStatKeys).filter(key =>
 		resolveStatObject(key, customStatTypes)
 	);
