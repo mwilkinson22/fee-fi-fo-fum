@@ -20,6 +20,7 @@ import playerPositions from "~/constants/playerPositions";
 
 //Helpers
 import { matchSlugToItem } from "~/helpers/routeHelper";
+import { hasConnectionToTeam } from "~/helpers/peopleHelper";
 
 class PersonPage extends Component {
 	constructor(props) {
@@ -72,19 +73,7 @@ class PersonPage extends Component {
 						newState.person = person;
 					} else {
 						//Ensure they have a connection to the local team
-						const isInLocalSquad =
-							person.squadEntries &&
-							person.squadEntries.find(s => s.team._id == localTeam);
-
-						const hasCoachedLocalSquad =
-							person.coachingRoles &&
-							person.coachingRoles.find(c => c._team == localTeam);
-
-						const hasPlayedForLocalTeam =
-							person.playedGames &&
-							person.playedGames.find(g => g.forLocalTeam && !g.pregameOnly);
-
-						if (isInLocalSquad || hasCoachedLocalSquad || hasPlayedForLocalTeam) {
+						if (hasConnectionToTeam(person, localTeam)) {
 							newState.person = person;
 						} else {
 							newState.person = false;

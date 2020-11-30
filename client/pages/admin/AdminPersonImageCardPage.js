@@ -9,6 +9,7 @@ import BasicSocialForm from "~/client/components/admin/BasicSocialForm";
 
 //Actions
 import { fetchPersonImageCard, postPersonImageCard } from "~/client/actions/peopleActions";
+import { hasConnectionToTeam } from "~/helpers/peopleHelper";
 
 class AdminPersonImageCardPage extends Component {
 	constructor(props) {
@@ -31,6 +32,29 @@ class AdminPersonImageCardPage extends Component {
 		const { postPersonImageCard } = this.props;
 		const { person } = this.state;
 		return postPersonImageCard(person._id, values);
+	}
+
+	getSocialVariables() {
+		const { localTeam, baseUrl } = this.props;
+		const { person } = this.state;
+
+		const variables = [];
+
+		//Add twitter account
+		if (person.twitter) {
+			variables.push({ label: `@${person.twitter}`, value: `@${person.twitter}` });
+		}
+
+		//Check if they have a valid person page
+		const connections = hasConnectionToTeam(person, localTeam, true);
+		if (connections.hasPlayedForTeam || connections.isInSquad) {
+			variables.push({ label: "Player Page", value: `${baseUrl}/players/${person.slug}` });
+		}
+		if (connections.hasCoachedTeam) {
+			variables.push({ label: "Coach Page", value: `${baseUrl}/coaches/${person.slug}` });
+		}
+
+		return variables;
 	}
 
 	render() {
@@ -63,6 +87,7 @@ class AdminPersonImageCardPage extends Component {
 						</button>
 					}
 					submitOverride={values => this.handleSubmit(values)}
+					variables={this.getSocialVariables()}
 				/>
 			);
 		}
@@ -71,9 +96,10 @@ class AdminPersonImageCardPage extends Component {
 	}
 }
 
-function mapStateToProps({ people }) {
+function mapStateToProps({ config, people }) {
+	const { baseUrl, localTeam } = config;
 	const { fullPeople } = people;
-	return { fullPeople };
+	return { baseUrl, localTeam, fullPeople };
 }
 
 export default connect(mapStateToProps, { fetchPersonImageCard, postPersonImageCard })(
