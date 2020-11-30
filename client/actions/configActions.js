@@ -11,7 +11,9 @@ import {
 	airbrakeId,
 	airbrakeKey,
 	googleMapsKey,
-	sites
+	sites,
+	mainColour,
+	trimColour
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -76,7 +78,11 @@ export const getCoreConfig = req => async dispatch => {
 		fansCanAttend,
 
 		//Sites
-		sites
+		sites,
+
+		//Colours
+		mainColour,
+		trimColour
 	};
 
 	//Add Bucket Paths

@@ -36,7 +36,7 @@ import PregameImage from "~/images/PregameImage";
 import FixtureListImage from "~/images/FixtureListImage";
 import SquadImage from "~/images/SquadImage";
 import GameEventImage from "~/images/GameEventImage";
-import PlayerEventImage from "~/images/PlayerEventImage";
+import PersonImageCard from "~/images/PersonImageCard";
 import TeamStatsImage from "~/images/TeamStatsImage";
 import MultiplePlayerStats from "~/images/MultiplePlayerStats";
 import LeagueTable from "~/images/LeagueTable";
@@ -842,7 +842,7 @@ export async function fetchSquadImage(req, res) {
 
 async function generatePlayerEventImage(player, event, basicGame) {
 	const [game] = await getExtraGameInfo([basicGame], true, true);
-	const image = new PlayerEventImage(player, { game });
+	const image = new PersonImageCard(player, { game });
 	await image.drawGameData(true);
 	await image.drawGameEvent(event);
 	return image;
@@ -981,7 +981,7 @@ async function generatePostGameEventImage(game, data, res) {
 			case "team-stats":
 				return new TeamStatsImage(game, data.teamStats);
 			case "player-stats": {
-				const image = new PlayerEventImage(_player, { game });
+				const image = new PersonImageCard(_player, { game });
 				await image.drawGameData();
 				await image.drawGameStats(data.playerStats);
 				return image;

@@ -152,7 +152,7 @@ class BasicSocialForm extends Component {
 		let { additionalFieldGroups } = this.state;
 
 		//Set initial fieldgroup array
-		const fieldGroups = [{ label }];
+		const fieldGroups = [];
 
 		//Set initial field array
 		const fields = [];
@@ -198,10 +198,11 @@ class BasicSocialForm extends Component {
 		}
 
 		//Add everything to fieldgroup object
+		const basicObject = { fields, label };
 		if (additionalFieldsComeAfter) {
-			fieldGroups.push({ fields }, ...additionalFieldGroups);
+			fieldGroups.push(basicObject, ...additionalFieldGroups);
 		} else {
-			fieldGroups.push(...additionalFieldGroups, { fields });
+			fieldGroups.push(...additionalFieldGroups, basicObject);
 		}
 
 		//Add Preview Fields

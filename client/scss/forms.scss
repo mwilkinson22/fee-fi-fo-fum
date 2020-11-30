@@ -40,6 +40,8 @@
 		left: 0;
 		right: 0;
 		margin: auto;
+		display: block;
+		max-height: 50vh;
 	}
 	.plain-list {
 		font-size: 1.2em;
@@ -95,9 +97,15 @@
 		display: flex;
 		justify-content: space-between;
 		flex-wrap: wrap;
+		&.rtl {
+			flex-direction: row-reverse;
+		}
 		button {
 			white-space: nowrap;
 		}
+	}
+	&.no-padding .buttons {
+		padding: 10pt 20pt;
 	}
 
 	input,

@@ -14,8 +14,8 @@ import { localTeam } from "~/config/keys";
 //Helpers
 import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
 
-export default class PlayerEventImage extends Canvas {
-	constructor(player, options = {}) {
+export default class PersonImageCard extends Canvas {
+	constructor(_id, options = {}) {
 		//Set Dimensions
 		const cWidth = 1200;
 		const cHeight = cWidth * 0.6;
@@ -67,16 +67,19 @@ export default class PlayerEventImage extends Canvas {
 		};
 
 		//Variables
-		this.player = player;
+		this._id = _id;
 		this.backgroundRendered = false;
-		this.playerDataRendered = false;
-		this.game = options.game;
+		this.personDataRendered = false;
+		this.options = {
+			includeName: true,
+			...options
+		};
 	}
 
 	async loadTeamBadges() {
 		if (!this.teamBadges) {
 			const teams = await Team.find(
-				{ _id: { $in: [localTeam, this.game._opposition._id] } },
+				{ _id: { $in: [localTeam, this.options.game._opposition._id] } },
 				"images"
 			);
 			this.teamBadges = {};
@@ -107,14 +110,14 @@ export default class PlayerEventImage extends Canvas {
 		}
 		await this.getBranding();
 		await this.loadTeamBadges();
-		const { branding, ctx, positions, game, cWidth, cHeight, textStyles } = this;
+		const { branding, ctx, positions, options, cWidth, cHeight, textStyles } = this;
 
 		//Add Team Objects
 		let teams = [
 			{ id: localTeam, colours: { main: this.colours.lightClaret, text: "#FFFFFF" } },
-			{ id: game._opposition._id, colours: game._opposition.colours }
+			{ id: options.game._opposition._id, colours: options.game._opposition.colours }
 		];
-		if (game.isAway) {
+		if (options.game.isAway) {
 			teams = teams.reverse();
 		}
 
@@ -165,7 +168,7 @@ export default class PlayerEventImage extends Canvas {
 			ctx.font = textStyles.score.string;
 			ctx.textAlign = i === 0 ? "right" : "left";
 			ctx.fillText(
-				game.score[id],
+				options.game.score[id],
 				cWidth - barWidth + relativeTextOffset,
 				barTop + barHeight / 2 + textStyles.score.size * 0.36
 			);
@@ -174,7 +177,7 @@ export default class PlayerEventImage extends Canvas {
 		//Add Game and brand logos
 		const brandLogoUrl = `images/layout/branding/${branding.site_logo}`;
 		if (includeGameLogo) {
-			const gameLogoUrl = game.images.logo || brandLogoUrl;
+			const gameLogoUrl = options.game.images.logo || brandLogoUrl;
 			const gameLogo = await this.googleToCanvas(gameLogoUrl);
 			this.contain(
 				gameLogo,
@@ -185,33 +188,44 @@ export default class PlayerEventImage extends Canvas {
 			);
 		}
 
-		if (game.images.logo || !includeGameLogo) {
-			const brandLogo = await this.googleToCanvas(brandLogoUrl);
-			ctx.shadowBlur = 20;
-			ctx.shadowColor = "#000";
-			this.contain(
-				brandLogo,
-				Math.round(cWidth * 0.04),
-				Math.round(cHeight * 0.05),
-				Math.round(cWidth * 0.1),
-				Math.round(cHeight * 0.1)
-			);
-			this.resetShadow();
+		if (options.game.images.logo || !includeGameLogo) {
+			await this.drawBrandLogo();
 		}
 	}
 
-	async drawPlayerData() {
+	async drawBrandLogo() {
+		if (!this.branding) {
+			await this.getBranding();
+		}
+
+		const { branding, ctx, cHeight, cWidth } = this;
+		const brandLogoUrl = `images/layout/branding/${branding.site_logo}`;
+		const brandLogo = await this.googleToCanvas(brandLogoUrl);
+
+		ctx.shadowBlur = 20;
+		ctx.shadowColor = "#000";
+		this.contain(
+			brandLogo,
+			Math.round(cWidth * 0.04),
+			Math.round(cHeight * 0.05),
+			Math.round(cWidth * 0.1),
+			Math.round(cHeight * 0.1)
+		);
+		this.resetShadow();
+	}
+
+	async drawPersonData() {
 		if (!this.backgroundRendered) {
 			await this.drawBackground();
 		}
-		const { ctx, cWidth, cHeight, player, game, textStyles, positions } = this;
-		let squadNumber, firstName, lastName, image, isPlayerImage;
+		const { ctx, cWidth, cHeight, _id, options, textStyles, positions } = this;
+		let squadNumber, firstName, lastName, image, usePersonImage;
 		//Save time by pulling data from game, if possible
-		if (this.game) {
-			const { _team } = _.find(this.game.playerStats, ({ _player }) => _player._id == player);
+		if (options.game) {
+			const { _team } = _.find(options.game.playerStats, ({ _player }) => _player._id == _id);
 			const { _player, number } = _.find(
-				game.eligiblePlayers[_team],
-				({ _player }) => _player._id == player
+				options.game.eligiblePlayers[_team],
+				({ _player }) => _player._id == _id
 			);
 			squadNumber = number;
 			firstName = _player.name.first;
@@ -220,54 +234,68 @@ export default class PlayerEventImage extends Canvas {
 				image = await this.googleToCanvas(
 					`images/people/full/${_player.images.player || _player.images.main}`
 				);
-				isPlayerImage = true;
+				usePersonImage = true;
 			} else if (this.teamBadges) {
 				image = this.teamBadges[_team];
-				isPlayerImage = false;
+				usePersonImage = false;
 			}
 		} else {
-			const player = await Person.findById(player, "name images").lean();
-			firstName = player.name.first;
-			lastName = player.name.last;
-			image = await this.googleToCanvas(
-				`images/people/full/${player.images.player || player.images.main}`
-			);
-			isPlayerImage = true;
+			const person = await Person.findById(_id, "name images").lean();
+
+			//Get name
+			firstName = person.name.first;
+			lastName = person.name.last;
+
+			//Get image url
+			let { imageType } = options;
+			if (!imageType) {
+				imageType = "main";
+			}
+			const imageUrl = `images/people/full/${person.images[imageType]}`;
+			image = await this.googleToCanvas(imageUrl);
+
+			usePersonImage = true;
 		}
 
 		//Draw Name
-		const firstRow = [];
-		if (squadNumber) {
-			firstRow.push({
-				text: `${squadNumber}. `,
-				font: textStyles.squadNumber.string,
-				colour: this.colours.lightClaret
-			});
-		}
-		firstRow.push({
-			text: firstName.toUpperCase(),
-			font: textStyles.playerName.string,
-			colour: "#FFF"
-		});
-
-		const secondRow = [
-			{ text: lastName.toUpperCase(), colour: "#FC0", maxWidth: Math.round(cWidth * 0.55) }
-		];
-
-		//Output text
-		ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.003);
-		ctx.shadowColor = "black";
-		this.textBuilder(
-			[firstRow, secondRow],
-			cWidth - positions.rightPanelWidth / 2,
-			cHeight * 0.87,
-			{
-				lineHeight: 1.1
+		if (options.includeName) {
+			const firstRow = [];
+			if (squadNumber) {
+				firstRow.push({
+					text: `${squadNumber}. `,
+					font: textStyles.squadNumber.string,
+					colour: this.colours.lightClaret
+				});
 			}
-		);
-		this.resetShadow();
+			firstRow.push({
+				text: firstName.toUpperCase(),
+				font: textStyles.playerName.string,
+				colour: "#FFF"
+			});
 
-		if (isPlayerImage) {
+			const secondRow = [
+				{
+					text: lastName.toUpperCase().replace(/^MC/, "Mc"),
+					colour: "#FC0",
+					maxWidth: Math.round(cWidth * 0.55)
+				}
+			];
+
+			//Output text
+			ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.003);
+			ctx.shadowColor = "black";
+			this.textBuilder(
+				[firstRow, secondRow],
+				cWidth - positions.rightPanelWidth * 0.52,
+				cHeight * 0.87,
+				{
+					lineHeight: 1.1
+				}
+			);
+			this.resetShadow();
+		}
+
+		if (usePersonImage) {
 			this.cover(
 				image,
 				0,
@@ -288,11 +316,11 @@ export default class PlayerEventImage extends Canvas {
 			);
 		}
 
-		this.playerDataRendered = true;
+		this.personDataRendered = true;
 	}
 
 	async drawGameEvent(event) {
-		const { ctx, cWidth, cHeight, positions, game, textStyles } = this;
+		const { ctx, cWidth, cHeight, positions, options, textStyles } = this;
 		let rows = [];
 		let size = Math.round(cHeight * 0.18);
 		let height = Math.round(cHeight * 0.375);
@@ -302,7 +330,7 @@ export default class PlayerEventImage extends Canvas {
 		ctx.shadowOffsetY = 5;
 
 		//Add Golden Point for extra time
-		if (game.extraTime && ["T", "PK", "DG", "CN", "HT"].indexOf(event) > -1) {
+		if (options.game.extraTime && ["T", "PK", "DG", "CN", "HT"].indexOf(event) > -1) {
 			const hashtagSize = textStyles.hashtag.size;
 			const font = textStyles.hashtag.string;
 			const hashtagRows = [
@@ -443,7 +471,7 @@ export default class PlayerEventImage extends Canvas {
 				rows.push(
 					[
 						{
-							text: game.genderedString,
+							text: options.game.genderedString,
 							size: size * 0.8
 						}
 					],
@@ -477,13 +505,63 @@ export default class PlayerEventImage extends Canvas {
 		this.textBuilder(rows, cWidth - positions.rightPanelWidth / 2, height);
 	}
 
-	drawGameStats(statTypes) {
-		const { ctx, colours, cHeight, cWidth, game, player, textStyles } = this;
+	async drawCustomText(textRows, xAlign, lineHeight) {
+		const { ctx, cHeight, cWidth, positions, options } = this;
 
-		const rows = formatPlayerStatsForImage(game, player, statTypes, textStyles, colours, {
-			fan_potm: cHeight * 0.05,
-			steel: cHeight * 0.055
+		if (!this.backgroundRendered) {
+			await this.drawBackground();
+		}
+
+		//Then, convert each line to a textBuilder format
+		const rows = textRows.map(row => {
+			return row.map(({ text, colour, size, font }) => ({
+				text,
+				colour,
+				font: `${Math.round(cHeight * (size / 100))}px ${font}`
+			}));
 		});
+
+		//Work out x positioning based on xAlign
+		let x;
+		switch (xAlign) {
+			case "left":
+				x = cWidth - positions.rightPanelWidth * 0.9;
+				break;
+			case "right":
+				x = cWidth - positions.rightPanelWidth * 0.1;
+				break;
+			default:
+				x = cWidth - positions.rightPanelWidth * 0.5;
+		}
+
+		//Work out y positioning based on whether or not we include the name
+		const y = options.includeName ? cHeight * 0.42 : cHeight * 0.5;
+
+		//Finally, draw text
+		ctx.shadowColor = "black";
+		ctx.shadowOffsetX = 2;
+		ctx.shadowOffsetY = 2;
+		this.textBuilder(rows, x, y, {
+			xAlign,
+			lineHeight
+		});
+		this.resetShadow();
+	}
+
+	drawGameStats(statTypes) {
+		const { ctx, colours, cHeight, cWidth, options, player, textStyles } = this;
+
+		const rows = formatPlayerStatsForImage(
+			options.game,
+			player,
+			statTypes,
+			textStyles,
+			colours,
+			{
+				fan_potm: cHeight * 0.05,
+				steel: cHeight * 0.055
+			}
+		);
 
 		ctx.shadowColor = "black";
 		ctx.shadowOffsetX = 2;
@@ -496,8 +574,8 @@ export default class PlayerEventImage extends Canvas {
 	drawSteelPoints() {}
 
 	async render(forTwitter = false) {
-		if (!this.playerDataRendered) {
-			await this.drawPlayerData();
+		if (!this.personDataRendered) {
+			await this.drawPersonData();
 		}
 
 		return this.outputFile(forTwitter ? "twitter" : "base64");

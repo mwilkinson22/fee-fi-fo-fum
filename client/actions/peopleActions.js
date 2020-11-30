@@ -75,3 +75,15 @@ export const parsePlayerList = data => async (dispatch, getState, api) => {
 	const res = await api.post(`/people/parsePlayerList`, data);
 	return res.data;
 };
+
+export const fetchPersonImageCard = (person, data) => async (dispatch, getState, api) => {
+	const res = await api.post(`/people/${person}/getImageCard`, data);
+	return res.data;
+};
+export const postPersonImageCard = (person, data) => async (dispatch, getState, api) => {
+	const res = await api.post(`/people/${person}/postImageCard`, data);
+	if (res.data) {
+		toast.success("Image Posted");
+	}
+	return res.data;
+};

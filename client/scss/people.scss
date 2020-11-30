@@ -451,3 +451,43 @@ a .person-image {
 		}
 	}
 }
+
+.admin-person-image-card-page {
+	.summary {
+		&.disabled {
+			pointer-events: none;
+		}
+
+		&:not(.disabled) {
+			li:hover {
+				background: #f4f4f4;
+				cursor: pointer;
+			}
+		}
+		li {
+			padding: 20pt;
+			strong {
+				display: block;
+				font-size: 1.1em;
+			}
+			&:not(:last-child) {
+				border-bottom: 1pt #e4e4e4 solid;
+			}
+
+			@media #{$desktop-and-tablet} {
+				display: flex;
+				.content {
+					flex-grow: 1;
+				}
+			}
+		}
+	}
+	.row-editor {
+		.colour-buttons {
+			justify-content: flex-start;
+			button:not(:last-child) {
+				margin-right: 3pt;
+			}
+		}
+	}
+}

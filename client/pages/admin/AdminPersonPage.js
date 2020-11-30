@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, Switch, Route } from "react-router-dom";
@@ -12,6 +13,7 @@ import HelmetBuilder from "../../components/HelmetBuilder";
 
 //Pages
 import AdminPersonOverview from "~/client/components/admin/teams/AdminPersonOverview";
+import AdminPersonImageCardPage from "./AdminPersonImageCardPage";
 import AdminPlayerDetails from "~/client/components/admin/people/AdminPlayerDetails";
 import AdminCoachDetails from "~/client/components/admin/teams/AdminCoachDetails";
 import AdminRefereeDetails from "~/client/components/admin/teams/AdminRefereeDetails";
@@ -68,6 +70,11 @@ class AdminPersonPage extends Component {
 
 		if (!isNew) {
 			const submenuItems = [{ label: "Overview", slug: "", isExact: true }];
+
+			if (Object.values(person.images).filter(_.identity).length) {
+				submenuItems.push({ label: "Image Card", slug: "image-card" });
+			}
+
 			if (person.isPlayer) {
 				submenuItems.push({ label: "Player Details", slug: "player" });
 			}
@@ -103,6 +110,10 @@ class AdminPersonPage extends Component {
 							<Route
 								path="/admin/people/:_id/player"
 								component={AdminPlayerDetails}
+							/>
+							<Route
+								path="/admin/people/:_id/image-card"
+								component={AdminPersonImageCardPage}
 							/>
 							<Route
 								path="/admin/people/:_id"

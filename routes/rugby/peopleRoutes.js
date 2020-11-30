@@ -16,6 +16,8 @@ export default app => {
 	app.put("/api/people/", requireAdmin, peopleController.updatePeople);
 
 	//Post
+	app.post("/api/people/:_id/postImageCard", requireAdmin, peopleController.postImageCard);
+	app.post("/api/people/:_id/getImageCard", requireAdmin, peopleController.getImageCard);
 	app.post("/api/people", requireAdmin, peopleController.createPerson);
 	app.post("/api/people/parsePlayerList", requireAdmin, peopleController.parsePlayerList);
 

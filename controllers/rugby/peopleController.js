@@ -15,6 +15,10 @@ const { localTeam } = require("../../config/keys");
 //Helpers
 import { getRedirects } from "../genericController";
 
+//Images
+import PersonImageCard from "~/images/PersonImageCard";
+import { postToSocial } from "~/controllers/oAuthController";
+
 async function validatePerson(_id, res) {
 	if (!_id) {
 		res.status(400).send(`No id provided`);
@@ -143,14 +147,12 @@ async function getCoachingRoles(_id) {
 }
 
 async function getReffedGames(_id) {
-	const reffedGames = await Game.find(
+	return Game.find(
 		{
 			$or: [{ _referee: _id }, { _video_referee: _id }]
 		},
 		"slug date"
 	).lean();
-
-	return reffedGames;
 }
 
 //Getters
@@ -239,6 +241,56 @@ export async function setExternalNames(req, res) {
 		await Person.findByIdAndUpdate(obj._player, { externalName: obj.name });
 	}
 	res.send({});
+}
+
+//Image card
+export async function getImageCard(req, res) {
+	const { _id } = req.params;
+	const person = validatePerson(_id, res);
+	if (person) {
+		const image = await generateImageCard(_id, req.body);
+		const output = await image.render(false);
+		res.send(output);
+	}
+}
+export async function postImageCard(req, res) {
+	const { _id } = req.params;
+	const person = validatePerson(_id, res);
+	if (person) {
+		const { content, channels, _profile, replyTweet, ...imageData } = req.body;
+
+		//Create Image
+		const image = await generateImageCard(_id, imageData);
+		const output = await image.render(true);
+
+		//Upload to twitter
+		const result = await postToSocial("twitter", content, {
+			_profile,
+			images: [output],
+			replyTweet
+		});
+
+		//Handle errors
+		if (!result.success) {
+			res.send(result.error);
+			return;
+		}
+
+		//Upload to facebook
+		if (channels.find(c => c == "facebook")) {
+			const tweetMediaObject = result.post.entities.media;
+			const images = tweetMediaObject.map(t => t.media_url);
+			await postToSocial("facebook", content, { _profile, images });
+		}
+
+		res.send({});
+	}
+}
+async function generateImageCard(person, data) {
+	const options = { imageType: data.imageType, includeName: data.includeName };
+	const image = new PersonImageCard(person, options);
+	await image.drawCustomText(data.textRows, data.alignment, data.lineHeight);
+	return image;
 }
 
 //Parser
