@@ -18,7 +18,7 @@ export default class PersonImageCard extends Canvas {
 	constructor(_id, options = {}) {
 		//Set Dimensions
 		const cWidth = 1200;
-		const cHeight = cWidth * 0.6;
+		const cHeight = cWidth * 0.5;
 
 		//Load In Fonts
 		const fonts = [
@@ -549,19 +549,12 @@ export default class PersonImageCard extends Canvas {
 	}
 
 	drawGameStats(statTypes) {
-		const { ctx, colours, cHeight, cWidth, options, player, textStyles } = this;
+		const { ctx, colours, cHeight, cWidth, options, _id, textStyles } = this;
 
-		const rows = formatPlayerStatsForImage(
-			options.game,
-			player,
-			statTypes,
-			textStyles,
-			colours,
-			{
-				fan_potm: cHeight * 0.05,
-				steel: cHeight * 0.055
-			}
-		);
+		const rows = formatPlayerStatsForImage(options.game, _id, statTypes, textStyles, colours, {
+			fan_potm: cHeight * 0.05,
+			steel: cHeight * 0.055
+		});
 
 		ctx.shadowColor = "black";
 		ctx.shadowOffsetX = 2;
