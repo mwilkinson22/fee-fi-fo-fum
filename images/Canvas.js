@@ -315,7 +315,15 @@ export default class Canvas {
 				}
 				const dimensions = this.ctx.measureText(text);
 				rowWidth += Math.min(dimensions.width, maxWidth || dimensions.width);
-				rowHeight = Math.max(rowHeight, dimensions.actualBoundingBoxAscent);
+
+				// If we've passed in a row that only contains whitespace,
+				// there's a good chance we want to use it as a line break.
+				// So we get the height by measuring a random character
+				let textHeight = dimensions.actualBoundingBoxAscent;
+				if (textHeight === 0) {
+					textHeight = this.ctx.measureText("a").actualBoundingBoxAscent;
+				}
+				rowHeight = Math.max(rowHeight, textHeight);
 			});
 
 			//Update Totals
