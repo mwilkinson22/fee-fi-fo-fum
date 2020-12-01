@@ -9,7 +9,7 @@ export default class GameEventImage extends Canvas {
 	constructor(game, event) {
 		//Set Dimensions
 		const cWidth = 1200;
-		const cHeight = cWidth * 0.6;
+		const cHeight = cWidth * 0.5;
 
 		//Load In Fonts
 		const fonts = [
@@ -23,11 +23,15 @@ export default class GameEventImage extends Canvas {
 		//Constants
 		const textStyles = {
 			event: {
-				size: Math.round(cHeight * 0.2),
+				size: Math.round(cHeight * 0.23),
 				family: "Monstro"
 			},
 			score: {
 				size: Math.round(cHeight * 0.15),
+				family: "Montserrat"
+			},
+			hashtag: {
+				size: Math.round(cHeight * 0.05),
 				family: "Montserrat"
 			}
 		};
@@ -72,9 +76,9 @@ export default class GameEventImage extends Canvas {
 	async drawTeamBanners() {
 		const { ctx, game, teams, cHeight, cWidth, textStyles } = this;
 		const bannerHeight = Math.round(cHeight * 0.25);
-		const bannerTop = Math.round((cHeight - bannerHeight) / 2);
+		const bannerTop = Math.round((cHeight - bannerHeight) * 0.7);
 		const scoreOffset = Math.round(cHeight * 0.05);
-		const badgeOffset = Math.round(cWidth * 0.15);
+		const badgeOffset = Math.round(cWidth * 0.12);
 		const badgeWidth = Math.round(cWidth * 0.3);
 		const badgeHeight = Math.round(cHeight * 0.4);
 
@@ -96,7 +100,7 @@ export default class GameEventImage extends Canvas {
 			ctx.fillText(
 				game.score[team._id],
 				cWidth * 0.5 + (i === 0 ? 0 - scoreOffset : scoreOffset),
-				cHeight * 0.5 + textStyles.score.size * 0.35
+				bannerTop + bannerHeight / 2 + textStyles.score.size * 0.35
 			);
 
 			//Add Badges
@@ -143,20 +147,48 @@ export default class GameEventImage extends Canvas {
 				]
 			],
 			cWidth / 2,
-			cHeight / 5
+			cHeight * 0.28
 		);
+
+		//Add hashtag
+		const hashtagAndLogoY = cHeight * 0.865;
+		if (game.hashtags && game.hashtags.length) {
+			const [hashtag] = game.hashtags;
+			ctx.font = textStyles.hashtag.string;
+			ctx.textAlign = "center";
+			ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.002);
+			const rows = [
+				[
+					{ text: "#", colour: colours.gold },
+					{ text: hashtag, colour: colours.white }
+				]
+			];
+			this.textBuilder(rows, cWidth * 0.5, hashtagAndLogoY, { padding: 0.3 });
+		}
 		this.resetShadow();
 
-		//Add Game Logo
-		const logoWidth = Math.round(cWidth / 4);
-		const gameLogoUrl = game.images.logo || `images/layout/branding/${branding.site_logo}`;
-		const gameLogo = await this.googleToCanvas(gameLogoUrl);
+		//Add Logos
+		const logoWidth = Math.round(cWidth * 0.07);
+		const logoHeight = Math.round(cHeight * 0.1);
+		const logoX = cWidth * 0.015;
+		const gameLogoUrl = game.images.logo;
+		if (gameLogoUrl) {
+			const gameLogo = await this.googleToCanvas(gameLogoUrl);
+			this.contain(gameLogo, logoX, hashtagAndLogoY - logoHeight / 2, logoWidth, logoHeight, {
+				xAlign: "left"
+			});
+		}
+		const brandLogoUrl = `images/layout/branding/${branding.site_logo}`;
+		const brandLogo = await this.googleToCanvas(brandLogoUrl);
 		this.contain(
-			gameLogo,
-			(cWidth - logoWidth) / 2,
-			Math.round(cHeight * 0.67),
+			brandLogo,
+			cWidth - logoX - logoWidth,
+			hashtagAndLogoY - logoHeight / 2,
 			logoWidth,
-			Math.round(cHeight * 0.24)
+			logoHeight,
+			{
+				xAlign: "right"
+			}
 		);
 	}
 

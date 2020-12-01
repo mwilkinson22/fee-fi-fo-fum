@@ -299,9 +299,9 @@ export default class PersonImageCard extends Canvas {
 			this.cover(
 				image,
 				0,
-				Math.round(cHeight * 0.05),
+				Math.round(cHeight * 0.02),
 				Math.round(cWidth * 0.5),
-				Math.round(cHeight * 0.95),
+				Math.round(cHeight * 0.98),
 				{ xAlign: "right", yAlign: "top" }
 			);
 		} else {

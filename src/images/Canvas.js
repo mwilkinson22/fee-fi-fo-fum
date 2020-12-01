@@ -12,7 +12,8 @@ export default class Canvas {
 		//Constants
 		this.colours = {
 			claret: "#751432",
-			gold: "#FFCC00"
+			gold: "#FFCC00",
+			white: "#FFFFFF"
 		};
 
 		this.initialise(w, h);
