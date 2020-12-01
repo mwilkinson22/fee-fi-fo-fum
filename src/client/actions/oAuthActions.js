@@ -1,4 +1,4 @@
-import { FETCH_OAUTH_ACCOUNTS } from "../actions/types";
+import { FETCH_OAUTH_ACCOUNTS } from "./types";
 
 export const getAuthorisedAccounts = (includeSecret = false) => async (dispatch, getState, api) => {
 	//includeSecret should only be set for admin users setting up

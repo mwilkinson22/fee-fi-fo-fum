@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 //Components
-import LoadingPage from "../../components/LoadingPage";
+import LoadingPage from "../LoadingPage";
 import Table from "../Table";
 import TeamImage from "~/client/components/teams/TeamImage";
 

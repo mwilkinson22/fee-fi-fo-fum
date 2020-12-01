@@ -75,7 +75,7 @@ module.exports = {
 					},
 					//Maps environment variables into scss variables
 					{
-						loader: "./config/sassEnvLoader"
+						loader: "./src/config/sassEnvLoader"
 					}
 				]
 			}
@@ -87,7 +87,7 @@ module.exports = {
 	},
 	resolve: {
 		alias: {
-			"~": path.resolve(".")
+			"~": path.resolve(".", "src")
 		}
 	},
 

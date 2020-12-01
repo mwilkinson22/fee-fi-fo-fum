@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchLegacyNewsPost } from "../../actions/newsActions";
-import LoadingPage from "../../components/LoadingPage";
+import LoadingPage from "../LoadingPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 import { Redirect } from "react-router-dom";
 

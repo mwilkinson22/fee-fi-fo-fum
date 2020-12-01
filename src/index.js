@@ -110,7 +110,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Set up static routes
-app.use(express.static("public"));
+app.use(express.static("dist/public"));
 
 // API Routes
 adminRoutes(app);

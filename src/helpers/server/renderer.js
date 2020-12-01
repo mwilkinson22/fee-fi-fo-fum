@@ -10,7 +10,7 @@ import path from "path";
 import { ChunkExtractor } from "@loadable/server";
 
 export default (req, store, context) => {
-	const statsFile = path.resolve("./public/loadable-stats.json");
+	const statsFile = path.resolve("./dist/public/loadable-stats.json");
 	const chunkExtractor = new ChunkExtractor({ statsFile });
 	const app = chunkExtractor.collectChunks(
 		<Provider store={store}>

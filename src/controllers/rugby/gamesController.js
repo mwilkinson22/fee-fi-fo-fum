@@ -1120,7 +1120,7 @@ export async function submitPostGameEvents(req, res) {
 //Calendar
 export async function getCalendar(req, res) {
 	const query = {
-		date: { $gt: new Date() },
+		date: { $gt: new Date("2020-01-01") },
 		hideGame: false
 	};
 

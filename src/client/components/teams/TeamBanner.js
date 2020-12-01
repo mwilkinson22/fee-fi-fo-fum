@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import TeamImage from "../../components/teams/TeamImage";
+import TeamImage from "./TeamImage";
 
 export default class TeamBanner extends Component {
 	constructor(props) {

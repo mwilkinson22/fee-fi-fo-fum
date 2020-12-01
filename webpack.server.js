@@ -8,12 +8,12 @@ const config = {
 	target: "node",
 
 	//Tell webpack the root file
-	entry: "./index.js",
+	entry: "./src/index.js",
 
 	//output file
 	output: {
 		filename: "bundle.js",
-		path: path.resolve(__dirname, "build")
+		path: path.resolve(__dirname, "dist", "build")
 	},
 
 	externals: [webpackNodeExternals()]

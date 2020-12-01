@@ -2,20 +2,20 @@
 	"name": "fee-fi-fo-fum",
 	"version": "1.0.0",
 	"description": "Fee Fi Fo Fum",
-	"main": "index.js",
+	"main": "src/index.js",
 	"engines": {
 		"node": "14.15.0",
 		"npm": "6.14.8"
 	},
 	"scripts": {
-		"start": "node build/bundle.js",
+		"start": "node dist/build/bundle.js",
 		"build": "NODE_ENV=production npm-run-all --parallel build:*",
 		"build:client": "webpack --config webpack.client.js -p --mode=production",
-		"build:css": "node-sass client/scss/styles.scss --output-style compressed -o public",
+		"build:css": "node-sass src/client/scss/styles.scss --output-style compressed -o dist/public",
 		"build:server": "webpack --config webpack.server.js -p --mode=production",
 		"dev": "npm-run-all --parallel dev:*",
-		"dev:css": "node-sass client/scss/styles.scss -o public",
-		"dev:server": "nodemon --watch build --exec node build/bundle.js",
+		"dev:css": "node-sass src/client/scss/styles.scss -o dist/public",
+		"dev:server": "nodemon --watch dist/build --exec node dist/build/bundle.js",
 		"dev:build-server": "webpack --config webpack.server.js --watch --mode=development",
 		"dev:build-client": "webpack --config webpack.client.js --watch --mode=development",
 		"mergeToMaster": "git push && git checkout master && git merge develop && git push && git checkout develop"

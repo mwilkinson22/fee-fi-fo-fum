@@ -43,7 +43,7 @@ export default class Canvas {
 			if (!file || !family) {
 				console.error("Invalid Font Data", font);
 			} else {
-				registerFont(`./assets/fonts/${file}`, { family, ...data });
+				registerFont(`./src/assets/fonts/${file}`, { family, ...data });
 			}
 		});
 	}

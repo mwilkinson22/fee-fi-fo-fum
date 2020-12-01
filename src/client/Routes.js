@@ -168,7 +168,7 @@ export default [
 				path: "/privacy"
 			},
 			{
-				component: loadable(() => import("./components/admin/index.js"), { fallback }),
+				component: loadable(() => import("./components/admin"), { fallback }),
 				path: "/admin"
 			},
 			{

@@ -7,14 +7,14 @@ const isProduction = process.env.NODE_ENV === "production";
 const config = {
 	//Tell webpack the root file
 	entry: {
-		main: "./client/index.js",
-		admin: "./client/components/admin/index.js"
+		main: "./src/client/index.js",
+		admin: "./src/client/components/admin/index.js"
 	},
 
 	//output file
 	output: {
 		filename: isProduction ? "[name].[contenthash].bundle.js" : "[name].bundle.js",
-		path: path.resolve(__dirname, "public"),
+		path: path.resolve(__dirname, "dist", "public"),
 		publicPath: "/"
 	},
 
