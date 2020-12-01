@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
 const playerPositions = require("../../constants/playerPositions");
 const positionEnums = [null, ...Object.keys(playerPositions)];
+import coachTypes from "~/constants/coachTypes";
 
 const personSchema = new Schema(
 	{
@@ -57,7 +58,9 @@ const personSchema = new Schema(
 		additionalCoachStats: [
 			{
 				_team: { type: Schema.Types.ObjectId, ref: "teams" },
-				from: Date,
+				_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes" },
+				role: { type: String, required: true, enum: coachTypes.map(c => c.key) },
+				from: { type: Date, required: true },
 				to: { type: Date, default: null },
 				w: Number,
 				l: Number,

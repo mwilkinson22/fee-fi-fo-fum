@@ -1,16 +1,26 @@
 import _ from "lodash";
 import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE } from "../actions/types";
 
-function fixDateOfBirth(person) {
+function fixDates(person) {
 	if (person.dateOfBirth) {
 		person.dateOfBirth = new Date(person.dateOfBirth);
+	}
+
+	if (person.additionalCoachStats) {
+		person.additionalCoachStats = person.additionalCoachStats.map(s => {
+			s.from = new Date(s.from);
+			if (s.to) {
+				s.to = new Date(s.to);
+			}
+			return s;
+		});
 	}
 }
 
 export default function(state = { fullPeople: {} }, action) {
 	switch (action.type) {
 		case FETCH_PERSON:
-			fixDateOfBirth(action.payload);
+			fixDates(action.payload);
 			return {
 				...state,
 				fullPeople: { ...state.fullPeople, [action.payload.id]: action.payload },
@@ -18,7 +28,7 @@ export default function(state = { fullPeople: {} }, action) {
 			};
 
 		case FETCH_PEOPLE:
-			_.mapValues(action.payload, fixDateOfBirth);
+			_.mapValues(action.payload, fixDates);
 			return {
 				...state,
 				fullPeople: {
