@@ -72,7 +72,7 @@ class ImageSelector extends Component {
 			return (
 				<div className="preview-box with-image">
 					<div className="img-wrapper">
-						<img src={`${src}?t=${new Date().getTime()}`} />
+						<img src={`${src}?t=${new Date().getTime()}`} alt="Selected Image" />
 					</div>
 					{textContent}
 				</div>
@@ -96,6 +96,7 @@ class ImageSelector extends Component {
 				title={i.name}
 				onClick={() => this.setState({ currentImage: i.name })}
 				key={i.name}
+				alt={i.name}
 			/>
 		));
 

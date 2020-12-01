@@ -22,6 +22,7 @@ import * as fieldTypes from "~/constants/formFieldTypes";
 //Helpers
 import { getDynamicOptions } from "~/helpers/gameHelper";
 
+// noinspection JSUnusedGlobalSymbols
 class AdminGameOverview extends Component {
 	constructor(props) {
 		super(props);

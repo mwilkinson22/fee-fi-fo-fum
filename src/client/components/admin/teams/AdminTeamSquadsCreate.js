@@ -68,7 +68,7 @@ class AdminTeamSquadsCreate extends Component {
 
 	getFieldGroups() {
 		const { options, initialData } = this.state;
-		const fields = [
+		return [
 			{
 				fields: [
 					{ name: "year", type: fieldTypes.number, disabled: initialData },
@@ -81,15 +81,12 @@ class AdminTeamSquadsCreate extends Component {
 				]
 			}
 		];
-
-		return fields;
 	}
 
 	render() {
 		const { initialData, team, validationSchema } = this.state;
 
 		//Variable props based on whether or not we've collected initialData
-		let formProps;
 		if (!initialData) {
 			return (
 				<BasicForm
@@ -100,7 +97,6 @@ class AdminTeamSquadsCreate extends Component {
 					onSubmit={initialData => this.setState({ initialData })}
 					submitButtonText="Add Players"
 					validationSchema={validationSchema}
-					{...formProps}
 				/>
 			);
 		} else {

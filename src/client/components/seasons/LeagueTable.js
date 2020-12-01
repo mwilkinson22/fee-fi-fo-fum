@@ -106,6 +106,7 @@ class LeagueTable extends Component {
 				<img
 					src={bucketPaths.images.competitions + newState.instance.image}
 					className="competition-logo"
+					alt={newState.segment.basicTitle}
 				/>
 			);
 		}

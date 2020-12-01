@@ -15,6 +15,7 @@ import BasicForm from "../BasicForm";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
+// noinspection JSCheckFunctionSignatures
 class AdminAwardOverview extends Component {
 	constructor(props) {
 		super(props);

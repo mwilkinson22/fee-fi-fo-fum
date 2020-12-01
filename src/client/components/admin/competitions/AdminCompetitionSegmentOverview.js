@@ -60,7 +60,7 @@ class AdminCompetitionSegmentOverview extends Component {
 			_pointsCarriedFrom: Yup.mixed().label("Points Carried From")
 		});
 
-		//Add in addditional fields for edit mode
+		//Add in additional fields for edit mode
 		if (!newState.isNew) {
 			newState.segment = competitionSegmentList[match.params._id] || false;
 

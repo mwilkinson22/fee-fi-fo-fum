@@ -51,7 +51,7 @@ class PersonPage extends Component {
 		const { slug } = match.params;
 		const newState = { redirect: null };
 
-		//Ensure Slugmap is loaded
+		//Ensure Slug map is loaded
 		if (peopleList) {
 			const { item, redirect } = matchSlugToItem(slug, peopleList, redirects);
 
@@ -319,20 +319,20 @@ class PersonPage extends Component {
 		}
 	}
 
-	getDescription() {
-		const { person } = this.state;
-		if (person.description) {
-			return (
-				<div className="description" key="description">
-					{person.description.map((para, i) => (
-						<p key={i}>{para}</p>
-					))}
-				</div>
-			);
-		} else {
-			return null;
-		}
-	}
+	// getDescription() {
+	// 	const { person } = this.state;
+	// 	if (person.description) {
+	// 		return (
+	// 			<div className="description" key="description">
+	// 				{person.description.map((para, i) => (
+	// 					<p key={i}>{para}</p>
+	// 				))}
+	// 			</div>
+	// 		);
+	// 	} else {
+	// 		return null;
+	// 	}
+	// }
 
 	render() {
 		const { bucketPaths, match } = this.props;

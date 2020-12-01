@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 //Constants
 import coachTypes from "~/constants/coachTypes";
 
+// noinspection JSCheckFunctionSignatures
 class AdminCoachDetails extends Component {
 	constructor(props) {
 		super(props);

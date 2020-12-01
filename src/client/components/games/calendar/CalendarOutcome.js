@@ -63,7 +63,7 @@ class CalendarOutcome extends Component {
 					<strong>Step 1: Copy your custom link</strong>
 				</p>
 				<input type="text" value={url} ref={this.inputElement} />
-				<button type="button" className="confirm" {...buttonProps}></button>
+				<button type="button" className="confirm" {...buttonProps} />
 			</div>
 		);
 	}

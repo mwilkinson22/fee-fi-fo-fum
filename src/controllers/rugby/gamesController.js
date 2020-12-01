@@ -271,11 +271,11 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	//Again, this is only called after an admin action so include hidden games
 	const list = await processList(true);
 
-	if (refreshSocialImage) {
-		updateSocialMediaCard(id);
-	}
-
 	res.send({ id, fullGames, ...list });
+
+	if (refreshSocialImage) {
+		await updateSocialMediaCard(id);
+	}
 }
 
 async function processList(includeHidden) {
@@ -299,13 +299,13 @@ export async function getList(req, res) {
 	res.send(list);
 }
 export async function getBasicGames(req, res) {
-	getGames(req, res, false, false);
+	await getGames(req, res, false, false);
 }
 export async function getGamesForGamePage(req, res) {
-	getGames(req, res, true, false);
+	await getGames(req, res, true, false);
 }
 export async function getGamesForAdmin(req, res) {
-	getGames(req, res, true, true);
+	await getGames(req, res, true, true);
 }
 async function getGames(req, res, forGamePage, forAdmin) {
 	const { ids } = req.params;

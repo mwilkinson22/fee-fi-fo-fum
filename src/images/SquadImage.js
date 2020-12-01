@@ -201,7 +201,7 @@ export default class SquadImage extends Canvas {
 				);
 			}
 		} else {
-			//Othewise, we use the brandIcon as the main icon
+			//Otherwise, we use the brandIcon as the main icon
 			mainIcon = brandIcon;
 		}
 

@@ -11,28 +11,16 @@ import { Link } from "react-router-dom";
 import { getDateString } from "~/helpers/gameHelper";
 
 class PregameSquadList extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-
-	static getDerivedStateFromProps(nextProps) {
-		const { game, previousGame } = nextProps;
-		const newState = { game, previousGame };
-
-		return newState;
-	}
-
 	getSquadList(id, previousGame = false) {
 		const { localTeam } = this.props;
 
-		//Only get prevgame for local team
+		//Only get pregame for local team
 		if (previousGame && id != localTeam) {
 			return false;
 		}
 
 		//Get the correct game
-		const game = previousGame ? this.state.previousGame : this.state.game;
+		const game = previousGame ? this.props.previousGame : this.props.game;
 		if (!game || !game.pregameSquads) {
 			return false;
 		}
@@ -47,8 +35,7 @@ class PregameSquadList extends Component {
 	}
 
 	renderDueDate(singleTeam) {
-		const { fullTeams, localTeam } = this.props;
-		const { game } = this.state;
+		const { fullTeams, localTeam, game } = this.props;
 
 		//Create due date - 2 days before kick off
 		const dueDate = new Date(game.date).addDays(-2);
@@ -74,8 +61,7 @@ class PregameSquadList extends Component {
 	}
 
 	renderSquads() {
-		const { game } = this.state;
-		const { localTeam, fullTeams } = this.props;
+		const { localTeam, fullTeams, game } = this.props;
 		let teams = [fullTeams[localTeam], game._opposition];
 		if (game.isAway) {
 			teams = teams.reverse();
@@ -178,8 +164,7 @@ class PregameSquadList extends Component {
 	}
 
 	render() {
-		const { localTeam } = this.props;
-		const { game } = this.state;
+		const { localTeam, game } = this.props;
 		const content = [];
 
 		//Bool to affect section classname

@@ -231,7 +231,7 @@ class AdminTeamSquadMembers extends Component {
 		const { fetchTeam, updatePeople } = this.props;
 		const { isLoading, isLoadingPeople, team, validationSchema } = this.state;
 
-		if ((isLoading, isLoadingPeople)) {
+		if (isLoading || isLoadingPeople) {
 			return <LoadingPage />;
 		}
 

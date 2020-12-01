@@ -120,7 +120,7 @@ class AdminCompetitionInstanceAdjustments extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		//Clear out entires where all adjustments are zero
+		//Clear out entries where all adjustments are zero
 		values.adjustments = values.adjustments.filter(
 			a => _.filter(a, (val, key) => key !== "_team" && val !== 0).length
 		);

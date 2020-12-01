@@ -48,7 +48,7 @@ class AdminAwardCategories extends Component {
 							.label("Stats")
 					})
 				)
-				.min("2", "Please provide at least two nominees")
+				.min(2, "Please provide at least two nominees")
 		};
 
 		newState.validationSchema = Yup.object().shape(validationSchema);

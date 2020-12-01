@@ -114,8 +114,7 @@ export default class TeamStatsImage extends Canvas {
 				const summedStats = _.fromPairs(
 					Object.keys(playerStatTypes).map(key => [key, _.sumBy(stats, key)])
 				);
-				const processedStats = calculateAdditionalStats(summedStats);
-				return processedStats;
+				return calculateAdditionalStats(summedStats);
 			})
 			.value();
 

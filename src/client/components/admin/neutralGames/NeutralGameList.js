@@ -22,9 +22,7 @@ class NeutralGameList extends Component {
 
 	static getDerivedStateFromProps(nextProps) {
 		const { games } = nextProps;
-		const newState = { games };
-
-		return newState;
+		return { games };
 	}
 
 	getInitialValues() {

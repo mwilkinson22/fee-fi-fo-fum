@@ -103,8 +103,7 @@ class ErrorList extends Component {
 					let value;
 					switch (key) {
 						case "date": {
-							const date = new Date(error.date).toString("yyyy-MM-dd HH:mm:ss");
-							value = date;
+							value = new Date(error.date).toString("yyyy-MM-dd HH:mm:ss");
 							break;
 						}
 						case "_user": {

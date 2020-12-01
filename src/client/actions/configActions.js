@@ -37,7 +37,7 @@ export const getCoreConfig = req => async dispatch => {
 		//Set webp compatibility
 		webp: headers.accept && headers.accept.indexOf("image/webp") > -1,
 
-		//Set rgba compatiblility
+		//Set rgba compatibility
 		rgba: ["Edge", "IE"].indexOf(browser) === -1,
 
 		//Local Team

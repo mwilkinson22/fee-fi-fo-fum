@@ -108,8 +108,7 @@ export default class FixtureListImage extends Canvas {
 
 		this.images = {};
 		for (const team of teams) {
-			const image = await this.googleToCanvas(`images/teams/${team.images.main}`);
-			this.images[team._id] = image;
+			this.images[team._id] = await this.googleToCanvas(`images/teams/${team.images.main}`);
 		}
 	}
 
@@ -237,7 +236,7 @@ export default class FixtureListImage extends Canvas {
 			positions.logoHeight
 		);
 
-		//Add Gameday table
+		//Add GameDay table
 		const gameDayTableY = this.getGamedayTable(positions.logoY);
 
 		//Add Text Rows

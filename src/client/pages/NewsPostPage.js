@@ -68,7 +68,7 @@ class NewsPostPage extends Component {
 		const { slug } = match.params;
 		const newState = { isLoadingList: false, redirect: null };
 
-		//Ensure we have the basic postlist
+		//Ensure we have the basic post list
 		if (!postList) {
 			newState.isLoadingList = true;
 			return newState;
@@ -455,7 +455,6 @@ async function loadData(store, path) {
 		if (post._game) {
 			await store.dispatch(fetchGames([post._game], "gamePage"));
 		}
-		return;
 	}
 }
 

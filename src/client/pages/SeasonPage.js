@@ -120,7 +120,7 @@ class SeasonPage extends Component {
 		//Get Page
 		newState.page = match.params.page || "overview";
 
-		//If we have a teamtype but no page (i.e. /seasons/2019/first/), redirect to the page
+		//If we have a team type but no page (i.e. /seasons/2019/first/), redirect to the page
 		if (!match.params.page && newState.teamType) {
 			newState.redirect = `${newState.teamType.slug}/overview`;
 		}
@@ -131,7 +131,7 @@ class SeasonPage extends Component {
 			return newState;
 		}
 
-		//On initial pageload, if something changes, or while games are loading, check for games to load
+		//On initial page load, if something changes, or while games are loading, check for games to load
 		if (
 			newState.year != prevState.year ||
 			!prevState.teamType ||

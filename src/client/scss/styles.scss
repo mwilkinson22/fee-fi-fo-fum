@@ -12,7 +12,7 @@ $layoutImages: "#{$googleBucket}images/layout/";
 
 //Colours
 //$mainColour and $trimColour are defined through a custom
-//webpack loader. We set them as transparent beacuse we need
+//webpack loader. We set them as transparent because we need
 //some kind of valid colour for the scss to compile.
 $mainColour: transparent;
 $trimColour: transparent;

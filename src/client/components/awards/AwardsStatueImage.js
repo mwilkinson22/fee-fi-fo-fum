@@ -7,6 +7,7 @@ function AwardsStatueImage({ bucketPaths, webp }) {
 		<img
 			src={`${bucketPaths.imageRoot}awards/statue.${webp ? "webp" : "png"}`}
 			className="award-statue"
+			alt="Award Statue"
 		/>
 	);
 }

@@ -207,7 +207,7 @@ class BasicForm extends Component {
 				}
 			}
 
-			//Required in case the submit is unsuccesful
+			//Required in case the submit is unsuccessful
 			formikProps.setSubmitting(false);
 		}
 	}

@@ -45,7 +45,7 @@ async function getBirthdays(team) {
 
 	//Get all current and future players
 	const playerIds = _.chain(team.squads)
-		//Filter by year & teamtype
+		//Filter by year & teamType
 		.filter(s => s.year >= thisYear)
 		//Get players
 		.map(({ players }) => players.map(p => p._player))

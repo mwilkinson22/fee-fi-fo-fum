@@ -638,7 +638,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 							//Loop Players
 							const playerRows = table.querySelectorAll("tr");
 							for (const i in playerRows) {
-								if (i === 0) {
+								if (i == 0) {
 									//Skip header
 									continue;
 								}

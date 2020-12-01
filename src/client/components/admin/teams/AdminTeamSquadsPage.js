@@ -30,7 +30,7 @@ class AdminTeamSquadsPage extends Component {
 		//Get Current Team
 		newState.team = fullTeams[teamId];
 
-		//Determine pagetype
+		//Determine page type
 		if (!squadId) {
 			newState.pageType = "root";
 		} else if (squadId === "new") {

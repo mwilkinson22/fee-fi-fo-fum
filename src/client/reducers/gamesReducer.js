@@ -11,7 +11,6 @@ import {
 	FETCH_NEUTRAL_GAME_YEARS,
 	SAVE_FAN_POTM_VOTE
 } from "../actions/types";
-import _ from "lodash";
 
 //Helpers
 import { fixDates, getNeutralGame } from "../../helpers/gameHelper";
@@ -82,7 +81,7 @@ export default function(state = { fullGames: {} }, action) {
 			//First we pull off the deleted object
 			const { deleted, ...gamesByYear } = action.payload;
 
-			//Then we create a base object, based on the current neturalGames state
+			//Then we create a base object, based on the current neutralGames state
 			const neutralGames = { ...state.neutralGames };
 
 			//Then we loop through all current games to make sure we remove

@@ -73,7 +73,7 @@ class AdminFixtureListImagePage extends Component {
 			return newState;
 		}
 
-		//Get year based on gamelist
+		//Get year based on game list
 		newState.year = _.chain(gameList)
 			.map(({ date }) => date.getFullYear())
 			.sort()
@@ -171,7 +171,9 @@ class AdminFixtureListImagePage extends Component {
 				render: values => {
 					let preview;
 					if (previewImage) {
-						preview = <img src={previewImage} className="preview-image" />;
+						preview = (
+							<img src={previewImage} className="preview-image" alt="Preview" />
+						);
 					} else if (previewImage === false) {
 						preview = <LoadingPage />;
 					}

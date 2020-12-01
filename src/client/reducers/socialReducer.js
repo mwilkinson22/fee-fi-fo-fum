@@ -19,9 +19,10 @@ export default function(state = {}, action) {
 				}
 			};
 
-		case DELETE_SOCIAL_PROFILE:
+		case DELETE_SOCIAL_PROFILE: {
 			const { [action.payload]: oldId, ...profiles } = state.profiles;
 			return { ...state, profiles };
+		}
 
 		case SET_DEFAULT_SOCIAL_PROFILE:
 			return {

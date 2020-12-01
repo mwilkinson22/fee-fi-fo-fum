@@ -67,19 +67,6 @@ class AdminNewsPostPage extends Component {
 		return newState;
 	}
 
-	renderViewLink() {
-		const { post } = this.state;
-		if (post && post.isPublished) {
-			return (
-				<Link className="card nav-card" to={`/news/post/${post.slug}`}>
-					View this post
-				</Link>
-			);
-		} else {
-			return null;
-		}
-	}
-
 	renderHeader() {
 		const { authUser } = this.props;
 		const { isNew, post } = this.state;

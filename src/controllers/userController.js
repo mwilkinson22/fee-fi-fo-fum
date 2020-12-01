@@ -1,6 +1,5 @@
 //Modules
 import _ from "lodash";
-import passport from "passport";
 import mongoose from "mongoose";
 
 //Mongoose

@@ -274,7 +274,7 @@ export async function updateSquad(req, res) {
 				$lt: new Date(`${squad.year + 1}-01-01`)
 			};
 
-			//In case any playyers cannot be deleted, we'll populate this array
+			//In case any players cannot be deleted, we'll populate this array
 			const undeleteables = [];
 
 			//Check each player for dependent games

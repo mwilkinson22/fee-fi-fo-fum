@@ -49,8 +49,7 @@ class AdminBrandingPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const newState = _.pick(nextProps, settingsFields);
-		return newState;
+		return _.pick(nextProps, settingsFields);
 	}
 
 	getInitialValues() {

@@ -2,7 +2,6 @@ import {
 	FETCH_GAMES,
 	FETCH_GAME_LIST,
 	UPDATE_GAME,
-	CRAWL_LOCAL_GAMES,
 	DELETE_GAME,
 	SAVE_FAN_POTM_VOTE,
 	UPDATE_NEUTRAL_GAMES
@@ -88,8 +87,7 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 			toast.success("Game Updated");
 		}
 
-		const event = _.orderBy(res.data.fullGames[id].events, ["date"], ["desc"])[0];
-		return event;
+		return _.orderBy(res.data.fullGames[id].events, ["date"], ["desc"])[0];
 	} else {
 		return false;
 	}
@@ -112,11 +110,6 @@ export const deleteGameEvent = (id, event, params) => async (dispatch, getState,
 	dispatch({ type: UPDATE_GAME, payload: res.data });
 	toast.success("Event deleted");
 	return res.data.fullGames[id].events;
-};
-
-export const crawlLocalGames = () => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/crawl/local`);
-	dispatch({ type: CRAWL_LOCAL_GAMES, payload: res.data });
 };
 
 export const getPregameImage = (id, query = "") => async (dispatch, getState, api) => {

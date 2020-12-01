@@ -1,5 +1,6 @@
 import { googleBucketName } from "~/config/keys";
 import sharp from "sharp";
+
 const bucket = require("~/constants/googleBucket");
 
 export async function uploadToGoogle({ originalname, buffer, mimeType }, path = "") {
@@ -123,6 +124,5 @@ export async function uploadBase64ImageToGoogle(base64, path, webPConvert, name,
 	};
 
 	//Pass on to main function
-	const uploadedImage = await uploadImageToGoogle(file, path, webPConvert);
-	return uploadedImage;
+	return await uploadImageToGoogle(file, path, webPConvert);
 }

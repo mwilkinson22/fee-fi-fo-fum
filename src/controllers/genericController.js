@@ -7,12 +7,10 @@ export async function getRedirects(data, collectionName) {
 	if (collectionName == "games" || collectionName == "people" || collectionName == "newsPosts") {
 		const slugRedirects = await SlugRedirect.find({ collectionName });
 
-		const redirects = _.chain(slugRedirects)
+		return _.chain(slugRedirects)
 			.keyBy("oldSlug")
 			.mapValues("itemId")
 			.value();
-
-		return redirects;
 	} else {
 		const slugRedirects = await SlugRedirect.find({ collectionName });
 

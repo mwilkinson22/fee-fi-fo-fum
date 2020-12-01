@@ -11,6 +11,7 @@ import Table from "../../Table";
 import { fetchGameList } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 
+// noinspection JSCheckFunctionSignatures
 class AdminAwardVotes extends Component {
 	constructor(props) {
 		super(props);

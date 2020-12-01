@@ -220,7 +220,7 @@ class AdminGamePostGame extends Component {
 					};
 
 					const buttons = [];
-					for (var i = 1; i <= 3; i++) {
+					for (let i = 1; i <= 3; i++) {
 						buttons.push(
 							<button
 								//Can't use a standard () => {} or i will always be 4

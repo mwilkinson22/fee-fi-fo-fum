@@ -34,12 +34,10 @@ export default async (_profile, keys = null) => {
 	const { access_token, access_token_secret } = accessKeys;
 
 	//Get Client
-	const client = new Twitter({
+	return new Twitter({
 		consumer_key,
 		consumer_secret,
 		access_token,
 		access_token_secret
 	});
-
-	return client;
 };

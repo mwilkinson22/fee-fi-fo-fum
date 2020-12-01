@@ -3,7 +3,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 /**
  * Adds the "dynamic" additional stats that we don't store in the DB,
- * i.e. Average Gain, Tackle Success, Goals, Kicking Succcess and total Points
+ * i.e. Average Gain, Tackle Success, Goals, Kicking Success and total Points
  *
  * @param { object } stats - A stat collection
  * @returns { object } stat collection with extra stats added

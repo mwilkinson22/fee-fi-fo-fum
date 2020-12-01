@@ -14,7 +14,7 @@ export const getPlayersByYearAndGender = (teamId, year, teamType) => (dispatch, 
 		players.push(...teamTypeSquad.players);
 	}
 
-	//Get Other Teamtypes of same gender
+	//Get Other Team Types of same gender
 	const { teamTypes } = getState().teams;
 	const { gender } = teamType;
 	const additionalTeamTypes = _.filter(

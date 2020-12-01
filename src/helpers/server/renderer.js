@@ -24,7 +24,7 @@ export default (req, store, context) => {
 	const helmet = Helmet.renderStatic();
 	return `
 		<!DOCTYPE html>
-		<html>
+		<html lang="en">
 			<head>
 				<meta charset="utf-8">
    				<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Titillium+Web:400,600" rel="stylesheet">

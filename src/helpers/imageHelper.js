@@ -36,6 +36,5 @@ export const cover = fit(false);
 
 export async function googleToCanvas(file) {
 	const [buffer] = await googleBucket.file(file).download();
-	const image = await loadImage(buffer);
-	return image;
+	return loadImage(buffer);
 }

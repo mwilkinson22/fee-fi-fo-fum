@@ -94,6 +94,7 @@ class ImageField extends Component {
 					src={`${bucketPaths.root + path + value}?t=${new Date().getTime()}`}
 					className="image-selector-field image"
 					title={value}
+					alt="Selected Image"
 				/>
 			);
 		} else {

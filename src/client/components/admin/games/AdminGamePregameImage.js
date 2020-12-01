@@ -222,7 +222,7 @@ class AdminGamePregameImage extends Component {
 				tweet += "our upcoming";
 				break;
 			default:
-				//...for tommorow's/tonight's/Friday's game against...
+				//...for tomorrow's/tonight's/Friday's game against...
 				tweet += `${dateStringObject.string}'s`;
 				break;
 		}
@@ -240,7 +240,7 @@ class AdminGamePregameImage extends Component {
 		tweet += "!";
 
 		//Add outgoing/incoming players
-		//If this passes, we know that we've succesfully loaded the
+		//If this passes, we know that we've successfully loaded the
 		//local pregame squads for the current and previous games
 		if (options.players.length && options.players[0].isNew) {
 			const eligiblePlayers = _.keyBy(
@@ -405,7 +405,7 @@ class AdminGamePregameImage extends Component {
 	renderPreview() {
 		const { previewImage } = this.state;
 		if (previewImage) {
-			return <img src={previewImage} className="full-span preview-image" />;
+			return <img src={previewImage} className="full-span preview-image" alt="Preview" />;
 		} else if (previewImage === false) {
 			return <LoadingPage className="full-span" />;
 		} else {

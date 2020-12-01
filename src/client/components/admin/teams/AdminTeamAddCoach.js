@@ -198,7 +198,7 @@ class AdminTeamAddCoach extends Component {
 		const { addCoach } = this.props;
 		const { isLoading, team, validationSchema } = this.state;
 
-		//Await Perople List
+		//Await People List
 		if (isLoading) {
 			return <LoadingPage />;
 		}

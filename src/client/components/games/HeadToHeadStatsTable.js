@@ -34,12 +34,11 @@ class HeadToHeadStats extends Component {
 			.mapValues(obj => {
 				const stats = _.map(obj, "stats");
 				const summedStats = _.fromPairs(keys.map(key => [key, _.sumBy(stats, key)]));
-				const processedStats = calculateAdditionalStats(summedStats);
-				return processedStats;
+				return calculateAdditionalStats(summedStats);
 			})
 			.value();
 
-		const groupedStats = _.chain(keys)
+		return _.chain(keys)
 			.map(key => {
 				//No reason to return 'Points'
 				if (key == "PT") {
@@ -64,8 +63,6 @@ class HeadToHeadStats extends Component {
 			})
 			.filter(_.identity)
 			.value();
-
-		return groupedStats;
 	}
 
 	render() {

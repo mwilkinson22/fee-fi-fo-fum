@@ -39,7 +39,7 @@ export default class SingleStatBox extends Component {
 						<div className="name">{singular}</div>
 					</div>
 				);
-			default:
+			default: {
 				let averageDiv;
 				if (includeSummed && statKey !== "AG") {
 					averageDiv = (
@@ -69,6 +69,7 @@ export default class SingleStatBox extends Component {
 						{bestDiv}
 					</div>
 				);
+			}
 		}
 	}
 }

@@ -9,10 +9,5 @@ export default req => {
 		baseURL: `http://localhost:${PORT}/api`,
 		headers: { cookie: req.get("cookie") || "" }
 	});
-	const store = createStore(
-		reducers,
-		{},
-		applyMiddleware(thunk.withExtraArgument(axiosInstance))
-	);
-	return store;
+	return createStore(reducers, {}, applyMiddleware(thunk.withExtraArgument(axiosInstance)));
 };

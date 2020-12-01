@@ -83,8 +83,8 @@ class AdminPlayerDetails extends Component {
 					}
 				case "otherPositions":
 					if (person.playingPositions && person.playingPositions.length > 2) {
-						const [first, second, ...otherPositions] = person.playingPositions;
-
+						/* prettier-ignore */
+						const [/* main */, /* second */, ...otherPositions] = person.playingPositions;
 						return otherPositions;
 					} else {
 						return defaultValue;

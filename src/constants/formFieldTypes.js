@@ -18,7 +18,7 @@ export const draft = "draft";
 //See ImageField props for extra args
 export const image = "image";
 
-//See Tweetcomposer props for extra args
+//See TweetComposer props for extra args
 export const tweet = "tweet";
 
 //Taps into formik's fieldArray component, requires a render method

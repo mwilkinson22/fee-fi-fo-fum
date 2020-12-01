@@ -42,7 +42,7 @@ class ShareableTeamSelector extends Component {
 				newState.squadNumbers = squad ? squad.players : [];
 				newState.isLoadingTeam = false;
 			} else if (!prevState.isLoadingTeam) {
-				//Otherwise load the team, if we're not alredy
+				//Otherwise load the team, if we're not already
 				fetchTeam(numberFromTeam, "full");
 				newState.isLoadingTeam = true;
 			}

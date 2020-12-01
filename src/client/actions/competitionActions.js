@@ -12,6 +12,7 @@ import { createLeagueTableString } from "~/helpers/competitionHelper";
 
 export const fetchCompetitions = () => async (dispatch, getState, api) => {
 	const res = await api.get("/competitions");
+	// noinspection JSUnresolvedVariable
 	dispatch({ type: FETCH_ALL_COMPETITIONS, payload: res.data });
 };
 
@@ -142,9 +143,11 @@ export const fetchLeagueTableData = (_competition, year, fromDate, toDate) => as
 	const dateFormat = "yyyy-MM-dd";
 	const query = [];
 	if (fromDate) {
+		// noinspection JSCheckFunctionSignatures
 		query.push(`fromDate=${fromDate.toString(dateFormat)}`);
 	}
 	if (toDate) {
+		// noinspection JSCheckFunctionSignatures
 		query.push(`toDate=${toDate.toString(dateFormat)}`);
 	}
 	if (query.length) {

@@ -39,9 +39,7 @@ class ShareDialog extends Component {
 	static getDerivedStateFromProps(nextProps) {
 		const { authorisedAccounts } = nextProps;
 
-		const newState = { authorisedAccounts };
-
-		return newState;
+		return { authorisedAccounts };
 	}
 
 	async handleSubmit(text) {
@@ -80,7 +78,11 @@ class ShareDialog extends Component {
 					})
 				}
 			>
-				<img src={`${bucketPaths.images.layout}icons/${key}.svg`} title={title} />
+				<img
+					src={`${bucketPaths.images.layout}icons/${key}.svg`}
+					title={title}
+					alt={`${title} Logo`}
+				/>
 			</div>
 		));
 
@@ -279,7 +281,11 @@ class ShareDialog extends Component {
 				//tracker. Easier to just hide it
 				if (browser !== "Firefox") {
 					userImage = (
-						<img src={account.profile_image_url_https} className="profile-pic" />
+						<img
+							src={account.profile_image_url_https}
+							className="profile-pic"
+							alt="Profile Picture"
+						/>
 					);
 				}
 				userInfo = (
@@ -307,7 +313,7 @@ class ShareDialog extends Component {
 		let imagePreview;
 		if (images.length) {
 			const list = images.map((src, i) => (
-				<img key={i} src={src} onClick={() => window.open(src)} />
+				<img key={i} src={src} onClick={() => window.open(src)} alt="Preview" />
 			));
 			imagePreview = <div className="image-previews">{list}</div>;
 		} else if (fetchingPreview) {

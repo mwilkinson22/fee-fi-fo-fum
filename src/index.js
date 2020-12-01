@@ -167,8 +167,7 @@ app.get("*", async (req, res) => {
 	//Wait on page-specific promises
 	const promises = matchRoutes(Routes, req.path)
 		.map(({ route }) => {
-			const promise = route.loadData ? route.loadData(store, req.path) : null;
-			return promise;
+			return route.loadData ? route.loadData(store, req.path) : null;
 		})
 		.map(promise => {
 			if (promise) {

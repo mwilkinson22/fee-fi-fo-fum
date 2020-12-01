@@ -14,22 +14,10 @@ import PersonCard from "../people/PersonCard";
 import { getGameStarStats } from "~/helpers/gameHelper";
 
 class GameStars extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-
-	static getDerivedStateFromProps(nextProps) {
-		const { game } = nextProps;
-		const newState = { game };
-		return newState;
-	}
-
 	processCards() {
-		const { localTeam } = this.props;
-		const { game } = this.state;
+		const { game, localTeam } = this.props;
 
-		const cards = _.chain(game.playerStats)
+		return _.chain(game.playerStats)
 			.filter(p => p._team == localTeam)
 			.map(({ _player }) => {
 				const player = game.eligiblePlayers[localTeam].find(p => p._player._id == _player);
@@ -84,8 +72,6 @@ class GameStars extends Component {
 				);
 			})
 			.value();
-
-		return cards;
 	}
 
 	render() {

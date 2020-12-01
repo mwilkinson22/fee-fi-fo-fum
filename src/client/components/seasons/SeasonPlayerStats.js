@@ -174,7 +174,7 @@ class SeasonPlayerStats extends Component {
 		});
 
 		//Man/Woman of Steel tally.
-		//Note: This doesn't respsect statType or filteredGames
+		//Note: This doesn't respect statType or filteredGames
 		groupedLeaderboards.push(this.renderSteelLeaderboard());
 
 		return groupedLeaderboards;
@@ -197,7 +197,7 @@ class SeasonPlayerStats extends Component {
 				_player,
 				value: _.sumBy(pointsList, "points")
 			}))
-			//Order descendingly
+			//Order descending
 			.orderBy("value", "desc")
 			.value();
 
@@ -235,7 +235,10 @@ class SeasonPlayerStats extends Component {
 			//Stat Columns
 			const statData = _.mapValues(stats, data => data[statType]);
 
-			const games = _.chain(stats).map("gameCount").max().value();
+			const games = _.chain(stats)
+				.map("gameCount")
+				.max()
+				.value();
 
 			return {
 				key: _player,

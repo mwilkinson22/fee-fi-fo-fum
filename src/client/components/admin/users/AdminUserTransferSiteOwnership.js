@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 //Components

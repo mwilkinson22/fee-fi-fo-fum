@@ -25,7 +25,7 @@ export async function postError(req, res) {
 
 	//Save error
 	const error = new Error({ ...req.body, ip });
-	error.save();
+	await error.save();
 
 	res.send(error._id);
 }

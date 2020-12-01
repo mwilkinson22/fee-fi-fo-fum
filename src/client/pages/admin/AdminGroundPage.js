@@ -170,7 +170,7 @@ class AdminGroundPage extends Component {
 			return defaultValues;
 		} else {
 			//If we have a ground, pull the corresponding values
-			const values = _.mapValues(defaultValues, (defaultValue, key) => {
+			return _.mapValues(defaultValues, (defaultValue, key) => {
 				let value;
 				switch (key) {
 					case "address":
@@ -192,8 +192,6 @@ class AdminGroundPage extends Component {
 
 				return value != null ? value : defaultValue;
 			});
-
-			return values;
 		}
 	}
 
@@ -292,7 +290,7 @@ class AdminGroundPage extends Component {
 		const { ground, isNew, isLoading, validationSchema } = this.state;
 		const { deleteGround } = this.props;
 
-		//Wait for cities and groundlist to load
+		//Wait for cities and ground list to load
 		if (isLoading) {
 			return <LoadingPage />;
 		}

@@ -11,7 +11,7 @@ import ErrorPrintout from "./ErrorPrintout";
 //Actions
 import { sendError } from "~/client/actions/errorActions";
 
-//Inital State, when all is ok
+//Initial State, when all is ok
 const initialState = { message: null, componentStack: null, page: null };
 
 class ErrorBoundary extends Component {
@@ -44,7 +44,7 @@ class ErrorBoundary extends Component {
 	componentDidCatch(error, info) {
 		const { authUser, browser, deviceType, sendError, sentErrors } = this.props;
 
-		//Get the uri where the error occured
+		//Get the uri where the error occurred
 		const page = this.props.location.pathname;
 
 		//Get the message

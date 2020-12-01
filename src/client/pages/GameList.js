@@ -193,7 +193,7 @@ class GameList extends Component {
 						url += `/results/${value}`;
 					}
 
-					//Add teamtype
+					//Add team type
 					url += `/${teamType.slug}`;
 
 					//Push new url

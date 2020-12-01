@@ -124,7 +124,7 @@ class AdminGameSquadImage extends Component {
 				tweet += "our upcoming";
 				break;
 			default:
-				//...for tommorow's/tonight's/Friday's game against...
+				//...for tomorrow's/tonight's/Friday's game against...
 				tweet += `${dateStringObject.string}'s`;
 				break;
 		}
@@ -214,7 +214,7 @@ class AdminGameSquadImage extends Component {
 	renderPreview() {
 		const { previewImage } = this.state;
 		if (previewImage) {
-			return <img src={previewImage} className="full-span preview-image" />;
+			return <img src={previewImage} className="full-span preview-image" alt="Preview" />;
 		} else if (previewImage === false) {
 			return <LoadingPage className="full-span" />;
 		} else {

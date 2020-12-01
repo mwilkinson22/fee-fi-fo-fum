@@ -230,7 +230,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 				"_referee",
 				"_video_referee",
 				"playerStats._id",
-				//"pregameSquads", - we need pregamesquads to calculate status. So we load it here, then remove it before returning to server
+				//"pregameSquads", - we need pregameSquads to calculate status. So we load it here, then remove it before returning to server
 				"overrideGameStarStats"
 			);
 		}
