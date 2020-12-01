@@ -13,7 +13,8 @@ export default class Canvas {
 		this.colours = {
 			claret: "#751432",
 			gold: "#FFCC00",
-			white: "#FFFFFF"
+			white: "#FFFFFF",
+			lightClaret: "#a53552"
 		};
 
 		this.initialise(w, h);
@@ -401,6 +402,7 @@ export default class Canvas {
 				break;
 		}
 		x = x - xPadding;
+		const innerX = (totalWidth - drawableWidth) / 2 + x;
 
 		//Calculate destination y
 		switch (yAlign) {
@@ -413,12 +415,23 @@ export default class Canvas {
 				break;
 		}
 		y = y - yPadding;
+		const innerY = (totalHeight - drawableHeight) / 2 + y;
 
 		//Add to main canvas
 		this.ctx.drawImage(canvas, x, y);
 
 		//Return Key Positioning Values
-		return { drawableHeight, drawableWidth, totalHeight, totalWidth, x, y, padding };
+		return {
+			drawableHeight,
+			drawableWidth,
+			totalHeight,
+			totalWidth,
+			x,
+			y,
+			innerX,
+			innerY,
+			padding
+		};
 	}
 
 	outputFile(type = "base64") {

@@ -58,7 +58,6 @@ export default class PersonImageCard extends Canvas {
 			}
 		};
 		this.setTextStyles(textStyles);
-		this.colours.lightClaret = "#a53552";
 		this.colours.fans = this.colours.lightClaret;
 
 		this.positions = {
@@ -219,7 +218,7 @@ export default class PersonImageCard extends Canvas {
 			await this.drawBackground();
 		}
 		const { ctx, cWidth, cHeight, _id, options, textStyles, positions } = this;
-		let squadNumber, firstName, lastName, image, usePersonImage;
+		let squadNumber, firstName, lastName, image;
 		//Save time by pulling data from game, if possible
 		if (options.game) {
 			const { _team } = _.find(options.game.playerStats, ({ _player }) => _player._id == _id);
@@ -234,10 +233,6 @@ export default class PersonImageCard extends Canvas {
 				image = await this.googleToCanvas(
 					`images/people/full/${_player.images.player || _player.images.main}`
 				);
-				usePersonImage = true;
-			} else if (this.teamBadges) {
-				image = this.teamBadges[_team];
-				usePersonImage = false;
 			}
 		} else {
 			const person = await Person.findById(_id, "name images").lean();
@@ -253,8 +248,6 @@ export default class PersonImageCard extends Canvas {
 			}
 			const imageUrl = `images/people/full/${person.images[imageType]}`;
 			image = await this.googleToCanvas(imageUrl);
-
-			usePersonImage = true;
 		}
 
 		//Draw Name
@@ -295,7 +288,7 @@ export default class PersonImageCard extends Canvas {
 			this.resetShadow();
 		}
 
-		if (usePersonImage) {
+		if (image) {
 			this.cover(
 				image,
 				0,
@@ -303,16 +296,6 @@ export default class PersonImageCard extends Canvas {
 				Math.round(cWidth * 0.5),
 				Math.round(cHeight * 0.98),
 				{ xAlign: "right", yAlign: "top" }
-			);
-		} else {
-			const badgeWidth = Math.round(cWidth * 0.3);
-			const badgeHeight = Math.round(cHeight * 0.6);
-			this.contain(
-				image,
-				(positions.leftPanelWidth - badgeWidth) / 2,
-				(cHeight - badgeHeight) / 2,
-				badgeWidth,
-				badgeHeight
 			);
 		}
 

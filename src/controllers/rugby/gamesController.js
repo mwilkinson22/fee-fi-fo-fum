@@ -842,10 +842,25 @@ export async function fetchSquadImage(req, res) {
 
 async function generatePlayerEventImage(player, event, basicGame) {
 	const [game] = await getExtraGameInfo([basicGame], true, true);
-	const image = new PersonImageCard(player, { game });
-	await image.drawGameData(true);
-	await image.drawGameEvent(event);
-	return image;
+
+	//If the player plays for the local team, and has an image, then
+	//we use a PersonImageCard. Otherwise it's a GameEvent Card
+	let usePlayerImage = false;
+	const eligiblePlayerEntry = _.find(game.playerStats, ({ _player }) => _player._id == player);
+	if (eligiblePlayerEntry) {
+		const { _team, _player } = eligiblePlayerEntry;
+		if (_team == localTeam && (_player.images.main || _player.images.player)) {
+			usePlayerImage = true;
+		}
+	}
+	if (usePlayerImage) {
+		const image = new PersonImageCard(player, { game });
+		await image.drawGameData(true);
+		await image.drawGameEvent(event);
+		return image;
+	} else {
+		return new GameEventImage(game, event, player);
+	}
 }
 
 async function updateSocialMediaCard(id) {
