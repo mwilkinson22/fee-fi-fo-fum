@@ -5,7 +5,6 @@ import {
 	gaTracking,
 	mongoURI,
 	googleBucketName,
-	earliestLocalGames,
 	fansCanAttend,
 	ticketLink,
 	airbrakeId,
@@ -66,9 +65,6 @@ export const getCoreConfig = req => async dispatch => {
 
 		//Facebook App ID
 		facebookApp,
-
-		//Earliest local games to show
-		earliestLocalGames: Number(earliestLocalGames) || 0,
 
 		//Set Airbrake Info
 		airbrakeId,

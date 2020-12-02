@@ -37,7 +37,6 @@ class GameList extends Component {
 		const newState = {};
 		const {
 			gameList,
-			earliestLocalGames,
 			fullGames,
 			teamTypes,
 			match,
@@ -67,8 +66,6 @@ class GameList extends Component {
 		newState.years = _.chain(gameList)
 			.reject(game => game.date > now)
 			.map(game => game.date.getFullYear())
-			//Only show < earliestLocalGames on admin page
-			.filter(year => newState.isAdmin || year >= earliestLocalGames)
 			.uniq()
 			.sort()
 			.reverse()
@@ -334,12 +331,11 @@ class GameList extends Component {
 }
 
 function mapStateToProps({ games, teams, config }) {
-	const { bucketPaths, earliestLocalGames, localTeam } = config;
+	const { bucketPaths, localTeam } = config;
 	const { gameList, fullGames } = games;
 	const { teamList, teamTypes, activeTeamType } = teams;
 	return {
 		bucketPaths,
-		earliestLocalGames,
 		localTeam,
 		gameList,
 		fullGames,

@@ -39,8 +39,7 @@ class SeasonPage extends Component {
 			fullGames,
 			fetchGames,
 			activeTeamType,
-			setActiveTeamType,
-			earliestLocalGames
+			setActiveTeamType
 		} = nextProps;
 
 		const allowAllYears = authUser && authUser.isAdmin;
@@ -53,10 +52,7 @@ class SeasonPage extends Component {
 		//Once we have the game list, render the game list and find the available years
 		let { results, years } = prevState;
 		if (!results) {
-			results = _.filter(
-				gameList,
-				g => g.date < new Date() && Number(g.date.getFullYear()) >= earliestLocalGames
-			);
+			results = _.filter(gameList, g => g.date < new Date());
 			newState.results = results;
 		}
 
@@ -289,12 +285,11 @@ async function loadData(store) {
 }
 
 function mapStateToProps({ config, games, teams }) {
-	const { authUser, earliestLocalGames, localTeam } = config;
+	const { authUser, localTeam } = config;
 	const { gameList, fullGames } = games;
 	const { fullTeams, teamTypes, activeTeamType } = teams;
 	return {
 		authUser,
-		earliestLocalGames,
 		localTeam,
 		gameList,
 		fullGames,

@@ -13,7 +13,7 @@ const ics = require("ics");
 import twitter from "~/services/twitter";
 
 //Constants
-const { localTeam } = require("../../config/keys");
+const { localTeam, earliestLocalGames } = require("~/config/keys");
 import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
@@ -278,11 +278,14 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	}
 }
 
-async function processList(includeHidden) {
+async function processList(userIsAdmin) {
 	await Game.updateMany({ hideGame: null }, { hideGame: false }, { multi: true });
 	const query = {};
-	if (!includeHidden) {
+	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };
+		if (earliestLocalGames) {
+			query.date = { $gte: `${earliestLocalGames}-01-01` };
+		}
 	}
 	const games = await Game.find(query)
 		.forList()
@@ -290,7 +293,7 @@ async function processList(includeHidden) {
 	const gameList = _.keyBy(games, "_id");
 
 	const redirects = await getRedirects(gameList, collectionName);
-	return { gameList, redirects };
+	return { count: games.length, gameList, redirects };
 }
 
 //Getters
@@ -310,11 +313,17 @@ export async function getGamesForAdmin(req, res) {
 async function getGames(req, res, forGamePage, forAdmin) {
 	const { ids } = req.params;
 
-	let games = await Game.find({
+	const query = {
 		_id: {
 			$in: ids.split(",")
 		}
-	}).fullGame(forGamePage, forAdmin);
+	};
+
+	if (!req.user || !req.user.isAdmin) {
+		query.date = { $gte: `${earliestLocalGames}-01-01` };
+	}
+
+	let games = await Game.find(query).fullGame(forGamePage, forAdmin);
 
 	games = await getExtraGameInfo(games, forGamePage, forAdmin);
 
