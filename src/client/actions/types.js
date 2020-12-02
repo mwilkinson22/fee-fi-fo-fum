@@ -56,6 +56,7 @@ export const DELETE_POST = "delete_post";
 
 //People
 export const FETCH_PERSON = "fetch_person";
+export const ADD_PERSON_SLUG = "add_person_slug";
 export const FETCH_PEOPLE = "fetch_people";
 export const FETCH_PEOPLE_LIST = "fetch_people_list";
 export const DELETE_PERSON = "delete_person";

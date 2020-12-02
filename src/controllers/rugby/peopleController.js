@@ -8,6 +8,7 @@ const Person = mongoose.model(collectionName);
 const Game = mongoose.model("games");
 const Team = mongoose.model("teams");
 const TeamTypes = mongoose.model("teamTypes");
+const SlugRedirect = mongoose.model("slugRedirect");
 
 //Constants
 const { earliestLocalGames, localTeam } = require("../../config/keys");
@@ -163,10 +164,7 @@ export async function getList(req, res) {
 		"name isPlayer isCoach isReferee playingPositions coachDetails slug images gender twitter"
 	).lean();
 
-	const peopleList = _.keyBy(people, "_id");
-	const redirects = await getRedirects(people, collectionName);
-
-	res.send({ peopleList, redirects });
+	res.send(_.keyBy(people, "_id"));
 }
 
 export async function getPerson(req, res) {
@@ -175,6 +173,35 @@ export async function getPerson(req, res) {
 	const people = await getFullPeople([id]);
 
 	res.send(people[0]);
+}
+export async function getPersonFromSlug(req, res) {
+	const { slug } = req.params;
+
+	let result;
+	//First, do a simple lookup
+	const directLookup = await Person.findOne({ slug }, "_id").lean();
+	if (directLookup) {
+		result = directLookup._id;
+	}
+
+	//Otherwise, we check for redirects
+	if (!result) {
+		const redirect = await SlugRedirect.findOne(
+			{ collectionName: "people", oldSlug: slug },
+			"itemId"
+		).lean();
+		if (redirect) {
+			result = redirect.itemId;
+		}
+	}
+
+	//If we get a result, return it
+	if (result) {
+		const people = await getFullPeople([result]);
+		res.send(people[0]);
+	} else {
+		res.status(404).send({});
+	}
 }
 
 export async function getPeople(req, res) {
@@ -418,7 +445,7 @@ export async function deletePerson(req, res) {
 		}
 
 		//Check for played games
-		const playedGames = await getPlayedGames(_id);
+		const playedGames = await getPlayedGames(_id, req.user && req.user.isAdmin);
 		if (playedGames.length) {
 			errors.push(
 				`a player in ${playedGames.length} ${playedGames.length === 1 ? "game" : "games"}`

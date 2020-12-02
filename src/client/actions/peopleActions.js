@@ -1,4 +1,10 @@
-import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE } from "./types";
+import {
+	DELETE_PERSON,
+	FETCH_PEOPLE_LIST,
+	FETCH_PERSON,
+	FETCH_PEOPLE,
+	ADD_PERSON_SLUG
+} from "./types";
 import { toast } from "react-toastify";
 
 export const fetchPeopleList = () => async (dispatch, getState, api) => {
@@ -40,24 +46,26 @@ export const deletePerson = id => async (dispatch, getState, api) => {
 };
 
 export const fetchPerson = id => async (dispatch, getState, api) => {
-	let payload;
-	const res = await api.get(`/people/${id}`).catch(e => {
+	const res = await api.get(`/people/${id}`);
+	dispatch({ type: FETCH_PERSON, payload: res.data });
+};
+
+export const fetchPersonFromSlug = slug => async (dispatch, getState, api) => {
+	let errorFound = false;
+	const res = await api.get(`/people/slug/${slug}`).catch(e => {
+		errorFound = true;
 		switch (e.response.status) {
-			case 307:
-			case 308:
-				payload = { ...e.response.data, redirect: true };
-				break;
 			case 404:
-				payload = false;
+				dispatch({ type: ADD_PERSON_SLUG, payload: { [slug]: false } });
 				break;
 		}
 	});
 
 	//Handle retrieved player
-	if (payload === undefined) {
-		payload = res.data;
+	if (!errorFound) {
+		dispatch({ type: ADD_PERSON_SLUG, payload: { [slug]: res.data._id } });
+		dispatch({ type: FETCH_PERSON, payload: res.data });
 	}
-	dispatch({ type: FETCH_PERSON, payload });
 };
 
 export const fetchPeople = ids => async (dispatch, getState, api) => {

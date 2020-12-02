@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 //Actions
-import { fetchGames } from "../../actions/gamesActions";
+import { fetchGames, fetchGameList } from "../../actions/gamesActions";
 
 //Helpers
 import { validateGameDate } from "~/helpers/gameHelper";
@@ -21,12 +21,30 @@ import StatTableGameCell from "../games/StatTableGameCell";
 class PlayerStatSection extends Component {
 	constructor(props) {
 		super(props);
+
+		const { gameList, fetchGameList } = props;
+		if (!gameList) {
+			fetchGameList();
+		}
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { authUser, playedGames, fullGames, teamTypes, fetchGames, person } = nextProps;
+		const {
+			authUser,
+			playedGames,
+			gameList,
+			fullGames,
+			teamTypes,
+			fetchGames,
+			person
+		} = nextProps;
 		const newState = { isLoading: false };
+
+		if (!gameList) {
+			newState.isLoading = true;
+			return newState;
+		}
 
 		const allowAll = authUser && authUser.isAdmin;
 
@@ -34,7 +52,7 @@ class PlayerStatSection extends Component {
 		let { years } = prevState;
 		if (!years) {
 			years = _.chain(playedGames)
-				.map(g => g.date.getFullYear())
+				.map(g => gameList[g].date.getFullYear())
 				.uniq()
 				.sort()
 				.reverse()
@@ -55,9 +73,11 @@ class PlayerStatSection extends Component {
 		}
 
 		//This year's games
-		const playedGamesThisYear = playedGames.filter(game =>
-			validateGameDate(game, "results", newState.year === "All" ? null : newState.year)
-		);
+		const playedGamesThisYear = playedGames
+			.map(_id => gameList[_id])
+			.filter(game =>
+				validateGameDate(game, "results", newState.year === "All" ? null : newState.year)
+			);
 
 		//On year change (or on initial load), reset the team types
 		let { teamType } = prevState;
@@ -446,4 +466,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { authUser, teamTypes, gameList, fullGames, localTeam };
 }
 
-export default connect(mapStateToProps, { fetchGames })(PlayerStatSection);
+export default connect(mapStateToProps, { fetchGames, fetchGameList })(PlayerStatSection);

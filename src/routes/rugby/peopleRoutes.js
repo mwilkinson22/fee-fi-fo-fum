@@ -1,12 +1,13 @@
 //Controllers
-import * as peopleController from "../../controllers/rugby/peopleController";
+import * as peopleController from "~/controllers/rugby/peopleController";
 
 //Middleware
-import requireAdmin from "../../middlewares/requireAdmin";
+import requireAdmin from "~/middlewares/requireAdmin";
 
 export default app => {
 	//Getters
 	app.get("/api/people/multi/:ids", peopleController.getPeople);
+	app.get("/api/people/slug/:slug", peopleController.getPersonFromSlug);
 	app.get("/api/people/:id", peopleController.getPerson);
 	app.get("/api/people", peopleController.getList);
 

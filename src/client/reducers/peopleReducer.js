@@ -1,5 +1,11 @@
 import _ from "lodash";
-import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE } from "../actions/types";
+import {
+	DELETE_PERSON,
+	FETCH_PEOPLE_LIST,
+	FETCH_PERSON,
+	FETCH_PEOPLE,
+	ADD_PERSON_SLUG
+} from "../actions/types";
 
 function fixDates(person) {
 	if (person.dateOfBirth) {
@@ -17,7 +23,7 @@ function fixDates(person) {
 	}
 }
 
-export default function(state = { fullPeople: {} }, action) {
+export default function(state = { fullPeople: {}, slugMap: {} }, action) {
 	switch (action.type) {
 		case FETCH_PERSON:
 			fixDates(action.payload);
@@ -37,8 +43,18 @@ export default function(state = { fullPeople: {} }, action) {
 				}
 			};
 
+		case ADD_PERSON_SLUG: {
+			return {
+				...state,
+				slugMap: {
+					...state.slugMap,
+					...action.payload
+				}
+			};
+		}
+
 		case FETCH_PEOPLE_LIST:
-			return { ...state, ...action.payload };
+			return { ...state, peopleList: action.payload };
 
 		case DELETE_PERSON: {
 			const { [action.payload]: oldFull, ...fullPeople } = state.fullPeople;

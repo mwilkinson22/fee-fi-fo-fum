@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 //Components
 import LoadingPage from "../components/LoadingPage";
@@ -12,72 +12,53 @@ import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
 
 //Actions
-import { fetchPerson, fetchPeopleList } from "../actions/peopleActions";
+import { fetchPersonFromSlug } from "../actions/peopleActions";
 import { fetchGameList, fetchGames } from "../actions/gamesActions";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
 
 //Helpers
-import { matchSlugToItem } from "~/helpers/routeHelper";
 import { hasConnectionToTeam } from "~/helpers/peopleHelper";
 
 class PersonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { peopleList, fetchPeopleList, gameList, fetchGameList } = props;
+		const { slugMap, fetchPersonFromSlug, match } = props;
 
-		if (!peopleList) {
-			fetchPeopleList();
+		//Get Person
+		const { slug } = match.params;
+		if (slugMap[slug] === undefined) {
+			fetchPersonFromSlug(slug);
 		}
 
-		if (!gameList) {
-			fetchGameList();
-		}
-
-		this.state = { activeFilters: {} };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const {
-			peopleList,
-			redirects,
-			fullPeople,
-			fetchPerson,
-			match,
-			localTeam,
-			authUser
-		} = nextProps;
+		const { slugMap, fullPeople, match, localTeam, authUser } = nextProps;
 		const { slug } = match.params;
 		const newState = { redirect: null };
 
 		//Ensure Slug map is loaded
-		if (peopleList) {
-			const { item, redirect } = matchSlugToItem(slug, peopleList, redirects);
-
-			if (redirect) {
-				const role = item.isCoach ? "coaches" : "players";
-				newState.redirect = `/${role}/${item.slug}`;
-			} else if (!item) {
+		if (slugMap[slug] !== undefined) {
+			//We've had a result from fetchPersonFromSlug
+			if (slugMap[slug] === false) {
+				//404
 				newState.person = false;
 			} else {
-				const { _id } = item;
+				const _id = slugMap[slug];
+				const person = fullPeople[_id];
 
-				if (!fullPeople[_id]) {
-					fetchPerson(_id);
+				//Always display for admins
+				if (authUser && authUser.isAdmin) {
+					newState.person = person;
 				} else {
-					const person = fullPeople[_id];
-
-					//Always display for admins
-					if (authUser && authUser.isAdmin) {
+					//Otherwise Ensure they have a connection to the local team
+					if (hasConnectionToTeam(person, localTeam)) {
 						newState.person = person;
 					} else {
-						//Ensure they have a connection to the local team
-						if (hasConnectionToTeam(person, localTeam)) {
-							newState.person = person;
-						} else {
-							newState.person = false;
-						}
+						newState.person = false;
 					}
 				}
 			}
@@ -299,44 +280,28 @@ class PersonPage extends Component {
 
 	getPlayerStatsSection() {
 		const { person } = this.state;
-		const { earliestLocalGames, gameList } = this.props;
+
+		if (typeof window === "undefined") {
+			//Prevent server-side loading of games
+			return null;
+		}
 
 		if (!person.playedGames) {
 			return null;
 		}
 
-		if (!gameList) {
-			return <LoadingPage />;
-		}
-
 		const playedGames = person.playedGames
 			.filter(g => !g.pregameOnly && g.forLocalTeam && g.squadsAnnounced)
-			.map(g => gameList[g._id])
-			.filter(g => Number(g.date.getFullYear()) >= earliestLocalGames);
+			.map(g => g._id);
 
 		if (playedGames.length) {
 			return <PlayerStatSection person={person} playedGames={playedGames} />;
 		}
 	}
 
-	// getDescription() {
-	// 	const { person } = this.state;
-	// 	if (person.description) {
-	// 		return (
-	// 			<div className="description" key="description">
-	// 				{person.description.map((para, i) => (
-	// 					<p key={i}>{para}</p>
-	// 				))}
-	// 			</div>
-	// 		);
-	// 	} else {
-	// 		return null;
-	// 	}
-	// }
-
 	render() {
 		const { bucketPaths, match } = this.props;
-		const { person, redirect } = this.state;
+		const { person } = this.state;
 		const role = match.url.split("/")[1]; //players or coaches
 
 		let imageVariant = "main";
@@ -347,9 +312,7 @@ class PersonPage extends Component {
 			imageVariant = "coach";
 		}
 
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		} else if (person === undefined) {
+		if (person === undefined) {
 			return <LoadingPage />;
 		} else if (!person) {
 			return <NotFoundPage message="Person not found" />;
@@ -399,40 +362,27 @@ class PersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, people }) {
-	const { authUser, bucketPaths, earliestLocalGames, localTeam } = config;
-	const { gameList } = games;
-	const { fullPeople, redirects, peopleList } = people;
+function mapStateToProps({ config, people }) {
+	const { authUser, bucketPaths, localTeam } = config;
+	const { fullPeople, slugMap } = people;
 	return {
 		authUser,
 		bucketPaths,
-		earliestLocalGames,
 		localTeam,
-		gameList,
 		fullPeople,
-		redirects,
-		peopleList
+		slugMap
 	};
 }
 
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
 
-	await store.dispatch(fetchPeopleList());
-
-	const { peopleList, redirects } = store.getState().people;
-
-	const { item } = matchSlugToItem(slug, peopleList, redirects);
-
-	if (item) {
-		return store.dispatch(fetchPerson(item._id));
-	}
+	return store.dispatch(fetchPersonFromSlug(slug));
 }
 
 export default {
 	component: connect(mapStateToProps, {
-		fetchPerson,
-		fetchPeopleList,
+		fetchPersonFromSlug,
 		fetchGameList,
 		fetchGames
 	})(PersonPage),
