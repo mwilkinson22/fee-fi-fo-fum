@@ -158,7 +158,7 @@ class PersonPage extends Component {
 	}
 
 	getPersonDataSection() {
-		const sections = [this.getInfoTable() /* , this.getDescription() */];
+		const sections = [this.getInfoTable()];
 		const sectionCount = _.filter(sections, _.identity).length;
 		if (sectionCount) {
 			return (
@@ -300,7 +300,7 @@ class PersonPage extends Component {
 	}
 
 	render() {
-		const { bucketPaths, match } = this.props;
+		const { bucketPaths, match, useWebp } = this.props;
 		const { person } = this.state;
 		const role = match.url.split("/")[1]; //players or coaches
 
@@ -339,7 +339,14 @@ class PersonPage extends Component {
 						cardType={cardType}
 					/>
 					<section className="header">
-						<div className="background" />
+						<div
+							className="background"
+							style={{
+								backgroundImage: `url('${bucketPaths.images.layout}john-smiths${
+									useWebp ? ".webp" : "jpg"
+								}')`
+							}}
+						/>
 						<div className="container">
 							<PersonImage person={person} variant={imageVariant} />
 							<div className="overlay">
@@ -363,14 +370,15 @@ class PersonPage extends Component {
 }
 
 function mapStateToProps({ config, people }) {
-	const { authUser, bucketPaths, localTeam } = config;
+	const { authUser, bucketPaths, localTeam, webp } = config;
 	const { fullPeople, slugMap } = people;
 	return {
 		authUser,
 		bucketPaths,
 		localTeam,
 		fullPeople,
-		slugMap
+		slugMap,
+		useWebp: webp
 	};
 }
 
