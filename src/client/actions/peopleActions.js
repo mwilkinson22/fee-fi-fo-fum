@@ -63,8 +63,9 @@ export const fetchPersonFromSlug = slug => async (dispatch, getState, api) => {
 
 	//Handle retrieved player
 	if (!errorFound) {
-		dispatch({ type: ADD_PERSON_SLUG, payload: { [slug]: res.data._id } });
+		//Add person before adding slug, to prevent errors
 		dispatch({ type: FETCH_PERSON, payload: res.data });
+		dispatch({ type: ADD_PERSON_SLUG, payload: { [slug]: res.data._id } });
 	}
 };
 
