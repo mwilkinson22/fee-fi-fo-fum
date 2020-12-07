@@ -42,7 +42,7 @@ class AdminTeamSelectorOverview extends Component {
 
 		//Get Current Selector
 		if (!newState.isNew) {
-			newState.selector = selectors[match.params._id] || false;
+			newState.selector = selectors[match.params._id];
 			newState.readOnly = Boolean(newState.selector._game);
 
 			//Upon selector change, update the squad number

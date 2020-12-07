@@ -102,7 +102,7 @@ class AdminTeamSelectorPage extends Component {
 
 		//Dynamic content disclaimer
 		let dynamicContent;
-		if (selector._game) {
+		if (!isNew && selector._game) {
 			dynamicContent = (
 				<p className="disclaimer">
 					This selector cannot be manually edited, as its content is dynamically generated
