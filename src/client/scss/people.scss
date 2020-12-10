@@ -473,6 +473,9 @@ a .person-image {
 				border-bottom: 1pt #e4e4e4 solid;
 			}
 
+			@media #{$mobile-only} {
+				text-align: center;
+			}
 			@media #{$desktop-and-tablet} {
 				display: flex;
 				.content {
