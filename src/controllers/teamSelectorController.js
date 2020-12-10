@@ -151,7 +151,7 @@ export async function updateGameSelector(_game) {
 
 export async function updateTeamSelector(req, res) {
 	const { _id } = req.params;
-	const selector = await fetchTeamSelector(_id, res);
+	const selector = await fetchTeamSelector(_id, res, true);
 	if (selector) {
 		await selector.updateOne(req.body);
 		await getTeamSelector(req, res);
@@ -169,11 +169,8 @@ export async function deleteTeamSelector(req, res) {
 
 export async function submitUserChoices(req, res) {
 	const { _id } = req.params;
-	const selectorExists = await fetchTeamSelector(_id, res);
-	if (selectorExists) {
-		//Get object to update
-		const selector = await TeamSelector.findById(_id, "choices");
-
+	const selector = await fetchTeamSelector(_id, res, true);
+	if (selector) {
 		//Work out if we're adding an entry or updating //Check to see if we've already voted
 		const { ipAddress } = req;
 		const currentVote = selector.choices.find(c => c.ip === ipAddress);
