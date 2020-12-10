@@ -8,6 +8,7 @@ const teamSchema = new Schema({
 		short: { type: String, required: true }
 	},
 	nickname: { type: String, required: true },
+	playerNickname: { type: String, default: null },
 	_defaultGround: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
 	_grounds: [
 		{
@@ -91,7 +92,7 @@ teamSchema.query.fullTeam = function(fullData) {
 			select: "name slug images.main images.coach gender"
 		});
 	} else {
-		return this.select("name nickname colours images");
+		return this.select("name nickname playerNickname colours images");
 	}
 };
 

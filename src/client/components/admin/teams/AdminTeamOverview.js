@@ -38,6 +38,7 @@ class AdminTeamOverview extends Component {
 			nickname: Yup.string()
 				.required()
 				.label("Nickname"),
+			playerNickname: Yup.string().label("Single Player Nickname"),
 			hashtagPrefix: Yup.string()
 				.required()
 				.length(3)
@@ -113,6 +114,7 @@ class AdminTeamOverview extends Component {
 				long: ""
 			},
 			nickname: "",
+			playerNickname: "",
 			hashtagPrefix: "",
 			_defaultGround: "",
 			images: {
@@ -231,6 +233,7 @@ class AdminTeamOverview extends Component {
 					{ name: "name.long", type: fieldTypes.text },
 					{ name: "name.short", type: fieldTypes.text },
 					{ name: "nickname", type: fieldTypes.text },
+					{ name: "playerNickname", type: fieldTypes.text },
 					{ name: "hashtagPrefix", type: fieldTypes.text },
 					{ name: "_defaultGround", type: fieldTypes.select, options: groundOptions }
 				]
