@@ -236,7 +236,11 @@ class AdminPersonImageCardEditor extends Component {
 		//Add Text Rows
 		values.textRows.forEach((row, i) => {
 			//Create string content
-			const str = row.map(s => s.text).join("");
+			let textContent = row.map(s => s.text).join("");
+
+			if (!textContent.trim().length) {
+				textContent = <em>[{_.maxBy(row, "size").size}pt whitespace]</em>;
+			}
 
 			//Create buttons
 			const buttons = [];
@@ -285,7 +289,7 @@ class AdminPersonImageCardEditor extends Component {
 				>
 					<div className="content">
 						<strong>Row {i + 1}</strong>
-						{str}
+						{textContent}
 					</div>
 					<div className="row-buttons">{buttons}</div>
 				</li>
