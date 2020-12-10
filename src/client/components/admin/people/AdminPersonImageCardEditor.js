@@ -1,6 +1,7 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import * as Yup from "yup";
 
@@ -46,13 +47,17 @@ class AdminPersonImageCardEditor extends Component {
 			...initialValues
 		};
 
+		//Get Templates
+		const templates = this.getTemplates();
+
 		//Create initial state
 		this.state = {
 			copyRow: null,
 			editing: null,
 			previewImage: null,
 			options,
-			values
+			values,
+			templates
 		};
 	}
 
@@ -97,6 +102,112 @@ class AdminPersonImageCardEditor extends Component {
 
 		//Update state
 		this.setState({ values }, () => this.updatePreview());
+	}
+
+	getTemplates() {
+		const { localTeam, fullTeams, person, trimColour } = this.props;
+		const localTeamObject = fullTeams[localTeam];
+
+		const templates = {};
+
+		//[Person] is a [nickname]
+		if (localTeamObject.playerNickname) {
+			templates["isA"] = {
+				label: `${person.name.first} is a ${localTeamObject.playerNickname}`,
+				textRows: [
+					[
+						{
+							colour: trimColour,
+							font: "Monstro",
+							size: 20,
+							text: person.name.first
+						}
+					],
+					[
+						{
+							colour: "#FFFFFF",
+							font: "Monstro",
+							size: 10,
+							text: "is a"
+						}
+					],
+					[
+						{
+							colour: trimColour,
+							font: "Monstro",
+							size: 20,
+							text: localTeamObject.playerNickname
+						}
+					],
+					[
+						{
+							colour: "#FFFFFF",
+							font: "Montserrat Bold",
+							size: 8,
+							text: " "
+						}
+					],
+					[
+						{
+							colour: trimColour,
+							font: "Montserrat Bold",
+							size: 8,
+							text: "#"
+						},
+						{
+							colour: "#FFFFFF",
+							font: "Montserrat Bold",
+							size: 8,
+							text: `${person.name.last}`
+						},
+						{
+							colour: trimColour,
+							font: "Montserrat Bold",
+							size: 8,
+							text: `Year`
+						}
+					]
+				]
+			};
+		}
+
+		return templates;
+	}
+
+	setTemplate(key) {
+		const { editing, templates, values } = this.state;
+		if (editing) {
+			return;
+		}
+
+		if (!values.textRows.length || confirm("Overwrite existing data?")) {
+			const newValues = { ...values };
+			newValues.textRows = templates[key].textRows;
+			this.setState({ values: newValues }, () => this.updatePreview());
+		}
+	}
+
+	renderTemplates() {
+		const { editing, templates } = this.state;
+
+		if (Object.keys(templates).length) {
+			const list = _.map(templates, ({ label }, key) => (
+				<button
+					type="button"
+					onClick={() => this.setTemplate(key)}
+					key={key}
+					disabled={Boolean(editing)}
+				>
+					{label}
+				</button>
+			));
+			return (
+				<div className="form-card">
+					<h6>Use Template</h6>
+					{list}
+				</div>
+			);
+		}
 	}
 
 	renderSummary() {
@@ -369,11 +480,18 @@ class AdminPersonImageCardEditor extends Component {
 
 		return (
 			<div>
+				{this.renderTemplates()}
 				{content}
 				{this.renderPreviewAndButtons()}
 			</div>
 		);
 	}
+}
+
+function mapStateToProps({ config, teams }) {
+	const { localTeam, trimColour } = config;
+	const { fullTeams } = teams;
+	return { localTeam, trimColour, fullTeams };
 }
 
 AdminPersonImageCardEditor.propTypes = {
@@ -386,4 +504,4 @@ AdminPersonImageCardEditor.defaultProps = {
 	initialValues: {}
 };
 
-export default AdminPersonImageCardEditor;
+export default connect(mapStateToProps)(AdminPersonImageCardEditor);
