@@ -70,13 +70,56 @@ class AdminPersonImageCardRowEditor extends Component {
 							</button>
 						));
 
-						return [
-							<div key="buttons" className="buttons colour-buttons">
-								{buttons}
-							</div>,
-							<hr key="divider" />
-						];
+						return <div className="buttons colour-buttons">{buttons}</div>;
 					}
+				},
+				{
+					fields: [
+						{
+							name: "segments",
+							type: fieldTypes.fieldArray,
+							render: ({ move, remove }) => {
+								const content = [];
+								if (values.segments.length > 1) {
+									const buttons = [
+										<button
+											key="move-up"
+											onClick={() => move(i, i - 1)}
+											disabled={i === 0}
+											type="button"
+										>
+											&#9650;
+										</button>,
+										<button
+											key="move-down"
+											onClick={() => move(i, i + 1)}
+											disabled={i === values.segments.length - 1}
+											type="button"
+										>
+											&#9660;
+										</button>,
+										<button
+											key="delete"
+											className="delete"
+											type="button"
+											onClick={() => remove(i)}
+										>
+											Delete
+										</button>
+									];
+									content.unshift(
+										<div key="buttons" className="full-span">
+											{buttons}
+										</div>
+									);
+								}
+
+								content.push(<hr key="divider" />);
+
+								return content;
+							}
+						}
+					]
 				}
 			];
 		});
