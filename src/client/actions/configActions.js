@@ -2,6 +2,7 @@ import { GET_CORE_CONFIG, GET_SETTINGS } from "./types";
 import {
 	facebookApp,
 	localTeam,
+	mainCompetitionSegment,
 	gaTracking,
 	mongoURI,
 	googleBucketName,
@@ -78,7 +79,10 @@ export const getCoreConfig = req => async dispatch => {
 
 		//Colours
 		mainColour,
-		trimColour
+		trimColour,
+
+		//Main Competition
+		mainCompetitionSegment
 	};
 
 	//Add Bucket Paths
