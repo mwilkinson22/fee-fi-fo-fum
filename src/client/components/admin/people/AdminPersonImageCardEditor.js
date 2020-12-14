@@ -164,7 +164,7 @@ class AdminPersonImageCardEditor extends Component {
 							colour: trimColour,
 							font: "Montserrat Bold",
 							size: 8,
-							text: `Year`
+							text: person.contractedUntil || `Year`
 						}
 					]
 				]
