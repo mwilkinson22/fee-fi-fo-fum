@@ -26,7 +26,7 @@ function getGameQuery(_competition, year = null) {
 	if (year) {
 		query.date = {
 			$gte: new Date(`${year}-01-01`),
-			$lt: new Date(`${year + 1}-01-01`)
+			$lt: new Date(`${Number(year) + 1}-01-01`)
 		};
 	}
 	return query;
@@ -517,7 +517,7 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 	if (year == now.getFullYear()) {
 		toDate = now.toString("yyyy-MM-dd HH:mm:ss");
 	} else {
-		toDate = `${year + 1}-01-01 00:00:00`;
+		toDate = `${Number(year) + 1}-01-01 00:00:00`;
 	}
 
 	//Set default options
