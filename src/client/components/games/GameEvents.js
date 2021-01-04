@@ -11,7 +11,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 class GameEvents extends Component {
 	constructor(props) {
 		super(props);
-		this.events = ["T", "CN", "PK", "DG"];
+		this.events = ["T", "CN", "PK", "DG", "YC", "RC"];
 		this.state = {};
 	}
 
