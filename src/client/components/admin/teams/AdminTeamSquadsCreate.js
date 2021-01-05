@@ -39,7 +39,7 @@ class AdminTeamSquadsCreate extends Component {
 						//Ensure all values are loaded
 						if (year && teamType) {
 							return !team.squads.find(
-								s => s._teamType == teamType.value && s.year == year
+								s => s._teamType == teamType && s.year == year
 							);
 						}
 						//Otherwise, validation will fail regardless so we return true
