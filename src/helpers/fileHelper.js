@@ -29,12 +29,18 @@ export async function uploadToGoogle({ originalname, buffer, mimeType }, path = 
 }
 
 export async function uploadImageToGoogle(
-	file,
+	originalFile,
 	path,
 	webPConvert = true,
 	nameOverride = null,
 	resize = null
 ) {
+	//Using sharp().clone() doesn't seem to work as expected, so we
+	//deconstruct the file object to prevent permanent changes.
+	//Among other things, this prevents issues when resizing multiple times
+	const file = { ...originalFile };
+
+	//Process file name & extension
 	let fileName;
 	const fileNameArray = file.originalname.split(".");
 	const extension = fileNameArray.pop().toLowerCase();
