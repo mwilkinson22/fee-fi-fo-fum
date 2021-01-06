@@ -107,7 +107,7 @@ class AdminCompetitionSegmentPage extends Component {
 
 	renderContent() {
 		return (
-			<ErrorBoundary>
+			<ErrorBoundary parentProps={this.props} parentState={this.state}>
 				<Switch>
 					<Route
 						path="/admin/competitions/segments/:_id/crawl"

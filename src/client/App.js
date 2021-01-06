@@ -57,13 +57,15 @@ class App extends Component {
 			className = `browser-${browser.toLowerCase().replace(/(?![A-Za-z0-9-_])./gi, "-")}`;
 		}
 		return (
-			<ErrorBoundary>
+			<ErrorBoundary parentProps={this.props} parentState={this.state}>
 				<GAListener trackingId={gaTracking}>
 					<div className={className}>
 						<ScrollToTop>
 							<Header />
 							<HelmetBuilder title="" canonical="/" />
-							<ErrorBoundary>{renderRoutes(route.routes)}</ErrorBoundary>
+							<ErrorBoundary parentProps={this.props} parentState={this.state}>
+								{renderRoutes(route.routes)}
+							</ErrorBoundary>
 						</ScrollToTop>
 					</div>
 				</GAListener>

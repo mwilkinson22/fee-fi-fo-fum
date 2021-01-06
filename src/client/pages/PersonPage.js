@@ -10,6 +10,7 @@ import PlayerStatSection from "../components/people/PlayerStatSection";
 import PersonImage from "../components/people/PersonImage";
 import HelmetBuilder from "../components/HelmetBuilder";
 import NotFoundPage from "./NotFoundPage";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 //Actions
 import { fetchPersonFromSlug } from "../actions/peopleActions";
@@ -295,7 +296,15 @@ class PersonPage extends Component {
 			.map(g => g._id);
 
 		if (playedGames.length) {
-			return <PlayerStatSection person={person} playedGames={playedGames} />;
+			return (
+				<ErrorBoundary
+					parentState={this.state}
+					parentProps={this.props}
+					additionalData={{ person, playedGames }}
+				>
+					<PlayerStatSection person={person} playedGames={playedGames} />
+				</ErrorBoundary>
+			);
 		}
 	}
 

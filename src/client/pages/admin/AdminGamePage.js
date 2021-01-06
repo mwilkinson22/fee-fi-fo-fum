@@ -245,7 +245,9 @@ class AdminGamePage extends Component {
 		return (
 			<section className="form">
 				<div className="container">
-					<ErrorBoundary>{content}</ErrorBoundary>
+					<ErrorBoundary parentProps={this.props} parentState={this.state}>
+						{content}
+					</ErrorBoundary>
 				</div>
 			</section>
 		);

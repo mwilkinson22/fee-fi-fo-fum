@@ -119,7 +119,7 @@ class AdminNewsPostPage extends Component {
 		return (
 			<section className="form">
 				<div className="container">
-					<ErrorBoundary>
+					<ErrorBoundary parentProps={this.props} parentState={this.state}>
 						<Switch>
 							<Route
 								path="/admin/news/post/new"

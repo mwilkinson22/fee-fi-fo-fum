@@ -131,7 +131,7 @@ class AdminCompetitionInstancePage extends Component {
 	renderContent() {
 		const root = "/admin/competitions/segments/:segmentId/instances";
 		return (
-			<ErrorBoundary>
+			<ErrorBoundary parentProps={this.props} parentState={this.state}>
 				<Switch>
 					<Route
 						path={`${root}/:instanceId/images`}

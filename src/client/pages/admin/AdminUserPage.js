@@ -84,7 +84,7 @@ class AdminTeamTypePage extends Component {
 		//more complex logic on access rights.
 		//Child components must pass the user prop into state
 		return (
-			<ErrorBoundary>
+			<ErrorBoundary parentProps={this.props} parentState={this.state}>
 				<Switch>
 					<Route
 						path="/admin/settings/users/:_id/ownership"

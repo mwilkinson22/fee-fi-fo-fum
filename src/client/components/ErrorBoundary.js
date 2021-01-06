@@ -1,6 +1,7 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Notifier } from "@airbrake/browser";
@@ -42,7 +43,16 @@ class ErrorBoundary extends Component {
 	}
 
 	componentDidCatch(error, info) {
-		const { authUser, browser, deviceType, sendError, sentErrors } = this.props;
+		const {
+			authUser,
+			browser,
+			deviceType,
+			sendError,
+			sentErrors,
+			parentProps,
+			parentState,
+			additionalData
+		} = this.props;
 
 		//Get the uri where the error occurred
 		const page = this.props.location.pathname;
@@ -83,7 +93,7 @@ class ErrorBoundary extends Component {
 		if (this.airbrake) {
 			this.airbrake.notify({
 				error,
-				params: { info }
+				params: { info, parentProps, parentState, additionalData }
 			});
 		}
 	}
@@ -106,5 +116,11 @@ function mapStateToProps({ config, errors }) {
 
 	return { authUser, airbrakeId, airbrakeKey, browser, deviceType, sentErrors };
 }
+
+ErrorBoundary.propTypes = {
+	additionalData: PropTypes.object,
+	parentProps: PropTypes.object,
+	parentState: PropTypes.object
+};
 
 export default withRouter(connect(mapStateToProps, { sendError })(ErrorBoundary));

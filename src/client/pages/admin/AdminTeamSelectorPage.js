@@ -130,7 +130,7 @@ class AdminTeamSelectorPage extends Component {
 	getContent() {
 		return (
 			<div className="container">
-				<ErrorBoundary>
+				<ErrorBoundary parentProps={this.props} parentState={this.state}>
 					<Switch>
 						<Route
 							path="/admin/team-selectors/new"

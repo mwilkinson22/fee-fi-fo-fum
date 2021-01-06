@@ -119,7 +119,9 @@ class AdminAwardPage extends Component {
 						<div className="container">{this.getSubmenu()}</div>
 					</section>
 					<section className="form">
-						<ErrorBoundary>{this.getContent()}</ErrorBoundary>
+						<ErrorBoundary parentProps={this.props} parentState={this.state}>
+							{this.getContent()}
+						</ErrorBoundary>
 					</section>
 				</div>
 			);

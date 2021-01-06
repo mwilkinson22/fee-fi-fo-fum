@@ -84,7 +84,7 @@ class AdminRouter extends Component {
 			content = <LoadingPage />;
 		} else if (this.props.authUser) {
 			content = (
-				<ErrorBoundary>
+				<ErrorBoundary parentProps={this.props} parentState={this.state}>
 					<Switch>
 						<Route path="/admin/awards/:_id" component={AdminAwardPage} />
 						<Route path="/admin/awards" exact component={AdminAwardList} />
