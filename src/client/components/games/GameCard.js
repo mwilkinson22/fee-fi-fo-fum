@@ -74,7 +74,10 @@ class GameCard extends Component {
 			groundString = "Venue TBD";
 			groundClass = "no-ground";
 		}
-		const homeAwayText = game.isAway ? "(A)" : "(H)";
+		let homeAwayText = "";
+		if (!game.isNeutralGround) {
+			homeAwayText = game.isAway ? " (A)" : " (H)";
+		}
 		const url = game.slug;
 		const title = game.title;
 		let broadcastLogo;
@@ -110,7 +113,7 @@ class GameCard extends Component {
 					<TeamImage team={opposition} size="medium" />
 					<div className="game-details-wrapper">
 						<h4>
-							{this.state.scoreString || `${opposition.name.short} ${homeAwayText}`}
+							{this.state.scoreString || `${opposition.name.short}${homeAwayText}`}
 						</h4>
 						<ul>
 							<li className="date">{formatDate(game)}</li>

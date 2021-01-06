@@ -279,7 +279,6 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 }
 
 async function processList(userIsAdmin) {
-	await Game.updateMany({ hideGame: null }, { hideGame: false }, { multi: true });
 	const query = {};
 	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };

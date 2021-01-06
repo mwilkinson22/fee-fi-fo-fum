@@ -66,7 +66,10 @@ class SeasonOverview extends Component {
 			.map(({ slug, score, _opposition }) => {
 				const margin = score[localTeam] - score[_opposition._id];
 
-				let scoreString = _.values(score).sort().reverse().join("-");
+				let scoreString = _.values(score)
+					.sort()
+					.reverse()
+					.join("-");
 
 				if (margin > 0) {
 					scoreString += " Win";
@@ -109,7 +112,11 @@ class SeasonOverview extends Component {
 
 		//Get Attendance Stats
 		const gamesForAttendance = games.filter(
-			g => !g.isAway && leagues.find(l => l._id == g._competition._id) && g.attendance
+			g =>
+				!g.isAway &&
+				leagues.find(l => l._id == g._competition._id) &&
+				g.attendance &&
+				!g.isNeutralGround
 		);
 
 		if (gamesForAttendance.length) {

@@ -24,6 +24,7 @@ const gameSchema = new Schema(
 		dateRange: { type: Number, default: null },
 		date: { type: Date, required: true },
 		isAway: { type: Boolean, required: true },
+		isNeutralGround: { type: Boolean, required: true },
 		slug: { type: String, unique: true, required: true },
 		hideGame: { type: Boolean, default: false },
 

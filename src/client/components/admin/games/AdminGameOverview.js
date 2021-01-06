@@ -114,6 +114,7 @@ class AdminGameOverview extends Component {
 			isAway: Yup.string()
 				.required()
 				.label("Home/Away"),
+			isNeutralGround: Yup.bool().label("Neutral Ground?"),
 			_ground: Yup.string().label("Ground"),
 			_broadcaster: Yup.string().label("Broadcaster"),
 			_referee: Yup.string()
@@ -203,6 +204,7 @@ class AdminGameOverview extends Component {
 			customTitle: "",
 			customHashtags: [],
 			isAway: "",
+			isNeutralGround: false,
 			_ground: "",
 			_broadcaster: "",
 			_referee: "",
@@ -311,6 +313,7 @@ class AdminGameOverview extends Component {
 				label: "Venue",
 				fields: [
 					{ name: "isAway", type: fieldTypes.radio, options: options.isAway },
+					{ name: "isNeutralGround", type: fieldTypes.boolean },
 					{
 						name: "_ground",
 						type: fieldTypes.select,

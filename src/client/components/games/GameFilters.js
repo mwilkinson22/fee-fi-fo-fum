@@ -37,11 +37,19 @@ class GameFilters extends Component {
 				.sortBy("label")
 				.value();
 
-			const venueOptions = [
-				allOption,
-				{ label: "Home", value: "home" },
-				{ label: "Away", value: "away" }
-			];
+			const venueOptions = [allOption];
+
+			if (games.find(g => g.isAway === false)) {
+				venueOptions.push({ label: "Home", value: "home" });
+			}
+
+			if (games.find(g => g.isAway === true)) {
+				venueOptions.push({ label: "Away", value: "away" });
+			}
+
+			if (games.find(g => g.isNeutralGround)) {
+				venueOptions.push({ label: "Neutral", value: "neutral" });
+			}
 
 			const filters = {
 				_competition: {
@@ -95,7 +103,11 @@ class GameFilters extends Component {
 
 			//Venue
 			if (isValid && venue && venue.value) {
-				isValid = g.isAway === (venue.value === "away");
+				if (venue.value === "neutral") {
+					isValid = g.isNeutralGround;
+				} else {
+					isValid = !g.isNeutralGround && g.isAway === (venue.value === "away");
+				}
 			}
 
 			//Competition
