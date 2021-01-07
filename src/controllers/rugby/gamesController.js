@@ -13,7 +13,7 @@ const ics = require("ics");
 import twitter from "~/services/twitter";
 
 //Constants
-const { localTeam, earliestLocalGames } = require("~/config/keys");
+const { localTeam } = require("~/config/keys");
 import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
@@ -282,9 +282,6 @@ async function processList(userIsAdmin) {
 	const query = {};
 	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };
-		if (earliestLocalGames) {
-			query.date = { $gte: `${earliestLocalGames}-01-01` };
-		}
 	}
 	const games = await Game.find(query)
 		.forList()
@@ -312,17 +309,7 @@ export async function getGamesForAdmin(req, res) {
 async function getGames(req, res, forGamePage, forAdmin) {
 	const { ids } = req.params;
 
-	const query = {
-		_id: {
-			$in: ids.split(",")
-		}
-	};
-
-	if (!req.user || !req.user.isAdmin) {
-		query.date = { $gte: `${earliestLocalGames}-01-01` };
-	}
-
-	let games = await Game.find(query).fullGame(forGamePage, forAdmin);
+	let games = await Game.find({ _id: { $in: ids.split(",") } }).fullGame(forGamePage, forAdmin);
 
 	games = await getExtraGameInfo(games, forGamePage, forAdmin);
 

@@ -11,7 +11,7 @@ const TeamTypes = mongoose.model("teamTypes");
 const SlugRedirect = mongoose.model("slugRedirect");
 
 //Constants
-const { earliestLocalGames, localTeam } = require("../../config/keys");
+const { localTeam } = require("~/config/keys");
 
 //Images
 import PersonImageCard from "~/images/PersonImageCard";
@@ -64,13 +64,10 @@ async function getFullPeople(ids) {
 	return people;
 }
 
-async function getPlayedGames(_id, isAdmin) {
+async function getPlayedGames(_id) {
 	const query = {
 		$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }]
 	};
-	if (!isAdmin) {
-		query.date = { $gte: `${earliestLocalGames}-01-01` };
-	}
 	const playedGames = await Game.find(
 		query,
 		"playerStats._player playerStats._team pregameSquads date squadsAnnounced"
@@ -445,7 +442,7 @@ export async function deletePerson(req, res) {
 		}
 
 		//Check for played games
-		const playedGames = await getPlayedGames(_id, req.user && req.user.isAdmin);
+		const playedGames = await getPlayedGames(_id);
 		if (playedGames.length) {
 			errors.push(
 				`a player in ${playedGames.length} ${playedGames.length === 1 ? "game" : "games"}`
