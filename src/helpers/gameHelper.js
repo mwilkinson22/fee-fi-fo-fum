@@ -689,7 +689,8 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 										.trim();
 									if (stat && statList.length) {
 										statList.split(",").forEach(s => {
-											let [name, count] = s.split(/(?=\d)/);
+											let [name] = s.split(/(?=\d)/);
+											const count = s.match(/\d+/);
 
 											//Get Name
 											name = name.trim();
@@ -700,7 +701,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 											//Get Total
 											let total;
 											if (count) {
-												total = Number(count.replace(/\D/gi, ""));
+												total = Number(count[0].replace(/\D/gi, ""));
 											} else {
 												total = 1;
 											}
