@@ -17,6 +17,7 @@ import AdminPersonImageCardPage from "./AdminPersonImageCardPage";
 import AdminPlayerDetails from "~/client/components/admin/people/AdminPlayerDetails";
 import AdminCoachDetails from "~/client/components/admin/teams/AdminCoachDetails";
 import AdminRefereeDetails from "~/client/components/admin/teams/AdminRefereeDetails";
+import AdminPersonMerge from "~/client/components/admin/teams/AdminPersonMerge";
 
 //Actions
 import { fetchPeopleList, fetchPerson } from "../../actions/peopleActions";
@@ -66,6 +67,7 @@ class AdminPersonPage extends Component {
 	}
 
 	getSubmenu() {
+		const { authUser } = this.props;
 		const { isNew, person } = this.state;
 
 		if (!isNew) {
@@ -85,6 +87,10 @@ class AdminPersonPage extends Component {
 				submenuItems.push({ label: "Referee Details", slug: "referee" });
 			}
 
+			if (authUser.isAdmin) {
+				submenuItems.push({ label: "Merge", slug: "merge" });
+			}
+
 			return (
 				<SubMenu items={submenuItems} rootUrl={`/admin/people/${person._id}/`} key="menu" />
 			);
@@ -98,6 +104,7 @@ class AdminPersonPage extends Component {
 					<ErrorBoundary parentProps={this.props} parentState={this.state}>
 						<Switch>
 							<Route path="/admin/people/new" exact component={AdminPersonOverview} />
+							<Route path="/admin/people/:_id/merge" component={AdminPersonMerge} />
 							<Route
 								path="/admin/people/:_id/referee"
 								component={AdminRefereeDetails}
@@ -160,8 +167,9 @@ class AdminPersonPage extends Component {
 	}
 }
 
-function mapStateToProps({ people }) {
+function mapStateToProps({ config, people }) {
+	const { authUser } = config;
 	const { fullPeople, peopleList } = people;
-	return { fullPeople, peopleList };
+	return { authUser, fullPeople, peopleList };
 }
 export default connect(mapStateToProps, { fetchPerson, fetchPeopleList })(AdminPersonPage);

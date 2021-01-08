@@ -45,6 +45,16 @@ export const deletePerson = id => async (dispatch, getState, api) => {
 	}
 };
 
+export const mergePerson = (source, destination) => async (dispatch, getState, api) => {
+	const res = await api.post(`/people/${source}/merge/${destination}`);
+	if (res.data) {
+		dispatch({ type: DELETE_PERSON, payload: source });
+		dispatch({ type: FETCH_PERSON, payload: res.data });
+		toast.success("Merge Successful");
+		return true;
+	}
+};
+
 export const fetchPerson = id => async (dispatch, getState, api) => {
 	const res = await api.get(`/people/${id}`);
 	dispatch({ type: FETCH_PERSON, payload: res.data });

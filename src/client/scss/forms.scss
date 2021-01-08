@@ -30,6 +30,10 @@
 		border-bottom: thin dotted #bbb;
 	}
 
+	p:not(:last-child) {
+		margin-bottom: 10pt;
+	}
+
 	&.no-labels {
 		label {
 			display: none;

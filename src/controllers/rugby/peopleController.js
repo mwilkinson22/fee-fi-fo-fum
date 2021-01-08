@@ -487,3 +487,181 @@ export async function deletePerson(req, res) {
 		}
 	}
 }
+
+export async function mergePerson(req, res) {
+	const { _source, _destination } = req.params;
+
+	//First, ensure both source and destination are valid, separate people
+	if (_source === _destination) {
+		res.status(500).send("The same ID was provided for source and destination values");
+		return;
+	}
+	const source = await validatePerson(_source, res);
+	const destination = await validatePerson(_destination, res);
+
+	if (!source || !destination) {
+		//res handling is done in validatePerson
+		return;
+	}
+
+	//We create arrays for the mongo response for players, coaches and refs,
+	//so we know whether to enforce isPlayer, isCoach or isReferee
+	const playerResults = [];
+	const coachResults = [];
+	const refereeResults = [];
+
+	let error;
+	try {
+		//First, update award references
+		const Award = mongoose.model("awards");
+		const updatedAwards = await Award.updateMany(
+			{ $or: [{ "categories.nominees.nominee": _source, "votes.choices.choice": _source }] },
+			{
+				$set: {
+					"categories.$[cat].nominees.$[nom].nominee": _destination,
+					"votes.$[vote].choices.$[ch].choice": _destination
+				}
+			},
+			{
+				arrayFilters: [
+					{ "cat.nominees.nominee": _source },
+					{ "nom.nominee": _source },
+					{ "vote.choices.choice": _source },
+					{ "ch.choice": _source }
+				],
+				multi: true
+			}
+		);
+		playerResults.push(updatedAwards);
+
+		//Next, update team selectors
+		const TeamSelector = mongoose.model("teamSelectors");
+		const updatedSelectors = await TeamSelector.updateMany(
+			{ $or: [{ players: _source, "choices.squad": _source }] },
+			{
+				$set: { "players.$[src]": _destination, "choices.$[ch].squad.$[src]": _destination }
+			},
+			{ arrayFilters: [{ src: _source }, { "ch.squad": _source }], multi: true }
+		);
+		playerResults.push(updatedSelectors);
+
+		//Update all nested player references within games
+		const playersInGames = await Game.updateMany(
+			{
+				$or: [
+					{ "pregameSquads.squad": _source },
+					{ "events._player": _source },
+					{ "playerStats._player": _source }
+				]
+			},
+			{
+				$set: {
+					"pregameSquads.$[pgs].squad.$[src]": _destination,
+					"events.$[ev]._player": _destination,
+					"playerStats.$[ps]._player": _destination,
+					"_kickers.$[ks]._player": _destination,
+					"fan_potm.options.$[src]": _destination,
+					"fan_potm.votes.$[vote].choice": _destination,
+					"overrideGameStarStats.$[star]._player": _destination,
+					"manOfSteel.$[steel]._player": _destination
+				}
+			},
+			{
+				arrayFilters: [
+					{ src: _source },
+					{ "pgs.squad": _source },
+					{ "ev._player": _source },
+					{ "ps._player": _source },
+					{ "ks._player": _source },
+					{ "vote.choice": _source },
+					{ "star._player": _source },
+					{ "steel._player": _source }
+				],
+				multi: true
+			}
+		);
+		playerResults.push(playersInGames);
+
+		//And do the same for refs
+		const refs = await Game.updateMany(
+			{ _referee: _source },
+			{ _referee: _destination },
+			{ multi: true }
+		);
+		const videoRefs = await Game.updateMany(
+			{ _video_referee: _source },
+			{ _video_referee: _destination },
+			{ multi: true }
+		);
+		refereeResults.push(refs, videoRefs);
+
+		//Update references in squads
+		const updatedSquadEntries = await Team.updateMany(
+			{ "squads.players._player": _source },
+			{ $set: { "squads.$[squad].players.$[pl]._player": _destination } },
+			{
+				arrayFilters: [{ "squad.players._player": _source }, { "pl._player": _source }],
+				multi: true
+			}
+		);
+		playerResults.push(updatedSquadEntries);
+
+		//Update coaching history
+		const updatedCoachHistory = await Team.updateMany(
+			{ "coaches._person": _source },
+			{ $set: { "coaches.$[coach]._person": _destination } },
+			{
+				arrayFilters: [{ "coach._person": _source }],
+				multi: true
+			}
+		);
+		coachResults.push(updatedCoachHistory);
+
+		//Set up a slug redirect and ensure any existing ones are updated
+		const newSlug = new SlugRedirect({
+			collectionName,
+			oldSlug: source.slug,
+			itemId: destination
+		});
+		await newSlug.save();
+		await SlugRedirect.updateMany(
+			{ itemId: _source, collectionName },
+			{ itemId: destination },
+			{ multi: true }
+		);
+
+		//Enforce player/coach/referee data where necessary
+		const updateQuery = {};
+		playerResults.forEach(({ nModified }) => {
+			if (nModified) {
+				updateQuery.isPlayer = true;
+			}
+		});
+		coachResults.forEach(({ nModified }) => {
+			if (nModified) {
+				updateQuery.isCoach = true;
+			}
+		});
+		refereeResults.forEach(({ nModified }) => {
+			if (nModified) {
+				updateQuery.isReferee = true;
+			}
+		});
+		if (Object.keys(updateQuery).length) {
+			await destination.updateOne(updateQuery);
+		}
+
+		//Delete the source user
+		await source.remove();
+	} catch (e) {
+		error = e;
+	}
+
+	if (error) {
+		res.status(500).send({ error: "Merge failed", toLog: error });
+	} else {
+		//Return the updated destination person
+		req.params.id = _destination;
+		await getPerson(req, res);
+	}
+}
