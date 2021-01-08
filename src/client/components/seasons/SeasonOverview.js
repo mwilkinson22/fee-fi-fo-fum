@@ -127,19 +127,21 @@ class SeasonOverview extends Component {
 					label: "Smallest Crowd",
 					value: (
 						<Link to={`/games/${minGame.slug}`}>
-							{minGame.attendance} vs {minGame._opposition.name.short}
+							{minGame.attendance.toLocaleString()} vs{" "}
+							{minGame._opposition.name.short}
 						</Link>
 					)
 				},
 				{
 					label: "Average Crowd",
-					value: Math.ceil(_.meanBy(gamesForAttendance, "attendance"))
+					value: Math.ceil(_.meanBy(gamesForAttendance, "attendance")).toLocaleString()
 				},
 				{
 					label: "Biggest Crowd",
 					value: (
 						<Link to={`/games/${maxGame.slug}`}>
-							{maxGame.attendance} vs {maxGame._opposition.name.short}
+							{maxGame.attendance.toLocaleString()} vs{" "}
+							{maxGame._opposition.name.short}
 						</Link>
 					)
 				}
