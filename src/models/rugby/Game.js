@@ -51,7 +51,7 @@ const gameSchema = new Schema(
 		pregameSquads: {
 			type: [
 				{
-					_team: { type: Schema.Types.ObjectId, ref: "people" },
+					_team: { type: Schema.Types.ObjectId, ref: "teams" },
 					squad: [{ type: Schema.Types.ObjectId, ref: "people" }]
 				}
 			],
@@ -125,7 +125,7 @@ const gameSchema = new Schema(
 		extraTime: { type: Boolean, default: false },
 		overrideGameStarStats: [
 			{
-				_player: { type: Schema.Types.ObjectId, ref: "people " },
+				_player: { type: Schema.Types.ObjectId, ref: "people" },
 				stats: [{ type: String, enum: Object.keys(playerStatTypes) }]
 			}
 		],
