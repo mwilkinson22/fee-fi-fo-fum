@@ -1,5 +1,6 @@
 //Modules
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //Components
 import PopUpDialog from "../PopUpDialog";
@@ -10,16 +11,20 @@ import { propTypes, defaultProps } from "~/constants/formPropTypes";
 
 class PopUpBasicForm extends Component {
 	render() {
-		const { onDestroy, ...formProps } = this.props;
+		const { fullSize, onDestroy, ...formProps } = this.props;
 		return (
-			<PopUpDialog asCard={false} onDestroy={onDestroy}>
+			<PopUpDialog asCard={false} fullSize={fullSize} onDestroy={onDestroy}>
 				<BasicForm {...formProps} />
 			</PopUpDialog>
 		);
 	}
 }
 
-PopUpBasicForm.propTypes = propTypes;
-PopUpBasicForm.defaultProps = defaultProps;
+PopUpBasicForm.propTypes = {
+	fullSize: PropTypes.bool,
+	onDestroy: PropTypes.func.isRequired,
+	...propTypes
+};
+PopUpBasicForm.defaultProps = { fullSize: false, ...defaultProps };
 
 export default PopUpBasicForm;

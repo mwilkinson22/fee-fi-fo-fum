@@ -9,8 +9,8 @@ import * as Yup from "yup";
 import { appendTeamSquad, createTeamSquad } from "../../../actions/teamsActions";
 
 //Components
-import BasicForm from "../BasicForm";
 import Table from "../../Table";
+import PopUpBasicForm from "../../admin/PopUpBasicForm";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -120,6 +120,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 		];
 		return [
 			{
+				label: "Select Players",
 				render: values => {
 					const rows = parsedList
 						.map((parsedLine, i) => {
@@ -229,7 +230,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 	}
 
 	render() {
-		const { createTeamSquad, appendTeamSquad } = this.props;
+		const { createTeamSquad, appendTeamSquad, onComplete } = this.props;
 		const { isNew, squad, team, teamType, validationSchema, year } = this.state;
 
 		let formProps;
@@ -241,23 +242,26 @@ class AdminTeamSquadBulkAdderResults extends Component {
 			};
 		} else {
 			formProps = {
-				onSubmit: players => appendTeamSquad(team._id, squad._id, players)
+				onSubmit: async players => {
+					await appendTeamSquad(team._id, squad._id, players);
+					onComplete();
+				}
 			};
 		}
 
 		return (
-			<div className="scroll-x">
-				<BasicForm
-					alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
-					fieldGroups={this.getFieldGroups()}
-					initialValues={this.getInitialValues()}
-					isNew={true}
-					itemType="Players"
-					isInitialValid={true}
-					validationSchema={validationSchema}
-					{...formProps}
-				/>
-			</div>
+			<PopUpBasicForm
+				alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+				fieldGroups={this.getFieldGroups()}
+				fullSize={true}
+				initialValues={this.getInitialValues()}
+				isNew={true}
+				itemType="Players"
+				isInitialValid={true}
+				onDestroy={onComplete}
+				validationSchema={validationSchema}
+				{...formProps}
+			/>
 		);
 	}
 }
@@ -269,6 +273,7 @@ function mapStateToProps({ people, teams }) {
 }
 
 AdminTeamSquadBulkAdderResults.propTypes = {
+	onComplete: PropTypes.func.isRequired,
 	squad: PropTypes.object,
 	parsedList: PropTypes.array.isRequired,
 	team: PropTypes.object.isRequired,

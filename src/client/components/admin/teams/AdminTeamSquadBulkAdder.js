@@ -178,7 +178,12 @@ class AdminTeamSquadBulkAdder extends Component {
 		const { parsedList } = this.state;
 		if (parsedList) {
 			const props = _.pick(this.state, ["parsedList", "squad", "team", "teamType", "year"]);
-			return <AdminTeamSquadBulkAdderResults {...props} />;
+			return (
+				<AdminTeamSquadBulkAdderResults
+					{...props}
+					onComplete={() => this.setState({ parsedList: null })}
+				/>
+			);
 		}
 	}
 
@@ -188,6 +193,7 @@ class AdminTeamSquadBulkAdder extends Component {
 
 		return (
 			<div>
+				{this.renderParsedList()}
 				<BasicForm
 					fieldGroups={this.getFieldGroups()}
 					initialValues={this.getInitialValues()}
@@ -202,7 +208,6 @@ class AdminTeamSquadBulkAdder extends Component {
 					submitButtonText="Parse Players"
 					validationSchema={validationSchema}
 				/>
-				{this.renderParsedList()}
 			</div>
 		);
 	}
