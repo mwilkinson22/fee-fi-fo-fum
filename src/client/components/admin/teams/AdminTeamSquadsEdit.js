@@ -97,7 +97,12 @@ class AdminTeamSquadsEdit extends Component {
 			{
 				render: values => {
 					const rows = _.chain(squad.players)
-						.sortBy(p => p.number || p._player.name.full)
+						//_.sortBy behaves strangely on a mix of numbers and strings,
+						//so we do two calculations
+						.sortBy(
+							p => p.number || 9999,
+							({ _player }) => _player.name.full
+						)
 						.map(({ _player }) => {
 							const { _id, name } = _player;
 							//Only run if values are present

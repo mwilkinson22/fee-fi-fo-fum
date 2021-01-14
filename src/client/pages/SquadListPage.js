@@ -71,7 +71,12 @@ class SquadListPage extends Component {
 			.filter(squad => squad.year == newState.year && squad._teamType == newState.teamType)
 			.map(squad => squad.players)
 			.flatten()
-			.sortBy(({ number, _player }) => number || _player.name.first)
+			//_.sortBy behaves strangely on a mix of numbers and strings,
+			//so we do two calculations
+			.sortBy(
+				p => p.number || 9999,
+				({ _player }) => _player.name.full
+			)
 			.value();
 
 		//Get Coaches
