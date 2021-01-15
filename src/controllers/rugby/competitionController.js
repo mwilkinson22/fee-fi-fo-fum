@@ -656,7 +656,10 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 				instance.adjustments && instance.adjustments.find(a => a._team.toString() == _team);
 			if (adjustments) {
 				for (const key in adjustments) {
-					if (key !== "_id" && key !== "_team") {
+					//We explicitly declare the keys below, as simply
+					//doing something like if(row[key]) will pass in a bunch
+					//of mongodb methods that then become part of the payload
+					if (["W", "D", "L", "F", "A", "Pts"].includes(key)) {
 						row[key] += adjustments[key];
 					}
 				}
