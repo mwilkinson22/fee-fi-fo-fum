@@ -44,7 +44,7 @@ class AdminGamePage extends Component {
 		this.state = {};
 	}
 
-	static getDerivedStateFromProps(nextProps) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		const { match, gameList, fullGames, fetchGames } = nextProps;
 		const newState = { isLoadingList: false };
 		const { _id } = match.params;
@@ -58,20 +58,17 @@ class AdminGamePage extends Component {
 				return { isLoadingList: true };
 			}
 
-			//Check Game Exists
-			if (!gameList[_id]) {
-				newState.game = false;
-				return newState;
-			}
-
-			if (fullGames[_id] && fullGames[_id].adminData) {
+			//Game is loaded, whether it exists or not
+			if (fullGames[_id] === false || (fullGames[_id] && fullGames[_id].adminData)) {
 				newState.game = fullGames[_id];
 				newState.isLoadingGame = false;
-			} else {
+			}
+
+			//Otherwise load, if we're not already doing so
+			else if (!prevState.isLoadingGame) {
 				fetchGames([_id], "admin");
 				newState.game = undefined;
 				newState.isLoadingGame = true;
-				return newState;
 			}
 		}
 

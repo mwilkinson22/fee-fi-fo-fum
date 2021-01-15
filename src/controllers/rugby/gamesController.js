@@ -373,9 +373,9 @@ export async function getGamesForAdmin(req, res) {
 	await getGames(req, res, true, true);
 }
 async function getGames(req, res, forGamePage, forAdmin) {
-	const { ids } = req.params;
+	const ids = req.params.ids.split(",");
 
-	let games = await Game.find({ _id: { $in: ids.split(",") } }).fullGame(forGamePage, forAdmin);
+	let games = await Game.find({ _id: { $in: ids } }).fullGame(forGamePage, forAdmin);
 
 	games = await getExtraGameInfo(games, forGamePage, forAdmin);
 
@@ -395,7 +395,16 @@ async function getGames(req, res, forGamePage, forAdmin) {
 		}
 	}
 
-	res.send(_.keyBy(games, "_id"));
+	const results = _.keyBy(games, "_id");
+
+	//Loop through given IDs, anything missing from results needs setting to false
+	ids.forEach(id => {
+		if (!results[id]) {
+			results[id] = false;
+		}
+	});
+
+	res.send(results);
 }
 
 //Create New Games
