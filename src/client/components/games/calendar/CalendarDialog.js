@@ -79,11 +79,10 @@ CalendarDialog.propTypes = {
 	onDestroy: PropTypes.func.isRequired
 };
 
-function mapStateToProps({ config, games, teams }) {
+function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
-	const { fullGames, gameList } = games;
 	const { activeTeamType, fullTeams, teamTypes } = teams;
-	return { localTeam, gameList, fullGames, activeTeamType, fullTeams, teamTypes };
+	return { localTeam, activeTeamType, fullTeams, teamTypes };
 }
 
 export default connect(mapStateToProps)(CalendarDialog);

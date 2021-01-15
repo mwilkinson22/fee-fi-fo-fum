@@ -325,9 +325,9 @@ class AwardsVotingForm extends Component {
 
 function mapStateToProps({ awards, games, people }) {
 	const { currentAwards } = awards;
-	const { fullGames, gameList } = games;
+	const { fullGames } = games;
 	const { fullPeople } = people;
-	return { currentAwards, fullPeople, fullGames, gameList };
+	return { currentAwards, fullPeople, fullGames };
 }
 
 export default connect(mapStateToProps, { submitVotes })(AwardsVotingForm);

@@ -19,7 +19,6 @@ import AdminNewsPostTags from "../../components/admin/news/AdminNewsPostTags";
 //Actions
 import { fetchPostList, fetchNewsPost } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
-import { fetchGameList } from "~/client/actions/gamesActions";
 
 class AdminNewsPostPage extends Component {
 	constructor(props) {
@@ -222,17 +221,15 @@ class AdminNewsPostPage extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, news, users }) {
+function mapStateToProps({ config, news, users }) {
 	const { authUser, baseUrl } = config;
 	const { postList, fullPosts } = news;
 	const { userList } = users;
-	const { gameList } = games;
-	return { authUser, baseUrl, postList, fullPosts, userList, gameList };
+	return { authUser, baseUrl, postList, fullPosts, userList };
 }
 
 export default connect(mapStateToProps, {
 	fetchPostList,
 	fetchNewsPost,
-	fetchUserList,
-	fetchGameList
+	fetchUserList
 })(AdminNewsPostPage);

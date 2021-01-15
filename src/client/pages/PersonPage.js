@@ -39,7 +39,7 @@ class PersonPage extends Component {
 	static getDerivedStateFromProps(nextProps) {
 		const { slugMap, fullPeople, match, localTeam, authUser } = nextProps;
 		const { slug } = match.params;
-		const newState = { redirect: null };
+		const newState = {};
 
 		//Ensure Slug map is loaded
 		if (slugMap[slug] !== undefined) {
