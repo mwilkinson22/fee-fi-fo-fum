@@ -49,10 +49,10 @@ export default function(state = { fullGames: {}, gameYears: [], slugMap: {} }, a
 		}
 
 		case FETCH_GAME_LIST:
-			fixDates(action.payload.gameList);
+			fixDates(action.payload);
 			return {
 				...state,
-				...action.payload
+				gameList: action.payload
 			};
 
 		case UPDATE_GAME:

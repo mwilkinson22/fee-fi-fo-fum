@@ -18,7 +18,6 @@ import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
 //Helpers
-import { getRedirects } from "../genericController";
 import { postToSocial } from "../oAuthController";
 import { getUpdatedNeutralGames } from "./neutralGamesController";
 import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
@@ -270,9 +269,9 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 
 	//Get Game For List
 	//Again, this is only called after an admin action so include hidden games
-	const list = await processList(true);
+	const gameList = await processList(true);
 
-	res.send({ id, fullGames, ...list });
+	res.send({ id, fullGames, gameList });
 
 	if (refreshSocialImage) {
 		await updateSocialMediaCard(id);
@@ -289,8 +288,7 @@ async function processList(userIsAdmin) {
 		.lean();
 	const gameList = _.keyBy(games, "_id");
 
-	const redirects = await getRedirects(gameList, collectionName);
-	return { count: games.length, gameList, redirects };
+	return _.keyBy(games, "_id");
 }
 
 //Getters
