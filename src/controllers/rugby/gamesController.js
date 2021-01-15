@@ -21,6 +21,7 @@ import coachTypes from "~/constants/coachTypes";
 import { getRedirects } from "../genericController";
 import { postToSocial } from "../oAuthController";
 import { getUpdatedNeutralGames } from "./neutralGamesController";
+import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
 
 import {
 	parseExternalGame,
@@ -293,9 +294,49 @@ async function processList(userIsAdmin) {
 }
 
 //Getters
+export async function getGameYears(req, res) {
+	const query = {};
+	if (!req.user || !req.user.isAdmin) {
+		query.hideGame = { $in: [false, null] };
+	}
+
+	//Get all years
+	const aggregatedYears = await Game.aggregate([
+		{ $match: query },
+		{ $project: { _id: 0, year: { $year: "$date" } } },
+		{ $group: { _id: "$year" } }
+	]);
+
+	const years = aggregatedYears
+		.map(({ _id }) => _id)
+		.sort()
+		.reverse();
+
+	//Work out if we have any fixtures
+	const fixture = await Game.findOne({ date: { $gt: new Date() } }, "_id").lean();
+	if (fixture) {
+		years.unshift("Fixtures");
+	}
+
+	res.send(years);
+}
 export async function getList(req, res) {
 	const list = await processList(req.user && req.user.isAdmin);
 	res.send(list);
+}
+export async function getGameFromSlug(req, res) {
+	const { slug, dataLevel } = req.params;
+	const forGamePage = dataLevel === "gamePage" || dataLevel === "admin";
+	const forAdmin = dataLevel === "admin";
+
+	const _id = await getIdFromSlug("games", slug);
+
+	if (_id) {
+		req.params.ids = _id;
+		await getGames(req, res, forGamePage, forAdmin);
+	} else {
+		res.status(404).send({});
+	}
 }
 export async function getBasicGames(req, res) {
 	await getGames(req, res, false, false);

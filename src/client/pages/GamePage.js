@@ -29,24 +29,49 @@ import PageSwitch from "../components/PageSwitch";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 //Actions
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchGames, fetchGameList, fetchGameFromSlug } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
 import { fetchPostList } from "~/client/actions/newsActions";
-
-//Constants
-import { Redirect } from "react-router-dom";
 
 //Helpers
 import { calculateAdditionalStats } from "~/helpers/statsHelper";
 import { scrollToElement } from "~/helpers/genericHelper";
-import { matchSlugToItem } from "~/helpers/routeHelper";
-import { formatDate, getLastGame, getScoreString } from "~/helpers/gameHelper";
+import { formatDate, getScoreString } from "~/helpers/gameHelper";
 
 class GamePage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { gameList, fetchGameList, postList, fetchPostList } = props;
+		const {
+			gameList,
+			fetchGameList,
+			postList,
+			fetchPostList,
+			match,
+			slugMap,
+			fetchGameFromSlug,
+			fullGames
+		} = props;
+
+		//Work out whether to load game
+		const { slug } = match.params;
+		let loadGame = false;
+
+		//If we've not tried to load it yet, then we need to do so
+		if (slugMap[slug] === undefined) {
+			loadGame = true;
+		}
+
+		//Alternatively if we've loaded the game but not with the
+		//game page data level, we do so here:
+		else if (slugMap[slug] !== false) {
+			const game = fullGames[slugMap[slug]];
+			loadGame = !(game && game.pageData);
+		}
+
+		if (loadGame) {
+			fetchGameFromSlug(slug, "gamePage");
+		}
 
 		if (!gameList) {
 			fetchGameList();
@@ -56,7 +81,7 @@ class GamePage extends Component {
 			fetchPostList();
 		}
 
-		this.state = {};
+		this.state = { isLoading: loadGame, statTableTeam: "both" };
 	}
 
 	componentDidMount() {
@@ -66,54 +91,23 @@ class GamePage extends Component {
 		scrollToElement(this.props.location, scrollableElements);
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = { redirect: null };
+	static getDerivedStateFromProps(nextProps) {
+		const { match, slugMap, fullGames } = nextProps;
+		const { slug } = match.params;
+		const newState = {};
 
-		const {
-			match,
-			redirects,
-			gameList,
-			fullGames,
-			fetchGames,
-			fullTeams,
-			localTeam
-		} = nextProps;
+		//Ensure slug map is loaded
+		if (slugMap[slug] !== undefined) {
+			//We've had a result from fetchPersonFromGame
+			newState.isLoading = false;
 
-		if (gameList && fullTeams[localTeam]) {
-			const { item, redirect } = matchSlugToItem(match.params.slug, gameList, redirects);
-
-			if (redirect) {
-				newState.redirect = `/games/${item.slug}`;
-			} else if (!item) {
+			if (slugMap[slug] === false) {
+				//404
 				newState.game = false;
 			} else {
-				const { _id } = item;
-				const previousId = getLastGame(_id, gameList);
-
-				//Get Previous Id
-				const gamesRequired = [_id];
-				if (previousId) {
-					gamesRequired.push(previousId);
-				}
-
-				//Check for missing games
-				const gamesToLoad = gamesRequired.filter(
-					id => !fullGames[id] || !fullGames[id].pageData
-				);
-
-				if (gamesToLoad.length) {
-					fetchGames(gamesToLoad, "gamePage");
-					newState.game = undefined;
-				} else {
-					newState.game = fullGames[_id];
-					newState.previousGame = fullGames[previousId];
-					newState.isFixture = newState.game.date >= new Date();
-
-					//Update Stat Table on game change
-					if (newState.game != prevState.game) {
-						newState.statTableTeam = "both";
-					}
-				}
+				const _id = slugMap[slug];
+				newState.game = fullGames[_id];
+				newState.isFixture = newState.game.date >= new Date();
 			}
 		}
 
@@ -202,11 +196,11 @@ class GamePage extends Component {
 	}
 
 	generatePregameList() {
-		const { game, previousGame } = this.state;
+		const { game } = this.state;
 		if (!game._competition.instance.usesPregameSquads || game.squadsAnnounced) {
 			return null;
 		} else {
-			return <PregameSquadList game={game} previousGame={previousGame} />;
+			return <PregameSquadList game={game} />;
 		}
 	}
 
@@ -489,10 +483,8 @@ class GamePage extends Component {
 
 	render() {
 		const { bucketPaths, postList } = this.props;
-		const { game, redirect } = this.state;
-		if (redirect) {
-			return <Redirect to={redirect} />;
-		} else if (game === undefined) {
+		const { game, isLoading } = this.state;
+		if (isLoading) {
 			return <LoadingPage />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
@@ -549,7 +541,7 @@ class GamePage extends Component {
 }
 
 function mapStateToProps({ games, config, teams, news }) {
-	const { fullGames, redirects, gameList } = games;
+	const { fullGames, redirects, gameList, slugMap } = games;
 	const { localTeam, authUser, bucketPaths, fansCanAttend } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
@@ -561,6 +553,7 @@ function mapStateToProps({ games, config, teams, news }) {
 		authUser,
 		bucketPaths,
 		gameList,
+		slugMap,
 		fullTeams,
 		fansCanAttend
 	};
@@ -568,26 +561,20 @@ function mapStateToProps({ games, config, teams, news }) {
 
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
-	await Promise.all([store.dispatch(fetchPostList()), store.dispatch(fetchGameList())]);
-
-	const { gameList, redirects } = store.getState().games;
-
-	const { item } = matchSlugToItem(slug, gameList, redirects);
-
-	if (item) {
-		const gamesToLoad = [item._id];
-		const previousId = getLastGame(item._id, gameList);
-		if (previousId) {
-			gamesToLoad.push(previousId);
-		}
-
-		return store.dispatch(fetchGames(gamesToLoad, "gamePage"));
-	}
+	return Promise.all([
+		store.dispatch(fetchPostList()),
+		store.dispatch(fetchGameList()),
+		store.dispatch(fetchGameFromSlug(slug, "gamePage"))
+	]);
 }
 
 export default {
-	component: connect(mapStateToProps, { fetchGames, fetchGameList, fetchTeam, fetchPostList })(
-		GamePage
-	),
+	component: connect(mapStateToProps, {
+		fetchGames,
+		fetchGameList,
+		fetchTeam,
+		fetchPostList,
+		fetchGameFromSlug
+	})(GamePage),
 	loadData
 };

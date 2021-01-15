@@ -4,18 +4,49 @@ import {
 	UPDATE_GAME,
 	DELETE_GAME,
 	SAVE_FAN_POTM_VOTE,
-	UPDATE_NEUTRAL_GAMES
+	UPDATE_NEUTRAL_GAMES,
+	FETCH_GAME_YEARS,
+	ADD_GAME_SLUG
 } from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
 
-export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) => {
+function controlDataLevel(dataLevel) {
 	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
-		dataLevel = "basic";
+		return "basic";
 	}
+	return dataLevel;
+}
 
-	const res = await api.get(`/games/${dataLevel}/${ids.join(",")}`);
+export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/${controlDataLevel(dataLevel)}/${ids.join(",")}`);
 	dispatch({ type: FETCH_GAMES, payload: res.data });
+};
+
+export const fetchGameFromSlug = (slug, dataLevel) => async (dispatch, getState, api) => {
+	let errorFound = false;
+	const res = await api.get(`/games/slug/${slug}/${controlDataLevel(dataLevel)}`).catch(e => {
+		errorFound = true;
+		switch (e.response.status) {
+			case 404:
+				dispatch({ type: ADD_GAME_SLUG, payload: { [slug]: false } });
+				break;
+		}
+	});
+
+	//Handle retrieved player
+	if (!errorFound) {
+		//Add game before adding slug, to prevent errors
+		dispatch({ type: FETCH_GAMES, payload: res.data });
+		//Get ID
+		const _id = Object.keys(res.data)[0];
+		dispatch({ type: ADD_GAME_SLUG, payload: { [slug]: _id } });
+	}
+};
+
+export const fetchGameYears = () => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/years`);
+	dispatch({ type: FETCH_GAME_YEARS, payload: res.data });
 };
 
 export const reloadGames = (ids, dataLevel) => async (dispatch, getState, api) => {

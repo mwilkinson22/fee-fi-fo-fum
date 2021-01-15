@@ -1,5 +1,6 @@
 import {
 	FETCH_GAMES,
+	FETCH_GAME_YEARS,
 	UPDATE_GAME,
 	DELETE_GAME,
 	FETCH_GAME_LIST,
@@ -9,18 +10,25 @@ import {
 	UPDATE_NEUTRAL_GAMES,
 	DELETE_NEUTRAL_GAME,
 	FETCH_NEUTRAL_GAME_YEARS,
-	SAVE_FAN_POTM_VOTE
+	SAVE_FAN_POTM_VOTE,
+	ADD_GAME_SLUG
 } from "../actions/types";
 
 //Helpers
 import { fixDates, getNeutralGame } from "../../helpers/gameHelper";
 
-export default function(state = { fullGames: {} }, action) {
+export default function(state = { fullGames: {}, gameYears: [], slugMap: {} }, action) {
 	if (!action || !action.payload) {
 		return state;
 	}
 
 	switch (action.type) {
+		case FETCH_GAME_YEARS:
+			return {
+				...state,
+				gameYears: action.payload
+			};
+
 		case FETCH_GAMES:
 			return {
 				...state,
@@ -28,6 +36,23 @@ export default function(state = { fullGames: {} }, action) {
 					...state.fullGames,
 					...fixDates(action.payload)
 				}
+			};
+
+		case ADD_GAME_SLUG: {
+			return {
+				...state,
+				slugMap: {
+					...state.slugMap,
+					...action.payload
+				}
+			};
+		}
+
+		case FETCH_GAME_LIST:
+			fixDates(action.payload.gameList);
+			return {
+				...state,
+				...action.payload
 			};
 
 		case UPDATE_GAME:
@@ -54,13 +79,6 @@ export default function(state = { fullGames: {} }, action) {
 				gameList
 			};
 		}
-
-		case FETCH_GAME_LIST:
-			fixDates(action.payload.gameList);
-			return {
-				...state,
-				...action.payload
-			};
 
 		case FETCH_NEUTRAL_GAME_YEARS:
 			return {

@@ -16,6 +16,7 @@ const { localTeam } = require("~/config/keys");
 //Images
 import PersonImageCard from "~/images/PersonImageCard";
 import { postToSocial } from "~/controllers/oAuthController";
+import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
 
 async function validatePerson(_id, res) {
 	if (!_id) {
@@ -174,27 +175,11 @@ export async function getPerson(req, res) {
 export async function getPersonFromSlug(req, res) {
 	const { slug } = req.params;
 
-	let result;
-	//First, do a simple lookup
-	const directLookup = await Person.findOne({ slug }, "_id").lean();
-	if (directLookup) {
-		result = directLookup._id;
-	}
-
-	//Otherwise, we check for redirects
-	if (!result) {
-		const redirect = await SlugRedirect.findOne(
-			{ collectionName: "people", oldSlug: slug },
-			"itemId"
-		).lean();
-		if (redirect) {
-			result = redirect.itemId;
-		}
-	}
+	const _id = await getIdFromSlug("people", slug);
 
 	//If we get a result, return it
-	if (result) {
-		const people = await getFullPeople([result]);
+	if (_id) {
+		const people = await getFullPeople([_id]);
 		res.send(people[0]);
 	} else {
 		res.status(404).send({});

@@ -20,6 +20,8 @@ export const FETCH_LEAGUE_TABLE_DATA = "fetch_league_table_data";
 //Games
 export const FETCH_GAMES = "fetch_games";
 export const FETCH_GAME_LIST = "fetch_game_list";
+export const FETCH_GAME_YEARS = "fetch_game_years";
+export const ADD_GAME_SLUG = "add_game_slug";
 export const UPDATE_GAME = "update_game";
 export const FETCH_NEUTRAL_GAME_YEARS = "fetch_neutral_game_years";
 export const FETCH_NEUTRAL_GAMES = "fetch_neutral_games";

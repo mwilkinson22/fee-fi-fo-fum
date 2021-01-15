@@ -40,6 +40,7 @@ import { fetchCurrentAwards } from "./client/actions/awardActions";
 import { getCoreConfig } from "./client/actions/configActions";
 import { setDefaultProfile } from "./client/actions/socialActions";
 import { fetchCurrentUser } from "./client/actions/userActions";
+import { fetchGameYears } from "./client/actions/gamesActions";
 import {
 	fetchTeam,
 	fetchAllTeamTypes,
@@ -154,6 +155,8 @@ app.get("*", async (req, res) => {
 		store.dispatch(fetchAllTeamTypes()),
 		//Fetch all teams
 		store.dispatch(fetchTeamList()),
+		//Fetch years with games
+		store.dispatch(fetchGameYears()),
 		//Fetch local team
 		store.dispatch(fetchTeam(keys.localTeam, "basic"))
 	]);
