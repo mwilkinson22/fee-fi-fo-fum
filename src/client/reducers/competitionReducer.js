@@ -5,6 +5,7 @@ import {
 	FETCH_ALL_COMPETITIONS,
 	FETCH_COMPETITION,
 	FETCH_COMPETITION_SEGMENT,
+	FETCH_HOMEPAGE_LEAGUE_TABLE_DATA,
 	FETCH_LEAGUE_TABLE_DATA
 } from "../actions/types";
 
@@ -69,6 +70,13 @@ export default function(state = { leagueTableData: {} }, action) {
 					...state.leagueTableData,
 					[action.key]: action.payload
 				}
+			};
+		}
+
+		case FETCH_HOMEPAGE_LEAGUE_TABLE_DATA: {
+			return {
+				...state,
+				homePageLeagueTable: action.payload
 			};
 		}
 

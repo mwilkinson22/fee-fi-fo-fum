@@ -972,26 +972,3 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 		})
 		.filter(_.identity);
 }
-
-export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList) {
-	//Get First Team TeamType
-	const firstTeam = _.sortBy(teamTypes, "sortOrder")[0]._id;
-
-	const leagueTableDetails = _.chain(gameList)
-		//Filter by teamType
-		.filter(g => g._teamType == firstTeam)
-		//Get games in reverse order
-		.orderBy("date", "desc")
-		//Map to unique competition and year list
-		.map(({ _competition, date }) => ({
-			_competition,
-			year: date.getFullYear()
-		}))
-		.uniqBy(({ _competition, year }) => `${_competition}${year}`)
-		//Filter to league competitions
-		.filter(({ _competition }) => competitionSegmentList[_competition].type === "League")
-		.value()
-		.shift();
-
-	return { leagueTableDetails };
-}

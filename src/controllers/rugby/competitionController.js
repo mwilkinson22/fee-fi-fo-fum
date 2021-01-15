@@ -18,9 +18,10 @@ import MinMaxLeagueTable from "~/images/MinMaxLeagueTable";
 
 //Constants
 import { localTeam } from "~/config/keys";
-import { postToSocial } from "../oAuthController";
 
 //Helpers
+import { postToSocial } from "../oAuthController";
+import { getMainTeamType } from "~/controllers/rugby/teamsController";
 function getGameQuery(_competition, year = null) {
 	const query = { _competition };
 	if (year) {
@@ -31,6 +32,7 @@ function getGameQuery(_competition, year = null) {
 	}
 	return query;
 }
+
 async function validateCompetition(_id, res) {
 	if (!_id) {
 		if (res) {
@@ -508,6 +510,32 @@ export async function getLeagueTableData(req, res) {
 	} else {
 		res.send({ data, loaded: new Date() });
 	}
+}
+
+export async function getHomepageLeagueTableData(req, res) {
+	const teamType = await getMainTeamType("_id");
+	const leagues = await Segment.find({ type: "League" }, "_id").lean();
+	const latestGame = await Game.findOne(
+		{
+			hideGame: { $in: ["false", null] },
+			_competition: { $in: leagues.map(l => l._id) },
+			_teamType: teamType._id
+		},
+		"_competition date"
+	)
+		.sort({ date: -1 })
+		.lean();
+
+	//If we have no league games, return an empty object
+	if (!latestGame) {
+		res.send({});
+	}
+
+	const _competition = latestGame._competition;
+	const year = new Date(latestGame.date).getFullYear();
+	const data = await processLeagueTableData(_competition, year);
+
+	res.send({ _competition, year, data, loaded: new Date() });
 }
 
 export async function processLeagueTableData(segmentId, year, options = {}) {

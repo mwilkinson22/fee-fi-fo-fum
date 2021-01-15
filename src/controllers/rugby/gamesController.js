@@ -18,6 +18,7 @@ import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
 //Helpers
+import { getMainTeamType } from "~/controllers/rugby/teamsController";
 import { postToSocial } from "../oAuthController";
 import { getUpdatedNeutralGames } from "./neutralGamesController";
 import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
@@ -411,9 +412,7 @@ export async function getHomePageGames(req, res) {
 	const games = [];
 
 	//Get the main team type
-	const mainTeamType = await TeamType.findOne({}, "_id")
-		.lean()
-		.sort({ sortOrder: 1 });
+	const mainTeamType = await getMainTeamType("id");
 
 	//Create a basic query
 	const query = {

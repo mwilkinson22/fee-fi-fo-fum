@@ -5,6 +5,7 @@ import {
 	FETCH_ALL_COMPETITIONS,
 	FETCH_COMPETITION,
 	FETCH_COMPETITION_SEGMENT,
+	FETCH_HOMEPAGE_LEAGUE_TABLE_DATA,
 	FETCH_LEAGUE_TABLE_DATA
 } from "./types";
 import { toast } from "react-toastify";
@@ -161,5 +162,21 @@ export const fetchLeagueTableData = (_competition, year, fromDate, toDate) => as
 			key: createLeagueTableString(_competition, year, fromDate, toDate),
 			payload: res.data
 		});
+	}
+};
+
+export const fetchHomePageLeagueTableData = () => async (dispatch, getState, api) => {
+	const res = await api.get("/competitions/leagueTableData/homePage");
+
+	if (!res.data || !Object.keys(res.data).length) {
+		//No league games found
+		dispatch({ type: FETCH_HOMEPAGE_LEAGUE_TABLE_DATA, payload: false });
+	} else {
+		const { _competition, year, ...data } = res.data;
+		const key = createLeagueTableString(_competition, year);
+		//First update the league table data
+		dispatch({ type: FETCH_LEAGUE_TABLE_DATA, key, payload: data });
+		//Then define the key
+		dispatch({ type: FETCH_HOMEPAGE_LEAGUE_TABLE_DATA, payload: { _competition, year } });
 	}
 };

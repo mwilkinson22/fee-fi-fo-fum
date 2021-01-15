@@ -496,3 +496,9 @@ export async function deleteTeamType(req, res) {
 		}
 	}
 }
+
+export async function getMainTeamType(fields = null) {
+	return TeamType.findOne({}, fields)
+		.lean()
+		.sort({ sortOrder: 1 });
+}

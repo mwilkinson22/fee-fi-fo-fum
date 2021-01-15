@@ -11,11 +11,11 @@ import LeagueTable from "../components/seasons/LeagueTable";
 
 //Actions
 import { fetchPostList } from "../actions/newsActions";
-import { fetchGameList, fetchHomePageGames } from "../actions/gamesActions";
-import { fetchCompetitionSegments, fetchLeagueTableData } from "../actions/competitionActions";
-
-//Helpers
-import { getHomePageGameInfo } from "~/helpers/gameHelper";
+import { fetchHomePageGames } from "../actions/gamesActions";
+import {
+	fetchCompetitionSegments,
+	fetchHomePageLeagueTableData
+} from "../actions/competitionActions";
 
 class HomePage extends Component {
 	constructor(props) {
@@ -23,26 +23,24 @@ class HomePage extends Component {
 		const {
 			postList,
 			fetchPostList,
-			gameList,
-			fetchGameList,
-			competitionSegmentList,
-			fetchCompetitionSegments,
 			homePageGames,
 			fetchHomePageGames,
-			fullGames
+			fullGames,
+			homePageLeagueTable,
+			fetchHomePageLeagueTableData
 		} = props;
 
-		//Get dependencies
+		//Get News Posts
 		if (!postList) {
 			fetchPostList();
 		}
-		if (!gameList) {
-			fetchGameList();
-		}
-		if (!competitionSegmentList) {
-			fetchCompetitionSegments();
+
+		//Get League Table Data
+		if (homePageLeagueTable === undefined) {
+			fetchHomePageLeagueTableData();
 		}
 
+		//Get Game Cards
 		if (!homePageGames) {
 			fetchHomePageGames();
 		} else {
@@ -53,25 +51,16 @@ class HomePage extends Component {
 			}
 		}
 
-		this.state = {
-			postList
-		};
+		this.state = { postList };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const {
-			postList,
-			gameList,
-			fullGames,
-			competitionSegmentList,
-			teamTypes,
-			homePageGames
-		} = nextProps;
+		const { postList, fullGames, homePageLeagueTable, homePageGames } = nextProps;
 
 		const newState = { isLoading: false };
 
 		//Await dependencies
-		if (!postList || !gameList || !competitionSegmentList || !homePageGames) {
+		if (!postList || !homePageGames || homePageLeagueTable === undefined) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -83,15 +72,8 @@ class HomePage extends Component {
 			.value()
 			.shift();
 
-		//Get all required games
-		const { leagueTableDetails } = getHomePageGameInfo(
-			gameList,
-			teamTypes,
-			competitionSegmentList
-		);
-
 		//Set League Table Details
-		newState.leagueTableDetails = leagueTableDetails;
+		newState.leagueTableDetails = homePageLeagueTable;
 
 		//Get games for cards
 		newState.gamesForCards = _.sortBy(
@@ -177,47 +159,32 @@ class HomePage extends Component {
 
 async function loadData(store) {
 	//Get required data
-	await Promise.all([
+	return Promise.all([
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchCompetitionSegments()),
-		store.dispatch(fetchGameList()),
-		store.dispatch(fetchHomePageGames())
+		store.dispatch(fetchHomePageGames()),
+		store.dispatch(fetchHomePageLeagueTableData())
 	]);
-
-	//Get Required Redux Lists
-	const { gameList } = store.getState().games;
-	const { teamTypes } = store.getState().teams;
-	const { competitionSegmentList } = store.getState().competitions;
-
-	//Get game & league table data
-	const { leagueTableDetails } = getHomePageGameInfo(gameList, teamTypes, competitionSegmentList);
-
-	return store.dispatch(
-		fetchLeagueTableData(leagueTableDetails._competition, leagueTableDetails.year)
-	);
 }
 
-function mapStateToProps({ news, games, competitions, teams }) {
+function mapStateToProps({ news, games, competitions }) {
 	const { postList } = news;
-	const { competitionSegmentList } = competitions;
-	const { gameList, fullGames, homePageGames } = games;
-	const { teamTypes } = teams;
+	const { homePageLeagueTable } = competitions;
+	const { fullGames, homePageGames } = games;
 	return {
 		postList,
-		gameList,
 		fullGames,
 		homePageGames,
-		competitionSegmentList,
-		teamTypes
+		homePageLeagueTable
 	};
 }
 
 export default {
 	component: connect(mapStateToProps, {
 		fetchPostList,
-		fetchGameList,
 		fetchHomePageGames,
-		fetchCompetitionSegments
+		fetchCompetitionSegments,
+		fetchHomePageLeagueTableData
 	})(HomePage),
 	loadData
 };
