@@ -11,51 +11,37 @@ import AdminGameEventList from "./AdminGameEventList";
 
 //Actions
 import { fetchProfiles } from "~/client/actions/socialActions";
-import { fetchGames, getPregameImage, postGameEvent } from "../../../actions/gamesActions";
+import { getPregameImage, postGameEvent } from "../../../actions/gamesActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
-import { getLastGame, getDateString } from "~/helpers/gameHelper";
+import { getDateString } from "~/helpers/gameHelper";
 import { renderFieldGroup } from "~/helpers/formHelper";
 
 class AdminGamePregameImage extends Component {
 	constructor(props) {
 		super(props);
-		const { match, fetchGames, fullGames, gameList, profiles, fetchProfiles } = props;
+		const { profiles, fetchProfiles } = props;
 
 		//Get Social Media Profiles
 		if (!profiles) {
 			fetchProfiles();
 		}
 
-		//Get Last Game
-		const lastGameId = getLastGame(match.params._id, gameList);
-		if (lastGameId && !fullGames[lastGameId]) {
-			fetchGames([lastGameId], "admin");
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullGames, gameList, localTeam, match, profiles, teamList } = nextProps;
+		const { fullGames, localTeam, match, profiles, teamList } = nextProps;
 		const newState = { isLoading: false };
 
 		//Get Game
 		newState.game = fullGames[match.params._id];
 
-		//Get Last Game
-		const lastGameId = getLastGame(match.params._id, gameList);
-		if (lastGameId) {
-			newState.lastGame = fullGames[lastGameId];
-		} else {
-			newState.lastGame = false;
-		}
-
 		//Check everything is loaded
-		if (!profiles || (lastGameId && !newState.lastGame)) {
+		if (!profiles) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -86,10 +72,7 @@ class AdminGamePregameImage extends Component {
 
 		//If the local team has a pregame squad for this game
 		if (newState.currentLocalSquad && newState.currentLocalSquad.squad) {
-			newState.lastLocalSquad =
-				newState.lastGame &&
-				newState.lastGame.pregameSquads &&
-				newState.lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
+			newState.lastLocalSquad = newState.game.previousPregameSquad;
 
 			//Generic Player List, for "highlight" menu
 			newState.options.players = _.chain(newState.currentLocalSquad.squad)
@@ -108,7 +91,7 @@ class AdminGamePregameImage extends Component {
 					image: _player.images.player || _player.images.main,
 					isNew:
 						newState.lastLocalSquad &&
-						!newState.lastLocalSquad.squad.find(_id => _id == _player._id)
+						!newState.lastLocalSquad.find(_id => _id == _player._id)
 				}))
 				//Group By New Status
 				.groupBy(({ isNew }) => (isNew ? "New Players" : "All Players"))
@@ -264,7 +247,7 @@ class AdminGamePregameImage extends Component {
 			tweet += "\n\n";
 
 			//Get outgoing players
-			const outgoing = lastLocalSquad.squad
+			const outgoing = lastLocalSquad
 				.filter(
 					id => !currentLocalSquad.squad.find(cId => id == cId) && eligiblePlayers[id]
 				)
@@ -455,13 +438,12 @@ class AdminGamePregameImage extends Component {
 function mapStateToProps({ config, games, teams, social }) {
 	const { teamList } = teams;
 	const { localTeam } = config;
-	const { fullGames, gameList } = games;
+	const { fullGames } = games;
 	const { profiles, defaultProfile } = social;
-	return { fullGames, gameList, localTeam, teamList, profiles, defaultProfile };
+	return { fullGames, localTeam, teamList, profiles, defaultProfile };
 }
 
 export default connect(mapStateToProps, {
-	fetchGames,
 	fetchProfiles,
 	getPregameImage,
 	postGameEvent

@@ -45,7 +45,7 @@ class AdminGamePregameSquadSelector extends Component {
 	}
 
 	renderButtons() {
-		const { lastGame, localTeam, team } = this.props;
+		const { game, localTeam, team } = this.props;
 		const { eligiblePlayers } = this.state;
 
 		//If there are no eligible players, there's no need to show any buttons
@@ -55,20 +55,11 @@ class AdminGamePregameSquadSelector extends Component {
 					{({ form }) => {
 						//Set a "Load Last squad" button
 						let lastSquadButton;
-						if (team._id == localTeam && lastGame) {
+						if (team._id == localTeam && game.previousPregameSquad) {
 							//Check the last game has a squad for this team
-							const lastSquad =
-								lastGame.pregameSquads &&
-								lastGame.pregameSquads.find(
-									s => s._team == team._id && s.squad && s.squad.length
-								);
-
-							let squadMembers;
-							if (lastSquad) {
-								squadMembers = lastSquad.squad.filter(id =>
-									eligiblePlayers.find(({ _player }) => _player._id == id)
-								);
-							}
+							const squadMembers = game.previousPregameSquad.filter(id =>
+								eligiblePlayers.find(({ _player }) => _player._id == id)
+							);
 
 							if (squadMembers && squadMembers.length) {
 								lastSquadButton = (
@@ -186,7 +177,6 @@ class AdminGamePregameSquadSelector extends Component {
 
 AdminGamePregameSquadSelector.propTypes = {
 	game: PropTypes.object.isRequired,
-	lastGame: PropTypes.object,
 	team: PropTypes.object.isRequired
 };
 

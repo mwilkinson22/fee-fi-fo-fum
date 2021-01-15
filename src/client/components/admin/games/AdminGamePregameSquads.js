@@ -10,46 +10,23 @@ import LoadingPage from "../../LoadingPage";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import { fetchGames, updateGame } from "../../../actions/gamesActions";
+import { updateGame } from "../../../actions/gamesActions";
 
 //Helpers
-import { getLastGame } from "~/helpers/gameHelper";
 import BasicForm from "../BasicForm";
 
 class AdminGamePregameSquads extends Component {
 	constructor(props) {
 		super(props);
-
-		const { fetchGames, fullGames, gameList, match } = props;
-
-		//Get Last Game
-		const lastGameId = getLastGame(match.params._id, gameList);
-		if (lastGameId && !fullGames[lastGameId]) {
-			fetchGames([lastGameId], "admin");
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { fullGames, gameList, localTeam, match, teamList } = nextProps;
+		const { fullGames, localTeam, match, teamList } = nextProps;
 		const newState = { isLoading: false };
 
 		//Get Game
 		newState.game = fullGames[match.params._id];
-
-		//Get Last Game
-		const lastGameId = getLastGame(match.params._id, gameList);
-		if (lastGameId) {
-			newState.lastGame = fullGames[lastGameId];
-		} else {
-			newState.lastGame = false;
-		}
-
-		//Check everything is loaded
-		if (lastGameId && !newState.lastGame) {
-			newState.isLoading = true;
-		}
 
 		//Get Teams
 		newState.teams = [localTeam, newState.game._opposition._id];
@@ -100,19 +77,14 @@ class AdminGamePregameSquads extends Component {
 	}
 
 	getFieldGroups() {
-		const { game, lastGame, teams } = this.state;
+		const { game, teams } = this.state;
 		const { teamList } = this.props;
 
 		return [
 			{
 				render: () => {
 					return teams.map(id => (
-						<AdminPregameSquadSelector
-							key={id}
-							game={game}
-							lastGame={lastGame}
-							team={teamList[id]}
-						/>
+						<AdminPregameSquadSelector key={id} game={game} team={teamList[id]} />
 					));
 				}
 			}
@@ -152,11 +124,9 @@ class AdminGamePregameSquads extends Component {
 
 function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
-	const { gameList, fullGames } = games;
+	const { fullGames } = games;
 	const { teamList } = teams;
-	return { gameList, fullGames, localTeam, teamList };
+	return { fullGames, localTeam, teamList };
 }
 
-export default connect(mapStateToProps, { fetchGames, updateGame, fetchTeam })(
-	AdminGamePregameSquads
-);
+export default connect(mapStateToProps, { updateGame, fetchTeam })(AdminGamePregameSquads);

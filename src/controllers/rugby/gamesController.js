@@ -108,155 +108,185 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		for (const game of games) {
 			delete game.pregameSquads;
 		}
-	} else {
-		//Work out required player fields
-		const playerSelect = [
-			"name",
-			"nickname",
-			"images.main",
-			"images.player",
-			"slug",
-			"gender",
-			"playingPositions"
-		];
-		let adminPlayerPopulate = {};
-		if (forAdmin) {
-			playerSelect.push(
-				"displayNicknameInCanvases",
-				"squadNameWhenDuplicate",
-				"_sponsor",
-				"twitter"
+		return games;
+	}
+	//Work out required player fields
+	const playerSelect = [
+		"name",
+		"nickname",
+		"images.main",
+		"images.player",
+		"slug",
+		"gender",
+		"playingPositions"
+	];
+	let adminPlayerPopulate = {};
+	if (forAdmin) {
+		playerSelect.push(
+			"displayNicknameInCanvases",
+			"squadNameWhenDuplicate",
+			"_sponsor",
+			"twitter"
+		);
+		adminPlayerPopulate.populate = {
+			path: "_sponsor",
+			select: "name twitter"
+		};
+	}
+
+	//Get All Full Teams
+	const teamIds = [localTeam];
+
+	//Add opposition and shared squads
+	games.forEach(g => {
+		teamIds.push(g._opposition._id);
+
+		if (g.sharedSquads && Object.keys(g.sharedSquads).length) {
+			_.map(g.sharedSquads, teams => teamIds.push(...teams));
+		}
+	});
+
+	let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
+		.populate({
+			path: "squads.players._player",
+			select: playerSelect.join(" "),
+			...adminPlayerPopulate
+		})
+		.populate({ path: "coaches._person", select: "name slug" });
+
+	teams = _.keyBy(JSON.parse(JSON.stringify(teams)), "_id");
+
+	//Get team types
+	let teamTypes;
+	const TeamType = mongoose.model("teamTypes");
+	const results = await TeamType.find({}, "_id gender");
+	teamTypes = _.keyBy(results, "_id");
+
+	//Loop each game
+	const processedGames = [];
+	for (const g of games) {
+		const game = JSON.parse(JSON.stringify(g));
+		const date = new Date(game.date);
+		const year = date.getFullYear();
+
+		//Get gendered term for _____ of steel, of the match, etc
+		game.gender = teamTypes[game._teamType].gender;
+		game.genderedString = game.gender === "M" ? "Man" : "Woman";
+
+		//Get Coaches
+		game.coaches = _.chain([localTeam, game._opposition._id])
+			.map(id => [id, teams[id].coaches])
+			.fromPairs()
+			.mapValues(coaches => {
+				return _.chain(coaches)
+					.filter(c => {
+						return (
+							c._teamType.toString() == game._teamType.toString() &&
+							new Date(c.from) < date &&
+							(c.to == null || new Date(c.to) > date)
+						);
+					})
+					.orderBy(
+						[({ role }) => coachTypes.findIndex(({ key }) => role == key)],
+						["asc"]
+					)
+					.uniqBy("_person._id")
+					.map(({ _person, role }) => ({ _person, role }))
+					.value();
+			})
+			.value();
+
+		//Get Valid Team Types
+		const { useAllSquads } = game._competition._parentCompetition;
+		let validTeamTypes;
+		if (useAllSquads) {
+			validTeamTypes = _.filter(teamTypes, t => t.gender == game.gender).map(t =>
+				t._id.toString()
 			);
-			adminPlayerPopulate.populate = {
-				path: "_sponsor",
-				select: "name twitter"
-			};
+		} else {
+			validTeamTypes = [game._teamType];
 		}
 
-		//Get All Full Teams
-		const teamIds = [localTeam];
+		game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
+			//Loop local and opposition teams
+			.map(id => {
+				//Create an array with this team's id, plus
+				//the ids of any shared squads they might have
+				const teamsToCheck = [id];
+				if (game.sharedSquads && game.sharedSquads[id]) {
+					teamsToCheck.push(...game.sharedSquads[id]);
+				}
 
-		//Add opposition and shared squads
-		games.forEach(g => {
-			teamIds.push(g._opposition._id);
+				//Loop through the above array
+				const squad = _.chain(teamsToCheck)
+					.map(teamToCheck => {
+						//Get the team whose squad we'll be pulling
+						const team = teams[teamToCheck];
 
-			if (g.sharedSquads && Object.keys(g.sharedSquads).length) {
-				_.map(g.sharedSquads, teams => teamIds.push(...teams));
-			}
-		});
-
-		let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
-			.populate({
-				path: "squads.players._player",
-				select: playerSelect.join(" "),
-				...adminPlayerPopulate
+						//Return any squads that match the year with an
+						//appropriate team type
+						return team.squads
+							.filter(
+								squad =>
+									squad.year == year &&
+									validTeamTypes.indexOf(squad._teamType.toString()) > -1
+							)
+							.map(s => s.players);
+					})
+					//At this stage we'll have nested values, so flatten
+					//them first to get a simple list of player objects
+					.flattenDeep()
+					//Remove duplicates
+					.uniqBy(p => p._player._id)
+					//Remove squad numbers where more than one squad is used
+					.map(p => {
+						if (teamsToCheck.length > 1 || validTeamTypes.length > 1) {
+							p.number = null;
+						}
+						return p;
+					})
+					.value();
+				return [id, squad];
 			})
-			.populate({ path: "coaches._person", select: "name slug" });
+			.fromPairs()
+			.value();
 
-		teams = _.keyBy(JSON.parse(JSON.stringify(teams)), "_id");
-
-		//Get team types
-		let teamTypes;
-		const TeamType = mongoose.model("teamTypes");
-		const results = await TeamType.find({}, "_id gender");
-		teamTypes = _.keyBy(results, "_id");
-
-		//Loop each game
-		games = games.map(g => {
-			const game = JSON.parse(JSON.stringify(g));
+		//Work out which players to highlight in the pregame squad
+		//First, check that the game actually uses them and that we need he inf
+		if ((forGamePage && game.status === 1) || forAdmin) {
+			//Get last game
 			const date = new Date(game.date);
-			const year = date.getFullYear();
+			const lastGame = await Game.findOne(
+				{
+					date: {
+						$lt: date,
+						$gt: `${date.getFullYear()}-01-01`
+					},
+					_teamType: game._teamType
+				},
+				"pregameSquads"
+			)
+				.lean()
+				.sort({ date: -1 });
+			if (lastGame) {
+				const lastPregame =
+					lastGame.pregameSquads &&
+					lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
 
-			//Get gendered term for _____ of steel, of the match, etc
-			game.gender = teamTypes[game._teamType].gender;
-			game.genderedString = game.gender === "M" ? "Man" : "Woman";
-
-			//Get Coaches
-			game.coaches = _.chain([localTeam, game._opposition._id])
-				.map(id => [id, teams[id].coaches])
-				.fromPairs()
-				.mapValues(coaches => {
-					return _.chain(coaches)
-						.filter(c => {
-							return (
-								c._teamType.toString() == game._teamType.toString() &&
-								new Date(c.from) < date &&
-								(c.to == null || new Date(c.to) > date)
-							);
-						})
-						.orderBy(
-							[({ role }) => coachTypes.findIndex(({ key }) => role == key)],
-							["asc"]
-						)
-						.uniqBy("_person._id")
-						.map(({ _person, role }) => ({ _person, role }))
-						.value();
-				})
-				.value();
-
-			//Get Valid Team Types
-			const { useAllSquads } = game._competition._parentCompetition;
-			let validTeamTypes;
-			if (useAllSquads) {
-				validTeamTypes = _.filter(teamTypes, t => t.gender == game.gender).map(t =>
-					t._id.toString()
-				);
-			} else {
-				validTeamTypes = [game._teamType];
+				if (lastPregame) {
+					game.previousPregameSquad = lastPregame.squad;
+				}
 			}
+		}
 
-			game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
-				//Loop local and opposition teams
-				.map(id => {
-					//Create an array with this team's id, plus
-					//the ids of any shared squads they might have
-					const teamsToCheck = [id];
-					if (game.sharedSquads && game.sharedSquads[id]) {
-						teamsToCheck.push(...game.sharedSquads[id]);
-					}
+		//Add variables to help govern reloading
+		game.pageData = true;
+		game.adminData = forAdmin;
 
-					//Loop through the above array
-					const squad = _.chain(teamsToCheck)
-						.map(teamToCheck => {
-							//Get the team whose squad we'll be pulling
-							const team = teams[teamToCheck];
-
-							//Return any squads that match the year with an
-							//appropriate team type
-							return team.squads
-								.filter(
-									squad =>
-										squad.year == year &&
-										validTeamTypes.indexOf(squad._teamType.toString()) > -1
-								)
-								.map(s => s.players);
-						})
-						//At this stage we'll have nested values, so flatten
-						//them first to get a simple list of player objects
-						.flattenDeep()
-						//Remove duplicates
-						.uniqBy(p => p._player._id)
-						//Remove squad numbers where more than one squad is used
-						.map(p => {
-							if (teamsToCheck.length > 1 || validTeamTypes.length > 1) {
-								p.number = null;
-							}
-							return p;
-						})
-						.value();
-					return [id, squad];
-				})
-				.fromPairs()
-				.value();
-
-			//Add variables to help govern reloading
-			game.pageData = true;
-			game.adminData = forAdmin;
-
-			return game;
-		});
+		processedGames.push(game);
 	}
-	return games;
+
+	return processedGames;
 }
 
 async function getUpdatedGame(id, res, refreshSocialImage = false) {
@@ -286,7 +316,6 @@ async function processList(userIsAdmin) {
 	const games = await Game.find(query)
 		.forList()
 		.lean();
-	const gameList = _.keyBy(games, "_id");
 
 	return _.keyBy(games, "_id");
 }

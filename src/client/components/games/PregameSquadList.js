@@ -12,7 +12,7 @@ import { getDateString } from "~/helpers/gameHelper";
 
 class PregameSquadList extends Component {
 	getSquadList(id, previousGame = false) {
-		const { localTeam } = this.props;
+		const { game, localTeam } = this.props;
 
 		//Only get pregame for local team
 		if (previousGame && id != localTeam) {
@@ -20,17 +20,25 @@ class PregameSquadList extends Component {
 		}
 
 		//Get the correct game
-		const game = previousGame ? this.props.previousGame : this.props.game;
-		if (!game || !game.pregameSquads) {
-			return false;
-		}
+		if (previousGame) {
+			//Don't bother with opposition
+			if (id != localTeam) {
+				return false;
+			}
 
-		//Grab squads
-		const squadObject = game.pregameSquads.find(({ _team }) => _team == id);
-		if (squadObject && squadObject.squad && squadObject.squad.length) {
-			return squadObject.squad;
+			return game.previousPregameSquad;
 		} else {
-			return false;
+			if (!game.pregameSquads) {
+				return false;
+			}
+
+			//Grab squads
+			const squadObject = game.pregameSquads.find(({ _team }) => _team == id);
+			if (squadObject && squadObject.squad && squadObject.squad.length) {
+				return squadObject.squad;
+			} else {
+				return false;
+			}
 		}
 	}
 
