@@ -34,6 +34,7 @@ class App extends Component {
 			const initialState = document.querySelector("#initial-state-script");
 
 			if (initialState) {
+				delete window.INITIAL_STATE;
 				initialState.remove();
 			}
 		}
