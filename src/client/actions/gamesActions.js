@@ -6,7 +6,8 @@ import {
 	SAVE_FAN_POTM_VOTE,
 	UPDATE_NEUTRAL_GAMES,
 	FETCH_GAME_YEARS,
-	ADD_GAME_SLUG
+	ADD_GAME_SLUG,
+	FETCH_HOMEPAGE_GAMES
 } from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
@@ -44,6 +45,28 @@ export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {
 export const fetchGameYears = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/years`);
 	dispatch({ type: FETCH_GAME_YEARS, payload: res.data });
+};
+
+export const fetchHomePageGames = () => async (dispatch, getState, api) => {
+	const res = await api.get("/games/homepage");
+
+	//First we work out which games actually need adding
+	//to the store, as there's no point adding a "basic" game
+	//if we've already loaded a higher dataLevel
+	const { fullGames } = getState().games;
+	const gamesToAdd = {};
+	for (const id in res.data) {
+		if (!fullGames[id]) {
+			gamesToAdd[id] = res.data[id];
+		}
+	}
+
+	if (Object.keys(gamesToAdd).length) {
+		dispatch({ type: FETCH_GAMES, payload: gamesToAdd });
+	}
+
+	//Then update the homepage entry
+	dispatch({ type: FETCH_HOMEPAGE_GAMES, payload: Object.keys(res.data) });
 };
 
 export const reloadGames = (ids, dataLevel) => async (dispatch, getState, api) => {

@@ -11,7 +11,7 @@ import LeagueTable from "../components/seasons/LeagueTable";
 
 //Actions
 import { fetchPostList } from "../actions/newsActions";
-import { fetchGameList, fetchGames } from "../actions/gamesActions";
+import { fetchGameList, fetchHomePageGames } from "../actions/gamesActions";
 import { fetchCompetitionSegments, fetchLeagueTableData } from "../actions/competitionActions";
 
 //Helpers
@@ -26,7 +26,10 @@ class HomePage extends Component {
 			gameList,
 			fetchGameList,
 			competitionSegmentList,
-			fetchCompetitionSegments
+			fetchCompetitionSegments,
+			homePageGames,
+			fetchHomePageGames,
+			fullGames
 		} = props;
 
 		//Get dependencies
@@ -40,63 +43,61 @@ class HomePage extends Component {
 			fetchCompetitionSegments();
 		}
 
+		if (!homePageGames) {
+			fetchHomePageGames();
+		} else {
+			//Check the "next" game isn't now in the past,
+			//for cached values
+			if (homePageGames.length > 1 && fullGames[homePageGames[1]].date < new Date()) {
+				fetchHomePageGames();
+			}
+		}
+
 		this.state = {
 			postList
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps) {
 		const {
 			postList,
 			gameList,
 			fullGames,
-			fetchGames,
 			competitionSegmentList,
 			teamTypes,
-			fansCanAttend
+			homePageGames
 		} = nextProps;
 
 		const newState = { isLoading: false };
 
 		//Await dependencies
-		if (!postList || !gameList || !competitionSegmentList) {
+		if (!postList || !gameList || !competitionSegmentList || !homePageGames) {
 			newState.isLoading = true;
 			return newState;
 		}
 
 		//Get latest news posts
-		if (!prevState.newsPosts) {
-			newState.newsPosts = _.chain(postList)
-				.orderBy("dateCreated", "desc")
-				.chunk(3)
-				.value()
-				.shift();
-		}
+		newState.newsPosts = _.chain(postList)
+			.orderBy("dateCreated", "desc")
+			.chunk(3)
+			.value()
+			.shift();
 
 		//Get all required games
-		const { gamesForCards, leagueTableDetails } = getHomePageGameInfo(
+		const { leagueTableDetails } = getHomePageGameInfo(
 			gameList,
 			teamTypes,
-			competitionSegmentList,
-			fansCanAttend
+			competitionSegmentList
 		);
 
 		//Set League Table Details
 		newState.leagueTableDetails = leagueTableDetails;
 
-		//Work out which required games still need to be loaded
-		const gamesToLoad = gamesForCards.filter(id => !fullGames[id]);
-
-		if (gamesToLoad.length === 0) {
-			//If we have no more games to load, then we assign the game objects
-			//to newState
-			newState.isLoadingGames = false;
-			newState.gamesForCards = gamesForCards.map(id => fullGames[id]);
-		} else if (!prevState.isLoadingGames) {
-			//Otherwise, if we're not already loading, we do so here
-			fetchGames(gamesToLoad);
-			newState.isLoadingGames = true;
-		}
+		//Get games for cards
+		newState.gamesForCards = _.sortBy(
+			homePageGames.map(id => fullGames[id]),
+			"date"
+		);
 
 		return newState;
 	}
@@ -119,9 +120,9 @@ class HomePage extends Component {
 	}
 
 	renderGameCards() {
-		const { gamesForCards, isLoadingGames } = this.state;
+		const { gamesForCards, isLoading } = this.state;
 
-		if (isLoadingGames) {
+		if (isLoading) {
 			return <LoadingPage />;
 		}
 
@@ -179,7 +180,8 @@ async function loadData(store) {
 	await Promise.all([
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchCompetitionSegments()),
-		store.dispatch(fetchGameList())
+		store.dispatch(fetchGameList()),
+		store.dispatch(fetchHomePageGames())
 	]);
 
 	//Get Required Redux Lists
@@ -188,34 +190,33 @@ async function loadData(store) {
 	const { competitionSegmentList } = store.getState().competitions;
 
 	//Get game & league table data
-	const { gamesForCards, leagueTableDetails } = getHomePageGameInfo(
-		gameList,
-		teamTypes,
-		competitionSegmentList
-	);
+	const { leagueTableDetails } = getHomePageGameInfo(gameList, teamTypes, competitionSegmentList);
 
-	return Promise.all([
-		store.dispatch(fetchGames(gamesForCards)),
-		store.dispatch(
-			fetchLeagueTableData(leagueTableDetails._competition, leagueTableDetails.year)
-		)
-	]);
+	return store.dispatch(
+		fetchLeagueTableData(leagueTableDetails._competition, leagueTableDetails.year)
+	);
 }
 
-function mapStateToProps({ config, news, games, competitions, teams }) {
-	const { fansCanAttend } = config;
+function mapStateToProps({ news, games, competitions, teams }) {
 	const { postList } = news;
 	const { competitionSegmentList } = competitions;
-	const { gameList, fullGames } = games;
+	const { gameList, fullGames, homePageGames } = games;
 	const { teamTypes } = teams;
-	return { fansCanAttend, postList, gameList, fullGames, competitionSegmentList, teamTypes };
+	return {
+		postList,
+		gameList,
+		fullGames,
+		homePageGames,
+		competitionSegmentList,
+		teamTypes
+	};
 }
 
 export default {
 	component: connect(mapStateToProps, {
 		fetchPostList,
 		fetchGameList,
-		fetchGames,
+		fetchHomePageGames,
 		fetchCompetitionSegments
 	})(HomePage),
 	loadData

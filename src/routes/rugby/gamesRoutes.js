@@ -7,6 +7,7 @@ import requireAdmin from "../../middlewares/requireAdmin";
 export default app => {
 	//Getters
 	app.get("/calendar/", gamesController.getCalendar);
+	app.get("/api/games/homepage", gamesController.getHomePageGames);
 	app.get("/api/games/years", gamesController.getGameYears);
 	app.get("/api/games/slug/:slug/", gamesController.getGameFromSlug);
 	app.get("/api/games/admin/:ids", requireAdmin, gamesController.getGamesForAdmin);

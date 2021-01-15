@@ -13,7 +13,7 @@ const ics = require("ics");
 import twitter from "~/services/twitter";
 
 //Constants
-const { localTeam } = require("~/config/keys");
+const { fansCanAttend, localTeam } = require("~/config/keys");
 import gameEvents from "~/constants/gameEvents";
 import coachTypes from "~/constants/coachTypes";
 
@@ -405,6 +405,77 @@ async function getGames(req, res, forGamePage, forAdmin) {
 	});
 
 	res.send(results);
+}
+
+export async function getHomePageGames(req, res) {
+	const games = [];
+
+	//Get the main team type
+	const mainTeamType = await TeamType.findOne({}, "_id")
+		.lean()
+		.sort({ sortOrder: 1 });
+
+	//Create a basic query
+	const query = {
+		_teamType: mainTeamType._id,
+		hideGame: { $in: ["false", null] }
+	};
+
+	//First, get the previous game
+	const lastGame = await Game.findOne(
+		{
+			...query,
+			date: {
+				$lte: new Date()
+			}
+		},
+		"_id"
+	)
+		.lean()
+		.sort({ date: -1 });
+	if (lastGame) {
+		games.push(lastGame._id);
+	}
+
+	//Then get the next one
+	const nextGame = await Game.findOne(
+		{
+			...query,
+			date: {
+				$gt: new Date()
+			}
+		},
+		"_id isAway isNeutralGround"
+	)
+		.lean()
+		.sort({ date: 1 });
+	if (nextGame) {
+		games.push(nextGame._id);
+
+		//Provisionally get the next home game
+		if (fansCanAttend && (nextGame.isAway || nextGame.isNeutralGround)) {
+			const nextHomeGame = await Game.findOne(
+				{
+					...query,
+					date: {
+						$gt: new Date()
+					},
+					isAway: false,
+					isNeutralGround: false
+				},
+				"_id"
+			)
+				.lean()
+				.sort({ date: 1 });
+			if (nextHomeGame) {
+				games.push(nextHomeGame._id);
+			}
+		}
+	}
+
+	//Get games
+	req.params.ids = games.join(",");
+	await getGames(req, res, false, false);
 }
 
 //Create New Games

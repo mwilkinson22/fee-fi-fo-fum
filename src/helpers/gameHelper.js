@@ -973,7 +973,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 		.filter(_.identity);
 }
 
-export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList, fansCanAttend) {
+export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList) {
 	//Get First Team TeamType
 	const firstTeam = _.sortBy(teamTypes, "sortOrder")[0]._id;
 
@@ -993,39 +993,5 @@ export function getHomePageGameInfo(gameList, teamTypes, competitionSegmentList,
 		.value()
 		.shift();
 
-	//Split games into first team fixtures and results
-	const now = new Date();
-	const games = _.chain(gameList)
-		//First Team Games Only
-		.filter(game => game._teamType === firstTeam)
-		//Split into two arrays, results and fixtures
-		.groupBy(({ date }) => (date > now ? "results" : "fixtures"))
-		.value();
-
-	//Create empty array to store required games
-	const gamesForCards = [];
-
-	//Add last game
-	if (games.fixtures && games.fixtures.length) {
-		gamesForCards.push(_.maxBy(games.fixtures, "date")._id);
-	}
-
-	//Add next game
-	if (games.results && games.results.length) {
-		const nextGame = _.minBy(games.results, "date");
-		gamesForCards.push(nextGame._id);
-
-		//Add next home game
-		if (fansCanAttend && nextGame.isAway) {
-			const nextHomeGame = _.minBy(
-				games.results.filter(g => !g.isAway),
-				"date"
-			);
-			if (nextHomeGame) {
-				gamesForCards.push(nextHomeGame._id);
-			}
-		}
-	}
-
-	return { gamesForCards, leagueTableDetails };
+	return { leagueTableDetails };
 }

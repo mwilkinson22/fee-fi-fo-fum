@@ -23,6 +23,7 @@ export const FETCH_GAME_LIST = "fetch_game_list";
 export const FETCH_GAME_YEARS = "fetch_game_years";
 export const ADD_GAME_SLUG = "add_game_slug";
 export const UPDATE_GAME = "update_game";
+export const FETCH_HOMEPAGE_GAMES = "fetch_homepage_games";
 export const FETCH_NEUTRAL_GAME_YEARS = "fetch_neutral_game_years";
 export const FETCH_NEUTRAL_GAMES = "fetch_neutral_games";
 export const UPDATE_NEUTRAL_GAMES = "update_neutral_games";

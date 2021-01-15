@@ -11,7 +11,8 @@ import {
 	DELETE_NEUTRAL_GAME,
 	FETCH_NEUTRAL_GAME_YEARS,
 	SAVE_FAN_POTM_VOTE,
-	ADD_GAME_SLUG
+	ADD_GAME_SLUG,
+	FETCH_HOMEPAGE_GAMES
 } from "../actions/types";
 
 //Helpers
@@ -53,6 +54,12 @@ export default function(state = { fullGames: {}, gameYears: [], slugMap: {} }, a
 			return {
 				...state,
 				gameList: action.payload
+			};
+
+		case FETCH_HOMEPAGE_GAMES:
+			return {
+				...state,
+				homePageGames: action.payload
 			};
 
 		case UPDATE_GAME:
