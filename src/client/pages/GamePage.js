@@ -70,7 +70,7 @@ class GamePage extends Component {
 		}
 
 		if (loadGame) {
-			fetchGameFromSlug(slug, "gamePage");
+			fetchGameFromSlug(slug);
 		}
 
 		if (!gameList) {
@@ -564,7 +564,7 @@ async function loadData(store, path) {
 	return Promise.all([
 		store.dispatch(fetchPostList()),
 		store.dispatch(fetchGameList()),
-		store.dispatch(fetchGameFromSlug(slug, "gamePage"))
+		store.dispatch(fetchGameFromSlug(slug))
 	]);
 }
 

@@ -11,21 +11,18 @@ import {
 import { toast } from "react-toastify";
 import _ from "lodash";
 
-function controlDataLevel(dataLevel) {
-	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
-		return "basic";
-	}
-	return dataLevel;
-}
-
 export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/${controlDataLevel(dataLevel)}/${ids.join(",")}`);
+	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
+		dataLevel = "basic";
+	}
+
+	const res = await api.get(`/games/${dataLevel}/${ids.join(",")}`);
 	dispatch({ type: FETCH_GAMES, payload: res.data });
 };
 
-export const fetchGameFromSlug = (slug, dataLevel) => async (dispatch, getState, api) => {
+export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {
 	let errorFound = false;
-	const res = await api.get(`/games/slug/${slug}/${controlDataLevel(dataLevel)}`).catch(e => {
+	const res = await api.get(`/games/slug/${slug}/`).catch(e => {
 		errorFound = true;
 		switch (e.response.status) {
 			case 404:

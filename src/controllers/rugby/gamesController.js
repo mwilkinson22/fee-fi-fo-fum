@@ -325,15 +325,13 @@ export async function getList(req, res) {
 	res.send(list);
 }
 export async function getGameFromSlug(req, res) {
-	const { slug, dataLevel } = req.params;
-	const forGamePage = dataLevel === "gamePage" || dataLevel === "admin";
-	const forAdmin = dataLevel === "admin";
+	const { slug } = req.params;
 
 	const _id = await getIdFromSlug("games", slug);
 
 	if (_id) {
 		req.params.ids = _id;
-		await getGames(req, res, forGamePage, forAdmin);
+		await getGames(req, res, true, false);
 	} else {
 		res.status(404).send({});
 	}
