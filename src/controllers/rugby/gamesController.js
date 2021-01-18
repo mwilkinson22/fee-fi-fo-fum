@@ -254,7 +254,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 
 		//Work out which players to highlight in the pregame squad
 		//First, check that the game actually uses them and that we need he inf
-		if ((forGamePage && game.status === 1) || forAdmin) {
+		if (game.status === 1 || forAdmin) {
 			//Get last game
 			const date = new Date(game.date);
 			const lastGame = await Game.findOne(
@@ -280,6 +280,11 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 			}
 		}
 
+		//Calculate the team form
+		const allCompetitions = await getTeamForm(game, 5, true);
+		const singleCompetition = await getTeamForm(game, 5, false);
+		game.teamForm = { allCompetitions, singleCompetition };
+
 		//Add variables to help govern reloading
 		game.pageData = true;
 		game.adminData = forAdmin;
@@ -288,6 +293,89 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 	}
 
 	return processedGames;
+}
+
+async function getTeamForm(game, gameLimit, allCompetitions) {
+	const query = {
+		_teamType: game._teamType,
+		date: { $lt: game.date }
+		// hideGame: { $in: [false, null] }
+	};
+	if (!allCompetitions) {
+		query._competition = game._competition._id;
+	}
+
+	//First, we get the last five local games
+	const localteamForm = await Game.find(query)
+		.fullGame(false, false)
+		.sort({ date: -1 })
+		.limit(gameLimit);
+	//Then the last five head to heads
+	const headToHeadForm = await Game.find({ ...query, _opposition: game._opposition._id })
+		.fullGame(false, false)
+		.sort({ date: -1 })
+		.limit(gameLimit);
+	//And the last 5 neutral games for the opponent
+	const neutralQuery = {
+		_teamType: game._teamType,
+		date: { $lt: game.date },
+		$or: [{ _homeTeam: game._opposition._id }, { _awayTeam: game._opposition._id }]
+	};
+	if (!allCompetitions) {
+		neutralQuery._competition = game._competition._id;
+	}
+	const neutralGames = await NeutralGame.find(
+		neutralQuery,
+		"date _homeTeam _awayTeam homePoints awayPoints"
+	)
+		.sort({ date: -1 })
+		.limit(gameLimit)
+		.lean();
+
+	//Convert the Game results to match the neutral format
+	const localgamesNormalised = _.chain([localteamForm, headToHeadForm])
+		.flatten()
+		.uniqBy(g => g._id.toString())
+		.map(({ _id, date, isAway, _opposition, score, slug, title }) => {
+			const _homeTeam = isAway ? _opposition._id : localTeam;
+			const _awayTeam = isAway ? localTeam : _opposition._id;
+			let homePoints = null;
+			let awayPoints = null;
+			if (score) {
+				homePoints = score[_homeTeam];
+				awayPoints = score[_awayTeam];
+			}
+			return { homePoints, awayPoints, _homeTeam, _awayTeam, date, slug, title, _id };
+		})
+		.value();
+
+	//And create one big array
+	const allGames = _.chain([localgamesNormalised, neutralGames])
+		.flatten()
+		.map(g => ({
+			...g,
+			_homeTeam: g._homeTeam.toString(),
+			_awayTeam: g._awayTeam.toString(),
+			date: new Date(g.date)
+		}))
+		.orderBy("date", "desc")
+		.value();
+
+	//And finally, apply it to the game object
+	const local = allGames
+		.filter(g => [g._homeTeam, g._awayTeam].includes(localTeam))
+		.slice(0, gameLimit);
+	const opposition = allGames
+		.filter(g => [g._homeTeam, g._awayTeam].includes(game._opposition._id))
+		.slice(0, gameLimit);
+	const headToHead = allGames
+		.filter(
+			g =>
+				[g._homeTeam, g._awayTeam].includes(localTeam) &&
+				[g._homeTeam, g._awayTeam].includes(game._opposition._id)
+		)
+		.slice(0, gameLimit);
+	return { local, opposition, headToHead };
 }
 
 async function getUpdatedGame(id, res, refreshSocialImage = false) {
@@ -309,8 +397,7 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 	}
 }
 
-async function processList(userIsAdmin) {
-	const query = {};
+async function processList(userIsAdmin, query = {}) {
 	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };
 	}
@@ -323,7 +410,8 @@ async function processList(userIsAdmin) {
 
 //Getters
 export async function getGameYears(req, res) {
-	const query = {};
+	const now = new Date();
+	const query = { date: { $lt: now } };
 	if (!req.user || !req.user.isAdmin) {
 		query.hideGame = { $in: [false, null] };
 	}
@@ -341,15 +429,49 @@ export async function getGameYears(req, res) {
 		.reverse();
 
 	//Work out if we have any fixtures
-	const fixture = await Game.findOne({ date: { $gt: new Date() } }, "_id").lean();
+	const fixture = await Game.findOne({ date: { $gt: now } }, "_id").lean();
 	if (fixture) {
-		years.unshift("Fixtures");
+		years.unshift("fixtures");
 	}
 
 	res.send(years);
 }
-export async function getList(req, res) {
-	const list = await processList(req.user && req.user.isAdmin);
+export async function getEntireList(req, res) {
+	const { exclude } = req.query;
+	const query = {};
+	if (exclude) {
+		query._id = { $nin: exclude.split(",") };
+	}
+	await getList(req, res, query);
+}
+export async function getListByIds(req, res) {
+	const { ids } = req.params;
+	const query = { _id: { $in: ids.split(",") } };
+	await getList(req, res, query);
+}
+export async function getListByYear(req, res) {
+	const { year } = req.params;
+	const { exclude } = req.query;
+
+	const query = {};
+
+	const now = new Date();
+	if (year === "fixtures") {
+		query.date = { $gt: now };
+	} else {
+		const endOfYear = new Date(`${Number(year) + 1}-01-01`);
+		query.date = { $gt: `${year}-01-01`, $lt: new Date(Math.min(now, endOfYear)) };
+	}
+
+	if (exclude) {
+		query._id = { $nin: exclude.split(",") };
+	}
+
+	await getList(req, res, query);
+}
+
+async function getList(req, res, query = {}) {
+	const list = await processList(req.user && req.user.isAdmin, query);
 	res.send(list);
 }
 export async function getGameFromSlug(req, res) {
@@ -1276,7 +1398,7 @@ export async function submitPostGameEvents(req, res) {
 export async function getCalendar(req, res) {
 	const query = {
 		date: { $gt: new Date("2020-01-01") },
-		hideGame: false
+		hideGame: { $in: [false, null] }
 	};
 
 	//Set default options

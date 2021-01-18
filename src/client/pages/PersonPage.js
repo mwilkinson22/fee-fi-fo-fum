@@ -14,7 +14,6 @@ import ErrorBoundary from "../components/ErrorBoundary";
 
 //Actions
 import { fetchPersonFromSlug } from "../actions/peopleActions";
-import { fetchGameList, fetchGames } from "../actions/gamesActions";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
@@ -399,9 +398,7 @@ async function loadData(store, path) {
 
 export default {
 	component: connect(mapStateToProps, {
-		fetchPersonFromSlug,
-		fetchGameList,
-		fetchGames
+		fetchPersonFromSlug
 	})(PersonPage),
 	loadData
 };

@@ -138,10 +138,20 @@ export function getScoreString(game, localTeam, useLongNames = false) {
 	return false;
 }
 
-function getAdjacentGame(id, gameList, next) {
+export function getLastGame(id, gameList, limitToSameYear = false) {
+	return getAdjacentGame(id, gameList, false, limitToSameYear);
+}
+
+export function getNextGame(id, gameList, limitToSameYear = false) {
+	return getAdjacentGame(id, gameList, true, limitToSameYear);
+}
+
+function getAdjacentGame(id, gameList, next, limitToSameYear = false) {
 	const { _teamType, date } = gameList[id];
+
 	const list = _.chain(gameList)
 		.filter(g => g._teamType == _teamType)
+		.filter(g => !limitToSameYear || g.date.getFullYear() === date.getFullYear())
 		.filter(g => (next ? g.date > date : g.date < date))
 		.orderBy(["date"], [next ? "asc" : "desc"])
 		.map(g => g._id)
@@ -161,14 +171,6 @@ export function getNeutralGame(id, neutralGames) {
 			.find(({ _id }) => _id == id)
 			.value() || false
 	);
-}
-
-export function getLastGame(id, gameList) {
-	return getAdjacentGame(id, gameList, false);
-}
-
-export function getNextGame(id, gameList) {
-	return getAdjacentGame(id, gameList, true);
 }
 
 export function getGameStarStats(game, player, overwriteThreshold = {}) {
@@ -780,6 +782,27 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 
 		return { results, playersToName, url };
 	}
+}
+
+export function getYearsWithResults(gameYears) {
+	return (
+		_.chain(gameYears)
+			.keys()
+			//Remove 'fixtures'
+			.map(year => parseInt(year))
+			.reject(year => isNaN(year))
+			.sort()
+			.reverse()
+			.value()
+	);
+}
+
+export function getGameYearsNotYetLoaded(gameYears) {
+	return _.chain(gameYears)
+		.toPairs()
+		.filter(arr => !arr[1])
+		.map(arr => arr[0])
+		.value();
 }
 
 export const calendarStringOptions = {

@@ -10,7 +10,6 @@ import BasicForm from "../BasicForm";
 //Actions
 import { updateNewsPost } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
-import { fetchGameList } from "~/client/actions/gamesActions";
 
 //Constants
 import newsDecorators from "~/constants/newsDecorators";
@@ -87,6 +86,5 @@ function mapStateToProps({ news }) {
 
 export default connect(mapStateToProps, {
 	fetchUserList,
-	fetchGameList,
 	updateNewsPost
 })(AdminNewsPostContent);

@@ -5,21 +5,36 @@ import * as gamesController from "../../controllers/rugby/gamesController";
 import requireAdmin from "../../middlewares/requireAdmin";
 
 export default app => {
-	//Getters
+	//Public Calendar URL
 	app.get("/calendar/", gamesController.getCalendar);
+
+	//Get games for homepage
 	app.get("/api/games/homepage", gamesController.getHomePageGames);
+
+	//Get game years
 	app.get("/api/games/years", gamesController.getGameYears);
+
+	//Get game by slug
 	app.get("/api/games/slug/:slug/", gamesController.getGameFromSlug);
+
+	//Get fullGame items by data level
 	app.get("/api/games/admin/:ids", requireAdmin, gamesController.getGamesForAdmin);
 	app.get("/api/games/gamepage/:ids", gamesController.getGamesForGamePage);
 	app.get("/api/games/basic/:ids", gamesController.getBasicGames);
+
+	//Images
+	app.post("/api/games/images/fixtureList/", requireAdmin, gamesController.postFixtureListImage);
 	app.get(
-		"/api/games/fixtureListImage/:year/:competitions",
+		"/api/games/images/fixtureList/:year/:competitions",
 		gamesController.fetchFixtureListImage
 	);
-	app.get("/api/games/:_id/images/pregame", requireAdmin, gamesController.fetchPregameImage);
-	app.get("/api/games/:_id/images/squad", requireAdmin, gamesController.fetchSquadImage);
-	app.get("/api/games", gamesController.getList);
+	app.get("/api/games/images/pregame/:_id", requireAdmin, gamesController.fetchPregameImage);
+	app.get("/api/games/images/squad/:_id", requireAdmin, gamesController.fetchSquadImage);
+
+	//Get gameList items
+	app.get("/api/games/list", requireAdmin, gamesController.getEntireList);
+	app.get("/api/games/listByIds/:ids", gamesController.getListByIds);
+	app.get("/api/games/listByYear/:year", gamesController.getListByYear);
 
 	//Crawlers
 	app.get("/api/games/:_id/crawl", requireAdmin, gamesController.fetchExternalGame);
@@ -43,7 +58,6 @@ export default app => {
 	//Post
 	app.post("/api/games/:_game/fan-potm-vote/:_player", gamesController.saveFanPotmVote);
 	app.post("/api/games/crawled", gamesController.addCrawledGames);
-	app.post("/api/games/fixtureListImage/", requireAdmin, gamesController.postFixtureListImage);
 	app.post("/api/games", requireAdmin, gamesController.addGame);
 
 	//Deleters

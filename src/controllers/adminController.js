@@ -211,16 +211,22 @@ async function getGames(firstTeam) {
 			const date = new Date(game.date);
 			const teams = [localTeam, _opposition._id];
 
+			//Create object to return
+			const result = {
+				_id,
+				_opposition: _opposition._id,
+				date: date.toString("dddd dS MMMM"),
+				_teamType
+			};
+
 			//Check we have valid players
 			const teamsWithoutPlayers = teams.filter(
 				id => !eligiblePlayers[id] || !eligiblePlayers[id].length
 			);
 			if (teamsWithoutPlayers.length) {
-				return {
-					error: gameStatuses.ELIGIBLE,
-					teams: teamsWithoutPlayers,
-					_id
-				};
+				result.error = gameStatuses.ELIGIBLE;
+				result.teams = teamsWithoutPlayers;
+				return result;
 			}
 
 			//Check for pregame squads
@@ -231,11 +237,9 @@ async function getGames(firstTeam) {
 				});
 
 				if (teamsWithoutPregameSquads.length) {
-					return {
-						error: gameStatuses.PREGAME,
-						teams: teamsWithoutPregameSquads,
-						_id
-					};
+					result.error = gameStatuses.PREGAME;
+					result.teams = teamsWithoutPregameSquads;
+					return result;
 				}
 			}
 
@@ -245,25 +249,22 @@ async function getGames(firstTeam) {
 					id => !playerStats.find(({ _team }) => _team == id)
 				);
 				if (teamsWithoutSquads.length || !squadsAnnounced) {
-					return {
-						error: gameStatuses.SQUAD,
-						teams: teamsWithoutSquads,
-						_id
-					};
+					result.error = gameStatuses.SQUAD;
+					result.teams = teamsWithoutSquads;
+					return result;
 				}
 			}
 
 			//Check for stats
 			if (date < new Date().addHours(-2) && game.status < 3) {
-				return { error: gameStatuses.STATS, _id };
+				result.error = gameStatuses.STATS;
+				return result;
 			}
 
 			//Check for referees
 			if (date < now && _teamType == firstTeam && !_referee) {
-				return {
-					error: gameStatuses.REFEREE,
-					_id
-				};
+				result.error = gameStatuses.REFEREE;
+				return result;
 			}
 
 			//Check for man/woman of steel
@@ -279,7 +280,8 @@ async function getGames(firstTeam) {
 				const pointsRequired = !game.manOfSteel || game.manOfSteel.length < 3;
 
 				if (now > nextMondayAfternoon && pointsRequired) {
-					return { error: gameStatuses.STEEL[game.gender], _id };
+					result.error = gameStatuses.STEEL[game.gender];
+					return result;
 				}
 			}
 		})

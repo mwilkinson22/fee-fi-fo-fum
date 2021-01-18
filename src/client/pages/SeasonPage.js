@@ -14,55 +14,42 @@ import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
 import SeasonGameStats from "~/client/components/seasons/SeasonGameStats";
 
 //Actions
-import { fetchGameList, fetchGames } from "~/client/actions/gamesActions";
+import {
+	fetchGameListByYear,
+	fetchEntireGameList,
+	fetchGames
+} from "~/client/actions/gamesActions";
 import { setActiveTeamType } from "~/client/actions/teamsActions";
+import { getGameYearsNotYetLoaded, getYearsWithResults } from "~/helpers/gameHelper";
 
 class SeasonPage extends Component {
 	constructor(props) {
 		super(props);
-		const { fetchGameList, gameList } = props;
-
-		if (!gameList) {
-			fetchGameList();
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const newState = { isLoadingGameList: false, isSSR: false };
+		const newState = { isSSR: false };
 		const {
 			authUser,
 			match,
 			teamTypes: teamTypesList,
 			gameList,
+			gameYears,
 			fullGames,
 			fetchGames,
 			activeTeamType,
-			setActiveTeamType
+			setActiveTeamType,
+			fetchGameListByYear,
+			fetchEntireGameList
 		} = nextProps;
 
 		const allowAllYears = authUser && authUser.isAdmin;
 
-		//Ensure the game list is loaded
-		if (!gameList) {
-			return { isLoadingGameList: true };
-		}
-
 		//Once we have the game list, render the game list and find the available years
-		let { results, years } = prevState;
-		if (!results) {
-			results = _.filter(gameList, g => g.date < new Date());
-			newState.results = results;
-		}
-
+		let { years } = prevState;
 		if (!years) {
-			years = _.chain(results)
-				.map(({ date }) => Number(date.getFullYear()))
-				.uniq()
-				.sort()
-				.reverse()
-				.value();
+			years = getYearsWithResults(gameYears);
 
 			if (allowAllYears) {
 				years.unshift("All");
@@ -74,13 +61,46 @@ class SeasonPage extends Component {
 		//Get Active Year
 		newState.year = years.find(y => y == match.params.year);
 
-		if (!newState.year || (!Number(newState.year) && !allowAllYears)) {
+		//The years array will already contain "All" for admin users,
+		//so we just need to ensure the find() was successful
+		if (!newState.year) {
+			//Add a number filter to make sure we don't ever default to "All"
 			newState.year = years.filter(Number)[0];
 		}
 
+		//Ensure we have a gameList for the chosen year
+		if (newState.year === "All") {
+			const missingGameYears = getGameYearsNotYetLoaded(gameYears);
+			if (missingGameYears.length) {
+				if (!prevState.isLoadingGameList) {
+					fetchEntireGameList();
+					newState.isLoadingGameList = true;
+				}
+				return newState;
+			}
+		} else {
+			if (!gameYears[newState.year]) {
+				if (!prevState.isLoadingGameList) {
+					fetchGameListByYear(newState.year);
+					newState.isLoadingGameList = true;
+				}
+				return newState;
+			}
+		}
+
+		newState.isLoadingGameList = false;
+
+		//Get results for this year
+		const results = _.filter(
+			gameList,
+			g =>
+				g.date < new Date() &&
+				(newState.year === "All" || g.date > new Date(`${newState.year}-01-01`))
+		);
+
 		//Get TeamTypes
 		let { teamTypes } = prevState;
-		if (newState.year !== prevState.year) {
+		if (!teamTypes || newState.year !== prevState.year) {
 			teamTypes = _.chain(results)
 				.filter(game => newState.year === "All" || game.date.getFullYear() == newState.year)
 				.map(game => teamTypesList[game._teamType])
@@ -280,18 +300,31 @@ class SeasonPage extends Component {
 	}
 }
 
-async function loadData(store) {
-	await store.dispatch(fetchGameList());
+async function loadData(store, path) {
+	//Get year from URL
+	const splitPath = path.split("/");
+	let year = splitPath.length > 2 ? Number(splitPath[2]) : null;
+
+	//Ensure it's a valid year
+	const { gameYears } = store.getState().games;
+	const yearsWithResults = getYearsWithResults(gameYears);
+	if (!yearsWithResults.includes(year)) {
+		year = yearsWithResults[0];
+	}
+
+	//Load the game list
+	await store.dispatch(fetchGameListByYear(year));
 }
 
 function mapStateToProps({ config, games, teams }) {
 	const { authUser, localTeam } = config;
-	const { gameList, fullGames } = games;
+	const { gameList, gameYears, fullGames } = games;
 	const { fullTeams, teamTypes, activeTeamType } = teams;
 	return {
 		authUser,
 		localTeam,
 		gameList,
+		gameYears,
 		fullGames,
 		fullTeams,
 		teamTypes,
@@ -300,8 +333,11 @@ function mapStateToProps({ config, games, teams }) {
 }
 
 export default {
-	component: connect(mapStateToProps, { fetchGameList, fetchGames, setActiveTeamType })(
-		SeasonPage
-	),
+	component: connect(mapStateToProps, {
+		fetchGameListByYear,
+		fetchEntireGameList,
+		fetchGames,
+		setActiveTeamType
+	})(SeasonPage),
 	loadData
 };

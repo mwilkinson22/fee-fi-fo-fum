@@ -15,25 +15,13 @@ import AdminDashboardBirthdays from "../../components/admin/dashboard/AdminDashb
 
 //Actions
 import { fetchAdminDashboardData } from "~/client/actions/adminActions";
-import { fetchGameList } from "~/client/actions/gamesActions";
 import { fetchNeutralGames } from "~/client/actions/neutralGamesActions";
 
 class AdminDashboard extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			gameList,
-			fetchGameList,
-			neutralGames,
-			fetchNeutralGames,
-			fetchAdminDashboardData
-		} = props;
-
-		//Ensure we have all games loaded
-		if (!gameList) {
-			fetchGameList();
-		}
+		const { neutralGames, fetchNeutralGames, fetchAdminDashboardData } = props;
 
 		const thisYear = new Date().getFullYear();
 		if (!neutralGames || !neutralGames[thisYear]) {
@@ -53,13 +41,13 @@ class AdminDashboard extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { gameList, neutralGames } = nextProps;
+		const { neutralGames } = nextProps;
 
 		const newState = { isLoading: false };
 
 		//Await dependencies
 		const thisYear = new Date().getFullYear();
-		if (!gameList || !neutralGames || !neutralGames[thisYear] || !prevState.extraDataLoaded) {
+		if (!neutralGames || !neutralGames[thisYear] || !prevState.extraDataLoaded) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -68,7 +56,7 @@ class AdminDashboard extends Component {
 	}
 
 	render() {
-		const { gameList, neutralGames, teamList, teamTypes } = this.props;
+		const { neutralGames, teamList, teamTypes } = this.props;
 		const {
 			birthdays,
 			gamesWithIssues,
@@ -90,7 +78,7 @@ class AdminDashboard extends Component {
 		const componentGroups = {
 			"Immediate Action Required": [
 				AdminDashboardTeamsWithoutGrounds({ teams: teamsWithoutGrounds }),
-				AdminDashboardGames({ gamesWithIssues, gameList, teamList, teamTypes }),
+				AdminDashboardGames({ gamesWithIssues, teamList, teamTypes }),
 				AdminDashboardNeutralGames({ neutralGames, teamTypes })
 			],
 			"Action Required": [AdminDashboardPlayerDetails({ missingPlayerDetails })],
@@ -118,13 +106,12 @@ class AdminDashboard extends Component {
 }
 
 function mapStateToProps({ games, teams }) {
-	const { gameList, neutralGames } = games;
+	const { neutralGames } = games;
 	const { teamList, teamTypes } = teams;
-	return { gameList, neutralGames, teamList, teamTypes };
+	return { neutralGames, teamList, teamTypes };
 }
 
 export default connect(mapStateToProps, {
 	fetchAdminDashboardData,
-	fetchGameList,
 	fetchNeutralGames
 })(AdminDashboard);

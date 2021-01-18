@@ -29,7 +29,7 @@ import PageSwitch from "../components/PageSwitch";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 //Actions
-import { fetchGames, fetchGameList, fetchGameFromSlug } from "../actions/gamesActions";
+import { fetchGames, fetchGameFromSlug } from "../actions/gamesActions";
 import { fetchTeam } from "../actions/teamsActions";
 import { fetchPostList } from "~/client/actions/newsActions";
 
@@ -42,16 +42,7 @@ class GamePage extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			gameList,
-			fetchGameList,
-			postList,
-			fetchPostList,
-			match,
-			slugMap,
-			fetchGameFromSlug,
-			fullGames
-		} = props;
+		const { postList, fetchPostList, match, slugMap, fetchGameFromSlug, fullGames } = props;
 
 		//Work out whether to load game
 		const { slug } = match.params;
@@ -71,10 +62,6 @@ class GamePage extends Component {
 
 		if (loadGame) {
 			fetchGameFromSlug(slug);
-		}
-
-		if (!gameList) {
-			fetchGameList();
 		}
 
 		if (!postList) {
@@ -541,7 +528,7 @@ class GamePage extends Component {
 }
 
 function mapStateToProps({ games, config, teams, news }) {
-	const { fullGames, redirects, gameList, slugMap } = games;
+	const { fullGames, redirects, slugMap } = games;
 	const { localTeam, authUser, bucketPaths, fansCanAttend } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
@@ -552,7 +539,6 @@ function mapStateToProps({ games, config, teams, news }) {
 		localTeam,
 		authUser,
 		bucketPaths,
-		gameList,
 		slugMap,
 		fullTeams,
 		fansCanAttend
@@ -561,17 +547,12 @@ function mapStateToProps({ games, config, teams, news }) {
 
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
-	return Promise.all([
-		store.dispatch(fetchPostList()),
-		store.dispatch(fetchGameList()),
-		store.dispatch(fetchGameFromSlug(slug))
-	]);
+	return Promise.all([store.dispatch(fetchPostList()), store.dispatch(fetchGameFromSlug(slug))]);
 }
 
 export default {
 	component: connect(mapStateToProps, {
 		fetchGames,
-		fetchGameList,
 		fetchTeam,
 		fetchPostList,
 		fetchGameFromSlug

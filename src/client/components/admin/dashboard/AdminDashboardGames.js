@@ -7,9 +7,11 @@ import { Link } from "react-router-dom";
 //Constants
 import statuses from "~/constants/adminDashboardGameStatuses";
 
-function AdminDashboardGames({ gameList, gamesWithIssues, teamList, teamTypes }) {
+function AdminDashboardGames({ gamesWithIssues, teamList, teamTypes }) {
 	if (gamesWithIssues && gamesWithIssues.length) {
-		const list = gamesWithIssues.map(({ error, teams, _id }) => {
+		const list = gamesWithIssues.map(game => {
+			let { error } = game;
+			const { teams, _id, _opposition, date, _teamType } = game;
 			//Work out best link to show
 			let url = `/admin/game/${_id}/`;
 			switch (error) {
@@ -31,7 +33,6 @@ function AdminDashboardGames({ gameList, gamesWithIssues, teamList, teamTypes })
 			}
 
 			//Get Link Text
-			const { _opposition, date, _teamType } = gameList[_id];
 			const linkText = [teamList[_opposition].name.long];
 			if (_.values(teamTypes)[0]._id !== _teamType) {
 				linkText.push(teamTypes[_teamType].name);

@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink, withRouter } from "react-router-dom";
 import newsCategories from "../../constants/newsCategories";
+import { getYearsWithResults } from "~/helpers/gameHelper";
 
 class Header extends Component {
 	constructor(props) {
@@ -41,7 +42,8 @@ class Header extends Component {
 			currentAwards,
 			sites,
 			baseUrl,
-			location
+			location,
+			gameYears
 		} = this.props;
 		const navMenus = [
 			[
@@ -85,6 +87,7 @@ class Header extends Component {
 		}
 
 		if (authUser) {
+			const localTeamName = fullTeams[localTeam].name.short;
 			const adminMenu = [
 				{
 					header: "Admin",
@@ -96,7 +99,8 @@ class Header extends Component {
 					headerLink: "/admin/games",
 					subMenuRootLink: "/admin/",
 					subMenu: {
-						[fullTeams[localTeam].name.short]: "games",
+						[`${localTeamName} Fixtures`]: "games/fixtures",
+						[`${localTeamName} Results`]: `games/${getYearsWithResults(gameYears)[0]}`,
 						Neutral: "neutralGames"
 					}
 				},
@@ -342,7 +346,7 @@ class Header extends Component {
 	}
 }
 
-function mapStateToProps({ awards, config, teams }) {
+function mapStateToProps({ awards, config, games, teams }) {
 	const { currentAwards } = awards;
 	const {
 		authUser,
@@ -356,6 +360,7 @@ function mapStateToProps({ awards, config, teams }) {
 		sites,
 		baseUrl
 	} = config;
+	const { gameYears } = games;
 	const { fullTeams } = teams;
 	return {
 		currentAwards,
@@ -367,6 +372,7 @@ function mapStateToProps({ awards, config, teams }) {
 		site_header_logo,
 		site_name,
 		localTeam,
+		gameYears,
 		fullTeams,
 		sites,
 		baseUrl

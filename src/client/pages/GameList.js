@@ -15,21 +15,15 @@ import AdminGameCard from "~/client/components/games/AdminGameCard";
 import CalendarDialog from "../components/games/calendar/CalendarDialog";
 
 //Actions
-import { fetchGames, fetchGameList } from "../actions/gamesActions";
+import { fetchGames, fetchGameListByYear } from "../actions/gamesActions";
 import { setActiveTeamType } from "../actions/teamsActions";
 
 //Helpers
-import { validateGameDate } from "~/helpers/gameHelper";
+import { getYearsWithResults, validateGameDate } from "~/helpers/gameHelper";
 
 class GameList extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, fetchGameList } = props;
-
-		if (!gameList) {
-			fetchGameList();
-		}
-
 		this.state = {};
 	}
 
@@ -41,8 +35,10 @@ class GameList extends Component {
 			teamTypes,
 			match,
 			fetchGames,
+			gameYears,
 			activeTeamType,
-			setActiveTeamType
+			setActiveTeamType,
+			fetchGameListByYear
 		} = nextProps;
 
 		//Determine Admin Status
@@ -56,30 +52,29 @@ class GameList extends Component {
 			newState.listType = match.path.split("/")[2];
 		}
 
-		//Without the basic game list, continue to load
-		if (!gameList) {
-			return {};
-		}
-
 		//Get Years
-		const now = new Date();
-		newState.years = _.chain(gameList)
-			.reject(game => game.date > now)
-			.map(game => game.date.getFullYear())
-			.uniq()
-			.sort()
-			.reverse()
-			.value();
+		//Enforce string so we can be consistent with match.params
+		newState.years = getYearsWithResults(gameYears).map(y => y.toString());
 
 		//Get Active Year
 		newState.year = match.params.year;
 
-		if (!newState.year) {
+		if (!newState.year || !newState.years.includes(newState.year)) {
 			newState.year = newState.listType === "fixtures" ? "fixtures" : newState.years[0];
 		}
 
-		//Add fixtures
+		//Add "fixtures" back to the list
 		newState.years.unshift("fixtures");
+
+		//Update gameList for this year
+		if (!gameYears[newState.year]) {
+			if (!prevState.isLoadingList) {
+				fetchGameListByYear(newState.year);
+			}
+			newState.isLoadingList = true;
+			return newState;
+		}
+		newState.isLoadingList = false;
 
 		//Get Valid Team Types for this year
 		newState.teamTypes = _.chain(gameList)
@@ -332,12 +327,13 @@ class GameList extends Component {
 
 function mapStateToProps({ games, teams, config }) {
 	const { bucketPaths, localTeam } = config;
-	const { gameList, fullGames } = games;
+	const { gameList, fullGames, gameYears } = games;
 	const { teamList, teamTypes, activeTeamType } = teams;
 	return {
 		bucketPaths,
 		localTeam,
 		gameList,
+		gameYears,
 		fullGames,
 		teamList,
 		teamTypes,
@@ -347,15 +343,32 @@ function mapStateToProps({ games, teams, config }) {
 
 export async function loadData(store, path) {
 	if (!path.match(/^\/admin/)) {
+		const splitPath = path.split("/");
+
+		//Workout whether we need fixtures or results
+		const listType = splitPath[2];
+
+		//Get year to search
+		let yearToSearch;
+		if (listType === "fixtures") {
+			yearToSearch = "fixtures";
+		} else {
+			const yearsWithResults = Object.keys(store.getState().games.gameYears).filter(parseInt);
+			const yearInUrl = splitPath.length > 3 ? splitPath[3] : null;
+			yearToSearch = yearsWithResults.includes(Number(yearInUrl))
+				? yearInUrl
+				: Math.max(...yearsWithResults);
+		}
+
 		//Get Game List
-		return store.dispatch(fetchGameList());
+		return store.dispatch(fetchGameListByYear(yearToSearch));
 	}
 }
 
 export default {
 	component: connect(mapStateToProps, {
 		fetchGames,
-		fetchGameList,
+		fetchGameListByYear,
 		setActiveTeamType
 	})(GameList),
 	loadData

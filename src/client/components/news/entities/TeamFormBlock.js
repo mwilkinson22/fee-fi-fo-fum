@@ -11,7 +11,7 @@ import TeamFormPerTeam from "../../games/TeamFormPerTeam";
 import { matchSlugToItem } from "~/helpers/routeHelper";
 
 function TeamFormBlock(props) {
-	const { blockProps, data, fullGames, match, postList, redirects } = props;
+	const { blockProps, data, match, postList, redirects, fullGames } = props;
 	const { allCompetitions, formType } = data;
 
 	if (blockProps.getReadOnly()) {
@@ -20,10 +20,9 @@ function TeamFormBlock(props) {
 			return null;
 		}
 
-		const game = fullGames[post.item._game];
-		if (!game) {
-			return null;
-		}
+		//Get Game Id
+		const { _game } = post.item;
+		const game = fullGames[_game];
 
 		if (formType === "head-to-head") {
 			return <TeamFormHeadToHead allCompetitions={allCompetitions} game={game} />;

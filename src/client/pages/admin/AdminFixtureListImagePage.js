@@ -11,7 +11,7 @@ import LoadingPage from "~/client/components/LoadingPage";
 //Actions
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 import {
-	fetchGameList,
+	fetchGameListByYear,
 	previewFixtureListImage,
 	postFixtureListImage
 } from "~/client/actions/gamesActions";
@@ -20,22 +20,31 @@ import { fetchProfiles } from "~/client/actions/socialActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
+//Helpers
+import { getYearsWithResults } from "~/helpers/gameHelper";
+
 class AdminFixtureListImagePage extends Component {
 	constructor(props) {
 		super(props);
 
 		const {
-			gameList,
-			fetchGameList,
+			gameYears,
+			fetchGameListByYear,
 			profiles,
 			fetchProfiles,
 			competitionSegmentList,
 			fetchCompetitionSegments
 		} = props;
 
-		//Get Games
-		if (!gameList) {
-			fetchGameList();
+		//Update game list
+		//This is only really used to work out what competitions we need,
+		//all the rendering is server side. Setting this year & fixtures is sufficient
+		const lastYearWithResults = getYearsWithResults(gameYears)[0];
+		if (!gameYears[lastYearWithResults]) {
+			fetchGameListByYear(lastYearWithResults);
+		}
+		if (gameYears.fixtures === false) {
+			fetchGameListByYear("fixtures");
 		}
 
 		if (!profiles) {
@@ -61,14 +70,19 @@ class AdminFixtureListImagePage extends Component {
 			fixturesOnly: Yup.bool().label("Fixtures Only?")
 		});
 
-		this.state = { validationSchema };
+		this.state = { lastYearWithResults, validationSchema };
 	}
 
-	static getDerivedStateFromProps(nextProps) {
-		const { gameList, profiles, competitionSegmentList, teamTypes } = nextProps;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { gameList, gameYears, profiles, competitionSegmentList, teamTypes } = nextProps;
 		const newState = { isLoading: false };
 
-		if (!gameList || !competitionSegmentList || !profiles) {
+		if (
+			gameYears.fixtures === undefined ||
+			!gameYears[prevState.lastYearWithResults] ||
+			!competitionSegmentList ||
+			!profiles
+		) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -259,7 +273,7 @@ class AdminFixtureListImagePage extends Component {
 function mapStateToProps({ config, competitions, games, social, teams }) {
 	const { localTeam } = config;
 	const { competitionSegmentList } = competitions;
-	const { gameList, postFixtureListImage } = games;
+	const { gameList, postFixtureListImage, gameYears } = games;
 	const { profiles, defaultProfile } = social;
 	const { fullTeams, teamTypes } = teams;
 	return {
@@ -270,12 +284,13 @@ function mapStateToProps({ config, competitions, games, social, teams }) {
 		profiles,
 		defaultProfile,
 		fullTeams,
-		teamTypes
+		teamTypes,
+		gameYears
 	};
 }
 
 export default connect(mapStateToProps, {
-	fetchGameList,
+	fetchGameListByYear,
 	fetchProfiles,
 	previewFixtureListImage,
 	postFixtureListImage,

@@ -3,7 +3,7 @@ import {
 	FETCH_GAME_YEARS,
 	UPDATE_GAME,
 	DELETE_GAME,
-	FETCH_GAME_LIST,
+	FETCH_GAME_LIST_BY_IDS,
 	FETCH_NEUTRAL_GAMES,
 	CRAWL_LOCAL_GAMES,
 	CRAWL_NEUTRAL_GAMES,
@@ -12,13 +12,18 @@ import {
 	FETCH_NEUTRAL_GAME_YEARS,
 	SAVE_FAN_POTM_VOTE,
 	ADD_GAME_SLUG,
-	FETCH_HOMEPAGE_GAMES
+	FETCH_HOMEPAGE_GAMES,
+	FETCH_GAME_LIST_BY_YEAR,
+	FETCH_ENTIRE_GAME_LIST
 } from "../actions/types";
 
 //Helpers
-import { fixDates, getNeutralGame } from "../../helpers/gameHelper";
+import { fixDates, getNeutralGame } from "~/helpers/gameHelper";
 
-export default function(state = { fullGames: {}, gameYears: [], slugMap: {} }, action) {
+export default function(
+	state = { gameList: {}, fullGames: {}, gameYears: {}, slugMap: {}, teamForm: {} },
+	action
+) {
 	if (!action || !action.payload) {
 		return state;
 	}
@@ -49,12 +54,45 @@ export default function(state = { fullGames: {}, gameYears: [], slugMap: {} }, a
 			};
 		}
 
-		case FETCH_GAME_LIST:
+		case FETCH_GAME_LIST_BY_IDS:
 			fixDates(action.payload);
 			return {
 				...state,
-				gameList: action.payload
+				gameList: {
+					...state.gameList,
+					...action.payload
+				}
 			};
+
+		case FETCH_GAME_LIST_BY_YEAR:
+			fixDates(action.payload.games);
+			return {
+				...state,
+				gameList: {
+					...state.gameList,
+					...action.payload.games
+				},
+				gameYears: {
+					...state.gameYears,
+					[action.payload.year]: true
+				}
+			};
+
+		case FETCH_ENTIRE_GAME_LIST: {
+			fixDates(action.payload);
+			const gameYears = {};
+			for (const year in state.gameYears) {
+				gameYears[year] = true;
+			}
+			return {
+				...state,
+				gameList: {
+					...state.gameList,
+					...action.payload
+				},
+				gameYears
+			};
+		}
 
 		case FETCH_HOMEPAGE_GAMES:
 			return {

@@ -17,7 +17,7 @@ import {
 	deleteNewsPost
 } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
-import { fetchGameList } from "~/client/actions/gamesActions";
+import { fetchEntireGameList } from "~/client/actions/gamesActions";
 
 //Constants
 import newsCategories from "~/constants/newsCategories";
@@ -25,15 +25,17 @@ import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Helpers
 import { validateSlug } from "~/helpers/adminHelper";
+import { getGameYearsNotYetLoaded } from "~/helpers/gameHelper";
 
 class AdminNewsPostOverview extends Component {
 	constructor(props) {
 		super(props);
 
-		const { userList, fetchUserList, gameList, fetchGameList } = props;
+		const { userList, fetchUserList, fetchEntireGameList, gameYears } = props;
 
-		if (!gameList) {
-			fetchGameList();
+		//Ensure we have a full game list
+		if (getGameYearsNotYetLoaded(gameYears).length) {
+			fetchEntireGameList();
 		}
 
 		if (!userList) {
@@ -77,7 +79,16 @@ class AdminNewsPostOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { location, fullPosts, match, userList, gameList, teamList, teamTypes } = nextProps;
+		const {
+			location,
+			fullPosts,
+			match,
+			userList,
+			gameList,
+			teamList,
+			teamTypes,
+			gameYears
+		} = nextProps;
 		const { _id } = match.params;
 		const newState = { isLoading: false };
 
@@ -85,7 +96,7 @@ class AdminNewsPostOverview extends Component {
 		newState.isNew = !_id;
 
 		//Check we have the info we need
-		if (!userList || !gameList) {
+		if (!userList || getGameYearsNotYetLoaded(gameYears).length) {
 			return { isLoading: true };
 		}
 
@@ -341,16 +352,16 @@ function mapStateToProps({ config, games, news, teams, users }) {
 	const { authUser } = config;
 	const { fullPosts } = news;
 	const { userList } = users;
-	const { gameList } = games;
+	const { gameList, gameYears } = games;
 	const { teamList, teamTypes } = teams;
-	return { authUser, fullPosts, userList, gameList, teamList, teamTypes };
+	return { authUser, fullPosts, userList, gameList, teamList, teamTypes, gameYears };
 }
 
 export default connect(mapStateToProps, {
 	fetchPostList,
 	fetchNewsPost,
 	fetchUserList,
-	fetchGameList,
+	fetchEntireGameList,
 	createNewsPost,
 	updateNewsPost,
 	deleteNewsPost

@@ -8,14 +8,21 @@ import LoadingPage from "../../LoadingPage";
 import Table from "../../Table";
 
 //Actions
-import { fetchGameList } from "~/client/actions/gamesActions";
+import { fetchGameListByYear } from "~/client/actions/gamesActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 
 // noinspection JSCheckFunctionSignatures
 class AdminAwardVotes extends Component {
 	constructor(props) {
 		super(props);
-		const { awardsList, match, gameList, fetchGameList, peopleList, fetchPeopleList } = props;
+		const {
+			awardsList,
+			match,
+			fetchGameListByYear,
+			peopleList,
+			fetchPeopleList,
+			gameYears
+		} = props;
 
 		//Get Award
 		const award = awardsList[match.params._id];
@@ -30,8 +37,8 @@ class AdminAwardVotes extends Component {
 		//Work out if we need to load games
 		const gameCategories = award.categories.filter(c => c.awardType == "game");
 
-		if (gameCategories.length && !gameList) {
-			fetchGameList();
+		if (gameCategories.length && gameYears[award.year] === false) {
+			fetchGameListByYear(award.year);
 		}
 
 		//Work out if we need to load people
@@ -45,12 +52,15 @@ class AdminAwardVotes extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { gameCategories, peopleCategories } = prevState;
-		const { gameList, peopleList } = nextProps;
+		const { award, gameCategories, peopleCategories } = prevState;
+		const { gameYears, peopleList } = nextProps;
 
 		const newState = { isLoading: false };
 
-		if ((gameCategories.length && !gameList) || (peopleCategories.length && !peopleList)) {
+		if (
+			(gameCategories.length && gameYears[award.year] === false) ||
+			(peopleCategories.length && !peopleList)
+		) {
 			newState.isLoading = true;
 		}
 
@@ -132,10 +142,10 @@ class AdminAwardVotes extends Component {
 
 function mapStateToProps({ awards, games, people, teams }) {
 	const { awardsList } = awards;
-	const { gameList } = games;
+	const { gameList, gameYears } = games;
 	const { peopleList } = people;
 	const { teamList } = teams;
-	return { awardsList, gameList, peopleList, teamList };
+	return { awardsList, gameList, gameYears, peopleList, teamList };
 }
 
-export default connect(mapStateToProps, { fetchGameList, fetchPeopleList })(AdminAwardVotes);
+export default connect(mapStateToProps, { fetchGameListByYear, fetchPeopleList })(AdminAwardVotes);

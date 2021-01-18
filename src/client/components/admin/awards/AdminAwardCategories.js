@@ -14,56 +14,55 @@ import selectStyling from "~/constants/selectStyling";
 import playerStatTypes from "~/constants/playerStatTypes";
 
 //Actions
-import { fetchGameList } from "~/client/actions/gamesActions";
+import { fetchGameListByYear } from "~/client/actions/gamesActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 class AdminAwardCategories extends Component {
 	constructor(props) {
 		super(props);
 
-		const { gameList, fetchGameList, fullTeams, localTeam, fetchTeam } = props;
-
-		if (!gameList) {
-			fetchGameList();
-		}
+		const {
+			fetchGameListByYear,
+			fullTeams,
+			localTeam,
+			fetchTeam,
+			match,
+			awardsList,
+			gameYears
+		} = props;
 
 		if (!fullTeams[localTeam].fullData) {
 			fetchTeam(localTeam, "full");
 		}
 
-		this.state = {};
+		//Get the current award (i.e. the current year's award group)
+		const award = awardsList[match.params._id];
+
+		if (gameYears[award.year] === false) {
+			fetchGameListByYear(award.year);
+		}
+		this.state = { award };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			awardsList,
-			match,
-			fullTeams,
-			localTeam,
-			gameList,
-			teamTypes,
-			teamList
-		} = nextProps;
-		const { _id, categoryId } = match.params;
+		const { match, fullTeams, localTeam, gameList, gameYears, teamTypes, teamList } = nextProps;
+		const { award } = prevState;
+		const { categoryId } = match.params;
 		const newState = { isLoading: false, isNew: false };
 
 		//Wait on games and local squad
-		if (!gameList || !fullTeams[localTeam].fullData) {
+		if (gameYears[award.year] === false || !fullTeams[localTeam].fullData) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		//Get current award
-		newState.award = awardsList[_id];
-
 		//Get the current category
-		if (newState.award && categoryId) {
+		if (award && categoryId) {
 			if (categoryId === "new") {
 				newState.isNew = true;
 				newState.category = undefined;
 			} else {
-				newState.category =
-					newState.award.categories.find(c => c._id == categoryId) || false;
+				newState.category = award.categories.find(c => c._id == categoryId) || false;
 			}
 		} else {
 			//Either an invalid category, or (more likely) /awards/:_id/categories
@@ -91,7 +90,7 @@ class AdminAwardCategories extends Component {
 			//A simple list of players across all squads, including those
 			//signed for the following year (for "most anticipated")
 			const squads = fullTeams[localTeam].squads.filter(
-				s => s.year == newState.award.year || s.year == newState.award.year + 1
+				s => s.year == award.year || s.year == award.year + 1
 			);
 			newState.options.player = _.chain(squads)
 				.map("players")
@@ -104,7 +103,7 @@ class AdminAwardCategories extends Component {
 
 			//A list of all games, grouped by team type
 			newState.options.game = _.chain(gameList)
-				.filter(g => g.date.getFullYear() == newState.award.year)
+				.filter(g => g.date.getFullYear() == award.year)
 				.orderBy([({ _teamType }) => teamTypes[_teamType].sortOrder, "date"])
 				.map(game => {
 					const labelArr = [];
@@ -189,11 +188,11 @@ class AdminAwardCategories extends Component {
 function mapStateToProps({ awards, config, games, teams }) {
 	const { awardsList } = awards;
 	const { localTeam } = config;
-	const { gameList } = games;
+	const { gameList, gameYears } = games;
 	const { fullTeams, teamList, teamTypes } = teams;
-	return { awardsList, localTeam, gameList, fullTeams, teamList, teamTypes };
+	return { awardsList, localTeam, gameList, gameYears, fullTeams, teamList, teamTypes };
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, { fetchGameList, fetchTeam })(AdminAwardCategories)
+	connect(mapStateToProps, { fetchGameListByYear, fetchTeam })(AdminAwardCategories)
 );

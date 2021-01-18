@@ -1,13 +1,15 @@
 import {
 	FETCH_GAMES,
-	FETCH_GAME_LIST,
+	FETCH_GAME_LIST_BY_IDS,
 	UPDATE_GAME,
 	DELETE_GAME,
 	SAVE_FAN_POTM_VOTE,
 	UPDATE_NEUTRAL_GAMES,
 	FETCH_GAME_YEARS,
 	ADD_GAME_SLUG,
-	FETCH_HOMEPAGE_GAMES
+	FETCH_HOMEPAGE_GAMES,
+	FETCH_GAME_LIST_BY_YEAR,
+	FETCH_ENTIRE_GAME_LIST
 } from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
@@ -44,7 +46,8 @@ export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {
 
 export const fetchGameYears = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/years`);
-	dispatch({ type: FETCH_GAME_YEARS, payload: res.data });
+	const yearsAsObject = _.fromPairs(res.data.map(year => [year, false]));
+	dispatch({ type: FETCH_GAME_YEARS, payload: yearsAsObject });
 };
 
 export const fetchHomePageGames = () => async (dispatch, getState, api) => {
@@ -87,9 +90,53 @@ export const reloadGames = (ids, dataLevel) => async (dispatch, getState, api) =
 	toast.success(`${ids.length} games refreshed`);
 };
 
-export const fetchGameList = () => async (dispatch, getState, api) => {
-	const res = await api.get(`/games`);
-	dispatch({ type: FETCH_GAME_LIST, payload: res.data });
+export const fetchEntireGameList = () => async (dispatch, getState, api) => {
+	const { gameList } = getState().games;
+	const res = await api.get(`/games/list?exclude=${Object.keys(gameList).join(",")}`);
+	dispatch({ type: FETCH_ENTIRE_GAME_LIST, payload: res.data });
+};
+
+export const fetchGameListByIds = ids => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/listByIds/${ids.join(",")}`);
+	dispatch({ type: FETCH_GAME_LIST_BY_IDS, payload: res.data });
+};
+
+export const fetchGameListByYear = year => async (dispatch, getState, api) => {
+	//Basic URL
+	let url = `/games/listByYear/${year}`;
+
+	//Get existing data
+	const { gameList, gameYears } = getState().games;
+
+	//Ensure we have a valid year
+	//Always allow fixtures
+	if (year !== "fixtures" && gameYears[year] === undefined) {
+		return false;
+	}
+
+	//Get Current IDs so we're not duplicating data
+	if (gameList) {
+		const gamesToExclude = _.filter(gameList, g => {
+			if (year === "fixtures") {
+				return g.date > new Date();
+			} else {
+				return (
+					//Exclude fixtures
+					g.date < new Date() &&
+					//Within the given year
+					g.date >= new Date(`${year}-01-01`) &&
+					g.date < new Date(`${Number(year) + 1}-01-01`)
+				);
+			}
+		}).map(g => g._id);
+
+		if (gamesToExclude.length) {
+			url += `?exclude=${gamesToExclude.join(",")}`;
+		}
+	}
+
+	const res = await api.get(url);
+	dispatch({ type: FETCH_GAME_LIST_BY_YEAR, payload: { games: res.data, year } });
 };
 
 export const createGame = values => async (dispatch, getState, api) => {
@@ -164,13 +211,13 @@ export const deleteGameEvent = (id, event, params) => async (dispatch, getState,
 };
 
 export const getPregameImage = (id, query = "") => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/${id}/images/pregame${query}`);
+	const res = await api.get(`/games/images/pregame/${id}${query}`);
 	return res.data;
 };
 
 export const getSquadImage = (id, showOpposition) => async (dispatch, getState, api) => {
 	const res = await api.get(
-		`/games/${id}/images/squad?showOpposition=${showOpposition.toString()}`
+		`/games/images/squad/${id}?showOpposition=${showOpposition.toString()}`
 	);
 	return res.data;
 };
@@ -199,13 +246,13 @@ export const previewFixtureListImage = (year, competitions, fixturesOnly) => asy
 	api
 ) => {
 	const res = await api.get(
-		`/games/fixtureListImage/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}`
+		`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}`
 	);
 	return res.data;
 };
 
 export const postFixtureListImage = data => async (dispatch, getState, api) => {
-	const res = await api.post("/games/fixtureListImage/", data);
+	const res = await api.post("/games/images/fixtureListImage/", data);
 	if (res.data) {
 		toast.success("Fixture Image posted");
 		return res.data;

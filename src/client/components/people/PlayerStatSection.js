@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 //Actions
-import { fetchGames, fetchGameList } from "../../actions/gamesActions";
+import { fetchGames, fetchGameListByIds } from "../../actions/gamesActions";
 
 //Helpers
 import { validateGameDate } from "~/helpers/gameHelper";
@@ -22,9 +22,10 @@ class PlayerStatSection extends Component {
 	constructor(props) {
 		super(props);
 
-		const { gameList, fetchGameList } = props;
-		if (!gameList) {
-			fetchGameList();
+		const { gameList, fetchGameListByIds, playedGames } = props;
+		const gamesToAddToList = playedGames.filter(id => !gameList[id]);
+		if (gamesToAddToList.length) {
+			fetchGameListByIds(gamesToAddToList);
 		}
 		this.state = {};
 	}
@@ -41,11 +42,14 @@ class PlayerStatSection extends Component {
 		} = nextProps;
 		const newState = { isLoading: false };
 
-		if (!gameList) {
+		//Ensure we have all games in gameList
+		const gamesNotInList = playedGames.filter(id => !gameList[id]);
+		if (gamesNotInList.length) {
 			newState.isLoading = true;
 			return newState;
 		}
 
+		//Determine whether or not to add "All" as a year
 		const allowAll = authUser && authUser.isAdmin;
 
 		//Get all active years
@@ -466,4 +470,4 @@ function mapStateToProps({ config, games, teams }) {
 	return { authUser, teamTypes, gameList, fullGames, localTeam };
 }
 
-export default connect(mapStateToProps, { fetchGames, fetchGameList })(PlayerStatSection);
+export default connect(mapStateToProps, { fetchGames, fetchGameListByIds })(PlayerStatSection);

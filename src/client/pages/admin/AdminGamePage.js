@@ -28,7 +28,7 @@ import AdminGamePostGame from "../../components/admin/games/AdminGamePostGame";
 import AdminGamePostGameEvents from "../../components/admin/games/AdminGamePostGameEvents";
 
 //Actions
-import { fetchGames, reloadGames, fetchGameList } from "../../actions/gamesActions";
+import { fetchGames, reloadGames, fetchGameListByYear } from "../../actions/gamesActions";
 
 //Helpers
 import { getLastGame, getNextGame, getScoreString } from "~/helpers/gameHelper";
@@ -36,29 +36,19 @@ import { getLastGame, getNextGame, getScoreString } from "~/helpers/gameHelper";
 class AdminGamePage extends Component {
 	constructor(props) {
 		super(props);
-		const { gameList, fetchGameList } = props;
-		if (!gameList) {
-			fetchGameList();
-		}
-
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { match, gameList, fullGames, fetchGames } = nextProps;
-		const newState = { isLoadingList: false };
+		const { match, fullGames, fetchGames, gameYears, fetchGameListByYear } = nextProps;
+		const newState = {};
 		const { _id } = match.params;
 
 		//Create or Edit
 		newState.isNew = !_id;
 
 		if (!newState.isNew) {
-			//Await Game List
-			if (!gameList) {
-				return { isLoadingList: true };
-			}
-
-			//Game is loaded, whether it exists or not
+			//Full Game is loaded, whether it exists or not
 			if (fullGames[_id] === false || (fullGames[_id] && fullGames[_id].adminData)) {
 				newState.game = fullGames[_id];
 				newState.isLoadingGame = false;
@@ -69,6 +59,30 @@ class AdminGamePage extends Component {
 				fetchGames([_id], "admin");
 				newState.game = undefined;
 				newState.isLoadingGame = true;
+			}
+
+			if (newState.game) {
+				//Once we have the game, we then get the gameList for adjacent links
+				//If it's the current year, we'll also want fixtures
+				const year = newState.game.date.getFullYear();
+
+				//First we set the value to false, and then override it if we're missing anything
+				newState.isLoadingList = false;
+				//The false check is essential here, that way we only call if there's any
+				//results in that year. This is useful when adding fixtures to a year that doesn't
+				//yet have results
+				if (!gameYears[year] === false) {
+					newState.isLoadingList = true;
+					if (!prevState.isLoadingList) {
+						fetchGameListByYear(year);
+					}
+				}
+				if (year === new Date().getFullYear() && !gameYears.fixtures) {
+					newState.isLoadingList = true;
+					if (!prevState.isLoadingList) {
+						fetchGameListByYear("fixtures");
+					}
+				}
 			}
 		}
 
@@ -105,8 +119,8 @@ class AdminGamePage extends Component {
 
 		//Get Next and Last links
 		const gameIds = {
-			last: getLastGame(game._id, gameList),
-			next: getNextGame(game._id, gameList)
+			last: getLastGame(game._id, gameList, true),
+			next: getNextGame(game._id, gameList, true)
 		};
 
 		//Convert to links
@@ -273,9 +287,11 @@ class AdminGamePage extends Component {
 }
 
 function mapStateToProps({ config, games, teams }) {
-	const { fullGames, gameList } = games;
+	const { fullGames, gameList, gameYears } = games;
 	const { fullTeams, teamTypes, teamList } = teams;
 	const { localTeam } = config;
-	return { localTeam, fullGames, teamList, gameList, teamTypes, fullTeams };
+	return { localTeam, fullGames, teamList, gameList, gameYears, teamTypes, fullTeams };
 }
-export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameList })(AdminGamePage);
+export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameListByYear })(
+	AdminGamePage
+);

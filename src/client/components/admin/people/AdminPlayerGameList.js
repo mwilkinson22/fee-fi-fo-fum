@@ -10,26 +10,31 @@ import PopUpDialog from "../../PopUpDialog";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { fetchGameList } from "~/client/actions/gamesActions";
+import { fetchGameListByIds } from "~/client/actions/gamesActions";
 
 class AdminPlayerGameList extends Component {
 	constructor(props) {
 		super(props);
 
-		const { gameList, fetchGameList } = props;
-		if (!gameList) {
-			fetchGameList();
+		const { gameList, fetchGameListByIds, playedGames } = props;
+
+		const gamesToLoad = playedGames.filter(({ _id }) => !gameList[_id]);
+
+		if (gamesToLoad.length) {
+			fetchGameListByIds(gamesToLoad.map(g => g._id));
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { gameList } = nextProps;
-		if (gameList) {
-			return { isLoading: false, gameList };
-		} else {
+		const { gameList, playedGames } = nextProps;
+		const missingGames = playedGames.filter(({ _id }) => !gameList[_id]);
+
+		if (missingGames.length) {
 			return { isLoading: true };
+		} else {
+			return { isLoading: false, gameList };
 		}
 	}
 
@@ -116,4 +121,4 @@ AdminPlayerGameList.propTypes = {
 	onDestroy: PropTypes.func.isRequired
 };
 
-export default connect(mapStateToProps, { fetchGameList })(AdminPlayerGameList);
+export default connect(mapStateToProps, { fetchGameListByIds })(AdminPlayerGameList);
