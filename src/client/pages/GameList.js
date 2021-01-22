@@ -68,10 +68,10 @@ class GameList extends Component {
 
 		//Update gameList for this year
 		if (!gameYears[newState.year]) {
-			if (!prevState.isLoadingList) {
+			if (prevState.isLoadingList !== newState.year) {
 				fetchGameListByYear(newState.year);
 			}
-			newState.isLoadingList = true;
+			newState.isLoadingList = newState.year;
 			return newState;
 		}
 		newState.isLoadingList = false;
@@ -139,12 +139,13 @@ class GameList extends Component {
 			return newState;
 		}
 
+		const gamesToLoadString = newState.year + newState.teamType._id;
 		if (!gamesToLoad.length) {
 			newState.games = _.map(gameIds, id => fullGames[id]);
 			newState.isLoadingGames = false;
-		} else if (!prevState.isLoadingGames) {
+		} else if (prevState.isLoadingGames !== gamesToLoadString) {
 			fetchGames(gamesToLoad);
-			newState.isLoadingGames = true;
+			newState.isLoadingGames = gamesToLoadString;
 			newState.games = undefined;
 		}
 
