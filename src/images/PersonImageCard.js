@@ -222,16 +222,16 @@ export default class PersonImageCard extends Canvas {
 		//Save time by pulling data from game, if possible
 		if (options.game) {
 			const { _team } = _.find(options.game.playerStats, ({ _player }) => _player._id == _id);
-			const { _player, number } = _.find(
+			const { name, images, number } = _.find(
 				options.game.eligiblePlayers[_team],
-				({ _player }) => _player._id == _id
+				player => player._id == _id
 			);
 			squadNumber = number;
-			firstName = _player.name.first;
-			lastName = _player.name.last;
-			if ((_player.images.player || _player.images.main) && _team == localTeam) {
+			firstName = name.first;
+			lastName = name.last;
+			if ((images.player || images.main) && _team == localTeam) {
 				image = await this.googleToCanvas(
-					`images/people/full/${_player.images.player || _player.images.main}`
+					`images/people/full/${images.player || images.main}`
 				);
 			}
 		} else {

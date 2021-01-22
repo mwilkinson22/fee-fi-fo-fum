@@ -41,7 +41,7 @@ class AdminGameSquads extends Component {
 		const pregameSquad = game.pregameSquads.find(({ _team }) => _team == team);
 
 		//Get the full list of eligible players
-		return game.eligiblePlayers[team].map(({ _player, number }) => {
+		return game.eligiblePlayers[team].map(_player => {
 			let showInDropdown;
 
 			//We only use a dropdown when pregame squads are used
@@ -56,7 +56,7 @@ class AdminGameSquads extends Component {
 
 			return {
 				_player,
-				number,
+				number: _player.number,
 				showInDropdown
 			};
 		});

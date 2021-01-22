@@ -111,10 +111,8 @@ class AdminGameEvent extends Component {
 		const players = _.chain(newState.game.playerStats)
 			.filter(p => p._team == localTeam)
 			.sortBy("position")
-			.map(
-				({ _player }) =>
-					newState.game.eligiblePlayers[localTeam].find(p => p._player._id == _player)
-						._player
+			.map(({ _player }) =>
+				newState.game.eligiblePlayers[localTeam].find(p => p._id == _player)
 			)
 			.value();
 		const twitterHandles = players

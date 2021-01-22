@@ -20,8 +20,8 @@ class GameStars extends Component {
 		return _.chain(game.playerStats)
 			.filter(p => p._team == localTeam)
 			.map(({ _player }) => {
-				const player = game.eligiblePlayers[localTeam].find(p => p._player._id == _player);
-				const values = getGameStarStats(game, player._player);
+				const player = game.eligiblePlayers[localTeam].find(p => p._id == _player);
+				const values = getGameStarStats(game, player);
 
 				if (values.length) {
 					return { id: _player, values, starPoints: _.sumBy(values, "starPoints") };
@@ -30,9 +30,7 @@ class GameStars extends Component {
 			.filter(_.identity)
 			.orderBy(["values.length", "starPoints"], ["desc", "desc"])
 			.map(({ id, values }) => {
-				const { _player, number } = game.eligiblePlayers[localTeam].find(
-					p => p._player._id == id
-				);
+				const player = game.eligiblePlayers[localTeam].find(p => p._id == id);
 
 				const rows = _.chain(values)
 					.sortBy("value")
@@ -63,8 +61,8 @@ class GameStars extends Component {
 
 				return (
 					<PersonCard
-						number={number}
-						person={_player}
+						number={player.number}
+						person={player}
 						personType={"player"}
 						key={id}
 						additionalData={<div className="game-star-stats">{rows}</div>}

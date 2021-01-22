@@ -67,7 +67,7 @@ class AdminGamePregameSquads extends Component {
 					//Otherwise we return the existing squad, filtered to
 					//ensure all values appear in eligiblePlayers
 					values = currentPregameSquad.squad.filter(id =>
-						game.eligiblePlayers[teamId].find(({ _player }) => _player._id == id)
+						game.eligiblePlayers[teamId].find(({ _id }) => _id == id)
 					);
 				}
 				return [teamId, values];

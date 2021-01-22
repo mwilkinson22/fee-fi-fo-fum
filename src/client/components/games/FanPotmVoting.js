@@ -78,9 +78,7 @@ class FanPotmVoting extends Component {
 		const { game, results, selectedPlayer, votingClosed } = this.state;
 
 		const players = game.fan_potm.options.map(id => {
-			const { number, _player } = game.eligiblePlayers[localTeam].find(
-				p => p._player._id == id
-			);
+			const { number, _player } = game.eligiblePlayers[localTeam].find(p => p._id == id);
 
 			let playerStatSection, playerResult;
 			if (votingClosed) {

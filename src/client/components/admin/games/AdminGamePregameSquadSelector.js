@@ -58,7 +58,7 @@ class AdminGamePregameSquadSelector extends Component {
 						if (team._id == localTeam && game.previousPregameSquad) {
 							//Check the last game has a squad for this team
 							const squadMembers = game.previousPregameSquad.filter(id =>
-								eligiblePlayers.find(({ _player }) => _player._id == id)
+								eligiblePlayers.find(({ _id }) => _id == id)
 							);
 
 							if (squadMembers && squadMembers.length) {
@@ -133,7 +133,7 @@ class AdminGamePregameSquadSelector extends Component {
 		const { eligiblePlayers } = this.state;
 
 		return eligiblePlayers.map(squadMember => {
-			const { _id, name } = squadMember._player;
+			const { _id, name, number } = squadMember;
 
 			//Handle Click Event
 			const currentIndex = form.values[team._id].indexOf(_id);
@@ -149,8 +149,8 @@ class AdminGamePregameSquadSelector extends Component {
 			const data = {
 				checkbox: currentIndex > -1 ? "✔" : " ",
 				number: {
-					content: squadMember.number || " ",
-					sortValue: squadMember.number || `${name.first} ${name.last}`
+					content: number || " ",
+					sortValue: number || `${name.first} ${name.last}`
 				},
 				first: name.first,
 				last: name.last

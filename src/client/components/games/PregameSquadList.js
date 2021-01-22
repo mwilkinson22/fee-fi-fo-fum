@@ -93,9 +93,9 @@ class PregameSquadList extends Component {
 			//Get Players
 			const squad = _.chain(squadObject.squad)
 				.map(p => {
-					const { _player, number } = _.find(
+					const { _id, name, number, slug } = _.find(
 						game.eligiblePlayers[team._id],
-						({ _player }) => _player._id == p
+						({ _id }) => _id == p
 					);
 
 					if (number) {
@@ -103,11 +103,11 @@ class PregameSquadList extends Component {
 					}
 
 					return {
-						id: _player._id,
-						name: `${_player.name.first} ${_player.name.last}`,
+						id: _id,
+						name: `${name.first} ${name.last}`,
 						number,
-						slug: _player.slug,
-						isNew: previousSquad && !previousSquad.find(id => id == _player._id)
+						slug: slug,
+						isNew: previousSquad && !previousSquad.find(id => id == _id)
 					};
 				})
 				.sortBy(p => p.number || 99999 + p.name)

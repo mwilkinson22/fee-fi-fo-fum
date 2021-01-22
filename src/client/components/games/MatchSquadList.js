@@ -47,14 +47,13 @@ class MatchSquadList extends Component {
 				let row = [];
 				squad.forEach(p => {
 					//Get Player Data
-					const { _player, number } = _.find(
+					const _player = _.find(
 						game.eligiblePlayers[team._id],
-						({ _player }) => _player._id == p._player
+						({ _id }) => _id == p._player
 					);
 					const { position } = p;
 					const player = {
 						_player,
-						number,
 						position
 					};
 
@@ -115,9 +114,8 @@ class MatchSquadList extends Component {
 		return <div className="team-blocks">{content}</div>;
 	}
 
-	renderPlayer(player, team) {
-		const { _player, position } = player;
-		const { _id, slug } = _player;
+	renderPlayer({ _player, position }, team) {
+		const { _id, name, slug, number } = _player;
 		const { localTeam } = this.props;
 		const { game } = this.state;
 
@@ -149,7 +147,7 @@ class MatchSquadList extends Component {
 			}
 		};
 
-		const content = [image, this.renderNameBar(_player.name.last, player.number, team)];
+		const content = [image, this.renderNameBar(name.last, number, team)];
 
 		//Add GameStar stats
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
@@ -195,32 +193,35 @@ class MatchSquadList extends Component {
 		const { coaches } = this.state.game;
 
 		if (coaches[team._id].length) {
-			const list = coaches[team._id].map(c => {
-				const { name } = c._person;
-				const role = coachTypes.find(({ key }) => key == c.role).name;
-				const content = (
-					<div className="person-wrapper">
-						{this.renderNameBar(`${name.first} ${name.last}`, role, team)}
-					</div>
-				);
-				const props = {
-					key: c._person._id,
-					className: `person-wrapper coach`,
-					style: {
-						background: "transparent",
-						color: team.colours.text
-					}
-				};
-				if (team._id == localTeam) {
-					return (
-						<Link to={`/coaches/${c._person.slug}`} {...props}>
-							{content}
-						</Link>
+			const list = _.chain(coaches[team._id])
+				.orderBy("role", "desc")
+				.map(coach => {
+					const { _id, name, slug } = coach;
+					const role = coachTypes.find(({ key }) => key == coach.role).name;
+					const content = (
+						<div className="person-wrapper">
+							{this.renderNameBar(`${name.first} ${name.last}`, role, team)}
+						</div>
 					);
-				} else {
-					return <div {...props}>{content}</div>;
-				}
-			});
+					const props = {
+						key: _id,
+						className: `person-wrapper coach`,
+						style: {
+							background: "transparent",
+							color: team.colours.text
+						}
+					};
+					if (team._id == localTeam) {
+						return (
+							<Link to={`/coaches/${slug}`} {...props}>
+								{content}
+							</Link>
+						);
+					} else {
+						return <div {...props}>{content}</div>;
+					}
+				})
+				.value();
 
 			return (
 				<div className="row extra" style={{ order: 1000 }}>

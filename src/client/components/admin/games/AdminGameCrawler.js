@@ -40,11 +40,7 @@ class AdminGameCrawler extends Component {
 			const unmatchedPlayers = _.chain(crawlData.playersToName)
 				.reject("matched")
 				.filter(p => p._team == teamId)
-				.map(
-					p =>
-						_.find(game.eligiblePlayers[teamId], e => e._player._id == p._id)._player
-							.name.full
-				)
+				.map(p => _.find(game.eligiblePlayers[teamId], e => e._id == p._id).name.full)
 				.value();
 			if (!scoreOnly && unmatchedPlayers.length) {
 				errors.push(
@@ -93,8 +89,7 @@ class AdminGameCrawler extends Component {
 				.filter(p => p._team == team)
 				.map(({ _id }) => ({
 					value: _id,
-					label: _.find(game.eligiblePlayers[team], p => p._player._id == _id)._player
-						.name.full
+					label: _.find(game.eligiblePlayers[team], p => p._id == _id)._player.name.full
 				}))
 				.sortBy("label")
 				.map(({ value, label }) => (
@@ -111,14 +106,11 @@ class AdminGameCrawler extends Component {
 			];
 
 			const playerRows = _.map(players, (player, name) => {
-				const match = _.find(
-					game.eligiblePlayers[team],
-					p => p._player._id == player._player
-				);
+				const match = _.find(game.eligiblePlayers[team], p => p._id == player._player);
 
 				let matchResult;
 				if (match) {
-					matchResult = `${player.match} match: ${match._player.name.full}`;
+					matchResult = `${player.match} match: ${match.name.full}`;
 				} else {
 					matchResult = (
 						<select

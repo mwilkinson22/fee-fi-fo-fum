@@ -270,7 +270,9 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 			switch (key) {
 				case "TS":
 					if (!values.find(v => v.key == "TK")) {
-						const { TK, MI } = game.playerStats.find(p => p._player == player.id).stats;
+						const { TK, MI } = game.playerStats.find(
+							p => p._player == player._id
+						).stats;
 						//Show Tackles
 						valueString = statToString(key, value) + ` (${TK}/${TK + MI})`;
 
@@ -321,14 +323,14 @@ export function convertTeamToSelect(
 	fromPregame = false
 ) {
 	function listToOptions(_player, team) {
-		const p = _.find(game.eligiblePlayers[team], p => _player == p._player._id);
+		const p = _.find(game.eligiblePlayers[team], p => _player == p._id);
 		const numberStr = p.number ? `${p.number}. ` : "";
-		const label = numberStr + p._player.name.full;
+		const label = numberStr + p.name.full;
 		return { label, value: _player };
 	}
 
 	function pregameSort(p, team) {
-		const player = _.find(game.eligiblePlayers[team], eP => eP._player._id == p);
+		const player = _.find(game.eligiblePlayers[team], eP => eP._id == p);
 		return player ? player.number : 999;
 	}
 

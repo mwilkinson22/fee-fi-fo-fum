@@ -47,7 +47,7 @@ class AdminGameEventList extends Component {
 		//Get Player
 		let player;
 		if (_player) {
-			player = _.find(playerList, p => p._player._id == _player)._player.name.full;
+			player = _.find(playerList, p => p._id == _player).name.full;
 		}
 
 		//Get Tweet Image

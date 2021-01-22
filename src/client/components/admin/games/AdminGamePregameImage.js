@@ -77,21 +77,15 @@ class AdminGamePregameImage extends Component {
 			//Generic Player List, for "highlight" menu
 			newState.options.players = _.chain(newState.currentLocalSquad.squad)
 				//Convert ID list to eligible player array
-				.map(id =>
-					newState.game.eligiblePlayers[localTeam].find(
-						({ _player }) => _player._id == id
-					)
-				)
+				.map(id => newState.game.eligiblePlayers[localTeam].find(({ _id }) => _id == id))
 				//Order
-				.sortBy(p => p.number || p._player.name.full)
+				.sortBy(p => p.number || p.name.full)
 				//Convert to dropdown object
-				.map(({ _player, number }) => ({
-					value: _player._id,
-					label: `${number ? `${number}. ` : ""} ${_player.name.full}`,
-					image: _player.images.player || _player.images.main,
-					isNew:
-						newState.lastLocalSquad &&
-						!newState.lastLocalSquad.find(_id => _id == _player._id)
+				.map(({ _id, images, name, number }) => ({
+					value: _id,
+					label: `${number ? `${number}. ` : ""} ${name.full}`,
+					image: images.player || images.main,
+					isNew: newState.lastLocalSquad && !newState.lastLocalSquad.find(id => id == _id)
 				}))
 				//Group By New Status
 				.groupBy(({ isNew }) => (isNew ? "New Players" : "All Players"))
@@ -116,14 +110,10 @@ class AdminGamePregameImage extends Component {
 			//Add player twitter handles
 			newState.twitterVariables = _.chain(newState.currentLocalSquad.squad)
 				//Convert ID list to eligible player array
-				.map(id =>
-					newState.game.eligiblePlayers[localTeam].find(
-						({ _player }) => _player._id == id
-					)
-				)
-				.filter(({ _player }) => _player.twitter)
-				.sortBy(p => p.number || p._player.name.full)
-				.map(({ _player }) => ({ label: _player.name.full, value: `@${_player.twitter}` }))
+				.map(id => newState.game.eligiblePlayers[localTeam].find(({ _id }) => _id == id))
+				.filter("twitter")
+				.sortBy(p => p.number || p.name.full)
+				.map(({ name, twitter }) => ({ label: name.full, value: `@${twitter}` }))
 				.value();
 		} else {
 			//This means we only have the opposition pregame squad
@@ -226,10 +216,7 @@ class AdminGamePregameImage extends Component {
 		//If this passes, we know that we've successfully loaded the
 		//local pregame squads for the current and previous games
 		if (options.players.length && options.players[0].isNew) {
-			const eligiblePlayers = _.keyBy(
-				game.eligiblePlayers[localTeam],
-				({ _player }) => _player._id
-			);
+			const eligiblePlayers = _.keyBy(game.eligiblePlayers[localTeam], "_id");
 
 			const getPlayerName = (player, useTwitter) => {
 				if (useTwitter && player.twitter) {
@@ -251,7 +238,7 @@ class AdminGamePregameImage extends Component {
 				.filter(
 					id => !currentLocalSquad.squad.find(cId => id == cId) && eligiblePlayers[id]
 				)
-				.map(id => getPlayerName(eligiblePlayers[id]._player, false));
+				.map(id => getPlayerName(eligiblePlayers[id], false));
 
 			if (outgoing.length) {
 				tweet += `⬅️ ${outgoing.join(", ")}\n`;
@@ -259,7 +246,7 @@ class AdminGamePregameImage extends Component {
 
 			//Get incoming players
 			const incoming = options.players[0].options
-				.map(({ value }) => eligiblePlayers[value]._player)
+				.map(({ value }) => eligiblePlayers[value])
 				.map(p => getPlayerName(p, true));
 
 			tweet += `➡️ ${incoming.join(", ")}`;

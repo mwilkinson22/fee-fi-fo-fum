@@ -365,10 +365,9 @@ class GamePage extends Component {
 			.orderBy(["isAway", "position"], ["asc", "asc"])
 			.map((p, sortValue) => {
 				const { _player, _team, stats } = p;
-				const player = eligiblePlayers[_team].find(p => p._player._id == _player);
+				const player = eligiblePlayers[_team].find(p => p._id == _player);
 
-				const { number } = player;
-				const { name, slug } = player._player;
+				const { number, name, slug } = player;
 
 				let first;
 				const firstContent = [

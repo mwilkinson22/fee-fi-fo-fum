@@ -144,17 +144,15 @@ class AdminGamePostGameEvents extends Component {
 			//Local Team players only
 			.filter(({ _team }) => _team == localTeam)
 			//Get eligiblePlayers entry
-			.map(({ _player }) =>
-				game.eligiblePlayers[localTeam].find(p => p._player._id == _player)
-			)
+			.map(({ _player }) => game.eligiblePlayers[localTeam].find(p => p._id == _player))
 			//Remove those without Twitter
-			.filter(({ _player }) => _player.twitter)
+			.filter("twitter")
 			//Sort
 			.sortBy(p => p.number || p.name.last)
 			//Convert to label/value pair
 			.map(p => ({
-				value: `@${p._player.twitter}`,
-				label: `${p.number ? `${p.number}. ` : ""} ${p._player.name.full}`
+				value: `@${p.twitter}`,
+				label: `${p.number ? `${p.number}. ` : ""} ${p.name.full}`
 			}))
 			.value();
 

@@ -15,7 +15,6 @@ import twitter from "~/services/twitter";
 //Constants
 const { fansCanAttend, localTeam } = require("~/config/keys");
 import gameEvents from "~/constants/gameEvents";
-import coachTypes from "~/constants/coachTypes";
 
 //Helpers
 import { getMainTeamType } from "~/controllers/rugby/teamsController";
@@ -109,55 +108,11 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		for (const game of games) {
 			delete game.pregameSquads;
 		}
+
 		return games;
 	}
-	//Work out required player fields
-	const playerSelect = [
-		"name",
-		"nickname",
-		"images.main",
-		"images.player",
-		"slug",
-		"gender",
-		"playingPositions"
-	];
-	let adminPlayerPopulate = {};
-	if (forAdmin) {
-		playerSelect.push(
-			"displayNicknameInCanvases",
-			"squadNameWhenDuplicate",
-			"_sponsor",
-			"twitter"
-		);
-		adminPlayerPopulate.populate = {
-			path: "_sponsor",
-			select: "name twitter"
-		};
-	}
 
-	//Get All Full Teams
-	const teamIds = [localTeam];
-
-	//Add opposition and shared squads
-	games.forEach(g => {
-		teamIds.push(g._opposition._id);
-
-		if (g.sharedSquads && Object.keys(g.sharedSquads).length) {
-			_.map(g.sharedSquads, teams => teamIds.push(...teams));
-		}
-	});
-
-	let teams = await Team.find({ _id: { $in: teamIds } }, "squads coaches")
-		.populate({
-			path: "squads.players._player",
-			select: playerSelect.join(" "),
-			...adminPlayerPopulate
-		})
-		.populate({ path: "coaches._person", select: "name slug" });
-
-	teams = _.keyBy(JSON.parse(JSON.stringify(teams)), "_id");
-
-	//Get team types
+	//Get all team types
 	let teamTypes;
 	const TeamType = mongoose.model("teamTypes");
 	const results = await TeamType.find({}, "_id gender");
@@ -167,94 +122,17 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 	const processedGames = [];
 	for (const g of games) {
 		const game = JSON.parse(JSON.stringify(g));
-		const date = new Date(game.date);
-		const year = date.getFullYear();
 
 		//Get gendered term for _____ of steel, of the match, etc
 		game.gender = teamTypes[game._teamType].gender;
 		game.genderedString = game.gender === "M" ? "Man" : "Woman";
 
-		//Get Coaches
-		game.coaches = _.chain([localTeam, game._opposition._id])
-			.map(id => [id, teams[id].coaches])
-			.fromPairs()
-			.mapValues(coaches => {
-				return _.chain(coaches)
-					.filter(c => {
-						return (
-							c._teamType.toString() == game._teamType.toString() &&
-							new Date(c.from) < date &&
-							(c.to == null || new Date(c.to) > date)
-						);
-					})
-					.orderBy(
-						[({ role }) => coachTypes.findIndex(({ key }) => role == key)],
-						["asc"]
-					)
-					.uniqBy("_person._id")
-					.map(({ _person, role }) => ({ _person, role }))
-					.value();
-			})
-			.value();
-
-		//Get Valid Team Types
-		const { useAllSquads } = game._competition._parentCompetition;
-		let validTeamTypes;
-		if (useAllSquads) {
-			validTeamTypes = _.filter(teamTypes, t => t.gender == game.gender).map(t =>
-				t._id.toString()
-			);
-		} else {
-			validTeamTypes = [game._teamType];
-		}
-
-		game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
-			//Loop local and opposition teams
-			.map(id => {
-				//Create an array with this team's id, plus
-				//the ids of any shared squads they might have
-				const teamsToCheck = [id];
-				if (game.sharedSquads && game.sharedSquads[id]) {
-					teamsToCheck.push(...game.sharedSquads[id]);
-				}
-
-				//Loop through the above array
-				const squad = _.chain(teamsToCheck)
-					.map(teamToCheck => {
-						//Get the team whose squad we'll be pulling
-						const team = teams[teamToCheck];
-
-						//Return any squads that match the year with an
-						//appropriate team type
-						return team.squads
-							.filter(
-								squad =>
-									squad.year == year &&
-									validTeamTypes.indexOf(squad._teamType.toString()) > -1
-							)
-							.map(s => s.players);
-					})
-					//At this stage we'll have nested values, so flatten
-					//them first to get a simple list of player objects
-					.flattenDeep()
-					//Remove duplicates
-					.uniqBy(p => p._player._id)
-					//Remove squad numbers where more than one squad is used
-					.map(p => {
-						if (teamsToCheck.length > 1 || validTeamTypes.length > 1) {
-							p.number = null;
-						}
-						return p;
-					})
-					.value();
-				return [id, squad];
-			})
-			.fromPairs()
-			.value();
+		//Get all eligible players and coaches
+		await getPlayersAndCoaches(game, forAdmin, teamTypes);
 
 		//Work out which players to highlight in the pregame squad
 		//First, check that the game actually uses them and that we need he inf
-		if (game.status === 1 || forAdmin) {
+		if (game._competition.instance.usesPregameSquads && (game.status === 1 || forAdmin)) {
 			//Get last game
 			const date = new Date(game.date);
 			const lastGame = await Game.findOne(
@@ -293,6 +171,286 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 	}
 
 	return processedGames;
+}
+
+async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
+	const { ObjectId } = mongoose.Types;
+
+	//Get Teams
+	const teamIds = [localTeam, game._opposition._id];
+
+	//Add shared squads if necessary
+	if (game.sharedSquads) {
+		const teamsToAdd = _.flatten(_.values(game.sharedSquads));
+		teamIds.push(...teamsToAdd);
+	}
+
+	//Create date object
+	const date = new Date(game.date);
+
+	//Conditionally work out teamTypes to include
+	let teamTypesToInclude = [game._teamType];
+	if (game._competition._parentCompetition.useAllSquads) {
+		const { gender } = teamTypes[game._teamType];
+		teamTypesToInclude = _.filter(teamTypes, t => t.gender == gender).map(t => t._id);
+	}
+
+	//Conditionally filter players by ID
+	let playersToInclude;
+	if (!forAdmin) {
+		//If game.status === 0, then we're expecting a pregame squad but don't have it yet.
+		if (game.status === 0) {
+			playersToInclude = [];
+		} else {
+			//If the comp uses pregame squads and we're past status 0,
+			//then we have pregame squads to add.
+			//We include the pregame squads in news previews so we need these players
+			//even once we hit status 2 & 3
+			if (game._competition.instance.usesPregameSquads) {
+				const { pregameSquads } = game;
+				if (pregameSquads && pregameSquads.length) {
+					playersToInclude = _.flatten(pregameSquads.map(s => s.squad));
+				}
+			}
+
+			//This means we have playerStats entries. Add those to the list
+			if (game.status > 1) {
+				//Ensure the array is initialised
+				if (!playersToInclude) {
+					playersToInclude = [];
+				}
+
+				const playersInSquads = game.playerStats.map(p => p._player);
+				playersToInclude.push(...playersInSquads);
+			}
+		}
+
+		//Finally, format the ids properly
+		if (playersToInclude) {
+			playersToInclude = _.uniq(playersToInclude).map(id => ObjectId(id));
+		}
+	}
+
+	//Handle squad, coach and player filters
+	//If we have no players to limit, playerFilter remains an empty array, and
+	//the mongodb $and operator will return true - i.e. there will be no filtering
+	const squadFilter = [
+		{
+			$eq: ["$$squad.year", date.getFullYear()]
+		},
+		{
+			$in: ["$$squad._teamType", teamTypesToInclude.map(id => ObjectId(id))]
+		}
+	];
+	const coachFilter = [
+		{
+			$eq: ["$$coach._teamType", ObjectId(game._teamType)]
+		},
+		{
+			$lte: ["$$coach.from", date]
+		},
+		{
+			$or: [
+				{
+					$eq: ["$$coach.to", null]
+				},
+				{
+					$gte: ["$$coach.to", date]
+				}
+			]
+		}
+	];
+	const playerFilter = [];
+	if (playersToInclude) {
+		playerFilter.push({ $in: ["$$p._player", playersToInclude] });
+	}
+
+	//Work out projection fields for players
+	const playerProjection = {
+		_id: 1,
+		name: 1,
+		nickname: 1,
+		images: {
+			main: 1,
+			player: 1
+		},
+		slug: 1,
+		gender: 1,
+		playingPositions: 1
+	};
+	if (forAdmin) {
+		Object.assign(playerProjection, {
+			displayNicknameInCanvases: 1,
+			squadNameWhenDuplicate: 1,
+			_sponsor: 1,
+			twitter: 1
+		});
+	}
+
+	if (forAdmin) {
+		let adminPlayerPopulate = {};
+		adminPlayerPopulate.populate = {
+			path: "_sponsor",
+			select: "name twitter"
+		};
+	}
+
+	const playersAndCoaches = await Team.aggregate([
+		{
+			$match: { _id: { $in: teamIds.map(id => ObjectId(id)) } }
+		},
+		//For each team, filter squads and coaches by the conditions declared above
+		//
+		//Coaches will always be filtered by team type and date.
+		//
+		//Squads will be filtered by year and team type
+		{
+			$project: {
+				squads: {
+					$filter: {
+						input: "$squads",
+						as: "squad",
+						cond: {
+							$and: squadFilter
+						}
+					}
+				},
+				coaches: {
+					$filter: {
+						input: "$coaches",
+						as: "coach",
+						cond: {
+							$and: coachFilter
+						}
+					}
+				}
+			}
+		},
+		//Pull the players and unwind so we can have a single array
+		{
+			$addFields: {
+				players: "$squads.players"
+			}
+		},
+		{
+			$unwind: {
+				path: "$players",
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		//Filter players by id
+		{
+			$addFields: {
+				players: {
+					$filter: {
+						input: "$players",
+						as: "p",
+						cond: {
+							$and: playerFilter
+						}
+					}
+				}
+			}
+		},
+		//Lookup the player data and save it to a "players" array
+		{
+			$lookup: {
+				from: "people",
+				localField: "players._player",
+				foreignField: "_id",
+				as: "playerInfo"
+			}
+		},
+		//Lookup coach data and save it to a "coach_info" array
+		{
+			$lookup: {
+				from: "people",
+				localField: "coaches._person",
+				foreignField: "_id",
+				as: "coachInfo"
+			}
+		},
+		//Reduce the playerInfo and coachInfo data to just the values we need
+		{
+			$project: {
+				coaches: 1,
+				players: 1,
+				playerInfo: playerProjection,
+				coachInfo: { name: 1, slug: 1, _id: 1 }
+			}
+		},
+		//Merge the lookup data into the main arrays
+		{
+			$project: {
+				players: {
+					$map: {
+						input: "$players",
+						in: {
+							$mergeObjects: [
+								{ number: "$$this.number" },
+								{
+									$arrayElemAt: [
+										"$playerInfo",
+										{ $indexOfArray: ["$playerInfo._id", "$$this._player"] }
+									]
+								}
+							]
+						}
+					}
+				},
+				coaches: {
+					$map: {
+						input: "$coaches",
+						in: {
+							$mergeObjects: [
+								{ role: "$$this.role" },
+								{
+									$arrayElemAt: [
+										"$coachInfo",
+										{ $indexOfArray: ["$coachInfo._id", "$$this._person"] }
+									]
+								}
+							]
+						}
+					}
+				}
+			}
+		}
+	]);
+
+	game.eligiblePlayers = _.chain([localTeam, game._opposition._id])
+		.map(teamId => {
+			//Work out teams we need to pull players for
+			const teams = [teamId];
+
+			//Add shared squads
+			if (game.sharedSquads && game.sharedSquads[teamId]) {
+				teams.push(...game.sharedSquads[teamId]);
+			}
+
+			const players = _.chain(playersAndCoaches)
+				.filter(({ _id }) => teams.find(t => t == _id))
+				.map(s => s.players)
+				.flatten()
+				.filter(_.identity)
+				.each(({ name }) => (name.full = `${name.first} ${name.last}`))
+				.value();
+
+			return [teamId, players];
+		})
+		.fromPairs()
+		.value();
+
+	game.coaches = _.chain([localTeam, game._opposition._id])
+		.map(teamId => {
+			const { coaches } = playersAndCoaches.find(({ _id }) => _id.toString() == teamId);
+			coaches.forEach(({ name }) => (name.full = `${name.first} ${name.last}`));
+			return [teamId, coaches];
+		})
+		.fromPairs()
+		.value();
+
+	return playersAndCoaches;
 }
 
 async function getTeamForm(game, gameLimit, allCompetitions) {
@@ -1076,10 +1234,8 @@ async function generateSquadImage(game, showOpposition, siteUrl) {
 		.sortBy("position")
 		//Get data from eligible players
 		.map(({ _player }) =>
-			gameWithSquads.eligiblePlayers[teamToMatch].find(ep => ep._player._id == _player._id)
+			gameWithSquads.eligiblePlayers[teamToMatch].find(ep => ep._id == _player._id)
 		)
-		//Pull off number and player data
-		.map(({ _player, number }) => ({ number, ..._player }))
 		.value();
 
 	return new SquadImage(players, { game: gameWithSquads, showOpposition, siteUrl });
@@ -1597,7 +1753,7 @@ export async function saveFanPotmVote(req, res) {
 export async function getTeamSelectorValues(_id, res) {
 	//Load the game
 	const basicGame = await validateGame(_id, res, Game.findById(_id).fullGame(true, false));
-	const [game] = await getExtraGameInfo([basicGame], true, false);
+	const [game] = await getExtraGameInfo([basicGame], true, true);
 	game.date = new Date(game.date);
 
 	//Load team type
@@ -1626,14 +1782,10 @@ export async function getTeamSelectorValues(_id, res) {
 	if (game._competition.instance.usesPregameSquads) {
 		const pregameSquad = game.pregameSquads.find(({ _team }) => _team == localTeam);
 		if (pregameSquad && pregameSquad.squad) {
-			players = players.filter(({ _player }) =>
-				pregameSquad.squad.find(p => p == _player._id)
-			);
+			players = players.filter(({ _id }) => pregameSquad.squad.find(p => p == _id));
 		}
 	}
-	values.players = players.map(({ _player }) =>
-		_.pick(_player, ["_id", "name", "playingPositions"])
-	);
+	values.players = players.map(p => _.pick(p, ["_id", "name", "playingPositions"]));
 
 	//Add squad for numbers
 	const correspondingSquad = team.squads.find(

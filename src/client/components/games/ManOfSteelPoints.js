@@ -26,10 +26,10 @@ class ManOfSteelPoints extends Component {
 		newState.players = _.chain(eligiblePlayers)
 			.map((players, _team) => {
 				return players
-					.filter(p => manOfSteel.find(m => m._player == p._player._id))
+					.filter(p => manOfSteel.find(m => m._player == p._id))
 					.map(p => ({
 						_team,
-						points: manOfSteel.find(m => m._player == p._player._id).points,
+						points: manOfSteel.find(m => m._player == p._id).points,
 						...p
 					}));
 			})
@@ -39,10 +39,7 @@ class ManOfSteelPoints extends Component {
 
 		//Get Player For Image
 		const localPlayers = newState.players.filter(
-			p =>
-				p._team == localTeam &&
-				p._player.images &&
-				(p._player.images.main || p._player.images.player)
+			p => p._team == localTeam && p.images && (p.images.main || p.images.player)
 		);
 		if (localPlayers.length) {
 			newState.playerForImage = localPlayers[0]._player;
@@ -54,14 +51,14 @@ class ManOfSteelPoints extends Component {
 		return newState;
 	}
 
-	renderRow(p) {
+	renderRow(player) {
 		const { localTeam, teamList, game } = this.props;
-		const { colours } = teamList[p._team];
+		const { colours } = teamList[player._team];
 
 		//Set Content Array, start with # of points
 		const content = [
 			<div
-				key={p._id + "pts"}
+				key={player._id + "pts"}
 				style={{
 					background: colours.main,
 					color: colours.text,
@@ -69,23 +66,23 @@ class ManOfSteelPoints extends Component {
 				}}
 				className="points"
 			>
-				{p.points}
+				{player.points}
 			</div>
 		];
 
 		//Create Props for main column
 		const mainProps = {
-			key: p._id,
+			key: player._id,
 			style: {
 				background: colours.main,
 				color: colours.text
 			},
-			children: [<span key={p._id + "name"}>{p._player.name.full}</span>]
+			children: [<span key={player._id + "name"}>{player.name.full}</span>]
 		};
 
 		//Check for Gamestar stats, and add to mainProps.children if necessary
 		if (!game._competition.instance.scoreOnly && game.status === 3) {
-			const gameStarStats = getGameStarStats(game, p._player, {
+			const gameStarStats = getGameStarStats(game, player, {
 				T: 1,
 				G: 1,
 				DG: 1,
@@ -107,8 +104,8 @@ class ManOfSteelPoints extends Component {
 		}
 
 		//Push main column to content array
-		if (p._team == localTeam) {
-			content.push(<Link to={`/players/${p._player.slug}`} {...mainProps} />);
+		if (player._team == localTeam) {
+			content.push(<Link to={`/players/${player.slug}`} {...mainProps} />);
 		} else {
 			content.push(<div {...mainProps} />);
 		}

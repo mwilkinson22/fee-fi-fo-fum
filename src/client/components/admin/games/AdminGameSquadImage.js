@@ -70,12 +70,12 @@ class AdminGameSquadImage extends Component {
 			//Convert ID list to eligible player array
 			.map(({ _player }) =>
 				newState.game.eligiblePlayers[localTeam].find(
-					eligiblePlayer => eligiblePlayer._player._id == _player
+					eligiblePlayer => eligiblePlayer._id == _player
 				)
 			)
-			.filter(({ _player }) => _player.twitter)
-			.sortBy(p => p.number || p._player.name.full)
-			.map(({ _player }) => ({ label: _player.name.full, value: `@${_player.twitter}` }))
+			.filter("twitter")
+			.sortBy(p => p.number || p.name.full)
+			.map(({ name, twitter }) => ({ label: name.full, value: `@${twitter}` }))
 			.value();
 
 		//Validation Schema

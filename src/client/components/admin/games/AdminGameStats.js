@@ -56,9 +56,7 @@ class AdminGameStats extends Component {
 		const validationSchema = _.chain(newState.game.playerStats)
 			//Loop through players
 			.map(({ _player, _team }) => {
-				const { name } = newState.game.eligiblePlayers[_team].find(
-					p => p._player._id == _player
-				)._player;
+				const { name } = newState.game.eligiblePlayers[_team].find(p => p._id == _player);
 				//Loop through stats
 				const playerValidation = _.mapValues(newState.statTypes, statType =>
 					Yup.mixed()
@@ -160,13 +158,11 @@ class AdminGameStats extends Component {
 			.sortBy("position")
 			.map(p => {
 				//Get Player Info
-				const { _player, number } = game.eligiblePlayers[team].find(
-					({ _player }) => _player._id == p._player
-				);
+				const player = game.eligiblePlayers[team].find(({ _id }) => _id == p._player);
 
 				//Create Name Cell
 				const name = {
-					content: (number ? `${number}. ` : "") + _player.name.full,
+					content: (player.number ? `${player.number}. ` : "") + player.name.full,
 					sortValue: p.position
 				};
 
@@ -179,9 +175,9 @@ class AdminGameStats extends Component {
 					const error = errors && errors[key];
 
 					return renderInput({
-						name: `${_player._id}.${key}`,
+						name: `${player._id}.${key}`,
 						type: fieldTypes.number,
-						title: error || `${_player.name.full} ${playerStatTypes[key].plural}`,
+						title: error || `${player.name.full} ${playerStatTypes[key].plural}`,
 						className: error ? "error" : ""
 					});
 				});

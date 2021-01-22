@@ -231,7 +231,7 @@ export default class MultiplePlayerStats extends Canvas {
 		const eligiblePlayers = _.chain(game.eligiblePlayers)
 			.values()
 			.flatten()
-			.keyBy(({ _player }) => _player._id)
+			.keyBy("_id")
 			.value();
 
 		for (let { _player, stats } of players) {
@@ -248,11 +248,10 @@ export default class MultiplePlayerStats extends Canvas {
 			ctx.fillStyle = "#EEEEEE";
 			ctx.fillRect(x, y, width, imageBoxHeight);
 
-			//Get Player Object
-			const player = eligiblePlayers[_player];
+			//Get Player Data
+			const { images, gender, name, number } = eligiblePlayers[_player];
 
 			//Get Image
-			const { images, gender, name } = player._player;
 			const { _team } = game.playerStats.find(p => p._player._id == _player);
 			if (_team == localTeam) {
 				const image = await this.googleToCanvas(
@@ -278,9 +277,9 @@ export default class MultiplePlayerStats extends Canvas {
 
 			//Add name & number
 			const firstNameRow = [];
-			if (player.number) {
+			if (number) {
 				firstNameRow.push({
-					text: `${player.number}. `,
+					text: `${number}. `,
 					font: textStyles.number.string,
 					colour: colours.lightClaret
 				});

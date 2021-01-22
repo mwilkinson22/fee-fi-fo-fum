@@ -12,10 +12,7 @@ function getTeamList(game, team) {
 		const { squad } = result;
 		return _.chain(squad)
 			.map(player => {
-				const squadEntry = _.find(
-					eligiblePlayers[team._id],
-					m => m._player._id == player._id
-				);
+				const squadEntry = _.find(eligiblePlayers[team._id], m => m._id == player._id);
 				return {
 					...player,
 					number: squadEntry ? squadEntry.number : null

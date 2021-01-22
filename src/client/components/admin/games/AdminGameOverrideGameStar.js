@@ -50,11 +50,11 @@ class AdminGameOverrideGameStar extends Component {
 					.map(id => {
 						//Get eligible player
 						const eligiblePlayer = newState.game.eligiblePlayers[team].find(
-							({ _player }) => _player._id == id
+							({ _id }) => _id == id
 						);
 
 						//Format Label
-						let label = eligiblePlayer._player.name.full;
+						let label = eligiblePlayer.name.full;
 						if (eligiblePlayer.number) {
 							label = `${eligiblePlayer.number}. ${label}`;
 						}

@@ -60,15 +60,15 @@ class GameEvents extends Component {
 					const players = stats[team._id] || [];
 					const playerElements = _.chain(players)
 						.map(({ _player, total }) => {
-							const p = _.find(
+							const { name, slug, number } = _.find(
 								game.eligiblePlayers[team._id],
-								p => p._player._id == _player
+								p => p._id == _player
 							);
 							return {
 								id: _player,
-								name: p._player.name.full,
-								slug: p._player.slug,
-								number: p.number,
+								name: name.full,
+								slug: slug,
+								number: number,
 								total
 							};
 						})

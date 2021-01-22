@@ -212,19 +212,17 @@ export default class GameEventImage extends Canvas {
 
 		//Get Player
 		const { _team } = _.find(game.playerStats, ({ _player }) => _player._id == player);
-		const { number, _player } = game.eligiblePlayers[_team].find(
-			({ _player }) => _player._id == player
-		);
+		const { number, name } = game.eligiblePlayers[_team].find(({ _id }) => _id == player);
 
 		//Add player name
 		const textRow = [
 			{
-				text: `${_player.name.first.toUpperCase()} `,
+				text: `${name.first.toUpperCase()} `,
 				font: textStyles.playerName.string,
 				colour: colours.white
 			},
 			{
-				text: _player.name.last.toUpperCase(),
+				text: name.last.toUpperCase(),
 				font: textStyles.playerName.string,
 				colour: colours.gold
 			}
