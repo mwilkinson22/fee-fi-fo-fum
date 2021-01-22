@@ -78,7 +78,8 @@ class FanPotmVoting extends Component {
 		const { game, results, selectedPlayer, votingClosed } = this.state;
 
 		const players = game.fan_potm.options.map(id => {
-			const { number, _player } = game.eligiblePlayers[localTeam].find(p => p._id == id);
+			const player = game.eligiblePlayers[localTeam].find(p => p._id == id);
+			const { number, name } = player;
 
 			let playerStatSection, playerResult;
 			if (votingClosed) {
@@ -90,6 +91,7 @@ class FanPotmVoting extends Component {
 				if (game.fan_potm_winners && game.fan_potm_winners.find(winner => winner == id)) {
 					winningStar = "★ ";
 				}
+
 				playerResult = (
 					<div className="result">
 						{winningStar}
@@ -98,7 +100,7 @@ class FanPotmVoting extends Component {
 					</div>
 				);
 			} else {
-				const stats = getGameStarStats(game, _player, {
+				const stats = getGameStarStats(game, player, {
 					T: 1,
 					G: 1,
 					DG: 1,
@@ -132,13 +134,13 @@ class FanPotmVoting extends Component {
 					}}
 				>
 					<div className="image">
-						<PersonImage person={_player} variant="player" size="medium" />
+						<PersonImage person={player} variant="player" size="medium" />
 					</div>
 					<div className="details">
 						<h6>
 							{number ? <span>{number}. </span> : ""}
-							{_player.name.first}
-							<span className="last-name">{_player.name.last}</span>
+							{name.first}
+							<span className="last-name">{name.last}</span>
 						</h6>
 						{playerStatSection}
 						{playerResult}
