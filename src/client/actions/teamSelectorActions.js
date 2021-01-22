@@ -3,7 +3,9 @@ import { toast } from "react-toastify";
 
 export const fetchTeamSelector = id => async (dispatch, getState, api) => {
 	const res = await api.get(`/teamSelectors/${id}`);
-	dispatch({ type: FETCH_TEAM_SELECTOR, payload: res.data });
+	if (res.data) {
+		dispatch({ type: FETCH_TEAM_SELECTOR, payload: res.data });
+	}
 };
 
 export const fetchTeamSelectorForGame = id => async (dispatch, getState, api) => {
