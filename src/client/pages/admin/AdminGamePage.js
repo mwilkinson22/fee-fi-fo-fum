@@ -71,7 +71,7 @@ class AdminGamePage extends Component {
 				//The false check is essential here, that way we only call if there's any
 				//results in that year. This is useful when adding fixtures to a year that doesn't
 				//yet have results
-				if (!gameYears[year] === false) {
+				if (gameYears[year] === false) {
 					newState.isLoadingList = true;
 					if (!prevState.isLoadingList) {
 						fetchGameListByYear(year);
