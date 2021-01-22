@@ -8,6 +8,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
 import getGameVirtuals from "./gameVirtuals";
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
 
 //Schema
 const gameSchema = new Schema(
@@ -163,6 +164,9 @@ const gameSchema = new Schema(
 		}
 	}
 );
+
+//Middleware
+mongooseDebug(gameSchema);
 
 //Virtuals
 getGameVirtuals(gameSchema);

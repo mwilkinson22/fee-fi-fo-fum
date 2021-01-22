@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -7,5 +9,7 @@ const sponsorSchema = new Schema({
 	twitter: { type: String, default: null },
 	image: { type: String, default: null }
 });
+
+mongooseDebug(sponsorSchema);
 
 mongoose.model("sponsors", sponsorSchema);

@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -8,5 +10,7 @@ const teamTypeSchema = new Schema({
 	sortOrder: { type: Number, required: true },
 	localTeamExternalId: { type: Number }
 });
+
+mongooseDebug(teamTypeSchema);
 
 mongoose.model("teamTypes", teamTypeSchema);

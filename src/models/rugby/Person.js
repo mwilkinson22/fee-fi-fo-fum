@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const playerStatsCollectionSchema = require("./PlayerStatsCollection");
@@ -84,6 +86,8 @@ const personSchema = new Schema(
 		}
 	}
 );
+
+mongooseDebug(personSchema);
 
 personSchema.statics.generateSlug = async function(firstName, lastName) {
 	const coreSlugText = (firstName + " " + lastName)

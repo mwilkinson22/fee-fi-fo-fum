@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const AddressSchema = require("./Address");
@@ -26,5 +28,7 @@ groundSchema.query.forList = function() {
 		}
 	});
 };
+
+mongooseDebug(groundSchema);
 
 mongoose.model("grounds", groundSchema);

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
 
 const addressSchema = new Schema({
 	street: { type: String, required: true },
@@ -8,5 +9,7 @@ const addressSchema = new Schema({
 	postcode: { type: String, required: true },
 	googlePlaceId: { type: String, required: true }
 });
+
+mongooseDebug(addressSchema);
 
 module.exports = addressSchema;

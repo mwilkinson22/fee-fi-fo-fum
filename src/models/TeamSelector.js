@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -23,5 +25,7 @@ const teamSelectorSchema = new Schema({
 		default: []
 	}
 });
+
+mongooseDebug(teamSelectorSchema);
 
 mongoose.model("teamSelectors", teamSelectorSchema);

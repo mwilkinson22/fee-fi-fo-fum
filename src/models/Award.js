@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -32,5 +34,7 @@ const awardSchema = new Schema({
 		}
 	]
 });
+
+mongooseDebug(awardSchema);
 
 mongoose.model("awards", awardSchema);

@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const competitionTypes = require("../../constants/competitionTypes");
@@ -75,6 +77,8 @@ const competitionSegmentSchema = new Schema(
 		toJSON: { virtuals: true }
 	}
 );
+
+mongooseDebug(competitionSegmentSchema);
 
 competitionSegmentSchema.virtual("basicTitle").get(function() {
 	if (!this._parentCompetition || !this._parentCompetition.name) {

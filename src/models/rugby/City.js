@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -38,6 +40,8 @@ citySchema.statics.generateSlug = async function({ name, _country }) {
 		return slug;
 	}
 };
+
+mongooseDebug(citySchema);
 
 citySchema.query.populated = function() {
 	return this.populate({

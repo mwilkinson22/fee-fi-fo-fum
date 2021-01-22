@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const _ = require("lodash");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
@@ -10,5 +12,7 @@ const playerStatsCollectionSchema = new Schema(
 		return { type: Number, default: defaultZero.indexOf(key) === -1 ? null : 0 };
 	})
 );
+
+mongooseDebug(playerStatsCollectionSchema);
 
 module.exports = playerStatsCollectionSchema;

@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -32,5 +34,7 @@ countrySchema.statics.generateSlug = async function(name) {
 		return slug;
 	}
 };
+
+mongooseDebug(countrySchema);
 
 mongoose.model("countries", countrySchema);

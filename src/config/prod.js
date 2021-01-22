@@ -15,6 +15,7 @@ module.exports = {
 	},
 	googleBucketName: process.env.GOOGLE_BUCKET,
 	googleMapsKey: process.env.GOOGLE_MAPS,
+	logMongooseTimings: process.env.LOG_MONGOOSE == "1",
 	mainColour: process.env.MAIN_COLOUR,
 	mainCompetitionSegment: process.env.MAIN_COMPETITION,
 	mongoURI: process.env.MONGO_URI,

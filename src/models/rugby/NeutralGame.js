@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -12,5 +14,7 @@ const neutralGameSchema = new Schema({
 	externalId: { type: Number, default: null },
 	externalSync: { type: Boolean, default: false }
 });
+
+mongooseDebug(neutralGameSchema);
 
 mongoose.model("neutralGames", neutralGameSchema);

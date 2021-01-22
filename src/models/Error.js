@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -13,5 +15,7 @@ const errorSchema = new Schema({
 	file: { type: String },
 	archived: { type: Boolean, default: false }
 });
+
+mongooseDebug(errorSchema);
 
 mongoose.model("errors", errorSchema);

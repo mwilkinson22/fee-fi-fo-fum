@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const competitionTypes = require("../../constants/competitionTypes");
@@ -13,4 +15,5 @@ const competitionSchema = new Schema({
 	webcrawlReportPage: { type: String, default: null }
 });
 
+mongooseDebug(competitionSchema);
 mongoose.model("competitions", competitionSchema);

@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const _ = require("lodash");
@@ -21,6 +23,8 @@ const newsPostSchema = new Schema({
 	tags: { type: [String], default: [] },
 	slug: { type: String, unique: true, required: true }
 });
+
+mongooseDebug(newsPostSchema);
 
 newsPostSchema.query.forList = function() {
 	return this.select({

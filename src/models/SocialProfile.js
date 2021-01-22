@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -10,5 +12,7 @@ const socialProfileSchema = new Schema({
 	iftttKey: { type: String, required: true },
 	archived: { type: Boolean, default: false }
 });
+
+mongooseDebug(socialProfileSchema);
 
 mongoose.model("socialProfiles", socialProfileSchema);

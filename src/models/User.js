@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const bcrypt = require("bcryptjs");
@@ -26,6 +28,8 @@ const userSchema = new Schema(
 		}
 	}
 );
+
+mongooseDebug(userSchema);
 
 userSchema.virtual("name.full").get(function() {
 	return this.name.first + " " + this.name.last;

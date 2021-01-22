@@ -1,3 +1,5 @@
+const { mongooseDebug } = require("~/middlewares/mongooseDebug");
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 import coachTypes from "~/constants/coachTypes";
@@ -76,6 +78,8 @@ const teamSchema = new Schema({
 		}
 	]
 });
+
+mongooseDebug(teamSchema);
 
 teamSchema.query.forList = function() {
 	return this.select("name colours images");
