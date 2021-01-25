@@ -2,6 +2,7 @@ import {
 	FETCH_ALL_TEAM_TYPES,
 	FETCH_ALL_TEAMS,
 	FETCH_TEAM,
+	FETCH_UPDATED_TEAM,
 	SET_ACTIVE_TEAM_TYPE,
 	FETCH_TEAM_TYPE,
 	DELETE_TEAM_TYPE,
@@ -10,7 +11,16 @@ import {
 
 export default function(state = { fullTeams: {} }, action) {
 	switch (action.type) {
-		case FETCH_TEAM:
+		case FETCH_TEAM: {
+			return {
+				...state,
+				fullTeams: {
+					...state.fullTeams,
+					[action.payload._id]: action.payload
+				}
+			};
+		}
+		case FETCH_UPDATED_TEAM:
 			return {
 				...state,
 				fullTeams: {

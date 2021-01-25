@@ -49,6 +49,7 @@ export const FETCH_ALL_TEAMS = "fetch_all_teams";
 export const FETCH_ALL_TEAM_TYPES = "fetch_all_team_types";
 export const SET_ACTIVE_TEAM_TYPE = "set_active_team_type";
 export const FETCH_TEAM = "fetch_team";
+export const FETCH_UPDATED_TEAM = "fetch_updated_team";
 export const DELETE_TEAM = "delete_team";
 export const FETCH_TEAM_TYPE = "fetch_team_type";
 export const DELETE_TEAM_TYPE = "delete_team_type";

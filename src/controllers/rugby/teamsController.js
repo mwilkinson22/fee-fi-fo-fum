@@ -157,9 +157,9 @@ export async function getFullTeam(req, res) {
 
 async function getTeam(req, res, fullData) {
 	const { _id } = req.params;
-	const team = await validateTeam(_id, res, Team.findById(_id).fullTeam());
+	const team = await validateTeam(_id, res, Team.findById(_id).fullTeam(fullData));
 	if (team) {
-		await getUpdatedTeam(_id, res, fullData);
+		res.send(team);
 	}
 }
 
