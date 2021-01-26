@@ -757,6 +757,63 @@ export async function getHomePageGames(req, res) {
 	await getGames(req, res, false, false);
 }
 
+export async function getGamesByAggregate(match) {
+	return Game.aggregate([
+		{
+			$match: match
+		},
+		//Create individual documents for each playerStats entry
+		{
+			$unwind: "$playerStats"
+		},
+		//Convert each playerStats entry to a score
+		{
+			$addFields: {
+				score: {
+					$sum: [
+						{ $multiply: ["$playerStats.stats.T", 4] },
+						{ $multiply: ["$playerStats.stats.CN", 2] },
+						{ $multiply: ["$playerStats.stats.PK", 2] },
+						"$playerStats.stats.DG"
+					]
+				}
+			}
+		},
+		//Group by game id and player team
+		{
+			$group: {
+				_id: { $concat: [{ $toString: "$_id" }, { $toString: "$playerStats._team" }] },
+				gameId: { $first: "$_id" },
+				isAway: { $first: "$isAway" },
+				_team: { $first: "$playerStats._team" },
+				score: {
+					$sum: "$score"
+				}
+			}
+		},
+		//Group again to have a single document for each game
+		{
+			$group: {
+				_id: "$gameId",
+				isAway: { $first: "$isAway" },
+				slug: { $first: "$slug" },
+				score: {
+					$push: {
+						k: { $toString: "$_team" },
+						v: "$score"
+					}
+				}
+			}
+		},
+		//Convert the score array to an object
+		{
+			$addFields: {
+				score: { $arrayToObject: "$score" }
+			}
+		}
+	]);
+}
+
 //Create New Games
 export async function addGame(req, res) {
 	const values = await processGround(req.body);

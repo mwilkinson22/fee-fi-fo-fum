@@ -60,22 +60,26 @@ function getHashtags(doc) {
 	return hashtags;
 }
 
+export function convertPlayerStatsToScore(playerStats) {
+	return _.chain(playerStats)
+		.groupBy("_team")
+		.mapValues(statSet => {
+			const tries = _.sumBy(statSet, "stats.T");
+			const conversions = _.sumBy(statSet, "stats.CN");
+			const pens = _.sumBy(statSet, "stats.PK");
+			const dropgoals = _.sumBy(statSet, "stats.DG");
+			return tries * 4 + conversions * 2 + pens * 2 + dropgoals;
+		})
+		.value();
+}
+
 //Apply Virtuals
 export default gameSchema => {
 	gameSchema.virtual("score").get(function() {
 		if (!this.squadsAnnounced || !this.playerStats || !this.playerStats.length) {
 			return undefined;
 		} else {
-			return _.chain(this.playerStats)
-				.groupBy("_team")
-				.mapValues(statSet => {
-					const tries = _.sumBy(statSet, "stats.T");
-					const conversions = _.sumBy(statSet, "stats.CN");
-					const pens = _.sumBy(statSet, "stats.PK");
-					const dropgoals = _.sumBy(statSet, "stats.DG");
-					return tries * 4 + conversions * 2 + pens * 2 + dropgoals;
-				})
-				.value();
+			return convertPlayerStatsToScore(this.playerStats);
 		}
 	});
 

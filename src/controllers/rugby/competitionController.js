@@ -22,6 +22,8 @@ import { localTeam } from "~/config/keys";
 //Helpers
 import { postToSocial } from "../oAuthController";
 import { getMainTeamType } from "~/controllers/rugby/teamsController";
+import { getGamesByAggregate } from "~/controllers/rugby/gamesController";
+
 function getGameQuery(_competition, year = null) {
 	const query = { _competition };
 	if (year) {
@@ -555,6 +557,10 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 		...options
 	};
 
+	//Fix dates for aggregation
+	options.fromDate = new Date(options.fromDate);
+	options.toDate = new Date(options.toDate);
+
 	//Validate Segment
 	const segment = await validateSegment(segmentId);
 	if (!segment) {
@@ -586,28 +592,26 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 			"_pointsCarriedFrom"
 		).lean();
 	}
-
-	//Local Games
-	const localGames = await Game.find({
+	//Get Local Games
+	const localGameMatch = {
 		date,
-		_competition: { $in: competitions }
-	}).populate("_competition");
+		squadsAnnounced: true,
+		_competition: { $in: competitions.map(id => mongoose.Types.ObjectId(id)) }
+	};
+	const localGames = await getGamesByAggregate(localGameMatch);
 
 	//Standardise game array
-	const games = localGames
-		//Ensure we only get games with scores
-		.filter(g => g.status >= 2)
-		//Convert to neutral game format
-		.map(g => {
-			const _homeTeam = g.isAway ? g._opposition.toString() : localTeam;
-			const _awayTeam = g.isAway ? localTeam : g._opposition.toString();
-			return {
-				_homeTeam,
-				_awayTeam,
-				homePoints: g.score[_homeTeam],
-				awayPoints: g.score[_awayTeam]
-			};
-		});
+	const games = localGames.map(g => {
+		const _opposition = Object.keys(g.score).find(id => id !== localTeam);
+		const _homeTeam = g.isAway ? _opposition : localTeam;
+		const _awayTeam = g.isAway ? localTeam : _opposition;
+		return {
+			_homeTeam,
+			_awayTeam,
+			homePoints: g.score[_homeTeam],
+			awayPoints: g.score[_awayTeam]
+		};
+	});
 
 	//Get Neutral Games
 	const neutralGames = await NeutralGame.find(
