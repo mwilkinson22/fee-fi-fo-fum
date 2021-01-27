@@ -23,6 +23,7 @@ import { localTeam } from "~/config/keys";
 import { postToSocial } from "../oAuthController";
 import { getMainTeamType } from "~/controllers/rugby/teamsController";
 import { getGamesByAggregate } from "~/controllers/rugby/gamesController";
+import { getSegmentBasicTitle } from "~/models/rugby/CompetitionSegment";
 
 function getGameQuery(_competition, year = null) {
 	const query = { _competition };
@@ -510,7 +511,7 @@ export async function getLeagueTableData(req, res) {
 	if (data && data.error) {
 		res.status(406).send(data.error);
 	} else {
-		res.send({ data, loaded: new Date() });
+		res.send({ ...data, loaded: new Date() });
 	}
 }
 
@@ -535,9 +536,9 @@ export async function getHomepageLeagueTableData(req, res) {
 
 	const _competition = latestGame._competition;
 	const year = new Date(latestGame.date).getFullYear();
-	const data = await processLeagueTableData(_competition, year);
+	const tableData = await processLeagueTableData(_competition, year);
 
-	res.send({ _competition, year, data, loaded: new Date() });
+	res.send({ _competition, year, ...tableData, loaded: new Date() });
 }
 
 export async function processLeagueTableData(segmentId, year, options = {}) {
@@ -562,27 +563,77 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 	options.toDate = new Date(options.toDate);
 
 	//Validate Segment
-	const segment = await validateSegment(segmentId);
-	if (!segment) {
-		return { error: `Invalid segmentId: '${segmentId}'` };
-	}
-	if (segment.type !== "League") {
-		return { error: "Segment must be of type 'League'" };
+	const segments = await Segment.aggregate([
+		{
+			$match: { _id: mongoose.Types.ObjectId(segmentId), type: "League" }
+		},
+		{
+			$unwind: "$instances"
+		},
+		{
+			$match: { "instances.year": parseInt(year) }
+		},
+		{
+			$lookup: {
+				from: "competitions",
+				localField: "_parentCompetition",
+				foreignField: "_id",
+				as: "_parentCompetition"
+			}
+		},
+		{
+			$unwind: "$_parentCompetition"
+		},
+		{
+			$project: {
+				_id: 1,
+				type: 1,
+				name: 1,
+				appendCompetitionName: 1,
+				_parentCompetition: {
+					name: 1
+				},
+				_pointsCarriedFrom: 1,
+				instance: "$instances"
+			}
+		}
+	]);
+
+	if (!segments.length) {
+		//Something has gone wrong, so we do one more lookup to see what it is
+		const errorCheckSegment = await Segment.findById(segmentId, "_id type").lean();
+		if (!errorCheckSegment) {
+			return { error: `No segment with the id '${segmentId}' was found` };
+		} else if (errorCheckSegment.type !== "League") {
+			return { error: "Segment must be of type 'League'" };
+		} else {
+			return { error: `No instance for ${year}` };
+		}
 	}
 
-	//Validate instance
-	const instance = segment.instances.find(instance => instance.year == year);
-	if (!instance) {
-		return { error: `Invalid instanceId: '${segmentId}'` };
-	}
+	//Pull off necessary info
+	const { instance } = segments[0];
+
+	//Get settings
+	const { customStyling, image, leagueTableColours, usesWinPc, totalRounds } = instance;
+	const settings = {
+		customStyling,
+		leagueTableColours,
+		image,
+		usesWinPc,
+		totalRounds,
+		title: [year, instance.sponsor, getSegmentBasicTitle(segments[0])]
+			.filter(_.identity)
+			.join(" ")
+	};
 
 	//Get Date Filter
 	const date = { $gte: options.fromDate, $lte: options.toDate };
 
-	//Work out competitions
-	const competitions = [segment._id];
+	//Work out all competitions we need games for
+	const competitions = [segmentId];
 
-	let segmentToLoop = segment;
+	let segmentToLoop = segments[0];
 	while (segmentToLoop._pointsCarriedFrom) {
 		//Push this entry to the array
 		competitions.push(segmentToLoop._pointsCarriedFrom);
@@ -592,6 +643,7 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 			"_pointsCarriedFrom"
 		).lean();
 	}
+
 	//Get Local Games
 	const localGameMatch = {
 		date,
@@ -648,7 +700,7 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 	}
 
 	//Loop through teams and get data from games
-	return _.chain(instance.teams)
+	const rowData = _.chain(instance.teams)
 		.map(_team => {
 			//Add Team ID to object
 			//We set pts here so we can include pts adjustments,
@@ -714,15 +766,17 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 		.orderBy(...tableSorting)
 		.map((g, i) => ({ ...g, position: i + 1 }))
 		.value();
+
+	return { rowData, settings };
 }
 
 //Graphics
 async function generateCompetitionInstanceImage(imageType, segment, instance, res) {
 	switch (imageType) {
 		case "leagueTable":
-			return new LeagueTable(segment, instance.year, [localTeam]);
+			return new LeagueTable(segment._id, instance.year, [localTeam]);
 		case "minMaxTable":
-			return new MinMaxLeagueTable(segment, instance.year, [localTeam]);
+			return new MinMaxLeagueTable(segment._id, instance.year, [localTeam]);
 		default: {
 			res.status(400).send(`Invalid imageType specified: ${imageType}`);
 		}

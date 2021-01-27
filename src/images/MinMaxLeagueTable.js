@@ -1,7 +1,6 @@
 //Modules
 import _ from "lodash";
 import mongoose from "mongoose";
-const Segment = mongoose.model("competitionSegments");
 const Team = mongoose.model("teams");
 const Settings = mongoose.model("settings");
 
@@ -65,11 +64,11 @@ export default class MinMax extends Canvas {
 	}
 
 	async getTeams() {
-		const { instance } = this;
+		const { tableData } = this;
 
 		//Get Teams
 		const teams = await Team.find(
-			{ _id: { $in: instance.teams } },
+			{ _id: { $in: tableData.rowData.map(r => r._team) } },
 			"name colours images"
 		).lean();
 
@@ -85,23 +84,23 @@ export default class MinMax extends Canvas {
 	}
 
 	calculateThresholds() {
-		const { instance, tableData, positions } = this;
+		const { tableData, positions } = this;
 
 		//First, loop through each team and work out their minimum + maximum points
-		for (const team of tableData) {
-			team.gamesToPlay = instance.totalRounds - team.Pld;
+		for (const team of tableData.rowData) {
+			team.gamesToPlay = tableData.settings.totalRounds - team.Pld;
 			team.maxPts = team.Pts + team.gamesToPlay * 2;
 		}
 
 		//Then we work out the maximum and minimum possible scores
 		this.thresholds = {
-			minPts: _.minBy(tableData, "Pts").Pts,
-			maxPts: _.maxBy(tableData, "maxPts").maxPts
+			minPts: _.minBy(tableData.rowData, "Pts").Pts,
+			maxPts: _.maxBy(tableData.rowData, "maxPts").maxPts
 		};
 
 		//Get the league boundaries
 		this.leagueBoundaries = {};
-		this.instance.leagueTableColours.forEach(c => {
+		tableData.settings.leagueTableColours.forEach(c => {
 			let value;
 			if (c.className === "bottom") {
 				value = Math.min(...c.position);
@@ -114,7 +113,7 @@ export default class MinMax extends Canvas {
 
 		this.positions.topOfRows = positions.headerHeight + positions.rowHeight * 0.55;
 		//Work out how many points to no longer be eligible for top
-		const lowestRankedTopTeam = tableData[this.leagueBoundaries.top - 1];
+		const lowestRankedTopTeam = tableData.rowData[this.leagueBoundaries.top - 1];
 		if (lowestRankedTopTeam) {
 			this.thresholds.minimumPointsForTop = lowestRankedTopTeam.Pts;
 			const rowsToSkip = this.thresholds.maxPts - this.thresholds.minimumPointsForTop;
@@ -123,7 +122,7 @@ export default class MinMax extends Canvas {
 		}
 
 		//Work out how many points to be guaranteed top
-		const highestRankedNotTopTeam = tableData[this.leagueBoundaries.top];
+		const highestRankedNotTopTeam = tableData.rowData[this.leagueBoundaries.top];
 		if (highestRankedNotTopTeam) {
 			this.thresholds.pointsForGuaranteedTop = highestRankedNotTopTeam.maxPts + 1;
 			const rowsToFill = this.thresholds.maxPts - this.thresholds.pointsForGuaranteedTop + 1;
@@ -197,33 +196,22 @@ export default class MinMax extends Canvas {
 	}
 
 	async drawHeader() {
-		const { colours, ctx, cWidth, instance, positions, segment, textStyles } = this;
+		const { colours, ctx, cWidth, positions, tableData, textStyles } = this;
+		const { customStyling, image, title } = tableData.settings;
 
 		//Draw background
-		ctx.fillStyle = instance.customStyling
-			? instance.customStyling.backgroundColor
-			: colours.claret;
+		ctx.fillStyle = customStyling ? customStyling.backgroundColor : colours.claret;
 		ctx.fillRect(0, 0, cWidth, positions.headerHeight);
 
-		//Work out segment title
-		const titleArr = [instance.year, instance.sponsor, segment._parentCompetition.name];
-		if (segment.appendCompetitionName) {
-			titleArr.push(segment.name);
-		}
-		const title = titleArr
-			.filter(_.identity)
-			.join(" ")
-			.toUpperCase();
-
 		//Draw Headers
-		ctx.fillStyle = instance.customStyling ? instance.customStyling.color : "white";
+		ctx.fillStyle = customStyling ? customStyling.color : "white";
 		ctx.textAlign = "center";
 		const maxWidth = cWidth - positions.headerImageWidth * 2;
 		this.textBuilder(
 			[
 				[
 					{
-						text: title,
+						text: title.toUpperCase(),
 						font: textStyles.header.string,
 						maxWidth
 					}
@@ -245,10 +233,8 @@ export default class MinMax extends Canvas {
 
 		//Draw Competition Image
 		const imagePadding = positions.headerImageWidth * 0.15;
-		if (instance.image) {
-			const instanceImage = await this.googleToCanvas(
-				`images/competitions/${instance.image}`
-			);
+		if (image) {
+			const instanceImage = await this.googleToCanvas(`images/competitions/${image}`);
 			this.contain(
 				instanceImage,
 				imagePadding,
@@ -294,7 +280,7 @@ export default class MinMax extends Canvas {
 		let baseY = positions.rowHeight * 0.5 + positions.headerHeight;
 
 		ctx.fillStyle = "black";
-		for (const column of tableData) {
+		for (const column of tableData.rowData) {
 			//Get upper y value
 			const rowsFromTop = thresholds.maxPts - column.maxPts;
 			const y = baseY + rowsFromTop * positions.rowHeight;
@@ -366,29 +352,19 @@ export default class MinMax extends Canvas {
 	async render(forTwitter = false) {
 		const { positions, _segment, year } = this;
 
-		//Call getSegments. This will loop when necessary,
-		//to get _pointsCarriedFrom segments
-		const segment = await Segment.findById(
-			_segment,
-			"instances _parentCompetition name appendCompetitionName"
-		).populate({ path: "_parentCompetition", select: "name" });
-		this.segment = JSON.parse(JSON.stringify(segment));
-
-		//Get Instance
-		this.instance = this.segment.instances.find(i => i.year == year);
+		//Get Table
+		this.tableData = await processLeagueTableData(_segment, year);
 
 		//Get Teams
 		await this.getTeams();
-
-		//Get Table
-		this.tableData = await processLeagueTableData(_segment, year);
 
 		//Work out thresholds
 		this.calculateThresholds();
 
 		//Set Canvas Width
 		this.canvas.width = this.cWidth =
-			(positions.columnWidth + positions.columnPadding) * (this.tableData.length + 1) +
+			(positions.columnWidth + positions.columnPadding) *
+				(this.tableData.rowData.length + 1) +
 			positions.labelWidth;
 		//Set Canvas Height
 		this.canvas.height = this.cHeight =

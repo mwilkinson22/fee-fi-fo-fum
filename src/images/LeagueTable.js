@@ -1,7 +1,6 @@
 //Modules
 import _ from "lodash";
 import mongoose from "mongoose";
-const Segment = mongoose.model("competitionSegments");
 const Team = mongoose.model("teams");
 
 //Canvas
@@ -64,10 +63,13 @@ export default class LeagueTable extends Canvas {
 	}
 
 	async getTeams() {
-		const { instance } = this;
+		const { tableData } = this;
 
 		//Get Teams
-		const teams = await Team.find({ _id: { $in: instance.teams } }, "images name").lean();
+		const teams = await Team.find(
+			{ _id: { $in: tableData.rowData.map(r => r._team) } },
+			"images name"
+		).lean();
 
 		//Create Image Object
 		this.teams = {};
@@ -82,16 +84,16 @@ export default class LeagueTable extends Canvas {
 	}
 
 	async drawHeader() {
-		const { columns, ctx, cWidth, instance, positions, textStyles } = this;
-		const { customStyling } = instance;
+		const { columns, ctx, cWidth, positions, tableData, textStyles } = this;
+		const { customStyling, image } = tableData.settings;
 
 		//Draw Background
 		ctx.fillStyle = customStyling.backgroundColor || "#111";
 		ctx.fillRect(0, 0, cWidth, positions.rowHeight * 1.5);
 
 		//Add Logo
-		if (instance.image) {
-			const logo = await this.googleToCanvas(`/images/competitions/${instance.image}`);
+		if (image) {
+			const logo = await this.googleToCanvas(`/images/competitions/${image}`);
 			this.contain(
 				logo,
 				positions.imagePadding,
@@ -137,17 +139,17 @@ export default class LeagueTable extends Canvas {
 	}
 
 	drawRows() {
-		const { columns, ctx, cWidth, instance, positions, table, teams, textStyles } = this;
+		const { columns, ctx, cWidth, positions, tableData, teams, textStyles } = this;
 
 		//Convert row classes to simple object
-		const rowClasses = _.chain(instance.leagueTableColours)
+		const rowClasses = _.chain(tableData.settings.leagueTableColours)
 			.map(({ position, className }) => position.map(p => ({ position: p, className })))
 			.flatten()
 			.keyBy("position")
 			.mapValues("className")
 			.value();
 
-		for (const row of table) {
+		for (const row of tableData.rowData) {
 			let background, colour;
 			switch (rowClasses[row.position]) {
 				case "champions":
@@ -257,25 +259,19 @@ export default class LeagueTable extends Canvas {
 	async render(forTwitter = false) {
 		const { positions, _segment, options, year } = this;
 
-		//Get Segment
-		this.segment = await Segment.findById(_segment, ["instances"]).lean();
-
-		//Get Instance
-		this.instance = this.segment.instances.find(i => i.year == year);
+		//Get Table
+		this.tableData = await processLeagueTableData(_segment, year, options);
 
 		//Get Teams
 		await this.getTeams();
 
-		//Get Table
-		this.table = await processLeagueTableData(_segment, year, options);
-
 		//Resize
 		let w = this.cWidth;
-		if (this.instance.usesWinPc) {
+		if (this.tableData.settings.usesWinPc) {
 			w += positions.standardColumnWidth * 1.5;
 			this.columns.push("Win %");
 		}
-		this.resizeCanvas(w, positions.rowHeight * (this.table.length + 1.5));
+		this.resizeCanvas(w, positions.rowHeight * (this.tableData.rowData.length + 1.5));
 
 		//Draw Header
 		await this.drawHeader();

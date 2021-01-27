@@ -12,10 +12,7 @@ import LeagueTable from "../components/seasons/LeagueTable";
 //Actions
 import { fetchPostList } from "../actions/newsActions";
 import { fetchHomePageGames } from "../actions/gamesActions";
-import {
-	fetchCompetitionSegments,
-	fetchHomePageLeagueTableData
-} from "../actions/competitionActions";
+import { fetchHomePageLeagueTableData } from "../actions/competitionActions";
 
 class HomePage extends Component {
 	constructor(props) {
@@ -161,7 +158,6 @@ async function loadData(store) {
 	//Get required data
 	return Promise.all([
 		store.dispatch(fetchPostList()),
-		store.dispatch(fetchCompetitionSegments()),
 		store.dispatch(fetchHomePageGames()),
 		store.dispatch(fetchHomePageLeagueTableData())
 	]);
@@ -183,7 +179,6 @@ export default {
 	component: connect(mapStateToProps, {
 		fetchPostList,
 		fetchHomePageGames,
-		fetchCompetitionSegments,
 		fetchHomePageLeagueTableData
 	})(HomePage),
 	loadData

@@ -80,20 +80,24 @@ const competitionSegmentSchema = new Schema(
 
 mongooseDebug(competitionSegmentSchema);
 
-competitionSegmentSchema.virtual("basicTitle").get(function() {
-	if (!this._parentCompetition || !this._parentCompetition.name) {
+export function getSegmentBasicTitle(doc) {
+	if (!doc._parentCompetition || !doc._parentCompetition.name) {
 		return undefined;
 	} else {
 		//Get Parent Competition Name
-		let value = this._parentCompetition.name;
+		let value = doc._parentCompetition.name;
 
 		//Append segment name where necessary
-		if (this.appendCompetitionName) {
-			value += ` ${this.name}`;
+		if (doc.appendCompetitionName) {
+			value += ` ${doc.name}`;
 		}
 
 		return value;
 	}
+}
+
+competitionSegmentSchema.virtual("basicTitle").get(function() {
+	return getSegmentBasicTitle(this);
 });
 
 mongoose.model("competitionSegments", competitionSegmentSchema);

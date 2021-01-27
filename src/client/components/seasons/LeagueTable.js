@@ -12,10 +12,7 @@ import TeamImage from "~/client/components/teams/TeamImage";
 
 //Actions
 import { fetchTeamList } from "~/client/actions/teamsActions";
-import {
-	fetchCompetitionSegments,
-	fetchLeagueTableData
-} from "~/client/actions/competitionActions";
+import { fetchLeagueTableData } from "~/client/actions/competitionActions";
 
 //Helpers
 import { createLeagueTableString } from "~/helpers/competitionHelper";
@@ -33,11 +30,9 @@ class LeagueTable extends Component {
 			//Redux State
 			leagueTableData,
 			teamList,
-			competitionSegmentList,
 			//Redux Actions
 			fetchTeamList,
-			fetchLeagueTableData,
-			fetchCompetitionSegments
+			fetchLeagueTableData
 		} = props;
 
 		//Get Teams
@@ -56,57 +51,34 @@ class LeagueTable extends Component {
 			fetchLeagueTableData(competition, year, fromDate, toDate);
 		}
 
-		//Get competition segments
-		if (!competitionSegmentList) {
-			fetchCompetitionSegments();
-		}
-
 		this.state = {
 			tableString
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			bucketPaths,
-			competition,
-			competitionSegmentList,
-			leagueTableData,
-			styleOverride,
-			teamList,
-			year
-		} = nextProps;
+		const { bucketPaths, leagueTableData, styleOverride, teamList } = nextProps;
 		const { tableString } = prevState;
 		const newState = { isLoading: false };
 
 		//Wait on dependencies
-		if (!leagueTableData[tableString] || !competitionSegmentList || !teamList) {
+		if (!leagueTableData[tableString] || !teamList) {
 			newState.isLoading = true;
 			return newState;
 		}
 
-		//Get Competition Info
-		newState.segment = competitionSegmentList[competition];
-		newState.instance = _.find(
-			newState.segment.instances,
-			instance => instance.year == year || instance.year === null
-		);
-
-		//Get Styling
-		newState.customStyling =
-			(styleOverride && styleOverride.customStyling) || newState.instance.customStyling;
-		newState.leagueTableColours =
-			(styleOverride && styleOverride.leagueTableColours) ||
-			newState.instance.leagueTableColours;
+		const { rowData, settings } = leagueTableData[tableString];
+		newState.rows = rowData;
+		newState.tableSettings = settings;
 
 		//Set Table Data
 		let logo = "";
-		if (newState.instance.image) {
+		if (settings.image) {
 			logo = (
 				<img
-					src={bucketPaths.images.competitions + newState.instance.image}
+					src={bucketPaths.images.competitions + settings.image}
 					className="competition-logo"
-					alt={newState.segment.basicTitle}
+					alt={settings.title}
 				/>
 			);
 		}
@@ -124,7 +96,7 @@ class LeagueTable extends Component {
 			{ key: "Pts", label: "Pts", title: "Points" }
 		];
 
-		if (newState.instance.usesWinPc) {
+		if (settings.usesWinPc) {
 			newState.columns.push({
 				key: "WinPc",
 				label: "Win %",
@@ -132,7 +104,11 @@ class LeagueTable extends Component {
 			});
 		}
 
-		newState.rows = leagueTableData[tableString].data;
+		//Get Styling
+		newState.customStyling =
+			(styleOverride && styleOverride.customStyling) || settings.customStyling;
+		newState.leagueTableColours =
+			(styleOverride && styleOverride.leagueTableColours) || settings.leagueTableColours;
 
 		return newState;
 	}
@@ -255,20 +231,18 @@ LeagueTable.defaultProps = {
 
 function mapStateToProps({ config, teams, competitions }) {
 	const { teamList } = teams;
-	const { competitionSegmentList, leagueTableData } = competitions;
+	const { leagueTableData } = competitions;
 	const { bucketPaths, localTeam } = config;
 	return {
 		teamList,
 		bucketPaths,
 		localTeam,
-		leagueTableData,
-		competitionSegmentList
+		leagueTableData
 	};
 }
 
 export default withRouter(
 	connect(mapStateToProps, {
-		fetchCompetitionSegments,
 		fetchTeamList,
 		fetchLeagueTableData
 	})(LeagueTable)
