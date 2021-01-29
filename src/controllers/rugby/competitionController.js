@@ -648,8 +648,6 @@ export async function processLeagueTableData(
 	if (forMinMaxTable) {
 		teamSelectString += " colours";
 	}
-	let teams = await Team.find({ _id: { $in: instance.teams } }, teamSelectString).lean();
-	teams = _.keyBy(teams, "_id");
 
 	//Get Date Filter
 	const date = { $gte: options.fromDate, $lte: options.toDate };
@@ -668,13 +666,26 @@ export async function processLeagueTableData(
 		).lean();
 	}
 
-	//Get Local Games
+	//Define match param for local games
 	const localGameMatch = {
 		date,
 		squadsAnnounced: true,
 		_competition: { $in: competitions.map(id => mongoose.Types.ObjectId(id)) }
 	};
-	const localGames = await getGamesByAggregate(localGameMatch);
+	//Define match param for neutral games
+	const neutralGameMatch = {
+		date,
+		_competition: { $in: competitions },
+		homePoints: { $ne: null },
+		awayPoints: { $ne: null }
+	};
+	//Get teams and games
+	let [teams, localGames, neutralGames] = await Promise.all([
+		Team.find({ _id: { $in: instance.teams } }, teamSelectString).lean(),
+		getGamesByAggregate(localGameMatch),
+		NeutralGame.find(neutralGameMatch, "_homeTeam _awayTeam homePoints awayPoints").lean()
+	]);
+	teams = _.keyBy(teams, "_id");
 
 	//Standardise game array
 	const games = localGames.map(g => {
@@ -688,17 +699,6 @@ export async function processLeagueTableData(
 			awayPoints: g.score[_awayTeam]
 		};
 	});
-
-	//Get Neutral Games
-	const neutralGames = await NeutralGame.find(
-		{
-			date,
-			_competition: { $in: competitions },
-			homePoints: { $ne: null },
-			awayPoints: { $ne: null }
-		},
-		"_homeTeam _awayTeam homePoints awayPoints"
-	).lean();
 
 	//Add to collection
 	games.push(

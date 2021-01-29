@@ -127,15 +127,18 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		game.gender = teamTypes[game._teamType].gender;
 		game.genderedString = game.gender === "M" ? "Man" : "Woman";
 
-		//Get all eligible players and coaches
-		await getPlayersAndCoaches(game, forAdmin, teamTypes);
+		//Create an array of async callbacks
+		const asyncCalls = [];
+		const playersAndCoaches = getPlayersAndCoaches(game, forAdmin, teamTypes);
+		asyncCalls.push(playersAndCoaches);
 
 		//Work out which players to highlight in the pregame squad
 		//First, check that the game actually uses them and that we need he inf
 		if (game._competition.instance.usesPregameSquads && (game.status === 1 || forAdmin)) {
 			//Get last game
 			const date = new Date(game.date);
-			const lastGame = await Game.findOne(
+
+			const lastSquadLoaded = Game.findOne(
 				{
 					date: {
 						$lt: date,
@@ -146,21 +149,29 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 				"pregameSquads"
 			)
 				.lean()
-				.sort({ date: -1 });
-			if (lastGame) {
-				const lastPregame =
-					lastGame.pregameSquads &&
-					lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
+				.sort({ date: -1 })
+				.then(lastGame => {
+					if (lastGame) {
+						const lastPregame =
+							lastGame.pregameSquads &&
+							lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
 
-				if (lastPregame) {
-					game.previousPregameSquad = lastPregame.squad;
-				}
-			}
+						if (lastPregame) {
+							game.previousPregameSquad = lastPregame.squad;
+						}
+					}
+				});
+			asyncCalls.push(lastSquadLoaded);
 		}
 
-		//Calculate the team form
-		const allCompetitions = await getTeamForm(game, 5, true);
-		const singleCompetition = await getTeamForm(game, 5, false);
+		const allCompetitionQuery = getTeamForm(game, 5, true);
+		const singleCompetitionQuery = getTeamForm(game, 5, false);
+		asyncCalls.unshift(allCompetitionQuery, singleCompetitionQuery);
+
+		//Ensure all async calls are run
+		const [allCompetitions, singleCompetition] = await Promise.all(asyncCalls);
+
+		//Add team form to game object
 		game.teamForm = { allCompetitions, singleCompetition };
 
 		//Add variables to help govern reloading
@@ -454,40 +465,42 @@ async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
 }
 
 async function getTeamForm(game, gameLimit, allCompetitions) {
-	const query = {
+	const match = {
 		_teamType: game._teamType,
 		date: { $lt: game.date }
 		// hideGame: { $in: [false, null] }
 	};
 	if (!allCompetitions) {
-		query._competition = game._competition._id;
+		match._competition = game._competition._id;
 	}
 
 	//First, we get the last five local games
-	const localteamForm = await Game.find(query)
+	const localteamFormQuery = Game.find(match)
 		.fullGame(false, false)
 		.sort({ date: -1 })
 		.limit(gameLimit);
+
 	//Then the last five head to heads
-	const headToHeadForm = await Game.find({ ...query, _opposition: game._opposition._id })
+	const headToHeadFormQuery = Game.find({ ...match, _opposition: game._opposition._id })
 		.fullGame(false, false)
 		.sort({ date: -1 })
 		.limit(gameLimit);
+
 	//And the last 5 neutral games for the opponent
-	const neutralQuery = {
+	const neutralMatch = {
 		_teamType: game._teamType,
 		date: { $lt: game.date },
 		$or: [{ _homeTeam: game._opposition._id }, { _awayTeam: game._opposition._id }]
 	};
 
 	//Pull the local team object
-	const localTeamObject = await Team.findById(localTeam, "name images.main").lean();
+	const localTeamQuery = Team.findById(localTeam, "name images.main").lean();
 
 	if (!allCompetitions) {
-		neutralQuery._competition = game._competition._id;
+		neutralMatch._competition = game._competition._id;
 	}
-	const neutralGames = await NeutralGame.find(
-		neutralQuery,
+	const neutralGameQuery = NeutralGame.find(
+		neutralMatch,
 		"date _homeTeam _awayTeam homePoints awayPoints"
 	)
 		.sort({ date: -1 })
@@ -496,10 +509,20 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 		.limit(gameLimit)
 		.lean();
 
+	//Await neutral calls
+	const [localteamForm, headToHeadForm, localTeamObject, neutralGames] = await Promise.all([
+		localteamFormQuery,
+		headToHeadFormQuery,
+		localTeamQuery,
+		neutralGameQuery
+	]);
+
 	//Convert the Game results to match the neutral format
 	const localgamesNormalised = _.chain([localteamForm, headToHeadForm])
 		.flatten()
-		.uniqBy(g => g._id.toString())
+		.uniqBy(g => {
+			g._id.toString();
+		})
 		.map(({ _id, date, isAway, _opposition, score, slug, title }) => {
 			const _homeTeam = isAway ? _opposition : localTeamObject;
 			const _awayTeam = isAway ? localTeamObject : _opposition;
@@ -601,19 +624,23 @@ export async function getGameYears(req, res) {
 	}
 
 	//Get all years
-	const aggregatedYears = await Game.aggregate([
+	const aggregatedYearQuery = Game.aggregate([
 		{ $match: query },
 		{ $project: { _id: 0, year: { $year: "$date" } } },
 		{ $group: { _id: "$year" } }
 	]);
 
+	//Work out if we have any fixtures
+	const fixtureQuery = Game.findOne({ date: { $gt: now } }, "_id").lean();
+
+	//Await for async calls
+	const [aggregatedYears, fixture] = await Promise.all([aggregatedYearQuery, fixtureQuery]);
+
+	//Years
 	const years = aggregatedYears
 		.map(({ _id }) => _id)
 		.sort()
 		.reverse();
-
-	//Work out if we have any fixtures
-	const fixture = await Game.findOne({ date: { $gt: now } }, "_id").lean();
 	if (fixture) {
 		years.unshift("fixtures");
 	}
@@ -715,8 +742,6 @@ async function getGames(req, res, forGamePage, forAdmin) {
 }
 
 export async function getHomePageGames(req, res) {
-	const games = [];
-
 	//Get the main team type
 	const mainTeamType = await getMainTeamType("id");
 
@@ -727,7 +752,7 @@ export async function getHomePageGames(req, res) {
 	};
 
 	//First, get the previous game
-	const lastGame = await Game.findOne(
+	const lastGameQuery = Game.findOne(
 		{
 			...query,
 			date: {
@@ -738,12 +763,9 @@ export async function getHomePageGames(req, res) {
 	)
 		.lean()
 		.sort({ date: -1 });
-	if (lastGame) {
-		games.push(lastGame._id);
-	}
 
 	//Then get the next one
-	const nextGame = await Game.findOne(
+	const nextGameQuery = Game.findOne(
 		{
 			...query,
 			date: {
@@ -754,27 +776,34 @@ export async function getHomePageGames(req, res) {
 	)
 		.lean()
 		.sort({ date: 1 });
+
+	//And the next home game
+	const nextHomeGameQuery = Game.findOne(
+		{
+			...query,
+			date: {
+				$gt: new Date()
+			},
+			isAway: false,
+			isNeutralGround: false
+		},
+		"_id"
+	)
+		.lean()
+		.sort({ date: 1 });
+
+	//Await results
+	const [lastGame, nextGame, nextHomeGame] = await Promise.all([
+		lastGameQuery,
+		nextGameQuery,
+		nextHomeGameQuery
+	]);
+
+	const games = [lastGame._id];
 	if (nextGame) {
 		games.push(nextGame._id);
-
-		//Provisionally get the next home game
-		if (fansCanAttend && (nextGame.isAway || nextGame.isNeutralGround)) {
-			const nextHomeGame = await Game.findOne(
-				{
-					...query,
-					date: {
-						$gt: new Date()
-					},
-					isAway: false,
-					isNeutralGround: false
-				},
-				"_id"
-			)
-				.lean()
-				.sort({ date: 1 });
-			if (nextHomeGame) {
-				games.push(nextHomeGame._id);
-			}
+		if (fansCanAttend && (nextGame.isAway || nextGame.isNeutralGround) && nextHomeGame) {
+			games.push(nextHomeGame._id);
 		}
 	}
 
@@ -842,9 +871,12 @@ export async function getGamesByAggregate(match) {
 
 //Create New Games
 export async function addGame(req, res) {
-	const values = await processGround(req.body);
-	values.slug = await Game.generateSlug(values);
-	const game = new Game(values);
+	const [values, slug] = await Promise.all([
+		processGround(req.body),
+		Game.generateSlug(req.body)
+	]);
+	const game = new Game({ ...values, slug });
+
 	await game.save();
 	await getUpdatedGame(game._id, res, true);
 }
@@ -1840,10 +1872,12 @@ export async function getTeamSelectorValues(_id, res) {
 	game.date = new Date(game.date);
 
 	//Load team type
-	const teamType = await TeamType.findById(game._teamType, "name sortOrder").lean();
+	const teamTypeQuery = TeamType.findById(game._teamType, "name sortOrder").lean();
 
 	//Load team
-	const team = await Team.findById(localTeam, "squads");
+	const teamQuery = Team.findById(localTeam, "squads");
+
+	const [teamType, team] = await Promise.all([teamTypeQuery, teamQuery]);
 
 	//Create a basic values object
 	const values = {
