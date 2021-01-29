@@ -11,6 +11,7 @@ const Competition = mongoose.model("competitions");
 const Segment = mongoose.model("competitionSegments");
 const Game = mongoose.model("games");
 const NeutralGame = mongoose.model("neutralGames");
+const Team = mongoose.model("teams");
 
 //Images
 import LeagueTable from "~/images/LeagueTable";
@@ -541,7 +542,12 @@ export async function getHomepageLeagueTableData(req, res) {
 	res.send({ _competition, year, ...tableData, loaded: new Date() });
 }
 
-export async function processLeagueTableData(segmentId, year, options = {}) {
+export async function processLeagueTableData(
+	segmentId,
+	year,
+	options = {},
+	forMinMaxTable = false
+) {
 	//Work out default toDate
 	let toDate;
 	const now = new Date();
@@ -618,14 +624,32 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 	const { customStyling, image, leagueTableColours, usesWinPc, totalRounds } = instance;
 	const settings = {
 		customStyling,
-		leagueTableColours,
 		image,
 		usesWinPc,
-		totalRounds,
 		title: [year, instance.sponsor, getSegmentBasicTitle(segments[0])]
 			.filter(_.identity)
 			.join(" ")
 	};
+	if (forMinMaxTable) {
+		settings.totalRounds = totalRounds;
+		settings.leagueTableColours = leagueTableColours;
+	}
+
+	//Convert leagueTableColours to object
+	const leagueTableColoursByRow = _.chain(leagueTableColours)
+		.map(({ position, className }) => position.map(p => [p, className]))
+		.flatten()
+		.fromPairs()
+		.value();
+
+	//Get team names and image
+	//For minmax also get colours
+	let teamSelectString = "name images";
+	if (forMinMaxTable) {
+		teamSelectString += " colours";
+	}
+	let teams = await Team.find({ _id: { $in: instance.teams } }, teamSelectString).lean();
+	teams = _.keyBy(teams, "_id");
 
 	//Get Date Filter
 	const date = { $gte: options.fromDate, $lte: options.toDate };
@@ -701,19 +725,19 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 
 	//Loop through teams and get data from games
 	const rowData = _.chain(instance.teams)
-		.map(_team => {
+		.map(team => {
 			//Add Team ID to object
 			//We set pts here so we can include pts adjustments,
 			//whilst also calculating points based on W, L & D adjustments
-			const row = { _team, W: 0, D: 0, L: 0, F: 0, A: 0, Pts: 0 };
+			const row = { team, W: 0, D: 0, L: 0, F: 0, A: 0, Pts: 0 };
 
 			//Loop Games
 			games
-				.filter(g => g._homeTeam == _team || g._awayTeam == _team)
+				.filter(g => g._homeTeam == team || g._awayTeam == team)
 				.forEach(g => {
 					let thisTeamsPoints, oppositionPoints;
 
-					if (g._homeTeam == _team) {
+					if (g._homeTeam == team) {
 						thisTeamsPoints = g.homePoints;
 						oppositionPoints = g.awayPoints;
 					} else {
@@ -737,7 +761,7 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 
 			//Get adjustments
 			const adjustments =
-				instance.adjustments && instance.adjustments.find(a => a._team.toString() == _team);
+				instance.adjustments && instance.adjustments.find(a => a._team.toString() == team);
 			if (adjustments) {
 				for (const key in adjustments) {
 					//We explicitly declare the keys below, as simply
@@ -764,7 +788,26 @@ export async function processLeagueTableData(segmentId, year, options = {}) {
 			return row;
 		})
 		.orderBy(...tableSorting)
-		.map((g, i) => ({ ...g, position: i + 1 }))
+		.map((row, i) => {
+			//Get position
+			row.position = i + 1;
+
+			//Get Classname
+			row.className = leagueTableColoursByRow[row.position];
+
+			//Use classname to determine image variant we need
+			const imageVariant = row.className ? "light" : "dark";
+
+			//Replace team id with team object
+			row.team = teams[row.team];
+
+			//Only return the image that we need
+			//We keep it as a nested image so we can more easily put it into <TeamImage />
+			const image = row.team.images[imageVariant] || row.team.images.main;
+			row.team.images = { main: image };
+
+			return row;
+		})
 		.value();
 
 	return { rowData, settings };

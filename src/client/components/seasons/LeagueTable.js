@@ -11,7 +11,6 @@ import Table from "../Table";
 import TeamImage from "~/client/components/teams/TeamImage";
 
 //Actions
-import { fetchTeamList } from "~/client/actions/teamsActions";
 import { fetchLeagueTableData } from "~/client/actions/competitionActions";
 
 //Helpers
@@ -27,18 +26,10 @@ class LeagueTable extends Component {
 			year,
 			fromDate,
 			toDate,
-			//Redux State
+			//Redux
 			leagueTableData,
-			teamList,
-			//Redux Actions
-			fetchTeamList,
 			fetchLeagueTableData
 		} = props;
-
-		//Get Teams
-		if (!teamList) {
-			fetchTeamList();
-		}
 
 		//Get Table String
 		const tableString = createLeagueTableString(competition, year, fromDate, toDate);
@@ -57,12 +48,12 @@ class LeagueTable extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { bucketPaths, leagueTableData, styleOverride, teamList } = nextProps;
+		const { bucketPaths, leagueTableData, styleOverride } = nextProps;
 		const { tableString } = prevState;
 		const newState = { isLoading: false };
 
 		//Wait on dependencies
-		if (!leagueTableData[tableString] || !teamList) {
+		if (!leagueTableData[tableString]) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -107,84 +98,67 @@ class LeagueTable extends Component {
 		//Get Styling
 		newState.customStyling =
 			(styleOverride && styleOverride.customStyling) || settings.customStyling;
-		newState.leagueTableColours =
-			(styleOverride && styleOverride.leagueTableColours) || settings.leagueTableColours;
+		if (styleOverride && styleOverride.leagueTableColours) {
+			newState.rowClassOverride = _.chain(styleOverride.leagueTableColours)
+				.map(({ position, className }) => position.map(p => [p, className]))
+				.flatten()
+				.fromPairs()
+				.value();
+		}
 
 		return newState;
 	}
 
 	formatRowsForTable(rows) {
-		const { leagueTableColours } = this.state;
-		const { localTeam, teamList } = this.props;
+		const { rowClassOverride } = this.state;
+		const { localTeam } = this.props;
 		let { highlightTeams } = this.props;
 		if (!highlightTeams) {
 			highlightTeams = [localTeam];
 		}
-		return _.chain(rows)
-			.map(values => {
-				//Get Team
-				const team = teamList[values._team];
+		return rows.map(({ className, team, ...values }) => {
+			//Clone values
+			const data = { ...values };
 
-				//Clone values
-				const data = { ...values };
+			const key = team._id;
 
-				//Add Team Name
-				//Badge is added later so we know whether to go for light or dark variant
-				data["team-name"] = team.name.short;
+			//Add Team Name & Badge
+			data["team-name"] = team.name.short;
+			data["team-badge"] = <TeamImage size="small" team={team} />;
 
-				//Convert to table data
-				if (data.WinPc) {
-					data.WinPc = {
-						content: Number(data.WinPc.toFixed(2)) + "%",
-						sortValue: data.WinPc
-					};
-				}
-
-				//Format to row
-				return {
-					key: data._team,
-					data
+			//Convert to table data
+			if (data.WinPc) {
+				data.WinPc = {
+					content: Number(data.WinPc.toFixed(2)) + "%",
+					sortValue: data.WinPc
 				};
-			})
-			.map((row, pos) => {
-				//Add the position (increment to allow for 0-indexing)
-				row.data.position = pos + 1;
+			}
 
-				//Set blank className
-				const classNames = [];
-				row.className = "";
+			//Create array to hold class names
+			const classNames = [];
 
-				//Add highlighted teams
-				if (highlightTeams.indexOf(row.key) > -1) {
-					classNames.push("highlight");
+			//If we're overriding it, then we ignore the value from the server
+			if (rowClassOverride) {
+				const overrideValue = rowClassOverride[data.position];
+				if (overrideValue) {
+					classNames.push(overrideValue);
 				}
+			} else if (className) {
+				classNames.push(className);
+			}
 
-				//Get the row class from leagueTableColours
-				const rowClass = _.find(leagueTableColours, p => p.position.indexOf(pos + 1) > -1);
+			//Add highlight where necessary
+			if (highlightTeams.includes(key)) {
+				classNames.push("highlight");
+			}
 
-				//If we find one, add it to the class array and set a light icon
-				let badgeVariant;
-				if (rowClass) {
-					badgeVariant = "light";
-					classNames.push(rowClass.className);
-				} else {
-					badgeVariant = "dark";
-				}
-
-				//Add badge
-				const team = teamList[row.key];
-				row.data["team-badge"] = (
-					<TeamImage size="small" team={team} variant={badgeVariant} />
-				);
-
-				//Add classes
-				if (classNames.length) {
-					row.className = classNames.join(" ");
-				}
-
-				return row;
-			})
-			.value();
+			//Format to row
+			return {
+				key,
+				data,
+				className: classNames.length ? classNames.join(" ") : null
+			};
+		});
 	}
 
 	render() {
@@ -229,12 +203,10 @@ LeagueTable.defaultProps = {
 	toDate: null
 };
 
-function mapStateToProps({ config, teams, competitions }) {
-	const { teamList } = teams;
+function mapStateToProps({ config, competitions }) {
 	const { leagueTableData } = competitions;
 	const { bucketPaths, localTeam } = config;
 	return {
-		teamList,
 		bucketPaths,
 		localTeam,
 		leagueTableData
@@ -243,7 +215,6 @@ function mapStateToProps({ config, teams, competitions }) {
 
 export default withRouter(
 	connect(mapStateToProps, {
-		fetchTeamList,
 		fetchLeagueTableData
 	})(LeagueTable)
 );

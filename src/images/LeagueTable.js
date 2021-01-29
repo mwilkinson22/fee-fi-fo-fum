@@ -1,8 +1,3 @@
-//Modules
-import _ from "lodash";
-import mongoose from "mongoose";
-const Team = mongoose.model("teams");
-
 //Canvas
 import Canvas from "./Canvas";
 
@@ -59,27 +54,15 @@ export default class LeagueTable extends Canvas {
 		};
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
-		this.columns = ["position", "_team", "Pld", "W", "D", "L", "F", "A", "Diff", "Pts"];
+		this.columns = ["position", "team", "Pld", "W", "D", "L", "F", "A", "Diff", "Pts"];
 	}
 
-	async getTeams() {
+	async getTeamImages() {
 		const { tableData } = this;
 
-		//Get Teams
-		const teams = await Team.find(
-			{ _id: { $in: tableData.rowData.map(r => r._team) } },
-			"images name"
-		).lean();
-
-		//Create Image Object
-		this.teams = {};
-
 		//Add Images
-		for (const team of teams) {
-			this.teams[team._id] = { name: team.name.short };
-			this.teams[team._id].image = await this.googleToCanvas(
-				`images/teams/${team.images.dark || team.images.main}`
-			);
+		for (const row of tableData.rowData) {
+			row.team.image = await this.googleToCanvas(`/images/teams/${row.team.images.main}`);
 		}
 	}
 
@@ -116,7 +99,7 @@ export default class LeagueTable extends Canvas {
 		const reversedColumns = [...columns].reverse();
 		for (const column of reversedColumns) {
 			//Stop once we get to team
-			if (column === "_team") {
+			if (column === "team") {
 				break;
 			}
 
@@ -139,19 +122,20 @@ export default class LeagueTable extends Canvas {
 	}
 
 	drawRows() {
-		const { columns, ctx, cWidth, positions, tableData, teams, textStyles } = this;
-
-		//Convert row classes to simple object
-		const rowClasses = _.chain(tableData.settings.leagueTableColours)
-			.map(({ position, className }) => position.map(p => ({ position: p, className })))
-			.flatten()
-			.keyBy("position")
-			.mapValues("className")
-			.value();
+		const {
+			columns,
+			colours,
+			ctx,
+			cWidth,
+			positions,
+			tableData,
+			teamsToHighlight,
+			textStyles
+		} = this;
 
 		for (const row of tableData.rowData) {
 			let background, colour;
-			switch (rowClasses[row.position]) {
+			switch (row.className) {
 				case "champions":
 					background = "#518c56";
 					colour = "#FFF";
@@ -172,12 +156,8 @@ export default class LeagueTable extends Canvas {
 
 			//Draw Background
 			ctx.fillStyle = background;
-			const rowBackgroundParams = [
-				0,
-				positions.rowHeight * (row.position + 0.5),
-				cWidth,
-				positions.rowHeight
-			];
+			const rowY = positions.rowHeight * (row.position + 0.5);
+			const rowBackgroundParams = [0, rowY, cWidth, positions.rowHeight];
 			ctx.fillRect(...rowBackgroundParams);
 
 			//Add semitransparent overlay to even rows
@@ -186,12 +166,18 @@ export default class LeagueTable extends Canvas {
 				ctx.fillRect(...rowBackgroundParams);
 			}
 
+			//Add highlight
+			if (teamsToHighlight.includes(row.team._id.toString())) {
+				ctx.fillStyle = colours.gold;
+				ctx.fillRect(0, rowY, positions.rowHeight * 0.1, positions.rowHeight);
+			}
+
 			//Add Columns
 			let textX = 0;
 			const textY = positions.rowHeight * (row.position + 1.15);
 			ctx.fillStyle = colour;
 			columns.forEach(column => {
-				if (column === "_team") {
+				if (column === "team") {
 					//Set Alignment
 					ctx.textAlign = "left";
 
@@ -199,7 +185,7 @@ export default class LeagueTable extends Canvas {
 					ctx.font = textStyles.semi.string;
 
 					//Get Team
-					const team = teams[row["_team"]];
+					const { team } = row;
 
 					//Add Badge
 					const imageSize = positions.rowHeight - positions.imagePadding * 2;
@@ -212,7 +198,7 @@ export default class LeagueTable extends Canvas {
 
 					//Add Text
 					ctx.fillText(
-						team.name,
+						team.name.short,
 						textX + imageSize + positions.standardColumnWidth * 0.5,
 						textY
 					);
@@ -263,7 +249,7 @@ export default class LeagueTable extends Canvas {
 		this.tableData = await processLeagueTableData(_segment, year, options);
 
 		//Get Teams
-		await this.getTeams();
+		await this.getTeamImages();
 
 		//Resize
 		let w = this.cWidth;

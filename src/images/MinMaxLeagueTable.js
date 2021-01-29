@@ -1,7 +1,6 @@
 //Modules
 import _ from "lodash";
 import mongoose from "mongoose";
-const Team = mongoose.model("teams");
 const Settings = mongoose.model("settings");
 
 //Canvas
@@ -60,26 +59,14 @@ export default class MinMax extends Canvas {
 		};
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
-		this.columns = ["position", "_team", "Pld", "W", "D", "L", "F", "A", "Diff", "Pts"];
+		this.columns = ["position", "team", "Pld", "W", "D", "L", "F", "A", "Diff", "Pts"];
 	}
 
-	async getTeams() {
+	async getTeamImages() {
 		const { tableData } = this;
 
-		//Get Teams
-		const teams = await Team.find(
-			{ _id: { $in: tableData.rowData.map(r => r._team) } },
-			"name colours images"
-		).lean();
-
-		//Create Team Object
-		this.teams = _.keyBy(teams, "_id");
-
-		//Add Images
-		for (const team of teams) {
-			this.teams[team._id].image = await this.googleToCanvas(
-				`/images/teams/${team.images.main}`
-			);
+		for (const row of tableData.rowData) {
+			row.team.image = await this.googleToCanvas(`/images/teams/${row.team.images.main}`);
 		}
 	}
 
@@ -87,9 +74,9 @@ export default class MinMax extends Canvas {
 		const { tableData, positions } = this;
 
 		//First, loop through each team and work out their minimum + maximum points
-		for (const team of tableData.rowData) {
-			team.gamesToPlay = tableData.settings.totalRounds - team.Pld;
-			team.maxPts = team.Pts + team.gamesToPlay * 2;
+		for (const row of tableData.rowData) {
+			row.gamesToPlay = tableData.settings.totalRounds - row.Pld;
+			row.maxPts = row.Pts + row.gamesToPlay * 2;
 		}
 
 		//Then we work out the maximum and minimum possible scores
@@ -274,7 +261,7 @@ export default class MinMax extends Canvas {
 	}
 
 	drawTeamColumns() {
-		const { ctx, positions, tableData, teams, thresholds } = this;
+		const { ctx, positions, tableData, thresholds } = this;
 
 		let x = positions.columnWidth + positions.columnPadding / 2;
 		let baseY = positions.rowHeight * 0.5 + positions.headerHeight;
@@ -289,7 +276,7 @@ export default class MinMax extends Canvas {
 			const h = positions.rowHeight * (column.maxPts - column.Pts + 1);
 
 			//Get Team
-			const team = teams[column._team];
+			const { team } = column;
 
 			//Draw main bar
 			ctx.fillStyle = team.colours.main;
@@ -353,10 +340,10 @@ export default class MinMax extends Canvas {
 		const { positions, _segment, year } = this;
 
 		//Get Table
-		this.tableData = await processLeagueTableData(_segment, year);
+		this.tableData = await processLeagueTableData(_segment, year, {}, true);
 
 		//Get Teams
-		await this.getTeams();
+		await this.getTeamImages();
 
 		//Work out thresholds
 		this.calculateThresholds();
