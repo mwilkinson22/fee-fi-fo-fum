@@ -41,12 +41,7 @@ import { getCoreConfig } from "./client/actions/configActions";
 import { setDefaultProfile } from "./client/actions/socialActions";
 import { fetchCurrentUser } from "./client/actions/userActions";
 import { fetchGameYears } from "./client/actions/gamesActions";
-import {
-	fetchTeam,
-	fetchAllTeamTypes,
-	setActiveTeamType,
-	fetchTeamList
-} from "./client/actions/teamsActions";
+import { fetchTeam, fetchAllTeamTypes, setActiveTeamType } from "./client/actions/teamsActions";
 import { ensureRequiredSettingsAreSet } from "./controllers/settingsController";
 
 //Constants
@@ -153,8 +148,6 @@ app.get("*", async (req, res) => {
 		store.dispatch(fetchCurrentAwards(req.ipAddress)),
 		//Fetch all team types
 		store.dispatch(fetchAllTeamTypes()),
-		//Fetch all teams
-		store.dispatch(fetchTeamList()),
 		//Fetch years with games
 		store.dispatch(fetchGameYears()),
 		//Fetch local team

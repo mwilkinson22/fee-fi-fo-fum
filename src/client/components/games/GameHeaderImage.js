@@ -4,13 +4,13 @@ import { connect } from "react-redux";
 
 class GameHeaderImage extends Component {
 	render() {
-		const { bucketPaths, localTeam, game, className, size, useWebp, teamList } = this.props;
+		const { bucketPaths, localTeam, game, className, size, useWebp, fullTeams } = this.props;
 		let src;
 		let alt;
 
 		//Get actual src link
 		if (game.images.header) {
-			const localTeamName = teamList[localTeam].name.long;
+			const localTeamName = fullTeams[localTeam].name.long;
 			src = bucketPaths.images.games + "header/" + game.images.header;
 			alt = `${localTeamName} vs ${game._opposition.name.long} - ${game.date.toString(
 				"dd/MM/yyyy"
@@ -51,11 +51,11 @@ class GameHeaderImage extends Component {
 
 function mapStateToProps({ config, teams }) {
 	const { bucketPaths, localTeam, webp } = config;
-	const { teamList } = teams;
+	const { fullTeams } = teams;
 	return {
 		bucketPaths,
 		localTeam,
-		teamList,
+		fullTeams,
 		useWebp: webp
 	};
 }

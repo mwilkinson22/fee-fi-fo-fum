@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 
 //Components
 import Table from "../Table";
@@ -309,9 +308,4 @@ StatsTables.defaultProps = {
 	showTotal: true
 };
 
-function mapStateToProps({ teams }) {
-	const { teamList } = teams;
-	return { teamList };
-}
-
-export default connect(mapStateToProps)(StatsTables);
+export default StatsTables;

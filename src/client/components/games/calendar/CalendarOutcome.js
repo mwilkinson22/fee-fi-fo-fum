@@ -140,8 +140,8 @@ CalendarOutcome.propTypes = {
 function mapStateToProps({ config, games, teams }) {
 	const { baseUrl, localTeam } = config;
 	const { fullGames } = games;
-	const { teamList, teamTypes } = teams;
-	return { baseUrl, localTeam, fullGames, teamList, teamTypes };
+	const { teamTypes } = teams;
+	return { baseUrl, localTeam, fullGames, teamTypes };
 }
 
 export default connect(mapStateToProps)(CalendarOutcome);

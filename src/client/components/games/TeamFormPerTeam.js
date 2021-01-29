@@ -19,7 +19,7 @@ class TeamFormPerTeam extends Component {
 
 	renderTable(renderLocalTeam) {
 		const { formObject } = this.state;
-		const { localTeam, game, teamList } = this.props;
+		const { localTeam, game, fullTeams } = this.props;
 
 		//Choose relevant games
 		const games = formObject[renderLocalTeam ? "local" : "opposition"];
@@ -30,15 +30,11 @@ class TeamFormPerTeam extends Component {
 		}
 
 		//Get the team info
-		const team = renderLocalTeam ? teamList[localTeam] : game._opposition;
+		const team = renderLocalTeam ? fullTeams[localTeam] : game._opposition;
 
 		//Render games
 		const renderedGames = games.map(g => {
-			const { _homeTeam, _awayTeam, homePoints, awayPoints, slug, date } = g;
-
-			//Get key data
-			const isAway = _awayTeam == team._id;
-			const oppositionId = isAway ? _homeTeam : _awayTeam;
+			const { isAway, opposition, homePoints, awayPoints, slug, date } = g;
 
 			//Get Score & Result
 			const [localScore, oppositionScore] = isAway
@@ -62,7 +58,7 @@ class TeamFormPerTeam extends Component {
 
 			renderedGameProps.children = [
 				<div className="badge" key="badge">
-					<TeamImage team={teamList[oppositionId]} variant="dark" size="medium" />
+					<TeamImage team={opposition} variant="dark" size="medium" />
 				</div>,
 				<div className="date" key="date">
 					{new Date(date).toString("dd/MM/yyyy")}
@@ -142,8 +138,8 @@ TeamFormPerTeam.defaultProps = {
 
 function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
-	const { teamList } = teams;
-	return { localTeam, teamList };
+	const { fullTeams } = teams;
+	return { localTeam, fullTeams };
 }
 
 export default connect(mapStateToProps)(TeamFormPerTeam);

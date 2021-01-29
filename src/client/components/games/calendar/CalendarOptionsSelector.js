@@ -29,7 +29,7 @@ class CalendarOptionsSelector extends Component {
 			fullGames,
 			fetchGames,
 			localTeam,
-			teamList
+			fullTeams
 		} = props;
 
 		const now = new Date();
@@ -47,7 +47,7 @@ class CalendarOptionsSelector extends Component {
 		}
 
 		//Get Local Team
-		const localTeamName = teamList[localTeam].name;
+		const localTeamName = fullTeams[localTeam].name;
 
 		//Set Validation Schema
 		const validationSchema = Yup.object().shape({
@@ -343,8 +343,8 @@ CalendarOptionsSelector.propTypes = {
 function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	const { fullGames, gameList } = games;
-	const { teamList, teamTypes } = teams;
-	return { localTeam, fullGames, gameList, teamList, teamTypes };
+	const { fullTeams, teamTypes } = teams;
+	return { localTeam, fullGames, gameList, fullTeams, teamTypes };
 }
 
 export default connect(mapStateToProps, { fetchGames })(CalendarOptionsSelector);

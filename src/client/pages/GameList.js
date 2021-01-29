@@ -244,7 +244,7 @@ class GameList extends Component {
 	}
 
 	render() {
-		const { bucketPaths, gameList, teamList, localTeam } = this.props;
+		const { bucketPaths, gameList, fullTeams, localTeam } = this.props;
 		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin } = this.state;
 
 		if (teamTypeRedirect) {
@@ -256,7 +256,7 @@ class GameList extends Component {
 		}
 
 		//Render Page Title
-		const titleArray = [teamList[localTeam].name.long];
+		const titleArray = [fullTeams[localTeam].name.long];
 		if (teamType.sortOrder > 1) {
 			titleArray.push(teamType.name);
 		}
@@ -329,14 +329,14 @@ class GameList extends Component {
 function mapStateToProps({ games, teams, config }) {
 	const { bucketPaths, localTeam } = config;
 	const { gameList, fullGames, gameYears } = games;
-	const { teamList, teamTypes, activeTeamType } = teams;
+	const { fullTeams, teamTypes, activeTeamType } = teams;
 	return {
 		bucketPaths,
 		localTeam,
 		gameList,
 		gameYears,
 		fullGames,
-		teamList,
+		fullTeams,
 		teamTypes,
 		activeTeamType
 	};

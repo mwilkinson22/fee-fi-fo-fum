@@ -52,8 +52,14 @@ class ManOfSteelPoints extends Component {
 	}
 
 	renderRow(player) {
-		const { localTeam, teamList, game } = this.props;
-		const { colours } = teamList[player._team];
+		const { localTeam, fullTeams, game } = this.props;
+		let teamObject;
+		if (player._team === localTeam) {
+			teamObject = fullTeams[localTeam].colours;
+		} else {
+			teamObject = game._opposition;
+		}
+		const { colours } = teamObject;
 
 		//Set Content Array, start with # of points
 		const content = [
@@ -149,8 +155,8 @@ ManOfSteelPoints.propTypes = {
 
 function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
-	const { teamList, teamTypes } = teams;
-	return { localTeam, teamList, teamTypes };
+	const { fullTeams, teamTypes } = teams;
+	return { localTeam, fullTeams, teamTypes };
 }
 
 export default connect(mapStateToProps)(ManOfSteelPoints);

@@ -7,17 +7,18 @@ import { Link } from "react-router-dom";
 //Components
 import TeamImage from "../teams/TeamImage";
 
-function TeamFormHeadToHead({ allCompetitions, game, localTeam, teamList }) {
+function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 	//Get form object
 	const headToHeadGames =
 		game.teamForm[allCompetitions ? "allCompetitions" : "singleCompetition"].headToHead;
 
-	//Badges
+	//Get opposition object
 	const opposition = game._opposition;
-	const badges = {
-		[localTeam]: <TeamImage team={teamList[localTeam]} size="medium" />,
-		[opposition._id]: <TeamImage team={opposition} size="medium" />
-	};
+
+	//Get Team Objects
+	const teamObjects = {};
+	teamObjects[localTeam] = fullTeams[localTeam];
+	teamObjects[opposition._id] = opposition;
 
 	//Aggregate Stats
 	const results = {
@@ -35,7 +36,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, teamList }) {
 		.map(game => {
 			const { homePoints, awayPoints, _homeTeam, _awayTeam } = game;
 			//Get the teams, in order
-			let teams = [teamList[_homeTeam], teamList[_awayTeam]];
+			let teams = [teamObjects[_homeTeam], teamObjects[_awayTeam]];
 
 			//Format the date string, only show the year if it's not this year
 			const date = new Date(game.date);
@@ -61,7 +62,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, teamList }) {
 				//Use that data to update results + colours
 				if (winningTeam === localTeam) {
 					results["W"]++;
-					dateColours = teamList[localTeam].colours;
+					dateColours = fullTeams[localTeam].colours;
 				} else if (winningTeam === opposition._id) {
 					results["L"]++;
 					dateColours = opposition.colours;
@@ -77,7 +78,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, teamList }) {
 					className="team-boxes"
 					style={{ background: team.colours.main, color: team.colours.text }}
 				>
-					{badges[team._id]}
+					<TeamImage team={team} size="medium" key={team._id} />
 					{i === 0 ? homePoints : awayPoints}
 				</div>
 			));
@@ -111,7 +112,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, teamList }) {
 			<div className="games">{links}</div>
 			<div className="summary">
 				<div>
-					{teamList[localTeam].name.short} wins: {results.W}
+					{fullTeams[localTeam].name.short} wins: {results.W}
 				</div>
 				{drawsDiv}
 				<div>
@@ -120,7 +121,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, teamList }) {
 			</div>
 			<div className="summary">
 				<div>
-					{teamList[localTeam].name.short} points: {points[localTeam]}
+					{fullTeams[localTeam].name.short} points: {points[localTeam]}
 				</div>
 				<div>
 					{opposition.name.short} points: {points[opposition._id]}
@@ -141,8 +142,8 @@ TeamFormHeadToHead.defaultProps = {
 
 function mapStateToProps({ config, teams }) {
 	const { localTeam } = config;
-	const { teamList } = teams;
-	return { localTeam, teamList };
+	const { fullTeams } = teams;
+	return { localTeam, fullTeams };
 }
 
 export default connect(mapStateToProps)(TeamFormHeadToHead);

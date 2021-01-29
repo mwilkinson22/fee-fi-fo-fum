@@ -9,7 +9,7 @@ import {
 	DELETE_TEAM
 } from "../actions/types";
 
-export default function(state = { fullTeams: {} }, action) {
+export default function(state = { fullTeams: {}, teamListLoaded: false }, action) {
 	switch (action.type) {
 		case FETCH_TEAM: {
 			return {
@@ -36,7 +36,8 @@ export default function(state = { fullTeams: {} }, action) {
 		case FETCH_ALL_TEAMS:
 			return {
 				...state,
-				...action.payload
+				...action.payload,
+				teamListLoaded: true
 			};
 
 		case FETCH_ALL_TEAM_TYPES:

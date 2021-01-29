@@ -4,6 +4,9 @@ import Login from "./Login";
 import { Switch, Route } from "react-router-dom";
 import { ToastContainer, Slide } from "react-toastify";
 
+//Actions
+import { fetchTeamList } from "~/client/actions/teamsActions";
+
 //Pages
 import ErrorBoundary from "../ErrorBoundary";
 import NotFoundPage from "../../pages/NotFoundPage";
@@ -76,13 +79,36 @@ import AdminUserPage from "../../pages/admin/AdminUserPage";
 import LoadingPage from "../LoadingPage";
 
 class AdminRouter extends Component {
+	constructor(props) {
+		super(props);
+		const { authUser, teamListLoaded, fetchTeamList } = props;
+
+		//The vast majority of admin features require a teamList,
+		//so it's easier to load it here rather than on every individual page.
+		//But we still do a window check to prevent loading ssr twice
+		if (typeof window !== "undefined") {
+			if (!teamListLoaded) {
+				fetchTeamList();
+			}
+		}
+
+		this.state = { authUser, isLoading: !teamListLoaded };
+	}
+
+	static getDerivedStateFromProps(nextProps) {
+		const { authUser, teamListLoaded } = nextProps;
+
+		return { authUser, isLoading: !teamListLoaded };
+	}
+
 	render() {
+		const { authUser, isLoading } = this.state;
 		let content;
-		if (typeof window === "undefined") {
+		if (typeof window === "undefined" || isLoading) {
 			//Don't bother with SSR rendering, we'll never
 			//need these pages for SEO and it prevents double-loading of all the data
 			content = <LoadingPage />;
-		} else if (this.props.authUser) {
+		} else if (authUser) {
 			content = (
 				<ErrorBoundary parentProps={this.props} parentState={this.state}>
 					<Switch>
@@ -270,9 +296,10 @@ class AdminRouter extends Component {
 		);
 	}
 }
-function mapStateToProps({ config }) {
+function mapStateToProps({ config, teams }) {
 	const { authUser } = config;
-	return { authUser };
+	const { teamListLoaded } = teams;
+	return { authUser, teamListLoaded };
 }
 
-export default connect(mapStateToProps)(AdminRouter);
+export default connect(mapStateToProps, { fetchTeamList })(AdminRouter);

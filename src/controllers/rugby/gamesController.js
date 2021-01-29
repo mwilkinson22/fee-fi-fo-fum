@@ -479,6 +479,10 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 		date: { $lt: game.date },
 		$or: [{ _homeTeam: game._opposition._id }, { _awayTeam: game._opposition._id }]
 	};
+
+	//Pull the local team object
+	const localTeamObject = await Team.findById(localTeam, "name images.main").lean();
+
 	if (!allCompetitions) {
 		neutralQuery._competition = game._competition._id;
 	}
@@ -487,6 +491,8 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 		"date _homeTeam _awayTeam homePoints awayPoints"
 	)
 		.sort({ date: -1 })
+		.populate({ path: "_homeTeam", select: "name images.main" })
+		.populate({ path: "_awayTeam", select: "name images.main" })
 		.limit(gameLimit)
 		.lean();
 
@@ -495,13 +501,13 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 		.flatten()
 		.uniqBy(g => g._id.toString())
 		.map(({ _id, date, isAway, _opposition, score, slug, title }) => {
-			const _homeTeam = isAway ? _opposition._id : localTeam;
-			const _awayTeam = isAway ? localTeam : _opposition._id;
+			const _homeTeam = isAway ? _opposition : localTeamObject;
+			const _awayTeam = isAway ? localTeamObject : _opposition;
 			let homePoints = null;
 			let awayPoints = null;
 			if (score) {
-				homePoints = score[_homeTeam];
-				awayPoints = score[_awayTeam];
+				homePoints = score[_homeTeam._id];
+				awayPoints = score[_awayTeam._id];
 			}
 			return { homePoints, awayPoints, _homeTeam, _awayTeam, date, slug, title, _id };
 		})
@@ -512,21 +518,41 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 		.flatten()
 		.map(g => ({
 			...g,
-			_homeTeam: g._homeTeam.toString(),
-			_awayTeam: g._awayTeam.toString(),
 			date: new Date(g.date)
 		}))
 		.orderBy("date", "desc")
 		.value();
 
-	//And finally, apply it to the game object
-	const local = allGames
-		.filter(g => [g._homeTeam, g._awayTeam].includes(localTeam))
-		.slice(0, gameLimit);
-	const opposition = allGames
-		.filter(g => [g._homeTeam, g._awayTeam].includes(game._opposition._id))
-		.slice(0, gameLimit);
+	//Define a helper function to get team-specific form and convert individual teams to
+	//just "opposition"
+	const formatTeamSpecificForm = (games, _team) => {
+		return games
+			.filter(g => [g._homeTeam._id.toString(), g._awayTeam._id.toString()].includes(_team))
+			.map(g => {
+				const { _homeTeam, _awayTeam, ...game } = g;
+				let opposition, isAway;
+				if (_homeTeam._id.toString() == _team) {
+					isAway = false;
+					opposition = _awayTeam;
+				} else {
+					isAway = true;
+					opposition = _homeTeam;
+				}
+				return { ...game, opposition, isAway };
+			})
+			.slice(0, gameLimit);
+	};
+
+	//And finally, create separate local, opposition and h2h objects
+	const local = formatTeamSpecificForm(allGames, localTeam);
+	const opposition = formatTeamSpecificForm(allGames, game._opposition._id);
 	const headToHead = allGames
+		//We only need IDs here as we'll have all the team data preloaded on the frontend
+		.map(g => {
+			g._homeTeam = g._homeTeam._id.toString();
+			g._awayTeam = g._awayTeam._id.toString();
+			return g;
+		})
 		.filter(
 			g =>
 				[g._homeTeam, g._awayTeam].includes(localTeam) &&
