@@ -25,7 +25,7 @@ class Header extends Component {
 					key={social}
 				>
 					<img
-						src={`${bucketPaths.images.layout}icons/${social.toLowerCase()}.svg?b=test`}
+						src={`${bucketPaths.images.layout}icons/${social.toLowerCase()}.svg`}
 						alt={`${social} Logo`}
 						title={`Follow us on ${social}`}
 					/>
