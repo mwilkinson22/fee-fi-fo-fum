@@ -31,10 +31,7 @@ import PregameSquadList from "../components/games/PregameSquadList";
 
 //Actions
 import { fetchGames } from "../actions/gamesActions";
-import { fetchNewsPost, fetchPostList } from "../actions/newsActions";
-
-//Helpers
-import { matchSlugToItem } from "~/helpers/routeHelper";
+import { fetchNewsPostBySlug } from "../actions/newsActions";
 
 //Constants
 import newsDecorators from "~/constants/newsDecorators";
@@ -43,104 +40,64 @@ import newsPlugins from "~/constants/newsPlugins";
 class NewsPostPage extends Component {
 	constructor(props) {
 		super(props);
-		const { post, postList, fetchPostList } = props;
+		const { fetchNewsPostBySlug, slugMap, match } = props;
 
-		if (!postList) {
-			fetchPostList();
+		const { slug } = match.params;
+		let isLoadingPost = false;
+		if (slugMap[slug] === undefined) {
+			fetchNewsPostBySlug(slug);
+			isLoadingPost = true;
 		}
 
-		this.state = {
-			post,
-			postList
-		};
+		this.state = { isLoadingPost };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			postList,
-			fullPosts,
-			fullGames,
-			match,
-			redirects,
-			fetchNewsPost,
-			fetchGames
-		} = nextProps;
+		const { fullPosts, fullGames, match, fetchGames, slugMap } = nextProps;
 		const { slug } = match.params;
-		const newState = { isLoadingList: false, redirect: null };
+		const newState = {};
 
-		//Ensure we have the basic post list
-		if (!postList) {
-			newState.isLoadingList = true;
-			return newState;
+		//Await the post
+		if (slugMap[slug] === undefined) {
+			return null;
 		}
+		newState.isLoadingPost = false;
 
-		//Get the item and redirect info from the post
-		const { item, redirect } = matchSlugToItem(slug, postList, redirects);
-
-		//If there's a redirect, pass it in immediately
-		if (redirect) {
-			newState.redirect = `/news/post/${item.slug}`;
-			return newState;
-		}
-
-		//If the post isn't found in the list, 404
-		if (!item) {
+		//404 if we have no id
+		if (!slugMap[slug]) {
+			//404
 			newState.post = false;
 			return newState;
 		}
 
-		//Otherwise, we have the id
-		const { _id } = item;
+		//Get the current post
+		newState.post = fullPosts[slugMap[slug]];
 
-		//Check to see if we have the post within fullPosts
-		newState.post = fullPosts[_id];
+		//Set preview and editor state
+		const { blocks } = JSON.parse(newState.post.content);
 
-		//If don't have it, we need to load it
-		if (!newState.post && !prevState.isLoadingPost) {
-			fetchNewsPost(_id);
-			newState.isLoadingPost = true;
-		}
+		//We do the regex to ensure punctuation at the end of each line
+		newState.post.preview = blocks
+			.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
+			.join(" \n");
+		newState.post.editorState = editorStateFromRaw(
+			JSON.parse(newState.post.content),
+			newsDecorators
+		);
 
-		//Otherwise, pull the info we need
-		if (newState.post) {
-			//For when it's just loaded
-			newState.isLoadingPost = false;
-
-			//Get Meta Description
-			const { blocks } = JSON.parse(newState.post.content);
-
-			//We do the regex to ensure punctuation at the end of each line
-			newState.post.preview = blocks
-				.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
-				.join(" \n");
-			newState.post.editorState = editorStateFromRaw(
-				JSON.parse(newState.post.content),
-				newsDecorators
-			);
-
-			//Get recent posts for the sidebar
-			newState.recentPosts = _.chain(postList)
-				.orderBy(["dateCreated"], ["desc"])
-				.reject(post => post.id == _id)
-				.chunk(5)
-				.value()[0];
-
-			//Get game, if necessary
-			if (newState.post._game) {
-				//See if it's already loaded
-				newState.game = fullGames[newState.post._game];
-				if ((!newState.game || !newState.game.pageData) && !prevState.isLoadingGame) {
-					//Load Game
-					fetchGames([newState.post._game], "gamePage");
-					newState.isLoadingGame = true;
-				} else if (newState.game && newState.game.pageData) {
-					newState.isLoadingGame = false;
-				}
-			} else {
-				newState.game = undefined;
+		//Get game, if necessary
+		if (newState.post._game) {
+			//See if it's already loaded
+			newState.game = fullGames[newState.post._game];
+			if ((!newState.game || !newState.game.pageData) && !prevState.isLoadingGame) {
+				//Load Game
+				fetchGames([newState.post._game], "gamePage");
+				newState.isLoadingGame = true;
+			} else if (newState.game && newState.game.pageData) {
+				newState.isLoadingGame = false;
 			}
 		} else {
-			fetchNewsPost(_id);
+			newState.game = undefined;
 		}
 
 		return newState;
@@ -153,8 +110,15 @@ class NewsPostPage extends Component {
 	}
 
 	formatSidebar() {
-		const { post, recentPosts } = this.state;
-		if (recentPosts) {
+		const { postList } = this.props;
+		const { post } = this.state;
+		const recentPosts = _.chain(postList)
+			.orderBy(["dateCreated"], ["desc"])
+			.reject(({ _id }) => post._id == _id)
+			.chunk(5)
+			.value()[0];
+
+		if (recentPosts && recentPosts.length) {
 			return recentPosts.map(recentPost => {
 				if (recentPost.slug !== post.slug) {
 					return (
@@ -168,8 +132,6 @@ class NewsPostPage extends Component {
 					return null;
 				}
 			});
-		} else {
-			return <LoadingPage />;
 		}
 	}
 
@@ -371,12 +333,12 @@ class NewsPostPage extends Component {
 	}
 
 	render() {
-		const { bucketPaths, facebookApp } = this.props;
-		const { isLoadingList, isLoadingPost, isLoadingGame, post, redirect } = this.state;
+		const { bucketPaths, facebookApp, match } = this.props;
+		const { isLoadingList, isLoadingPost, isLoadingGame, post } = this.state;
 
 		//Redirect old slugs
-		if (redirect) {
-			return <Redirect to={redirect} />;
+		if (post && post.slug !== match.params.slug) {
+			return <Redirect to={`/news/post/${post.slug}`} />;
 		}
 
 		//Wait for all content
@@ -418,7 +380,7 @@ function mapStateToProps({ config, games, news }) {
 		ticketLink
 	} = config;
 	const { fullGames } = games;
-	const { fullPosts, postList, redirects } = news;
+	const { fullPosts, postList, slugMap } = news;
 
 	return {
 		facebookApp,
@@ -426,7 +388,7 @@ function mapStateToProps({ config, games, news }) {
 		fullPosts,
 		fullGames,
 		postList,
-		redirects,
+		slugMap,
 		authUser,
 		baseUrl,
 		bucketPaths,
@@ -439,26 +401,19 @@ function mapStateToProps({ config, games, news }) {
 async function loadData(store, path) {
 	const slug = path.split("/")[3];
 
-	//Get post list
-	await store.dispatch(fetchPostList());
+	//Get post
+	await store.dispatch(fetchNewsPostBySlug(slug));
 
-	//Find item in list
-	const { postList, redirects } = store.getState().news;
-	const { item } = matchSlugToItem(slug, postList, redirects);
-
-	//Load the full post, if it exists
-	if (item) {
-		await store.dispatch(fetchNewsPost(item._id));
-		const post = store.getState().news.fullPosts[item._id];
-
-		//Load game, if necessary
-		if (post._game) {
-			await store.dispatch(fetchGames([post._game], "gamePage"));
-		}
+	//Check to see if we need a game
+	const { fullPosts, slugMap } = store.getState().news;
+	const _id = slugMap[slug];
+	const post = fullPosts[_id];
+	if (post && post._game) {
+		await store.dispatch(fetchGames([post._game], "gamePage"));
 	}
 }
 
 export default {
-	component: connect(mapStateToProps, { fetchGames, fetchNewsPost, fetchPostList })(NewsPostPage),
+	component: connect(mapStateToProps, { fetchGames, fetchNewsPostBySlug })(NewsPostPage),
 	loadData
 };

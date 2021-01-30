@@ -9,29 +9,31 @@ import NewsPostCard from "../../components/news/NewsPostCard";
 import LoadingPage from "../../components/LoadingPage";
 
 //Actions
-import { fetchPostList } from "~/client/actions/newsActions";
+import { fetchEntirePostList } from "~/client/actions/newsActions";
 
 class AdminNewsList extends Component {
 	constructor(props) {
 		super(props);
-		const { postList, fetchPostList } = props;
-		if (!postList) {
-			fetchPostList();
+		const { fullPostListLoaded, fetchEntirePostList } = props;
+		if (!fullPostListLoaded) {
+			fetchEntirePostList();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { postList } = nextProps;
-		return { postList };
+		const { fullPostListLoaded } = nextProps;
+		const isLoading = !fullPostListLoaded;
+		return { isLoading };
 	}
 
 	render() {
-		const { postList } = this.state;
+		const { isLoading } = this.state;
+		const { postList } = this.props;
 
 		let content;
-		if (!postList) {
+		if (isLoading) {
 			content = <LoadingPage />;
 		} else {
 			const posts = _.chain(postList)
@@ -61,8 +63,8 @@ class AdminNewsList extends Component {
 }
 
 function mapStateToProps({ news }) {
-	const { postList } = news;
-	return { postList };
+	const { postList, fullPostListLoaded } = news;
+	return { postList, fullPostListLoaded };
 }
 
-export default connect(mapStateToProps, { fetchPostList })(AdminNewsList);
+export default connect(mapStateToProps, { fetchEntirePostList })(AdminNewsList);

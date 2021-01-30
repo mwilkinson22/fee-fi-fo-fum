@@ -10,7 +10,6 @@ import GameCard from "../components/games/GameCard";
 import LeagueTable from "../components/seasons/LeagueTable";
 
 //Actions
-import { fetchPostList } from "../actions/newsActions";
 import { fetchHomePageGames } from "../actions/gamesActions";
 import { fetchHomePageLeagueTableData } from "../actions/competitionActions";
 
@@ -18,19 +17,12 @@ class HomePage extends Component {
 	constructor(props) {
 		super(props);
 		const {
-			postList,
-			fetchPostList,
 			homePageGames,
 			fetchHomePageGames,
 			fullGames,
 			homePageLeagueTable,
 			fetchHomePageLeagueTableData
 		} = props;
-
-		//Get News Posts
-		if (!postList) {
-			fetchPostList();
-		}
 
 		//Get League Table Data
 		if (homePageLeagueTable === undefined) {
@@ -48,7 +40,7 @@ class HomePage extends Component {
 			}
 		}
 
-		this.state = { postList };
+		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -57,7 +49,7 @@ class HomePage extends Component {
 		const newState = { isLoading: false };
 
 		//Await dependencies
-		if (!postList || !homePageGames || homePageLeagueTable === undefined) {
+		if (!homePageGames || homePageLeagueTable === undefined) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -157,7 +149,6 @@ class HomePage extends Component {
 async function loadData(store) {
 	//Get required data
 	return Promise.all([
-		store.dispatch(fetchPostList()),
 		store.dispatch(fetchHomePageGames()),
 		store.dispatch(fetchHomePageLeagueTableData())
 	]);
@@ -177,7 +168,6 @@ function mapStateToProps({ news, games, competitions }) {
 
 export default {
 	component: connect(mapStateToProps, {
-		fetchPostList,
 		fetchHomePageGames,
 		fetchHomePageLeagueTableData
 	})(HomePage),

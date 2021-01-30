@@ -18,6 +18,7 @@ import GameTeamSelector from "../components/games/GameTeamSelector";
 import MatchSquadList from "../components/games/MatchSquadList";
 import GameEvents from "../components/games/GameEvents";
 import NewsPostCard from "../components/news/NewsPostCard";
+import NewsPostCardPlaceholder from "~/client/components/news/NewsPostCardPlaceholder";
 import HeadToHeadStats from "../components/games/HeadToHeadStats";
 import FanPotmVoting from "../components/games/FanPotmVoting";
 import GameStars from "../components/games/GameStars";
@@ -42,7 +43,7 @@ class GamePage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { postList, fetchPostList, match, slugMap, fetchGameFromSlug, fullGames } = props;
+		const { match, slugMap, fetchGameFromSlug, fullGames } = props;
 
 		//Work out whether to load game
 		const { slug } = match.params;
@@ -63,12 +64,7 @@ class GamePage extends Component {
 		if (loadGame) {
 			fetchGameFromSlug(slug);
 		}
-
-		if (!postList) {
-			fetchPostList();
-		}
-
-		this.state = { isLoading: loadGame, statTableTeam: "both" };
+		this.state = { isLoadingGame: loadGame, statTableTeam: "both" };
 	}
 
 	componentDidMount() {
@@ -78,15 +74,15 @@ class GamePage extends Component {
 		scrollToElement(this.props.location, scrollableElements);
 	}
 
-	static getDerivedStateFromProps(nextProps) {
-		const { match, slugMap, fullGames } = nextProps;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const { match, slugMap, fullGames, postList, fetchPostList } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
 		//Ensure slug map is loaded
 		if (slugMap[slug] !== undefined) {
 			//We've had a result from fetchPersonFromGame
-			newState.isLoading = false;
+			newState.isLoadingGame = false;
 
 			if (slugMap[slug] === false) {
 				//404
@@ -95,6 +91,18 @@ class GamePage extends Component {
 				const _id = slugMap[slug];
 				newState.game = fullGames[_id];
 				newState.isFixture = newState.game.date >= new Date();
+
+				//Get news post
+				if (newState.game.newsPosts) {
+					const missingPosts = newState.game.newsPosts.filter(id => !postList[id]);
+					if (missingPosts.length) {
+						if (!prevState.isLoadingPosts) {
+							fetchPostList(missingPosts);
+							newState.isLoadingPosts = true;
+						}
+					}
+				}
+				newState.isLoadingPosts = false;
 			}
 		}
 
@@ -256,27 +264,23 @@ class GamePage extends Component {
 	generateNewsPosts() {
 		const { postList } = this.props;
 		const { game } = this.state;
-		let gamePosts = [];
-		if (postList) {
-			gamePosts = _.chain(postList)
-				.filter(p => p._game == game._id)
-				.sortBy("dateCreated")
-				.reverse()
-				.map(p => <NewsPostCard post={p} key={p._id} />)
-				.value();
-		}
+		if (game.newsPosts && game.newsPosts.length) {
+			const cards = game.newsPosts.map(id => {
+				if (postList[id]) {
+					return <NewsPostCard post={postList[id]} key={id} />;
+				} else {
+					return <NewsPostCardPlaceholder key={id} />;
+				}
+			});
 
-		if (gamePosts.length) {
 			return (
 				<section className="news">
 					<h2>News</h2>
 					<div className="container">
-						<div className="news-post-list">{gamePosts}</div>
+						<div className="news-post-list">{cards}</div>
 					</div>
 				</section>
 			);
-		} else {
-			return null;
 		}
 	}
 
@@ -469,8 +473,8 @@ class GamePage extends Component {
 
 	render() {
 		const { bucketPaths, postList } = this.props;
-		const { game, isLoading } = this.state;
-		if (isLoading) {
+		const { game, isLoadingGame } = this.state;
+		if (isLoadingGame) {
 			return <LoadingPage />;
 		} else if (!game) {
 			return <NotFoundPage message="Game not found" />;
@@ -546,7 +550,7 @@ function mapStateToProps({ games, config, teams, news }) {
 
 async function loadData(store, path) {
 	const slug = path.split("/")[2];
-	return Promise.all([store.dispatch(fetchPostList()), store.dispatch(fetchGameFromSlug(slug))]);
+	return store.dispatch(fetchGameFromSlug(slug));
 }
 
 export default {

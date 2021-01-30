@@ -9,26 +9,26 @@ import LoadingPage from "../../LoadingPage";
 import NewsPostCard from "../../news/NewsPostCard";
 
 //Actions
-import { fetchPostList } from "~/client/actions/newsActions";
+import { fetchEntirePostList } from "~/client/actions/newsActions";
 
 class AdminGameNews extends Component {
 	constructor(props) {
 		super(props);
-		const { postList, fetchPostList } = props;
+		const { fullPostListLoaded, fetchEntirePostList } = props;
 
-		if (!postList) {
-			fetchPostList();
+		if (!fullPostListLoaded) {
+			fetchEntirePostList();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { match, postList } = nextProps;
+		const { match, postList, fullPostListLoaded } = nextProps;
 		const newState = { isLoading: false };
 
 		//Await post list
-		if (!postList) {
+		if (!fullPostListLoaded) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -111,9 +111,9 @@ class AdminGameNews extends Component {
 
 //Add Redux Support
 function mapStateToProps({ news }) {
-	const { postList } = news;
+	const { postList, fullPostListLoaded } = news;
 
-	return { postList };
+	return { postList, fullPostListLoaded };
 }
 // export default form;
-export default withRouter(connect(mapStateToProps, { fetchPostList })(AdminGameNews));
+export default withRouter(connect(mapStateToProps, { fetchEntirePostList })(AdminGameNews));

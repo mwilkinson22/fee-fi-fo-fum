@@ -14,7 +14,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import TeamSelectorPage from "./pages/TeamSelectorPage";
 import LoadingPage from "./components/LoadingPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import NewsPostLegacyRedirect from "./components/news/NewsPostLegacyRedirect";
 import loadable from "@loadable/component";
 
 //Reusable fallback
@@ -125,7 +124,7 @@ const newsRoutes = [
 	},
 	{
 		//Handle old links from social media
-		...NewsPostLegacyRedirect,
+		component: () => <Redirect to="/news/category/all" />,
 		path: "/news/:legacycategory/:id"
 	},
 	{

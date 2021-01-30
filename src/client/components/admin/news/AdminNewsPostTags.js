@@ -9,7 +9,7 @@ import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import { fetchPostList, fetchNewsPost, updateNewsPost } from "~/client/actions/newsActions";
+import { updateNewsPost } from "~/client/actions/newsActions";
 import { fetchPeopleList } from "~/client/actions/peopleActions";
 
 //Constants
@@ -197,8 +197,6 @@ function mapStateToProps({ news, people, teams }) {
 }
 
 export default connect(mapStateToProps, {
-	fetchPostList,
-	fetchNewsPost,
 	fetchPeopleList,
 	updateNewsPost
 })(AdminNewsPostTags);

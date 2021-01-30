@@ -7,21 +7,18 @@ import { withRouter } from "react-router-dom";
 import TeamFormHeadToHead from "../../games/TeamFormHeadToHead";
 import TeamFormPerTeam from "../../games/TeamFormPerTeam";
 
-//Helpers
-import { matchSlugToItem } from "~/helpers/routeHelper";
-
 function TeamFormBlock(props) {
-	const { blockProps, data, match, postList, redirects, fullGames } = props;
+	const { blockProps, data, match, fullPosts, slugMap, fullGames } = props;
 	const { allCompetitions, formType } = data;
 
 	if (blockProps.getReadOnly()) {
-		const post = matchSlugToItem(match.params.slug, postList, redirects);
+		const post = fullPosts[slugMap[match.params.slug]];
 		if (!post) {
 			return null;
 		}
 
 		//Get Game Id
-		const { _game } = post.item;
+		const { _game } = post;
 		const game = fullGames[_game];
 
 		if (formType === "head-to-head") {
@@ -45,8 +42,8 @@ function TeamFormBlock(props) {
 
 function mapStateToProps({ games, news }) {
 	const { fullGames } = games;
-	const { postList, redirects } = news;
-	return { fullGames, postList, redirects };
+	const { fullPosts, slugMap } = news;
+	return { fullGames, fullPosts, slugMap };
 }
 
 export default withRouter(connect(mapStateToProps)(TeamFormBlock));

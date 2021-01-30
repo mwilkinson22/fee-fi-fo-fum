@@ -117,6 +117,22 @@
 	background-size: cover;
 	display: grid;
 
+	&.placeholder {
+		background: #aaa;
+		animation: linear backgroundChange 1s infinite;
+		@keyframes backgroundChange {
+			0% {
+				background: #aaa;
+			}
+			50% {
+				background: #bbb;
+			}
+			100% {
+				background: #aaa;
+			}
+		}
+	}
+
 	&:not(.hide-image) {
 		padding-top: 30%;
 
@@ -124,7 +140,6 @@
 			padding-top: 20%;
 		}
 	}
-
 	&:hover p {
 		color: #444;
 	}

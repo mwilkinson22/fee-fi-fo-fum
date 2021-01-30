@@ -33,10 +33,6 @@ newsPostSchema.query.forList = function() {
 		image: 1,
 		dateCreated: 1,
 		category: 1,
-		_game: 1,
-		_people: 1,
-		_teams: 1,
-		tags: 1,
 		isPublished: 1
 	}).lean();
 };

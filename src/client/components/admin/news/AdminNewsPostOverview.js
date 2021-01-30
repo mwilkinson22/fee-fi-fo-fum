@@ -9,13 +9,7 @@ import BasicForm from "../BasicForm";
 import LoadingPage from "../../LoadingPage";
 
 //Actions
-import {
-	fetchPostList,
-	fetchNewsPost,
-	createNewsPost,
-	updateNewsPost,
-	deleteNewsPost
-} from "~/client/actions/newsActions";
+import { createNewsPost, updateNewsPost, deleteNewsPost } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 import { fetchEntireGameList } from "~/client/actions/gamesActions";
 
@@ -358,8 +352,6 @@ function mapStateToProps({ config, games, news, teams, users }) {
 }
 
 export default connect(mapStateToProps, {
-	fetchPostList,
-	fetchNewsPost,
 	fetchUserList,
 	fetchEntireGameList,
 	createNewsPost,

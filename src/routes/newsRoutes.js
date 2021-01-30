@@ -1,16 +1,22 @@
-import * as NewsPostController from "../controllers/newsPostController";
+import * as newsPostController from "../controllers/newsPostController";
 import requireAdmin from "../middlewares/requireAdmin";
 
 export default app => {
-	app.get("/api/news/legacyPost/:id", NewsPostController.getLegacyPost);
+	//Get full posts
+	app.get("/api/news/post/id/:_id", newsPostController.getFullPost);
+	app.get("/api/news/post/slug/:slug", newsPostController.getFullPostBySlug);
 
-	app.get("/api/news/post/:id", NewsPostController.getFullPost);
+	//Pagination
+	app.get("/api/news/posts/page/:category/:page", newsPostController.getPage);
+	app.get("/api/news/posts/pagecount", newsPostController.getPageCount);
 
-	app.get("/api/news/posts", NewsPostController.getPostList);
+	//Posts for postList
+	app.get("/api/news/posts/all", requireAdmin, newsPostController.getFullPostList);
+	app.get("/api/news/posts/firstsix", newsPostController.getFirstSixPosts);
+	app.get("/api/news/posts/:ids", newsPostController.getPostList);
 
-	app.put("/api/news/post/:_id", requireAdmin, NewsPostController.updatePost);
-
-	app.post("/api/news/post/", requireAdmin, NewsPostController.createPost);
-
-	app.delete("/api/news/post/:_id", requireAdmin, NewsPostController.deletePost);
+	//Create/Update/Delete
+	app.put("/api/news/post/:_id", requireAdmin, newsPostController.updatePost);
+	app.post("/api/news/post/", requireAdmin, newsPostController.createPost);
+	app.delete("/api/news/post/:_id", requireAdmin, newsPostController.deletePost);
 };

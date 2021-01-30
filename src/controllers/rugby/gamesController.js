@@ -6,6 +6,7 @@ const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
 const SlugRedirect = mongoose.model("slugRedirect");
+const NewsPost = mongoose.model("newsPosts");
 
 //Modules
 import _ from "lodash";
@@ -168,8 +169,19 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		const singleCompetitionQuery = getTeamForm(game, 5, false);
 		asyncCalls.unshift(allCompetitionQuery, singleCompetitionQuery);
 
+		//Get news posts
+		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id")
+			.sort({ date: 1 })
+			.lean();
+		asyncCalls.unshift(newsPostQuery);
+
 		//Ensure all async calls are run
-		const [allCompetitions, singleCompetition] = await Promise.all(asyncCalls);
+		const [newsPosts, allCompetitions, singleCompetition] = await Promise.all(asyncCalls);
+
+		//Add news posts
+		if (newsPosts && newsPosts.length) {
+			game.newsPosts = newsPosts.map(p => p._id);
+		}
 
 		//Add team form to game object
 		game.teamForm = { allCompetitions, singleCompetition };

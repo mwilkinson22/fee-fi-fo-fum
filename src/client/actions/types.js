@@ -55,11 +55,14 @@ export const FETCH_TEAM_TYPE = "fetch_team_type";
 export const DELETE_TEAM_TYPE = "delete_team_type";
 
 //News
+export const FETCH_NEWS_POST_PAGECOUNT = "fetch_news_post_pagecount";
+export const FETCH_NEWS_POST_PAGE = "fetch_news_post_page";
 export const FETCH_NEWS_POST = "fetch_news_post";
-export const FETCH_NEWS_POST_LEGACY = "fetch_news_post_legacy";
 export const FETCH_POST_LIST = "fetch_post_list";
-export const UPDATE_POST = "update_post";
+export const SET_FULL_POST_LIST_LOADED = "set_full_postlist";
+export const CLEAR_POST_PAGINATION = "clear_post_pagination";
 export const DELETE_POST = "delete_post";
+export const ADD_NEWS_POST_SLUG = "add_news_slug";
 
 //People
 export const FETCH_PERSON = "fetch_person";

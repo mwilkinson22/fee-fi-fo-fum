@@ -39,6 +39,7 @@ import "./client/scss/styles.scss";
 import { fetchCurrentAwards } from "./client/actions/awardActions";
 import { getCoreConfig } from "./client/actions/configActions";
 import { setDefaultProfile } from "./client/actions/socialActions";
+import { fetchFirstSixPosts } from "./client/actions/newsActions";
 import { fetchCurrentUser } from "./client/actions/userActions";
 import { fetchGameYears } from "./client/actions/gamesActions";
 import { fetchTeam, fetchAllTeamTypes, setActiveTeamType } from "./client/actions/teamsActions";
@@ -151,7 +152,9 @@ app.get("*", async (req, res) => {
 		//Fetch years with games
 		store.dispatch(fetchGameYears()),
 		//Fetch local team
-		store.dispatch(fetchTeam(keys.localTeam, "basic"))
+		store.dispatch(fetchTeam(keys.localTeam, "basic")),
+		//Fetch first six news posts
+		store.dispatch(fetchFirstSixPosts())
 	]);
 
 	//Set active team type

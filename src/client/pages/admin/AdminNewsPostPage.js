@@ -17,24 +17,24 @@ import AdminNewsPostContent from "../../components/admin/news/AdminNewsPostConte
 import AdminNewsPostTags from "../../components/admin/news/AdminNewsPostTags";
 
 //Actions
-import { fetchPostList, fetchNewsPost } from "~/client/actions/newsActions";
+import { fetchEntirePostList, fetchNewsPost } from "~/client/actions/newsActions";
 import { fetchUserList } from "~/client/actions/userActions";
 
 class AdminNewsPostPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const { postList, fetchPostList } = props;
+		const { fullPostListLoaded, fetchEntirePostList } = props;
 
-		if (!postList) {
-			fetchPostList();
+		if (!fullPostListLoaded) {
+			fetchEntirePostList();
 		}
 
 		this.state = {};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPosts, match, fetchNewsPost, postList } = nextProps;
+		const { fullPosts, match, fetchNewsPost, postList, fullPostListLoaded } = nextProps;
 		const { _id } = match.params;
 		const newState = { isLoadingLists: false };
 
@@ -42,7 +42,7 @@ class AdminNewsPostPage extends Component {
 		newState.isNew = !_id;
 
 		//Check we have the info we need
-		if (!postList) {
+		if (!fullPostListLoaded) {
 			return { isLoadingLists: true };
 		}
 
@@ -223,13 +223,13 @@ class AdminNewsPostPage extends Component {
 
 function mapStateToProps({ config, news, users }) {
 	const { authUser, baseUrl } = config;
-	const { postList, fullPosts } = news;
+	const { postList, fullPosts, fullPostListLoaded } = news;
 	const { userList } = users;
-	return { authUser, baseUrl, postList, fullPosts, userList };
+	return { authUser, baseUrl, postList, fullPosts, fullPostListLoaded, userList };
 }
 
 export default connect(mapStateToProps, {
-	fetchPostList,
+	fetchEntirePostList,
 	fetchNewsPost,
 	fetchUserList
 })(AdminNewsPostPage);

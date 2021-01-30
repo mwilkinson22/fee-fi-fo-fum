@@ -34,7 +34,7 @@ export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {
 		}
 	});
 
-	//Handle retrieved player
+	//Handle retrieved game
 	if (!errorFound) {
 		//Add game before adding slug, to prevent errors
 		dispatch({ type: FETCH_GAMES, payload: res.data });

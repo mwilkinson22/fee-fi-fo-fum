@@ -1,36 +1,89 @@
 import {
+	ADD_NEWS_POST_SLUG,
 	DELETE_POST,
 	FETCH_NEWS_POST,
-	FETCH_NEWS_POST_LEGACY,
+	FETCH_NEWS_POST_PAGE,
+	FETCH_NEWS_POST_PAGECOUNT,
 	FETCH_POST_LIST,
-	UPDATE_POST
+	CLEAR_POST_PAGINATION,
+	SET_FULL_POST_LIST_LOADED
 } from "../actions/types";
 
 import { fixDates } from "~/helpers/newsHelper";
 
-export default function(state = { fullPosts: {} }, action) {
+export default function(
+	state = { fullPosts: {}, postList: {}, slugMap: {}, fullPostListLoaded: false },
+	action
+) {
 	switch (action.type) {
 		case FETCH_POST_LIST:
-			fixDates(action.payload.postList);
 			return {
 				...state,
-				...action.payload
+				postList: {
+					...state.postList,
+					...fixDates(action.payload)
+				}
 			};
 
+		case SET_FULL_POST_LIST_LOADED: {
+			return {
+				...state,
+				fullPostListLoaded: true
+			};
+		}
+
 		case FETCH_NEWS_POST:
-			fixDates([action.payload]);
 			return {
 				...state,
 				fullPosts: {
 					...state.fullPosts,
-					[action.payload._id]: action.payload
+					...fixDates(action.payload.fullPosts)
+				},
+				postList: {
+					...state.postList,
+					...fixDates(action.payload.postList)
 				}
 			};
 
-		case FETCH_NEWS_POST_LEGACY:
-			return { ...state, redirects: { ...state.redirects, [action.id]: action.payload } };
+		case FETCH_NEWS_POST_PAGECOUNT: {
+			const pageCount = action.payload;
 
-		case UPDATE_POST: {
+			//Create pages object
+			const pages = {};
+			for (const category in pageCount) {
+				pages[category] = {};
+				for (let i = 1; i <= pageCount[category]; i++) {
+					pages[category][i] = null;
+				}
+			}
+
+			return {
+				...state,
+				pageCount,
+				pages
+			};
+		}
+
+		case FETCH_NEWS_POST_PAGE: {
+			const pages = { ...state.pages };
+			pages[action.category][action.page] = action.payload;
+			return {
+				...state,
+				pages
+			};
+		}
+
+		case ADD_NEWS_POST_SLUG: {
+			return {
+				...state,
+				slugMap: {
+					...state.slugMap,
+					...action.payload
+				}
+			};
+		}
+
+		case CLEAR_POST_PAGINATION: {
 			return {
 				...state,
 				fullPosts: {
@@ -40,9 +93,8 @@ export default function(state = { fullPosts: {} }, action) {
 				postList: {
 					...fixDates(action.payload.postList)
 				},
-				redirects: {
-					...action.payload.redirects
-				}
+				pageCount: undefined,
+				pages: undefined
 			};
 		}
 
@@ -52,7 +104,9 @@ export default function(state = { fullPosts: {} }, action) {
 			return {
 				...state,
 				fullPosts,
-				postList
+				postList,
+				pageCount: undefined,
+				pages: undefined
 			};
 		}
 

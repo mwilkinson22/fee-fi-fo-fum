@@ -3,11 +3,13 @@ import _ from "lodash";
 import mongoose from "mongoose";
 const collectionName = "newsPosts";
 const NewsPost = mongoose.model(collectionName);
-const SlugRedirect = mongoose.model("slugRedirect");
 import { EditorState, convertToRaw } from "draft-js";
 
+//Constants
+import { newsPostsPerPage } from "~/config/keys";
+
 //Helpers
-import { getRedirects } from "./genericController";
+import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
 
 //Config
 function generateQuery(user, obj = {}) {
@@ -31,50 +33,112 @@ async function getUpdatedPost(_id, res) {
 	const post = await NewsPost.find({ _id }).fullPost();
 	const fullPosts = _.keyBy(post, "_id");
 
-	//Get Game For List
-	const list = await processList();
-
-	res.send({ _id, fullPosts, ...list });
+	res.send({ _id, fullPosts });
 }
 
-//Process List
-async function processList(req = null) {
-	const query = req ? generateQuery(req.user) : {};
-	const posts = await NewsPost.find(query).forList();
-	const postList = _.keyBy(posts, "_id");
+//Get first 6 for sidebar & homepage
+export async function getFirstSixPosts(req, res) {
+	const query = generateQuery(req.user);
+	const posts = await NewsPost.find(query)
+		.sort({ dateCreated: -1 })
+		.limit(6)
+		.forList()
+		.lean();
 
-	const redirects = await getRedirects(posts, collectionName);
-	return { postList, redirects };
+	res.send(_.keyBy(posts, "_id"));
+}
+
+//Get page count
+export async function getPageCount(req, res) {
+	const postsByCategory = await NewsPost.aggregate([
+		{
+			$match: generateQuery(req.user)
+		},
+		{
+			$group: {
+				_id: "$category",
+				count: { $sum: 1 }
+			}
+		}
+	]);
+	postsByCategory.push({ _id: "all", count: _.sumBy(postsByCategory, "count") });
+
+	const pageCount = _.mapValues(_.keyBy(postsByCategory, "_id"), ({ count }) =>
+		Math.ceil(count / newsPostsPerPage)
+	);
+
+	res.send(pageCount);
+}
+
+export async function getPage(req, res) {
+	const { category, page } = req.params;
+	const query = generateQuery(req.user);
+	if (category !== "all") {
+		query.category = category;
+	}
+
+	const ids = await NewsPost.find(query, "_id")
+		.sort({ dateCreated: -1 })
+		.skip(newsPostsPerPage * (page - 1))
+		.limit(newsPostsPerPage)
+		.lean();
+
+	res.send(ids.map(doc => doc._id));
 }
 
 //Get basic list of posts
 export async function getPostList(req, res) {
-	const list = await processList(req);
-	res.send(list);
+	const { ids } = req.params;
+
+	//Generate query
+	const query = generateQuery(req.user);
+	query._id = { $in: ids.split(",") };
+
+	const posts = await NewsPost.find(query).forList();
+
+	res.send(_.keyBy(posts, "_id"));
+}
+
+//Get full post list
+export async function getFullPostList(req, res) {
+	const { exclude } = req.query;
+
+	//Generate query
+	const query = generateQuery(req.user);
+	if (exclude) {
+		query._id = { $nin: exclude.split(",") };
+	}
+
+	const posts = await NewsPost.find(query).forList();
+
+	res.send(_.keyBy(posts, "_id"));
 }
 
 //Get full post
-export async function getFullPost(req, res) {
-	const { id } = req.params;
-	const query = generateQuery(req.user, { _id: id });
-	const newsPost = await NewsPost.findOne(query).fullPost();
+export async function getFullPostBySlug(req, res) {
+	const { slug } = req.params;
 
-	if (newsPost) {
-		res.send(newsPost);
-	} else {
-		res.status(404).send("Post not found");
+	const _id = await getIdFromSlug("newsPosts", slug);
+
+	if (_id) {
+		req.params._id = _id;
+		await getFullPost(req, res);
 	}
 }
 
-//Get Legacy Post
-export async function getLegacyPost(req, res) {
-	const { id } = req.params;
-	const redir = await SlugRedirect.findOne({ collectionName, oldSlug: id }).lean();
-	if (redir) {
-		const post = await NewsPost.findById(redir.itemId, "slug");
-		res.send(post);
+export async function getFullPost(req, res) {
+	const { _id } = req.params;
+	const query = generateQuery(req.user, { _id });
+
+	//Get full post and for list
+	const fullPostQuery = await NewsPost.findOne(query).fullPost();
+	const listQuery = await NewsPost.findOne(query).forList();
+	let [fullPost, postList] = await Promise.all([fullPostQuery, listQuery]);
+
+	if (fullPost) {
+		res.send({ fullPosts: { [_id]: fullPost }, postList: { [_id]: postList } });
 	} else {
-		res.status(404).send({});
+		res.status(404).send("Post not found");
 	}
 }
 
@@ -119,11 +183,11 @@ export async function updatePost(req, res) {
 
 		//Update post
 		await newsPost.updateOne(values);
-		await getUpdatedPost(_id, res);
+		await getFullPost(req, res);
 	}
 }
 
-//Create Post
+//Delete Post
 export async function deletePost(req, res) {
 	const { _id } = req.params;
 	const newsPost = await NewsPost.findById(_id);

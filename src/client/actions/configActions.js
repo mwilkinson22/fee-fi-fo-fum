@@ -13,7 +13,8 @@ import {
 	googleMapsKey,
 	sites,
 	mainColour,
-	trimColour
+	trimColour,
+	newsPostsPerPage
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -82,7 +83,10 @@ export const getCoreConfig = req => async dispatch => {
 		trimColour,
 
 		//Main Competition
-		mainCompetitionSegment
+		mainCompetitionSegment,
+
+		//News posts per page
+		newsPostsPerPage
 	};
 
 	//Add Bucket Paths
