@@ -26,7 +26,7 @@ const config = {
 					test: /[\\/]node_modules[\\/]/,
 					name(module) {
 						//Declare which modules to separate
-						const separateModules = ["lodash", "react", "datejs"];
+						const separateModules = [/^lodash/, /^react/, /^datejs/, /^megadraft/];
 
 						// get the name. E.g. node_modules/packageName/not/this/part.js
 						// or node_modules/packageName
@@ -36,7 +36,7 @@ const config = {
 
 						//By default, we just call it "bundles"
 						let bundleName;
-						if (separateModules.find(m => packageName == m)) {
+						if (separateModules.find(m => packageName.match(m))) {
 							bundleName = packageName;
 						} else {
 							bundleName = "bundles";

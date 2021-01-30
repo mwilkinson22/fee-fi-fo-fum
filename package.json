@@ -30,7 +30,7 @@
 		"@loadable/babel-plugin": "^5.13.0",
 		"@loadable/component": "^5.13.1",
 		"@loadable/server": "^5.13.1",
-		"axios": "^0.19.2",
+		"axios": "^0.21.1",
 		"bcryptjs": "^2.4.3",
 		"body-parser": "^1.19.0",
 		"braces": "^2.3.2",
