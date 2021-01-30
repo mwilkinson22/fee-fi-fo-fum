@@ -520,9 +520,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	//Convert the Game results to match the neutral format
 	const localgamesNormalised = _.chain([localteamForm, headToHeadForm])
 		.flatten()
-		.uniqBy(g => {
-			g._id.toString();
-		})
+		.uniqBy(g => g._id.toString())
 		.map(({ _id, date, isAway, _opposition, score, slug, title }) => {
 			const _homeTeam = isAway ? _opposition : localTeamObject;
 			const _awayTeam = isAway ? localTeamObject : _opposition;
