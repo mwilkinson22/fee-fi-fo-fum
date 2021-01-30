@@ -55,7 +55,7 @@ class ManOfSteelPoints extends Component {
 		const { localTeam, fullTeams, game } = this.props;
 		let teamObject;
 		if (player._team === localTeam) {
-			teamObject = fullTeams[localTeam].colours;
+			teamObject = fullTeams[localTeam];
 		} else {
 			teamObject = game._opposition;
 		}
