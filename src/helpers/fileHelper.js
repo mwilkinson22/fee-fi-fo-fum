@@ -8,7 +8,8 @@ export async function uploadToGoogle({ originalname, buffer, mimeType }, path = 
 	const externalUrl = await new Promise((resolve, reject) => {
 		const stream = file.createWriteStream({
 			metadata: {
-				contentType: mimeType
+				contentType: mimeType,
+				cacheControl: "public, max-age=2678400"
 			}
 		});
 		stream.on("error", err => {
