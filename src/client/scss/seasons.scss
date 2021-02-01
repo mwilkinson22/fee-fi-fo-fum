@@ -39,8 +39,8 @@
 				color: white;
 			}
 			&.highlight {
-				border-left: solid 5pt $mainColour;
-				font-weight: bold;
+				border-left: solid 5pt $trimColour;
+				font-weight: 600;
 			}
 			th {
 				font-weight: 600;

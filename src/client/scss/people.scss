@@ -45,7 +45,7 @@ a .person-image {
 		.trim {
 			background: white;
 			font-family: "Montserrat";
-			font-weight: bold;
+			font-weight: 600;
 			font-size: 1.2em;
 			color: $mainColour;
 			min-width: 30%;
@@ -384,7 +384,7 @@ a .person-image {
 						position: relative;
 						.position-bar {
 							color: white;
-							font-weight: bold;
+							font-weight: 600;
 							padding: 4pt 10pt;
 							text-align: right;
 							background-color: $mainColour;

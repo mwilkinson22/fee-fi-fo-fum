@@ -39,7 +39,7 @@ $transition: all 300ms;
 	text-decoration: none;
 	cursor: pointer;
 	color: inherit;
-	font-weight: bold;
+	font-weight: 600;
 	&:hover {
 		color: $trimColour;
 	}
@@ -142,7 +142,7 @@ body {
 		padding: 0 0.5em;
 		display: inline-block;
 		color: #aaa;
-		font-weight: bold;
+		font-weight: 600;
 		font-size: 1.15em;
 		transition: color 100ms;
 

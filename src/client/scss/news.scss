@@ -41,7 +41,7 @@
 		}
 	}
 	.editor__link {
-		font-weight: bold;
+		font-weight: 600;
 		color: $mainColour;
 		&:hover {
 			color: lighten($mainColour, 20%);
