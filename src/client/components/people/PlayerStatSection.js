@@ -18,6 +18,9 @@ import StatsTables from "../games/StatsTables";
 import GameFilters from "../games/GameFilters";
 import StatTableGameCell from "../games/StatTableGameCell";
 
+//Constants
+import playerPositions from "~/constants/playerPositions";
+
 class PlayerStatSection extends Component {
 	constructor(props) {
 		super(props);
@@ -132,6 +135,16 @@ class PlayerStatSection extends Component {
 		return newState;
 	}
 
+	getPositionString(number) {
+		const positions = _.chain(playerPositions)
+			.map(positionObject => positionObject.numbers.map(n => [n, positionObject.name]))
+			.flatten()
+			.fromPairs()
+			.value();
+
+		return positions[Math.min(number, 14)];
+	}
+
 	getHeader() {
 		const { years, year, teamTypes, teamType, games } = this.state;
 
@@ -193,34 +206,7 @@ class PlayerStatSection extends Component {
 		const { filteredGames } = this.state;
 		const { localTeam } = this.props;
 		const positions = _.chain(filteredGames)
-			.map(game => {
-				switch (game.playerStats[0].position) {
-					case 1:
-						return "Fullback";
-					case 2:
-					case 5:
-						return "Wing";
-					case 3:
-					case 4:
-						return "Centre";
-					case 6:
-						return "Stand Off";
-					case 7:
-						return "Scrum Half";
-					case 8:
-					case 10:
-						return "Prop";
-					case 9:
-						return "Hooker";
-					case 11:
-					case 12:
-						return "Second Row";
-					case 13:
-						return "Loose Forward";
-					default:
-						return "Interchange";
-				}
-			})
+			.map(game => this.getPositionString(game.playerStats[0].position))
 			.groupBy()
 			.map((arr, position) => ({ position, count: arr.length }))
 			.sortBy("count")
@@ -326,12 +312,13 @@ class PlayerStatSection extends Component {
 	}
 
 	getStatsTables() {
+		const { localTeam } = this.props;
 		const { _id, gender } = this.props.person;
 		const { filteredGames } = this.state;
 		const genderedString = gender === "M" ? "Man" : "Woman";
 
 		const rowData = _.map(filteredGames, game => {
-			const { _potm, fan_potm_winners, slug, date, title, manOfSteel } = game;
+			const { _potm, fan_potm_winners, slug, date, title, manOfSteel, score } = game;
 
 			const stats = _.chain(game.playerStats[0].stats)
 				.mapValues((val, key) => {
@@ -346,6 +333,42 @@ class PlayerStatSection extends Component {
 				})
 				.pickBy(_.identity)
 				.value();
+
+			//Add position
+			const { position } = game.playerStats[0];
+			stats.position = {
+				content: (
+					<div>
+						<div>#{position}</div>
+						<div>{this.getPositionString(position)}</div>
+					</div>
+				),
+				sortValue: position
+			};
+
+			//Add result
+			if (score) {
+				const margin = score[localTeam] - score[game._opposition._id];
+				let result;
+				if (margin > 0) {
+					result = "Win";
+				} else if (margin < 0) {
+					result = "Loss";
+				} else {
+					result = "Draw";
+				}
+				stats.result = {
+					content: (
+						<div>
+							<div>
+								{score[localTeam]}-{score[game._opposition._id]}
+							</div>
+							<div>{result}</div>
+						</div>
+					),
+					sortValue: margin
+				};
+			}
 
 			//Add Man/Woman of Steel Stats
 			if (manOfSteel && manOfSteel.length) {
@@ -397,6 +420,8 @@ class PlayerStatSection extends Component {
 			.reject(s => s === "first" || playerStatTypes[s])
 			.map(key => {
 				let label;
+				let prepend,
+					disableFooter = false;
 				switch (key) {
 					case "steel":
 						label = `${genderedString} of Steel Points`;
@@ -407,6 +432,16 @@ class PlayerStatSection extends Component {
 					case "fan_potm":
 						label = `Fans' ${genderedString} of the Match`;
 						break;
+					case "position":
+						label = "Position";
+						prepend = true;
+						disableFooter = true;
+						break;
+					case "result":
+						label = "Result";
+						prepend = true;
+						disableFooter = true;
+						break;
 					default:
 						return null;
 				}
@@ -415,11 +450,12 @@ class PlayerStatSection extends Component {
 					singular: label,
 					plural: label,
 					type: "Scoring",
-					moreIsBetter: true
+					moreIsBetter: true,
+					prepend,
+					disableFooter
 				};
 			})
 			.filter(_.identity)
-			.orderBy("key", "desc")
 			.value();
 
 		return (

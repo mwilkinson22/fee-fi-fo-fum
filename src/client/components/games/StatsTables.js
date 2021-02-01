@@ -34,7 +34,15 @@ class StatsTables extends Component {
 			.value();
 
 		//Create array with standard and custom stat types
-		const statTypes = [...standardStatTypes, ...customStatTypes];
+		const statTypes = [...standardStatTypes, ...customStatTypes].sort((a, b) => {
+			if (a.prepend && !b.prepend) {
+				return -1;
+			} else if (!a.prepend && b.prepend) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
 
 		//Create grouped object
 		const groupedStatTypes = _.groupBy(statTypes, "type");
@@ -207,6 +215,11 @@ class StatsTables extends Component {
 
 					//Null check
 					if (!statObject) {
+						return null;
+					}
+
+					//Check for disabled fields
+					if (statObject.disableFooter) {
 						return null;
 					}
 
