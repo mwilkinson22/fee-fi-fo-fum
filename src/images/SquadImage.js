@@ -410,11 +410,7 @@ export default class SquadImage extends Canvas {
 				playerHeight - playerNameBarHeight
 			);
 		} else {
-			//TEMP - swap out jerry for toon image
-			const playerImageName = (images.player || images.main || `blank-${gender}.png`).replace(
-				"mcgillvary",
-				"mcgillvary-toon"
-			);
+			const playerImageName = images.player || images.main || `blank-${gender}.png`;
 			const playerImage = await this.googleToCanvas(`images/people/full/${playerImageName}`);
 			const sx = 0;
 			const sy = 0;
