@@ -9,7 +9,7 @@ export async function uploadToGoogle({ originalname, buffer, mimeType }, path = 
 		const stream = file.createWriteStream({
 			metadata: {
 				contentType: mimeType,
-				cacheControl: "public, max-age=2678400"
+				cacheControl: "public, max-age=31536000"
 			}
 		});
 		stream.on("error", err => {
