@@ -42,7 +42,7 @@ export async function getFiles(req, res) {
 
 //Upload File
 export async function uploadFile(req, res) {
-	const { path, name, fileSizeLimit } = req.body;
+	const { path, name, fileSizeLimit, cacheMaxAge } = req.body;
 
 	//Convert string properties to necessary types
 	const isImage = req.body.isImage === "true";
@@ -78,7 +78,8 @@ export async function uploadFile(req, res) {
 				path,
 				convertImageToWebP,
 				null,
-				defaultSize
+				defaultSize,
+				cacheMaxAge
 			);
 
 			//Upload alternate sizes.
@@ -89,7 +90,8 @@ export async function uploadFile(req, res) {
 					`${path}${size}/`,
 					convertImageToWebP,
 					null,
-					alternateSizes[size]
+					alternateSizes[size],
+					cacheMaxAge
 				);
 			}
 		} else {

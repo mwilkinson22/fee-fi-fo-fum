@@ -3,13 +3,13 @@ import sharp from "sharp";
 
 const bucket = require("~/constants/googleBucket");
 
-export async function uploadToGoogle({ originalname, buffer, mimeType }, path = "") {
+export async function uploadToGoogle({ originalname, buffer, mimeType }, path = "", cacheMaxAge) {
 	const file = bucket.file(path + originalname);
 	const externalUrl = await new Promise((resolve, reject) => {
 		const stream = file.createWriteStream({
 			metadata: {
 				contentType: mimeType,
-				cacheControl: "public, max-age=31536000"
+				cacheControl: `public, max-age=${Number(cacheMaxAge) || 31536000}`
 			}
 		});
 		stream.on("error", err => {
@@ -34,7 +34,8 @@ export async function uploadImageToGoogle(
 	path,
 	webPConvert = true,
 	nameOverride = null,
-	resize = null
+	resize = null,
+	cacheMaxAge = null
 ) {
 	//Using sharp().clone() doesn't seem to work as expected, so we
 	//deconstruct the file object to prevent permanent changes.
@@ -86,7 +87,7 @@ export async function uploadImageToGoogle(
 	//Convert to buffer
 	file.buffer = await image.toBuffer();
 
-	const uploadedImage = await uploadToGoogle(file, path);
+	const uploadedImage = await uploadToGoogle(file, path, cacheMaxAge);
 
 	if (webPConvert) {
 		const buffer = await sharp(file.buffer)
@@ -97,7 +98,7 @@ export async function uploadImageToGoogle(
 			buffer,
 			mimeType: "image/webp"
 		};
-		await uploadToGoogle(webPData, path);
+		await uploadToGoogle(webPData, path, cacheMaxAge);
 	}
 
 	return uploadedImage;

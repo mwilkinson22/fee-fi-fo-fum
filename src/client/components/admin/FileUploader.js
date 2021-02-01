@@ -52,6 +52,7 @@ class FileUploader extends Component {
 			convertImageToWebP,
 			uploadFile,
 			resize,
+			cacheMaxAge,
 			onComplete,
 			onDestroy
 		} = this.props;
@@ -67,6 +68,9 @@ class FileUploader extends Component {
 		await formData.append("isImage", isImage);
 		await formData.append("convertImageToWebP", convertImageToWebP);
 		await formData.append("resize", JSON.stringify(resize));
+		if (cacheMaxAge) {
+			await formData.append("cacheMaxAge", cacheMaxAge);
+		}
 
 		const { name } = await uploadFile(formData);
 		await onComplete(name);
@@ -207,6 +211,7 @@ class FileUploader extends Component {
 FileUploader.propTypes = {
 	accept: PropTypes.arrayOf(PropTypes.string),
 	allowCustomName: PropTypes.bool,
+	cacheMaxAge: PropTypes.number,
 	convertImageToWebP: PropTypes.bool,
 	defaultName: PropTypes.string,
 	nameOptions: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
@@ -220,6 +225,7 @@ FileUploader.propTypes = {
 
 FileUploader.defaultProps = {
 	allowCustomName: true,
+	cacheMaxAge: null,
 	convertImageToWebP: true,
 	fileNames: [],
 	isImage: false,

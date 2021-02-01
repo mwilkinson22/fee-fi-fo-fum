@@ -252,19 +252,25 @@ class AdminPersonOverview extends Component {
 			{
 				label: "Images",
 				fields: ["main", "player", "coach", "midpage"].map(type => {
-					let resize = {};
-					if (type !== "midpage") {
+					let resize, path, cacheMaxAge;
+					if (type === "midpage") {
+						resize = {};
+						path = `images/people/midpage/`;
+					} else {
 						resize = {
 							medium: { width: 200 },
 							small: { width: 100 }
 						};
+						path = `images/people/full/`;
+						cacheMaxAge = 604800;
 					}
 					return {
 						name: `images.${type}`,
 						type: fieldTypes.image,
-						path: `images/people/${type === "midpage" ? "midpage" : "full"}/`,
 						acceptSVG: false,
-						resize
+						path,
+						resize,
+						cacheMaxAge
 					};
 				})
 			}

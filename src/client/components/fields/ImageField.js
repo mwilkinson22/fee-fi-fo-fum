@@ -35,7 +35,16 @@ class ImageField extends Component {
 
 	renderImageUploader() {
 		const { value, showImageUploader } = this.state;
-		const { path, onChange, acceptSVG, convertToWebP, resize, defaultUploadName } = this.props;
+		const {
+			path,
+			onChange,
+			acceptSVG,
+			convertToWebP,
+			resize,
+			cacheMaxAge,
+			defaultUploadName
+		} = this.props;
+
 		if (showImageUploader) {
 			const accept = ["jpg", "jpeg", "gif", "png"];
 			if (acceptSVG) {
@@ -52,6 +61,7 @@ class ImageField extends Component {
 					convertImageToWebP={convertToWebP}
 					defaultName={defaultUploadName}
 					resize={resize}
+					cacheMaxAge={cacheMaxAge}
 				/>
 			);
 		}
@@ -114,6 +124,7 @@ class ImageField extends Component {
 
 ImageField.propTypes = {
 	acceptSVG: PropTypes.bool,
+	cacheMaxAge: PropTypes.number,
 	convertToWebP: PropTypes.bool,
 	defaultUploadName: PropTypes.string,
 	value: PropTypes.string.isRequired,
@@ -127,6 +138,7 @@ ImageField.propTypes = {
 
 ImageField.defaultProps = {
 	acceptSVG: true,
+	cacheMaxAge: null,
 	convertToWebP: true,
 	readOnly: false,
 	resize: {}
