@@ -182,6 +182,16 @@ module.exports = {
 		requiredForGameStar: 1,
 		isAverage: false
 	},
+	TF: {
+		singular: "20/40",
+		plural: "20/40s",
+		storedInDatabase: true,
+		moreIsBetter: true,
+		type: "Attack",
+		scoreOnly: false,
+		requiredForGameStar: 1,
+		isAverage: false
+	},
 	OF: {
 		singular: "Offload",
 		plural: "Offloads",

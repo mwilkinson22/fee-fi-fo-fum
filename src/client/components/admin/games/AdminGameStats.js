@@ -61,10 +61,7 @@ class AdminGameStats extends Component {
 				const playerValidation = _.mapValues(newState.statTypes, statType =>
 					Yup.mixed()
 						.test("isNumber", "A positive integer must be provided", value => {
-							return value === "" || (Number.isInteger(value) && Number(value) >= 0);
-						})
-						.test("scoreIsProvided", "This field is required", function(value) {
-							return !statType.scoreOnly || value !== "";
+							return !value || (Number.isInteger(value) && Number(value) >= 0);
 						})
 						.label(`${name.full} ${statType.plural}`)
 				);

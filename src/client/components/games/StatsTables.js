@@ -140,18 +140,27 @@ class StatsTables extends Component {
 	}
 
 	renderColumns() {
-		const { groupedStatTypes, activeTab, addGames } = this.state;
+		const { groupedStatTypes, activeTab, addGames, rowData } = this.state;
 		const { firstColumnHeader } = this.props;
-		const columns = groupedStatTypes[activeTab].map(statType => {
-			const { key, plural, moreIsBetter, className, headerClassName } = statType;
-			return {
-				key,
-				label: plural,
-				defaultAscSort: !moreIsBetter,
-				className,
-				headerClassName
-			};
-		});
+		const columns = groupedStatTypes[activeTab]
+			.map(statType => {
+				const { key, plural, moreIsBetter, className, headerClassName } = statType;
+
+				//Ensure we have at least one non-null value before we display,
+				//this allows us to add new stats such as 20/40 that don't appear on older games
+				const rowsWithAValue = rowData.filter(({ data }) => data[key] !== null);
+				if (!rowsWithAValue.length) {
+					return null;
+				}
+				return {
+					key,
+					label: plural,
+					defaultAscSort: !moreIsBetter,
+					className,
+					headerClassName
+				};
+			})
+			.filter(row => row !== null);
 
 		if (addGames) {
 			columns.unshift({
