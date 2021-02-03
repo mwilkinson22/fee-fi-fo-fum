@@ -12,6 +12,8 @@ import { ChunkExtractor } from "@loadable/server";
 export default (req, store, context) => {
 	const statsFile = path.resolve("./dist/public/loadable-stats.json");
 	const chunkExtractor = new ChunkExtractor({ statsFile });
+	const googleFontUrl =
+		"https://fonts.googleapis.com/css?family=Montserrat:400,700|Titillium+Web:400,600";
 	const app = chunkExtractor.collectChunks(
 		<Provider store={store}>
 			<StaticRouter location={req.path} context={context}>
@@ -27,7 +29,7 @@ export default (req, store, context) => {
 		<html lang="en">
 			<head>
 				<meta charset="utf-8">
-   				<link rel="preload" as="font" href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Titillium+Web:400,600" rel="stylesheet">
+   				<link rel="preload" as="stylesheet" href="${googleFontUrl}">
     			<meta name="viewport" content="width=device-width, initial-scale=1.0">
     			<meta name="theme-color" content="#751432">
 				<link rel="stylesheet" type="text/css" href="/styles.css" />
@@ -38,6 +40,7 @@ export default (req, store, context) => {
 				<div id="root">${content}</div>
 				<script id="initial-state-script">window.INITIAL_STATE = ${serialize(store.getState())}</script>
 				${chunkExtractor.getScriptTags()}
+   				<link href="${googleFontUrl}" rel="stylesheet">
 			</body>
 		</html>
 	`;
