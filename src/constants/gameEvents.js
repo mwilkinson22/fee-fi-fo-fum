@@ -5,6 +5,7 @@ export default {
 	PK: { label: "Penalty Goal", isPlayerEvent: true },
 	DG: { label: "Drop Goal", isPlayerEvent: true },
 	FT: { label: "40/20", isPlayerEvent: true },
+	TF: { label: "20/40", isPlayerEvent: true },
 	YC: { label: "Yellow Card", isPlayerEvent: true },
 	RC: { label: "Red Card", isPlayerEvent: true },
 	potm: { label: "Player of the Match", isPlayerEvent: true },

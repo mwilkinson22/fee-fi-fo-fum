@@ -88,6 +88,7 @@ class AdminGameEvent extends Component {
 					{ label: "Penalty Goal", value: "PK" },
 					{ label: "Drop Goal", value: "DG" },
 					{ label: "40/20", value: "FT" },
+					{ label: "20/40", value: "TF" },
 					{ label: "Yellow Card", value: "YC" },
 					{ label: "Red Card", value: "RC" },
 					{ label: `${newState.game.genderedString} of the Match`, value: "potm" }

@@ -185,6 +185,7 @@ export default class GameEventImage extends Canvas {
 			CN: ["CONVERSION"],
 			DG: ["DROP", " GOAL"],
 			FT: ["40", "/", "20"],
+			TF: ["20", "/", "40"],
 			YC: ["SIN", " BIN"],
 			RC: [{ text: "RED CARD", colour: "#F33" }],
 			potm: [game.genderedString.toUpperCase(), " OF THE ", "MATCH"]

@@ -408,8 +408,9 @@ export default class PersonImageCard extends Canvas {
 				);
 				break;
 			case "FT":
+			case "TF": {
 				size = size * 1.2;
-				rows.push([
+				const row = [
 					{
 						text: "40",
 						colour: this.colours.gold,
@@ -425,8 +426,14 @@ export default class PersonImageCard extends Canvas {
 						colour: this.colours.gold,
 						size: size
 					}
-				]);
+				];
+				if (event === "TF") {
+					row.reverse();
+				}
+
+				rows.push(row);
 				break;
+			}
 			case "YC":
 				rows.push([
 					{

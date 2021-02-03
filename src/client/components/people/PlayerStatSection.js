@@ -230,7 +230,7 @@ class PlayerStatSection extends Component {
 
 		const statBoxStats = {
 			Scoring: ["T", "TA", "PT", "G", "KS"],
-			Attack: ["M", "C", "AG", "TB", "CB", "E", "DR", "FT", "OF"],
+			Attack: ["M", "C", "AG", "TB", "CB", "E", "DR", "FT", "TF", "OF"],
 			Defence: ["TK", "MT", "TS", "P"]
 		};
 
