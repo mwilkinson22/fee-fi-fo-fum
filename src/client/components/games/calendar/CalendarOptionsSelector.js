@@ -51,10 +51,10 @@ class CalendarOptionsSelector extends Component {
 
 		//Set Validation Schema
 		const validationSchema = Yup.object().shape({
-			teams: Yup.string().label("Teams"),
+			teams: Yup.string().label("Team Format"),
 			teamName: Yup.string().label("Team Names"),
-			displayTeamTypes: Yup.string().label("Team Types"),
-			venue: Yup.string().label("Venues"),
+			displayTeamTypes: Yup.string().label("Team Types (Academy, Reserves, etc)"),
+			venue: Yup.string().label("Home/Away"),
 			withBroadcaster: Yup.bool().label("Broadcaster")
 		});
 
@@ -163,13 +163,13 @@ class CalendarOptionsSelector extends Component {
 				selectedTeamTypeObjects.find(t => t.sortOrder === 1)
 			) {
 				newState.options.displayTeamTypes.push({
-					label: "Include (except for First Team)",
+					label: "Include all except First Team",
 					value: "allButFirst"
 				});
 			}
 
 			//Then we add an include all
-			newState.options.displayTeamTypes.push({ label: "Include", value: "all" });
+			newState.options.displayTeamTypes.push({ label: "Include All", value: "all" });
 		}
 
 		return newState;
