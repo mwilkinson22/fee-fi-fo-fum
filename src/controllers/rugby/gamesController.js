@@ -14,7 +14,7 @@ const ics = require("ics");
 import twitter from "~/services/twitter";
 
 //Constants
-const { fansCanAttend, localTeam } = require("~/config/keys");
+const { fansCanAttend, fetchGameLimit, localTeam } = require("~/config/keys");
 import gameEvents from "~/constants/gameEvents";
 
 //Helpers
@@ -718,6 +718,10 @@ export async function getGamesForAdmin(req, res) {
 }
 async function getGames(req, res, forGamePage, forAdmin) {
 	const ids = req.params.ids.split(",");
+
+	if (!forAdmin && fetchGameLimit && ids.length > fetchGameLimit) {
+		res.status(413).send(`Cannot fetch more than ${fetchGameLimit} games at one time`);
+	}
 
 	let games = await Game.find({ _id: { $in: ids } }).fullGame(forGamePage, forAdmin);
 

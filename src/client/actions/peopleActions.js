@@ -6,6 +6,7 @@ import {
 	ADD_PERSON_SLUG
 } from "./types";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 export const fetchPeopleList = () => async (dispatch, getState, api) => {
 	const res = await api.get(`/people`);
@@ -80,8 +81,18 @@ export const fetchPersonFromSlug = slug => async (dispatch, getState, api) => {
 };
 
 export const fetchPeople = ids => async (dispatch, getState, api) => {
-	const res = await api.get(`/people/multi/${ids.join(",")}`);
-	dispatch({ type: FETCH_PEOPLE, payload: res.data });
+	//Enforce limit
+	const { fetchPeopleLimit } = getState().config;
+	const queries = _.chain(ids)
+		.uniq()
+		.chunk(fetchPeopleLimit || 99999999999)
+		.map(chunkedIds => api.get(`/people/multi/${chunkedIds.join(",")}`))
+		.value();
+
+	const results = await Promise.all(queries);
+	const payload = _.merge(...results.map(({ data }) => data));
+
+	dispatch({ type: FETCH_PEOPLE, payload });
 };
 
 export const setExternalNames = values => async (dispatch, getState, api) => {

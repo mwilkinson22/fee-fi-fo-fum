@@ -19,8 +19,18 @@ export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) =>
 		dataLevel = "basic";
 	}
 
-	const res = await api.get(`/games/${dataLevel}/${ids.join(",")}`);
-	dispatch({ type: FETCH_GAMES, payload: res.data });
+	//Enforce limit
+	const { fetchGameLimit } = getState().config;
+	const queries = _.chain(ids)
+		.uniq()
+		.chunk(fetchGameLimit || 99999999999)
+		.map(chunkedIds => api.get(`/games/${dataLevel}/${chunkedIds.join(",")}`))
+		.value();
+
+	const results = await Promise.all(queries);
+	const payload = _.merge(...results.map(({ data }) => data));
+
+	dispatch({ type: FETCH_GAMES, payload });
 };
 
 export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {

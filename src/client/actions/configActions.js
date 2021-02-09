@@ -14,7 +14,9 @@ import {
 	sites,
 	mainColour,
 	trimColour,
-	newsPostsPerPage
+	newsPostsPerPage,
+	fetchPeopleLimit,
+	fetchGameLimit
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -86,7 +88,11 @@ export const getCoreConfig = req => async dispatch => {
 		mainCompetitionSegment,
 
 		//News posts per page
-		newsPostsPerPage
+		newsPostsPerPage,
+
+		//Bulk Fetch Limit
+		fetchPeopleLimit,
+		fetchGameLimit
 	};
 
 	//Add Bucket Paths

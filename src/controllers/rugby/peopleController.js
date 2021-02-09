@@ -11,7 +11,7 @@ const TeamTypes = mongoose.model("teamTypes");
 const SlugRedirect = mongoose.model("slugRedirect");
 
 //Constants
-const { localTeam } = require("~/config/keys");
+const { fetchPeopleLimit, localTeam } = require("~/config/keys");
 
 //Images
 import PersonImageCard from "~/images/PersonImageCard";
@@ -189,14 +189,12 @@ export async function getPersonFromSlug(req, res) {
 export async function getPeople(req, res) {
 	const { ids } = req.params;
 	const peopleIds = ids.split(",");
-	const limit = 20;
 
-	if (peopleIds > limit) {
-		res.status(413).send(`Cannot fetch more than ${limit} people at one time`);
+	if (fetchPeopleLimit && peopleIds.length > fetchPeopleLimit) {
+		res.status(413).send(`Cannot fetch more than ${fetchPeopleLimit} people at one time`);
 	} else {
-		const person = await getFullPeople(ids.split(","));
-
-		res.send(_.keyBy(person, "_id"));
+		const people = await getFullPeople(ids.split(","));
+		res.send(_.keyBy(people, "_id"));
 	}
 }
 

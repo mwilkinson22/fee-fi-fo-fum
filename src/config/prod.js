@@ -7,6 +7,8 @@ module.exports = {
 	defaultSocialProfile: process.env.DEFAULT_SOCIAL_PROFILE,
 	facebookApp: process.env.FACEBOOK_APP,
 	fansCanAttend: process.env.FANS_CAN_ATTEND !== "0",
+	fetchGameLimit: parseInt(process.env.FETCH_GAME_LIMIT) || 40,
+	fetchPeopleLimit: parseInt(process.env.FETCH_PEOPLE_LIMIT) || 20,
 	localTeam: process.env.LOCAL_TEAM,
 	gaTracking: process.env.GA_TRACKING,
 	gc: {
