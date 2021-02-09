@@ -310,6 +310,25 @@ body {
 		padding: 0 8pt;
 	}
 
+	&.with-dates {
+		flex-wrap: wrap;
+		.list-filter {
+			&.date {
+				input {
+					padding: 7pt;
+					border-radius: 4pt;
+					width: 100%;
+				}
+			}
+			@media #{$desktop-and-tablet} {
+				padding-bottom: 4pt;
+				&.date {
+					width: 50%;
+				}
+			}
+		}
+	}
+
 	@media #{$desktop-only} {
 		margin-top: 10pt;
 		.list-filter {

@@ -154,9 +154,11 @@ class GameFilters extends Component {
 
 		//Get input
 		let input;
+		const classNames = ["list-filter"];
 		switch (key) {
 			case "fromDate":
 			case "toDate":
+				classNames.push("date");
 				input = (
 					<input
 						type="date"
@@ -178,7 +180,7 @@ class GameFilters extends Component {
 		}
 
 		return (
-			<div key={key} className="list-filter">
+			<div key={key} className={classNames.join(" ")}>
 				<h4>{name}</h4>
 				{input}
 			</div>
@@ -186,13 +188,14 @@ class GameFilters extends Component {
 	}
 
 	render() {
+		const { addToFromDates } = this.props;
 		const { filters } = this.state;
 		if (!filters) {
 			return <LoadingPage />;
 		}
 
 		return (
-			<div className="list-filters">
+			<div className={`list-filters${addToFromDates ? " with-dates" : ""}`}>
 				{Object.keys(filters).map(key => this.renderFilter(key))}
 			</div>
 		);
