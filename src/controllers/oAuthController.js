@@ -12,6 +12,7 @@ const SocialProfile = mongoose.model("socialProfiles");
 
 //Services
 import twitter from "~/services/twitter";
+import { urlRegex } from "~/constants/regex";
 
 //Helpers
 async function getOAuthClient(req, res, service) {
@@ -262,6 +263,16 @@ export async function postToSocial(service, text, options = {}) {
 			if (options.images && options.images.length) {
 				event += "_with_photo";
 				data.value2 = options.images[0];
+			}
+			//If there's no image, check for a link
+			else {
+				const matches = data.value1.match(urlRegex);
+				if (matches && matches.length === 1) {
+					const [url] = matches;
+					event += "_with_link";
+					data.value1 = data.value1.replace(url, "").trim();
+					data.value2 = url;
+				}
 			}
 
 			//Submit

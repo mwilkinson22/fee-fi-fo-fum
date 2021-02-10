@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { urlRegex } from "~/constants/regex";
 
 class TweetComposer extends Component {
 	constructor(props) {
@@ -27,7 +28,6 @@ class TweetComposer extends Component {
 		const textContent = newState.textContent || prevState.textContent;
 
 		//Format Text
-		const urlRegex = /(?:http:\/\/)?(?:https:\/\/)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b(?:[-a-zA-Z0-9@:%_+.~#?&/=]*)/gi;
 		const twitterRegex = /[#@](?=[A-Za-z0-9])[A-Za-z0-9_]*/gi;
 		const highlightRegex = new RegExp("(" + urlRegex.source + "|" + twitterRegex.source + ")");
 
