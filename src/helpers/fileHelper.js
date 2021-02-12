@@ -104,7 +104,14 @@ export async function uploadImageToGoogle(
 	return uploadedImage;
 }
 
-export async function uploadBase64ImageToGoogle(base64, path, webPConvert, name, format) {
+export async function uploadBase64ImageToGoogle(
+	base64,
+	path,
+	webPConvert,
+	name,
+	format,
+	cacheMaxAge = null
+) {
 	//Strip base64 prefix
 	const buffer = Buffer.from(base64.split("base64,").pop(), "base64");
 
@@ -132,5 +139,5 @@ export async function uploadBase64ImageToGoogle(base64, path, webPConvert, name,
 	};
 
 	//Pass on to main function
-	return await uploadImageToGoogle(file, path, webPConvert);
+	return await uploadImageToGoogle(file, path, webPConvert, null, null, cacheMaxAge);
 }

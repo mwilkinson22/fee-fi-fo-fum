@@ -42,6 +42,7 @@ import TeamStatsImage from "~/images/TeamStatsImage";
 import MultiplePlayerStats from "~/images/MultiplePlayerStats";
 import LeagueTable from "~/images/LeagueTable";
 import MinMaxLeagueTable from "~/images/MinMaxLeagueTable";
+import GameListSocialCard from "~/images/GameListSocialCard";
 
 //Utility Functions
 async function validateGame(_id, res, promise = null) {
@@ -595,13 +596,13 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	return { local, opposition, headToHead };
 }
 
-async function getUpdatedGame(id, res, refreshSocialImage = false) {
+async function getUpdatedGame(id, res, refreshSocialImages = false) {
 	//Get Full Game
-	let game = await Game.findById(id).fullGame(true, true);
+	const game = await Game.findById(id).fullGame(true, true);
 
 	//This only gets called after an admin action, so it's safe to assume we want the full admin data
-	game = await getExtraGameInfo([game], true, true);
-	const fullGames = _.keyBy(game, "_id");
+	const games = await getExtraGameInfo([game], true, true);
+	const fullGames = _.keyBy(games, "_id");
 
 	//Get Game For List
 	//Again, this is only called after an admin action so include hidden games
@@ -609,8 +610,10 @@ async function getUpdatedGame(id, res, refreshSocialImage = false) {
 
 	res.send({ id, fullGames, gameList });
 
-	if (refreshSocialImage) {
+	if (refreshSocialImages) {
 		await updateSocialMediaCard(id);
+		const teamType = await TeamType.findById(game._teamType, "name sortOrder").lean();
+		await updateGameListSocialCards(teamType);
 	}
 }
 
@@ -931,6 +934,10 @@ export async function addCrawledGames(req, res) {
 			fullGames,
 			...list
 		};
+
+		//Generate social media cards for the crawled games & update the gamelist card
+		Object.keys(fullGames).map(id => updateSocialMediaCard(id));
+		updateAllGameListSocialCards(req, { send: () => {} });
 	}
 
 	//Then, add neutral games
@@ -1132,7 +1139,7 @@ export async function handleEvent(req, res) {
 			}
 			eventObject.inDatabase = true;
 			eventObject._player = player;
-			game = await Game.findOneAndUpdate(
+			game = await Game.updateOne(
 				{ _id },
 				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
 				{
@@ -1410,12 +1417,18 @@ async function generatePlayerEventImage(player, event, basicGame) {
 	}
 }
 
-async function updateSocialMediaCard(id) {
-	const gameForImage = await Game.findById(id).eventImage();
+async function updateSocialMediaCard(_id) {
+	const gameForImage = await Game.findById(_id).eventImage();
 	const imageClass = new GameSocialCardImage(gameForImage);
 	const image = await imageClass.render();
-	const result = await uploadBase64ImageToGoogle(image, "images/games/social/", false, id, "jpg");
-	await Game.findByIdAndUpdate(id, { $inc: { socialImageVersion: 1 } });
+	const result = await uploadBase64ImageToGoogle(
+		image,
+		"images/games/social/",
+		false,
+		_id,
+		"jpg"
+	);
+	await Game.updateOne({ _id }, { $inc: { socialImageVersion: 1 } });
 	return result;
 }
 
@@ -1927,4 +1940,40 @@ export async function getTeamSelectorValues(_id, res) {
 	}
 
 	return values;
+}
+
+//Game List social card
+export async function updateAllGameListSocialCards(req, res) {
+	const teamTypes = await TeamType.find({}, "name sortOrder").lean();
+	teamTypes.forEach(teamType => updateGameListSocialCards(teamType));
+	res.send({});
+}
+
+async function updateGameListSocialCards(teamType) {
+	const { fixtures, results } = await generateGameListSocialCards(teamType);
+	return Promise.all([
+		uploadBase64ImageToGoogle(
+			fixtures,
+			"images/games/social/gamelist/",
+			false,
+			`fixtures-${teamType._id}`,
+			"jpg",
+			86400
+		),
+		uploadBase64ImageToGoogle(
+			results,
+			"images/games/social/gamelist/",
+			false,
+			`results-${teamType._id}`,
+			"jpg",
+			86400
+		)
+	]);
+}
+
+async function generateGameListSocialCards(teamType) {
+	const fixtureImage = new GameListSocialCard(true, teamType);
+	const resultsImage = new GameListSocialCard(false, teamType);
+	const [fixtures, results] = await Promise.all([fixtureImage.render(), resultsImage.render()]);
+	return { fixtures, results };
 }

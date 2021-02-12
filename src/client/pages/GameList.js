@@ -302,7 +302,11 @@ class GameList extends Component {
 
 		return (
 			<div className="game-list-page">
-				<HelmetBuilder title={pageTitle} canonical={`${rootUrl}/${teamType.slug}`} />
+				<HelmetBuilder
+					title={pageTitle}
+					canonical={`${rootUrl}/${teamType.slug}`}
+					cardImage={`${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg`}
+				/>
 				<section className="page-header no-margin">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
