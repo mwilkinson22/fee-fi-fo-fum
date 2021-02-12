@@ -196,7 +196,7 @@ export default class GameListSocialCard extends Canvas {
 					[{ text: oppositionText.toUpperCase(), font: textStyles.gameOpponent.string }],
 					[
 						{
-							text: new Date(game.date).toString("dddd dS MMMM"),
+							text: new Date(game.date).toString("dddd dS MMMM HH:mm"),
 							font: textStyles.gameDate.string
 						}
 					],
