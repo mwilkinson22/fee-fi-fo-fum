@@ -8,6 +8,13 @@ export default app => {
 	//Public Calendar URL
 	app.get("/calendar/", gamesController.getCalendar);
 
+	//Update game list social cards
+	app.get(
+		"/api/games/gameListSocialCards",
+		requireAdmin,
+		gamesController.updateAllGameListSocialCards
+	);
+
 	//Get games for homepage
 	app.get("/api/games/homepage", gamesController.getHomePageGames);
 
