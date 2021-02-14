@@ -24,7 +24,8 @@ import { getYearsWithResults, validateGameDate } from "~/helpers/gameHelper";
 class GameList extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		const timeStamp = new Date().getTime();
+		this.state = { timeStamp };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -245,7 +246,16 @@ class GameList extends Component {
 
 	render() {
 		const { bucketPaths, gameList, fullTeams, localTeam } = this.props;
-		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin } = this.state;
+		const {
+			listType,
+			games,
+			year,
+			teamType,
+			teamTypeRedirect,
+			rootUrl,
+			isAdmin,
+			timeStamp
+		} = this.state;
 
 		if (teamTypeRedirect) {
 			return <Redirect to={`${rootUrl}/${teamTypeRedirect}`} />;
@@ -305,7 +315,7 @@ class GameList extends Component {
 				<HelmetBuilder
 					title={pageTitle}
 					canonical={`${rootUrl}/${teamType.slug}`}
-					cardImage={`${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg`}
+					cardImage={`${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg?t=${timeStamp}`}
 				/>
 				<section className="page-header no-margin">
 					<div className="container">

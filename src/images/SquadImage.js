@@ -7,7 +7,7 @@ const Settings = mongoose.model("settings");
 export default class SquadImage extends Canvas {
 	constructor(players, options = {}) {
 		//Set Dimensions
-		const cWidth = 1400;
+		const cWidth = 1200;
 		const cHeight = cWidth / 2;
 
 		//Load In Fonts

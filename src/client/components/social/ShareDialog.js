@@ -20,8 +20,13 @@ const services = {
 		postName: "Tweet",
 		authBtn: { background: "#1da1f3", color: "white" }
 	}
-	// facebook: { name: "Facebook", authBtn: { background: "#3c5a99", color: "white" } }
 };
+if (typeof navigator !== "undefined" && typeof navigator.share !== "undefined") {
+	services.share = {
+		name: "Share",
+		postName: "Share"
+	};
+}
 
 class ShareDialog extends Component {
 	constructor(props) {
@@ -33,7 +38,7 @@ class ShareDialog extends Component {
 			getAuthorisedAccounts();
 		}
 
-		this.state = { images, service: Object.keys(services)[0] };
+		this.state = { images, service: Object.keys(services)[0], hasAutoSharedToNavigator: false };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -65,7 +70,7 @@ class ShareDialog extends Component {
 	renderIcons() {
 		const { bucketPaths } = this.props;
 		const { service } = this.state;
-		const icons = _.map(services, ({ title }, key) => (
+		const icons = _.map(services, ({ name }, key) => (
 			<div
 				className={`service-icon ${key == service ? "active" : ""}`}
 				key={key}
@@ -80,8 +85,8 @@ class ShareDialog extends Component {
 			>
 				<img
 					src={`${bucketPaths.images.layout}icons/${key}.svg`}
-					title={title}
-					alt={`${title} Logo`}
+					title={name}
+					alt={`${name} Logo`}
 				/>
 			</div>
 		));
@@ -89,17 +94,79 @@ class ShareDialog extends Component {
 		return <div className="service-icons">{icons}</div>;
 	}
 
+	shareViaNavigator() {
+		const { images } = this.state;
+		//Convert dataurl images to File objects
+		const files = images.map((dataUrl, i) => {
+			const arr = dataUrl.split(",");
+			const mime = arr[0].match(/:(.*?);/)[1];
+			const bstr = atob(arr[1]);
+			let n = bstr.length;
+			const u8arr = new Uint8Array(n);
+
+			while (n--) {
+				u8arr[n] = bstr.charCodeAt(n);
+			}
+
+			let extension = mime.replace("image/", "");
+			if (extension === "jpeg") {
+				extension = "jpg";
+			}
+
+			return new File([u8arr], `image-${i + 1}.${extension}`, { type: mime });
+		});
+		navigator.share({
+			files
+		});
+	}
+
 	renderDialog() {
-		const { authorisedAccounts, isSubmitting, service, submittedPost } = this.state;
+		const {
+			authorisedAccounts,
+			fetchingPreview,
+			images,
+			isSubmitting,
+			service,
+			submittedPost,
+			hasAutoSharedToNavigator
+		} = this.state;
 
 		if (service) {
 			let content;
+
+			//For the standard mobile share functionality,
+			//simply display a button
+			if (service === "share") {
+				if (fetchingPreview) {
+					content = <LoadingPage />;
+				} else if (!images.length) {
+					this.fetchPreview();
+				} else {
+					if (!hasAutoSharedToNavigator) {
+						this.setState({ hasAutoSharedToNavigator: true });
+						this.shareViaNavigator();
+					}
+					content = this.renderImagePreview();
+					content = (
+						<div>
+							{this.renderImagePreview()}
+							<button
+								className="navigator-share-btn"
+								type="button"
+								onClick={() => this.shareViaNavigator()}
+							>
+								Share
+							</button>
+						</div>
+					);
+				}
+			}
 
 			//If we haven't authenticated, show the auth button
 			//If we have, render the composer
 			//While submitting, render LoadingPage
 			//Once we've finished, show a message
-			if (isSubmitting) {
+			else if (isSubmitting) {
 				content = <LoadingPage />;
 			} else if (submittedPost) {
 				//Check to see if we can create a link
@@ -266,9 +333,16 @@ class ShareDialog extends Component {
 		}
 	}
 
+	async fetchPreview() {
+		const { onFetchImage } = this.props;
+		this.setState({ fetchingPreview: true });
+		const images = await onFetchImage();
+		this.setState({ fetchingPreview: false, images });
+	}
+
 	renderComposer() {
-		const { browser, disconnectAccount, initialContent, onFetchImage } = this.props;
-		const { authorisedAccounts, fetchingPreview, images, service } = this.state;
+		const { browser, disconnectAccount, initialContent } = this.props;
+		const { authorisedAccounts, service } = this.state;
 
 		//First, get user info
 		const account = authorisedAccounts[service];
@@ -309,37 +383,32 @@ class ShareDialog extends Component {
 			/>
 		);
 
-		//And show a preview of any images
-		let imagePreview;
-		if (images.length) {
-			const list = images.map((src, i) => (
-				<img key={i} src={src} onClick={() => window.open(src)} alt="Preview" />
-			));
-			imagePreview = <div className="image-previews">{list}</div>;
-		} else if (fetchingPreview) {
-			imagePreview = <LoadingPage />;
-		} else if (onFetchImage) {
-			imagePreview = (
-				<button
-					className="fetch-preview-image-btn"
-					onClick={async () => {
-						this.setState({ fetchingPreview: true });
-						const images = await onFetchImage();
-						this.setState({ fetchingPreview: false, images });
-					}}
-				>
-					Preview Image
-				</button>
-			);
-		}
-
 		return (
 			<div>
 				{userInfo}
 				{composer}
-				{imagePreview}
+				{this.renderImagePreview()}
 			</div>
 		);
+	}
+
+	renderImagePreview() {
+		const { onFetchImage } = this.props;
+		const { images, fetchingPreview } = this.state;
+		if (images.length) {
+			const list = images.map((src, i) => (
+				<img key={i} src={src} onClick={() => window.open(src)} alt="Preview" />
+			));
+			return <div className="image-previews">{list}</div>;
+		} else if (fetchingPreview) {
+			return <LoadingPage />;
+		} else if (onFetchImage) {
+			return (
+				<button className="fetch-preview-image-btn" onClick={() => this.fetchPreview()}>
+					Preview Image
+				</button>
+			);
+		}
 	}
 
 	render() {
