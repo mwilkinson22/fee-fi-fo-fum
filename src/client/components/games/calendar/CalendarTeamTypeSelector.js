@@ -88,10 +88,14 @@ class CalendarTeamTypeSelector extends Component {
 	}
 
 	renderButtons() {
+		const { onBack } = this.props;
 		const { selectedTeamTypes, showAll } = this.state;
 		const disableButton = _.filter(selectedTeamTypes, _.identity).length === 0 && !showAll;
 		return (
 			<div className="buttons">
+				<button type="button" onClick={onBack}>
+					Back
+				</button>
 				<button
 					className={disableButton ? "" : "confirm"}
 					type="button"
@@ -105,7 +109,6 @@ class CalendarTeamTypeSelector extends Component {
 	}
 
 	render() {
-		const { fullTeams, localTeam } = this.props;
 		const { isLoading } = this.state;
 
 		//Wait for competitions
@@ -115,11 +118,6 @@ class CalendarTeamTypeSelector extends Component {
 
 		return (
 			<div>
-				<p className="full-span">
-					Use the form below to generate a custom link you can subscribe to using your
-					personal calendar, keeping you permanently up to date with all upcoming{" "}
-					{fullTeams[localTeam].nickname} fixtures.
-				</p>
 				<p>First, select at least one team type from the list below</p>
 				{this.renderList()}
 				{this.renderButtons()}
@@ -131,6 +129,7 @@ class CalendarTeamTypeSelector extends Component {
 CalendarTeamTypeSelector.propTypes = {
 	initialTeamTypes: PropTypes.array,
 	initialShowAll: PropTypes.bool,
+	onBack: PropTypes.func.isRequired,
 	onNext: PropTypes.func.isRequired
 };
 
@@ -138,10 +137,9 @@ CalendarTeamTypeSelector.defaultProps = {
 	initialShowAll: true
 };
 
-function mapStateToProps({ config, teams }) {
-	const { localTeam } = config;
-	const { activeTeamType, fullTeams, teamTypes } = teams;
-	return { activeTeamType, fullTeams, localTeam, teamTypes };
+function mapStateToProps({ teams }) {
+	const { activeTeamType, teamTypes } = teams;
+	return { activeTeamType, teamTypes };
 }
 
 export default connect(mapStateToProps)(CalendarTeamTypeSelector);

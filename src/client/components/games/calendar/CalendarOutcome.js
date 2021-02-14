@@ -15,22 +15,32 @@ class CalendarOutcome extends Component {
 	}
 
 	renderCopyDialog() {
-		const { baseUrl, options, selectedTeamTypes, showAllTeamTypes, teamTypes } = this.props;
+		const {
+			baseUrl,
+			options,
+			selectedTeamTypes,
+			showAllTeamTypes,
+			teamTypes,
+			useCustomOptions
+		} = this.props;
 		const { enableCopyButton } = this.state;
 
-		//Create basic queryOptions object
-		const queryOptions = { ...options };
-
-		//Conditionally add team types
-		if (!showAllTeamTypes) {
-			queryOptions.teamTypes = selectedTeamTypes.map(id => teamTypes[id].slug).join(",");
-		}
-
-		//Create query string
-		const query = _.map(queryOptions, (val, key) => `${key}=${val.toString()}`).join("&");
-
 		//Convert this to a full url
-		const url = `${baseUrl}/calendar?${query}`;
+		let url = `${baseUrl}/calendar`;
+
+		if (useCustomOptions) {
+			//Create basic queryOptions object
+			const queryOptions = { ...options };
+
+			//Conditionally add team types
+			if (!showAllTeamTypes) {
+				queryOptions.teamTypes = selectedTeamTypes.map(id => teamTypes[id].slug).join(",");
+			}
+
+			//Create query string
+			const query = _.map(queryOptions, (val, key) => `${key}=${val.toString()}`).join("&");
+			url += `?${query}`;
+		}
 
 		//Get Copy Button data
 		let buttonProps = {};
@@ -131,10 +141,11 @@ class CalendarOutcome extends Component {
 }
 
 CalendarOutcome.propTypes = {
+	onBack: PropTypes.func.isRequired,
 	options: PropTypes.object,
 	selectedTeamTypes: PropTypes.arrayOf(PropTypes.string),
 	showAllTeamTypes: PropTypes.bool,
-	onBack: PropTypes.func.isRequired
+	useCustomOptions: PropTypes.bool
 };
 
 function mapStateToProps({ config, games, teams }) {
