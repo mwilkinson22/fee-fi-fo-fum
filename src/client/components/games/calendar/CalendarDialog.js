@@ -10,12 +10,13 @@ import PopUpDialog from "../../PopUpDialog";
 import CalendarTeamTypeSelector from "./CalendarTeamTypeSelector";
 import CalendarOptionsSelector from "./CalendarOptionsSelector";
 import CalendarOutcome from "./CalendarOutcome";
+import CalendarSimpleOrAdvancedSelector from "~/client/components/games/calendar/CalendarSimpleOrAdvancedSelector";
 
 class CalendarDialog extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {};
+		this.state = { useCustomOptions: null };
 	}
 
 	renderContentDialog() {
@@ -24,43 +25,63 @@ class CalendarDialog extends Component {
 			showAllTeamTypes,
 			editTeamTypes,
 			options,
-			editOptions
+			editOptions,
+			useCustomOptions
 		} = this.state;
 
-		//First, select competitions
-		if (!selectedTeamTypes || editTeamTypes) {
+		if (useCustomOptions === null) {
 			return (
-				<CalendarTeamTypeSelector
-					initialTeamTypes={selectedTeamTypes}
-					initialShowAll={showAllTeamTypes}
-					onNext={(selectedTeamTypes, showAllTeamTypes) =>
-						this.setState({ selectedTeamTypes, showAllTeamTypes, editTeamTypes: false })
-					}
+				<CalendarSimpleOrAdvancedSelector
+					onNext={useCustomOptions => this.setState({ useCustomOptions })}
 				/>
 			);
 		}
 
-		//Set Options
-		if (!options || editOptions) {
-			return (
-				<CalendarOptionsSelector
-					initialOptions={options}
-					selectedTeamTypes={selectedTeamTypes}
-					showAllTeamTypes={showAllTeamTypes}
-					onBack={() => this.setState({ editTeamTypes: true })}
-					onNext={options => this.setState({ options, editOptions: false })}
-				/>
-			);
+		if (useCustomOptions) {
+			//First, select competitions
+			if (!selectedTeamTypes || editTeamTypes) {
+				return (
+					<CalendarTeamTypeSelector
+						initialTeamTypes={selectedTeamTypes}
+						initialShowAll={showAllTeamTypes}
+						onBack={() => this.setState({ useCustomOptions: null })}
+						onNext={(selectedTeamTypes, showAllTeamTypes) =>
+							this.setState({
+								selectedTeamTypes,
+								showAllTeamTypes,
+								editTeamTypes: false
+							})
+						}
+					/>
+				);
+			}
+
+			//Set Options
+			if (!options || editOptions) {
+				return (
+					<CalendarOptionsSelector
+						initialOptions={options}
+						selectedTeamTypes={selectedTeamTypes}
+						showAllTeamTypes={showAllTeamTypes}
+						onBack={() => this.setState({ editTeamTypes: true })}
+						onNext={options => this.setState({ options, editOptions: false })}
+					/>
+				);
+			}
 		}
 
-		return (
-			<CalendarOutcome
-				onBack={() => this.setState({ editOptions: true })}
-				options={options}
-				selectedTeamTypes={selectedTeamTypes}
-				showAllTeamTypes={showAllTeamTypes}
-			/>
-		);
+		const calendarOutcomeProps = {
+			selectedTeamTypes,
+			showAllTeamTypes,
+			useCustomOptions
+		};
+		if (useCustomOptions) {
+			calendarOutcomeProps.options = options;
+			calendarOutcomeProps.onBack = () => this.setState({ editOptions: true });
+		} else {
+			calendarOutcomeProps.onBack = () => this.setState({ useCustomOptions: null });
+		}
+		return <CalendarOutcome {...calendarOutcomeProps} />;
 	}
 
 	render() {

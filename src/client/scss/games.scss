@@ -1608,6 +1608,30 @@ section.match-squads {
 		margin-bottom: 8pt;
 	}
 
+	.basic-or-custom-wrapper {
+		display: grid;
+		grid-gap: 10pt;
+		text-align: center;
+
+		& > div {
+			cursor: pointer;
+			padding: 10pt;
+			border: 1pt solid #eee;
+			border-radius: 4pt;
+			&:hover {
+				background: #eee;
+			}
+		}
+
+		@media #{$desktop-and-tablet} {
+			grid-template-columns: 1fr 1fr;
+		}
+		@media #{$mobile-only} {
+			grid-template-columns: 1fr;
+			flex-direction: column;
+		}
+	}
+
 	ul.clickable {
 		li {
 			display: flex;
