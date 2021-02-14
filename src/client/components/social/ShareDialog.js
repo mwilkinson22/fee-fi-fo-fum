@@ -38,7 +38,7 @@ class ShareDialog extends Component {
 			getAuthorisedAccounts();
 		}
 
-		this.state = { images, service: Object.keys(services)[0], hasAutoSharedToNavigator: false };
+		this.state = { images, service: Object.keys(services)[0] };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -95,9 +95,10 @@ class ShareDialog extends Component {
 	}
 
 	shareViaNavigator() {
-		const { initialContent, siteName } = this.props;
+		const { siteName } = this.props;
 		const { images } = this.state;
-		//Convert dataurl images to File objects
+
+		//Convert dataUrl images to File objects
 		const files = images.map((dataUrl, i) => {
 			const arr = dataUrl.split(",");
 			const mime = arr[0].match(/:(.*?);/)[1];
@@ -116,9 +117,9 @@ class ShareDialog extends Component {
 
 			return new File([u8arr], `image-${i + 1}.${extension}`, { type: mime });
 		});
+
 		navigator.share({
 			files,
-			text: initialContent,
 			title: `${images.length === 1 ? "Image" : "Images"} from ${siteName}`
 		});
 	}
@@ -130,8 +131,7 @@ class ShareDialog extends Component {
 			images,
 			isSubmitting,
 			service,
-			submittedPost,
-			hasAutoSharedToNavigator
+			submittedPost
 		} = this.state;
 
 		if (service) {
@@ -145,10 +145,6 @@ class ShareDialog extends Component {
 				} else if (!images.length) {
 					this.fetchPreview();
 				} else {
-					if (!hasAutoSharedToNavigator) {
-						this.setState({ hasAutoSharedToNavigator: true });
-						this.shareViaNavigator();
-					}
 					content = this.renderImagePreview();
 					content = (
 						<div>
