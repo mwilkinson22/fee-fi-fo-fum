@@ -14,31 +14,39 @@ import { disconnectAccount, getAuthorisedAccounts } from "~/client/actions/oAuth
 
 //Constants
 import PopUpDialog from "../PopUpDialog";
-const services = {
-	twitter: {
-		name: "Twitter",
-		postName: "Tweet",
-		authBtn: { background: "#1da1f3", color: "white" }
-	}
-};
-if (typeof navigator !== "undefined" && typeof navigator.share !== "undefined") {
-	services.share = {
-		name: "Share",
-		postName: "Share"
-	};
-}
 
 class ShareDialog extends Component {
 	constructor(props) {
 		super(props);
 
+		const { browser } = props;
+
+		//Add services
+		const services = {
+			twitter: {
+				name: "Twitter",
+				postName: "Tweet",
+				authBtn: { background: "#1da1f3", color: "white" }
+			}
+		};
+		if (
+			typeof navigator !== "undefined" &&
+			typeof navigator.share !== "undefined" &&
+			//Firefox for android supports navigator.share but not sharing files
+			browser !== "Firefox"
+		) {
+			services.share = {
+				name: "Share",
+				postName: "Share"
+			};
+		}
 		const { authorisedAccounts, getAuthorisedAccounts, images } = props;
 
 		if (!authorisedAccounts) {
 			getAuthorisedAccounts();
 		}
 
-		this.state = { images, service: Object.keys(services)[0] };
+		this.state = { images, service: Object.keys(services)[0], services };
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -69,7 +77,7 @@ class ShareDialog extends Component {
 
 	renderIcons() {
 		const { bucketPaths } = this.props;
-		const { service } = this.state;
+		const { service, services } = this.state;
 		const icons = _.map(services, ({ name }, key) => (
 			<div
 				className={`service-icon ${key == service ? "active" : ""}`}
@@ -95,7 +103,7 @@ class ShareDialog extends Component {
 	}
 
 	shareViaNavigator() {
-		const { siteName } = this.props;
+		const { site_name } = this.props;
 		const { images } = this.state;
 
 		//Convert dataUrl images to File objects
@@ -120,7 +128,7 @@ class ShareDialog extends Component {
 
 		navigator.share({
 			files,
-			title: `${images.length === 1 ? "Image" : "Images"} from ${siteName}`
+			title: `${images.length === 1 ? "Image" : "Images"} from ${site_name}`
 		});
 	}
 
@@ -131,6 +139,7 @@ class ShareDialog extends Component {
 			images,
 			isSubmitting,
 			service,
+			services,
 			submittedPost
 		} = this.state;
 
@@ -211,7 +220,7 @@ class ShareDialog extends Component {
 
 	renderAuthoriseDialog() {
 		const { getAuthorisedAccounts } = this.props;
-		const { isAuthorising, service } = this.state;
+		const { isAuthorising, service, services } = this.state;
 
 		//If we don't have credentials, get a request token
 		let popout;
