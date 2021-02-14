@@ -95,6 +95,7 @@ class ShareDialog extends Component {
 	}
 
 	shareViaNavigator() {
+		const { initialContent, siteName } = this.props;
 		const { images } = this.state;
 		//Convert dataurl images to File objects
 		const files = images.map((dataUrl, i) => {
@@ -116,7 +117,9 @@ class ShareDialog extends Component {
 			return new File([u8arr], `image-${i + 1}.${extension}`, { type: mime });
 		});
 		navigator.share({
-			files
+			files,
+			text: initialContent,
+			title: `${images.length === 1 ? "Image" : "Images"} from ${siteName}`
 		});
 	}
 
