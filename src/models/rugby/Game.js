@@ -25,7 +25,7 @@ const gameSchema = new Schema(
 		dateRange: { type: Number, default: null },
 		date: { type: Date, required: true },
 		isAway: { type: Boolean, required: true },
-		isNeutralGround: { type: Boolean, required: true },
+		isNeutralGround: { type: Boolean, required: true, default: false },
 		slug: { type: String, unique: true, required: true },
 		hideGame: { type: Boolean, default: false },
 
@@ -190,9 +190,9 @@ gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType 
 		date = new Date(date);
 	}
 
-	const coreSlugText = `${teamSlug}${
-		teamType.slug == "first" ? "-" : `-${teamType.slug}-`
-	}${date.toString("yyyy-MM-dd")}`;
+	const coreSlugText = `${teamSlug}${teamType.slug == "first" ? "-" : `-${teamType.slug}-`}${date.toString(
+		"yyyy-MM-dd"
+	)}`;
 
 	let slugExists = await this.findOne({
 		slug: coreSlugText
@@ -290,8 +290,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		})
 		.populate({
 			path: "_competition",
-			select:
-				"name _parentCompetition appendCompetitionName basicTitle instances instance type hashtagPrefix",
+			select: "name _parentCompetition appendCompetitionName basicTitle instances instance type hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
 				select: "name useAllSquads interchangeLimit"
