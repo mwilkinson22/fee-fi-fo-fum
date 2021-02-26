@@ -60,8 +60,7 @@ async function processGround(values) {
 	//Sort ground, when the value is set to "auto"
 	if (values._ground === "auto") {
 		const Team = mongoose.model("teams");
-		const homeTeamId =
-			values.isAway === "true" || values.isAway === true ? values._opposition : localTeam;
+		const homeTeamId = values.isAway === "true" || values.isAway === true ? values._opposition : localTeam;
 		const homeTeam = await Team.findById(homeTeamId, "_defaultGround _grounds").lean();
 		let ground = homeTeam._grounds.find(g => g._teamType == values._teamType);
 		values._ground = ground ? ground._ground : homeTeam._defaultGround;
@@ -155,8 +154,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 				.then(lastGame => {
 					if (lastGame) {
 						const lastPregame =
-							lastGame.pregameSquads &&
-							lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
+							lastGame.pregameSquads && lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
 
 						if (lastPregame) {
 							game.previousPregameSquad = lastPregame.squad;
@@ -512,10 +510,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	if (!allCompetitions) {
 		neutralMatch._competition = game._competition._id;
 	}
-	const neutralGameQuery = NeutralGame.find(
-		neutralMatch,
-		"date _homeTeam _awayTeam homePoints awayPoints"
-	)
+	const neutralGameQuery = NeutralGame.find(neutralMatch, "date _homeTeam _awayTeam homePoints awayPoints")
 		.sort({ date: -1 })
 		.populate({ path: "_homeTeam", select: "name images.main" })
 		.populate({ path: "_awayTeam", select: "name images.main" })
@@ -810,11 +805,7 @@ export async function getHomePageGames(req, res) {
 		.sort({ date: 1 });
 
 	//Await results
-	const [lastGame, nextGame, nextHomeGame] = await Promise.all([
-		lastGameQuery,
-		nextGameQuery,
-		nextHomeGameQuery
-	]);
+	const [lastGame, nextGame, nextHomeGame] = await Promise.all([lastGameQuery, nextGameQuery, nextHomeGameQuery]);
 
 	const games = [lastGame._id];
 	if (nextGame) {
@@ -888,10 +879,7 @@ export async function getGamesByAggregate(match) {
 
 //Create New Games
 export async function addGame(req, res) {
-	const [values, slug] = await Promise.all([
-		processGround(req.body),
-		Game.generateSlug(req.body)
-	]);
+	const [values, slug] = await Promise.all([processGround(req.body), Game.generateSlug(req.body)]);
 	const game = new Game({ ...values, slug });
 
 	await game.save();
@@ -923,10 +911,7 @@ export async function addCrawledGames(req, res) {
 
 		//Pull new games
 		const list = await processList(req.user && req.user.isAdmin);
-		const games = await Game.find({ _id: { $in: _.values(result.insertedIds) } }).fullGame(
-			true,
-			true
-		);
+		const games = await Game.find({ _id: { $in: _.values(result.insertedIds) } }).fullGame(true, true);
 		const fullGames = await getExtraGameInfo(games, true, true);
 
 		//Return new games
@@ -951,9 +936,7 @@ export async function addCrawledGames(req, res) {
 		const result = await NeutralGame.bulkWrite(neutralBulkOperations);
 
 		//Return new games
-		savedData.neutral = await getUpdatedNeutralGames(
-			_.map(result.insertedIds, id => id.toString())
-		);
+		savedData.neutral = await getUpdatedNeutralGames(_.map(result.insertedIds, id => id.toString()));
 	}
 
 	res.send(savedData);
@@ -1081,9 +1064,7 @@ export async function setSquads(req, res) {
 		//Then, add the new players
 		_.chain(squad)
 			.map((_player, position) => ({ _player, position }))
-			.reject(
-				({ _player }) => !_player || _.find(game.playerStats, s => s._player == _player)
-			)
+			.reject(({ _player }) => !_player || _.find(game.playerStats, s => s._player == _player))
 			.each(({ _player, position }) => {
 				bulkOperation.push({
 					updateOne: {
@@ -1165,10 +1146,7 @@ export async function handleEvent(req, res) {
 					//Check for hat-trick
 					let imageEvent = event;
 					if (event === "T") {
-						const { stats } = _.find(
-							game._doc.playerStats,
-							p => p._player._id == player
-						);
+						const { stats } = _.find(game._doc.playerStats, p => p._player._id == player);
 						const { T } = stats;
 						if (T % 3 === 0) {
 							imageEvent = "HT";
@@ -1181,11 +1159,7 @@ export async function handleEvent(req, res) {
 							image = await generatePregameImage(game, req.body.imageOptions);
 							break;
 						case "matchSquad":
-							image = await generateSquadImage(
-								game,
-								req.body.showOpposition,
-								req.get("host")
-							);
+							image = await generateSquadImage(game, req.body.showOpposition, req.get("host"));
 							break;
 						default:
 							image = await new GameEventImage(game, event);
@@ -1309,10 +1283,7 @@ export async function setStats(req, res) {
 	const game = await validateGame(_id, res);
 	if (game) {
 		for (const _player in req.body) {
-			const stats = _.map(req.body[_player], (val, key) => [
-				`playerStats.$[elem].stats.${key}`,
-				val
-			]);
+			const stats = _.map(req.body[_player], (val, key) => [`playerStats.$[elem].stats.${key}`, val]);
 			await game.updateOne(
 				{ $set: _.fromPairs(stats) },
 				{
@@ -1329,11 +1300,7 @@ export async function fetchExternalGame(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res, Game.findById(_id).crawl());
 	if (game) {
-		const result = await parseExternalGame(
-			game,
-			false,
-			req.query.includeScoringStats == "true"
-		);
+		const result = await parseExternalGame(game, false, req.query.includeScoringStats == "true");
 		if (result.error) {
 			res.status(500).send({ toLog: result.error, errorMessage: "UHOH" });
 		} else {
@@ -1369,9 +1336,7 @@ async function generateSquadImage(game, showOpposition, siteUrl) {
 		.filter(({ _team }) => _team == teamToMatch)
 		.sortBy("position")
 		//Get data from eligible players
-		.map(({ _player }) =>
-			gameWithSquads.eligiblePlayers[teamToMatch].find(ep => ep._id == _player._id)
-		)
+		.map(({ _player }) => gameWithSquads.eligiblePlayers[teamToMatch].find(ep => ep._id == _player._id))
 		.value();
 
 	return new SquadImage(players, { game: gameWithSquads, showOpposition, siteUrl });
@@ -1384,11 +1349,7 @@ export async function fetchSquadImage(req, res) {
 	const game = await validateGame(_id, res, Game.findById(_id).eventImage());
 
 	if (game) {
-		const imageClass = await generateSquadImage(
-			game,
-			showOpposition === "true",
-			req.get("host")
-		);
+		const imageClass = await generateSquadImage(game, showOpposition === "true", req.get("host"));
 		const image = await imageClass.render(false);
 		res.send(image);
 	}
@@ -1421,13 +1382,7 @@ async function updateSocialMediaCard(_id) {
 	const gameForImage = await Game.findById(_id).eventImage();
 	const imageClass = new GameSocialCardImage(gameForImage);
 	const image = await imageClass.render();
-	const result = await uploadBase64ImageToGoogle(
-		image,
-		"images/games/social/",
-		false,
-		_id,
-		"jpg"
-	);
+	const result = await uploadBase64ImageToGoogle(image, "images/games/social/", false, _id, "jpg");
 	await Game.updateOne({ _id }, { $inc: { socialImageVersion: 1 } });
 	return result;
 }
@@ -1455,7 +1410,7 @@ export async function fetchEventImage(req, res) {
 	}
 }
 
-async function generateFixtureListImage(year, competitions, fixturesOnly) {
+async function generateFixtureListImage(year, competitions, fixturesOnly, dateBreakdown) {
 	let fromDate;
 
 	if (fixturesOnly) {
@@ -1473,7 +1428,7 @@ async function generateFixtureListImage(year, competitions, fixturesOnly) {
 	}).fullGame();
 
 	if (games.length) {
-		return new FixtureListImage(games, year);
+		return new FixtureListImage(games, year, dateBreakdown);
 	} else {
 		return false;
 	}
@@ -1482,8 +1437,9 @@ async function generateFixtureListImage(year, competitions, fixturesOnly) {
 export async function fetchFixtureListImage(req, res) {
 	const { year, competitions } = req.params;
 	const fixturesOnly = req.query.fixturesOnly === "true";
+	const dateBreakdown = req.query.dateBreakdown === "true";
 
-	const imageClass = await generateFixtureListImage(year, competitions.split(","), fixturesOnly);
+	const imageClass = await generateFixtureListImage(year, competitions.split(","), fixturesOnly, dateBreakdown);
 
 	if (imageClass) {
 		const image = await imageClass.render(false);
@@ -1494,11 +1450,11 @@ export async function fetchFixtureListImage(req, res) {
 }
 
 export async function postFixtureListImage(req, res) {
-	const { year, _competitions, _profile, tweet, fixturesOnly } = req.body;
+	const { year, _competitions, _profile, tweet, fixturesOnly, dateBreakdown } = req.body;
 	const twitterClient = await twitter(_profile);
 
 	//Render Image
-	const imageClass = await generateFixtureListImage(year, _competitions, fixturesOnly);
+	const imageClass = await generateFixtureListImage(year, _competitions, fixturesOnly, dateBreakdown);
 
 	if (!imageClass) {
 		res.status(400).send("No valid games found");
@@ -1586,10 +1542,7 @@ async function generatePostGameEventImage(game, data, res) {
 				);
 			}
 			case "min-max-league-table": {
-				return new MinMaxLeagueTable(
-					game._competition._id,
-					new Date(game.date).getFullYear()
-				);
+				return new MinMaxLeagueTable(game._competition._id, new Date(game.date).getFullYear());
 			}
 		}
 	}
@@ -1717,9 +1670,7 @@ export async function getCalendar(req, res) {
 		if (option === "teamTypes") {
 			//Get Team Type ids from slug
 			const selectedTeamTypes = req.query[option].split(",");
-			const validTeamTypes = teamTypes.filter(({ slug }) =>
-				selectedTeamTypes.find(t => t == slug)
-			);
+			const validTeamTypes = teamTypes.filter(({ slug }) => selectedTeamTypes.find(t => t == slug));
 
 			//If teamTypes are declared but none are valid, throw an error
 			if (!validTeamTypes || !validTeamTypes.length) {
@@ -1741,9 +1692,7 @@ export async function getCalendar(req, res) {
 					options.withBroadcaster = false;
 					break;
 				default:
-					res.status(404).send(
-						"Invalid value for parameter 'withBroadcaster'. Must be true or false"
-					);
+					res.status(404).send("Invalid value for parameter 'withBroadcaster'. Must be true or false");
 					return;
 			}
 		}
@@ -1756,9 +1705,7 @@ export async function getCalendar(req, res) {
 				options[option] = value;
 			} else {
 				res.status(404).send(
-					`Invalid value for parameter '${option}'. Must be one of: ${calendarStringOptions[
-						option
-					]
+					`Invalid value for parameter '${option}'. Must be one of: ${calendarStringOptions[option]
 						.map(o => `"${o}"`)
 						.join(", ")}`
 				);
@@ -1784,12 +1731,7 @@ export async function getCalendar(req, res) {
 
 		//Create Basic Object
 		const calObject = {
-			title: convertGameToCalendarString(
-				g,
-				options,
-				_.keyBy(teamTypes, "_id"),
-				localTeamName.name
-			),
+			title: convertGameToCalendarString(g, options, _.keyBy(teamTypes, "_id"), localTeamName.name),
 			description: title,
 			url: `${req.protocol}://${req.get("host")}/games/${slug}`
 		};
@@ -1804,11 +1746,7 @@ export async function getCalendar(req, res) {
 			const endDate = new Date(Math.max(g.date, altDate));
 
 			//Update calObject
-			calObject.start = [
-				startDate.getFullYear(),
-				startDate.getMonth() + 1,
-				startDate.getDate()
-			];
+			calObject.start = [startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate()];
 			calObject.end = [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate()];
 
 			//Update description

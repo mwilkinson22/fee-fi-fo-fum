@@ -9,9 +9,10 @@ const Settings = mongoose.model("settings");
 
 //Constants
 import { localTeam } from "~/config/keys";
+import { formatDate } from "~/helpers/gameHelper";
 
 export default class FixtureListImage extends Canvas {
-	constructor(games, year) {
+	constructor(games, year, dateBreakdown) {
 		//Set Width
 		const cWidth = 1400;
 
@@ -24,11 +25,10 @@ export default class FixtureListImage extends Canvas {
 
 		//Use box positioning to sort height
 		const maxGamesPerColumn = Math.ceil(games.length / 2);
-		let cHeight =
-			maxGamesPerColumn * (positions.boxHeight + positions.boxYMargin) + positions.boxYMargin;
+		let cHeight = maxGamesPerColumn * (positions.boxHeight + positions.boxYMargin) + positions.boxYMargin;
 
 		//Enable min height
-		const minHeight = cWidth * 0.3;
+		const minHeight = cWidth * 0.5;
 		positions.gameYOffset = 0;
 		if (cHeight < minHeight) {
 			positions.gameYOffset = (minHeight - cHeight) / 2;
@@ -81,6 +81,7 @@ export default class FixtureListImage extends Canvas {
 
 		//Variables
 		this.positions = positions;
+		this.dateBreakdown = dateBreakdown;
 		this.games = _.sortBy(games, g => new Date(g.date));
 		this.year = year;
 	}
@@ -122,19 +123,9 @@ export default class FixtureListImage extends Canvas {
 
 		//Lines behind logo
 		ctx.fillStyle = "#e1a321";
-		ctx.fillRect(
-			0,
-			positions.logoY + positions.logoHeight * 0.35,
-			cWidth,
-			positions.logoHeight * 0.3
-		);
+		ctx.fillRect(0, positions.logoY + positions.logoHeight * 0.35, cWidth, positions.logoHeight * 0.3);
 		ctx.fillStyle = "#FFF";
-		ctx.fillRect(
-			0,
-			positions.logoY + positions.logoHeight * 0.45,
-			cWidth,
-			positions.logoHeight * 0.1
-		);
+		ctx.fillRect(0, positions.logoY + positions.logoHeight * 0.45, cWidth, positions.logoHeight * 0.1);
 
 		//Box over lines
 		ctx.fillStyle = claret;
@@ -181,15 +172,12 @@ export default class FixtureListImage extends Canvas {
 			ctx.font = textStyles.teamName.string;
 			ctx.textAlign = "center";
 			ctx.fillStyle = game._opposition.colours.text;
-			const teamName = `${game._opposition.name.short} (${
-				game.isAway ? "A" : "H"
-			})`.toUpperCase();
+			const teamName = `${game._opposition.name.short} (${game.isAway ? "A" : "H"})`.toUpperCase();
 			ctx.fillText(teamName, x + boxWidth / 2, y + boxHeight * 0.45);
 
 			//Add date
 			ctx.font = textStyles.gameDate.string;
-			const dateFormat = `${game.hasTime ? "H:mm | " : ""}dddd dS MMMM`;
-			let dateText = game.date.toString(dateFormat);
+			let dateText = formatDate(game, "MMMM", "");
 			if (game.title === "Magic Weekend") {
 				dateText = "Magic Weekend";
 			}
@@ -223,18 +211,12 @@ export default class FixtureListImage extends Canvas {
 	}
 
 	async drawMiddleColumn() {
-		const { branding, ctx, cWidth, textStyles, positions } = this;
+		const { branding, ctx, cWidth, textStyles, positions, dateBreakdown } = this;
 
 		// Add Logo
 		const logo = await this.googleToCanvas(`images/layout/branding/${branding.site_logo}`);
 
-		this.cover(
-			logo,
-			positions.logoX,
-			positions.logoY,
-			positions.logoWidth,
-			positions.logoHeight
-		);
+		this.cover(logo, positions.logoX, positions.logoY, positions.logoWidth, positions.logoHeight);
 
 		//Add GameDay table
 		const gameDayTableY = this.getGamedayTable(positions.logoY);
@@ -277,23 +259,23 @@ export default class FixtureListImage extends Canvas {
 		ctx.shadowColor = "black";
 		ctx.shadowBlur = ctx.shadowOffsetX = ctx.shadowOffsetY = cWidth * 0.002;
 		this.textBuilder(textRows, cWidth * 0.5, gameDayTableY * 0.5, {
-			lineHeight: 1.4
+			lineHeight: dateBreakdown ? 1.4 : 2
 		});
 
 		//Add Social Tag
 		ctx.font = textStyles.middleText.string;
 		ctx.fillStyle = "#FFF";
-		ctx.fillText(
-			`@${branding.site_social}`,
-			cWidth / 2,
-			positions.logoY + positions.logoHeight * 1.4
-		);
+		ctx.fillText(`@${branding.site_social}`, cWidth / 2, positions.logoY + positions.logoHeight * 1.4);
 
 		this.resetShadow();
 	}
 
 	getGamedayTable(logoY) {
-		const { ctx, cWidth, games, positions, textStyles } = this;
+		const { ctx, cWidth, games, positions, textStyles, dateBreakdown } = this;
+		if (!dateBreakdown) {
+			//Still return a y value
+			return logoY;
+		}
 
 		const rows = _.chain(games)
 			.reject(g => g.title == "Magic Weekend")
@@ -423,8 +405,7 @@ export default class FixtureListImage extends Canvas {
 					break;
 				default:
 					//Should only be Saturday
-					title = "Easter Weekend";
-					break;
+					return false;
 			}
 		} else {
 			title = "Easter Weekend";

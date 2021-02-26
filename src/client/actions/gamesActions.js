@@ -226,9 +226,7 @@ export const getPregameImage = (id, query = "") => async (dispatch, getState, ap
 };
 
 export const getSquadImage = (id, showOpposition) => async (dispatch, getState, api) => {
-	const res = await api.get(
-		`/games/images/squad/${id}?showOpposition=${showOpposition.toString()}`
-	);
+	const res = await api.get(`/games/images/squad/${id}?showOpposition=${showOpposition.toString()}`);
 	return res.data;
 };
 
@@ -250,13 +248,13 @@ export const submitPostGameEvents = (id, values) => async (dispatch, getState, a
 	}
 };
 
-export const previewFixtureListImage = (year, competitions, fixturesOnly) => async (
+export const previewFixtureListImage = (year, competitions, fixturesOnly, dateBreakdown) => async (
 	dispatch,
 	getState,
 	api
 ) => {
 	const res = await api.get(
-		`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}`
+		`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}&dateBreakdown=${dateBreakdown.toString()}`
 	);
 	return res.data;
 };
@@ -286,16 +284,12 @@ export const addCrawledGames = games => async (dispatch, getState, api) => {
 		const { local, neutral } = res.data;
 		if (local) {
 			dispatch({ type: UPDATE_GAME, payload: local });
-			gameCount.push(
-				`${local.fullGames.length} local ${local.fullGames.length === 1 ? "game" : "games"}`
-			);
+			gameCount.push(`${local.fullGames.length} local ${local.fullGames.length === 1 ? "game" : "games"}`);
 		}
 
 		if (neutral) {
 			const neutralGameCount = _.flatten(_.map(neutral, _.values)).length;
-			gameCount.push(
-				`${neutralGameCount} neutral ${neutralGameCount === 1 ? "game" : "games"}`
-			);
+			gameCount.push(`${neutralGameCount} neutral ${neutralGameCount === 1 ? "game" : "games"}`);
 
 			if (getState().games.neutralGames) {
 				dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: neutral });

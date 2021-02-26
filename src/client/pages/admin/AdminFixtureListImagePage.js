@@ -10,11 +10,7 @@ import LoadingPage from "~/client/components/LoadingPage";
 
 //Actions
 import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
-import {
-	fetchGameListByYear,
-	previewFixtureListImage,
-	postFixtureListImage
-} from "~/client/actions/gamesActions";
+import { fetchGameListByYear, previewFixtureListImage, postFixtureListImage } from "~/client/actions/gamesActions";
 import { fetchProfiles } from "~/client/actions/socialActions";
 
 //Constants
@@ -67,7 +63,8 @@ class AdminFixtureListImagePage extends Component {
 			tweet: Yup.string()
 				.required()
 				.label("Tweet"),
-			fixturesOnly: Yup.bool().label("Fixtures Only?")
+			fixturesOnly: Yup.bool().label("Fixtures Only?"),
+			dateBreakdown: Yup.bool().label("Include Date Breakdown")
 		});
 
 		this.state = { lastYearWithResults, validationSchema };
@@ -138,7 +135,8 @@ class AdminFixtureListImagePage extends Component {
 				.filter(({ value }) => competitionSegmentList[value].type !== "Friendly")
 				.map(o => o.value),
 			_profile: defaultProfile || options.profiles[0].value,
-			fixturesOnly: true
+			fixturesOnly: true,
+			dateBreakdown: true
 		};
 	}
 
@@ -174,6 +172,10 @@ class AdminFixtureListImagePage extends Component {
 						type: fieldTypes.boolean
 					},
 					{
+						name: "dateBreakdown",
+						type: fieldTypes.boolean
+					},
+					{
 						name: "tweet",
 						type: fieldTypes.tweet,
 						autoFocus: true,
@@ -185,9 +187,7 @@ class AdminFixtureListImagePage extends Component {
 				render: values => {
 					let preview;
 					if (previewImage) {
-						preview = (
-							<img src={previewImage} className="preview-image" alt="Preview" />
-						);
+						preview = <img src={previewImage} className="preview-image" alt="Preview" />;
 					} else if (previewImage === false) {
 						preview = <LoadingPage />;
 					}
@@ -218,7 +218,8 @@ class AdminFixtureListImagePage extends Component {
 		const image = await previewFixtureListImage(
 			year,
 			values._competitions.join(","),
-			values.fixturesOnly
+			values.fixturesOnly,
+			values.dateBreakdown
 		);
 		this.setState({ previewImage: image });
 	}
