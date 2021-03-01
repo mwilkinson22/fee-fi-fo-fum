@@ -35,16 +35,7 @@ class Header extends Component {
 	}
 
 	generateNavMenu() {
-		const {
-			localTeam,
-			fullTeams,
-			authUser,
-			currentAwards,
-			sites,
-			baseUrl,
-			location,
-			gameYears
-		} = this.props;
+		const { localTeam, fullTeams, authUser, currentAwards, sites, baseUrl, location, gameYears } = this.props;
 		const navMenus = [
 			[
 				{
@@ -312,10 +303,7 @@ class Header extends Component {
 		return (
 			<header className={headerClass}>
 				<div className="container top-bar">
-					<div
-						className="nav-hamburger"
-						onClick={() => this.setState({ showMobileNav: true })}
-					>
+					<div className="nav-hamburger" onClick={() => this.setState({ showMobileNav: true })}>
 						<span />
 						<span />
 						<span />
@@ -337,10 +325,7 @@ class Header extends Component {
 					{this.generateNavMenu()}
 					<div className={`nav-section social mobile-only`}>{social}</div>
 				</nav>
-				<div
-					className="mobile-nav-background"
-					onClick={() => this.setState({ showMobileNav: false })}
-				/>
+				<div className="mobile-nav-background" onClick={() => this.setState({ showMobileNav: false })} />
 			</header>
 		);
 	}

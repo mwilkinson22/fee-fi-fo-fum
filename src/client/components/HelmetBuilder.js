@@ -36,8 +36,7 @@ class HelmetBuilder extends Component {
 
 		if (!cardImage) {
 			cardImage =
-				bucketPaths.images.layout +
-				(cardType === "summary" ? "twitter-card.jpg" : "twitter-card-large.jpg");
+				bucketPaths.images.layout + (cardType === "summary" ? "twitter-card.jpg" : "twitter-card-large.jpg");
 		}
 
 		//Set Meta

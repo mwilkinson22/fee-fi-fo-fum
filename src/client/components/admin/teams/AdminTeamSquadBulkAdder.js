@@ -178,12 +178,7 @@ class AdminTeamSquadBulkAdder extends Component {
 		const { parsedList } = this.state;
 		if (parsedList) {
 			const props = _.pick(this.state, ["parsedList", "squad", "team", "teamType", "year"]);
-			return (
-				<AdminTeamSquadBulkAdderResults
-					{...props}
-					onComplete={() => this.setState({ parsedList: null })}
-				/>
-			);
+			return <AdminTeamSquadBulkAdderResults {...props} onComplete={() => this.setState({ parsedList: null })} />;
 		}
 	}
 

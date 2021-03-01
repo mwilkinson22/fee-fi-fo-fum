@@ -1,11 +1,4 @@
-import {
-	DELETE_CITY,
-	DELETE_COUNTRY,
-	FETCH_CITIES,
-	FETCH_COUNTRIES,
-	FETCH_CITY,
-	FETCH_COUNTRY
-} from "./types";
+import { DELETE_CITY, DELETE_COUNTRY, FETCH_CITIES, FETCH_COUNTRIES, FETCH_CITY, FETCH_COUNTRY } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchCities = () => async (dispatch, getState, api) => {

@@ -34,15 +34,7 @@ class PlayerStatSection extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			authUser,
-			playedGames,
-			gameList,
-			fullGames,
-			teamTypes,
-			fetchGames,
-			person
-		} = nextProps;
+		const { authUser, playedGames, gameList, fullGames, teamTypes, fetchGames, person } = nextProps;
 		const newState = { isLoading: false };
 
 		//Ensure we have all games in gameList
@@ -82,9 +74,7 @@ class PlayerStatSection extends Component {
 		//This year's games
 		const playedGamesThisYear = playedGames
 			.map(_id => gameList[_id])
-			.filter(game =>
-				validateGameDate(game, "results", newState.year === "All" ? null : newState.year)
-			);
+			.filter(game => validateGameDate(game, "results", newState.year === "All" ? null : newState.year));
 
 		//On year change (or on initial load), reset the team types
 		let { teamType } = prevState;
@@ -218,10 +208,7 @@ class PlayerStatSection extends Component {
 			<tr key={position}>
 				<th>{position}</th>
 				<td>
-					<span
-						className="position-bar"
-						style={{ width: `${(count / maxPosition) * 100}%` }}
-					>
+					<span className="position-bar" style={{ width: `${(count / maxPosition) * 100}%` }}>
 						{count}
 					</span>
 				</td>
@@ -234,9 +221,7 @@ class PlayerStatSection extends Component {
 			Defence: ["TK", "MT", "TS", "P"]
 		};
 
-		const totalStats = getTotalsAndAverages(
-			_.map(filteredGames, game => game.playerStats[0].stats)
-		);
+		const totalStats = getTotalsAndAverages(_.map(filteredGames, game => game.playerStats[0].stats));
 
 		const statBoxes = _.map(statBoxStats, (keys, category) => {
 			const header = <h2 key={category}>{category}</h2>;
@@ -377,9 +362,7 @@ class PlayerStatSection extends Component {
 				stats.steel = {
 					content: steelPoints,
 					sortValue: steelPoints,
-					title: `${steelPoints} ${genderedString} of Steel ${
-						steelPoints === 1 ? "point" : "points"
-					}`
+					title: `${steelPoints} ${genderedString} of Steel ${steelPoints === 1 ? "point" : "points"}`
 				};
 			}
 

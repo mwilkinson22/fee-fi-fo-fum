@@ -65,11 +65,7 @@ class CalendarTeamTypeSelector extends Component {
 				//Render list item
 				return (
 					<li className={showAll ? "disabled" : ""} onClick={changeEvent} key={_id}>
-						<BooleanSlider
-							name={_id}
-							value={selectedTeamTypes[_id]}
-							onChange={changeEvent}
-						/>
+						<BooleanSlider name={_id} value={selectedTeamTypes[_id]} onChange={changeEvent} />
 						<span>{name}</span>
 					</li>
 				);

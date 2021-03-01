@@ -42,11 +42,7 @@ class AdminGamePostGame extends Component {
 		//Get Team Options
 		newState.options.players = {};
 		newState.options.players.bothTeams = convertTeamToSelect(newState.game, teamList);
-		newState.options.players.localTeam = convertTeamToSelect(
-			newState.game,
-			teamList,
-			localTeam
-		);
+		newState.options.players.localTeam = convertTeamToSelect(newState.game, teamList, localTeam);
 
 		//Validation Schema
 		const validationSchema = {
@@ -233,10 +229,7 @@ class AdminGamePostGame extends Component {
 						);
 					}
 
-					return [
-						<label key="label">Set Deadline</label>,
-						<div key="buttons">{buttons}</div>
-					];
+					return [<label key="label">Set Deadline</label>, <div key="buttons">{buttons}</div>];
 				}
 			},
 			{
@@ -253,8 +246,7 @@ class AdminGamePostGame extends Component {
 						const rows = _.map(game.fan_potm.votes, (votes, player) => {
 							const data = {
 								votes,
-								player: options.players.localTeam.find(o => o.value == player)
-									.label,
+								player: options.players.localTeam.find(o => o.value == player).label,
 								pc: Math.round((votes / totalVotes) * 1000) / 10 + "%"
 							};
 							return {

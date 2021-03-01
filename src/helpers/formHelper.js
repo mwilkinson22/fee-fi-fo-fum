@@ -32,10 +32,7 @@ export function extractYupData(name, validationSchema) {
 			.replace(/\.fields\.\d+$/g, ".innerType")
 			//Convert to dot notation
 			.split(".")
-			.reduce(
-				(prev, curr) => (prev ? prev[curr] : null),
-				validationSchema.describe().fields || self
-			)
+			.reduce((prev, curr) => (prev ? prev[curr] : null), validationSchema.describe().fields || self)
 	);
 }
 
@@ -114,9 +111,7 @@ export function renderInput(field) {
 	const { label, type, name, fastField, customOnChange, ...props } = field;
 
 	if (!_.find(fieldTypes, t => t == type)) {
-		throw new Error(
-			`Invalid field type '${type}' supplied to renderField for field '${label}' `
-		);
+		throw new Error(`Invalid field type '${type}' supplied to renderField for field '${label}' `);
 	}
 
 	//Get Render Method
@@ -128,10 +123,7 @@ export function renderInput(field) {
 				formikProps.field.onChange = option => {
 					formikProps.form.setFieldTouched(field.name, true);
 					if (props.isMulti) {
-						formikProps.form.setFieldValue(
-							field.name,
-							option ? option.map(o => o.value) : ""
-						);
+						formikProps.form.setFieldValue(field.name, option ? option.map(o => o.value) : "");
 					} else {
 						formikProps.form.setFieldValue(field.name, option ? option.value : "");
 					}
@@ -216,9 +208,7 @@ export function renderInput(field) {
 				//Pull value from nested options
 				if (mainProps.isMulti) {
 					if (mainProps.value) {
-						value = mainProps.value.map(valueInArray =>
-							options.find(({ value }) => value == valueInArray)
-						);
+						value = mainProps.value.map(valueInArray => options.find(({ value }) => value == valueInArray));
 					} else {
 						value = [];
 					}
@@ -226,24 +216,10 @@ export function renderInput(field) {
 					value = options.find(({ value }) => value == mainProps.value);
 				}
 
-				return (
-					<Select
-						className="react-select"
-						styles={selectStyling}
-						{...mainProps}
-						value={value || ""}
-					/>
-				);
+				return <Select className="react-select" styles={selectStyling} {...mainProps} value={value || ""} />;
 			}
 			case fieldTypes.asyncSelect:
-				return (
-					<AsyncSelect
-						className="react-select"
-						cacheOptions
-						styles={selectStyling}
-						{...mainProps}
-					/>
-				);
+				return <AsyncSelect className="react-select" cacheOptions styles={selectStyling} {...mainProps} />;
 			case fieldTypes.image:
 				return <ImageField {...mainProps} />;
 			case fieldTypes.draft:

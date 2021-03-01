@@ -91,9 +91,7 @@ class AdminPersonPage extends Component {
 				submenuItems.push({ label: "Merge", slug: "merge" });
 			}
 
-			return (
-				<SubMenu items={submenuItems} rootUrl={`/admin/people/${person._id}/`} key="menu" />
-			);
+			return <SubMenu items={submenuItems} rootUrl={`/admin/people/${person._id}/`} key="menu" />;
 		}
 	}
 
@@ -105,28 +103,12 @@ class AdminPersonPage extends Component {
 						<Switch>
 							<Route path="/admin/people/new" exact component={AdminPersonOverview} />
 							<Route path="/admin/people/:_id/merge" component={AdminPersonMerge} />
-							<Route
-								path="/admin/people/:_id/referee"
-								component={AdminRefereeDetails}
-							/>
+							<Route path="/admin/people/:_id/referee" component={AdminRefereeDetails} />
 							<Route path="/admin/people/:_id/coach" component={AdminCoachDetails} />
-							<Route
-								path="/admin/people/:_id/player"
-								component={AdminPlayerDetails}
-							/>
-							<Route
-								path="/admin/people/:_id/player"
-								component={AdminPlayerDetails}
-							/>
-							<Route
-								path="/admin/people/:_id/image-card"
-								component={AdminPersonImageCardPage}
-							/>
-							<Route
-								path="/admin/people/:_id"
-								exact
-								component={AdminPersonOverview}
-							/>
+							<Route path="/admin/people/:_id/player" component={AdminPlayerDetails} />
+							<Route path="/admin/people/:_id/player" component={AdminPlayerDetails} />
+							<Route path="/admin/people/:_id/image-card" component={AdminPersonImageCardPage} />
+							<Route path="/admin/people/:_id" exact component={AdminPersonOverview} />
 							<Route path="/" component={NotFoundPage} />
 						</Switch>
 					</ErrorBoundary>

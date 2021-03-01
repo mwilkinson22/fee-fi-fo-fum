@@ -54,10 +54,7 @@ class AdminGameEventList extends Component {
 		let image;
 		if (tweet_image) {
 			image = (
-				<div
-					key="image"
-					className={`image ${this.state.visibleEventImage === _id ? "visible" : ""}`}
-				>
+				<div key="image" className={`image ${this.state.visibleEventImage === _id ? "visible" : ""}`}>
 					<img src={tweet_image.replace(/^http:/, "https:")} alt="Twitter Image" />
 				</div>
 			);
@@ -77,22 +74,13 @@ class AdminGameEventList extends Component {
 
 		return [
 			replySection,
-			<div
-				key="delete"
-				className="action delete"
-				onClick={() => this.setState({ deleteEvent: _id })}
-			>
+			<div key="delete" className="action delete" onClick={() => this.setState({ deleteEvent: _id })}>
 				🛇
 			</div>,
 			<div key="profile" className="profile" title={title}>
 				{_profile ? _profile.name : "-"}
 			</div>,
-			<div
-				key="date"
-				className="date"
-				title={title}
-				onClick={() => this.setState({ visibleEventImage: _id })}
-			>
+			<div key="date" className="date" title={title} onClick={() => this.setState({ visibleEventImage: _id })}>
 				{new Date(date).toString("ddS MMM HH:mm:ss")}
 			</div>,
 			<div
@@ -134,12 +122,7 @@ class AdminGameEventList extends Component {
 
 			if (inDatabase) {
 				buttons.push(
-					<button
-						type="button"
-						onClick={() => this.handleDelete(false, true)}
-						className="delete"
-						key="stat"
-					>
+					<button type="button" onClick={() => this.handleDelete(false, true)} className="delete" key="stat">
 						Delete Stat
 					</button>
 				);
@@ -147,12 +130,7 @@ class AdminGameEventList extends Component {
 
 			if (tweet_id) {
 				buttons.push(
-					<button
-						type="button"
-						onClick={() => this.handleDelete(true, false)}
-						className="delete"
-						key="tweet"
-					>
+					<button type="button" onClick={() => this.handleDelete(true, false)} className="delete" key="tweet">
 						Delete Tweet
 					</button>
 				);
@@ -160,23 +138,14 @@ class AdminGameEventList extends Component {
 
 			if (inDatabase && tweet_id) {
 				buttons.push(
-					<button
-						type="button"
-						onClick={() => this.handleDelete(true, true)}
-						className="delete"
-						key="both"
-					>
+					<button type="button" onClick={() => this.handleDelete(true, true)} className="delete" key="both">
 						Delete Both
 					</button>
 				);
 			}
 
 			buttons.push(
-				<button
-					type="button"
-					key="cancel"
-					onClick={() => this.setState({ deleteEvent: undefined })}
-				>
+				<button type="button" key="cancel" onClick={() => this.setState({ deleteEvent: undefined })}>
 					Cancel
 				</button>
 			);

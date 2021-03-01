@@ -11,7 +11,7 @@ export default class LeagueTable extends Canvas {
 
 		//This doesn't really matter as we'll be
 		//resizing once we have teams
-		const cHeight = cWidth;
+		const cHeight = 1000;
 
 		//Load In Fonts
 		const fonts = [
@@ -122,16 +122,7 @@ export default class LeagueTable extends Canvas {
 	}
 
 	drawRows() {
-		const {
-			columns,
-			colours,
-			ctx,
-			cWidth,
-			positions,
-			tableData,
-			teamsToHighlight,
-			textStyles
-		} = this;
+		const { columns, colours, ctx, cWidth, positions, tableData, teamsToHighlight, textStyles } = this;
 
 		for (const row of tableData.rowData) {
 			let background, colour;
@@ -197,11 +188,7 @@ export default class LeagueTable extends Canvas {
 					);
 
 					//Add Text
-					ctx.fillText(
-						team.name.short,
-						textX + imageSize + positions.standardColumnWidth * 0.5,
-						textY
-					);
+					ctx.fillText(team.name.short, textX + imageSize + positions.standardColumnWidth * 0.5, textY);
 
 					//Update textX
 					let otherColumns = columns.length - 1;
@@ -212,9 +199,7 @@ export default class LeagueTable extends Canvas {
 					}
 
 					textX +=
-						cWidth -
-						otherColumns * positions.standardColumnWidth -
-						positions.standardColumnWidth * 0.15;
+						cWidth - otherColumns * positions.standardColumnWidth - positions.standardColumnWidth * 0.15;
 				} else {
 					//Set Alignment
 					ctx.textAlign = "center";

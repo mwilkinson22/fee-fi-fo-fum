@@ -108,17 +108,13 @@ class NewsListPage extends Component {
 		const { category, page, postIds, isLoadingPage, isLoadingPosts } = this.state;
 		let postPreviews = [];
 		if (isLoadingPage || isLoadingPosts) {
-			const placeholdersToShow = pages[category][page]
-				? pages[category][page].length
-				: newsPostsPerPage;
+			const placeholdersToShow = pages[category][page] ? pages[category][page].length : newsPostsPerPage;
 			for (let i = 0; i < placeholdersToShow; i++) {
 				postPreviews.push(<NewsPostCardPlaceholder key={i} />);
 			}
 		} else {
 			postIds.forEach(id =>
-				postPreviews.push(
-					<NewsPostPreview post={postList[id]} includeContent={false} key={id} />
-				)
+				postPreviews.push(<NewsPostPreview post={postList[id]} includeContent={false} key={id} />)
 			);
 		}
 		return <div className="news-post-list">{postPreviews}</div>;

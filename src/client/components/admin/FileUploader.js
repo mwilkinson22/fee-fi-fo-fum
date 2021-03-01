@@ -141,8 +141,8 @@ class FileUploader extends Component {
 				if (fileNames.find(f => f.toLowerCase() == fileName)) {
 					content.push(
 						<span className="error" key="error">
-							Warning: {fileName} will be permanently overwritten on the server. This
-							may effect other items
+							Warning: {fileName} will be permanently overwritten on the server. This may effect other
+							items
 						</span>
 					);
 					return false;
@@ -166,9 +166,7 @@ class FileUploader extends Component {
 					<button
 						type="button"
 						className="confirm"
-						disabled={
-							!currentFile.name.length || !this.validateFileName() || isSubmitting
-						}
+						disabled={!currentFile.name.length || !this.validateFileName() || isSubmitting}
 						onClick={() => this.onSubmit(this.state.image)}
 					>
 						{isSubmitting ? "Uploading" : "Upload"}

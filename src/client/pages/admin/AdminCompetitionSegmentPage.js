@@ -23,12 +23,7 @@ class AdminCompetitionSegmentPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			competitionList,
-			fetchCompetitions,
-			competitionSegmentList,
-			fetchCompetitionSegments
-		} = props;
+		const { competitionList, fetchCompetitions, competitionSegmentList, fetchCompetitionSegments } = props;
 
 		if (!competitionList) {
 			fetchCompetitions();
@@ -86,9 +81,7 @@ class AdminCompetitionSegmentPage extends Component {
 				items.push({ label: "Crawl Fixtures", slug: "crawl" });
 			}
 
-			submenu = (
-				<SubMenu items={items} rootUrl={`/admin/competitions/segments/${segment._id}/`} />
-			);
+			submenu = <SubMenu items={items} rootUrl={`/admin/competitions/segments/${segment._id}/`} />;
 		}
 
 		return (
@@ -124,11 +117,7 @@ class AdminCompetitionSegmentPage extends Component {
 						exact
 						component={AdminCompetitionSegmentOverview}
 					/>
-					<Route
-						path="/admin/competitions/segments/:_id"
-						exact
-						component={AdminCompetitionSegmentOverview}
-					/>
+					<Route path="/admin/competitions/segments/:_id" exact component={AdminCompetitionSegmentOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</ErrorBoundary>

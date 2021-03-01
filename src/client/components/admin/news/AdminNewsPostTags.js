@@ -102,9 +102,7 @@ class AdminNewsPostTags extends Component {
 
 				switch (key) {
 					case "_people":
-						return post[key].map(({ _id }) =>
-							options[key].find(({ value }) => value == _id)
-						);
+						return post[key].map(({ _id }) => options[key].find(({ value }) => value == _id));
 					default:
 						return post[key];
 				}

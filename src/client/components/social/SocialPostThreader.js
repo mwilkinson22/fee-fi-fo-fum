@@ -39,8 +39,7 @@ class SocialPostThreader extends Component {
 		//If we have no custom post types, or if we need to add the default,
 		//we do so here
 		const insertDefaultType =
-			!Object.keys(postTypes).length ||
-			(props.includeDefaultPostType && !postTypes[defaultPostTypeKey]);
+			!Object.keys(postTypes).length || (props.includeDefaultPostType && !postTypes[defaultPostTypeKey]);
 		if (insertDefaultType) {
 			postTypes[defaultPostTypeKey] = {
 				label: "Text Only"
@@ -360,18 +359,10 @@ class SocialPostThreader extends Component {
 			const isLastPost = i === posts.length - 1;
 			const reorderButtons = (
 				<div className="post-buttons">
-					<button
-						onClick={() => this.reorder(i, i - 1)}
-						disabled={isFirstPost}
-						type="button"
-					>
+					<button onClick={() => this.reorder(i, i - 1)} disabled={isFirstPost} type="button">
 						&#9650;
 					</button>
-					<button
-						onClick={() => this.reorder(i, i + 1)}
-						disabled={isLastPost}
-						type="button"
-					>
+					<button onClick={() => this.reorder(i, i + 1)} disabled={isLastPost} type="button">
 						&#9660;
 					</button>
 				</div>
@@ -528,9 +519,7 @@ class SocialPostThreader extends Component {
 
 		const invalidPosts = posts.filter(p => p.isInvalid);
 		if (invalidPosts.length) {
-			return `Validation errors found on ${invalidPosts.length} ${
-				invalidPosts.length === 1 ? "post" : "posts"
-			} `;
+			return `Validation errors found on ${invalidPosts.length} ${invalidPosts.length === 1 ? "post" : "posts"} `;
 		}
 	}
 
@@ -624,9 +613,7 @@ SocialPostThreader.propTypes = {
 			getPreviewImage: PropTypes.func,
 			label: PropTypes.string.isRequired,
 			variableInstruction: PropTypes.string,
-			variables: PropTypes.arrayOf(
-				PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
-			)
+			variables: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string }))
 		})
 	),
 	enforceTwitter: PropTypes.bool,
@@ -657,6 +644,4 @@ function mapStateToProps({ social }) {
 	return { profiles, defaultProfile };
 }
 
-export default connect(mapStateToProps, { fetchProfiles, simpleSocialPostThread })(
-	SocialPostThreader
-);
+export default connect(mapStateToProps, { fetchProfiles, simpleSocialPostThread })(SocialPostThreader);

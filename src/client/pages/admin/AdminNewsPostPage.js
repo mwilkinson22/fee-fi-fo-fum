@@ -120,24 +120,10 @@ class AdminNewsPostPage extends Component {
 				<div className="container">
 					<ErrorBoundary parentProps={this.props} parentState={this.state}>
 						<Switch>
-							<Route
-								path="/admin/news/post/new"
-								exact
-								component={AdminNewsPostOverview}
-							/>
-							<Route
-								path="/admin/news/post/:_id/tags"
-								component={AdminNewsPostTags}
-							/>
-							<Route
-								path="/admin/news/post/:_id/content"
-								component={AdminNewsPostContent}
-							/>
-							<Route
-								path="/admin/news/post/:_id"
-								exact
-								component={AdminNewsPostOverview}
-							/>
+							<Route path="/admin/news/post/new" exact component={AdminNewsPostOverview} />
+							<Route path="/admin/news/post/:_id/tags" component={AdminNewsPostTags} />
+							<Route path="/admin/news/post/:_id/content" component={AdminNewsPostContent} />
+							<Route path="/admin/news/post/:_id" exact component={AdminNewsPostOverview} />
 							<Route path="/" component={NotFoundPage} />
 						</Switch>
 					</ErrorBoundary>
@@ -175,9 +161,7 @@ class AdminNewsPostPage extends Component {
 			if (post._people) {
 				post._people
 					.filter(p => p.twitter)
-					.forEach(({ name, twitter }) =>
-						taggedVariables.push({ label: name.full, value: `@${twitter}` })
-					);
+					.forEach(({ name, twitter }) => taggedVariables.push({ label: name.full, value: `@${twitter}` }));
 			}
 
 			if (taggedVariables.length) {

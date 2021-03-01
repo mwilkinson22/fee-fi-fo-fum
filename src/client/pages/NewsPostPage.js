@@ -77,13 +77,8 @@ class NewsPostPage extends Component {
 		const { blocks } = JSON.parse(newState.post.content);
 
 		//We do the regex to ensure punctuation at the end of each line
-		newState.post.preview = blocks
-			.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
-			.join(" \n");
-		newState.post.editorState = editorStateFromRaw(
-			JSON.parse(newState.post.content),
-			newsDecorators
-		);
+		newState.post.preview = blocks.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : ".")).join(" \n");
+		newState.post.editorState = editorStateFromRaw(JSON.parse(newState.post.content), newsDecorators);
 
 		//Get game, if necessary
 		if (newState.post._game) {
@@ -121,13 +116,7 @@ class NewsPostPage extends Component {
 		if (recentPosts && recentPosts.length) {
 			return recentPosts.map(recentPost => {
 				if (recentPost.slug !== post.slug) {
-					return (
-						<NewsPostCard
-							post={recentPost}
-							includeContent={false}
-							key={recentPost.slug}
-						/>
-					);
+					return <NewsPostCard post={recentPost} includeContent={false} key={recentPost.slug} />;
 				} else {
 					return null;
 				}
@@ -250,11 +239,7 @@ class NewsPostPage extends Component {
 			authorDetails = (
 				<div className="author-details">
 					{authorName}
-					<a
-						href={`https://www.twitter.com/${author.twitter}`}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
+					<a href={`https://www.twitter.com/${author.twitter}`} target="_blank" rel="noopener noreferrer">
 						@{author.twitter}
 					</a>
 				</div>
@@ -286,11 +271,7 @@ class NewsPostPage extends Component {
 								<FacebookShareButton url={this.getUrl()}>
 									<FacebookIcon {...shareIconProps} />
 								</FacebookShareButton>
-								<TwitterShareButton
-									url={this.getUrl()}
-									title={post.title}
-									via={social_account}
-								>
+								<TwitterShareButton url={this.getUrl()} title={post.title} via={social_account}>
 									<TwitterIcon {...shareIconProps} />
 								</TwitterShareButton>
 								<RedditShareButton url={this.getUrl()} title={post.title}>
@@ -299,10 +280,7 @@ class NewsPostPage extends Component {
 								<WhatsappShareButton url={this.getUrl()} title={post.title}>
 									<WhatsappIcon {...shareIconProps} />
 								</WhatsappShareButton>
-								<EmailShareButton
-									url={this.getUrl()}
-									subject={`${site_name} - ${post.title}`}
-								>
+								<EmailShareButton url={this.getUrl()} subject={`${site_name} - ${post.title}`}>
 									<EmailIcon {...shareIconProps} />
 								</EmailShareButton>
 							</div>

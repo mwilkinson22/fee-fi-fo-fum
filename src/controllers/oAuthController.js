@@ -68,12 +68,7 @@ export async function getAuthorisedAccounts(req, res) {
 						client = await twitter(null, keys);
 						const user = await client.get("account/verify_credentials");
 						if (user && user.data) {
-							data = _.pick(user.data, [
-								"name",
-								"screen_name",
-								"id_str",
-								"profile_image_url_https"
-							]);
+							data = _.pick(user.data, ["name", "screen_name", "id_str", "profile_image_url_https"]);
 							break;
 						}
 					} catch (e) {
@@ -118,9 +113,7 @@ export async function authoriseService(req, res) {
 		//Try to get token
 		client.getOAuthRequestToken((error, token) => {
 			if (error) {
-				res.status(error.statusCode).send(
-					`${error.data}<br/><br/>Callback URL: ${client._authorize_callback}`
-				);
+				res.status(error.statusCode).send(`${error.data}<br/><br/>Callback URL: ${client._authorize_callback}`);
 			} else {
 				res.redirect(authUrl(token));
 			}
@@ -135,24 +128,19 @@ export async function callback(req, res) {
 	const client = await getOAuthClient(req, res, service);
 
 	if (client) {
-		client.getOAuthAccessToken(
-			oauth_token,
-			null,
-			oauth_verifier,
-			(err, access_token, access_token_secret) => {
-				if (err) {
-					console.error(err);
-				} else {
-					if (!req.session.oAuthAccounts) {
-						req.session.oAuthAccounts = {};
-					}
-					req.session.oAuthAccounts[service] = { access_token, access_token_secret };
+		client.getOAuthAccessToken(oauth_token, null, oauth_verifier, (err, access_token, access_token_secret) => {
+			if (err) {
+				console.error(err);
+			} else {
+				if (!req.session.oAuthAccounts) {
+					req.session.oAuthAccounts = {};
 				}
-
-				//Return confirmation
-				res.send("<script>window.close()</script>");
+				req.session.oAuthAccounts[service] = { access_token, access_token_secret };
 			}
-		);
+
+			//Return confirmation
+			res.send("<script>window.close()</script>");
+		});
 	}
 }
 
@@ -265,10 +253,7 @@ export async function postToSocial(service, text, options = {}) {
 			}
 
 			//Submit
-			await axios.post(
-				`https://maker.ifttt.com/trigger/${event}/with/key/${profile.iftttKey}`,
-				data
-			);
+			await axios.post(`https://maker.ifttt.com/trigger/${event}/with/key/${profile.iftttKey}`, data);
 		}
 	}
 }

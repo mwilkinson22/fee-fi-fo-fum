@@ -171,8 +171,7 @@ class BasicSocialForm extends Component {
 		}
 
 		//Work out whether we need Twitter-based fields
-		const twitterRequired =
-			enforceTwitter || (values.channels && values.channels.find(v => v === "twitter"));
+		const twitterRequired = enforceTwitter || (values.channels && values.channels.find(v => v === "twitter"));
 
 		//Add composer
 		const composerField = {
@@ -329,9 +328,7 @@ BasicSocialForm.propTypes = {
 	submitButtonText: PropTypes.string,
 	submitOverride: PropTypes.func,
 	variableInstruction: PropTypes.string,
-	variables: PropTypes.arrayOf(
-		PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
-	)
+	variables: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string }))
 };
 
 BasicSocialForm.defaultProps = {

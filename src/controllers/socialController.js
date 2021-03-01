@@ -36,10 +36,7 @@ export async function createProfile(req, res) {
 export async function getProfiles(req, res) {
 	const profiles = await SocialProfile.find().lean();
 
-	await SocialProfile.updateMany(
-		{},
-		{ $unset: { "twitter.consumer_key": true, "twitter.consumer_secret": true } }
-	);
+	await SocialProfile.updateMany({}, { $unset: { "twitter.consumer_key": true, "twitter.consumer_secret": true } });
 
 	res.send(_.keyBy(profiles, "_id"));
 }
@@ -66,11 +63,7 @@ export async function deleteProfile(req, res) {
 			errors.push("it is the current default");
 		}
 		if (games.length) {
-			errors.push(
-				`it is required for tweets in ${games.length} ${
-					games.length == 1 ? "game" : "games"
-				}`
-			);
+			errors.push(`it is required for tweets in ${games.length} ${games.length == 1 ? "game" : "games"}`);
 		}
 
 		if (errors.length) {

@@ -22,12 +22,7 @@ function HeadToHeadStats({ game }) {
 			<h2>Head To Head</h2>
 			<div className="container">
 				{_.map(statGroups, (statTypes, type) => (
-					<HeadToHeadStatsTable
-						key={type}
-						game={game}
-						statTypes={statTypes}
-						header={type}
-					/>
+					<HeadToHeadStatsTable key={type} game={game} statTypes={statTypes} header={type} />
 				))}
 			</div>
 		</section>

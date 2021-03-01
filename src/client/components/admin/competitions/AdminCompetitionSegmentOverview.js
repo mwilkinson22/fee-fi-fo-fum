@@ -71,9 +71,7 @@ class AdminCompetitionSegmentOverview extends Component {
 					//Remove active segment
 					.reject(c => c._id == match.params._id)
 					//Same parent competition
-					.filter(
-						c => c._parentCompetition._id == newState.segment._parentCompetition._id
-					)
+					.filter(c => c._parentCompetition._id == newState.segment._parentCompetition._id)
 					//Same team type
 					.filter(c => c._teamType == newState.segment._teamType)
 					//Leagues
@@ -145,12 +143,7 @@ class AdminCompetitionSegmentOverview extends Component {
 	}
 
 	render() {
-		const {
-			createCompetitionSegment,
-			updateCompetitionSegment,
-			deleteCompetitionSegment,
-			match
-		} = this.props;
+		const { createCompetitionSegment, updateCompetitionSegment, deleteCompetitionSegment, match } = this.props;
 		const { segment, isNew, validationSchema } = this.state;
 
 		//Handle props specifically for create/update

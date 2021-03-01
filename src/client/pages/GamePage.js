@@ -111,9 +111,7 @@ class GamePage extends Component {
 
 	generateHeaderInfoBar() {
 		const { game } = this.state;
-		const groundString = game._ground
-			? `${game._ground.name}, ${game._ground.address._city.name}`
-			: "Venue TBD";
+		const groundString = game._ground ? `${game._ground.name}, ${game._ground.address._city.name}` : "Venue TBD";
 
 		const fields = [
 			<span key="ground">{groundString}</span>,
@@ -152,9 +150,7 @@ class GamePage extends Component {
 			teams = teams.reverse();
 		}
 
-		return teams.map(team => (
-			<TeamBanner key={team._id} team={team} score={score ? score[team._id] : null} />
-		));
+		return teams.map(team => <TeamBanner key={team._id} team={team} score={score ? score[team._id] : null} />);
 	}
 
 	generateEditLink() {
@@ -178,10 +174,7 @@ class GamePage extends Component {
 				<section className="countdown">
 					<div className="container">
 						<h2>Countdown to Kickoff</h2>
-						<Countdown
-							date={game.date}
-							onFinish={() => this.setState({ isFixture: false })}
-						/>
+						<Countdown date={game.date} onFinish={() => this.setState({ isFixture: false })} />
 					</div>
 				</section>
 			);
@@ -357,9 +350,7 @@ class GamePage extends Component {
 
 		let filteredGame = _.clone(game);
 		if (statTableTeam != "both") {
-			filteredGame.playerStats = filteredGame.playerStats.filter(
-				({ _team }) => _team == statTableTeam
-			);
+			filteredGame.playerStats = filteredGame.playerStats.filter(({ _team }) => _team == statTableTeam);
 		}
 
 		//Process game stats into rows
@@ -488,12 +479,7 @@ class GamePage extends Component {
 			} else if (game.images.midpage) {
 				cardImage = bucketPaths.images.games + "midpage/" + game.images.midpage;
 			} else {
-				cardImage =
-					bucketPaths.images.games +
-					"social/" +
-					game._id +
-					".jpg?v=" +
-					game.socialImageVersion;
+				cardImage = bucketPaths.images.games + "social/" + game._id + ".jpg?v=" + game.socialImageVersion;
 			}
 
 			return (

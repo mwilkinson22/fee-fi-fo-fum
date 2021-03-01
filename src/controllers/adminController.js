@@ -80,9 +80,7 @@ async function getBirthdays(team) {
 				const daysToGo = Math.floor((nextBirthday - now) / (1000 * 60 * 60 * 24));
 
 				//Get Age
-				const age = Math.floor(
-					(nextBirthday - person.dateOfBirth) / (1000 * 60 * 60 * 24 * 365)
-				);
+				const age = Math.floor((nextBirthday - person.dateOfBirth) / (1000 * 60 * 60 * 24 * 365));
 
 				return { ...person, daysToGo, age, nextBirthday };
 			})
@@ -220,9 +218,7 @@ async function getGames(firstTeam) {
 			};
 
 			//Check we have valid players
-			const teamsWithoutPlayers = teams.filter(
-				id => !eligiblePlayers[id] || !eligiblePlayers[id].length
-			);
+			const teamsWithoutPlayers = teams.filter(id => !eligiblePlayers[id] || !eligiblePlayers[id].length);
 			if (teamsWithoutPlayers.length) {
 				result.error = gameStatuses.ELIGIBLE;
 				result.teams = teamsWithoutPlayers;
@@ -245,9 +241,7 @@ async function getGames(firstTeam) {
 
 			//Check for match squads
 			if (date < now) {
-				const teamsWithoutSquads = teams.filter(
-					id => !playerStats.find(({ _team }) => _team == id)
-				);
+				const teamsWithoutSquads = teams.filter(id => !playerStats.find(({ _team }) => _team == id));
 				if (teamsWithoutSquads.length || !squadsAnnounced) {
 					result.error = gameStatuses.SQUAD;
 					result.teams = teamsWithoutSquads;
@@ -268,10 +262,7 @@ async function getGames(firstTeam) {
 			}
 
 			//Check for man/woman of steel
-			if (
-				game._competition.instance.manOfSteelPoints &&
-				!game._competition.instance.manOfSteelPointsGoneDark
-			) {
+			if (game._competition.instance.manOfSteelPoints && !game._competition.instance.manOfSteelPointsGoneDark) {
 				const nextMondayAfternoon = new Date(date)
 					.next()
 					.monday()

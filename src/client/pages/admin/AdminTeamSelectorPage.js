@@ -105,8 +105,8 @@ class AdminTeamSelectorPage extends Component {
 		if (!isNew && selector._game) {
 			dynamicContent = (
 				<p className="disclaimer">
-					This selector cannot be manually edited, as its content is dynamically generated
-					from <Link to={`/admin/game/${selector._game}`}>this game</Link>
+					This selector cannot be manually edited, as its content is dynamically generated from{" "}
+					<Link to={`/admin/game/${selector._game}`}>this game</Link>
 				</p>
 			);
 		}
@@ -132,24 +132,10 @@ class AdminTeamSelectorPage extends Component {
 			<div className="container">
 				<ErrorBoundary parentProps={this.props} parentState={this.state}>
 					<Switch>
-						<Route
-							path="/admin/team-selectors/new"
-							exact
-							component={AdminTeamSelectorOverview}
-						/>
-						<Route
-							path="/admin/team-selectors/:_id/choices"
-							component={AdminTeamSelectorChoiceTally}
-						/>
-						<Route
-							path="/admin/team-selectors/:_id/players"
-							component={AdminTeamSelectorPlayers}
-						/>
-						<Route
-							path="/admin/team-selectors/:_id"
-							exact
-							component={AdminTeamSelectorOverview}
-						/>
+						<Route path="/admin/team-selectors/new" exact component={AdminTeamSelectorOverview} />
+						<Route path="/admin/team-selectors/:_id/choices" component={AdminTeamSelectorChoiceTally} />
+						<Route path="/admin/team-selectors/:_id/players" component={AdminTeamSelectorPlayers} />
+						<Route path="/admin/team-selectors/:_id" exact component={AdminTeamSelectorOverview} />
 						<Route path="/" component={NotFoundPage} />
 					</Switch>
 				</ErrorBoundary>
@@ -180,6 +166,4 @@ function mapStateToProps({ teamSelectors }) {
 	const { selectors, selectorList } = teamSelectors;
 	return { selectors, selectorList };
 }
-export default connect(mapStateToProps, { fetchTeamSelector, fetchAllTeamSelectors })(
-	AdminTeamSelectorPage
-);
+export default connect(mapStateToProps, { fetchTeamSelector, fetchAllTeamSelectors })(AdminTeamSelectorPage);

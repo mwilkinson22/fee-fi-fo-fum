@@ -31,9 +31,7 @@ class CalendarDialog extends Component {
 
 		if (useCustomOptions === null) {
 			return (
-				<CalendarSimpleOrAdvancedSelector
-					onNext={useCustomOptions => this.setState({ useCustomOptions })}
-				/>
+				<CalendarSimpleOrAdvancedSelector onNext={useCustomOptions => this.setState({ useCustomOptions })} />
 			);
 		}
 

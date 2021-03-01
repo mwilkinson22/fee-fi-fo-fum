@@ -73,11 +73,7 @@ class SeasonPlayerStats extends Component {
 				//Only pick those with playerStats (i.e. results)
 				.filter(g => g.playerStats && g.playerStats.length)
 				//Pull off local team stats
-				.map(g =>
-					g.playerStats
-						.filter(p => p._team == localTeam)
-						.map(s => ({ ...s, game: g._id }))
-				)
+				.map(g => g.playerStats.filter(p => p._team == localTeam).map(s => ({ ...s, game: g._id })))
 				//Create one big array of playerStat objects
 				.flatten()
 				//Convert to object, grouped on player id
@@ -90,9 +86,7 @@ class SeasonPlayerStats extends Component {
 
 			//Loop through the processedStats to see if we have any players not in the
 			//standard team object, for when teams share squads
-			const otherTeamPlayers = newState.processedStats
-				.map(p => p._player)
-				.filter(id => !players[id]);
+			const otherTeamPlayers = newState.processedStats.map(p => p._player).filter(id => !players[id]);
 
 			if (otherTeamPlayers.length) {
 				//First, we check the fullPeople object
@@ -123,32 +117,13 @@ class SeasonPlayerStats extends Component {
 
 	renderLeaderboards() {
 		const { players, statType, processedStats } = this.state;
-		const allStats = [
-			"T",
-			"G",
-			"PT",
-			"TA",
-			"M",
-			"C",
-			"AG",
-			"OF",
-			"TB",
-			"CB",
-			"TK",
-			"MT",
-			"TS",
-			"P"
-		];
+		const allStats = ["T", "G", "PT", "TA", "M", "C", "AG", "OF", "TB", "CB", "TK", "MT", "TS", "P"];
 		const groupedStats = _.groupBy(allStats, s => playerStatTypes[s].type);
 
 		const groupedLeaderboards = _.map(groupedStats, (stats, group) => {
 			const leaderboards = stats
 				.map(key => {
-					const list = SeasonPlayerLeaderboard.generateOrderedList(
-						key,
-						processedStats,
-						statType
-					);
+					const list = SeasonPlayerLeaderboard.generateOrderedList(key, processedStats, statType);
 
 					if (list.length) {
 						return (
@@ -329,6 +304,4 @@ function mapStateToProps({ config, people, teams }) {
 	return { localTeam, fullPeople, fullTeams };
 }
 
-export default connect(mapStateToProps, { fetchPeople, fetchTeam, getPlayersByYearAndGender })(
-	SeasonPlayerStats
-);
+export default connect(mapStateToProps, { fetchPeople, fetchTeam, getPlayersByYearAndGender })(SeasonPlayerStats);

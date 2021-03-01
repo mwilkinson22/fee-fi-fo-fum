@@ -90,27 +90,15 @@ class AdminPersonList extends Component {
 	renderPersonIcons(person) {
 		const { bucketPaths } = this.props;
 		const icons = [
-			person.gender == "M"
-				? { file: "male", title: "Male" }
-				: { file: "female", title: "Female" },
-			person.isPlayer
-				? { file: "ball", title: "Player" }
-				: { file: "ball-grey", title: "Not a Player" },
-			person.isCoach
-				? { file: "clipboard", title: "Coach" }
-				: { file: "clipboard-grey", title: "Not a Coach" },
-			person.isReferee
-				? { file: "whistle", title: "Referee" }
-				: { file: "whistle-grey", title: "Not a Referee" }
+			person.gender == "M" ? { file: "male", title: "Male" } : { file: "female", title: "Female" },
+			person.isPlayer ? { file: "ball", title: "Player" } : { file: "ball-grey", title: "Not a Player" },
+			person.isCoach ? { file: "clipboard", title: "Coach" } : { file: "clipboard-grey", title: "Not a Coach" },
+			person.isReferee ? { file: "whistle", title: "Referee" } : { file: "whistle-grey", title: "Not a Referee" }
 		];
 
 		return icons.map(({ file, title }) => (
 			<span key={file}>
-				<img
-					src={`${bucketPaths.images.people}icons/${file}.svg`}
-					alt={title}
-					title={title}
-				/>
+				<img src={`${bucketPaths.images.people}icons/${file}.svg`} alt={title} title={title} />
 			</span>
 		));
 	}

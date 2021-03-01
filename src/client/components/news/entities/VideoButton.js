@@ -65,8 +65,7 @@ class VideoButton extends Component {
 		const { videoFile, autoPlay, muted } = this.state;
 
 		//Get destroy callback
-		const onDestroy = () =>
-			this.setState({ showForm: false, videoFile: "", previewVideoId: null });
+		const onDestroy = () => this.setState({ showForm: false, videoFile: "", previewVideoId: null });
 
 		//Render Video Upload Button Or Name
 		let buttonOrName;
@@ -106,11 +105,7 @@ class VideoButton extends Component {
 					onChange={() => this.setState({ autoPlay: !autoPlay })}
 				/>
 				<label>Muted</label>
-				<BooleanSlider
-					value={muted}
-					name="muted"
-					onChange={() => this.setState({ muted: !muted })}
-				/>
+				<BooleanSlider value={muted} name="muted" onChange={() => this.setState({ muted: !muted })} />
 				{preview}
 				<div className="buttons">
 					<button type="button" onClick={onDestroy}>

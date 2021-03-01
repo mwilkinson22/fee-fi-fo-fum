@@ -11,10 +11,7 @@ import {
 
 import { fixDates } from "~/helpers/newsHelper";
 
-export default function(
-	state = { fullPosts: {}, postList: {}, slugMap: {}, fullPostListLoaded: false },
-	action
-) {
+export default function(state = { fullPosts: {}, postList: {}, slugMap: {}, fullPostListLoaded: false }, action) {
 	switch (action.type) {
 		case FETCH_POST_LIST:
 			return {

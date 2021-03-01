@@ -179,8 +179,7 @@ export async function updateInstance(req, res) {
 				if (req.body.teams) {
 					if (instance.teams) {
 						//If we've already named teams, check for any we've removed
-						gameCheck = instance.teams.filter(id => !req.body.teams.find(t => t == id))
-							.length;
+						gameCheck = instance.teams.filter(id => !req.body.teams.find(t => t == id)).length;
 					} else {
 						//If we haven't already named teams, and are now adding them,
 						//we always need to check
@@ -200,10 +199,7 @@ export async function updateInstance(req, res) {
 					const neutralGames = await NeutralGame.find(
 						{
 							...query,
-							$or: [
-								{ _homeTeam: { $nin: req.body.teams } },
-								{ _awayTeam: { $nin: req.body.teams } }
-							]
+							$or: [{ _homeTeam: { $nin: req.body.teams } }, { _awayTeam: { $nin: req.body.teams } }]
 						},
 						"_id _homeTeam _awayTeam"
 					).lean();
@@ -227,10 +223,7 @@ export async function updateInstance(req, res) {
 					.map((val, key) => [`instances.$.${key}`, val])
 					.fromPairs()
 					.value();
-				await Segment.updateOne(
-					{ _id: segmentId, "instances._id": instanceId },
-					{ $set: updateObject }
-				);
+				await Segment.updateOne({ _id: segmentId, "instances._id": instanceId }, { $set: updateObject });
 				await getUpdatedSegment(segmentId, res);
 			}
 		}
@@ -422,17 +415,13 @@ export async function crawlNewGames(req, res) {
 						game.externalId = row.querySelector("a").attributes.href.replace(/\D/g, "");
 
 						//Get Round
-						const roundString = row
-							.querySelector(".fixture-footer")
-							.rawText.match(/Round: \d+/);
+						const roundString = row.querySelector(".fixture-footer").rawText.match(/Round: \d+/);
 						if (roundString) {
 							game.round = roundString[0].replace(/\D/g, "");
 						}
 
 						//Look for broadcasters
-						game.broadcasters = row
-							.querySelectorAll(".fixture-footer img")
-							.map(e => e.attributes.src);
+						game.broadcasters = row.querySelectorAll(".fixture-footer img").map(e => e.attributes.src);
 
 						//Add game to array
 						games.push(game);
@@ -445,9 +434,7 @@ export async function crawlNewGames(req, res) {
 			//Each 'section' contains a date anda list of games for that date
 			html.querySelectorAll("section.competition").forEach(section => {
 				//Get the date
-				const dateAsArray = section.childNodes
-					.find(n => n.tagName === "H2")
-					.rawText.split(" ");
+				const dateAsArray = section.childNodes.find(n => n.tagName === "H2").rawText.split(" ");
 
 				//Remove day of week
 				dateAsArray.shift();
@@ -542,12 +529,7 @@ export async function getHomepageLeagueTableData(req, res) {
 	res.send({ _competition, year, ...tableData, loaded: new Date() });
 }
 
-export async function processLeagueTableData(
-	segmentId,
-	year,
-	options = {},
-	forMinMaxTable = false
-) {
+export async function processLeagueTableData(segmentId, year, options = {}, forMinMaxTable = false) {
 	//Work out default toDate
 	let toDate;
 	const now = new Date();
@@ -626,9 +608,7 @@ export async function processLeagueTableData(
 		customStyling,
 		image,
 		usesWinPc,
-		title: [year, instance.sponsor, getSegmentBasicTitle(segments[0])]
-			.filter(_.identity)
-			.join(" ")
+		title: [year, instance.sponsor, getSegmentBasicTitle(segments[0])].filter(_.identity).join(" ")
 	};
 	if (forMinMaxTable) {
 		settings.totalRounds = totalRounds;
@@ -660,10 +640,7 @@ export async function processLeagueTableData(
 		//Push this entry to the array
 		competitions.push(segmentToLoop._pointsCarriedFrom);
 
-		segmentToLoop = await Segment.findById(
-			segmentToLoop._pointsCarriedFrom,
-			"_pointsCarriedFrom"
-		).lean();
+		segmentToLoop = await Segment.findById(segmentToLoop._pointsCarriedFrom, "_pointsCarriedFrom").lean();
 	}
 
 	//Define match param for local games
@@ -760,8 +737,7 @@ export async function processLeagueTableData(
 				});
 
 			//Get adjustments
-			const adjustments =
-				instance.adjustments && instance.adjustments.find(a => a._team.toString() == team);
+			const adjustments = instance.adjustments && instance.adjustments.find(a => a._team.toString() == team);
 			if (adjustments) {
 				for (const key in adjustments) {
 					//We explicitly declare the keys below, as simply

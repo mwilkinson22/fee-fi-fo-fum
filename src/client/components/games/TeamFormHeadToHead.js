@@ -9,8 +9,7 @@ import TeamImage from "../teams/TeamImage";
 
 function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 	//Get form object
-	const headToHeadGames =
-		game.teamForm[allCompetitions ? "allCompetitions" : "singleCompetition"].headToHead;
+	const headToHeadGames = game.teamForm[allCompetitions ? "allCompetitions" : "singleCompetition"].headToHead;
 
 	//Get opposition object
 	const opposition = game._opposition;
@@ -73,11 +72,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 
 			//Render the boxes for each team
 			const teamBoxes = teams.map((team, i) => (
-				<div
-					key={i}
-					className="team-boxes"
-					style={{ background: team.colours.main, color: team.colours.text }}
-				>
+				<div key={i} className="team-boxes" style={{ background: team.colours.main, color: team.colours.text }}>
 					<TeamImage team={team} size="medium" key={team._id} />
 					{i === 0 ? homePoints : awayPoints}
 				</div>

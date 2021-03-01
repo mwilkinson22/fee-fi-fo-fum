@@ -83,14 +83,8 @@ class AdminTeamList extends Component {
 										<div className="team-name">
 											<h6 style={{ color: colours.text }}>{name.short}</h6>
 										</div>
-										<div
-											className="team-trim"
-											style={{ backgroundColor: colours.trim1 }}
-										>
-											<div
-												className="inner"
-												style={{ backgroundColor: colours.trim2 }}
-											/>
+										<div className="team-trim" style={{ backgroundColor: colours.trim1 }}>
+											<div className="inner" style={{ backgroundColor: colours.trim2 }} />
 										</div>
 									</div>
 								</Link>
@@ -141,8 +135,7 @@ class AdminTeamList extends Component {
 							data={teamList}
 							emptySearchReturnsAll={true}
 							handleFilter={({ name }, searchString, convert) =>
-								convert(name.short).includes(searchString) ||
-								convert(name.long).includes(searchString)
+								convert(name.short).includes(searchString) || convert(name.long).includes(searchString)
 							}
 							minimumSearchValue={0}
 							onChange={filteredTeamList => this.setState({ filteredTeamList })}

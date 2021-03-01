@@ -43,10 +43,7 @@ class AdminNewsPostContent extends Component {
 		const { post } = this.state;
 
 		return {
-			content: editorStateFromRaw(
-				post.content ? JSON.parse(post.content) : null,
-				newsDecorators
-			)
+			content: editorStateFromRaw(post.content ? JSON.parse(post.content) : null, newsDecorators)
 		};
 	}
 

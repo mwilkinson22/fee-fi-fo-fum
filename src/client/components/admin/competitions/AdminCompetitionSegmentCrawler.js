@@ -81,8 +81,8 @@ class AdminCompetitionSegmentCrawler extends Component {
 			instanceError = (
 				<span>
 					{gamesRequiringInstances}
-					{gamesRequiringInstances === 1 ? " game requires" : " games require"} a
-					corresponding competition instance
+					{gamesRequiringInstances === 1 ? " game requires" : " games require"} a corresponding competition
+					instance
 				</span>
 			);
 		}
@@ -90,11 +90,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 		return (
 			<div>
 				<div className="form-card">
-					<button
-						type="button"
-						onClick={() => this.handleCrawlAction()}
-						disabled={isCrawling}
-					>
+					<button type="button" onClick={() => this.handleCrawlAction()} disabled={isCrawling}>
 						Crawl Fixtures
 					</button>
 					{instanceError}
@@ -155,10 +151,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 	renderTeamMapper() {
 		const { crawledGames, teamOptions, teamMap, teamMapConfirmed } = this.state;
 
-		const teamOptionsWithSkip = [
-			{ label: "Skip games for this team", value: "skip" },
-			...teamOptions
-		];
+		const teamOptionsWithSkip = [{ label: "Skip games for this team", value: "skip" }, ...teamOptions];
 
 		if (teamMap && !teamMapConfirmed) {
 			if (crawledGames.length) {
@@ -169,9 +162,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 					</label>,
 					<Select
 						key={`${label}-dropdown`}
-						onChange={({ value }) =>
-							this.setState({ teamMap: { ...teamMap, [label]: value } })
-						}
+						onChange={({ value }) => this.setState({ teamMap: { ...teamMap, [label]: value } })}
 						options={teamOptionsWithSkip}
 						styles={selectStyling}
 						value={teamOptionsWithSkip.find(({ value }) => value == currentValue)}
@@ -186,11 +177,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 						<h6>Map Teams</h6>
 						{inputs}
 						<div className="buttons">
-							<button
-								type="button"
-								disabled={!complete}
-								onClick={() => this.handleTeamMap()}
-							>
+							<button type="button" disabled={!complete} onClick={() => this.handleTeamMap()}>
 								Confirm Teams
 							</button>
 						</div>
@@ -213,9 +200,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 		const filteredGames = crawledGames
 			.filter(
 				({ home, away }) =>
-					teamMap[home] !== "skip" &&
-					teamMap[away] !== "skip" &&
-					teamMap[home] !== teamMap[away]
+					teamMap[home] !== "skip" && teamMap[away] !== "skip" && teamMap[home] !== teamMap[away]
 			)
 			.map(g => ({
 				...g,
@@ -226,19 +211,11 @@ class AdminCompetitionSegmentCrawler extends Component {
 			}));
 
 		//Quick function to work out whether the game is neutral
-		const gameIsNeutral = ({ home, away }) =>
-			teamMap[home] != localTeam && teamMap[away] != localTeam;
+		const gameIsNeutral = ({ home, away }) => teamMap[home] != localTeam && teamMap[away] != localTeam;
 
 		//Quick function to pull common values for both local and neutral
 		const getCommonValues = g =>
-			_.pick(g, [
-				"date",
-				"externalId",
-				"externalSync",
-				"_competition",
-				"_teamType",
-				"include"
-			]);
+			_.pick(g, ["date", "externalId", "externalSync", "_competition", "_teamType", "include"]);
 
 		//Split into local and neutral games
 		const local = filteredGames
@@ -333,22 +310,13 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 					const bulkButtons = (
 						<div className="full-span">
-							<button
-								type="button"
-								onClick={() => this.bulkIncludeGames(type, "includeAll")}
-							>
+							<button type="button" onClick={() => this.bulkIncludeGames(type, "includeAll")}>
 								Include All
 							</button>
-							<button
-								type="button"
-								onClick={() => this.bulkIncludeGames(type, "excludeAll")}
-							>
+							<button type="button" onClick={() => this.bulkIncludeGames(type, "excludeAll")}>
 								Exclude All
 							</button>
-							<button
-								type="button"
-								onClick={() => this.bulkIncludeGames(type, "invert")}
-							>
+							<button type="button" onClick={() => this.bulkIncludeGames(type, "invert")}>
 								Invert Selection
 							</button>
 						</div>

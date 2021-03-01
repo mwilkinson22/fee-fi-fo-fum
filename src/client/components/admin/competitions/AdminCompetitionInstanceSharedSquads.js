@@ -27,8 +27,7 @@ class AdminCompetitionSharedSquads extends Component {
 		newState.segment = competitionSegmentList[match.params.segmentId] || false;
 
 		//Get Instance
-		newState.instance =
-			newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
+		newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 
 		//Determine teams to show
 		newState.teams = newState.instance.teams;

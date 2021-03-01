@@ -203,9 +203,7 @@ class AdminGamePostGameEvents extends Component {
 		fields.teamStats = {
 			fieldGroups: [
 				{
-					fields: [
-						{ name: "teamStats", ...statDropdownTemplate, options: options.teamStats }
-					]
+					fields: [{ name: "teamStats", ...statDropdownTemplate, options: options.teamStats }]
 				},
 				{
 					render: values => this.renderBulkAddStatButtons(values)
@@ -242,8 +240,7 @@ class AdminGamePostGameEvents extends Component {
 		// We'll have two "playersAndStats" field types. One will be fixed (where
 		// the players are predetermined, i.e. for Man of Steel, or Man of the Match)
 		// and one will be open. So we split this off into its own method
-		fields.playersAndStats = (fixed, players) =>
-			this.renderPlayersAndStats(options, fixed, players);
+		fields.playersAndStats = (fixed, players) => this.renderPlayersAndStats(options, fixed, players);
 
 		//Custom Header for multi-player posts
 		fields.customHeader = {
@@ -406,11 +403,7 @@ class AdminGamePostGameEvents extends Component {
 										>
 											&#9660;
 										</button>
-										<button
-											onClick={() => move(i, i - 1)}
-											disabled={i == 0}
-											type="button"
-										>
+										<button onClick={() => move(i, i - 1)} disabled={i == 0} type="button">
 											&#9650;
 										</button>
 									</div>
@@ -469,9 +462,7 @@ class AdminGamePostGameEvents extends Component {
 								key={label}
 								type="button"
 								onClick={() => {
-									groupedStats[label]
-										.filter(key => values[fieldName].indexOf(key) === -1)
-										.map(push);
+									groupedStats[label].filter(key => values[fieldName].indexOf(key) === -1).map(push);
 								}}
 							>
 								{label} Stats
@@ -611,11 +602,7 @@ class AdminGamePostGameEvents extends Component {
 		if (!initialPosts) {
 			const list = _.map(templates, (label, template) => {
 				return (
-					<li
-						className="clickable"
-						onClick={() => this.getInitialPosts(template)}
-						key={template}
-					>
+					<li className="clickable" onClick={() => this.getInitialPosts(template)} key={template}>
 						{label}
 					</li>
 				);

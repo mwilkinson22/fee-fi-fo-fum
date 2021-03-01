@@ -73,14 +73,7 @@ export async function uploadFile(req, res) {
 
 			//Upload using the defaultSize, and hold these values
 			//in the result variable
-			result = await uploadImageToGoogle(
-				req.file,
-				path,
-				convertImageToWebP,
-				null,
-				defaultSize,
-				cacheMaxAge
-			);
+			result = await uploadImageToGoogle(req.file, path, convertImageToWebP, null, defaultSize, cacheMaxAge);
 
 			//Upload alternate sizes.
 			//No need to return these values

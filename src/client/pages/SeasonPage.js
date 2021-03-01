@@ -14,11 +14,7 @@ import SeasonPlayerStats from "~/client/components/seasons/SeasonPlayerStats";
 import SeasonGameStats from "~/client/components/seasons/SeasonGameStats";
 
 //Actions
-import {
-	fetchGameListByYear,
-	fetchEntireGameList,
-	fetchGames
-} from "~/client/actions/gamesActions";
+import { fetchGameListByYear, fetchEntireGameList, fetchGames } from "~/client/actions/gamesActions";
 import { setActiveTeamType } from "~/client/actions/teamsActions";
 import { getGameYearsNotYetLoaded, getYearsWithResults } from "~/helpers/gameHelper";
 
@@ -93,9 +89,7 @@ class SeasonPage extends Component {
 		//Get results for this year
 		const results = _.filter(
 			gameList,
-			g =>
-				g.date < new Date() &&
-				(newState.year === "All" || g.date > new Date(`${newState.year}-01-01`))
+			g => g.date < new Date() && (newState.year === "All" || g.date > new Date(`${newState.year}-01-01`))
 		);
 
 		//Get TeamTypes
@@ -120,8 +114,7 @@ class SeasonPage extends Component {
 
 		//If no valid team type is found, we redirect to either the last active one, or just the first in the list
 		if (!newState.teamType) {
-			const teamTypeRedirect =
-				_.find(teamTypes, t => t._id == activeTeamType) || teamTypes[0];
+			const teamTypeRedirect = _.find(teamTypes, t => t._id == activeTeamType) || teamTypes[0];
 
 			newState.redirect = `${teamTypeRedirect.slug}/overview`;
 			newState.teamType = activeTeamType;
@@ -155,9 +148,7 @@ class SeasonPage extends Component {
 			prevState.isLoadingGames
 		) {
 			const gamesRequired = results
-				.filter(
-					({ date }) => newState.year === "All" || date.getFullYear() == newState.year
-				)
+				.filter(({ date }) => newState.year === "All" || date.getFullYear() == newState.year)
 				.filter(({ _teamType }) => _teamType == newState.teamType._id);
 
 			const gamesToLoad = gamesRequired.filter(g => !fullGames[g._id]).map(g => g._id);
@@ -207,13 +198,7 @@ class SeasonPage extends Component {
 			{ slug: "game-stats", label: "Game Stats" }
 		];
 
-		return (
-			<SubMenu
-				items={pages}
-				rootUrl={`/seasons/${year}/${teamType.slug}/`}
-				className="page-menu"
-			/>
-		);
+		return <SubMenu items={pages} rootUrl={`/seasons/${year}/${teamType.slug}/`} className="page-menu" />;
 	}
 
 	generateHelmet() {

@@ -142,16 +142,12 @@ class AdminPlayerDetails extends Component {
 			const gamesPlayedString = [];
 			if (pregameOnly.false) {
 				gamesPlayedString.push(
-					`Played in ${pregameOnly.false.length} ${
-						pregameOnly.false.length == 1 ? "game" : "games"
-					}`
+					`Played in ${pregameOnly.false.length} ${pregameOnly.false.length == 1 ? "game" : "games"}`
 				);
 			}
 			if (pregameOnly.true) {
 				gamesPlayedString.push(
-					`Named in ${pregameOnly.true.length} pregame ${
-						pregameOnly.true.length == 1 ? "squad" : "squads"
-					}`
+					`Named in ${pregameOnly.true.length} pregame ${pregameOnly.true.length == 1 ? "squad" : "squads"}`
 				);
 			}
 

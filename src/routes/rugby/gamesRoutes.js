@@ -9,11 +9,7 @@ export default app => {
 	app.get("/calendar/", gamesController.getCalendar);
 
 	//Update game list social cards
-	app.get(
-		"/api/games/gameListSocialCards",
-		requireAdmin,
-		gamesController.updateAllGameListSocialCards
-	);
+	app.get("/api/games/gameListSocialCards", requireAdmin, gamesController.updateAllGameListSocialCards);
 
 	//Get games for homepage
 	app.get("/api/games/homepage", gamesController.getHomePageGames);
@@ -31,10 +27,7 @@ export default app => {
 
 	//Images
 	app.post("/api/games/images/fixtureList/", requireAdmin, gamesController.postFixtureListImage);
-	app.get(
-		"/api/games/images/fixtureList/:year/:competitions",
-		gamesController.fetchFixtureListImage
-	);
+	app.get("/api/games/images/fixtureList/:year/:competitions", gamesController.fetchFixtureListImage);
 	app.get("/api/games/images/pregame/:_id", requireAdmin, gamesController.fetchPregameImage);
 	app.get("/api/games/images/squad/:_id", requireAdmin, gamesController.fetchSquadImage);
 
@@ -48,11 +41,7 @@ export default app => {
 
 	//Post Game Event
 	app.post("/api/games/:_id/postGameEvents", requireAdmin, gamesController.submitPostGameEvents);
-	app.put(
-		"/api/games/:_id/postGameEvent/imagePreview",
-		requireAdmin,
-		gamesController.fetchPostGameEventImage
-	);
+	app.put("/api/games/:_id/postGameEvent/imagePreview", requireAdmin, gamesController.fetchPostGameEventImage);
 
 	//Putters
 	app.put("/api/games/:_id/stats", requireAdmin, gamesController.setStats);

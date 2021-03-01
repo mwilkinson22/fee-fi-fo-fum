@@ -50,10 +50,7 @@ class AdminNewsPostOverview extends Component {
 			_game: Yup.mixed()
 				.test("isRequired", "A game is required for this category", function(value) {
 					const category = this.parent.category;
-					if (
-						category &&
-						(category.value === "recaps" || category.value === "previews")
-					) {
+					if (category && (category.value === "recaps" || category.value === "previews")) {
 						return value;
 					} else {
 						return true;
@@ -73,16 +70,7 @@ class AdminNewsPostOverview extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const {
-			location,
-			fullPosts,
-			match,
-			userList,
-			gameList,
-			teamList,
-			teamTypes,
-			gameYears
-		} = nextProps;
+		const { location, fullPosts, match, userList, gameList, teamList, teamTypes, gameYears } = nextProps;
 		const { _id } = match.params;
 		const newState = { isLoading: false };
 
@@ -245,10 +233,7 @@ class AdminNewsPostOverview extends Component {
 		//If the category is a recap or a preview, we add a game field
 		if (values.category === "recaps" || values.category === "previews") {
 			//Filter Options By Years
-			const filterYear = (values.dateCreated
-				? new Date(values.dateCreated)
-				: new Date()
-			).getFullYear();
+			const filterYear = (values.dateCreated ? new Date(values.dateCreated) : new Date()).getFullYear();
 
 			const gameOptions = _.chain(options.games)
 				.map(({ label, options }) => {

@@ -37,8 +37,7 @@ class TwitterButton extends Component {
 		const { previewTweetId, tweetId } = this.state;
 
 		//Get destroy callback
-		const onDestroy = () =>
-			this.setState({ showInput: false, tweetId: "", previewTweetId: null });
+		const onDestroy = () => this.setState({ showInput: false, tweetId: "", previewTweetId: null });
 
 		//Render preview
 		let previewTweet;
@@ -53,21 +52,13 @@ class TwitterButton extends Component {
 		return (
 			<PopUpDialog asGrid={true} onDestroy={onDestroy}>
 				<label>Tweet ID</label>
-				<input
-					type="text"
-					onChange={ev =>
-						this.setState({ tweetId: ev.target.value, previewTweetId: null })
-					}
-				/>
+				<input type="text" onChange={ev => this.setState({ tweetId: ev.target.value, previewTweetId: null })} />
 				{previewTweet}
 				<div className="buttons">
 					<button type="button" onClick={onDestroy}>
 						Cancel
 					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ previewTweetId: tweetId })}
-					>
+					<button type="button" onClick={() => this.setState({ previewTweetId: tweetId })}>
 						Preview
 					</button>
 					<button

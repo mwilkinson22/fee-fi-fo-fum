@@ -83,9 +83,7 @@ class AdminGamePregameSquads extends Component {
 		return [
 			{
 				render: () => {
-					return teams.map(id => (
-						<AdminPregameSquadSelector key={id} game={game} team={teamList[id]} />
-					));
+					return teams.map(id => <AdminPregameSquadSelector key={id} game={game} team={teamList[id]} />);
 				}
 			}
 		];

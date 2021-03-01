@@ -247,11 +247,7 @@ class StatsTables extends Component {
 						</span>
 					);
 					const averageSpan = (
-						<span
-							className="average"
-							key="average"
-							title={`Average ${statObject.plural}`}
-						>
+						<span className="average" key="average" title={`Average ${statObject.plural}`}>
 							{statToString(keyOrCustomStatType, average)}
 						</span>
 					);

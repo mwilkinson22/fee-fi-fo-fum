@@ -49,9 +49,7 @@ class AdminGameOverrideGameStar extends Component {
 				return _.chain(players)
 					.map(id => {
 						//Get eligible player
-						const eligiblePlayer = newState.game.eligiblePlayers[team].find(
-							({ _id }) => _id == id
-						);
+						const eligiblePlayer = newState.game.eligiblePlayers[team].find(({ _id }) => _id == id);
 
 						//Format Label
 						let label = eligiblePlayer.name.full;
@@ -101,9 +99,7 @@ class AdminGameOverrideGameStar extends Component {
 				let value = "";
 				//Check for existing values
 				if (game.overrideGameStarStats && game.overrideGameStarStats) {
-					const currentValues = game.overrideGameStarStats.find(
-						({ _player }) => _player == id
-					);
+					const currentValues = game.overrideGameStarStats.find(({ _player }) => _player == id);
 					if (currentValues) {
 						value = currentValues.stats;
 					}

@@ -63,9 +63,7 @@ export async function getPageCount(req, res) {
 	]);
 	postsByCategory.push({ _id: "all", count: _.sumBy(postsByCategory, "count") });
 
-	const pageCount = _.mapValues(_.keyBy(postsByCategory, "_id"), ({ count }) =>
-		Math.ceil(count / newsPostsPerPage)
-	);
+	const pageCount = _.mapValues(_.keyBy(postsByCategory, "_id"), ({ count }) => Math.ceil(count / newsPostsPerPage));
 
 	res.send(pageCount);
 }
@@ -146,9 +144,7 @@ export async function getFullPost(req, res) {
 export async function createPost(req, res) {
 	const values = req.body;
 	if (!values.content) {
-		values.content = JSON.stringify(
-			convertToRaw(EditorState.createEmpty().getCurrentContent())
-		);
+		values.content = JSON.stringify(convertToRaw(EditorState.createEmpty().getCurrentContent()));
 	}
 
 	//Set date values

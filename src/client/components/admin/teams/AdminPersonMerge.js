@@ -83,20 +83,15 @@ class AdminPersonMerge extends Component {
 						</strong>
 					</p>
 					<p>
-						will be <strong>permanently</strong> deleted, and any references to them
-						will instead point to:
+						will be <strong>permanently</strong> deleted, and any references to them will instead point to:
 					</p>
 					<p>
 						<strong>
-							{destinationPerson.name.first} {destinationPerson.name.last} - id:{" "}
-							{destination}
+							{destinationPerson.name.first} {destinationPerson.name.last} - id: {destination}
 						</strong>
 					</p>
 					<p>Are you sure you wish to proceed?</p>
-					<DeleteButtons
-						onDelete={() => this.handleMerge()}
-						deleteText={`Merge ${source.name.first}`}
-					/>
+					<DeleteButtons onDelete={() => this.handleMerge()} deleteText={`Merge ${source.name.first}`} />
 				</div>
 			);
 		}
@@ -114,18 +109,13 @@ class AdminPersonMerge extends Component {
 		return (
 			<div>
 				<div className="form-card">
+					<p>This functionality can be used to resolve accidental duplicate Person entries.</p>
 					<p>
-						This functionality can be used to resolve accidental duplicate Person
-						entries.
+						If you proceed, this user (ID: {source._id}) will be permanently deleted and all existing
+						references will instead point to the person selected in the dropdown below
 					</p>
 					<p>
-						If you proceed, this user (ID: {source._id}) will be permanently deleted and
-						all existing references will instead point to the person selected in the
-						dropdown below
-					</p>
-					<p>
-						This process is <strong>permanent</strong> and cannot be undone. Proceed
-						with caution
+						This process is <strong>permanent</strong> and cannot be undone. Proceed with caution
 					</p>
 				</div>
 				<div className="form-card">

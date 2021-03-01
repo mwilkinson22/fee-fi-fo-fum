@@ -35,15 +35,7 @@ class ImageField extends Component {
 
 	renderImageUploader() {
 		const { value, showImageUploader } = this.state;
-		const {
-			path,
-			onChange,
-			acceptSVG,
-			convertToWebP,
-			resize,
-			cacheMaxAge,
-			defaultUploadName
-		} = this.props;
+		const { path, onChange, acceptSVG, convertToWebP, resize, cacheMaxAge, defaultUploadName } = this.props;
 
 		if (showImageUploader) {
 			const accept = ["jpg", "jpeg", "gif", "png"];
@@ -76,16 +68,10 @@ class ImageField extends Component {
 					<button type="button" disabled={!value} onClick={() => onChange("")}>
 						Clear
 					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ showImageUploader: true })}
-					>
+					<button type="button" onClick={() => this.setState({ showImageUploader: true })}>
 						Upload
 					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ showImageSelector: true })}
-					>
+					<button type="button" onClick={() => this.setState({ showImageSelector: true })}>
 						Choose
 					</button>
 				</div>

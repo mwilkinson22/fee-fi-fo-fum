@@ -86,20 +86,9 @@ class AdminCompetitionPage extends Component {
 		return (
 			<ErrorBoundary parentProps={this.props} parentState={this.state}>
 				<Switch>
-					<Route
-						path="/admin/competitions/:_id/segments"
-						component={AdminCompetitionSegmentList}
-					/>
-					<Route
-						path="/admin/competitions/new"
-						exact
-						component={AdminCompetitionOverview}
-					/>
-					<Route
-						path="/admin/competitions/:_id"
-						exact
-						component={AdminCompetitionOverview}
-					/>
+					<Route path="/admin/competitions/:_id/segments" component={AdminCompetitionSegmentList} />
+					<Route path="/admin/competitions/new" exact component={AdminCompetitionOverview} />
+					<Route path="/admin/competitions/:_id" exact component={AdminCompetitionOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</ErrorBoundary>

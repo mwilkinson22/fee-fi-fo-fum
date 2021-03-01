@@ -10,11 +10,7 @@ import ShareDialog from "../social/ShareDialog";
 import LoadingPage from "../LoadingPage";
 
 //Actions
-import {
-	fetchPreviewImage,
-	saveTeamSelectorChoices,
-	shareTeamSelector
-} from "~/client/actions/teamSelectorActions";
+import { fetchPreviewImage, saveTeamSelectorChoices, shareTeamSelector } from "~/client/actions/teamSelectorActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 class ShareableTeamSelector extends Component {
@@ -36,9 +32,7 @@ class ShareableTeamSelector extends Component {
 			if (fullTeams[numberFromTeam] && fullTeams[numberFromTeam].fullData) {
 				//If we already have full data for this team,
 				//add squad numbers to state
-				const squad = fullTeams[numberFromTeam].squads.find(
-					({ _id }) => _id == numberFromSquad
-				);
+				const squad = fullTeams[numberFromTeam].squads.find(({ _id }) => _id == numberFromSquad);
 				newState.squadNumbers = squad ? squad.players : [];
 				newState.isLoadingTeam = false;
 			} else if (!prevState.isLoadingTeam) {
@@ -77,13 +71,7 @@ class ShareableTeamSelector extends Component {
 	}
 
 	renderSecondColumn() {
-		const {
-			baseUrl,
-			fetchPreviewImage,
-			shareTeamSelector,
-			site_social,
-			urlFormatter
-		} = this.props;
+		const { baseUrl, fetchPreviewImage, shareTeamSelector, site_social, urlFormatter } = this.props;
 		const { editMode, selector } = this.state;
 
 		//Get Initial Share Values
@@ -93,9 +81,7 @@ class ShareableTeamSelector extends Component {
 		const url = `${baseUrl}/${urlFormatter(selector)}`;
 
 		//Replace tokens
-		initialContent = initialContent
-			.replace(/{url}/gi, url)
-			.replace(/@*{site_social}/gi, "@" + site_social);
+		initialContent = initialContent.replace(/{url}/gi, url).replace(/@*{site_social}/gi, "@" + site_social);
 
 		if (selector.activeUserChoices && !editMode) {
 			return (
@@ -104,10 +90,7 @@ class ShareableTeamSelector extends Component {
 						<p>Thank you, your choices have been saved!</p>
 						<p>
 							{"Want to make a change? "}
-							<span
-								className="pseudo-link"
-								onClick={() => this.setState({ editMode: true })}
-							>
+							<span className="pseudo-link" onClick={() => this.setState({ editMode: true })}>
 								Click Here
 							</span>
 							{" to edit your team"}
@@ -134,9 +117,7 @@ class ShareableTeamSelector extends Component {
 
 		const players = selector.players.map(_player => {
 			//Check for a squad number
-			const squadEntry =
-				squadNumbers &&
-				squadNumbers.find(squadMember => squadMember._player._id == _player._id);
+			const squadEntry = squadNumbers && squadNumbers.find(squadMember => squadMember._player._id == _player._id);
 
 			let number;
 			if (squadEntry) {
@@ -155,9 +136,7 @@ class ShareableTeamSelector extends Component {
 					const position = i + 1;
 
 					//Check Player is still valid
-					const player = selector.players.find(({ _id }) => _id == _player)
-						? _player
-						: null;
+					const player = selector.players.find(({ _id }) => _id == _player) ? _player : null;
 
 					return [position, player];
 				})

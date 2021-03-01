@@ -1,11 +1,5 @@
 import _ from "lodash";
-import {
-	DELETE_PERSON,
-	FETCH_PEOPLE_LIST,
-	FETCH_PERSON,
-	FETCH_PEOPLE,
-	ADD_PERSON_SLUG
-} from "../actions/types";
+import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE, ADD_PERSON_SLUG } from "../actions/types";
 
 function fixDates(person) {
 	if (person.dateOfBirth) {

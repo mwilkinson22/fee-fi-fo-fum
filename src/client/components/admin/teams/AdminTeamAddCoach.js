@@ -97,16 +97,10 @@ class AdminTeamAddCoach extends Component {
 			{
 				render: () => (
 					<div className="buttons" key="btns">
-						<button
-							type="button"
-							onClick={() => this.setState({ showNonCoaches: !showNonCoaches })}
-						>
+						<button type="button" onClick={() => this.setState({ showNonCoaches: !showNonCoaches })}>
 							{showNonCoaches ? "Hide" : "Show"} Non-Coaches
 						</button>
-						<button
-							type="button"
-							onClick={() => this.setState({ addNewCoachDialog: true })}
-						>
+						<button type="button" onClick={() => this.setState({ addNewCoachDialog: true })}>
 							Add New Coach
 						</button>
 					</div>
@@ -230,6 +224,4 @@ function mapStateToProps({ people, teams }) {
 }
 
 // export default form;
-export default connect(mapStateToProps, { fetchPeopleList, addCoach, createPerson })(
-	AdminTeamAddCoach
-);
+export default connect(mapStateToProps, { fetchPeopleList, addCoach, createPerson })(AdminTeamAddCoach);

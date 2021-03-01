@@ -116,10 +116,7 @@ class HomePage extends Component {
 			return (
 				<div>
 					<h2>League Table</h2>
-					<LeagueTable
-						competition={leagueTableDetails._competition}
-						year={leagueTableDetails.year}
-					/>
+					<LeagueTable competition={leagueTableDetails._competition} year={leagueTableDetails.year} />
 				</div>
 			);
 		}
@@ -148,10 +145,7 @@ class HomePage extends Component {
 
 async function loadData(store) {
 	//Get required data
-	return Promise.all([
-		store.dispatch(fetchHomePageGames()),
-		store.dispatch(fetchHomePageLeagueTableData())
-	]);
+	return Promise.all([store.dispatch(fetchHomePageGames()), store.dispatch(fetchHomePageLeagueTableData())]);
 }
 
 function mapStateToProps({ news, games, competitions }) {

@@ -93,10 +93,7 @@ class PregameSquadList extends Component {
 			//Get Players
 			const squad = _.chain(squadObject.squad)
 				.map(p => {
-					const { _id, name, number, slug } = _.find(
-						game.eligiblePlayers[team._id],
-						({ _id }) => _id == p
-					);
+					const { _id, name, number, slug } = _.find(game.eligiblePlayers[team._id], ({ _id }) => _id == p);
 
 					if (number) {
 						includeNumbers = true;
@@ -115,11 +112,7 @@ class PregameSquadList extends Component {
 					const content = [];
 					if (includeNumbers) {
 						content.push(
-							<span
-								key="number"
-								className="number"
-								style={{ color: team.colours.trim1 }}
-							>
+							<span key="number" className="number" style={{ color: team.colours.trim1 }}>
 								{p.number || ""}
 							</span>
 						);
@@ -190,8 +183,7 @@ class PregameSquadList extends Component {
 		//If any teams are missing squads and we have a confirmed date,
 		//render a due date section
 		if (!game.dateRange && teamsHavePregameSquads.false) {
-			const singleTeam =
-				teamsHavePregameSquads.false.length == 1 ? teamsHavePregameSquads.false[0] : null;
+			const singleTeam = teamsHavePregameSquads.false.length == 1 ? teamsHavePregameSquads.false[0] : null;
 			content.push(this.renderDueDate(singleTeam));
 		}
 
@@ -202,11 +194,7 @@ class PregameSquadList extends Component {
 		}
 
 		if (content.length) {
-			return (
-				<section className={`pregame-squads ${squadsFound ? "with-squads" : ""}`}>
-					{content}
-				</section>
-			);
+			return <section className={`pregame-squads ${squadsFound ? "with-squads" : ""}`}>{content}</section>;
 		} else {
 			return null;
 		}

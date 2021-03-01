@@ -77,10 +77,7 @@ export default class PersonImageCard extends Canvas {
 
 	async loadTeamBadges() {
 		if (!this.teamBadges) {
-			const teams = await Team.find(
-				{ _id: { $in: [localTeam, this.options.game._opposition._id] } },
-				"images"
-			);
+			const teams = await Team.find({ _id: { $in: [localTeam, this.options.game._opposition._id] } }, "images");
 			this.teamBadges = {};
 			for (const team of teams) {
 				const { _id, images } = team;
@@ -222,17 +219,12 @@ export default class PersonImageCard extends Canvas {
 		//Save time by pulling data from game, if possible
 		if (options.game) {
 			const { _team } = _.find(options.game.playerStats, ({ _player }) => _player._id == _id);
-			const { name, images, number } = _.find(
-				options.game.eligiblePlayers[_team],
-				player => player._id == _id
-			);
+			const { name, images, number } = _.find(options.game.eligiblePlayers[_team], player => player._id == _id);
 			squadNumber = number;
 			firstName = name.first;
 			lastName = name.last;
 			if ((images.player || images.main) && _team == localTeam) {
-				image = await this.googleToCanvas(
-					`images/people/full/${images.player || images.main}`
-				);
+				image = await this.googleToCanvas(`images/people/full/${images.player || images.main}`);
 			}
 		} else {
 			const person = await Person.findById(_id, "name images").lean();
@@ -277,26 +269,17 @@ export default class PersonImageCard extends Canvas {
 			//Output text
 			ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.003);
 			ctx.shadowColor = "black";
-			this.textBuilder(
-				[firstRow, secondRow],
-				cWidth - positions.rightPanelWidth * 0.52,
-				cHeight * 0.87,
-				{
-					lineHeight: 1.1
-				}
-			);
+			this.textBuilder([firstRow, secondRow], cWidth - positions.rightPanelWidth * 0.52, cHeight * 0.87, {
+				lineHeight: 1.1
+			});
 			this.resetShadow();
 		}
 
 		if (image) {
-			this.cover(
-				image,
-				0,
-				Math.round(cHeight * 0.02),
-				Math.round(cWidth * 0.5),
-				Math.round(cHeight * 0.98),
-				{ xAlign: "right", yAlign: "top" }
-			);
+			this.cover(image, 0, Math.round(cHeight * 0.02), Math.round(cWidth * 0.5), Math.round(cHeight * 0.98), {
+				xAlign: "right",
+				yAlign: "top"
+			});
 		}
 
 		this.personDataRendered = true;

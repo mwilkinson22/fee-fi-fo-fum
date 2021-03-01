@@ -11,12 +11,7 @@ import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
-import {
-	fetchSponsors,
-	createSponsor,
-	updateSponsor,
-	deleteSponsor
-} from "~/client/actions/sponsorActions";
+import { fetchSponsors, createSponsor, updateSponsor, deleteSponsor } from "~/client/actions/sponsorActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";

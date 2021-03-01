@@ -22,15 +22,7 @@ class CalendarOptionsSelector extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			showAllTeamTypes,
-			selectedTeamTypes,
-			gameList,
-			fullGames,
-			fetchGames,
-			localTeam,
-			fullTeams
-		} = props;
+		const { showAllTeamTypes, selectedTeamTypes, gameList, fullGames, fetchGames, localTeam, fullTeams } = props;
 
 		const now = new Date();
 		const gamesRequired = _.chain(gameList)
@@ -141,8 +133,7 @@ class CalendarOptionsSelector extends Component {
 			}
 
 			//Ensure we have at least one team where short and long names are different
-			const differentLongAndShort = ({ _opposition }) =>
-				_opposition.name.short !== _opposition.name.long;
+			const differentLongAndShort = ({ _opposition }) => _opposition.name.short !== _opposition.name.long;
 			if (!newState.exampleGames.find(differentLongAndShort)) {
 				const gameToAdd = gameObjects.find(differentLongAndShort);
 				if (gameToAdd) {
@@ -158,10 +149,7 @@ class CalendarOptionsSelector extends Component {
 
 			//If we have multiple and one of them is first team, we offer an
 			//"all but first" option
-			if (
-				selectedTeamTypes.length > 1 &&
-				selectedTeamTypeObjects.find(t => t.sortOrder === 1)
-			) {
+			if (selectedTeamTypes.length > 1 && selectedTeamTypeObjects.find(t => t.sortOrder === 1)) {
 				newState.options.displayTeamTypes.push({
 					label: "Include all except First Team",
 					value: "allButFirst"
@@ -213,9 +201,7 @@ class CalendarOptionsSelector extends Component {
 				//The displayTeamType options can change based on the selected teamTypes,
 				//so we only override if initialOptions.displayTeamType is still valid
 				if (key === "displayTeamTypes") {
-					const optionInDropdown = options.displayTeamTypes.find(
-						({ value }) => value == initialValue
-					);
+					const optionInDropdown = options.displayTeamTypes.find(({ value }) => value == initialValue);
 					if (!optionInDropdown) {
 						continue;
 					}
@@ -286,9 +272,7 @@ class CalendarOptionsSelector extends Component {
 		const { exampleGames, localTeamName } = this.state;
 		if (exampleGames && exampleGames.length) {
 			const list = exampleGames.map(g => (
-				<li key={g._id}>
-					{convertGameToCalendarString(g, options, teamTypes, localTeamName)}
-				</li>
+				<li key={g._id}>{convertGameToCalendarString(g, options, teamTypes, localTeamName)}</li>
 			));
 
 			return (
@@ -311,10 +295,7 @@ class CalendarOptionsSelector extends Component {
 
 		return (
 			<div>
-				<p>
-					Use the options below to configure how the titles of your calendar entries will
-					be formatted.
-				</p>
+				<p>Use the options below to configure how the titles of your calendar entries will be formatted.</p>
 				<BasicForm
 					fieldGroups={this.getFieldGroups()}
 					initialValues={this.getInitialValues()}

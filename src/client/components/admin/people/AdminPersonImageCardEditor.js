@@ -192,12 +192,7 @@ class AdminPersonImageCardEditor extends Component {
 
 		if (Object.keys(templates).length) {
 			const list = _.map(templates, ({ label }, key) => (
-				<button
-					type="button"
-					onClick={() => this.setTemplate(key)}
-					key={key}
-					disabled={Boolean(editing)}
-				>
+				<button type="button" onClick={() => this.setTemplate(key)} key={key} disabled={Boolean(editing)}>
 					{label}
 				</button>
 			));
@@ -245,12 +240,7 @@ class AdminPersonImageCardEditor extends Component {
 			//Create buttons
 			const buttons = [];
 			buttons.push(
-				<button
-					key="move-up"
-					onClick={() => this.reorderRows(i, i - 1)}
-					disabled={i === 0}
-					type="button"
-				>
+				<button key="move-up" onClick={() => this.reorderRows(i, i - 1)} disabled={i === 0} type="button">
 					&#9650;
 				</button>,
 				<button
@@ -261,19 +251,10 @@ class AdminPersonImageCardEditor extends Component {
 				>
 					&#9660;
 				</button>,
-				<button
-					key="copy"
-					type="button"
-					onClick={() => this.setState({ editing: "new", copyRow: i })}
-				>
+				<button key="copy" type="button" onClick={() => this.setState({ editing: "new", copyRow: i })}>
 					Copy
 				</button>,
-				<button
-					key="delete"
-					className="delete"
-					type="button"
-					onClick={() => this.deleteRow(i)}
-				>
+				<button key="delete" className="delete" type="button" onClick={() => this.deleteRow(i)}>
 					Delete
 				</button>
 			);
@@ -365,9 +346,7 @@ class AdminPersonImageCardEditor extends Component {
 					const values = { ...this.state.values, ...newValues };
 					//Enforce global size
 					if (values.globalSize) {
-						values.textRows.forEach(row =>
-							row.forEach(segment => (segment.size = values.globalSize))
-						);
+						values.textRows.forEach(row => row.forEach(segment => (segment.size = values.globalSize)));
 					}
 					this.setState({ values, editing: null }, () => this.updatePreview());
 				}}
@@ -442,13 +421,7 @@ class AdminPersonImageCardEditor extends Component {
 			content = <LoadingPage />;
 		} else if (previewImage) {
 			wrapperClass += " no-padding";
-			content = (
-				<img
-					src={previewImage}
-					className="preview-image"
-					alt={`${person.name.full} Image Card`}
-				/>
-			);
+			content = <img src={previewImage} className="preview-image" alt={`${person.name.full} Image Card`} />;
 		}
 
 		const buttonIsValid = editing === null && values.textRows.length;
@@ -457,11 +430,7 @@ class AdminPersonImageCardEditor extends Component {
 			<div className={wrapperClass}>
 				{content}
 				<div className="buttons rtl">
-					<button
-						type="button"
-						disabled={!buttonIsValid}
-						onClick={() => onComplete(values)}
-					>
+					<button type="button" disabled={!buttonIsValid} onClick={() => onComplete(values)}>
 						Post to Social
 					</button>
 				</div>

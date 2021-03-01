@@ -56,10 +56,7 @@ export async function deleteGround(req, res) {
 		const games = await Game.find({ _ground: _id }, "slug").lean();
 
 		const Team = mongoose.model("teams");
-		const teams = await Team.find(
-			{ $or: [{ _defaultGround: _id }, { "_grounds._ground": _id }] },
-			"name"
-		).lean();
+		const teams = await Team.find({ $or: [{ _defaultGround: _id }, { "_grounds._ground": _id }] }, "name").lean();
 
 		if (games.length || teams.length) {
 			let error = "Ground cannot be deleted, as it is required for ";

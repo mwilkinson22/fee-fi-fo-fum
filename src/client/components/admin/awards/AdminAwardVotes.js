@@ -15,14 +15,7 @@ import { fetchPeopleList } from "~/client/actions/peopleActions";
 class AdminAwardVotes extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			awardsList,
-			match,
-			fetchGameListByYear,
-			peopleList,
-			fetchPeopleList,
-			gameYears
-		} = props;
+		const { awardsList, match, fetchGameListByYear, peopleList, fetchPeopleList, gameYears } = props;
 
 		//Get Award
 		const award = awardsList[match.params._id];
@@ -57,10 +50,7 @@ class AdminAwardVotes extends Component {
 
 		const newState = { isLoading: false };
 
-		if (
-			(gameCategories.length && gameYears[award.year] === false) ||
-			(peopleCategories.length && !peopleList)
-		) {
+		if ((gameCategories.length && gameYears[award.year] === false) || (peopleCategories.length && !peopleList)) {
 			newState.isLoading = true;
 		}
 
@@ -107,12 +97,7 @@ class AdminAwardVotes extends Component {
 				})
 				.value();
 			content = (
-				<Table
-					rows={rows}
-					columns={columns}
-					defaultSortable={false}
-					sortBy={{ key: "votes", asc: false }}
-				/>
+				<Table rows={rows} columns={columns} defaultSortable={false} sortBy={{ key: "votes", asc: false }} />
 			);
 		} else {
 			content = <p>No votes to display</p>;
@@ -131,11 +116,7 @@ class AdminAwardVotes extends Component {
 		if (isLoading) {
 			return <LoadingPage />;
 		} else {
-			return (
-				<div className="container">
-					{this.state.award.categories.map(c => this.renderCategory(c))}
-				</div>
-			);
+			return <div className="container">{this.state.award.categories.map(c => this.renderCategory(c))}</div>;
 		}
 	}
 }

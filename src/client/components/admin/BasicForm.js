@@ -133,9 +133,7 @@ class BasicForm extends Component {
 				newValue = this.processValues(val, fields, [...parentPath, key], true);
 			} else if (typeof val === "object") {
 				//For objects, we check for select fields
-				const isSelect =
-					field &&
-					[fieldTypes.asyncSelect, fieldTypes.creatableSelect].indexOf(field.type) > -1;
+				const isSelect = field && [fieldTypes.asyncSelect, fieldTypes.creatableSelect].indexOf(field.type) > -1;
 
 				if (isSelect) {
 					//If it's a creatable or async select, we pull off the value
@@ -160,13 +158,7 @@ class BasicForm extends Component {
 	}
 
 	async handleSubmit(fValues, formikProps) {
-		const {
-			alterValuesBeforeSubmit,
-			history,
-			onSubmit,
-			redirectOnSubmit,
-			testMode
-		} = this.props;
+		const { alterValuesBeforeSubmit, history, onSubmit, redirectOnSubmit, testMode } = this.props;
 		const { disableRedirect } = this.state;
 
 		const fieldGroups = this.getFieldGroups(fValues);
@@ -330,11 +322,7 @@ class BasicForm extends Component {
 		const content = [
 			<div className="buttons" key="buttons">
 				{resetButton}
-				<button
-					type="submit"
-					className={disableSubmit ? "" : "confirm"}
-					disabled={disableSubmit}
-				>
+				<button type="submit" className={disableSubmit ? "" : "confirm"} disabled={disableSubmit}>
 					{submitButtonText}
 				</button>
 			</div>
@@ -376,15 +364,7 @@ class BasicForm extends Component {
 	}
 
 	render() {
-		const {
-			className,
-			isInitialValid,
-			onReset,
-			promptOnExit,
-			retrieveValues,
-			useFormCard,
-			useGrid
-		} = this.props;
+		const { className, isInitialValid, onReset, promptOnExit, retrieveValues, useFormCard, useGrid } = this.props;
 		const { initialValues, readOnly, validationSchema } = this.state;
 
 		let divClass;
@@ -402,9 +382,7 @@ class BasicForm extends Component {
 				isInitialValid={isInitialValid}
 				initialValues={initialValues}
 				onReset={onReset}
-				onSubmit={(values, formikProps) =>
-					readOnly ? {} : this.handleSubmit(values, formikProps)
-				}
+				onSubmit={(values, formikProps) => (readOnly ? {} : this.handleSubmit(values, formikProps))}
 				validationSchema={validationSchema}
 			>
 				{formikProps => {

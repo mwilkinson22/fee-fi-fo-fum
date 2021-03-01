@@ -112,11 +112,7 @@ class SeasonOverview extends Component {
 
 		//Get Attendance Stats
 		const gamesForAttendance = games.filter(
-			g =>
-				!g.isAway &&
-				leagues.find(l => l._id == g._competition._id) &&
-				g.attendance &&
-				!g.isNeutralGround
+			g => !g.isAway && leagues.find(l => l._id == g._competition._id) && g.attendance && !g.isNeutralGround
 		);
 
 		if (gamesForAttendance.length) {
@@ -127,8 +123,7 @@ class SeasonOverview extends Component {
 					label: "Smallest Crowd",
 					value: (
 						<Link to={`/games/${minGame.slug}`}>
-							{minGame.attendance.toLocaleString()} vs{" "}
-							{minGame._opposition.name.short}
+							{minGame.attendance.toLocaleString()} vs {minGame._opposition.name.short}
 						</Link>
 					)
 				},
@@ -140,8 +135,7 @@ class SeasonOverview extends Component {
 					label: "Biggest Crowd",
 					value: (
 						<Link to={`/games/${maxGame.slug}`}>
-							{maxGame.attendance.toLocaleString()} vs{" "}
-							{maxGame._opposition.name.short}
+							{maxGame.attendance.toLocaleString()} vs {maxGame._opposition.name.short}
 						</Link>
 					)
 				}

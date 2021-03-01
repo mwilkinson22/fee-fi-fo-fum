@@ -2,15 +2,7 @@ const googleBucket = require("~/constants/googleBucket");
 const { loadImage } = require("canvas");
 
 function fit(contains) {
-	return (
-		parentWidth,
-		parentHeight,
-		childWidth,
-		childHeight,
-		scale = 1,
-		offsetX = 0.5,
-		offsetY = 0.5
-	) => {
+	return (parentWidth, parentHeight, childWidth, childHeight, scale = 1, offsetX = 0.5, offsetY = 0.5) => {
 		const childRatio = childWidth / childHeight;
 		const parentRatio = parentWidth / parentHeight;
 		let width = parentWidth * scale;

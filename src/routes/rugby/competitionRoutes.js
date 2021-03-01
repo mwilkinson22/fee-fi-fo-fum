@@ -6,24 +6,14 @@ import requireAdmin from "~/middlewares/requireAdmin";
 
 export default app => {
 	//Get
-	app.get(
-		"/api/competitions/leagueTableData/homePage",
-		competitionController.getHomepageLeagueTableData
-	);
-	app.get(
-		"/api/competitions/leagueTableData/:_segment/:year",
-		competitionController.getLeagueTableData
-	);
+	app.get("/api/competitions/leagueTableData/homePage", competitionController.getHomepageLeagueTableData);
+	app.get("/api/competitions/leagueTableData/:_segment/:year", competitionController.getLeagueTableData);
 	app.get(
 		"/api/competitions/segments/:_segment/instance/:_instance/image/:imageType",
 		requireAdmin,
 		competitionController.fetchCompetitionInstanceImage
 	);
-	app.get(
-		"/api/competitions/segments/:_segment/crawlNewGames",
-		requireAdmin,
-		competitionController.crawlNewGames
-	);
+	app.get("/api/competitions/segments/:_segment/crawlNewGames", requireAdmin, competitionController.crawlNewGames);
 	app.get("/api/competitions/segments", competitionController.getSegments);
 	app.get("/api/competitions", competitionController.getCompetitions);
 
@@ -33,11 +23,7 @@ export default app => {
 		requireAdmin,
 		competitionController.postCompetitionInstanceImage
 	);
-	app.post(
-		"/api/competitions/segments/:segmentId/instance",
-		requireAdmin,
-		competitionController.createInstance
-	);
+	app.post("/api/competitions/segments/:segmentId/instance", requireAdmin, competitionController.createInstance);
 	app.post("/api/competitions/segments", requireAdmin, competitionController.createSegment);
 	app.post("/api/competitions", requireAdmin, competitionController.createCompetition);
 
@@ -56,10 +42,6 @@ export default app => {
 		requireAdmin,
 		competitionController.deleteInstance
 	);
-	app.delete(
-		"/api/competitions/segments/:_id",
-		requireAdmin,
-		competitionController.deleteSegment
-	);
+	app.delete("/api/competitions/segments/:_id", requireAdmin, competitionController.deleteSegment);
 	app.delete("/api/competitions/:_id", requireAdmin, competitionController.deleteCompetition);
 };

@@ -10,15 +10,7 @@ class PopUpDialog extends Component {
 		}
 	}
 	render() {
-		const {
-			asCard,
-			asGrid,
-			children,
-			className,
-			fullSize,
-			closeButtonText,
-			onDestroy
-		} = this.props;
+		const { asCard, asGrid, children, className, fullSize, closeButtonText, onDestroy } = this.props;
 
 		let dialogClassName = ["pop-up-dialog"];
 

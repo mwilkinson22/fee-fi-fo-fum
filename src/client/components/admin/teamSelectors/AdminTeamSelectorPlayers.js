@@ -34,16 +34,7 @@ class AdminTeamSelectorPlayers extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			fetchTeam,
-			fullTeams,
-			localTeam,
-			match,
-			peopleList,
-			selectors,
-			teamList,
-			teamTypes
-		} = nextProps;
+		const { fetchTeam, fullTeams, localTeam, match, peopleList, selectors, teamList, teamTypes } = nextProps;
 		const newState = { isLoading: false };
 
 		//Wait for people to load
@@ -198,9 +189,7 @@ class AdminTeamSelectorPlayers extends Component {
 
 		if (squad) {
 			value = _.chain(options.squads)
-				.map(g =>
-					g.options.map(({ label, value }) => ({ value, label: `${label} ${g.label}` }))
-				)
+				.map(g => g.options.map(({ label, value }) => ({ value, label: `${label} ${g.label}` })))
 				.flatten()
 				.find(opt => opt.value == squad)
 				.value();
@@ -382,7 +371,5 @@ function mapStateToProps({ config, people, teamSelectors, teams }) {
 }
 // export default form;
 export default withRouter(
-	connect(mapStateToProps, { fetchPeopleList, fetchTeam, updateTeamSelector })(
-		AdminTeamSelectorPlayers
-	)
+	connect(mapStateToProps, { fetchPeopleList, fetchTeam, updateTeamSelector })(AdminTeamSelectorPlayers)
 );

@@ -112,9 +112,7 @@ class AdminGameEvent extends Component {
 		const players = _.chain(newState.game.playerStats)
 			.filter(p => p._team == localTeam)
 			.sortBy("position")
-			.map(({ _player }) =>
-				newState.game.eligiblePlayers[localTeam].find(p => p._id == _player)
-			)
+			.map(({ _player }) => newState.game.eligiblePlayers[localTeam].find(p => p._id == _player))
 			.value();
 		const twitterHandles = players
 			.filter(p => p.twitter)
@@ -123,9 +121,7 @@ class AdminGameEvent extends Component {
 			.filter(p => p._sponsor)
 			.map(({ name, _sponsor }) => ({
 				label: `${name.full} Sponsor`,
-				value: `\n\n${name.first} is sponsored by ${
-					_sponsor.twitter ? `@${_sponsor.twitter}` : _sponsor.name
-				}`
+				value: `\n\n${name.first} is sponsored by ${_sponsor.twitter ? `@${_sponsor.twitter}` : _sponsor.name}`
 			}));
 		newState.twitterVariables = [...twitterHandles, ...sponsors];
 
@@ -242,9 +238,7 @@ class AdminGameEvent extends Component {
 				//Then try to get the kicker
 				if (game._kickers) {
 					//First, get the scoring team
-					const { _team } = game.playerStats.find(
-						({ _player }) => _player == values.player
-					);
+					const { _team } = game.playerStats.find(({ _player }) => _player == values.player);
 
 					//Then check to see if they have a designated kicker
 					const kickerEntry = game._kickers.find(k => k._team == _team);
@@ -282,9 +276,7 @@ class AdminGameEvent extends Component {
 	renderPreview() {
 		const { previewImage } = this.state;
 		if (previewImage) {
-			return (
-				<img src={previewImage} className="full-span preview-image" alt="Preview Image" />
-			);
+			return <img src={previewImage} className="full-span preview-image" alt="Preview Image" />;
 		} else if (previewImage === false) {
 			return <LoadingPage className="full-span" />;
 		} else {
@@ -312,27 +304,16 @@ class AdminGameEvent extends Component {
 						return (
 							<Form>
 								<div className="form-card grid">
-									{renderFieldGroup(
-										this.getFieldGroups(values),
-										validationSchema
-									)}
+									{renderFieldGroup(this.getFieldGroups(values), validationSchema)}
 									<div className="buttons">
 										<button
 											type="button"
 											onClick={() => this.getPreview(values)}
-											disabled={
-												disabled ||
-												values.event == "none" ||
-												previewImage === false
-											}
+											disabled={disabled || values.event == "none" || previewImage === false}
 										>
 											Preview
 										</button>
-										<button
-											className="confirm"
-											type="submit"
-											disabled={disabled}
-										>
+										<button className="confirm" type="submit" disabled={disabled}>
 											Post
 										</button>
 									</div>

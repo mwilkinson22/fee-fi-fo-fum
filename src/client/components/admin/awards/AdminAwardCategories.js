@@ -21,15 +21,7 @@ class AdminAwardCategories extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			fetchGameListByYear,
-			fullTeams,
-			localTeam,
-			fetchTeam,
-			match,
-			awardsList,
-			gameYears
-		} = props;
+		const { fetchGameListByYear, fullTeams, localTeam, fetchTeam, match, awardsList, gameYears } = props;
 
 		if (!fullTeams[localTeam].fullData) {
 			fetchTeam(localTeam, "full");
@@ -89,9 +81,7 @@ class AdminAwardCategories extends Component {
 
 			//A simple list of players across all squads, including those
 			//signed for the following year (for "most anticipated")
-			const squads = fullTeams[localTeam].squads.filter(
-				s => s.year == award.year || s.year == award.year + 1
-			);
+			const squads = fullTeams[localTeam].squads.filter(s => s.year == award.year || s.year == award.year + 1);
 			newState.options.player = _.chain(squads)
 				.map("players")
 				.flatten()
@@ -151,9 +141,7 @@ class AdminAwardCategories extends Component {
 				styles={selectStyling}
 				options={options}
 				isSearchable={false}
-				onChange={({ value }) =>
-					this.props.history.replace(`/admin/awards/${award._id}/categories/${value}`)
-				}
+				onChange={({ value }) => this.props.history.replace(`/admin/awards/${award._id}/categories/${value}`)}
 				value={options.find(({ value }) => value == currentValue)}
 			/>
 		);
@@ -170,9 +158,7 @@ class AdminAwardCategories extends Component {
 		//Only show a form if something is selected
 		let content;
 		if (category || isNew) {
-			content = (
-				<AdminAwardCategoryForm award={award} category={category} options={options} />
-			);
+			content = <AdminAwardCategoryForm award={award} category={category} options={options} />;
 		}
 
 		return (
@@ -193,6 +179,4 @@ function mapStateToProps({ awards, config, games, teams }) {
 	return { awardsList, localTeam, gameList, gameYears, fullTeams, teamList, teamTypes };
 }
 // export default form;
-export default withRouter(
-	connect(mapStateToProps, { fetchGameListByYear, fetchTeam })(AdminAwardCategories)
-);
+export default withRouter(connect(mapStateToProps, { fetchGameListByYear, fetchTeam })(AdminAwardCategories));

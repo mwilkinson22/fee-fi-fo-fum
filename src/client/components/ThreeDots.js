@@ -15,10 +15,7 @@ class ThreeDots extends Component {
 	render() {
 		const { className, colour, isDisabled, onClick } = this.state;
 		return (
-			<div
-				className={`three-dot-menu ${isDisabled ? "disabled" : ""} ${className}`}
-				onClick={onClick}
-			>
+			<div className={`three-dot-menu ${isDisabled ? "disabled" : ""} ${className}`} onClick={onClick}>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					xmlnsXlink="http://www.w3.org/1999/xlink"

@@ -64,14 +64,7 @@ class AdminTeamSelectorChoiceTally extends Component {
 				}
 			}));
 
-		return (
-			<Table
-				columns={columns}
-				defaultSortable={false}
-				rows={rows}
-				sortBy={{ key: "total", asc: false }}
-			/>
-		);
+		return <Table columns={columns} defaultSortable={false} rows={rows} sortBy={{ key: "total", asc: false }} />;
 	}
 
 	renderTotalVotes() {

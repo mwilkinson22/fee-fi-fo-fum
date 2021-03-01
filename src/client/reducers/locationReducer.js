@@ -30,10 +30,7 @@ export default function(state = {}, action) {
 		case FETCH_COUNTRY:
 			return {
 				...state,
-				countries: [
-					...state.countries.filter(c => c._id != action.payload._id),
-					action.payload
-				]
+				countries: [...state.countries.filter(c => c._id != action.payload._id), action.payload]
 			};
 
 		case DELETE_CITY:

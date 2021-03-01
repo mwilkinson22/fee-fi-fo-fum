@@ -20,14 +20,7 @@ class AdminPersonOverview extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			cities,
-			fetchCities,
-			countries,
-			fetchCountries,
-			sponsorList,
-			fetchSponsors
-		} = props;
+		const { cities, fetchCities, countries, fetchCountries, sponsorList, fetchSponsors } = props;
 
 		if (!cities) {
 			fetchCities();
@@ -234,11 +227,7 @@ class AdminPersonOverview extends Component {
 					{
 						name: "isReferee",
 						type: fieldTypes.boolean,
-						disabled:
-							person &&
-							person.isReferee &&
-							person.reffedGames &&
-							person.reffedGames.length
+						disabled: person && person.isReferee && person.reffedGames && person.reffedGames.length
 					}
 				]
 			},

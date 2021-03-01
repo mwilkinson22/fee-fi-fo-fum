@@ -212,12 +212,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 
 					return (
 						<div className="table-wrapper" key="table">
-							<Table
-								rows={rows}
-								columns={columns}
-								defaultSortable={false}
-								className="bulk-add-table"
-							/>
+							<Table rows={rows} columns={columns} defaultSortable={false} className="bulk-add-table" />
 						</div>
 					);
 				}
@@ -236,8 +231,7 @@ class AdminTeamSquadBulkAdderResults extends Component {
 		let formProps;
 		if (isNew) {
 			formProps = {
-				onSubmit: players =>
-					createTeamSquad(team._id, { year, _teamType: teamType._id, players }),
+				onSubmit: players => createTeamSquad(team._id, { year, _teamType: teamType._id, players }),
 				redirectOnSubmit: id => `/admin/teams/${team._id}/squads/${id}`
 			};
 		} else {
@@ -281,6 +275,4 @@ AdminTeamSquadBulkAdderResults.propTypes = {
 	year: PropTypes.number.isRequired
 };
 
-export default connect(mapStateToProps, { appendTeamSquad, createTeamSquad })(
-	AdminTeamSquadBulkAdderResults
-);
+export default connect(mapStateToProps, { appendTeamSquad, createTeamSquad })(AdminTeamSquadBulkAdderResults);

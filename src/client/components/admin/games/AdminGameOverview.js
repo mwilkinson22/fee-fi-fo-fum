@@ -71,13 +71,7 @@ class AdminGameOverview extends Component {
 		newState.isNew = !_id;
 
 		//Await lists
-		if (
-			!teamList ||
-			!competitionSegmentList ||
-			!groundList ||
-			!peopleList ||
-			!broadcasterList
-		) {
+		if (!teamList || !competitionSegmentList || !groundList || !peopleList || !broadcasterList) {
 			newState.isLoading = true;
 			return newState;
 		}
@@ -138,9 +132,7 @@ class AdminGameOverview extends Component {
 			//Add Score Override
 			rawValidationSchema.scoreOverride = Yup.object().shape({
 				[localTeam]: Yup.string().label(teamList[localTeam].name.short),
-				[newState.game._opposition._id]: Yup.string().label(
-					newState.game._opposition.name.short
-				)
+				[newState.game._opposition._id]: Yup.string().label(newState.game._opposition.name.short)
 			});
 		}
 
@@ -161,10 +153,7 @@ class AdminGameOverview extends Component {
 			}))
 			.sortBy("label")
 			.value();
-		newState.options._ground = [
-			{ value: "auto", label: "Home Team's Ground" },
-			...groundOptions
-		];
+		newState.options._ground = [{ value: "auto", label: "Home Team's Ground" }, ...groundOptions];
 
 		newState.options._referee = _.chain(peopleList)
 			.filter(person => person.isReferee)
@@ -338,8 +327,7 @@ class AdminGameOverview extends Component {
 						components: {
 							NoOptionsMessage: props => (
 								<div style={props.getStyles("noOptionsMessage", props)}>
-									Hashtags must begin with a letter and can only contain letters
-									and numbers
+									Hashtags must begin with a letter and can only contain letters and numbers
 								</div>
 							)
 						},

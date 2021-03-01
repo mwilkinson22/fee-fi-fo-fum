@@ -154,6 +154,4 @@ function mapStateToProps({ teams }) {
 	return { teamTypes };
 }
 
-export default connect(mapStateToProps, { createTeamType, updateTeamType, deleteTeamType })(
-	AdminTeamTypePage
-);
+export default connect(mapStateToProps, { createTeamType, updateTeamType, deleteTeamType })(AdminTeamTypePage);

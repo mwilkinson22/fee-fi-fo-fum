@@ -11,12 +11,7 @@ import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Actions
-import {
-	fetchCountries,
-	createCountry,
-	updateCountry,
-	deleteCountry
-} from "~/client/actions/locationActions";
+import { fetchCountries, createCountry, updateCountry, deleteCountry } from "~/client/actions/locationActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
@@ -149,7 +144,5 @@ function mapStateToProps({ locations }) {
 }
 
 export default withRouter(
-	connect(mapStateToProps, { fetchCountries, createCountry, updateCountry, deleteCountry })(
-		AdminCountryPage
-	)
+	connect(mapStateToProps, { fetchCountries, createCountry, updateCountry, deleteCountry })(AdminCountryPage)
 );

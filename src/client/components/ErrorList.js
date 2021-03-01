@@ -13,12 +13,7 @@ import ErrorPrintout from "./ErrorPrintout";
 import PopUpDialog from "./PopUpDialog";
 
 //Actions
-import {
-	archiveError,
-	archiveAllErrors,
-	fetchErrors,
-	unarchiveError
-} from "~/client/actions/errorActions";
+import { archiveError, archiveAllErrors, fetchErrors, unarchiveError } from "~/client/actions/errorActions";
 
 class ErrorList extends Component {
 	constructor(props) {
@@ -109,11 +104,7 @@ class ErrorList extends Component {
 						case "_user": {
 							if (error[key]) {
 								value = {
-									content: (
-										<Link to={`/admin/users/${error[key]._id}`}>
-											{error[key].name.full}
-										</Link>
-									),
+									content: <Link to={`/admin/users/${error[key]._id}`}>{error[key].name.full}</Link>,
 									sortValue: error[key].name.full
 								};
 							} else {
@@ -206,9 +197,7 @@ class ErrorList extends Component {
 		const { archiveAllErrors, showAllColumns } = this.props;
 
 		if (showAllColumns) {
-			return (
-				<DeleteButtons onDelete={() => archiveAllErrors(true)} deleteText={"Archive All"} />
-			);
+			return <DeleteButtons onDelete={() => archiveAllErrors(true)} deleteText={"Archive All"} />;
 		}
 	}
 
@@ -230,9 +219,7 @@ class ErrorList extends Component {
 				<div>
 					<div className="error-list-table-wrapper">
 						<Table
-							className={`error-list-table ${
-								showAllColumns ? "all-columns" : "limited-columns"
-							}`}
+							className={`error-list-table ${showAllColumns ? "all-columns" : "limited-columns"}`}
 							columns={columns}
 							defaultAscSort={true}
 							defaultSortable={false}

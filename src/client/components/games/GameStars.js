@@ -42,10 +42,7 @@ class GameStars extends Component {
 							<div key={key} className="row">
 								<span className={`value ${isPotm ? "upper" : ""}`}>
 									{isBest ? (
-										<span
-											className="best"
-											title={`${moreIsBetter ? "Most" : "Least"} in game`}
-										>
+										<span className="best" title={`${moreIsBetter ? "Most" : "Least"} in game`}>
 											★&nbsp;
 										</span>
 									) : (

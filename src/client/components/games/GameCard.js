@@ -97,9 +97,7 @@ class GameCard extends Component {
 		return (
 			<Link
 				to={"/games/" + url}
-				className={`game-card card ${hideImage ? "hidden-image" : ""} ${
-					game.hideGame ? "hidden-game" : ""
-				}`}
+				className={`game-card card ${hideImage ? "hidden-image" : ""} ${game.hideGame ? "hidden-game" : ""}`}
 			>
 				{backgroundImage}
 				<div
@@ -112,9 +110,7 @@ class GameCard extends Component {
 				>
 					<TeamImage team={opposition} size="medium" />
 					<div className="game-details-wrapper">
-						<h4>
-							{this.state.scoreString || `${opposition.name.short}${homeAwayText}`}
-						</h4>
+						<h4>{this.state.scoreString || `${opposition.name.short}${homeAwayText}`}</h4>
 						<ul>
 							<li className="date">{formatDate(game)}</li>
 							<li className={groundClass}>{groundString}</li>

@@ -22,12 +22,7 @@ import { fetchCompetitionSegments } from "~/client/actions/competitionActions";
 class AdminNeutralGameList extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			competitionSegmentList,
-			fetchCompetitionSegments,
-			neutralGameYears,
-			fetchNeutralGameYears
-		} = props;
+		const { competitionSegmentList, fetchCompetitionSegments, neutralGameYears, fetchNeutralGameYears } = props;
 
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
@@ -85,10 +80,7 @@ class AdminNeutralGameList extends Component {
 			.value();
 
 		if (match.params.teamType) {
-			const filteredTeamType = _.find(
-				newState.teamTypes,
-				t => t.slug === match.params.teamType
-			);
+			const filteredTeamType = _.find(newState.teamTypes, t => t.slug === match.params.teamType);
 			if (filteredTeamType) {
 				newState.teamType = filteredTeamType;
 			}
@@ -96,8 +88,7 @@ class AdminNeutralGameList extends Component {
 
 		//If no valid team type is found, we redirect to either the last active one, or just the first in the list
 		if (!newState.teamType) {
-			const teamTypeRedirect =
-				_.find(newState.teamTypes, t => t._id == activeTeamType) || newState.teamTypes[0];
+			const teamTypeRedirect = _.find(newState.teamTypes, t => t._id == activeTeamType) || newState.teamTypes[0];
 
 			newState.teamTypeRedirect = teamTypeRedirect.slug;
 			newState.teamType = activeTeamType;
@@ -109,9 +100,7 @@ class AdminNeutralGameList extends Component {
 			}
 		}
 
-		newState.teamType =
-			_.find(newState.teamTypes, t => t.slug == match.params.teamType) ||
-			newState.teamTypes[0];
+		newState.teamType = _.find(newState.teamTypes, t => t.slug == match.params.teamType) || newState.teamTypes[0];
 
 		//Games
 		newState.games = _.chain(neutralGames[year])

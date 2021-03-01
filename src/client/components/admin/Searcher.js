@@ -29,13 +29,7 @@ class Searcher extends Component {
 	}
 
 	handleInputChange(value) {
-		const {
-			data,
-			emptySearchReturnsAll,
-			handleFilter,
-			minimumSearchValue,
-			onChange
-		} = this.props;
+		const { data, emptySearchReturnsAll, handleFilter, minimumSearchValue, onChange } = this.props;
 
 		//Normalise input
 		const filterName = this.convertStringToSearchable(value);

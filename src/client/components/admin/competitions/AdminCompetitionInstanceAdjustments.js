@@ -37,8 +37,7 @@ class AdminCompetitionInstanceAdjustments extends Component {
 		newState.segment = competitionSegmentList[match.params.segmentId] || false;
 
 		//Get Instance
-		newState.instance =
-			newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
+		newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 
 		//If the instance has no teams assigned, throw an error
 		if (!newState.instance.teams || !newState.instance.teams.length) {
@@ -83,8 +82,7 @@ class AdminCompetitionInstanceAdjustments extends Component {
 			let adjustmentValues;
 
 			//Get the current adjustment entry for this team, if any
-			const currentAdjustments =
-				instance.adjustments && instance.adjustments.find(({ _team }) => _team == id);
+			const currentAdjustments = instance.adjustments && instance.adjustments.find(({ _team }) => _team == id);
 
 			if (!currentAdjustments) {
 				//If none exist, we use the defaults
@@ -147,9 +145,7 @@ class AdminCompetitionInstanceAdjustments extends Component {
 						initialValues={this.getInitialValues()}
 						isNew={false}
 						itemType="Instance"
-						onSubmit={values =>
-							updateCompetitionInstance(segment._id, instance._id, values)
-						}
+						onSubmit={values => updateCompetitionInstance(segment._id, instance._id, values)}
 						validationSchema={validationSchema}
 					/>
 				</div>

@@ -14,13 +14,7 @@ import { getSettings, setSettings } from "~/client/actions/configActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
-const settingsFields = [
-	"site_name",
-	"site_social",
-	"site_logo",
-	"site_header_logo",
-	"site_default_description"
-];
+const settingsFields = ["site_name", "site_social", "site_logo", "site_header_logo", "site_default_description"];
 
 class AdminBrandingPage extends Component {
 	constructor(props) {

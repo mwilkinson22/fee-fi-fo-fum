@@ -15,9 +15,7 @@ export default class MultiplePlayerStats extends Canvas {
 		//Set Dimensions
 		const cWidth = 1200;
 		const topBanner =
-			["fan-potm-options", "steel-points"].indexOf(eventType) > -1 || options.customHeader
-				? cWidth * 0.075
-				: 0;
+			["fan-potm-options", "steel-points"].indexOf(eventType) > -1 || options.customHeader ? cWidth * 0.075 : 0;
 		const heightMultiplier = playersAndStats.length > 4 ? 0.7 : 0.5;
 		const cHeight = cWidth * heightMultiplier + topBanner;
 
@@ -38,8 +36,7 @@ export default class MultiplePlayerStats extends Canvas {
 		};
 		this.positions.playerSectionY = topBanner + this.positions.padding;
 		this.positions.playerSectionWidth = cWidth - this.positions.padding * 2;
-		this.positions.playerSectionHeight =
-			cHeight - this.positions.playerSectionY - this.positions.padding;
+		this.positions.playerSectionHeight = cHeight - this.positions.playerSectionY - this.positions.padding;
 
 		//Variables
 		this.game = JSON.parse(JSON.stringify(game));
@@ -157,10 +154,7 @@ export default class MultiplePlayerStats extends Canvas {
 			playerBoxHeight = playerSectionHeight * 0.45;
 
 			//Get the length of each row
-			const rowLengths = [
-				Math.floor(playersAndStats.length / 2),
-				Math.ceil(playersAndStats.length / 2)
-			];
+			const rowLengths = [Math.floor(playersAndStats.length / 2), Math.ceil(playersAndStats.length / 2)];
 
 			//Loop the rows
 			for (const row in rowLengths) {
@@ -181,28 +175,14 @@ export default class MultiplePlayerStats extends Canvas {
 				}
 
 				//Draw row
-				await this.drawPlayerRow(
-					players,
-					xMargin,
-					playerBoxY,
-					playerBoxWidth,
-					playerBoxHeight
-				);
+				await this.drawPlayerRow(players, xMargin, playerBoxY, playerBoxWidth, playerBoxHeight);
 			}
 		} else {
 			playerBoxWidth = playerSectionWidth * 0.22;
 			playerBoxHeight = playerSectionHeight * 0.8;
 			playerBoxY = playerSectionY + (playerSectionHeight - playerBoxHeight) / 2;
-			xMargin =
-				(playerSectionWidth - playersAndStats.length * playerBoxWidth) /
-				(playersAndStats.length + 1);
-			await this.drawPlayerRow(
-				playersAndStats,
-				xMargin,
-				playerBoxY,
-				playerBoxWidth,
-				playerBoxHeight
-			);
+			xMargin = (playerSectionWidth - playersAndStats.length * playerBoxWidth) / (playersAndStats.length + 1);
+			await this.drawPlayerRow(playersAndStats, xMargin, playerBoxY, playerBoxWidth, playerBoxHeight);
 		}
 	}
 
@@ -213,9 +193,7 @@ export default class MultiplePlayerStats extends Canvas {
 		//and ensure steel is top of the list.
 		//We use "steel-points-only" to get "3 Points" instead of "3 Man of Steel Points"
 		if (eventType === "steel-points") {
-			players.forEach(
-				p => (p.stats = ["steel-points-only", ...p.stats.filter(key => key !== "steel")])
-			);
+			players.forEach(p => (p.stats = ["steel-points-only", ...p.stats.filter(key => key !== "steel")]));
 		}
 
 		//Get Initial X Value
@@ -262,17 +240,9 @@ export default class MultiplePlayerStats extends Canvas {
 				});
 			} else {
 				const teamImages = game._opposition.images;
-				const image = await this.googleToCanvas(
-					`images/teams/${teamImages.dark || teamImages.main}`
-				);
+				const image = await this.googleToCanvas(`images/teams/${teamImages.dark || teamImages.main}`);
 				const margin = imageBoxHeight * 0.1;
-				this.contain(
-					image,
-					x + margin,
-					y + margin,
-					width - margin * 2,
-					imageBoxHeight - margin * 2
-				);
+				this.contain(image, x + margin, y + margin, width - margin * 2, imageBoxHeight - margin * 2);
 			}
 
 			//Add name & number
@@ -301,20 +271,10 @@ export default class MultiplePlayerStats extends Canvas {
 				]
 			];
 			ctx.fillStyle = "#000000AA";
-			ctx.fillRect(
-				x,
-				y + imageBoxHeight - textStyles.name.size * 3 + 2,
-				width,
-				textStyles.name.size * 3
-			);
-			this.textBuilder(
-				nameRows,
-				x + width / 2,
-				y + imageBoxHeight - textStyles.name.size / 2,
-				{
-					yAlign: "bottom"
-				}
-			);
+			ctx.fillRect(x, y + imageBoxHeight - textStyles.name.size * 3 + 2, width, textStyles.name.size * 3);
+			this.textBuilder(nameRows, x + width / 2, y + imageBoxHeight - textStyles.name.size / 2, {
+				yAlign: "bottom"
+			});
 
 			//Draw stat box
 			ctx.fillStyle = colours.claret;

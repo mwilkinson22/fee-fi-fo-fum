@@ -47,10 +47,7 @@ class GameTeamSelector extends Component {
 			content = (
 				<div className="container">
 					<h2>Pick & share your squad</h2>
-					<ShareableTeamSelector
-						selector={selector}
-						urlFormatter={() => `games/${game.slug}`}
-					/>
+					<ShareableTeamSelector selector={selector} urlFormatter={() => `games/${game.slug}`} />
 				</div>
 			);
 		}

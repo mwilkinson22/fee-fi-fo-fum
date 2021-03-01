@@ -50,9 +50,7 @@ class ImageButton extends Component {
 				resize={{ defaultSize: { width: 760 } }}
 				path="images/news/inline/"
 				onComplete={name =>
-					this.props.onChange(
-						insertDataBlock(this.props.editorState, { src: name, type: "image" })
-					)
+					this.props.onChange(insertDataBlock(this.props.editorState, { src: name, type: "image" }))
 				}
 				onDestroy={() => this.setState({ showFileUploader: false })}
 			/>

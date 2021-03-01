@@ -1,9 +1,5 @@
 import _ from "lodash";
-import {
-	FETCH_TEAM_SELECTOR,
-	FETCH_TEAM_SELECTOR_LIST,
-	DELETE_TEAM_SELECTOR
-} from "../actions/types";
+import { FETCH_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_LIST, DELETE_TEAM_SELECTOR } from "../actions/types";
 
 import { teamSelectors as listProperties } from "~/constants/listProperties";
 

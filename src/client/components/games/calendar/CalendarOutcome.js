@@ -15,14 +15,7 @@ class CalendarOutcome extends Component {
 	}
 
 	renderCopyDialog() {
-		const {
-			baseUrl,
-			options,
-			selectedTeamTypes,
-			showAllTeamTypes,
-			teamTypes,
-			useCustomOptions
-		} = this.props;
+		const { baseUrl, options, selectedTeamTypes, showAllTeamTypes, teamTypes, useCustomOptions } = this.props;
 		const { enableCopyButton } = this.state;
 
 		//Convert this to a full url
@@ -85,16 +78,11 @@ class CalendarOutcome extends Component {
 					<strong>Step 2: Add it to your calendar service</strong>
 				</p>
 				<p>
-					Once you have copied your link, all you need to do is subscribe to it through
-					your calendar service.
+					Once you have copied your link, all you need to do is subscribe to it through your calendar service.
 				</p>
 				<p>
 					For instructions on how to do this, check the relevant support pages for{" "}
-					{this.renderExternalLink(
-						"https://support.google.com/calendar/answer/37100",
-						"Google"
-					)}
-					,{" "}
+					{this.renderExternalLink("https://support.google.com/calendar/answer/37100", "Google")},{" "}
 					{this.renderExternalLink(
 						"https://support.office.com/en-gb/article/503ffaf6-7b86-44fe-8dd6-8099d95f38df?ui=en-US&rs=en-GB&ad=GB",
 						"Microsoft Outlook"

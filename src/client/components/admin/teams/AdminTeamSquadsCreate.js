@@ -31,21 +31,15 @@ class AdminTeamSquadsCreate extends Component {
 				.label("Year"),
 			_teamType: Yup.mixed()
 				.required()
-				.test(
-					"isUniqueCombo",
-					"A squad already exists for this year and team type",
-					function(teamType) {
-						const { year } = this.parent;
-						//Ensure all values are loaded
-						if (year && teamType) {
-							return !team.squads.find(
-								s => s._teamType == teamType && s.year == year
-							);
-						}
-						//Otherwise, validation will fail regardless so we return true
-						return true;
+				.test("isUniqueCombo", "A squad already exists for this year and team type", function(teamType) {
+					const { year } = this.parent;
+					//Ensure all values are loaded
+					if (year && teamType) {
+						return !team.squads.find(s => s._teamType == teamType && s.year == year);
 					}
-				)
+					//Otherwise, validation will fail regardless so we return true
+					return true;
+				})
 				.label("Team Type")
 		});
 

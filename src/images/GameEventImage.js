@@ -65,22 +65,15 @@ export default class GameEventImage extends Canvas {
 
 	async drawBackground() {
 		const { ctx, cWidth, cHeight } = this;
-		const backgroundImage = await this.googleToCanvas(
-			"images/layout/canvas/blank-claret-banner.jpg"
-		);
+		const backgroundImage = await this.googleToCanvas("images/layout/canvas/blank-claret-banner.jpg");
 		ctx.drawImage(backgroundImage, 0, 0, cWidth, cHeight);
 	}
 
 	async getTeamInfo() {
 		const { game } = this;
-		const teams = await Team.find(
-			{ _id: { $in: [localTeam, this.game._opposition._id] } },
-			"images colours"
-		);
+		const teams = await Team.find({ _id: { $in: [localTeam, this.game._opposition._id] } }, "images colours");
 		for (const team of teams) {
-			team.badge = await this.googleToCanvas(
-				`images/teams/${team.images.light || team.images.main}`
-			);
+			team.badge = await this.googleToCanvas(`images/teams/${team.images.light || team.images.main}`);
 		}
 		const awayTeam = game.isAway ? localTeam : game._opposition._id;
 		this.teams = _.sortBy(teams, t => t._id == awayTeam);
@@ -162,16 +155,9 @@ export default class GameEventImage extends Canvas {
 		}
 		const brandLogoUrl = `images/layout/branding/${branding.site_logo}`;
 		const brandLogo = await this.googleToCanvas(brandLogoUrl);
-		this.contain(
-			brandLogo,
-			cWidth - logoX - logoWidth,
-			hashtagAndLogoY - logoHeight / 2,
-			logoWidth,
-			logoHeight,
-			{
-				xAlign: "right"
-			}
-		);
+		this.contain(brandLogo, cWidth - logoX - logoWidth, hashtagAndLogoY - logoHeight / 2, logoWidth, logoHeight, {
+			xAlign: "right"
+		});
 	}
 
 	drawPlayerEvent() {
