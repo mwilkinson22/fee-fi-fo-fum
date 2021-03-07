@@ -46,21 +46,30 @@ class NewsPostPage extends Component {
 		let isLoadingPost = false;
 		if (slugMap[slug] === undefined) {
 			fetchNewsPostBySlug(slug);
-			isLoadingPost = true;
+			isLoadingPost = slug;
 		}
 
 		this.state = { isLoadingPost };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPosts, fullGames, match, fetchGames, slugMap } = nextProps;
+		const { fetchNewsPostBySlug, fullPosts, fullGames, match, fetchGames, slugMap } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
-		//Await the post
-		if (slugMap[slug] === undefined) {
+		//If we have no slugMap value, and isLoadingPost is set to the current slug, then we return null as we're still waiting
+		if (slugMap[slug] === undefined && prevState.isLoadingPost === slug) {
 			return null;
 		}
+
+		//Otherwise if we have no slugMap value, then the page has changed and we need to fetch a new post
+		if (slugMap[slug] === undefined) {
+			fetchNewsPostBySlug(slug);
+			newState.isLoadingPost = slug;
+			return newState;
+		}
+
+		//Otherwise, we either have a 404 or a post loaded
 		newState.isLoadingPost = false;
 
 		//404 if we have no id
@@ -314,14 +323,14 @@ class NewsPostPage extends Component {
 		const { bucketPaths, facebookApp, match } = this.props;
 		const { isLoadingList, isLoadingPost, isLoadingGame, post } = this.state;
 
-		//Redirect old slugs
-		if (post && post.slug !== match.params.slug) {
-			return <Redirect to={`/news/post/${post.slug}`} />;
-		}
-
 		//Wait for all content
 		if (isLoadingList || isLoadingPost || isLoadingGame) {
 			return <LoadingPage />;
+		}
+
+		//Redirect old slugs
+		if (post && post.slug !== match.params.slug) {
+			return <Redirect to={`/news/post/${post.slug}`} />;
 		}
 
 		//404
