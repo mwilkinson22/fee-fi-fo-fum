@@ -83,7 +83,7 @@ export const createNewsPost = values => async (dispatch, getState, api) => {
 		dispatch({ type: FETCH_NEWS_POST, payload: res.data });
 		dispatch({ type: CLEAR_POST_PAGINATION });
 		toast.success("Post Created");
-		return res.data._id;
+		return Object.keys(res.data.fullPosts)[0];
 	}
 };
 
