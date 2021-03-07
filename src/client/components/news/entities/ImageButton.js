@@ -9,6 +9,8 @@ import insertDataBlock from "megadraft/lib/insertDataBlock";
 
 //Components
 import FileUploader from "../../admin/FileUploader";
+import PopUpDialog from "~/client/components/PopUpDialog";
+import BooleanSlider from "~/client/components/fields/BooleanSlider";
 
 class ImageButton extends Component {
 	constructor(props) {
@@ -19,20 +21,79 @@ class ImageButton extends Component {
 
 		this.state = {
 			showFileUploader: false,
-			slug
+			showCaptionOptions: false,
+			caption: {
+				value: "",
+				rightAlign: false,
+				firstWordIsWhite: false,
+				formatAsHeader: true
+			},
+			slug,
+			src: null
 		};
+		this.initialState = this.state;
 	}
 
-	onClick(e) {
-		e.preventDefault();
-		const src = window.prompt("Enter a URL");
-		if (!src) {
-			return;
-		}
+	onDestroy() {
+		this.setState(this.initialState);
+	}
 
-		const data = { src: src, type: "image", display: "medium" };
+	renderCaptionOptions() {
+		const { caption, src } = this.state;
+		const { value, rightAlign, formatAsHeader, firstWordIsWhite } = caption;
 
-		this.props.onChange(insertDataBlock(this.props.editorState, data));
+		return (
+			<PopUpDialog onDestroy={() => this.onDestroy()} asGrid={true}>
+				<label>Caption</label>
+				<input
+					type="text"
+					value={value}
+					onChange={ev => this.setState({ caption: { ...caption, value: ev.target.value } })}
+				/>
+				<label>Right-Align</label>
+				<BooleanSlider
+					name="rightAlign"
+					value={rightAlign}
+					onChange={() => this.setState({ caption: { ...caption, rightAlign: !rightAlign } })}
+				/>
+				<label>Use header styling</label>
+				<BooleanSlider
+					name="captionAsHeader"
+					value={formatAsHeader}
+					onChange={() => this.setState({ caption: { ...caption, formatAsHeader: !formatAsHeader } })}
+				/>
+				<label>Make first word white?</label>
+				<BooleanSlider
+					name="firstWordWhite"
+					value={formatAsHeader && firstWordIsWhite}
+					onChange={() => this.setState({ caption: { ...caption, firstWordIsWhite: !firstWordIsWhite } })}
+					disabled={!formatAsHeader}
+				/>
+				<div className="buttons">
+					<button
+						type="button"
+						onClick={() => this.setState({ showCaptionOptions: false, showFileUploader: true })}
+					>
+						Back
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							this.props.onChange(
+								insertDataBlock(this.props.editorState, {
+									src,
+									caption,
+									type: "image"
+								})
+							);
+							this.onDestroy();
+						}}
+					>
+						Add Image
+					</button>
+				</div>
+			</PopUpDialog>
+		);
 	}
 
 	renderFileUploader() {
@@ -49,19 +110,20 @@ class ImageButton extends Component {
 				isImage={true}
 				resize={{ defaultSize: { width: 760 } }}
 				path="images/news/inline/"
-				onComplete={name =>
-					this.props.onChange(insertDataBlock(this.props.editorState, { src: name, type: "image" }))
-				}
-				onDestroy={() => this.setState({ showFileUploader: false })}
+				onComplete={src => this.setState({ src, showCaptionOptions: true, showFileUploader: false })}
+				onDestroy={() => this.onDestroy()}
+				destroyOnComplete={false}
 			/>
 		);
 	}
 
 	render() {
-		const { showFileUploader } = this.state;
+		const { showCaptionOptions, showFileUploader } = this.state;
 
 		if (showFileUploader) {
 			return this.renderFileUploader();
+		} else if (showCaptionOptions) {
+			return this.renderCaptionOptions();
 		} else {
 			return (
 				<button

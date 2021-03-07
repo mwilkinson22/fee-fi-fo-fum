@@ -49,6 +49,7 @@ class FileUploader extends Component {
 		const {
 			path,
 			isImage,
+			destroyOnComplete,
 			convertImageToWebP,
 			uploadFile,
 			resize,
@@ -74,7 +75,9 @@ class FileUploader extends Component {
 
 		const { name } = await uploadFile(formData);
 		await onComplete(name);
-		onDestroy();
+		if (destroyOnComplete) {
+			onDestroy();
+		}
 	}
 
 	clearFile() {
@@ -212,6 +215,7 @@ FileUploader.propTypes = {
 	cacheMaxAge: PropTypes.number,
 	convertImageToWebP: PropTypes.bool,
 	defaultName: PropTypes.string,
+	destroyOnComplete: PropTypes.bool,
 	nameOptions: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
 	fileNames: PropTypes.arrayOf(PropTypes.string),
 	isImage: PropTypes.bool,
@@ -225,6 +229,7 @@ FileUploader.defaultProps = {
 	allowCustomName: true,
 	cacheMaxAge: null,
 	convertImageToWebP: true,
+	destroyOnComplete: true,
 	fileNames: [],
 	isImage: false,
 	nameOptions: [],
