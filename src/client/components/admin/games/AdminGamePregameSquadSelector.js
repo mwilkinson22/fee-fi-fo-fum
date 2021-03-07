@@ -76,11 +76,7 @@ class AdminGamePregameSquadSelector extends Component {
 						}
 						return (
 							<div className="team-buttons">
-								<button
-									type="button"
-									key="clear"
-									onClick={() => form.setFieldValue(team._id, [])}
-								>
+								<button type="button" key="clear" onClick={() => form.setFieldValue(team._id, [])}>
 									Clear
 								</button>
 								{lastSquadButton}

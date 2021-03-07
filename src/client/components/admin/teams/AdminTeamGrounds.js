@@ -30,9 +30,7 @@ class AdminTeamGrounds extends Component {
 			_defaultGround: Yup.string()
 				.required()
 				.label("Default Ground"),
-			_grounds: Yup.object().shape(
-				_.mapValues(teamTypes, ({ name }) => Yup.string().label(name))
-			)
+			_grounds: Yup.object().shape(_.mapValues(teamTypes, ({ name }) => Yup.string().label(name)))
 		});
 
 		this.state = { validationSchema };
@@ -79,9 +77,7 @@ class AdminTeamGrounds extends Component {
 		const { teamTypes } = this.props;
 		const { groundOptions } = this.state;
 
-		const fields = [
-			{ name: "_defaultGround", type: fieldTypes.select, options: groundOptions }
-		];
+		const fields = [{ name: "_defaultGround", type: fieldTypes.select, options: groundOptions }];
 
 		_.chain(teamTypes)
 			.sortBy("sortOrder")
@@ -143,6 +139,4 @@ function mapStateToProps({ grounds, teams }) {
 	return { fullTeams, groundList, teamTypes };
 }
 // export default form;
-export default withRouter(
-	connect(mapStateToProps, { fetchAllGrounds, updateTeam })(AdminTeamGrounds)
-);
+export default withRouter(connect(mapStateToProps, { fetchAllGrounds, updateTeam })(AdminTeamGrounds));

@@ -96,8 +96,7 @@ class LeagueTable extends Component {
 		}
 
 		//Get Styling
-		newState.customStyling =
-			(styleOverride && styleOverride.customStyling) || settings.customStyling;
+		newState.customStyling = (styleOverride && styleOverride.customStyling) || settings.customStyling;
 		if (styleOverride && styleOverride.leagueTableColours) {
 			newState.rowClassOverride = _.chain(styleOverride.leagueTableColours)
 				.map(({ position, className }) => position.map(p => [p, className]))

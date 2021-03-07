@@ -27,23 +27,10 @@ function generateQuery(user, obj = {}) {
 	};
 }
 
-//Return updated post
-async function getUpdatedPost(_id, res) {
-	//Get Full Game
-	const post = await NewsPost.find({ _id }).fullPost();
-	const fullPosts = _.keyBy(post, "_id");
-
-	res.send({ _id, fullPosts });
-}
-
 //Get first 6 for sidebar & homepage
 export async function getFirstSixPosts(req, res) {
 	const query = generateQuery(req.user);
-	const posts = await NewsPost.find(query)
-		.sort({ dateCreated: -1 })
-		.limit(6)
-		.forList()
-		.lean();
+	const posts = await NewsPost.find(query).sort({ dateCreated: -1 }).limit(6).forList().lean();
 
 	res.send(_.keyBy(posts, "_id"));
 }
@@ -63,9 +50,7 @@ export async function getPageCount(req, res) {
 	]);
 	postsByCategory.push({ _id: "all", count: _.sumBy(postsByCategory, "count") });
 
-	const pageCount = _.mapValues(_.keyBy(postsByCategory, "_id"), ({ count }) =>
-		Math.ceil(count / newsPostsPerPage)
-	);
+	const pageCount = _.mapValues(_.keyBy(postsByCategory, "_id"), ({ count }) => Math.ceil(count / newsPostsPerPage));
 
 	res.send(pageCount);
 }
@@ -146,9 +131,13 @@ export async function getFullPost(req, res) {
 export async function createPost(req, res) {
 	const values = req.body;
 	if (!values.content) {
-		values.content = JSON.stringify(
-			convertToRaw(EditorState.createEmpty().getCurrentContent())
-		);
+		values.content = JSON.stringify(convertToRaw(EditorState.createEmpty().getCurrentContent()));
+	}
+
+	//Ensure no duplicate slugs
+	const postWithSlug = await NewsPost.findOne({ slug: values.slug }, "_id").lean();
+	if (postWithSlug) {
+		return res.status(400).send(`Post with slug '${values.slug}' already exists`);
 	}
 
 	//Set date values
@@ -159,7 +148,9 @@ export async function createPost(req, res) {
 	const post = new NewsPost(values);
 	await post.save();
 
-	await getUpdatedPost(post._id, res);
+	//Return updated post
+	req.params._id = post._id;
+	await getFullPost(req, res);
 }
 
 //Update Post
@@ -171,6 +162,12 @@ export async function updatePost(req, res) {
 		return false;
 	} else {
 		const values = _.mapValues(req.body, v => (v === "" ? null : v));
+
+		//Ensure no duplicate slugs
+		const postWithSlug = await NewsPost.findOne({ slug: values.slug, _id: { $ne: _id } }, "_id").lean();
+		if (postWithSlug) {
+			return res.status(400).send(`Post with slug '${values.slug}' already exists`);
+		}
 
 		//Update modified date
 		const now = new Date().toISOString();

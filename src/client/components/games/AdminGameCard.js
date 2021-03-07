@@ -57,10 +57,7 @@ class AdminGameCard extends Component {
 					<TeamImage team={opposition} size="medium" />
 					<div className="game-details-wrapper">
 						<div className="game-details">
-							<h4>
-								{this.state.scoreString ||
-									`${opposition.name.short} ${homeAwayText}`}
-							</h4>
+							<h4>{this.state.scoreString || `${opposition.name.short} ${homeAwayText}`}</h4>
 							<ul>
 								<li className="date">{date.toLocaleString()}</li>
 								<li>{game.title}</li>

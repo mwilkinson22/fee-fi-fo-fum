@@ -95,13 +95,7 @@ class AwardsVotingForm extends Component {
 
 		elements.image = (
 			<div className="image player">
-				<PersonImage
-					person={player}
-					useWebp={true}
-					variant="player"
-					size="medium"
-					className="player-image"
-				/>
+				<PersonImage person={player} useWebp={true} variant="player" size="medium" className="player-image" />
 			</div>
 		);
 		const { stats } = nomineeObject;
@@ -109,12 +103,7 @@ class AwardsVotingForm extends Component {
 			//Get Games
 			const rawStats = _.chain(player.playedGames)
 				//Filter to just the relevant games
-				.filter(
-					g =>
-						!g.pregameOnly &&
-						g.forLocalTeam &&
-						new Date(g.date).getFullYear() == currentAwards.year
-				)
+				.filter(g => !g.pregameOnly && g.forLocalTeam && new Date(g.date).getFullYear() == currentAwards.year)
 				//Get the corresponding stats
 				.map(g =>
 					fullGames[g._id].playerStats
@@ -130,17 +119,13 @@ class AwardsVotingForm extends Component {
 				let averageSpan;
 				if (!playerStatTypes[key].isAverage) {
 					averageSpan = (
-						<span className="average">
-							({statToString(key, summedStats[key].average)} per game)
-						</span>
+						<span className="average">({statToString(key, summedStats[key].average)} per game)</span>
 					);
 				}
 				return (
 					<div key={key}>
 						<span className="value">
-							{key === "M"
-								? summedStats[key].total
-								: statToString(key, summedStats[key].total)}
+							{key === "M" ? summedStats[key].total : statToString(key, summedStats[key].total)}
 						</span>
 						&nbsp;
 						<span className="label">{playerStatTypes[key].plural}</span>
@@ -204,9 +189,7 @@ class AwardsVotingForm extends Component {
 
 		//Description
 		if (nomineeObject.description) {
-			elements.description = (
-				<div className="nominee-description">{nomineeObject.description}</div>
-			);
+			elements.description = <div className="nominee-description">{nomineeObject.description}</div>;
 		}
 
 		return (
@@ -256,10 +239,7 @@ class AwardsVotingForm extends Component {
 				}
 			}
 
-			return [
-				<label key={`${cat}-label`}>{category.name}</label>,
-				<span key={`${cat}-value`}>{valueName}</span>
-			];
+			return [<label key={`${cat}-label`}>{category.name}</label>, <span key={`${cat}-value`}>{valueName}</span>];
 		});
 	}
 
@@ -283,20 +263,13 @@ class AwardsVotingForm extends Component {
 					const categories = currentAwards.categories.map(c => {
 						const { _id, name, awardType, description, nominees } = c;
 						return (
-							<div
-								className={`form-card no-padding award-category ${awardType}-award`}
-								key={_id}
-							>
+							<div className={`form-card no-padding award-category ${awardType}-award`} key={_id}>
 								<h2>
 									<AwardsStatueImage />
 									{name}
 								</h2>
-								{description && (
-									<div className="category-description">{description}</div>
-								)}
-								<div
-									className={`nominees ${values[_id] !== "" ? "has-value" : ""}`}
-								>
+								{description && <div className="category-description">{description}</div>}
+								<div className={`nominees ${values[_id] !== "" ? "has-value" : ""}`}>
 									{nominees.map(n => this.renderField(c, n))}
 								</div>
 							</div>

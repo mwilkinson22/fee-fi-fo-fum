@@ -75,11 +75,7 @@ export const createCompetitionInstance = (segment, data) => async (dispatch, get
 	}
 };
 
-export const updateCompetitionInstance = (segment, instance, data) => async (
-	dispatch,
-	getState,
-	api
-) => {
+export const updateCompetitionInstance = (segment, instance, data) => async (dispatch, getState, api) => {
 	const res = await api.put(`/competitions/segments/${segment}/instance/${instance}`, data);
 	if (res.data) {
 		dispatch({ type: FETCH_COMPETITION_SEGMENT, payload: res.data });
@@ -103,40 +99,23 @@ export const crawlNewFixtures = segment => async (dispatch, getState, api) => {
 	}
 };
 
-export const fetchInstanceImage = (segmentId, instanceId, imageType) => async (
-	dispatch,
-	getState,
-	api
-) => {
-	const res = await api.get(
-		`/competitions/segments/${segmentId}/instance/${instanceId}/image/${imageType}`
-	);
+export const fetchInstanceImage = (segmentId, instanceId, imageType) => async (dispatch, getState, api) => {
+	const res = await api.get(`/competitions/segments/${segmentId}/instance/${instanceId}/image/${imageType}`);
 
 	if (res.data) {
 		return res.data;
 	}
 };
 
-export const postInstanceImage = (segmentId, instanceId, data) => async (
-	dispatch,
-	getState,
-	api
-) => {
-	const res = await api.post(
-		`/competitions/segments/${segmentId}/instance/${instanceId}/image/`,
-		data
-	);
+export const postInstanceImage = (segmentId, instanceId, data) => async (dispatch, getState, api) => {
+	const res = await api.post(`/competitions/segments/${segmentId}/instance/${instanceId}/image/`, data);
 
 	if (res.data) {
 		return res.data;
 	}
 };
 
-export const fetchLeagueTableData = (_competition, year, fromDate, toDate) => async (
-	dispatch,
-	getState,
-	api
-) => {
+export const fetchLeagueTableData = (_competition, year, fromDate, toDate) => async (dispatch, getState, api) => {
 	//Create root URL
 	let url = `/competitions/leagueTableData/${_competition}/${year}`;
 

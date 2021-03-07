@@ -40,16 +40,9 @@ class NewsPostCard extends Component {
 
 		return (
 			<div
-				className={`post-preview${isPublished ? "" : " unpublished"}${
-					hideImage ? " hide-image" : ""
-				}`}
+				className={`post-preview${isPublished ? "" : " unpublished"}${hideImage ? " hide-image" : ""}`}
 				style={{
-					backgroundImage: `url('${getHeaderImage(
-						post,
-						bucketPaths,
-						webp,
-						inArticle ? null : "card"
-					)}')`
+					backgroundImage: `url('${getHeaderImage(post, bucketPaths, webp, inArticle ? null : "card")}')`
 				}}
 			>
 				<div className="post-meta">

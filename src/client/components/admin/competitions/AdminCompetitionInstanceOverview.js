@@ -48,9 +48,7 @@ class AdminCompetitionInstanceOverview extends Component {
 
 		//Get Instance
 		if (!newState.isNew) {
-			newState.instance =
-				newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) ||
-				false;
+			newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 		}
 
 		//Create Validation Schema
@@ -192,11 +190,7 @@ class AdminCompetitionInstanceOverview extends Component {
 	}
 
 	render() {
-		const {
-			createCompetitionInstance,
-			updateCompetitionInstance,
-			deleteCompetitionInstance
-		} = this.props;
+		const { createCompetitionInstance, updateCompetitionInstance, deleteCompetitionInstance } = this.props;
 		const { instance, segment, isLoading, isNew, validationSchema } = this.state;
 
 		if (isLoading) {
@@ -208,8 +202,7 @@ class AdminCompetitionInstanceOverview extends Component {
 		if (isNew) {
 			formProps = {
 				onSubmit: values => createCompetitionInstance(segment._id, values),
-				redirectOnSubmit: id =>
-					`/admin/competitions/segments/${segment._id}/instances/${id}`
+				redirectOnSubmit: id => `/admin/competitions/segments/${segment._id}/instances/${id}`
 			};
 		} else {
 			formProps = {

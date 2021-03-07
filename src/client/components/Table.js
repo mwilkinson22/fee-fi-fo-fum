@@ -24,8 +24,7 @@ class Table extends Component {
 			newSortKey = { key, asc: !sortBy.asc };
 		} else {
 			//New sort
-			const asc =
-				column.defaultAscSort !== undefined ? column.defaultAscSort : defaultAscSort;
+			const asc = column.defaultAscSort !== undefined ? column.defaultAscSort : defaultAscSort;
 			newSortKey = { key, asc };
 		}
 
@@ -47,8 +46,7 @@ class Table extends Component {
 			<thead className={stickyHead ? "sticky" : ""}>
 				<tr>
 					{columns.map((column, i) => {
-						const isSortable =
-							column.sortable === undefined ? defaultSortable : column.sortable;
+						const isSortable = column.sortable === undefined ? defaultSortable : column.sortable;
 
 						const classNames = [
 							isSortable ? "sortable" : "",
@@ -62,10 +60,7 @@ class Table extends Component {
 							classNames.push("sorted");
 							useAscArrow = sortBy.asc;
 						} else {
-							useAscArrow =
-								column.defaultAscSort !== undefined
-									? column.defaultAscSort
-									: defaultAscSort;
+							useAscArrow = column.defaultAscSort !== undefined ? column.defaultAscSort : defaultAscSort;
 						}
 
 						//Skip in case of column span
@@ -77,15 +72,18 @@ class Table extends Component {
 							<th
 								key={column.key}
 								onClick={isSortable ? () => this.handleSort(column.key) : null}
-								className={classNames.filter(Boolean).join(" ").trim() || null}
+								className={
+									classNames
+										.filter(Boolean)
+										.join(" ")
+										.trim() || null
+								}
 								title={column.title || null}
 								style={headerStyling}
 								colSpan={i === 0 ? initialHeaderSpan : 1}
 							>
 								{column.label}
-								{isSortable ? (
-									<span className="sort-arrow">{useAscArrow ? "▴" : "▾"}</span>
-								) : null}
+								{isSortable ? <span className="sort-arrow">{useAscArrow ? "▴" : "▾"}</span> : null}
 							</th>
 						);
 					})}
@@ -157,7 +155,10 @@ class Table extends Component {
 								}
 
 								cellProps.className =
-									classNames.filter(Boolean).join(" ").trim() || null;
+									classNames
+										.filter(Boolean)
+										.join(" ")
+										.trim() || null;
 
 								//Handle missing values
 								if (data === undefined) {
@@ -168,16 +169,10 @@ class Table extends Component {
 									cellProps.onClick = data.onClick;
 									cellProps.children = data.content;
 									cellProps.title =
-										data.title ||
-										column.title ||
-										(labelAsDefaultTitle ? column.label : null);
+										data.title || column.title || (labelAsDefaultTitle ? column.label : null);
 								}
 
-								return column.dataUsesTh ? (
-									<th {...cellProps} />
-								) : (
-									<td {...cellProps} />
-								);
+								return column.dataUsesTh ? <th {...cellProps} /> : <td {...cellProps} />;
 							})}
 						</tr>
 					);
@@ -254,9 +249,7 @@ Table.propTypes = {
 			onClick: PropTypes.func
 		})
 	).isRequired,
-	foot: PropTypes.objectOf(
-		PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.node])
-	),
+	foot: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.node])),
 	defaultSortable: PropTypes.bool,
 	defaultAscSort: PropTypes.bool,
 	sortBy: PropTypes.shape({

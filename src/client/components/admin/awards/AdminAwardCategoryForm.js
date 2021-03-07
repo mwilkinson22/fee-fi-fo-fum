@@ -111,10 +111,7 @@ class AdminAwardCategories extends Component {
 				<FieldArray name="nominees" key="add-nominee">
 					{({ push }) => [
 						<div className="buttons" key="buttons">
-							<button
-								type="button"
-								onClick={() => push({ description: "", nominee: "" })}
-							>
+							<button type="button" onClick={() => push({ description: "", nominee: "" })}>
 								Add Nominee
 							</button>
 						</div>,
@@ -202,20 +199,11 @@ class AdminAwardCategories extends Component {
 						>
 							&#9660;
 						</button>
-						<button
-							type="button"
-							className="up"
-							disabled={i == 0}
-							onClick={() => move(i, i - 1)}
-						>
+						<button type="button" className="up" disabled={i == 0} onClick={() => move(i, i - 1)}>
 							&#9650;
 						</button>
 					</div>,
-					<DeleteButtons
-						key="delete"
-						onDelete={() => remove(i)}
-						deleteText="Remove Nominee"
-					/>
+					<DeleteButtons key="delete" onDelete={() => remove(i)} deleteText="Remove Nominee" />
 				]}
 			</FieldArray>,
 

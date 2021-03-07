@@ -1,10 +1,4 @@
-import {
-	DELETE_PERSON,
-	FETCH_PEOPLE_LIST,
-	FETCH_PERSON,
-	FETCH_PEOPLE,
-	ADD_PERSON_SLUG
-} from "./types";
+import { DELETE_PERSON, FETCH_PEOPLE_LIST, FETCH_PERSON, FETCH_PEOPLE, ADD_PERSON_SLUG } from "./types";
 import { toast } from "react-toastify";
 import _ from "lodash";
 

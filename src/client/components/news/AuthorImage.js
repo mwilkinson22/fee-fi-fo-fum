@@ -32,12 +32,7 @@ class AuthorImage extends Component {
 		}
 
 		return (
-			<img
-				src={src}
-				className={`author-image ${className}`}
-				alt={author.name.full}
-				title={author.name.full}
-			/>
+			<img src={src} className={`author-image ${className}`} alt={author.name.full} title={author.name.full} />
 		);
 	}
 }

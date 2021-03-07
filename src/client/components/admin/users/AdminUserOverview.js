@@ -32,10 +32,7 @@ class AdminUserOverview extends Component {
 		let rawValidationSchema = {
 			username: Yup.string()
 				.required()
-				.matches(
-					/^[a-zA-Z0-9_-]+$/,
-					"Login ID can only consist of letters, numbers, hyphens and underscores"
-				)
+				.matches(/^[a-zA-Z0-9_-]+$/, "Login ID can only consist of letters, numbers, hyphens and underscores")
 				.label("Login ID"),
 			name: Yup.object().shape({
 				first: Yup.string()

@@ -115,26 +115,10 @@ class AdminRouter extends Component {
 						<Route path="/admin/awards/:_id" component={AdminAwardPage} />
 						<Route path="/admin/awards" exact component={AdminAwardList} />
 
-						<Route
-							path="/admin/settings/branding/"
-							exact
-							component={AdminBrandingPage}
-						/>
-						<Route
-							path="/admin/settings/broadcasters/new"
-							exact
-							component={AdminBroadcasterPage}
-						/>
-						<Route
-							path="/admin/settings/broadcasters/:_id"
-							exact
-							component={AdminBroadcasterPage}
-						/>
-						<Route
-							path="/admin/settings/broadcasters"
-							exact
-							component={AdminBroadcasterList}
-						/>
+						<Route path="/admin/settings/branding/" exact component={AdminBrandingPage} />
+						<Route path="/admin/settings/broadcasters/new" exact component={AdminBroadcasterPage} />
+						<Route path="/admin/settings/broadcasters/:_id" exact component={AdminBroadcasterPage} />
+						<Route path="/admin/settings/broadcasters" exact component={AdminBroadcasterList} />
 
 						<Route path="/admin/cities/new" exact component={AdminCityPage} />
 						<Route path="/admin/cities/:_id" exact component={AdminCityPage} />
@@ -153,10 +137,7 @@ class AdminRouter extends Component {
 							exact
 							component={AdminCompetitionSegmentPage}
 						/>
-						<Route
-							path="/admin/competitions/segments/:_id"
-							component={AdminCompetitionSegmentPage}
-						/>
+						<Route path="/admin/competitions/segments/:_id" component={AdminCompetitionSegmentPage} />
 						<Route path="/admin/competitions/new" component={AdminCompetitionPage} />
 						<Route path="/admin/competitions/:_id" component={AdminCompetitionPage} />
 						<Route path="/admin/competitions" exact component={AdminCompetitionList} />
@@ -167,16 +148,8 @@ class AdminRouter extends Component {
 
 						<Route path="/admin/game/new" component={AdminGamePage} />
 						<Route path="/admin/game/:_id" component={AdminGamePage} />
-						<Route
-							path="/admin/games/fixture-list-image"
-							exact
-							component={AdminFixtureListImagePage}
-						/>
-						<Route
-							path="/admin/games/:year/:teamType"
-							exact
-							component={GameList.component}
-						/>
+						<Route path="/admin/games/fixture-list-image" exact component={AdminFixtureListImagePage} />
+						<Route path="/admin/games/:year/:teamType" exact component={GameList.component} />
 						<Route path="/admin/games/:year/" exact component={GameList.component} />
 						<Route path="/admin/games/" exact component={GameList.component} />
 
@@ -190,10 +163,7 @@ class AdminRouter extends Component {
 
 						<Route path="/admin/neutralGame/new" component={AdminNeutralGamePage} />
 						<Route path="/admin/neutralGame/:_id" component={AdminNeutralGamePage} />
-						<Route
-							path="/admin/neutralGames/:year/:teamType"
-							component={AdminNeutralGameList}
-						/>
+						<Route path="/admin/neutralGames/:year/:teamType" component={AdminNeutralGameList} />
 						<Route path="/admin/neutralGames/:year" component={AdminNeutralGameList} />
 						<Route path="/admin/neutralGames/" component={AdminNeutralGameList} />
 
@@ -201,73 +171,34 @@ class AdminRouter extends Component {
 						<Route path="/admin/people/:_id" component={AdminPersonPage} />
 						<Route path="/admin/people/" exact component={AdminPersonList} />
 
-						<Route
-							path="/admin/settings/privacy-policy"
-							exact
-							component={AdminPrivacyPolicy}
-						/>
+						<Route path="/admin/settings/privacy-policy" exact component={AdminPrivacyPolicy} />
 
 						<Route path="/admin/settings/errors" component={AdminErrorPage} />
 
-						<Route
-							path="/admin/settings/social/new"
-							exact
-							component={AdminSocialPage}
-						/>
-						<Route
-							path="/admin/settings/social/:_id"
-							exact
-							component={AdminSocialPage}
-						/>
+						<Route path="/admin/settings/social/new" exact component={AdminSocialPage} />
+						<Route path="/admin/settings/social/:_id" exact component={AdminSocialPage} />
 						<Route path="/admin/settings/social/" exact component={AdminSocialList} />
 
-						<Route
-							path="/admin/settings/facebook/"
-							exact
-							component={AdminFacebookAppPage}
-						/>
+						<Route path="/admin/settings/facebook/" exact component={AdminFacebookAppPage} />
 
-						<Route
-							path="/admin/settings/sponsors/new"
-							exact
-							component={AdminSponsorPage}
-						/>
-						<Route
-							path="/admin/settings/sponsors/:_id"
-							exact
-							component={AdminSponsorPage}
-						/>
-						<Route
-							path="/admin/settings/sponsors/"
-							exact
-							component={AdminSponsorList}
-						/>
+						<Route path="/admin/settings/sponsors/new" exact component={AdminSponsorPage} />
+						<Route path="/admin/settings/sponsors/:_id" exact component={AdminSponsorPage} />
+						<Route path="/admin/settings/sponsors/" exact component={AdminSponsorList} />
 
-						<Route
-							path="/admin/settings/twitter/"
-							exact
-							component={AdminTwitterAppPage}
-						/>
+						<Route path="/admin/settings/twitter/" exact component={AdminTwitterAppPage} />
 
 						<Route path="/admin/settings/users/new" component={AdminUserPage} />
 						<Route path="/admin/settings/users/:_id" component={AdminUserPage} />
 						<Route path="/admin/settings/users/" exact component={AdminUserList} />
 
-						<Route
-							path="/admin/social-thread"
-							exact
-							component={AdminBasicSocialThreadPage}
-						/>
+						<Route path="/admin/social-thread" exact component={AdminBasicSocialThreadPage} />
 
 						<Route path="/admin/teams/new" component={AdminTeamPage} />
 						<Route path="/admin/teams/:_id" component={AdminTeamPage} />
 						<Route path="/admin/teams/" exact component={AdminTeamList} />
 
 						<Route path="/admin/team-selectors/new" component={AdminTeamSelectorPage} />
-						<Route
-							path="/admin/team-selectors/:_id"
-							component={AdminTeamSelectorPage}
-						/>
+						<Route path="/admin/team-selectors/:_id" component={AdminTeamSelectorPage} />
 						<Route path="/admin/team-selectors/" component={AdminTeamSelectorList} />
 
 						<Route path="/admin/team-types/new" exact component={AdminTeamTypePage} />

@@ -15,11 +15,36 @@ class ImageBlock extends Component {
 		];
 	}
 
+	renderCaption() {
+		const { caption } = this.props.data;
+		if (caption) {
+			const { value, rightAlign, firstWordIsWhite, formatAsHeader } = caption;
+			let element;
+			if (formatAsHeader) {
+				let content = value;
+				if (firstWordIsWhite) {
+					const arr = value.split(" ");
+					const firstWord = arr.shift();
+					content = [<span key="first">{firstWord}</span>];
+					if (arr.length) {
+						content.push(<span key="rest"> {arr.join(" ")}</span>);
+					}
+				}
+				element = <h6>{content}</h6>;
+			} else {
+				element = <span>{value}</span>;
+			}
+
+			return <div className={`caption-wrapper${rightAlign ? " right-align" : ""}`}>{element}</div>;
+		}
+	}
+
 	render() {
 		const { bucketPaths } = this.props;
 		return (
 			<div className="custom-block image-wrapper">
 				<img src={`${bucketPaths.imageRoot}news/inline/${this.props.data.src}`} alt="" />
+				{this.renderCaption()}
 			</div>
 		);
 	}

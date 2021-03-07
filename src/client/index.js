@@ -58,11 +58,7 @@ axiosInstance.interceptors.response.use(
 );
 
 //Create a redux store
-const store = createStore(
-	reducers,
-	window.INITIAL_STATE,
-	applyMiddleware(thunk.withExtraArgument(axiosInstance))
-);
+const store = createStore(reducers, window.INITIAL_STATE, applyMiddleware(thunk.withExtraArgument(axiosInstance)));
 
 //Enable isomorphic JS
 hydrate(

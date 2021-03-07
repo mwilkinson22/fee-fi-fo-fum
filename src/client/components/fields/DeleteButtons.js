@@ -13,11 +13,7 @@ class DeleteButtons extends Component {
 		let buttons;
 		if (promptClicked) {
 			buttons = [
-				<button
-					type="button"
-					key="cancel"
-					onClick={() => this.setState({ promptClicked: false })}
-				>
+				<button type="button" key="cancel" onClick={() => this.setState({ promptClicked: false })}>
 					Cancel
 				</button>,
 				<button
@@ -34,11 +30,7 @@ class DeleteButtons extends Component {
 			];
 		} else {
 			buttons = (
-				<button
-					type="button"
-					className="delete"
-					onClick={() => this.setState({ promptClicked: true })}
-				>
+				<button type="button" className="delete" onClick={() => this.setState({ promptClicked: true })}>
 					{deleteText}
 				</button>
 			);

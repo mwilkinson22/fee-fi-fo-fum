@@ -57,9 +57,7 @@ export default class GameListSocialCard extends Canvas {
 	async drawBackground() {
 		const { cWidth, cHeight } = this;
 
-		const backgroundImage = await this.googleToCanvas(
-			"images/layout/canvas/gamelist-social-card-template.jpg"
-		);
+		const backgroundImage = await this.googleToCanvas("images/layout/canvas/gamelist-social-card-template.jpg");
 		this.cover(backgroundImage, 0, 0, cWidth, cHeight);
 	}
 
@@ -89,9 +87,7 @@ export default class GameListSocialCard extends Canvas {
 			//Load team images
 			for (let i = 0; i < this.games.length; i++) {
 				const imageName = this.games[i]._opposition.images.main;
-				this.games[i]._opposition.image = await this.googleToCanvas(
-					`images/teams/${imageName}`
-				);
+				this.games[i]._opposition.image = await this.googleToCanvas(`images/teams/${imageName}`);
 			}
 		}
 	}
@@ -155,16 +151,9 @@ export default class GameListSocialCard extends Canvas {
 			const infoX = badgeX + positions.fixtureBoxH;
 			if (game) {
 				//Add badge
-				this.contain(
-					game._opposition.image,
-					badgeX,
-					y,
-					positions.fixtureBoxH,
-					positions.fixtureBoxH,
-					{
-						zoom: badgeZoom
-					}
-				);
+				this.contain(game._opposition.image, badgeX, y, positions.fixtureBoxH, positions.fixtureBoxH, {
+					zoom: badgeZoom
+				});
 
 				//Get Header Text
 				let oppositionText;

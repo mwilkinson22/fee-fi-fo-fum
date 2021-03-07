@@ -93,10 +93,7 @@ class HeadToHeadStats extends Component {
 			}
 
 			//Get Colours
-			const statBarColours = _.map(
-				teams,
-				({ colours }) => colours.statBarColour || colours.main
-			);
+			const statBarColours = _.map(teams, ({ colours }) => colours.statBarColour || colours.main);
 
 			return [
 				<div className={`value${homeHighlight ? " highlighted" : ""}`} key="homeValue">

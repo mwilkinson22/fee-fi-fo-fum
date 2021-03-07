@@ -137,9 +137,7 @@ export default class SquadImage extends Canvas {
 					image = this.teamBadges[_id].dark;
 				} else {
 					//Otherwise, load either the light or main one
-					image = await this.googleToCanvas(
-						`images/teams/${images.light || images.main}`
-					);
+					image = await this.googleToCanvas(`images/teams/${images.light || images.main}`);
 				}
 				this.teamBadges[_id].light = image;
 			}
@@ -148,9 +146,7 @@ export default class SquadImage extends Canvas {
 
 	async drawBackground() {
 		const { ctx, cWidth, cHeight } = this;
-		const backgroundImage = await this.googleToCanvas(
-			"images/layout/canvas/squad-image-bg.jpg"
-		);
+		const backgroundImage = await this.googleToCanvas("images/layout/canvas/squad-image-bg.jpg");
 		ctx.drawImage(backgroundImage, 0, 0, cWidth, cHeight);
 	}
 
@@ -206,13 +202,7 @@ export default class SquadImage extends Canvas {
 		}
 
 		if (mainIcon) {
-			this.contain(
-				mainIcon,
-				sideBarIconX,
-				sideBarGameIconY,
-				sideBarIconWidth,
-				sideBarGameIconHeight
-			);
+			this.contain(mainIcon, sideBarIconX, sideBarGameIconY, sideBarIconWidth, sideBarGameIconHeight);
 		}
 
 		//Text Banners
@@ -257,10 +247,7 @@ export default class SquadImage extends Canvas {
 			}
 
 			//Standard Text
-			bannerText.push(
-				[{ text: "Created On" }],
-				[{ text: options.siteUrl.replace(/^www./, ""), colour: "#FC0" }]
-			);
+			bannerText.push([{ text: "Created On" }], [{ text: options.siteUrl.replace(/^www./, ""), colour: "#FC0" }]);
 
 			//Add a twitter handle if we're a row short
 			if (bannerText.length < 4) {
@@ -298,13 +285,7 @@ export default class SquadImage extends Canvas {
 					);
 				});
 			} else {
-				this.contain(
-					teamBadges[localTeam].dark,
-					sideBarIconX,
-					teamBadgeY,
-					sideBarIconWidth,
-					teamIconHeight
-				);
+				this.contain(teamBadges[localTeam].dark, sideBarIconX, teamBadgeY, sideBarIconWidth, teamIconHeight);
 			}
 		}
 
@@ -339,8 +320,7 @@ export default class SquadImage extends Canvas {
 		_.each(this.squad, p => {
 			if (_.find(duplicates, id => id == p._id)) {
 				const { squadNameWhenDuplicate, name } = p;
-				p.displayName =
-					squadNameWhenDuplicate || `${name.first.substr(0, 1)}. ${name.last}`;
+				p.displayName = squadNameWhenDuplicate || `${name.first.substr(0, 1)}. ${name.last}`;
 			}
 
 			p.displayName = p.displayName.toUpperCase();
@@ -376,12 +356,9 @@ export default class SquadImage extends Canvas {
 				.filter(_.identity)
 				.value();
 
-			this.textBuilder(
-				interchangeList,
-				positions.sideBarWidth * 0.5,
-				Math.round(cHeight * 0.74),
-				{ lineHeight: 1.8 }
-			);
+			this.textBuilder(interchangeList, positions.sideBarWidth * 0.5, Math.round(cHeight * 0.74), {
+				lineHeight: 1.8
+			});
 		}
 	}
 
@@ -423,9 +400,7 @@ export default class SquadImage extends Canvas {
 
 		//Get Box Sizes
 		ctx.font = textStyles.playerNameBar.string;
-		const { width: nameWidth, actualBoundingBoxAscent: nameHeight } = ctx.measureText(
-			displayName
-		);
+		const { width: nameWidth, actualBoundingBoxAscent: nameHeight } = ctx.measureText(displayName);
 
 		//Set the name box width, plus half the number width as padding
 		let nameBoxWidth = Math.max(nameWidth, playerWidth) + playerNameBarNumberWidth / 2;
@@ -453,13 +428,7 @@ export default class SquadImage extends Canvas {
 		ctx.shadowBlur = 10;
 		ctx.shadowColor = "#000000AA";
 		ctx.shadowOffsetY = 10;
-		this.fillRoundedRect(
-			numberBoxX,
-			boxY,
-			totalBoxWidth,
-			playerNameBarHeight,
-			playerNameBarRadius
-		);
+		this.fillRoundedRect(numberBoxX, boxY, totalBoxWidth, playerNameBarHeight, playerNameBarRadius);
 
 		this.resetShadow();
 
@@ -470,17 +439,10 @@ export default class SquadImage extends Canvas {
 			} else {
 				ctx.fillStyle = colours.claret;
 			}
-			this.fillRoundedRect(
-				numberBoxX,
-				boxY,
-				playerNameBarNumberWidth,
-				playerNameBarHeight,
-				playerNameBarRadius,
-				{
-					topRight: 0,
-					bottomRight: 0
-				}
-			);
+			this.fillRoundedRect(numberBoxX, boxY, playerNameBarNumberWidth, playerNameBarHeight, playerNameBarRadius, {
+				topRight: 0,
+				bottomRight: 0
+			});
 
 			//Add Number
 			if (options.showOpposition) {
@@ -498,14 +460,7 @@ export default class SquadImage extends Canvas {
 		} else {
 			ctx.fillStyle = "#F4F4F4";
 		}
-		this.fillRoundedRect(
-			nameBoxX,
-			boxY,
-			nameBoxWidth,
-			playerNameBarHeight,
-			playerNameBarRadius,
-			nameBoxRounding
-		);
+		this.fillRoundedRect(nameBoxX, boxY, nameBoxWidth, playerNameBarHeight, playerNameBarRadius, nameBoxRounding);
 
 		//Add Name
 		if (options.showOpposition) {

@@ -40,9 +40,7 @@ export default class PersonCard extends Component {
 						const positions = person.playingPositions.map(pos => (
 							<span key={pos}>{playerPositions[pos].name}</span>
 						));
-						this.additionalData = (
-							<div className="additional-data positions">{positions}</div>
-						);
+						this.additionalData = <div className="additional-data positions">{positions}</div>;
 					}
 					break;
 				default:

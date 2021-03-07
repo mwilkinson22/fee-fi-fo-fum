@@ -1,11 +1,4 @@
-import {
-	FETCH_USER,
-	FETCH_USERS,
-	FETCH_CURRENT_USER,
-	LOGOUT,
-	DELETE_USER,
-	TRANSFER_SITE_OWNER
-} from "./types";
+import { FETCH_USER, FETCH_USERS, FETCH_CURRENT_USER, LOGOUT, DELETE_USER, TRANSFER_SITE_OWNER } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchCurrentUser = () => async (dispatch, getState, api) => {

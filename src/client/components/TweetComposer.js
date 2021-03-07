@@ -51,11 +51,7 @@ class TweetComposer extends Component {
 			);
 		});
 
-		if (
-			newState.formattedContent[newState.formattedContent.length - 1].props.children.slice(
-				-1
-			) === "\n"
-		) {
+		if (newState.formattedContent[newState.formattedContent.length - 1].props.children.slice(-1) === "\n") {
 			newState.formattedContent.push("\n");
 		}
 
@@ -102,9 +98,7 @@ class TweetComposer extends Component {
 			const start = textArea.selectionStart;
 			const end = textArea.selectionEnd;
 			newTextContent =
-				textContent.substring(0, start) +
-				string +
-				textContent.substring(end, this.state.textContent.length);
+				textContent.substring(0, start) + string + textContent.substring(end, this.state.textContent.length);
 		} else {
 			newTextContent = textArea.value += string;
 		}
@@ -196,9 +190,7 @@ TweetComposer.propTypes = {
 	initialContent: PropTypes.string,
 	textContent: PropTypes.string,
 	caretPoint: PropTypes.number,
-	variables: PropTypes.arrayOf(
-		PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
-	),
+	variables: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })),
 	variableInstruction: PropTypes.string,
 	includeButton: PropTypes.bool,
 	onChange: PropTypes.func,

@@ -14,7 +14,7 @@ export default class MinMax extends Canvas {
 		//This doesn't really matter as we'll be
 		//resizing once we have teams
 		const cWidth = 800;
-		const cHeight = cWidth;
+		const cHeight = 800;
 
 		//Load In Fonts
 		const fonts = [
@@ -104,8 +104,7 @@ export default class MinMax extends Canvas {
 		if (lowestRankedTopTeam) {
 			this.thresholds.minimumPointsForTop = lowestRankedTopTeam.Pts;
 			const rowsToSkip = this.thresholds.maxPts - this.thresholds.minimumPointsForTop;
-			this.positions.minimumPointsForTopY =
-				this.positions.topOfRows + (rowsToSkip + 1) * positions.rowHeight;
+			this.positions.minimumPointsForTopY = this.positions.topOfRows + (rowsToSkip + 1) * positions.rowHeight;
 		}
 
 		//Work out how many points to be guaranteed top
@@ -113,8 +112,7 @@ export default class MinMax extends Canvas {
 		if (highestRankedNotTopTeam) {
 			this.thresholds.pointsForGuaranteedTop = highestRankedNotTopTeam.maxPts + 1;
 			const rowsToFill = this.thresholds.maxPts - this.thresholds.pointsForGuaranteedTop + 1;
-			this.positions.pointsForGuaranteedTopH =
-				this.positions.topOfRows + rowsToFill * positions.rowHeight - 2;
+			this.positions.pointsForGuaranteedTopH = this.positions.topOfRows + rowsToFill * positions.rowHeight - 2;
 		}
 	}
 
@@ -163,12 +161,7 @@ export default class MinMax extends Canvas {
 
 			//Line
 			ctx.strokeStyle = "#090";
-			this.drawLine(
-				0,
-				positions.pointsForGuaranteedTopH,
-				cWidth,
-				positions.pointsForGuaranteedTopH
-			);
+			this.drawLine(0, positions.pointsForGuaranteedTopH, cWidth, positions.pointsForGuaranteedTopH);
 
 			//Text
 			ctx.fillStyle = "#000000";
@@ -205,9 +198,7 @@ export default class MinMax extends Canvas {
 				],
 				[
 					{
-						text: `Minimum/Maximum Points By Team (as of ${new Date().toString(
-							"dS MMMM"
-						)})`,
+						text: `Minimum/Maximum Points By Team (as of ${new Date().toString("dS MMMM")})`,
 						font: textStyles.subheader.string,
 						maxWidth
 					}
@@ -302,28 +293,15 @@ export default class MinMax extends Canvas {
 			if (column.Pts < column.maxPts) {
 				//Add min points
 				ctx.fillStyle = team.colours.trim1;
-				ctx.fillRect(
-					x,
-					y + h - positions.rowHeight,
-					positions.columnWidth,
-					positions.rowHeight
-				);
+				ctx.fillRect(x, y + h - positions.rowHeight, positions.columnWidth, positions.rowHeight);
 				ctx.fillStyle = team.colours.main;
-				ctx.fillText(
-					column.Pts,
-					x + positions.columnWidth / 2,
-					y + h - positions.rowHeight * 0.25
-				);
+				ctx.fillText(column.Pts, x + positions.columnWidth / 2, y + h - positions.rowHeight * 0.25);
 
 				//Add max points
 				ctx.fillStyle = team.colours.trim1;
 				ctx.fillRect(x, y, positions.columnWidth, positions.rowHeight);
 				ctx.fillStyle = team.colours.main;
-				ctx.fillText(
-					column.maxPts,
-					x + positions.columnWidth / 2,
-					y + positions.rowHeight * 0.75
-				);
+				ctx.fillText(column.maxPts, x + positions.columnWidth / 2, y + positions.rowHeight * 0.75);
 			}
 
 			//Add outline
@@ -350,13 +328,11 @@ export default class MinMax extends Canvas {
 
 		//Set Canvas Width
 		this.canvas.width = this.cWidth =
-			(positions.columnWidth + positions.columnPadding) *
-				(this.tableData.rowData.length + 1) +
+			(positions.columnWidth + positions.columnPadding) * (this.tableData.rowData.length + 1) +
 			positions.labelWidth;
 		//Set Canvas Height
 		this.canvas.height = this.cHeight =
-			positions.rowHeight * (this.thresholds.maxPts - this.thresholds.minPts + 2) +
-			positions.headerHeight;
+			positions.rowHeight * (this.thresholds.maxPts - this.thresholds.minPts + 2) + positions.headerHeight;
 
 		this.drawBackground();
 		await this.drawHeader();

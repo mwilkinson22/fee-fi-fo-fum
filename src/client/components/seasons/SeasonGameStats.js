@@ -57,21 +57,12 @@ class SeasonGameStats extends Component {
 				//Get separate local and team stats
 				.map(g => {
 					//Grab only the necessary properties
-					const game = _.pick(g, [
-						"_id",
-						"date",
-						"_opposition",
-						"title",
-						"slug",
-						"playerStats"
-					]);
+					const game = _.pick(g, ["_id", "date", "_opposition", "title", "slug", "playerStats"]);
 
 					//Group the stats by local and opposition
 					game.stats = _.chain(game.playerStats)
 						.groupBy(({ _team }) => (_team === localTeam ? "local" : "opposition"))
-						.mapValues(playerStatArray =>
-							getTotalsAndAverages(playerStatArray.map(s => s.stats))
-						)
+						.mapValues(playerStatArray => getTotalsAndAverages(playerStatArray.map(s => s.stats)))
 						.value();
 
 					return game;
@@ -150,8 +141,7 @@ class SeasonGameStats extends Component {
 			};
 
 			//Grab either the total or best for each stat
-			const totalOrBest =
-				totalOrIndividual === options.totalOrIndividual.Total ? "total" : "best";
+			const totalOrBest = totalOrIndividual === options.totalOrIndividual.Total ? "total" : "best";
 			const aggregateStats = _.mapValues(game.stats, statCollection => {
 				return _.mapValues(statCollection, s => s[totalOrBest]);
 			});
@@ -201,25 +191,19 @@ class SeasonGameStats extends Component {
 				const metresFound = game.playerStats.filter(p => p.stats.M).length;
 				if (metresFound) {
 					customStatTypes.M100 = "Made 100m";
-					statsToProcess.M100 = game.playerStats.filter(
-						p => p.stats.M && p.stats.M >= 100
-					);
+					statsToProcess.M100 = game.playerStats.filter(p => p.stats.M && p.stats.M >= 100);
 				}
 
 				//Check for tackles & tackle success
 				const tacklesFound = game.playerStats.filter(p => p.stats.TK).length;
 				if (tacklesFound) {
 					customStatTypes.TK30 = "Made 30 Tackles";
-					statsToProcess.TK30 = game.playerStats.filter(
-						p => p.stats.TK & (p.stats.TK >= 30)
-					);
+					statsToProcess.TK30 = game.playerStats.filter(p => p.stats.TK & (p.stats.TK >= 30));
 
 					customStatTypes.TS95 = "Had a 95% Tackle Rate (min. 20 tackles)";
 					statsToProcess.TS95 = game.playerStats.filter(p => {
 						const processedStats = calculateAdditionalStats(p.stats);
-						return (
-							processedStats.TS > 95 && processedStats.TK + processedStats.MI >= 20
-						);
+						return processedStats.TS > 95 && processedStats.TK + processedStats.MI >= 20;
 					});
 				}
 

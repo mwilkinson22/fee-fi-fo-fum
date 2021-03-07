@@ -46,21 +46,30 @@ class NewsPostPage extends Component {
 		let isLoadingPost = false;
 		if (slugMap[slug] === undefined) {
 			fetchNewsPostBySlug(slug);
-			isLoadingPost = true;
+			isLoadingPost = slug;
 		}
 
 		this.state = { isLoadingPost };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fullPosts, fullGames, match, fetchGames, slugMap } = nextProps;
+		const { fetchNewsPostBySlug, fullPosts, fullGames, match, fetchGames, slugMap } = nextProps;
 		const { slug } = match.params;
 		const newState = {};
 
-		//Await the post
-		if (slugMap[slug] === undefined) {
+		//If we have no slugMap value, and isLoadingPost is set to the current slug, then we return null as we're still waiting
+		if (slugMap[slug] === undefined && prevState.isLoadingPost === slug) {
 			return null;
 		}
+
+		//Otherwise if we have no slugMap value, then the page has changed and we need to fetch a new post
+		if (slugMap[slug] === undefined) {
+			fetchNewsPostBySlug(slug);
+			newState.isLoadingPost = slug;
+			return newState;
+		}
+
+		//Otherwise, we either have a 404 or a post loaded
 		newState.isLoadingPost = false;
 
 		//404 if we have no id
@@ -77,13 +86,8 @@ class NewsPostPage extends Component {
 		const { blocks } = JSON.parse(newState.post.content);
 
 		//We do the regex to ensure punctuation at the end of each line
-		newState.post.preview = blocks
-			.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : "."))
-			.join(" \n");
-		newState.post.editorState = editorStateFromRaw(
-			JSON.parse(newState.post.content),
-			newsDecorators
-		);
+		newState.post.preview = blocks.map(({ text }) => text + (text.trim().match(/[.!?:]$/) ? "" : ".")).join(" \n");
+		newState.post.editorState = editorStateFromRaw(JSON.parse(newState.post.content), newsDecorators);
 
 		//Get game, if necessary
 		if (newState.post._game) {
@@ -121,13 +125,7 @@ class NewsPostPage extends Component {
 		if (recentPosts && recentPosts.length) {
 			return recentPosts.map(recentPost => {
 				if (recentPost.slug !== post.slug) {
-					return (
-						<NewsPostCard
-							post={recentPost}
-							includeContent={false}
-							key={recentPost.slug}
-						/>
-					);
+					return <NewsPostCard post={recentPost} includeContent={false} key={recentPost.slug} />;
 				} else {
 					return null;
 				}
@@ -250,11 +248,7 @@ class NewsPostPage extends Component {
 			authorDetails = (
 				<div className="author-details">
 					{authorName}
-					<a
-						href={`https://www.twitter.com/${author.twitter}`}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
+					<a href={`https://www.twitter.com/${author.twitter}`} target="_blank" rel="noopener noreferrer">
 						@{author.twitter}
 					</a>
 				</div>
@@ -286,11 +280,7 @@ class NewsPostPage extends Component {
 								<FacebookShareButton url={this.getUrl()}>
 									<FacebookIcon {...shareIconProps} />
 								</FacebookShareButton>
-								<TwitterShareButton
-									url={this.getUrl()}
-									title={post.title}
-									via={social_account}
-								>
+								<TwitterShareButton url={this.getUrl()} title={post.title} via={social_account}>
 									<TwitterIcon {...shareIconProps} />
 								</TwitterShareButton>
 								<RedditShareButton url={this.getUrl()} title={post.title}>
@@ -299,10 +289,7 @@ class NewsPostPage extends Component {
 								<WhatsappShareButton url={this.getUrl()} title={post.title}>
 									<WhatsappIcon {...shareIconProps} />
 								</WhatsappShareButton>
-								<EmailShareButton
-									url={this.getUrl()}
-									subject={`${site_name} - ${post.title}`}
-								>
+								<EmailShareButton url={this.getUrl()} subject={`${site_name} - ${post.title}`}>
 									<EmailIcon {...shareIconProps} />
 								</EmailShareButton>
 							</div>
@@ -336,14 +323,14 @@ class NewsPostPage extends Component {
 		const { bucketPaths, facebookApp, match } = this.props;
 		const { isLoadingList, isLoadingPost, isLoadingGame, post } = this.state;
 
-		//Redirect old slugs
-		if (post && post.slug !== match.params.slug) {
-			return <Redirect to={`/news/post/${post.slug}`} />;
-		}
-
 		//Wait for all content
 		if (isLoadingList || isLoadingPost || isLoadingGame) {
 			return <LoadingPage />;
+		}
+
+		//Redirect old slugs
+		if (post && post.slug !== match.params.slug) {
+			return <Redirect to={`/news/post/${post.slug}`} />;
 		}
 
 		//404

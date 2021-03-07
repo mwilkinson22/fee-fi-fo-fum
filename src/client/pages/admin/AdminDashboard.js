@@ -34,9 +34,7 @@ class AdminDashboard extends Component {
 		//Get dashboard data from server
 		//Check "window" to prevent calling twice from SSR
 		if (typeof window != "undefined") {
-			fetchAdminDashboardData().then(data =>
-				this.setState({ ...data, extraDataLoaded: true })
-			);
+			fetchAdminDashboardData().then(data => this.setState({ ...data, extraDataLoaded: true }));
 		}
 	}
 
@@ -57,13 +55,7 @@ class AdminDashboard extends Component {
 
 	render() {
 		const { neutralGames, teamList, teamTypes } = this.props;
-		const {
-			birthdays,
-			gamesWithIssues,
-			isLoading,
-			missingPlayerDetails,
-			teamsWithoutGrounds
-		} = this.state;
+		const { birthdays, gamesWithIssues, isLoading, missingPlayerDetails, teamsWithoutGrounds } = this.state;
 
 		//Await dependencies
 		if (isLoading) {

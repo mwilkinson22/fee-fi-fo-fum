@@ -105,9 +105,7 @@ class AdminGameSquads extends Component {
 							<button
 								type="button"
 								className={game.squadsAnnounced ? "delete" : "confirm"}
-								onClick={() =>
-									this.props.markSquadAsAnnounced(game._id, !game.squadsAnnounced)
-								}
+								onClick={() => this.props.markSquadAsAnnounced(game._id, !game.squadsAnnounced)}
 							>
 								Mark squads as {game.squadsAnnounced ? "unannounced" : "announced"}
 							</button>

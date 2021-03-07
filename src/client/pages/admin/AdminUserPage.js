@@ -94,11 +94,7 @@ class AdminTeamTypePage extends Component {
 						path="/admin/settings/users/:_id/password"
 						render={() => <AdminUserPasswordChange user={user} />}
 					/>
-					<Route
-						path="/admin/settings/users/:_id/"
-						exact
-						render={() => <AdminUserOverview user={user} />}
-					/>
+					<Route path="/admin/settings/users/:_id/" exact render={() => <AdminUserOverview user={user} />} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</ErrorBoundary>

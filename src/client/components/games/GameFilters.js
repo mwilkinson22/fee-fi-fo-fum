@@ -70,9 +70,7 @@ class GameFilters extends Component {
 			};
 
 			activeFilters = {
-				_competition: filters._competition.options.filter(o =>
-					friendliesByDefault ? false : !o.isFriendly
-				),
+				_competition: filters._competition.options.filter(o => (friendliesByDefault ? false : !o.isFriendly)),
 				_opposition: [],
 				venue: allOption
 			};
@@ -126,10 +124,7 @@ class GameFilters extends Component {
 			return isValid;
 		});
 
-		if (
-			!prevState.filteredGames ||
-			_.xorBy(newState.filteredGames, prevState.filteredGames, "_id").length
-		) {
+		if (!prevState.filteredGames || _.xorBy(newState.filteredGames, prevState.filteredGames, "_id").length) {
 			onFilterChange(newState.filteredGames);
 		}
 
@@ -159,12 +154,7 @@ class GameFilters extends Component {
 			case "fromDate":
 			case "toDate":
 				classNames.push("date");
-				input = (
-					<input
-						type="date"
-						onChange={ev => this.updateActiveFilters(key, ev.target.value)}
-					/>
-				);
+				input = <input type="date" onChange={ev => this.updateActiveFilters(key, ev.target.value)} />;
 				break;
 			default:
 				input = (

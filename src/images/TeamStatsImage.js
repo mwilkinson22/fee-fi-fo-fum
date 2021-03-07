@@ -73,9 +73,7 @@ export default class TeamStatsImage extends Canvas {
 
 		//Get team images. The background colour should correspond
 		//to the local team, so we can just use the main image
-		localTeamObject.badge = await this.googleToCanvas(
-			`images/teams/${localTeamObject.images.main}`
-		);
+		localTeamObject.badge = await this.googleToCanvas(`images/teams/${localTeamObject.images.main}`);
 		_opposition.badge = await this.googleToCanvas(
 			`images/teams/${_opposition.images.light || _opposition.images.main}`
 		);
@@ -111,9 +109,7 @@ export default class TeamStatsImage extends Canvas {
 			.groupBy("_team")
 			.mapValues(obj => {
 				const stats = _.map(obj, "stats");
-				const summedStats = _.fromPairs(
-					Object.keys(playerStatTypes).map(key => [key, _.sumBy(stats, key)])
-				);
+				const summedStats = _.fromPairs(Object.keys(playerStatTypes).map(key => [key, _.sumBy(stats, key)]));
 				return calculateAdditionalStats(summedStats);
 			})
 			.value();

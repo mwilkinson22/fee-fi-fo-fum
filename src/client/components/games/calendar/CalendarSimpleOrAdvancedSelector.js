@@ -8,9 +8,8 @@ function CalendarSimpleOrAdvancedSelector({ localTeam, fullTeams, onNext }) {
 		<div>
 			<p>
 				<p className="full-span">
-					Use the form below to generate a custom link you can add to your personal
-					calendar, keeping you permanently up to date with all upcoming{" "}
-					{fullTeams[localTeam].nickname} fixtures.
+					Use the form below to generate a custom link you can add to your personal calendar, keeping you
+					permanently up to date with all upcoming {fullTeams[localTeam].nickname} fixtures.
 				</p>
 			</p>
 			<div className="basic-or-custom-wrapper">

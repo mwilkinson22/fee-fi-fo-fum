@@ -11,10 +11,7 @@ import {
 
 import { fixDates } from "~/helpers/newsHelper";
 
-export default function(
-	state = { fullPosts: {}, postList: {}, slugMap: {}, fullPostListLoaded: false },
-	action
-) {
+export default function (state = { fullPosts: {}, postList: {}, slugMap: {}, fullPostListLoaded: false }, action) {
 	switch (action.type) {
 		case FETCH_POST_LIST:
 			return {
@@ -86,13 +83,6 @@ export default function(
 		case CLEAR_POST_PAGINATION: {
 			return {
 				...state,
-				fullPosts: {
-					...state.fullPosts,
-					...fixDates(action.payload.fullPosts)
-				},
-				postList: {
-					...fixDates(action.payload.postList)
-				},
 				pageCount: undefined,
 				pages: undefined
 			};

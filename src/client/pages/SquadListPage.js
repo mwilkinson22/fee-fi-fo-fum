@@ -48,9 +48,7 @@ class SquadListPage extends Component {
 			.value();
 
 		//Get Active Year
-		newState.year = newState.years.includes(Number(match.params.year))
-			? match.params.year
-			: newState.years[0];
+		newState.year = newState.years.includes(Number(match.params.year)) ? match.params.year : newState.years[0];
 
 		//Get TeamTypes
 		newState.teamTypes = _.chain(team.squads)
@@ -60,10 +58,7 @@ class SquadListPage extends Component {
 			.value();
 
 		//Get Active TeamType
-		const filteredTeamType = _.find(
-			newState.teamTypes,
-			teamType => teamType.slug == match.params.teamType
-		);
+		const filteredTeamType = _.find(newState.teamTypes, teamType => teamType.slug == match.params.teamType);
 		newState.teamType = filteredTeamType ? filteredTeamType._id : newState.teamTypes[0]._id;
 
 		//Get Players
@@ -85,10 +80,7 @@ class SquadListPage extends Component {
 		if (team.coaches) {
 			const coaches = _.chain(team.coaches)
 				.filter(c => c._teamType == newState.teamType)
-				.orderBy(
-					[({ role }) => coachTypes.findIndex(({ key }) => role == key), "from"],
-					["asc", "asc"]
-				)
+				.orderBy([({ role }) => coachTypes.findIndex(({ key }) => role == key), "from"], ["asc", "asc"])
 				.value();
 			if (currentYear == newState.year) {
 				//Just get currently active
@@ -167,12 +159,7 @@ class SquadListPage extends Component {
 		if (coaches && coaches.length) {
 			coachCards = coaches.map(coach => {
 				return (
-					<PersonCard
-						person={coach._person}
-						personType="coach"
-						key={coach._id}
-						coachingRole={coach.role}
-					/>
+					<PersonCard person={coach._person} personType="coach" key={coach._id} coachingRole={coach.role} />
 				);
 			});
 		}

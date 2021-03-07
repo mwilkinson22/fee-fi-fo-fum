@@ -107,9 +107,7 @@ export function getTotalsAndAverages(arrayOfStats, customStatTypes = []) {
 			return Object.keys(fullStatCollection);
 		})
 	);
-	const statKeysToProcess = _.uniq(allFoundStatKeys).filter(key =>
-		resolveStatObject(key, customStatTypes)
-	);
+	const statKeysToProcess = _.uniq(allFoundStatKeys).filter(key => resolveStatObject(key, customStatTypes));
 
 	//Loop through these keys and get the aggregate values for each one
 	//Return as a pair

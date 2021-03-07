@@ -71,10 +71,7 @@ class AdminCompetitionSegmentList extends Component {
 		return (
 			<section className="list">
 				<div className="container">
-					<Link
-						to={`/admin/competitions/segments/new/${match.params._id}`}
-						className={`card nav-card`}
-					>
+					<Link to={`/admin/competitions/segments/new/${match.params._id}`} className={`card nav-card`}>
 						Create New Segment
 					</Link>
 					{this.renderList()}

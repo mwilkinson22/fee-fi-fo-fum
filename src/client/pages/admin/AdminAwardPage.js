@@ -57,9 +57,7 @@ class AdminAwardPage extends Component {
 				{ label: "Voting", slug: "voting" }
 			];
 
-			return (
-				<SubMenu items={submenuItems} rootUrl={`/admin/awards/${award._id}/`} key="menu" />
-			);
+			return <SubMenu items={submenuItems} rootUrl={`/admin/awards/${award._id}/`} key="menu" />;
 		}
 	}
 
@@ -84,14 +82,8 @@ class AdminAwardPage extends Component {
 					<HelmetBuilder title={this.getTitle()} />
 					<Switch>
 						<Route path="/admin/awards/:_id/voting/" component={AdminAwardVotes} />
-						<Route
-							path="/admin/awards/:_id/categories/:categoryId"
-							component={AdminAwardCategories}
-						/>
-						<Route
-							path="/admin/awards/:_id/categories"
-							component={AdminAwardCategories}
-						/>
+						<Route path="/admin/awards/:_id/categories/:categoryId" component={AdminAwardCategories} />
+						<Route path="/admin/awards/:_id/categories" component={AdminAwardCategories} />
 						<Route path="/admin/awards/:_id" exact component={AdminAwardOverview} />
 						<Route path="/" component={NotFoundPage} />
 					</Switch>

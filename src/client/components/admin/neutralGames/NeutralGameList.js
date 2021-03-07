@@ -104,14 +104,8 @@ class NeutralGameList extends Component {
 										case "_awayTeam":
 											result = (
 												<div>
-													<TeamImage
-														team={teamList[game[key]]}
-														variant="dark"
-														size="small"
-													/>
-													<span className="team-name">
-														{teamList[game[key]].name.short}
-													</span>
+													<TeamImage team={teamList[game[key]]} variant="dark" size="small" />
+													<span className="team-name">{teamList[game[key]].name.short}</span>
 												</div>
 											);
 											break;
@@ -157,9 +151,7 @@ class NeutralGameList extends Component {
 
 						deleteText += gamesToDelete + gamesToSave === 1 ? "Game" : "Games";
 
-						buttons = (
-							<DeleteButtons deleteText={deleteText} onDelete={() => submitForm()} />
-						);
+						buttons = <DeleteButtons deleteText={deleteText} onDelete={() => submitForm()} />;
 					} else {
 						buttons = (
 							<div className="buttons">

@@ -124,9 +124,7 @@ class FanPotmVoting extends Component {
 			return (
 				<div
 					key={id}
-					className={`player${id == selectedPlayer ? " active" : ""} ${
-						votingClosed ? "disabled" : ""
-					}`}
+					className={`player${id == selectedPlayer ? " active" : ""} ${votingClosed ? "disabled" : ""}`}
 					onClick={() => {
 						if (!votingClosed) {
 							this.setState({ selectedPlayer: id, postSubmitMessage: null });
@@ -153,13 +151,7 @@ class FanPotmVoting extends Component {
 	}
 
 	renderSubmitButton() {
-		const {
-			isSubmitting,
-			postSubmitMessage,
-			selectedPlayer,
-			userSavedVote,
-			votingClosed
-		} = this.state;
+		const { isSubmitting, postSubmitMessage, selectedPlayer, userSavedVote, votingClosed } = this.state;
 
 		if (!votingClosed) {
 			//If we have a postSubmitMessage, display it as an unclickable button

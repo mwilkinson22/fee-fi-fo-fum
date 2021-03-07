@@ -27,10 +27,7 @@ export default function(state = { leagueTableData: {} }, action) {
 			};
 
 		case DELETE_COMPETITION: {
-			const {
-				[action.payload]: oldCompetitionId,
-				...competitionList
-			} = state.competitionList;
+			const { [action.payload]: oldCompetitionId, ...competitionList } = state.competitionList;
 			return {
 				...state,
 				competitionList
@@ -53,10 +50,7 @@ export default function(state = { leagueTableData: {} }, action) {
 			};
 
 		case DELETE_COMPETITION_SEGMENT: {
-			const {
-				[action.payload]: oldSegmentId,
-				...competitionSegmentList
-			} = state.competitionSegmentList;
+			const { [action.payload]: oldSegmentId, ...competitionSegmentList } = state.competitionSegmentList;
 			return {
 				...state,
 				competitionSegmentList

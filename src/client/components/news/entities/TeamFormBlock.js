@@ -24,19 +24,11 @@ function TeamFormBlock(props) {
 		if (formType === "head-to-head") {
 			return <TeamFormHeadToHead allCompetitions={allCompetitions} game={game} />;
 		} else {
-			return (
-				<TeamFormPerTeam
-					allCompetitions={allCompetitions}
-					game={game}
-					includeHeader={false}
-				/>
-			);
+			return <TeamFormPerTeam allCompetitions={allCompetitions} game={game} includeHeader={false} />;
 		}
 	} else {
 		const formName = formType === "head-to-head" ? "Head To Head" : "Team";
-		return (
-			<div className="custom-block placeholder">{formName} Form will be displayed here</div>
-		);
+		return <div className="custom-block placeholder">{formName} Form will be displayed here</div>;
 	}
 }
 

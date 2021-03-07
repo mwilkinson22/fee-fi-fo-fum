@@ -1,10 +1,4 @@
-import {
-	FETCH_CURRENT_USER,
-	GET_CORE_CONFIG,
-	LOGOUT,
-	TRANSFER_SITE_OWNER,
-	GET_SETTINGS
-} from "../actions/types";
+import { FETCH_CURRENT_USER, GET_CORE_CONFIG, LOGOUT, TRANSFER_SITE_OWNER, GET_SETTINGS } from "../actions/types";
 
 export default function(state = {}, action) {
 	switch (action.type) {

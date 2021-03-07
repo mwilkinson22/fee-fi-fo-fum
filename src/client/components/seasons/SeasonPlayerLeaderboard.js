@@ -48,10 +48,7 @@ class SeasonPlayerLeaderboard extends Component {
 				//Order Remaining Entries
 				.orderBy(
 					["value", "gameCount"],
-					[
-						moreIsBetter ? "desc" : "asc",
-						moreIsBetter && statType == "total" ? "asc" : "desc"
-					]
+					[moreIsBetter ? "desc" : "asc", moreIsBetter && statType == "total" ? "asc" : "desc"]
 				)
 				.value()
 		);
@@ -68,9 +65,7 @@ class SeasonPlayerLeaderboard extends Component {
 		//Limit to everyone better than (or equal to) fifth place
 		if (orderedList.length > 5) {
 			const threshold = orderedList[4].value;
-			orderedList = orderedList.filter(p =>
-				moreIsBetter ? p.value >= threshold : p.value <= threshold
-			);
+			orderedList = orderedList.filter(p => (moreIsBetter ? p.value >= threshold : p.value <= threshold));
 		}
 
 		//Create Grouped Array

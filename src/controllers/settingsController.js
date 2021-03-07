@@ -47,9 +47,7 @@ export async function getSettings(req, res) {
 	//Ensure the user is authorised to view everything
 	const adminOnlySettings = settings.filter(s => s.requireAdminToView);
 	if (adminOnlySettings.length && !req.user.isAdmin) {
-		res.status(403).send(
-			`Only admins can view ${adminOnlySettings.map(s => s.name).join(", ")}`
-		);
+		res.status(403).send(`Only admins can view ${adminOnlySettings.map(s => s.name).join(", ")}`);
 	} else {
 		const results = _.chain(settings)
 			.keyBy("name")

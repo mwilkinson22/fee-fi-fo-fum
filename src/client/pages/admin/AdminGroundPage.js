@@ -12,12 +12,7 @@ import LoadingPage from "../../components/LoadingPage";
 
 //Actions
 import { createCity, fetchCountries, fetchCities } from "~/client/actions/locationActions";
-import {
-	fetchAllGrounds,
-	createGround,
-	updateGround,
-	deleteGround
-} from "~/client/actions/groundActions";
+import { fetchAllGrounds, createGround, updateGround, deleteGround } from "~/client/actions/groundActions";
 import HelmetBuilder from "~/client/components/HelmetBuilder";
 
 //Constants
@@ -27,14 +22,7 @@ class AdminGroundPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
-			groundList,
-			fetchAllGrounds,
-			cities,
-			fetchCities,
-			countries,
-			fetchCountries
-		} = props;
+		const { groundList, fetchAllGrounds, cities, fetchCities, countries, fetchCountries } = props;
 
 		//Get dependencies
 		if (!groundList) {

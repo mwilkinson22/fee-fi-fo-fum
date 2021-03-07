@@ -78,6 +78,45 @@
 
 		&.image-wrapper {
 			margin-bottom: 10pt;
+			position: relative;
+			.caption-wrapper {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: auto;
+				background: rgba(darken($mainColour, 5%), 0.7);
+				display: flex;
+				align-items: center;
+				margin: auto;
+				line-height: 1;
+
+				&.right-align {
+					justify-content: flex-end;
+					text-align: right;
+					right: 0;
+					left: auto;
+				}
+				h6 {
+					color: $trimColour;
+					margin: 0;
+					span:first-child {
+						color: white;
+					}
+				}
+				& > span {
+					color: white;
+					font-style: italic;
+				}
+				@media #{$mobile-only} {
+					padding: 8pt;
+				}
+				@media #{$desktop-and-tablet} {
+					padding: 18pt;
+					h6 {
+						font-size: 20pt;
+					}
+				}
+			}
 		}
 
 		&.sporcle-wrapper {

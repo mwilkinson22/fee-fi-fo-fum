@@ -26,8 +26,7 @@ class AdminCompetitionInstanceImages extends Component {
 		newState.segment = competitionSegmentList[match.params.segmentId] || false;
 
 		//Get Instance
-		newState.instance =
-			newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
+		newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 
 		//Get Options
 		newState.options = [];
@@ -77,9 +76,7 @@ class AdminCompetitionInstanceImages extends Component {
 		if (!options.length) {
 			return (
 				<div className="container">
-					<div className="form-card">
-						No image formats are available for this instance
-					</div>
+					<div className="form-card">No image formats are available for this instance</div>
 				</div>
 			);
 		}
@@ -111,6 +108,4 @@ function mapStateToProps({ competitions }) {
 	return { competitionSegmentList };
 }
 
-export default connect(mapStateToProps, { fetchInstanceImage, postInstanceImage })(
-	AdminCompetitionInstanceImages
-);
+export default connect(mapStateToProps, { fetchInstanceImage, postInstanceImage })(AdminCompetitionInstanceImages);

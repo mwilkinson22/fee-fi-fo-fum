@@ -75,9 +75,7 @@ export const createTeamSquad = (team_id, data) => async (dispatch, getState, api
 
 		//Get the new squad
 		const team = res.data.fullTeams[team_id];
-		const newSquad = team.squads.find(
-			({ _teamType, year }) => _teamType == data._teamType && year == data.year
-		);
+		const newSquad = team.squads.find(({ _teamType, year }) => _teamType == data._teamType && year == data.year);
 		return newSquad._id;
 	}
 };

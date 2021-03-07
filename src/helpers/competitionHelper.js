@@ -1,10 +1,6 @@
 export function canCrawlFixtures(segment) {
 	const { _parentCompetition } = segment;
-	return (
-		segment.externalCompId &&
-		_parentCompetition.webcrawlFormat &&
-		_parentCompetition.webcrawlUrl
-	);
+	return segment.externalCompId && _parentCompetition.webcrawlFormat && _parentCompetition.webcrawlUrl;
 }
 
 export function createLeagueTableString(_competition, year, fromDate, toDate) {

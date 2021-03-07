@@ -31,8 +31,8 @@ class AdminGameCrawler extends Component {
 			if (!scoreOnly && externalCount !== localCount) {
 				errors.push(
 					<li key={teamId + "mismatch"}>
-						Crawled {teamName} squad size does not match local. Local: {localCount}{" "}
-						players, Crawled: {externalCount} players
+						Crawled {teamName} squad size does not match local. Local: {localCount} players, Crawled:{" "}
+						{externalCount} players
 					</li>
 				);
 			}
@@ -58,8 +58,7 @@ class AdminGameCrawler extends Component {
 			if (extraPlayers.length) {
 				errors.push(
 					<li key={teamId + "extra"}>
-						Additional {teamName} players found on remote site:{" "}
-						{extraPlayers.join(", ")}
+						Additional {teamName} players found on remote site: {extraPlayers.join(", ")}
 					</li>
 				);
 			}
@@ -281,11 +280,7 @@ class AdminGameCrawler extends Component {
 					{this.renderPlayers()}
 				</div>,
 				<div className="buttons" key="buttons">
-					<button
-						className="delete"
-						type="button"
-						onClick={() => this.setState({ crawlData: null })}
-					>
+					<button className="delete" type="button" onClick={() => this.setState({ crawlData: null })}>
 						Clear Data
 					</button>
 					<button type="button" className="confirm" onClick={async () => this.onSubmit()}>

@@ -38,8 +38,7 @@ class SporcleButton extends Component {
 		const { height, previewSporcleId, sporcleId } = this.state;
 
 		//Get destroy callback
-		const onDestroy = () =>
-			this.setState({ showInput: false, sporcleId: "", previewSporcleId: null });
+		const onDestroy = () => this.setState({ showInput: false, sporcleId: "", previewSporcleId: null });
 
 		//Render preview
 		let previewQuiz;
@@ -56,27 +55,20 @@ class SporcleButton extends Component {
 				<label>Sporcle Quiz ID</label>
 				<input
 					type="text"
-					onChange={ev =>
-						this.setState({ sporcleId: ev.target.value, previewSporcleId: null })
-					}
+					onChange={ev => this.setState({ sporcleId: ev.target.value, previewSporcleId: null })}
 				/>
 				<label>Height (px)</label>
 				<input
 					type="number"
 					value={height}
-					onChange={ev =>
-						this.setState({ height: ev.target.value, previewSporcleId: null })
-					}
+					onChange={ev => this.setState({ height: ev.target.value, previewSporcleId: null })}
 				/>
 				{previewQuiz}
 				<div className="buttons">
 					<button type="button" onClick={onDestroy}>
 						Cancel
 					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ previewSporcleId: sporcleId })}
-					>
+					<button type="button" onClick={() => this.setState({ previewSporcleId: sporcleId })}>
 						Preview
 					</button>
 					<button

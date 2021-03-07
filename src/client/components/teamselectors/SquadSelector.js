@@ -88,7 +88,11 @@ class SquadSelector extends Component {
 		potentialRowCount.push(highestCurrentPosition);
 
 		//Return the biggest value
-		return _.chain(potentialRowCount).map(Number).filter(_.identity).max().value();
+		return _.chain(potentialRowCount)
+			.map(Number)
+			.filter(_.identity)
+			.max()
+			.value();
 	}
 
 	setNextActivePosition(values, hasMounted = true) {
@@ -171,15 +175,13 @@ class SquadSelector extends Component {
 				actions = [
 					{
 						//Move Up
-						onClick: () =>
-							this.assignPlayerToPosition(formik, currentPlayerId, i - 1, i),
+						onClick: () => this.assignPlayerToPosition(formik, currentPlayerId, i - 1, i),
 						disabled: i === 1,
 						icon: "\u25B2"
 					},
 					{
 						//Move Down
-						onClick: () =>
-							this.assignPlayerToPosition(formik, currentPlayerId, i + 1, i),
+						onClick: () => this.assignPlayerToPosition(formik, currentPlayerId, i + 1, i),
 						disabled: i === rowCount,
 						icon: "\u25BC"
 					},
@@ -238,14 +240,7 @@ class SquadSelector extends Component {
 	}
 
 	renderAvailablePlayers(formik) {
-		const {
-			activePosition,
-			cardStyling,
-			interchangeFilter,
-			players,
-			positionsByNumber,
-			nameFilter
-		} = this.state;
+		const { activePosition, cardStyling, interchangeFilter, players, positionsByNumber, nameFilter } = this.state;
 		const { values } = formik;
 
 		//Render available players as cards
@@ -273,19 +268,14 @@ class SquadSelector extends Component {
 			let forActivePosition = [];
 			if (activePosition) {
 				const positionKey =
-					activePosition <= 13
-						? positionsByNumber[activePosition].key
-						: interchangeFilter || "I";
+					activePosition <= 13 ? positionsByNumber[activePosition].key : interchangeFilter || "I";
 
 				forActivePosition = unselectedPlayers
 					//Filter by those not in dropdown
 					.filter(p => !p.showInDropdown)
 					//Check for any players who play this position
 					.filter(({ _player }) => {
-						return (
-							_player.playingPositions &&
-							_player.playingPositions.indexOf(positionKey) > -1
-						);
+						return _player.playingPositions && _player.playingPositions.indexOf(positionKey) > -1;
 					})
 					//Map to ID
 					.map(({ _player }) => _player._id);
@@ -305,8 +295,7 @@ class SquadSelector extends Component {
 
 					//Only show a gap if the player is the last in
 					//the forActivePosition list
-					const withGap =
-						forActivePosition.length > 0 && i === forActivePosition.length - 1;
+					const withGap = forActivePosition.length > 0 && i === forActivePosition.length - 1;
 
 					return (
 						<SquadSelectorCard
@@ -436,9 +425,7 @@ class SquadSelector extends Component {
 		const { cardStyling, players, playerToMove, positionsByNumber } = this.state;
 		if (playerToMove) {
 			//Get Player's Name
-			const { _player } = players.find(
-				({ _player }) => _player._id == formik.values[playerToMove]
-			);
+			const { _player } = players.find(({ _player }) => _player._id == formik.values[playerToMove]);
 
 			//Render List
 			const rowCount = this.getSelectedRowCount(formik.values);
@@ -462,15 +449,10 @@ class SquadSelector extends Component {
 			}
 
 			//Get Destroy Callback
-			const onDestroy = () =>
-				this.setState({ playerToMove: undefined, playerMoveDestination: undefined });
+			const onDestroy = () => this.setState({ playerToMove: undefined, playerMoveDestination: undefined });
 
 			return (
-				<PopUpDialog
-					className="player-move-dialog"
-					closeButtonText="Cancel"
-					onDestroy={onDestroy}
-				>
+				<PopUpDialog className="player-move-dialog" closeButtonText="Cancel" onDestroy={onDestroy}>
 					<h6>Move {_player.name.full} to:</h6>
 					{list}
 				</PopUpDialog>

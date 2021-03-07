@@ -38,8 +38,7 @@ class YouTubeButton extends Component {
 		const { previewVideoId, videoId, videoStartTime } = this.state;
 
 		//Get destroy callback
-		const onDestroy = () =>
-			this.setState({ showInput: false, videoId: "", previewVideoId: null });
+		const onDestroy = () => this.setState({ showInput: false, videoId: "", previewVideoId: null });
 
 		//Render preview video
 		let previewVideo;
@@ -54,28 +53,18 @@ class YouTubeButton extends Component {
 		return (
 			<PopUpDialog asGrid={true} onDestroy={onDestroy}>
 				<label>YouTube Video ID</label>
-				<input
-					type="text"
-					onChange={ev =>
-						this.setState({ videoId: ev.target.value, previewVideoId: null })
-					}
-				/>
+				<input type="text" onChange={ev => this.setState({ videoId: ev.target.value, previewVideoId: null })} />
 				<label>Start Time</label>
 				<input
 					type="number"
-					onChange={ev =>
-						this.setState({ videoStartTime: ev.target.value, previewVideoId: null })
-					}
+					onChange={ev => this.setState({ videoStartTime: ev.target.value, previewVideoId: null })}
 				/>
 				{previewVideo}
 				<div className="buttons">
 					<button type="button" onClick={onDestroy}>
 						Cancel
 					</button>
-					<button
-						type="button"
-						onClick={() => this.setState({ previewVideoId: videoId })}
-					>
+					<button type="button" onClick={() => this.setState({ previewVideoId: videoId })}>
 						Preview
 					</button>
 					<button

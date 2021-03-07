@@ -47,10 +47,7 @@ class MatchSquadList extends Component {
 				let row = [];
 				squad.forEach(p => {
 					//Get Player Data
-					const _player = _.find(
-						game.eligiblePlayers[team._id],
-						({ _id }) => _id == p._player
-					);
+					const _player = _.find(game.eligiblePlayers[team._id], ({ _id }) => _id == p._player);
 					const { position } = p;
 					const player = {
 						_player,
@@ -65,22 +62,14 @@ class MatchSquadList extends Component {
 					if (rowIndex > -1 || position == squad.length) {
 						const order = position == squad.length ? 999 : rowIndex + 1;
 						rows.push(
-							<div
-								className={`row ${position < 13 ? "main" : "extra"}`}
-								key={order}
-								style={{ order }}
-							>
+							<div className={`row ${position < 13 ? "main" : "extra"}`} key={order} style={{ order }}>
 								{row}
 							</div>
 						);
 						row = [];
 						if (position == 13) {
 							row.push(
-								<div
-									className="header"
-									key="ih"
-									style={{ color: team.colours.text }}
-								>
+								<div className="header" key="ih" style={{ color: team.colours.text }}>
 									Interchanges
 								</div>
 							);
@@ -263,11 +252,7 @@ class MatchSquadList extends Component {
 		}
 
 		return (
-			<div
-				className={`name-bar ${border ? "with-border" : "no-border"}`}
-				key="name-bar"
-				style={{ border }}
-			>
+			<div className={`name-bar ${border ? "with-border" : "no-border"}`} key="name-bar" style={{ border }}>
 				<div className="number" style={numberStyle}>
 					{role || ""}
 				</div>

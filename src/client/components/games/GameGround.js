@@ -28,10 +28,7 @@ function GameGround({ bucketPaths, ground, webp }) {
 			<div className="container">
 				<h2>Getting to the Game</h2>
 				<div className="wrapper">
-					<div
-						className="ground-info"
-						style={{ backgroundImage: `url('${backgroundUrl}')` }}
-					>
+					<div className="ground-info" style={{ backgroundImage: `url('${backgroundUrl}')` }}>
 						<div className="text-wrapper">
 							<ul className="address">{addressElements}</ul>
 						</div>

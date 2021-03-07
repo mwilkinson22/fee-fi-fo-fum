@@ -358,9 +358,7 @@ export async function parsePlayerList(req, res) {
 			const squadEntries = await getSquadEntries(id);
 			if (squadEntries.length) {
 				const { team, year, _teamType } = squadEntries[0];
-				extraText[id] = `${year} ${team.name} ${
-					_teamType.sortOrder > 1 ? _teamType.name : ""
-				}`.trim();
+				extraText[id] = `${year} ${team.name} ${_teamType.sortOrder > 1 ? _teamType.name : ""}`.trim();
 			}
 		}
 	}
@@ -393,9 +391,7 @@ export async function deletePerson(req, res) {
 		const NewsPost = mongoose.model("newsPosts");
 		const newsPosts = await NewsPost.find({ _people: _id }, "title slug").lean();
 		if (newsPosts.length) {
-			errors.push(
-				`linked to ${newsPosts.length} news ${newsPosts.length === 1 ? "post" : "posts"}`
-			);
+			errors.push(`linked to ${newsPosts.length} news ${newsPosts.length === 1 ? "post" : "posts"}`);
 			toLog.newsPosts = newsPosts;
 		}
 
@@ -418,18 +414,16 @@ export async function deletePerson(req, res) {
 				.value().length;
 
 			errors.push(
-				`part of ${squadCount} ${squadCount === 1 ? "squad" : "squads"} in ${
-					teams.length
-				} ${teams.length === 1 ? "team" : "teams"}`
+				`part of ${squadCount} ${squadCount === 1 ? "squad" : "squads"} in ${teams.length} ${
+					teams.length === 1 ? "team" : "teams"
+				}`
 			);
 		}
 
 		//Check for played games
 		const playedGames = await getPlayedGames(_id);
 		if (playedGames.length) {
-			errors.push(
-				`a player in ${playedGames.length} ${playedGames.length === 1 ? "game" : "games"}`
-			);
+			errors.push(`a player in ${playedGames.length} ${playedGames.length === 1 ? "game" : "games"}`);
 			toLog.playedGames = playedGames;
 		}
 
@@ -443,9 +437,7 @@ export async function deletePerson(req, res) {
 		//Check for reffed games
 		const reffedGames = await getReffedGames(_id);
 		if (reffedGames.length) {
-			errors.push(
-				`a referee for ${reffedGames.length} ${reffedGames.length === 1 ? "game" : "games"}`
-			);
+			errors.push(`a referee for ${reffedGames.length} ${reffedGames.length === 1 ? "game" : "games"}`);
 			toLog.reffedGames = reffedGames;
 		}
 
@@ -458,9 +450,7 @@ export async function deletePerson(req, res) {
 				errorList = `${errors.join(", ")} & ${lastError}`;
 			}
 			res.status(409).send({
-				error: `Cannot delete ${person.name.first}, as ${
-					person.gender == "M" ? "he" : "she"
-				} is ${errorList}`,
+				error: `Cannot delete ${person.name.first}, as ${person.gender == "M" ? "he" : "she"} is ${errorList}`,
 				toLog
 			});
 			return false;
@@ -566,11 +556,7 @@ export async function mergePerson(req, res) {
 		playerResults.push(playersInGames);
 
 		//And do the same for refs
-		const refs = await Game.updateMany(
-			{ _referee: _source },
-			{ _referee: _destination },
-			{ multi: true }
-		);
+		const refs = await Game.updateMany({ _referee: _source }, { _referee: _destination }, { multi: true });
 		const videoRefs = await Game.updateMany(
 			{ _video_referee: _source },
 			{ _video_referee: _destination },
@@ -607,11 +593,7 @@ export async function mergePerson(req, res) {
 			itemId: destination
 		});
 		await newSlug.save();
-		await SlugRedirect.updateMany(
-			{ itemId: _source, collectionName },
-			{ itemId: destination },
-			{ multi: true }
-		);
+		await SlugRedirect.updateMany({ itemId: _source, collectionName }, { itemId: destination }, { multi: true });
 
 		//Enforce player/coach/referee data where necessary
 		const updateQuery = {};

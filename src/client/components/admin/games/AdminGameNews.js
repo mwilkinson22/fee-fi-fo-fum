@@ -67,9 +67,7 @@ class AdminGameNews extends Component {
 		if (previews) {
 			previewPosts = this.wrapPosts(previews);
 		} else {
-			previewPosts = (
-				<Link to={`/admin/news/post/new?preview=${gameId}`}>Add Preview Post</Link>
-			);
+			previewPosts = <Link to={`/admin/news/post/new?preview=${gameId}`}>Add Preview Post</Link>;
 		}
 
 		//Format Recap Posts

@@ -49,6 +49,7 @@ class FileUploader extends Component {
 		const {
 			path,
 			isImage,
+			destroyOnComplete,
 			convertImageToWebP,
 			uploadFile,
 			resize,
@@ -74,7 +75,9 @@ class FileUploader extends Component {
 
 		const { name } = await uploadFile(formData);
 		await onComplete(name);
-		onDestroy();
+		if (destroyOnComplete) {
+			onDestroy();
+		}
 	}
 
 	clearFile() {
@@ -141,8 +144,8 @@ class FileUploader extends Component {
 				if (fileNames.find(f => f.toLowerCase() == fileName)) {
 					content.push(
 						<span className="error" key="error">
-							Warning: {fileName} will be permanently overwritten on the server. This
-							may effect other items
+							Warning: {fileName} will be permanently overwritten on the server. This may effect other
+							items
 						</span>
 					);
 					return false;
@@ -166,9 +169,7 @@ class FileUploader extends Component {
 					<button
 						type="button"
 						className="confirm"
-						disabled={
-							!currentFile.name.length || !this.validateFileName() || isSubmitting
-						}
+						disabled={!currentFile.name.length || !this.validateFileName() || isSubmitting}
 						onClick={() => this.onSubmit(this.state.image)}
 					>
 						{isSubmitting ? "Uploading" : "Upload"}
@@ -214,6 +215,7 @@ FileUploader.propTypes = {
 	cacheMaxAge: PropTypes.number,
 	convertImageToWebP: PropTypes.bool,
 	defaultName: PropTypes.string,
+	destroyOnComplete: PropTypes.bool,
 	nameOptions: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
 	fileNames: PropTypes.arrayOf(PropTypes.string),
 	isImage: PropTypes.bool,
@@ -227,6 +229,7 @@ FileUploader.defaultProps = {
 	allowCustomName: true,
 	cacheMaxAge: null,
 	convertImageToWebP: true,
+	destroyOnComplete: true,
 	fileNames: [],
 	isImage: false,
 	nameOptions: [],

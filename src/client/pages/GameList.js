@@ -47,8 +47,7 @@ class GameList extends Component {
 
 		//Fixtures or Results
 		if (newState.isAdmin) {
-			newState.listType =
-				!match.params.year || match.params.year === "fixtures" ? "fixtures" : "results";
+			newState.listType = !match.params.year || match.params.year === "fixtures" ? "fixtures" : "results";
 		} else {
 			newState.listType = match.path.split("/")[2];
 		}
@@ -88,10 +87,7 @@ class GameList extends Component {
 
 		//Get Team Type from URL
 		if (match.params.teamType) {
-			const filteredTeamType = _.find(
-				newState.teamTypes,
-				t => t.slug === match.params.teamType
-			);
+			const filteredTeamType = _.find(newState.teamTypes, t => t.slug === match.params.teamType);
 			if (filteredTeamType) {
 				newState.teamType = filteredTeamType;
 			}
@@ -104,8 +100,7 @@ class GameList extends Component {
 
 		//If no valid team type is found, we redirect to either the last active one, or just the first in the list
 		if (!newState.teamType) {
-			const teamTypeRedirect =
-				_.find(newState.teamTypes, t => t._id == activeTeamType) || newState.teamTypes[0];
+			const teamTypeRedirect = _.find(newState.teamTypes, t => t._id == activeTeamType) || newState.teamTypes[0];
 
 			newState.teamTypeRedirect = teamTypeRedirect.slug;
 			newState.teamType = activeTeamType;
@@ -219,12 +214,7 @@ class GameList extends Component {
 				} else {
 					const isLarge = i === 0 || (i === filteredGames.length - 1 && i % 2);
 					return (
-						<GameCard
-							key={game._id}
-							game={game}
-							includeCountdown={i === 0}
-							isLarge={Boolean(isLarge)}
-						/>
+						<GameCard key={game._id} game={game} includeCountdown={i === 0} isLarge={Boolean(isLarge)} />
 					);
 				}
 			});
@@ -238,24 +228,13 @@ class GameList extends Component {
 		const { showCalendarDialog } = this.state;
 
 		if (showCalendarDialog) {
-			return (
-				<CalendarDialog onDestroy={() => this.setState({ showCalendarDialog: false })} />
-			);
+			return <CalendarDialog onDestroy={() => this.setState({ showCalendarDialog: false })} />;
 		}
 	}
 
 	render() {
 		const { bucketPaths, gameList, fullTeams, localTeam } = this.props;
-		const {
-			listType,
-			games,
-			year,
-			teamType,
-			teamTypeRedirect,
-			rootUrl,
-			isAdmin,
-			timeStamp
-		} = this.state;
+		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin, timeStamp } = this.state;
 
 		if (teamTypeRedirect) {
 			return <Redirect to={`${rootUrl}/${teamTypeRedirect}`} />;
@@ -284,11 +263,7 @@ class GameList extends Component {
 				<Link to="/admin/game/new" className="card nav-card" key="Add-New">
 					Add New Game
 				</Link>,
-				<Link
-					to="/admin/games/fixture-list-image"
-					className="card nav-card"
-					key="fixture-list-image"
-				>
+				<Link to="/admin/games/fixture-list-image" className="card nav-card" key="fixture-list-image">
 					Create Fixture Image
 				</Link>
 			];
@@ -299,10 +274,7 @@ class GameList extends Component {
 		if (!isAdmin && listType === "fixtures" && games && games.length) {
 			calendarLink = (
 				<div className="extra-buttons">
-					<button
-						type="button"
-						onClick={() => this.setState({ showCalendarDialog: true })}
-					>
+					<button type="button" onClick={() => this.setState({ showCalendarDialog: true })}>
 						<img src={`${bucketPaths.images.layout}icons/calendar.png`} alt="" />
 						Add fixtures to calendar
 					</button>
@@ -370,9 +342,7 @@ export async function loadData(store, path) {
 		} else {
 			const yearsWithResults = Object.keys(store.getState().games.gameYears).filter(parseInt);
 			const yearInUrl = splitPath.length > 3 ? splitPath[3] : null;
-			yearToSearch = yearsWithResults.includes(Number(yearInUrl))
-				? yearInUrl
-				: Math.max(...yearsWithResults);
+			yearToSearch = yearsWithResults.includes(Number(yearInUrl)) ? yearInUrl : Math.max(...yearsWithResults);
 		}
 
 		//Get Game List

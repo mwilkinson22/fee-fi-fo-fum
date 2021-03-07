@@ -66,9 +66,7 @@ class AdminGamePregameImage extends Component {
 		}
 
 		//Player Dropdowns
-		newState.currentLocalSquad = newState.game.pregameSquads.find(
-			({ _team }) => _team == localTeam
-		);
+		newState.currentLocalSquad = newState.game.pregameSquads.find(({ _team }) => _team == localTeam);
 
 		//If the local team has a pregame squad for this game
 		if (newState.currentLocalSquad && newState.currentLocalSquad.squad) {
@@ -155,9 +153,7 @@ class AdminGamePregameImage extends Component {
 		//Players to highlight
 		//This only pulls from the isNew group
 		const playersToHighlight =
-			options.players.length && options.players[0].isNew
-				? options.players[0].options.map(o => o.value)
-				: [];
+			options.players.length && options.players[0].isNew ? options.players[0].options.map(o => o.value) : [];
 
 		return {
 			_profile: defaultProfile,
@@ -235,9 +231,7 @@ class AdminGamePregameImage extends Component {
 
 			//Get outgoing players
 			const outgoing = lastLocalSquad
-				.filter(
-					id => !currentLocalSquad.squad.find(cId => id == cId) && eligiblePlayers[id]
-				)
+				.filter(id => !currentLocalSquad.squad.find(cId => id == cId) && eligiblePlayers[id])
 				.map(id => getPlayerName(eligiblePlayers[id], false));
 
 			if (outgoing.length) {
@@ -411,10 +405,7 @@ class AdminGamePregameImage extends Component {
 							</div>
 							{this.renderPreview()}
 						</div>
-						<AdminGameEventList
-							game={game}
-							onReply={tweetId => setFieldValue("replyTweet", tweetId)}
-						/>
+						<AdminGameEventList game={game} onReply={tweetId => setFieldValue("replyTweet", tweetId)} />
 					</Form>
 				)}
 			</Formik>

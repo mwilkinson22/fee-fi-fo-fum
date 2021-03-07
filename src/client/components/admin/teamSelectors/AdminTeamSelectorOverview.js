@@ -7,11 +7,7 @@ import * as Yup from "yup";
 
 //Actions
 import { fetchTeam } from "../../../actions/teamsActions";
-import {
-	createTeamSelector,
-	updateTeamSelector,
-	deleteTeamSelector
-} from "../../../actions/teamSelectorActions";
+import { createTeamSelector, updateTeamSelector, deleteTeamSelector } from "../../../actions/teamSelectorActions";
 
 //Components
 import BasicForm from "../BasicForm";

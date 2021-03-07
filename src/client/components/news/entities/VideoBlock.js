@@ -21,11 +21,7 @@ class VideoBlock extends Component {
 		const { autoPlay, muted, src } = this.props.data;
 		return (
 			<div className="custom-block video-wrapper">
-				<EmbeddedVideo
-					autoPlay={autoPlay}
-					muted={muted}
-					src={`${bucketPaths.imageRoot}news/inline/${src}`}
-				/>
+				<EmbeddedVideo autoPlay={autoPlay} muted={muted} src={`${bucketPaths.imageRoot}news/inline/${src}`} />
 			</div>
 		);
 	}

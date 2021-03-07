@@ -117,20 +117,9 @@ class AdminTeamPage extends Component {
 						<Route path="/admin/teams/new" component={AdminTeamOverview} />
 
 						<Route path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
-						<Route
-							path="/admin/teams/:teamId/squads/:squadId"
-							component={AdminTeamSquadsPage}
-						/>
-						<Route
-							exact
-							path="/admin/teams/:teamId/squads"
-							component={AdminTeamSquadsPage}
-						/>
-						<Route
-							path="/admin/teams/:_id/grounds"
-							exact
-							component={AdminTeamGrounds}
-						/>
+						<Route path="/admin/teams/:teamId/squads/:squadId" component={AdminTeamSquadsPage} />
+						<Route exact path="/admin/teams/:teamId/squads" component={AdminTeamSquadsPage} />
+						<Route path="/admin/teams/:_id/grounds" exact component={AdminTeamGrounds} />
 						<Route path="/admin/teams/:_id" exact component={AdminTeamOverview} />
 						<Route path="/" component={NotFoundPage} />
 					</Switch>

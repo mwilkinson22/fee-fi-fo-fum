@@ -49,9 +49,7 @@ class AdminTeamSquadMembers extends Component {
 		}
 
 		//Check we have all people
-		const peopleToLoad = squad.players
-			.map(({ _player }) => _player._id)
-			.filter(id => !fullPeople[id]);
+		const peopleToLoad = squad.players.map(({ _player }) => _player._id).filter(id => !fullPeople[id]);
 		if (peopleToLoad.length) {
 			if (!prevState.isLoadingPeople) {
 				fetchPeople(peopleToLoad);
@@ -261,6 +259,4 @@ function mapStateToProps({ sponsors, people, teams }) {
 }
 
 // export default form;
-export default connect(mapStateToProps, { fetchPeople, fetchTeam, updatePeople, fetchSponsors })(
-	AdminTeamSquadMembers
-);
+export default connect(mapStateToProps, { fetchPeople, fetchTeam, updatePeople, fetchSponsors })(AdminTeamSquadMembers);

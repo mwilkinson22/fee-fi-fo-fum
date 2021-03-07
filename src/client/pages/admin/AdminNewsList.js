@@ -39,9 +39,7 @@ class AdminNewsList extends Component {
 			const posts = _.chain(postList)
 				.sortBy("dateCreated")
 				.reverse()
-				.map(post => (
-					<NewsPostCard post={post} isAdminList={true} key={post._id} hideImage={true} />
-				))
+				.map(post => <NewsPostCard post={post} isAdminList={true} key={post._id} hideImage={true} />)
 				.value();
 			content = <div className="container news-post-list">{posts}</div>;
 		}

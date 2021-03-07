@@ -12,8 +12,7 @@ import { ChunkExtractor } from "@loadable/server";
 export default (req, store, context) => {
 	const statsFile = path.resolve("./dist/public/loadable-stats.json");
 	const chunkExtractor = new ChunkExtractor({ statsFile });
-	const googleFontUrl =
-		"https://fonts.googleapis.com/css?family=Montserrat:400,700|Titillium+Web:400,600";
+	const googleFontUrl = "https://fonts.googleapis.com/css?family=Montserrat:400,700|Titillium+Web:400,600";
 	const app = chunkExtractor.collectChunks(
 		<Provider store={store}>
 			<StaticRouter location={req.path} context={context}>

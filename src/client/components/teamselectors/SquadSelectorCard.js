@@ -67,9 +67,7 @@ class SquadSelectorCard extends Component {
 			const { playingPositions } = _player;
 			if (includePositions && playingPositions && playingPositions.length) {
 				positions = (
-					<div className="positions">
-						{playingPositions.map(key => playerPositions[key].name).join(", ")}
-					</div>
+					<div className="positions">{playingPositions.map(key => playerPositions[key].name).join(", ")}</div>
 				);
 			}
 		}
@@ -118,12 +116,7 @@ class SquadSelectorCard extends Component {
 		const { actions, readOnly, style } = this.props;
 
 		if (!readOnly && actions && actions.length) {
-			return (
-				<ThreeDots
-					colour={style.color}
-					onClick={() => this.setState({ showActionsInMobile: true })}
-				/>
-			);
+			return <ThreeDots colour={style.color} onClick={() => this.setState({ showActionsInMobile: true })} />;
 		}
 	}
 

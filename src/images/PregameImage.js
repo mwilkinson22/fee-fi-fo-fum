@@ -72,12 +72,10 @@ export default class PregameImage extends Canvas {
 			//Text + margin for each row
 			textRows * (positions.listTextHeight + positions.listTextMargin);
 
-		positions.listTop =
-			positions.teamBlockTop + positions.listPadding + positions.listTextHeight;
+		positions.listTop = positions.teamBlockTop + positions.listPadding + positions.listTextHeight;
 
 		//Dynamically Set Height
-		const cHeight =
-			positions.teamBlockTop + positions.teamBlockHeight + Math.round(cWidth * 0.04);
+		const cHeight = positions.teamBlockTop + positions.teamBlockHeight + Math.round(cWidth * 0.04);
 
 		//Load In Fonts
 		const fonts = [
@@ -110,9 +108,7 @@ export default class PregameImage extends Canvas {
 		this.options = {
 			singleTeam: options.singleTeam, //False, or a team id
 			playerForImage: options.playerForImage !== "false" && options.playerForImage,
-			playersToHighlight: options.playersToHighlight
-				? options.playersToHighlight.split(",")
-				: []
+			playersToHighlight: options.playersToHighlight ? options.playersToHighlight.split(",") : []
 		};
 		const teamIds = [localTeam, game._opposition._id];
 		this.teamIds = game.isAway ? teamIds.reverse() : teamIds;
@@ -191,12 +187,7 @@ export default class PregameImage extends Canvas {
 
 	addHeaderIcon(icon, offset) {
 		const { ctx, positions } = this;
-		ctx.fillRect(
-			offset,
-			positions.headerIconTop,
-			positions.headerIconWidth,
-			positions.headerIconHeight
-		);
+		ctx.fillRect(offset, positions.headerIconTop, positions.headerIconWidth, positions.headerIconHeight);
 		this.contain(
 			icon,
 			offset + positions.headerIconWidth * positions.headerIconPadding,
@@ -248,8 +239,7 @@ export default class PregameImage extends Canvas {
 		const { squad } = _.find(game.pregameSquads, s => s._team == localTeam);
 		const squadWithImages = _.filter(squad, s => s.images.player || s.images.main);
 		const playerForImage =
-			_.find(squadWithImages, p => p._id == options.playerForImage) ||
-			_.sample(squadWithImages);
+			_.find(squadWithImages, p => p._id == options.playerForImage) || _.sample(squadWithImages);
 
 		const playerImage = await this.googleToCanvas(
 			"images/people/full/" + (playerForImage.images.player || playerForImage.images.main)

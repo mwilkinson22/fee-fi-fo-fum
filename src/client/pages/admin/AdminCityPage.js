@@ -15,13 +15,7 @@ import HelmetBuilder from "~/client/components/HelmetBuilder";
 import * as fieldTypes from "~/constants/formFieldTypes";
 
 //Actions
-import {
-	fetchCountries,
-	fetchCities,
-	createCity,
-	updateCity,
-	deleteCity
-} from "~/client/actions/locationActions";
+import { fetchCountries, fetchCities, createCity, updateCity, deleteCity } from "~/client/actions/locationActions";
 
 class AdminCityPage extends Component {
 	constructor(props) {
@@ -55,8 +49,12 @@ class AdminCityPage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string().required().label("Name"),
-			_country: Yup.mixed().required().label("Country")
+			name: Yup.string()
+				.required()
+				.label("Name"),
+			_country: Yup.mixed()
+				.required()
+				.label("Country")
 		});
 
 		//Get Current City

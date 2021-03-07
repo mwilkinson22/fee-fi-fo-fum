@@ -114,15 +114,7 @@ export function getScoreString(game, localTeam, useLongNames = false) {
 		//Ensure no null values
 		if (localScore != null && oppositionScore != null) {
 			//Create array
-			const scoreArray = [
-				localTeamName,
-				" ",
-				localScore,
-				"-",
-				oppositionScore,
-				" ",
-				oppositionName
-			];
+			const scoreArray = [localTeamName, " ", localScore, "-", oppositionScore, " ", oppositionName];
 
 			//Reverse for away games
 			if (isAway) {
@@ -191,9 +183,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 		.value();
 
 	//Process player stats
-	const processedStats = calculateAdditionalStats(
-		game.playerStats.find(p => p._player == player._id).stats
-	);
+	const processedStats = calculateAdditionalStats(game.playerStats.find(p => p._player == player._id).stats);
 
 	//Check for overrideGameStarStats defined at a game level;
 	let overrideData;
@@ -213,16 +203,11 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 			} else {
 				//Check basic threshold
 				if (value) {
-					isValid = moreIsBetter
-						? value >= requiredForGameStar
-						: value <= requiredForGameStar;
+					isValid = moreIsBetter ? value >= requiredForGameStar : value <= requiredForGameStar;
 				}
 
 				//Check for exceptions
-				if (
-					(key == "TS" && processedStats.TK < 25) ||
-					(key == "KS" && processedStats.G < 4)
-				) {
+				if ((key == "TS" && processedStats.TK < 25) || (key == "KS" && processedStats.G < 4)) {
 					isValid = false;
 				}
 			}
@@ -270,9 +255,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 			switch (key) {
 				case "TS":
 					if (!values.find(v => v.key == "TK")) {
-						const { TK, MI } = game.playerStats.find(
-							p => p._player == player._id
-						).stats;
+						const { TK, MI } = game.playerStats.find(p => p._player == player._id).stats;
 						//Show Tackles
 						valueString = statToString(key, value) + ` (${TK}/${TK + MI})`;
 
@@ -315,13 +298,7 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 	});
 }
 
-export function convertTeamToSelect(
-	game,
-	teamList,
-	singleTeam = false,
-	includeNone = false,
-	fromPregame = false
-) {
+export function convertTeamToSelect(game, teamList, singleTeam = false, includeNone = false, fromPregame = false) {
 	function listToOptions(_player, team) {
 		const p = _.find(game.eligiblePlayers[team], p => _player == p._id);
 		const numberStr = p.number ? `${p.number}. ` : "";
@@ -517,9 +494,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 		let results;
 		try {
 			if (webcrawlFormat == "SL") {
-				results = html
-					.querySelectorAll(".matchreportheader .col-2 h2")
-					.map(e => Number(e.text));
+				results = html.querySelectorAll(".matchreportheader .col-2 h2").map(e => Number(e.text));
 			} else if (webcrawlFormat == "RFL") {
 				results = html
 					.querySelector(".overview h3")
@@ -573,9 +548,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 					const tableHeaderCellCount = tableHeaderCells.length;
 					for (const stat in statTypeIndexes) {
 						for (let i = 1; i <= tableHeaderCellCount; i++) {
-							if (
-								tableHeaderCells[tableHeaderCellCount - i].innerHTML.trim() == stat
-							) {
+							if (tableHeaderCells[tableHeaderCellCount - i].innerHTML.trim() == stat) {
 								statTypeIndexes[stat] = i;
 								break;
 							}
@@ -598,10 +571,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 						};
 						for (const stat in statTypeIndexes) {
 							const index = statTypeIndexes[stat];
-							const value = rowCells[rowCellCount - index].innerHTML.replace(
-								/\D+/gi,
-								""
-							);
+							const value = rowCells[rowCellCount - index].innerHTML.replace(/\D+/gi, "");
 							results[team][name].stats[stat] = Number(value || 0);
 						}
 					}
@@ -628,11 +598,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 
 							for (const stat in statTypeIndexes) {
 								for (let i = 1; i <= tableHeaderCellCount; i++) {
-									if (
-										tableHeaderCells[
-											tableHeaderCellCount - i
-										].innerHTML.trim() == stat
-									) {
+									if (tableHeaderCells[tableHeaderCellCount - i].innerHTML.trim() == stat) {
 										statTypeIndexes[stat] = i;
 										break;
 									}
@@ -840,10 +806,7 @@ export function convertGameToCalendarString(game, options, teamTypes, localTeamN
 
 	//Add TeamType
 	const teamType = teamTypes[_teamType];
-	if (
-		options.displayTeamTypes === "all" ||
-		(options.displayTeamTypes === "allButFirst" && teamType.sortOrder > 1)
-	) {
+	if (options.displayTeamTypes === "all" || (options.displayTeamTypes === "allButFirst" && teamType.sortOrder > 1)) {
 		str += ` ${teamTypes[_teamType].name}`;
 	}
 
@@ -956,8 +919,7 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 
 					//Only use toString if it's not metres,
 					//as we don't want "120m Metres"
-					const valueAsString =
-						key === "M" ? value.toString() : statToString(key, value, 2);
+					const valueAsString = key === "M" ? value.toString() : statToString(key, value, 2);
 
 					//Pick label based on value
 					let label;

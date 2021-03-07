@@ -99,6 +99,4 @@ function mapStateToProps({ config }) {
 	return { authUser };
 }
 
-export default withRouter(
-	connect(mapStateToProps, { transferSiteOwnership })(AdminUserTransferSiteOwnership)
-);
+export default withRouter(connect(mapStateToProps, { transferSiteOwnership })(AdminUserTransferSiteOwnership));

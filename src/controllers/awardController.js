@@ -128,10 +128,7 @@ export async function submitVotes(req, res) {
 		const choices = _.map(req.body, (choice, categoryId) => ({ choice, categoryId }));
 
 		if (currentVote) {
-			await Award.updateOne(
-				{ _id, "votes._id": currentVote._id },
-				{ $set: { "votes.$.choices": choices } }
-			);
+			await Award.updateOne({ _id, "votes._id": currentVote._id }, { $set: { "votes.$.choices": choices } });
 		} else {
 			award.votes.push({ ip: ipAddress, choices });
 			await award.save();

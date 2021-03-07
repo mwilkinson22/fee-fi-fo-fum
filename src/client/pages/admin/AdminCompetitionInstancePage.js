@@ -50,9 +50,7 @@ class AdminCompetitionInstancePage extends Component {
 
 		//Get instance
 		if (newState.segment && !newState.isNew) {
-			newState.instance =
-				newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) ||
-				false;
+			newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 		}
 
 		return newState;
@@ -114,10 +112,7 @@ class AdminCompetitionInstancePage extends Component {
 			<section className="page-header">
 				<HelmetBuilder title={title} />
 				<div className="container">
-					<Link
-						className="nav-card"
-						to={`/admin/competitions/segments/${segment._id}/instances`}
-					>
+					<Link className="nav-card" to={`/admin/competitions/segments/${segment._id}/instances`}>
 						Return to {segment.name}
 					</Link>
 					{copyLink}
@@ -133,16 +128,8 @@ class AdminCompetitionInstancePage extends Component {
 		return (
 			<ErrorBoundary parentProps={this.props} parentState={this.state}>
 				<Switch>
-					<Route
-						path={`${root}/:instanceId/images`}
-						exact
-						component={AdminCompetitionInstanceImage}
-					/>
-					<Route
-						path={`${root}/:instanceId/style`}
-						exact
-						component={AdminCompetitionInstanceStyle}
-					/>
+					<Route path={`${root}/:instanceId/images`} exact component={AdminCompetitionInstanceImage} />
+					<Route path={`${root}/:instanceId/style`} exact component={AdminCompetitionInstanceStyle} />
 					<Route
 						path={`${root}/:instanceId/adjustments`}
 						exact
@@ -158,21 +145,9 @@ class AdminCompetitionInstancePage extends Component {
 						exact
 						component={AdminCompetitionInstanceSpecialRounds}
 					/>
-					<Route
-						path={`${root}/new/:copyFromId`}
-						exact
-						component={AdminCompetitionInstanceOverview}
-					/>
-					<Route
-						path={`${root}/new`}
-						exact
-						component={AdminCompetitionInstanceOverview}
-					/>
-					<Route
-						path={`${root}/:instanceId`}
-						exact
-						component={AdminCompetitionInstanceOverview}
-					/>
+					<Route path={`${root}/new/:copyFromId`} exact component={AdminCompetitionInstanceOverview} />
+					<Route path={`${root}/new`} exact component={AdminCompetitionInstanceOverview} />
+					<Route path={`${root}/:instanceId`} exact component={AdminCompetitionInstanceOverview} />
 					<Route path="/" component={NotFoundPage} />
 				</Switch>
 			</ErrorBoundary>

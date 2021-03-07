@@ -69,9 +69,7 @@ class AdminGameSquadImage extends Component {
 
 			//Convert ID list to eligible player array
 			.map(({ _player }) =>
-				newState.game.eligiblePlayers[localTeam].find(
-					eligiblePlayer => eligiblePlayer._id == _player
-				)
+				newState.game.eligiblePlayers[localTeam].find(eligiblePlayer => eligiblePlayer._id == _player)
 			)
 			.filter("twitter")
 			.sortBy(p => p.number || p.name.full)
@@ -250,10 +248,7 @@ class AdminGameSquadImage extends Component {
 							</div>
 							{this.renderPreview()}
 						</div>
-						<AdminGameEventList
-							game={game}
-							onReply={tweetId => setFieldValue("replyTweet", tweetId)}
-						/>
+						<AdminGameEventList game={game} onReply={tweetId => setFieldValue("replyTweet", tweetId)} />
 					</Form>
 				)}
 			</Formik>
@@ -269,6 +264,4 @@ function mapStateToProps({ config, games, social, teams }) {
 	return { fullGames, localTeam, profiles, defaultProfile, teamList };
 }
 
-export default connect(mapStateToProps, { fetchProfiles, getSquadImage, postGameEvent })(
-	AdminGameSquadImage
-);
+export default connect(mapStateToProps, { fetchProfiles, getSquadImage, postGameEvent })(AdminGameSquadImage);

@@ -55,11 +55,7 @@ class TeamForm extends Component {
 					<TeamFormHeadToHead allCompetitions={true} game={game} />
 					<div className="team-form-wrapper">
 						<div className={showTable ? "with-table" : null}>
-							<TeamFormPerTeam
-								allCompetitions={true}
-								game={game}
-								includeHeader={true}
-							/>
+							<TeamFormPerTeam allCompetitions={true} game={game} includeHeader={true} />
 							{this.renderTable()}
 						</div>
 					</div>

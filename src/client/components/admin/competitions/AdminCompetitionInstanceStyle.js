@@ -31,8 +31,7 @@ class AdminCompetitionInstanceStyle extends Component {
 		newState.segment = competitionSegmentList[match.params.segmentId] || false;
 
 		//Get Instance
-		newState.instance =
-			newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
+		newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 
 		//If the instance has no teams assigned, throw an error
 		if (!newState.instance.teams || !newState.instance.teams.length) {
@@ -65,9 +64,7 @@ class AdminCompetitionInstanceStyle extends Component {
 				color: instance.customStyling.color || "#FFFFFF"
 			},
 			leagueTableColours: instance.teams.map((id, i) => {
-				const currentValue = instance.leagueTableColours.find(
-					({ position }) => position.indexOf(i + 1) > -1
-				);
+				const currentValue = instance.leagueTableColours.find(({ position }) => position.indexOf(i + 1) > -1);
 				return currentValue ? currentValue.className : "";
 			})
 		};
@@ -145,9 +142,7 @@ class AdminCompetitionInstanceStyle extends Component {
 						initialValues={this.getInitialValues()}
 						isNew={false}
 						itemType="Instance"
-						onSubmit={values =>
-							updateCompetitionInstance(segment._id, instance._id, values)
-						}
+						onSubmit={values => updateCompetitionInstance(segment._id, instance._id, values)}
 						validationSchema={validationSchema}
 					/>
 				</div>

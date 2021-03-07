@@ -44,9 +44,7 @@ class AdminRefereeDetails extends Component {
 			to: ""
 		};
 		return _.mapValues(defaultValues, (defaultValue, key) =>
-			refereeDetails && refereeDetails[key]
-				? new Date(refereeDetails[key]).toString("yyyy-MM-dd")
-				: defaultValue
+			refereeDetails && refereeDetails[key] ? new Date(refereeDetails[key]).toString("yyyy-MM-dd") : defaultValue
 		);
 	}
 

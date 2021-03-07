@@ -133,10 +133,7 @@ class AdminProfilePage extends Component {
 						<button
 							type="button"
 							key="twitter-test-btn"
-							disabled={
-								_.filter(values.twitter, v => v == "").length ||
-								twitterTestResults == "loading"
-							}
+							disabled={_.filter(values.twitter, v => v == "").length || twitterTestResults == "loading"}
 							onClick={() => this.twitterTest(values.twitter)}
 						>
 							Test
@@ -154,14 +151,8 @@ class AdminProfilePage extends Component {
 									const { twitter } = await getAuthorisedAccounts(true);
 
 									//Update Formik
-									formik.setFieldValue(
-										"twitter.access_token",
-										twitter.access_token
-									);
-									formik.setFieldValue(
-										"twitter.access_token_secret",
-										twitter.access_token_secret
-									);
+									formik.setFieldValue("twitter.access_token", twitter.access_token);
+									formik.setFieldValue("twitter.access_token_secret", twitter.access_token_secret);
 
 									//Update State
 									this.setState({

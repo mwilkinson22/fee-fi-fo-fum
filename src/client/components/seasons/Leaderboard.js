@@ -15,9 +15,7 @@ class PlayerLeaderboard extends Component {
 		let filteredList = list;
 		if (list.length > placeCount) {
 			const threshold = list[placeCount - 1].value;
-			filteredList = list.filter(p =>
-				higherValueIsBetter ? p.value >= threshold : p.value <= threshold
-			);
+			filteredList = list.filter(p => (higherValueIsBetter ? p.value >= threshold : p.value <= threshold));
 		}
 
 		//Create Grouped Array

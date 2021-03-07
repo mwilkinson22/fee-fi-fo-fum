@@ -37,9 +37,7 @@ class TeamFormPerTeam extends Component {
 			const { isAway, opposition, homePoints, awayPoints, slug, date } = g;
 
 			//Get Score & Result
-			const [localScore, oppositionScore] = isAway
-				? [awayPoints, homePoints]
-				: [homePoints, awayPoints];
+			const [localScore, oppositionScore] = isAway ? [awayPoints, homePoints] : [homePoints, awayPoints];
 			let result;
 			if (localScore > oppositionScore) {
 				result = "W";
@@ -78,10 +76,7 @@ class TeamFormPerTeam extends Component {
 
 		return (
 			<div className="team" key={team._id}>
-				<div
-					style={{ background: team.colours.main, color: team.colours.text }}
-					className="header"
-				>
+				<div style={{ background: team.colours.main, color: team.colours.text }} className="header">
 					<div>
 						<TeamImage team={team} size="medium" />
 					</div>

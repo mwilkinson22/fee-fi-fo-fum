@@ -81,8 +81,7 @@ class PersonPage extends Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img src={`${bucketPaths.images.layout}icons/twitter.svg`} alt="Twitter Logo" />
-					@{twitter}
+					<img src={`${bucketPaths.images.layout}icons/twitter.svg`} alt="Twitter Logo" />@{twitter}
 				</a>
 			);
 		}
@@ -95,11 +94,7 @@ class PersonPage extends Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img
-						src={`${bucketPaths.images.layout}icons/instagram.svg`}
-						alt="Instagram Logo"
-					/>
-					@{instagram}
+					<img src={`${bucketPaths.images.layout}icons/instagram.svg`} alt="Instagram Logo" />@{instagram}
 				</a>
 			);
 		}
@@ -174,22 +169,12 @@ class PersonPage extends Component {
 	getInfoTable() {
 		const { bucketPaths, localTeam } = this.props;
 		const { person } = this.state;
-		const {
-			contractedUntil,
-			dateOfBirth,
-			nickname,
-			_hometown,
-			_represents,
-			_sponsor,
-			squadEntries
-		} = person;
+		const { contractedUntil, dateOfBirth, nickname, _hometown, _represents, _sponsor, squadEntries } = person;
 		const data = {};
 
 		if (squadEntries) {
 			const year = new Date().getFullYear();
-			const lastSquadEntry = squadEntries.find(
-				s => s.team._id == localTeam && s.year >= year && s.number
-			);
+			const lastSquadEntry = squadEntries.find(s => s.team._id == localTeam && s.year >= year && s.number);
 			if (lastSquadEntry) {
 				data["Squad Number"] = lastSquadEntry.number;
 			}
@@ -242,10 +227,7 @@ class PersonPage extends Component {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<img
-							src={`${bucketPaths.images.layout}icons/twitter.svg`}
-							alt="Twitter Logo"
-						/>
+						<img src={`${bucketPaths.images.layout}icons/twitter.svg`} alt="Twitter Logo" />
 					</a>
 				);
 			}
@@ -332,10 +314,7 @@ class PersonPage extends Component {
 				cardImage = bucketPaths.images.people + "midpage/" + person.images.midpage;
 				cardType = "summary_large_image";
 			} else if (person.images[imageVariant] || person.images.main) {
-				cardImage =
-					bucketPaths.images.people +
-					"full/" +
-					(person.images[imageVariant] || person.images.main);
+				cardImage = bucketPaths.images.people + "full/" + (person.images[imageVariant] || person.images.main);
 			}
 
 			return (

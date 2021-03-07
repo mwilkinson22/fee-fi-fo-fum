@@ -98,12 +98,7 @@ class AdminPersonImageCardRowEditor extends Component {
 										>
 											&#9660;
 										</button>,
-										<button
-											key="delete"
-											className="delete"
-											type="button"
-											onClick={() => remove(i)}
-										>
+										<button key="delete" className="delete" type="button" onClick={() => remove(i)}>
 											Delete
 										</button>
 									];
@@ -140,10 +135,7 @@ class AdminPersonImageCardRowEditor extends Component {
 						}
 						return (
 							<div className="buttons" key="add-button">
-								<button
-									type="button"
-									onClick={() => push(this.getNewSegmentValues(newSegmentValues))}
-								>
+								<button type="button" onClick={() => push(this.getNewSegmentValues(newSegmentValues))}>
 									Add Segment
 								</button>
 							</div>
@@ -238,6 +230,4 @@ function mapStateToProps({ config }) {
 	return { mainColour, trimColour };
 }
 
-export default connect(mapStateToProps, { fetchPersonImageCard, postPersonImageCard })(
-	AdminPersonImageCardRowEditor
-);
+export default connect(mapStateToProps, { fetchPersonImageCard, postPersonImageCard })(AdminPersonImageCardRowEditor);

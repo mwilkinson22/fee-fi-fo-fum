@@ -8,11 +8,7 @@ import * as Yup from "yup";
 import BasicForm from "../BasicForm";
 
 //Actions
-import {
-	createCompetition,
-	updateCompetition,
-	deleteCompetition
-} from "~/client/actions/competitionActions";
+import { createCompetition, updateCompetition, deleteCompetition } from "~/client/actions/competitionActions";
 
 //Constants
 const competitionTypes = require("~/constants/competitionTypes");

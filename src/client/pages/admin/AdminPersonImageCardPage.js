@@ -102,6 +102,4 @@ function mapStateToProps({ config, people }) {
 	return { baseUrl, localTeam, fullPeople };
 }
 
-export default connect(mapStateToProps, { fetchPersonImageCard, postPersonImageCard })(
-	AdminPersonImageCardPage
-);
+export default connect(mapStateToProps, { fetchPersonImageCard, postPersonImageCard })(AdminPersonImageCardPage);

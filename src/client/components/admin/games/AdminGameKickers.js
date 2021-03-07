@@ -84,9 +84,7 @@ class AdminGameKickers extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		return _.map(values, (_player, _team) => ({ _player, _team })).filter(
-			({ _player }) => _player
-		);
+		return _.map(values, (_player, _team) => ({ _player, _team })).filter(({ _player }) => _player);
 	}
 
 	render() {

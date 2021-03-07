@@ -4,12 +4,7 @@ import { localTeam } from "~/config/keys";
 //Helper Functions
 function getInstance(doc) {
 	const { date, _competition } = doc;
-	if (
-		!date ||
-		!_competition ||
-		!_competition._parentCompetition ||
-		!_competition.instances.length
-	) {
+	if (!date || !_competition || !_competition._parentCompetition || !_competition.instances.length) {
 		return null;
 	}
 
@@ -147,10 +142,7 @@ export default gameSchema => {
 				(!pregameSquads || pregameSquads.filter(s => s.squad && s.squad.length).length < 2)
 			) {
 				return 0;
-			} else if (
-				Object.keys(_.groupBy(playerStats, "_team")).length < 2 ||
-				!squadsAnnounced
-			) {
+			} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2 || !squadsAnnounced) {
 				return 1;
 			} else if (!instance.scoreOnly && !_.sumBy(playerStats, "stats.TK")) {
 				return 2;

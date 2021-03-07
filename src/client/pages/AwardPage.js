@@ -108,22 +108,17 @@ class AwardPage extends Component {
 		let content;
 
 		if (!currentAwards) {
-			content = (
-				<div className="form-card intro">There are currently no awards open for voting</div>
-			);
+			content = <div className="form-card intro">There are currently no awards open for voting</div>;
 		} else if (currentAwards.votes && !editingEnabled) {
 			content = (
 				<div className="form-card intro">
 					<p>
-						Thank you for voting. Please give us a follow on our social media to be the
-						first to find out the winners!
+						Thank you for voting. Please give us a follow on our social media to be the first to find out
+						the winners!
 					</p>
 					<p>
 						Changed your mind?&nbsp;
-						<span
-							className="edit-link"
-							onClick={() => this.setState({ editingEnabled: true })}
-						>
+						<span className="edit-link" onClick={() => this.setState({ editingEnabled: true })}>
 							Click Here
 						</span>{" "}
 						to edit your selections
@@ -141,9 +136,8 @@ class AwardPage extends Component {
 						/>
 					</div>
 					<div className="form-card intro">
-						Welcome to the voting page for the {currentAwards.year} {site_name} Fan
-						Awards! Vote in each category below and make sure to follow our social media
-						to see the results!
+						Welcome to the voting page for the {currentAwards.year} {site_name} Fan Awards! Vote in each
+						category below and make sure to follow our social media to see the results!
 					</div>
 					<AwardsVotingForm onComplete={() => this.setState({ editingEnabled: false })} />
 				</div>
@@ -164,9 +158,8 @@ class AwardPage extends Component {
 				<HelmetBuilder
 					title={`${year}5Fs Awards`}
 					description={`Vote in the ${year}${site_name} Fan Awards!`}
-					cardImage={`${
-						bucketPaths.imageRoot
-					}awards/socialCards/${currentAwards.socialCard || "default.jpg"}`}
+					cardImage={`${bucketPaths.imageRoot}awards/socialCards/${currentAwards.socialCard ||
+						"default.jpg"}`}
 				/>
 				<section className="page-header">
 					<div className="container">
@@ -177,9 +170,7 @@ class AwardPage extends Component {
 					</div>
 				</section>
 				<section>
-					<div className="container">
-						{isLoading ? <LoadingPage /> : this.renderContent()}
-					</div>
+					<div className="container">{isLoading ? <LoadingPage /> : this.renderContent()}</div>
 				</section>
 			</div>
 		);

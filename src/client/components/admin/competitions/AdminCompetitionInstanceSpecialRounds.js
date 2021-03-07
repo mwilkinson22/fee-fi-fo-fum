@@ -30,9 +30,7 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 
 		//Get Instance
 		if (!newState.isNew) {
-			newState.instance =
-				newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) ||
-				false;
+			newState.instance = newState.segment.instances.find(({ _id }) => _id === match.params.instanceId) || false;
 		}
 
 		//Create Validation Schema
@@ -143,9 +141,7 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 						initialValues={this.getInitialValues()}
 						isNew={false}
 						itemType="Special Rounds"
-						onSubmit={values =>
-							updateCompetitionInstance(segment._id, instance._id, values)
-						}
+						onSubmit={values => updateCompetitionInstance(segment._id, instance._id, values)}
 						validationSchema={validationSchema}
 					/>
 				</div>

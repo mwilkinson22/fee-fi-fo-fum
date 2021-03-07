@@ -89,10 +89,7 @@ export async function deleteTeam(req, res) {
 		const Game = mongoose.model("games");
 		const games = await Game.find({ _opposition: _id }, "slug").lean();
 		const NeutralGame = mongoose.model("neutralGames");
-		const neutralGames = await NeutralGame.find(
-			{ $or: [{ _homeTeam: _id }, { _awayTeam: _id }] },
-			"date"
-		).lean();
+		const neutralGames = await NeutralGame.find({ $or: [{ _homeTeam: _id }, { _awayTeam: _id }] }, "date").lean();
 		const totalGames = games.length + neutralGames.length;
 
 		//Check if a team is named in a competition instance
@@ -200,8 +197,7 @@ export async function appendSquad(req, res) {
 
 			//Prevent duplicates
 			const newSquadWithoutDuplicates = newSquad.filter(
-				({ _player }) =>
-					!squad.players.find(p => p._player.toString() == _player.toString())
+				({ _player }) => !squad.players.find(p => p._player.toString() == _player.toString())
 			);
 
 			squad.players.push(...newSquadWithoutDuplicates);
@@ -319,30 +315,21 @@ export async function updateSquad(req, res) {
 						_teamType: _competition._teamType,
 						useAllSquads: _competition._parentCompetition.useAllSquads
 					}))
-					.filter(
-						c => c.useAllSquads || c._teamType.toString() == squad._teamType.toString()
-					)
+					.filter(c => c.useAllSquads || c._teamType.toString() == squad._teamType.toString())
 					.value();
 
 				//If there are any competitions with useAllSquads set to false,
 				//then we know the player cannot be deleted
-				let dependentCompetitions = competitions
-					.filter(c => !c.useAllSquads)
-					.map(c => c._id);
+				let dependentCompetitions = competitions.filter(c => !c.useAllSquads).map(c => c._id);
 				let dependentGames;
 				if (dependentCompetitions) {
-					dependentGames = games.filter(g =>
-						dependentCompetitions.find(c => c == g._competition._id)
-					);
+					dependentGames = games.filter(g => dependentCompetitions.find(c => c == g._competition._id));
 				} else {
 					//If we get to this point, it means a player has only featured in
 					//games that uses all squads. In this case, we need to confirm they
 					//appear in at least one other relevant squad
 					const otherSquads = team.squads.filter(
-						s =>
-							s._id != squadId &&
-							s.year == squad.year &&
-							s.players.find(p => p._player == _player)
+						s => s._id != squadId && s.year == squad.year && s.players.find(p => p._player == _player)
 					);
 					if (!otherSquads.length) {
 						dependentGames = games;
@@ -472,9 +459,7 @@ export async function deleteTeamType(req, res) {
 		const segments = await CompetitionSegments.find({ _teamType: _id }, "name").lean();
 		if (segments.length) {
 			toLog.competitionSegments = segments;
-			errors.push(
-				`${segments.length} competition ${segments.length === 1 ? "segment" : "segments"}`
-			);
+			errors.push(`${segments.length} competition ${segments.length === 1 ? "segment" : "segments"}`);
 		}
 
 		if (errors.length) {

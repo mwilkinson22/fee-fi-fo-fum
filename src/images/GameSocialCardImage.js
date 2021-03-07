@@ -55,14 +55,9 @@ export default class GameSocialCardImage extends Canvas {
 
 	async getTeamInfo() {
 		const { game } = this;
-		const teams = await Team.find(
-			{ _id: { $in: [localTeam, this.game._opposition._id] } },
-			"images colours"
-		);
+		const teams = await Team.find({ _id: { $in: [localTeam, this.game._opposition._id] } }, "images colours");
 		for (const team of teams) {
-			team.badge = await this.googleToCanvas(
-				`images/teams/${team.images.light || team.images.main}`
-			);
+			team.badge = await this.googleToCanvas(`images/teams/${team.images.light || team.images.main}`);
 		}
 		const awayTeam = game.isAway ? localTeam : game._opposition._id;
 		this.teams = _.sortBy(teams, t => t._id == awayTeam);

@@ -32,9 +32,7 @@ class PrivacyPolicyPage extends Component {
 			return <LoadingPage />;
 		}
 
-		const formattedPolicy = privacyPolicy
-			.split("\n")
-			.map((paragraph, i) => <p key={i}>{paragraph}</p>);
+		const formattedPolicy = privacyPolicy.split("\n").map((paragraph, i) => <p key={i}>{paragraph}</p>);
 
 		return (
 			<div className="privacy-policy-page">

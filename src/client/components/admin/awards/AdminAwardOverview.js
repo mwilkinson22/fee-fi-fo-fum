@@ -38,8 +38,7 @@ class AdminAwardOverview extends Component {
 				.test(
 					"is-taken",
 					"Awards for this year are already in place",
-					year =>
-						(award && award.year == year) || !_.find(awardsList, a => a.year == year)
+					year => (award && award.year == year) || !_.find(awardsList, a => a.year == year)
 				)
 				.required()
 				.label("Year"),
@@ -167,9 +166,7 @@ class AdminAwardOverview extends Component {
 										>
 											&#9650;
 										</button>
-										<div className="name">
-											{award.categories.find(c => c._id == id).name}
-										</div>
+										<div className="name">{award.categories.find(c => c._id == id).name}</div>
 									</li>
 								));
 							}}
@@ -231,6 +228,4 @@ function mapStateToProps({ awards }) {
 	return { awardsList };
 }
 // export default form;
-export default withRouter(
-	connect(mapStateToProps, { createAward, updateAward, deleteAward })(AdminAwardOverview)
-);
+export default withRouter(connect(mapStateToProps, { createAward, updateAward, deleteAward })(AdminAwardOverview));

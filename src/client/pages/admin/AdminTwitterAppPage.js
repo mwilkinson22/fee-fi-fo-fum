@@ -93,9 +93,7 @@ class AdminTwitterAppPage extends Component {
 					<button
 						type="button"
 						key="twitter-test-btn"
-						disabled={
-							_.filter(values, v => v == "").length || twitterTestResults == "loading"
-						}
+						disabled={_.filter(values, v => v == "").length || twitterTestResults == "loading"}
 						onClick={() => this.twitterTest(values)}
 					>
 						Test

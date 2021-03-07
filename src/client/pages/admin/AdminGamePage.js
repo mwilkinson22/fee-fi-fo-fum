@@ -227,18 +227,9 @@ class AdminGamePage extends Component {
 				<Switch>
 					<Route path={`${path}/post-game-events`} component={AdminGamePostGameEvents} />
 					<Route path={`${path}/post-game`} component={AdminGamePostGame} />
-					<Route
-						path={`${path}/override-gamestar`}
-						component={AdminGameOverrideGameStar}
-					/>
-					<Route
-						path={`${path}/stats`}
-						render={() => <AdminGameStats scoreOnly={scoreOnly} />}
-					/>
-					<Route
-						path={`${path}/scores`}
-						render={() => <AdminGameStats scoreOnly={true} />}
-					/>
+					<Route path={`${path}/override-gamestar`} component={AdminGameOverrideGameStar} />
+					<Route path={`${path}/stats`} render={() => <AdminGameStats scoreOnly={scoreOnly} />} />
+					<Route path={`${path}/scores`} render={() => <AdminGameStats scoreOnly={true} />} />
 					<Route path={`${path}/event`} component={AdminGameEvent} />
 					<Route path={`${path}/kickers`} component={AdminGameKickers} />
 					<Route path={`${path}/squad-images`} component={AdminGameSquadImage} />
@@ -292,6 +283,4 @@ function mapStateToProps({ config, games, teams }) {
 	const { localTeam } = config;
 	return { localTeam, fullGames, teamList, gameList, gameYears, teamTypes, fullTeams };
 }
-export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameListByYear })(
-	AdminGamePage
-);
+export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameListByYear })(AdminGamePage);

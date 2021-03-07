@@ -49,9 +49,7 @@ class AdminCompetitionInstanceList extends Component {
 
 				return (
 					<li key={_id}>
-						<Link to={`/admin/competitions/segments/${segment._id}/instances/${_id}`}>
-							{title}
-						</Link>
+						<Link to={`/admin/competitions/segments/${segment._id}/instances/${_id}`}>{title}</Link>
 					</li>
 				);
 			})

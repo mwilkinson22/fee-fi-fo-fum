@@ -3,8 +3,7 @@ export function hasConnectionToTeam(person, team, returnSpecificResults = false)
 
 	const hasCoachedTeam = person.coachingRoles && person.coachingRoles.find(c => c._team == team);
 
-	const hasPlayedForTeam =
-		person.playedGames && person.playedGames.find(g => g.forLocalTeam && !g.pregameOnly);
+	const hasPlayedForTeam = person.playedGames && person.playedGames.find(g => g.forLocalTeam && !g.pregameOnly);
 
 	if (returnSpecificResults) {
 		return { isInSquad, hasCoachedTeam, hasPlayedForTeam };
