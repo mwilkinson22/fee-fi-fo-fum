@@ -1,0 +1,45 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+		"node": true,
+		"mocha": true
+    },
+    "extends": [
+		"eslint:recommended",
+		"plugin:react/recommended"
+	],
+	"parser": "babel-eslint",
+	"parserOptions": {
+		"requireConfigFile": false
+	},
+    "plugins": [
+        "react",
+		"node"
+    ],
+    "rules": {
+        "indent": [
+            "warn",
+            "tab",
+			{"SwitchCase": 1}
+        ],
+		"no-debugger": [
+			"warn"
+		],
+		"no-console": [
+			"warn",
+			{ "allow": ["info", "warn", "error"] }
+		],
+		"no-unused-vars": [
+			"warn",
+			{ "ignoreRestSiblings": true }
+		],
+		"react/jsx-uses-react": "error",
+		"react/jsx-uses-vars": "error",
+		"react/prop-types": 0,
+        "semi": [
+            "warn",
+            "always"
+        ]
+    }
+}
