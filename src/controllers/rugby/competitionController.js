@@ -649,6 +649,13 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 		squadsAnnounced: true,
 		_competition: { $in: competitions.map(id => mongoose.Types.ObjectId(id)) }
 	};
+	//Also handle scoreOverride games
+	const localGameWithScoreOverrideMatch = {
+		date,
+		_competition: { $in: competitions },
+		squadsAnnounced: false,
+		"scoreOverride.1": { $exists: true }
+	};
 	//Define match param for neutral games
 	const neutralGameMatch = {
 		date,
@@ -657,14 +664,16 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 		awayPoints: { $ne: null }
 	};
 	//Get teams and games
-	let [teams, localGames, neutralGames] = await Promise.all([
+	let [teams, localGames, localGameWithScoreOverride, neutralGames] = await Promise.all([
 		Team.find({ _id: { $in: instance.teams } }, teamSelectString).lean(),
 		getGamesByAggregate(localGameMatch),
+		Game.find(localGameWithScoreOverrideMatch, "_opposition isAway scoreOverride").lean(),
 		NeutralGame.find(neutralGameMatch, "_homeTeam _awayTeam homePoints awayPoints").lean()
 	]);
 	teams = _.keyBy(teams, "_id");
 
 	//Standardise game array
+	//First, handle normal local games
 	const games = localGames.map(g => {
 		const _opposition = Object.keys(g.score).find(id => id !== localTeam);
 		const _homeTeam = g.isAway ? _opposition : localTeam;
@@ -677,7 +686,26 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 		};
 	});
 
-	//Add to collection
+	//Then, add games with a scoreOverride
+	for (const game of localGameWithScoreOverride) {
+		//Ensure we don't already have this game as part of
+		//localGames. Shouldn't be possible but no harm in checking
+		if (localGames.find(g => g._id == game._id)) {
+			continue;
+		}
+		const score = _.fromPairs(game.scoreOverride.map(({ _team, points }) => [_team, points]));
+		const _opposition = Object.keys(score).find(id => id !== localTeam);
+		const _homeTeam = game.isAway ? _opposition : localTeam;
+		const _awayTeam = game.isAway ? localTeam : _opposition;
+		games.push({
+			_homeTeam,
+			_awayTeam,
+			homePoints: score[_homeTeam],
+			awayPoints: score[_awayTeam]
+		});
+	}
+
+	//Finally, add neutral games
 	games.push(
 		...neutralGames.map(g => ({
 			...g,
@@ -757,7 +785,7 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 			if (row.Pld === 0) {
 				row.WinPc = 0;
 			} else {
-				row.WinPc = (row.W / row.Pld) * 100;
+				row.WinPc = (row.Pts / row.Pld) * 50;
 			}
 
 			//Return Row
