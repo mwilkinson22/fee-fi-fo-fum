@@ -60,10 +60,7 @@ export async function uploadFile(req, res) {
 		let result;
 		if (isImage) {
 			//Check Resize Variable, only allow for png & jpeg
-			const extension = name
-				.split(".")
-				.pop()
-				.toLowerCase();
+			const extension = name.split(".").pop().toLowerCase();
 
 			const isJpgOrPng = ["jpg", "jpeg", "png"].indexOf(extension) > -1;
 			if (!resize || !isJpgOrPng) {
@@ -76,9 +73,9 @@ export async function uploadFile(req, res) {
 			result = await uploadImageToGoogle(req.file, path, convertImageToWebP, null, defaultSize, cacheMaxAge);
 
 			//Upload alternate sizes.
-			//No need to return these values
+			//No need to return these values, so we don't need to use await
 			for (const size in alternateSizes) {
-				await uploadImageToGoogle(
+				uploadImageToGoogle(
 					req.file,
 					`${path}${size}/`,
 					convertImageToWebP,
