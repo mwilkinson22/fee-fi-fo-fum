@@ -298,7 +298,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSquad() {
-		const { cHeight, positions, players } = this;
+		const { ctx, colours, cHeight, positions, players } = this;
 
 		//Create Squad Object
 		this.squad = players.map(player => {
@@ -355,7 +355,7 @@ export default class SquadImage extends Canvas {
 				})
 				.filter(_.identity)
 				.value();
-
+			ctx.fillStyle = colours.claret;
 			this.textBuilder(interchangeList, positions.sideBarWidth * 0.5, Math.round(cHeight * 0.74), {
 				lineHeight: 1.8
 			});
