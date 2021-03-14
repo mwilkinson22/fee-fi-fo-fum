@@ -1124,6 +1124,8 @@ export async function handleEvent(req, res) {
 
 		//Post Tweet
 		if (postTweet) {
+			//Get updated game
+			game = await Game.findById(_id).eventImage();
 			const twitterClient = await twitter(_profile);
 
 			//Create Image
