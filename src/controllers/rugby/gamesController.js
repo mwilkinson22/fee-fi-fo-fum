@@ -86,18 +86,12 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
 		if (game.scoreOverride && game.scoreOverride.length) {
-			game.scoreOverride = _.chain(game.scoreOverride)
-				.keyBy("_team")
-				.mapValues("points")
-				.value();
+			game.scoreOverride = _.chain(game.scoreOverride).keyBy("_team").mapValues("points").value();
 		}
 
 		//Convert fan_potm votes to simple count
 		if (game.fan_potm && game.fan_potm.votes && game.fan_potm.votes.length) {
-			game.fan_potm.votes = _.chain(game.fan_potm.votes)
-				.groupBy("choice")
-				.mapValues("length")
-				.value();
+			game.fan_potm.votes = _.chain(game.fan_potm.votes).groupBy("choice").mapValues("length").value();
 		}
 
 		return game;
@@ -169,9 +163,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		asyncCalls.unshift(allCompetitionQuery, singleCompetitionQuery);
 
 		//Get news posts
-		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id")
-			.sort({ date: 1 })
-			.lean();
+		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id").sort({ date: 1 }).lean();
 		asyncCalls.unshift(newsPostQuery);
 
 		//Ensure all async calls are run
@@ -486,10 +478,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	}
 
 	//First, we get the last five local games
-	const localteamFormQuery = Game.find(match)
-		.fullGame(false, false)
-		.sort({ date: -1 })
-		.limit(gameLimit);
+	const localteamFormQuery = Game.find(match).fullGame(false, false).sort({ date: -1 }).limit(gameLimit);
 
 	//Then the last five head to heads
 	const headToHeadFormQuery = Game.find({ ...match, _opposition: game._opposition._id })
@@ -616,9 +605,7 @@ async function processList(userIsAdmin, query = {}) {
 	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };
 	}
-	const games = await Game.find(query)
-		.forList()
-		.lean();
+	const games = await Game.find(query).forList().lean();
 
 	return _.keyBy(games, "_id");
 }
@@ -1120,14 +1107,15 @@ export async function handleEvent(req, res) {
 			}
 			eventObject.inDatabase = true;
 			eventObject._player = player;
-			game = await Game.updateOne(
-				{ _id },
-				{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
-				{
-					new: true,
-					arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
-				}
-			).eventImage();
+			await game
+				.update(
+					{ $inc: { [`playerStats.$[elem].stats.${event}`]: 1 } },
+					{
+						new: true,
+						arrayFilters: [{ "elem._player": mongoose.Types.ObjectId(player) }]
+					}
+				)
+				.eventImage();
 		} else if (event == "extraTime") {
 			eventObject.inDatabase = true;
 			game.extraTime = true;
@@ -1146,7 +1134,7 @@ export async function handleEvent(req, res) {
 					//Check for hat-trick
 					let imageEvent = event;
 					if (event === "T") {
-						const { stats } = _.find(game._doc.playerStats, p => p._player._id == player);
+						const { stats } = _.find(game.playerStats, p => p._player._id == player);
 						const { T } = stats;
 						if (T % 3 === 0) {
 							imageEvent = "HT";
@@ -1529,10 +1517,7 @@ async function generatePostGameEventImage(game, data, res) {
 				const date = new Date(game.date);
 				const options = {
 					fromDate: `${date.getFullYear()}-01-01`,
-					toDate: date
-						.next()
-						.tuesday()
-						.toString("yyyy-MM-dd")
+					toDate: date.next().tuesday().toString("yyyy-MM-dd")
 				};
 				return new LeagueTable(
 					game._competition._id,
