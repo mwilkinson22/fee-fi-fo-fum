@@ -82,7 +82,7 @@ class AdminGamePregameImage extends Component {
 				.map(({ _id, images, name, number }) => ({
 					value: _id,
 					label: `${number ? `${number}. ` : ""} ${name.full}`,
-					image: images.player || images.main,
+					image: images ? images.player || images.main : null,
 					isNew: newState.lastLocalSquad && !newState.lastLocalSquad.find(id => id == _id)
 				}))
 				//Group By New Status
@@ -120,19 +120,11 @@ class AdminGamePregameImage extends Component {
 
 		//Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			_profile: Yup.mixed()
-				.required()
-				.label("Profile"),
-			team: Yup.mixed()
-				.required()
-				.label("Team"),
+			_profile: Yup.mixed().required().label("Profile"),
+			team: Yup.mixed().required().label("Team"),
 			playerForImage: Yup.mixed().label("Player For Image"),
-			playersToHighlight: Yup.array()
-				.of(Yup.mixed())
-				.label("Players To Highlight"),
-			tweet: Yup.string()
-				.required()
-				.label("Tweet"),
+			playersToHighlight: Yup.array().of(Yup.mixed()).label("Players To Highlight"),
+			tweet: Yup.string().required().label("Tweet"),
 			replyTweet: Yup.string().label("Reply Tweet ID")
 		});
 
