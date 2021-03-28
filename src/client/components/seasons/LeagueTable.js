@@ -81,18 +81,34 @@ class LeagueTable extends Component {
 			{ key: "W", label: "W", title: "Wins" },
 			{ key: "D", label: "D", title: "Draws" },
 			{ key: "L", label: "L", title: "Losses" },
-			{ key: "F", label: "F", title: "Points Difference" },
-			{ key: "A", label: "A", title: "Points Against" },
-			{ key: "Diff", label: "Diff", title: "Points For" },
-			{ key: "Pts", label: "Pts", title: "Points" }
+			{ key: "F", label: "F", title: "Points For" },
+			{ key: "A", label: "A", title: "Points Against" }
 		];
 
+		const pointsColumn = { key: "Pts", label: "Pts", title: "Points" };
 		if (settings.usesWinPc) {
-			newState.columns.push({
-				key: "WinPc",
-				label: "Win %",
-				title: "Win Percentage"
-			});
+			newState.columns.push(
+				pointsColumn,
+				{
+					key: "DiffPc",
+					label: "Diff %",
+					title: "Points Difference %"
+				},
+				{
+					key: "WinPc",
+					label: "Win %",
+					title: "Win Percentage"
+				}
+			);
+		} else {
+			newState.columns.push(
+				{
+					key: "Diff",
+					label: "Diff",
+					title: "Points Difference"
+				},
+				pointsColumn
+			);
 		}
 
 		//Get Styling
@@ -126,10 +142,16 @@ class LeagueTable extends Component {
 			data["team-badge"] = <TeamImage size="small" team={team} />;
 
 			//Convert to table data
-			if (data.WinPc) {
+			if (data.WinPc != null) {
 				data.WinPc = {
 					content: Number(data.WinPc.toFixed(2)) + "%",
 					sortValue: data.WinPc
+				};
+			}
+			if (data.DiffPc != null) {
+				data.DiffPc = {
+					content: Number(data.DiffPc.toFixed(2)) + "%",
+					sortValue: data.DiffPc
 				};
 			}
 

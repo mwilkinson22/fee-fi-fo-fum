@@ -718,13 +718,13 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 	let tableSorting;
 	if (instance.usesWinPc) {
 		tableSorting = [
-			["WinPc", ({ F, A }) => (F && A ? F / A : 0)],
+			["WinPc", "DiffPc"],
 			["desc", "desc", "asc"]
 		];
 	} else {
 		tableSorting = [
-			["Pts", "Diff", ({ F, A }) => (F && A ? F / A : 0)],
-			["desc", "desc", "desc", "asc"]
+			["Pts", "Diff", "DiffPc"],
+			["desc", "desc", "desc"]
 		];
 	}
 
@@ -780,6 +780,7 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 			//Calculate Diff, Pld, Pts & WinPC
 			row.Pld = row.W + row.D + row.L;
 			row.Diff = row.F - row.A;
+			row.DiffPc = row.A ? (row.F / row.A) * 100 : 0;
 			row.Pts += row.W * 2 + row.D;
 
 			if (row.Pld === 0) {

@@ -43,6 +43,10 @@ export default class LeagueTable extends Canvas {
 				size: textSize,
 				family: "Titillium"
 			},
+			diffPc: {
+				size: textSize * 0.8,
+				family: "Titillium"
+			},
 			semi: {
 				size: textSize,
 				family: "Titillium Semi"
@@ -54,7 +58,6 @@ export default class LeagueTable extends Canvas {
 		};
 		this.setTextStyles(textStyles);
 		this.colours.lightClaret = "#a53552";
-		this.columns = ["position", "team", "Pld", "W", "D", "L", "F", "A", "Diff", "Pts"];
 	}
 
 	async getTeamImages() {
@@ -193,7 +196,7 @@ export default class LeagueTable extends Canvas {
 					//Update textX
 					let otherColumns = columns.length - 1;
 
-					//Add extra space for Win %
+					//Add extra space for Win % & Diff %
 					if (columns.includes("Win %")) {
 						otherColumns += 0.5;
 					}
@@ -205,14 +208,24 @@ export default class LeagueTable extends Canvas {
 					ctx.textAlign = "center";
 
 					//Set Font
-					const useBold = ["position", "Pts"].indexOf(column) > -1;
-					ctx.font = textStyles[useBold ? "bold" : "regular"].string;
+					const useBold = ["position", tableData.settings.usesWinPc ? "Win %" : "Pts"].indexOf(column) > -1;
+					let style;
+					if (column === "Diff %") {
+						style = "diffPc";
+					} else if (useBold) {
+						style = "bold";
+					} else {
+						style = "regular";
+					}
+					ctx.font = textStyles[style].string;
 
 					//Get Value
 					let value;
 					if (column === "Win %") {
 						value = Number(row.WinPc.toFixed(2)) + "%";
 						textX += positions.standardColumnWidth / 4;
+					} else if (column === "Diff %") {
+						value = Number(row.DiffPc.toFixed(2)) + "%";
 					} else {
 						value = row[column];
 					}
@@ -233,16 +246,22 @@ export default class LeagueTable extends Canvas {
 		//Get Table
 		this.tableData = await processLeagueTableData(_segment, year, options);
 
-		//Get Teams
-		await this.getTeamImages();
+		//Set Columns
+		this.columns = ["position", "team", "Pld", "W", "D", "L", "F", "A"];
 
-		//Resize
+		//Handle win pc
 		let w = this.cWidth;
-		if (this.tableData.settings.usesWinPc) {
+		const { usesWinPc } = this.tableData.settings;
+		if (usesWinPc) {
 			w += positions.standardColumnWidth * 1.5;
-			this.columns.push("Win %");
+			this.columns.push("Pts", "Diff %", "Win %");
+		} else {
+			this.columns.push("Diff", "Pts");
 		}
 		this.resizeCanvas(w, positions.rowHeight * (this.tableData.rowData.length + 1.5));
+
+		//Get Teams
+		await this.getTeamImages();
 
 		//Draw Header
 		await this.drawHeader();
