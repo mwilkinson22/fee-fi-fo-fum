@@ -18,9 +18,7 @@ export async function getDashboardData(req, res) {
 	const localTeamObject = await Team.findById(localTeam, "squads coaches").lean();
 
 	//Get the first team
-	const teamTypes = await TeamType.find({})
-		.sort({ sortOrder: 1 })
-		.lean();
+	const teamTypes = await TeamType.find({}).sort({ sortOrder: 1 }).lean();
 	const firstTeam = teamTypes[0]._id.toString();
 
 	//Create an object with all the data we need
@@ -190,7 +188,7 @@ async function getGames(firstTeam) {
 	games = JSON.parse(JSON.stringify(games));
 
 	//Get eligible players and additional info
-	games = await getExtraGameInfo(games, true, false);
+	games = await getExtraGameInfo(games, true, true);
 
 	//Filter out those with issues
 	return games
@@ -263,10 +261,7 @@ async function getGames(firstTeam) {
 
 			//Check for man/woman of steel
 			if (game._competition.instance.manOfSteelPoints && !game._competition.instance.manOfSteelPointsGoneDark) {
-				const nextMondayAfternoon = new Date(date)
-					.next()
-					.monday()
-					.setHours(16, 0, 0);
+				const nextMondayAfternoon = new Date(date).next().monday().setHours(16, 0, 0);
 
 				const pointsRequired = !game.manOfSteel || game.manOfSteel.length < 3;
 
