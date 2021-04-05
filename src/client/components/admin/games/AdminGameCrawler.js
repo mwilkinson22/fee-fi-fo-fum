@@ -88,7 +88,7 @@ class AdminGameCrawler extends Component {
 				.filter(p => p._team == team)
 				.map(({ _id }) => ({
 					value: _id,
-					label: _.find(game.eligiblePlayers[team], p => p._id == _id)._player.name.full
+					label: _.find(game.eligiblePlayers[team], p => p._id == _id).name.full
 				}))
 				.sortBy("label")
 				.map(({ value, label }) => (
