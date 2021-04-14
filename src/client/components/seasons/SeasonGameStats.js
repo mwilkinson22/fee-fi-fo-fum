@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
@@ -127,7 +127,7 @@ class SeasonGameStats extends Component {
 	}
 
 	renderTable() {
-		const { localTeam } = this.props;
+		const { localTeam, year } = this.props;
 		const { gamesWithProcessedStats, options, totalOrIndividual, teamToLoad } = this.state;
 
 		//Create a custom stat type object to be populated as we scan games
@@ -136,7 +136,7 @@ class SeasonGameStats extends Component {
 		//Create Rows
 		const rowData = gamesWithProcessedStats.map(game => {
 			const first = {
-				content: <StatTableGameCell game={game} />,
+				content: <StatTableGameCell game={game} includeYear={year === "All"} />,
 				sortValue: game.date.getTime()
 			};
 
@@ -281,43 +281,46 @@ class SeasonGameStats extends Component {
 			);
 		}
 
-		//
-		return [
-			<section className="stat-type-switch" key="switch">
-				<div className="container">
-					{this.renderPageSwitch("totalOrIndividual")}
-					{this.renderPageSwitch("teamToLoad")}
-				</div>
-			</section>,
-			<section className="tables" key="tables">
-				<div className="container">{this.renderTable()}</div>
-			</section>
-		];
+		return (
+			<Fragment>
+				<section className="stat-type-switch" key="switch">
+					<div className="container">
+						{this.renderPageSwitch("totalOrIndividual")}
+						{this.renderPageSwitch("teamToLoad")}
+					</div>
+				</section>
+				<section className="tables" key="tables">
+					<div className="container">{this.renderTable()}</div>
+				</section>
+			</Fragment>
+		);
 	}
 
 	render() {
 		const { year } = this.props;
 		const { games } = this.state;
 
-		return [
-			<section className="game-filters" key="filters">
-				<div className="container">
-					<GameFilters
-						addToFromDates={year === "All"}
-						games={games}
-						onFilterChange={filteredGames => this.setState({ filteredGames })}
-						friendliesByDefault={false}
-					/>
-				</div>
-			</section>,
-			this.renderContent()
-		];
+		return (
+			<Fragment>
+				<section className="game-filters" key="filters">
+					<div className="container">
+						<GameFilters
+							addToFromDates={year === "All"}
+							games={games}
+							onFilterChange={filteredGames => this.setState({ filteredGames })}
+							friendliesByDefault={false}
+						/>
+					</div>
+				</section>
+				{this.renderContent()}
+			</Fragment>
+		);
 	}
 }
 
 SeasonGameStats.propTypes = {
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
-	year: PropTypes.number.isRequired
+	year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
 };
 
 SeasonGameStats.defaultProps = {};
