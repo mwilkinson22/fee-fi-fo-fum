@@ -210,10 +210,7 @@ class SeasonPlayerStats extends Component {
 			//Stat Columns
 			const statData = _.mapValues(stats, data => data[statType]);
 
-			const games = _.chain(stats)
-				.map("gameCount")
-				.max()
-				.value();
+			const games = _.chain(stats).map("gameCount").max().value();
 
 			return {
 				key: _player,
@@ -292,7 +289,7 @@ class SeasonPlayerStats extends Component {
 
 SeasonPlayerStats.propTypes = {
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
-	year: PropTypes.number.isRequired
+	year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
 };
 
 SeasonPlayerStats.defaultProps = {};

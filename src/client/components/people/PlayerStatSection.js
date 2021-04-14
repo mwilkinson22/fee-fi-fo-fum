@@ -299,7 +299,7 @@ class PlayerStatSection extends Component {
 	getStatsTables() {
 		const { localTeam } = this.props;
 		const { _id, gender } = this.props.person;
-		const { filteredGames } = this.state;
+		const { filteredGames, year } = this.state;
 		const genderedString = gender === "M" ? "Man" : "Woman";
 
 		const rowData = _.map(filteredGames, game => {
@@ -386,7 +386,7 @@ class PlayerStatSection extends Component {
 
 			const data = {
 				first: {
-					content: <StatTableGameCell game={game} />,
+					content: <StatTableGameCell game={game} includeYear={year === "All"} />,
 					sortValue: date.toString("yyyyMMdd"),
 					title
 				},
