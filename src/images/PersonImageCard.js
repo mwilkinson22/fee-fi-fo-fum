@@ -18,7 +18,7 @@ export default class PersonImageCard extends Canvas {
 	constructor(_id, options = {}) {
 		//Set Dimensions
 		const cWidth = 1200;
-		const cHeight = cWidth * 0.5;
+		const cHeight = Math.round(cWidth * 0.562);
 
 		//Load In Fonts
 		const fonts = [
@@ -121,8 +121,8 @@ export default class PersonImageCard extends Canvas {
 		const barTop = Math.round(cHeight * 0.625);
 		const barHeight = Math.round(cHeight * 0.11);
 		const barWidth = Math.round(positions.rightPanelWidth * 0.5);
-		const badgeHeight = Math.round(barHeight * 1.6);
-		const badgeOffset = Math.round(positions.rightPanelWidth * 0.17);
+		const badgeHeight = Math.round(barHeight * 1.4);
+		const badgeOffset = Math.round(positions.rightPanelWidth * 0.16);
 		const badgeWidth = Math.round(positions.rightPanelWidth * 0.25);
 		const textOffset = Math.round(positions.rightPanelWidth * 0.02);
 		const logoWidth = Math.round(positions.rightPanelWidth * 0.5);
@@ -245,24 +245,27 @@ export default class PersonImageCard extends Canvas {
 		//Draw Name
 		if (options.includeName) {
 			const firstRow = [];
+			let maxWidthMultiplier = 0.48;
 			if (squadNumber) {
 				firstRow.push({
 					text: `${squadNumber}. `,
 					font: textStyles.squadNumber.string,
 					colour: this.colours.lightClaret
 				});
+				maxWidthMultiplier = 0.45;
 			}
 			firstRow.push({
 				text: firstName.toUpperCase(),
 				font: textStyles.playerName.string,
-				colour: "#FFF"
+				colour: "#FFF",
+				maxWidth: Math.round(cWidth * maxWidthMultiplier)
 			});
 
 			const secondRow = [
 				{
 					text: lastName.toUpperCase().replace(/^MC/, "Mc"),
 					colour: "#FC0",
-					maxWidth: Math.round(cWidth * 0.55)
+					maxWidth: Math.round(cWidth * 0.5)
 				}
 			];
 
@@ -276,7 +279,7 @@ export default class PersonImageCard extends Canvas {
 		}
 
 		if (image) {
-			this.cover(image, 0, Math.round(cHeight * 0.02), Math.round(cWidth * 0.5), Math.round(cHeight * 0.98), {
+			this.cover(image, 0, Math.round(cHeight * 0.06), Math.round(cWidth * 0.5), Math.round(cHeight * 0.94), {
 				xAlign: "right",
 				yAlign: "top"
 			});
@@ -504,7 +507,7 @@ export default class PersonImageCard extends Canvas {
 				x = cWidth - positions.rightPanelWidth * 0.1;
 				break;
 			default:
-				x = cWidth - positions.rightPanelWidth * 0.5;
+				x = cWidth - positions.rightPanelWidth * 0.52;
 		}
 
 		//Work out y positioning based on whether or not we include the name
