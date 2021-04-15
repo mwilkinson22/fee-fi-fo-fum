@@ -9,7 +9,7 @@ export default class GameEventImage extends Canvas {
 	constructor(game, event, player = null) {
 		//Set Dimensions
 		const cWidth = 1200;
-		const cHeight = cWidth * 0.5;
+		const cHeight = Math.round(cWidth * 0.562);
 
 		//Load In Fonts
 		const fonts = [
@@ -81,12 +81,12 @@ export default class GameEventImage extends Canvas {
 
 	async drawTeamBanners() {
 		const { ctx, game, teams, cHeight, cWidth, textStyles } = this;
-		const bannerHeight = Math.round(cHeight * 0.25);
-		const bannerTop = Math.round((cHeight - bannerHeight) * 0.7);
+		const bannerHeight = Math.round(cHeight * 0.23);
+		const bannerTop = Math.round((cHeight - bannerHeight) * 0.65);
 		const scoreOffset = Math.round(cHeight * 0.05);
-		const badgeOffset = Math.round(cWidth * 0.12);
-		const badgeWidth = Math.round(cWidth * 0.25);
-		const badgeHeight = Math.round(cHeight * 0.35);
+		const badgeOffset = Math.round(cWidth * 0.18);
+		const badgeWidth = Math.round(cWidth * 0.22);
+		const badgeHeight = Math.round(cHeight * 0.32);
 
 		//Draw Shadow Banner
 		ctx.shadowColor = "black";
@@ -177,6 +177,10 @@ export default class GameEventImage extends Canvas {
 			potm: [game.genderedString.toUpperCase(), " OF THE ", "MATCH"]
 		};
 
+		//Prepare player name + badge
+		const teamBadgeHeight = textStyles.playerEvent.size;
+		const teamBadgeWidth = teamBadgeHeight * 1.2;
+
 		const text = eventText[event].map((segment, i) => {
 			if (typeof segment === "string") {
 				//Alternate white and gold
@@ -190,18 +194,15 @@ export default class GameEventImage extends Canvas {
 		ctx.font = textStyles.playerEvent.string;
 		ctx.shadowOffsetX = ctx.shadowOffsetY = Math.round(cHeight * 0.005);
 		ctx.shadowColor = "black";
-		this.textBuilder([text], cWidth / 2, cHeight * 0.18);
-
-		//Prepare player name + badge
-		const playerY = cHeight * 0.35;
-		const playerBadgeHeight = textStyles.playerName.size * 1.2;
-		const playerBadgeWidth = playerBadgeHeight * 1.2;
+		const eventY = cHeight * 0.18;
+		const textResult = this.textBuilder([text], cWidth / 2 + teamBadgeWidth / 2, eventY);
 
 		//Get Player
 		const { _team } = _.find(game.playerStats, ({ _player }) => _player._id == player);
 		const { number, name } = game.eligiblePlayers[_team].find(({ _id }) => _id == player);
 
 		//Add player name
+		const playerY = cHeight * 0.35;
 		const textRow = [
 			{
 				text: `${name.first.toUpperCase()} `,
@@ -221,17 +222,17 @@ export default class GameEventImage extends Canvas {
 				colour: colours.lightClaret
 			});
 		}
-		const textResult = this.textBuilder([textRow], cWidth / 2 - playerBadgeWidth / 2, playerY);
-
-		//Add player badge
-		const { badge } = teams.find(({ _id }) => _id == _team);
+		this.textBuilder([textRow], cWidth / 2, playerY);
 		this.resetShadow();
+
+		//Add team badge
+		const { badge } = teams.find(({ _id }) => _id == _team);
 		this.contain(
 			badge,
-			textResult.innerX + textResult.drawableWidth + playerBadgeWidth * 0.2,
-			playerY - playerBadgeHeight / 2,
-			playerBadgeWidth,
-			playerBadgeHeight,
+			textResult.innerX - teamBadgeWidth * 1.2,
+			eventY - teamBadgeHeight / 2,
+			teamBadgeWidth,
+			teamBadgeHeight,
 			{ xAlign: "left" }
 		);
 	}
