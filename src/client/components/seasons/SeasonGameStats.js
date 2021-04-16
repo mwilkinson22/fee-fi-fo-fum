@@ -259,7 +259,7 @@ class SeasonGameStats extends Component {
 				firstColumnHeader="Game"
 				rowData={rowData}
 				showTotal={true}
-				showAverage={false}
+				showAverage={totalOrIndividual === options.totalOrIndividual.Total}
 			/>
 		);
 	}
