@@ -426,15 +426,10 @@ class GamePage extends Component {
 			let toDate;
 			if (dayOfWeek == 1) {
 				//If it's a Monday, advance to tuesday
-				toDate = _.clone(date)
-					.next()
-					.tuesday();
+				toDate = _.clone(date).next().tuesday();
 			} else {
 				//Otherwise get midnight the next monday
-				toDate = _.clone(date)
-					.next()
-					.monday()
-					.at("00:00:00");
+				toDate = _.clone(date).next().monday().at("00:00:00");
 			}
 
 			let content;

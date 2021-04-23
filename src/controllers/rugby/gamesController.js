@@ -128,7 +128,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		asyncCalls.push(playersAndCoaches);
 
 		//Work out which players to highlight in the pregame squad
-		//First, check that the game actually uses them and that we need he inf
+		//First, check that the game actually uses them and that we need them in
 		if (game._competition.instance.usesPregameSquads && (game.status === 1 || forAdmin)) {
 			//Get last game
 			const date = new Date(game.date);
@@ -212,31 +212,28 @@ async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
 	//Conditionally filter players by ID
 	let playersToInclude;
 	if (!forAdmin) {
-		//If game.status === 0, then we're expecting a pregame squad but don't have it yet.
-		if (game.status === 0) {
+		//If we have pregame squad players, add them here.
+		//We include the pregame squads in news previews so we need these players
+		//even once we hit status 2 & 3
+		if (game._competition.instance.usesPregameSquads) {
+			//Ensure the array is initialised
 			playersToInclude = [];
-		} else {
-			//If the comp uses pregame squads and we're past status 0,
-			//then we have pregame squads to add.
-			//We include the pregame squads in news previews so we need these players
-			//even once we hit status 2 & 3
-			if (game._competition.instance.usesPregameSquads) {
-				const { pregameSquads } = game;
-				if (pregameSquads && pregameSquads.length) {
-					playersToInclude = _.flatten(pregameSquads.map(s => s.squad));
-				}
+
+			const { pregameSquads } = game;
+			if (pregameSquads && pregameSquads.length) {
+				playersToInclude = _.flatten(pregameSquads.map(s => s.squad));
+			}
+		}
+
+		//This means we have playerStats entries. Add those to the list
+		if (game.status > 1) {
+			//Ensure the array is initialised
+			if (!playersToInclude) {
+				playersToInclude = [];
 			}
 
-			//This means we have playerStats entries. Add those to the list
-			if (game.status > 1) {
-				//Ensure the array is initialised
-				if (!playersToInclude) {
-					playersToInclude = [];
-				}
-
-				const playersInSquads = game.playerStats.map(p => p._player);
-				playersToInclude.push(...playersInSquads);
-			}
+			const playersInSquads = game.playerStats.map(p => p._player);
+			playersToInclude.push(...playersInSquads);
 		}
 
 		//Finally, format the ids properly
