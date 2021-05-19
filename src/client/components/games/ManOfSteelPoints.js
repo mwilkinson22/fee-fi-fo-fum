@@ -42,7 +42,7 @@ class ManOfSteelPoints extends Component {
 			p => p._team == localTeam && p.images && (p.images.main || p.images.player)
 		);
 		if (localPlayers.length) {
-			newState.playerForImage = localPlayers[0]._player;
+			newState.playerForImage = localPlayers[0];
 		}
 
 		//Get Gender for title
