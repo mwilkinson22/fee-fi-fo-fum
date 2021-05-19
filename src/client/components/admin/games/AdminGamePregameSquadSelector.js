@@ -76,8 +76,19 @@ class AdminGamePregameSquadSelector extends Component {
 						}
 						return (
 							<div className="team-buttons">
-								<button type="button" key="clear" onClick={() => form.setFieldValue(team._id, [])}>
+								<button type="button" onClick={() => form.setFieldValue(team._id, [])}>
 									Clear
+								</button>
+								<button
+									type="button"
+									onClick={() =>
+										form.setFieldValue(
+											team._id,
+											eligiblePlayers.map(p => p._id)
+										)
+									}
+								>
+									Add All
 								</button>
 								{lastSquadButton}
 							</div>
