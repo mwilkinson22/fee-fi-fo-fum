@@ -8,7 +8,8 @@ const teamTypeSchema = new Schema({
 	slug: { type: String, unique: true, required: true },
 	gender: { type: String, enum: ["M", "F"], required: true },
 	sortOrder: { type: Number, required: true },
-	localTeamExternalId: { type: Number }
+	localTeamExternalId: { type: Number },
+	showOnSquadPage: { type: Boolean, required: true }
 });
 
 mongooseDebug(teamTypeSchema);

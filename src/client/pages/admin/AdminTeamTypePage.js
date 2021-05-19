@@ -39,17 +39,12 @@ class AdminTeamTypePage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
+			name: Yup.string().required().label("Name"),
 			slug: validateSlug(),
-			gender: Yup.string()
-				.required()
-				.label("Gender"),
-			sortOrder: Yup.number()
-				.required()
-				.label("Sort Order"),
-			localTeamExternalId: Yup.number().label("Local Team External Id")
+			gender: Yup.string().required().label("Gender"),
+			sortOrder: Yup.number().required().label("Sort Order"),
+			localTeamExternalId: Yup.number().label("Local Team External Id"),
+			showOnSquadPage: Yup.boolean().label("Show on Squad Page")
 		});
 
 		return newState;
@@ -63,13 +58,14 @@ class AdminTeamTypePage extends Component {
 			slug: "",
 			gender: "",
 			sortOrder: "",
-			localTeamExternalId: ""
+			localTeamExternalId: "",
+			showOnSquadPage: false
 		};
 
 		if (isNew) {
 			return defaults;
 		} else {
-			return _.mapValues(defaults, (def, key) => teamType[key] || def);
+			return _.mapValues(defaults, (def, key) => (teamType[key] != null ? teamType[key] : def));
 		}
 	}
 
@@ -91,7 +87,8 @@ class AdminTeamTypePage extends Component {
 						readOnly: !isNew
 					},
 					{ name: "sortOrder", type: fieldTypes.number },
-					{ name: "localTeamExternalId", type: fieldTypes.number }
+					{ name: "localTeamExternalId", type: fieldTypes.number },
+					{ name: "showOnSquadPage", type: fieldTypes.boolean }
 				]
 			}
 		];

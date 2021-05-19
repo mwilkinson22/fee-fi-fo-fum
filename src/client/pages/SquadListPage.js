@@ -41,6 +41,7 @@ class SquadListPage extends Component {
 
 		//Get Years
 		newState.years = _.chain(team.squads)
+			.filter(squad => teamTypes[squad._teamType].showOnSquadPage)
 			.map(squad => squad.year)
 			.uniq()
 			.sort()
@@ -54,6 +55,7 @@ class SquadListPage extends Component {
 		newState.teamTypes = _.chain(team.squads)
 			.filter(squad => squad.year == newState.year)
 			.map(squad => teamTypes[squad._teamType])
+			.filter("showOnSquadPage")
 			.orderBy("sortOrder")
 			.value();
 
