@@ -51,9 +51,9 @@
 		"https": "^1.0.0",
 		"ics": "^2.22.1",
 		"immutable": "3.8.2",
-		"lodash": "^4.17.19",
+		"lodash": "^4.17.21",
 		"megadraft": "^0.7.4",
-		"mongoose": "^5.9.28",
+		"mongoose": "^5.12.12",
 		"multer": "^1.4.2",
 		"node-core-lib": "^0.11.11",
 		"node-html-parser": "^1.4.3",
@@ -81,10 +81,10 @@
 		"serialize-javascript": "^4.0.0",
 		"sharp": "^0.26.2",
 		"source-map-support": "^0.5.19",
-		"svg2img": "^0.6.3",
+		"svg2img": "^0.9.2",
 		"twit": "^2.2.11",
 		"uuid": "^3.4.0",
-		"yup": "^0.26.10"
+		"yup": "^0.32.9"
 	},
 	"resolutions": {
 		"draft-js/immutable": "3.8.2",
