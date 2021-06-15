@@ -110,6 +110,11 @@ class AdminCompetitionSegmentCrawler extends Component {
 		//Crawl
 		const games = await crawlNewFixtures(segment._id);
 
+		if (!games) {
+			this.resetState(false);
+			return;
+		}
+
 		//Ensure we have a valid instance for each game
 		const crawledGames = games.filter(g =>
 			segment.instances.find(({ year }) => new Date(g.date).getFullYear() == year)
@@ -334,11 +339,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 			if (output.local || output.neutral) {
 				//Create Submit Button
-				const allowSubmit = _.chain(filteredGames)
-					.values()
-					.flatten()
-					.filter("include")
-					.value().length;
+				const allowSubmit = _.chain(filteredGames).values().flatten().filter("include").value().length;
 
 				const buttons = (
 					<div className="form-card grid">

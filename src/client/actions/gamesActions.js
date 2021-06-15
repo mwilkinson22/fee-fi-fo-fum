@@ -203,7 +203,7 @@ export const postGameEvent = (id, values) => async (dispatch, getState, api) => 
 
 export const crawlGame = (id, includeScoringStats) => async (dispatch, getState, api) => {
 	const res = await api.get(`/games/${id}/crawl?includeScoringStats=${includeScoringStats}`);
-	return res.data;
+	return res.data || false;
 };
 
 export const setStats = (id, values) => async (dispatch, getState, api) => {

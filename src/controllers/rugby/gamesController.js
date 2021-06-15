@@ -1287,9 +1287,15 @@ export async function fetchExternalGame(req, res) {
 	const { _id } = req.params;
 	const game = await validateGame(_id, res, Game.findById(_id).crawl());
 	if (game) {
-		const result = await parseExternalGame(game, false, req.query.includeScoringStats == "true");
+		let result;
+		try {
+			result = await parseExternalGame(game, false, req.query.includeScoringStats == "true");
+		} catch (e) {
+			result = { error: e.toString() };
+		}
+
 		if (result.error) {
-			res.status(500).send({ toLog: result.error, errorMessage: "UHOH" });
+			res.status(500).send({ toLog: result.error, errorMessage: "Error parsing game" });
 		} else {
 			res.send(result);
 		}

@@ -301,87 +301,134 @@ export async function deleteInstance(req, res) {
 
 export async function crawlNewGames(req, res) {
 	const { _segment } = req.params;
+	try {
+		//Get Segment model
+		const segment = await Segment.findById(_segment, [
+			"externalCompId",
+			"externalDivId",
+			"_parentCompetition"
+		]).populate({
+			path: "_parentCompetition",
+			select: "webcrawlUrl webcrawlFormat webcrawlFixturesPage"
+		});
 
-	//Get Segment model
-	const segment = await Segment.findById(_segment, [
-		"externalCompId",
-		"externalDivId",
-		"_parentCompetition"
-	]).populate({
-		path: "_parentCompetition",
-		select: "webcrawlUrl webcrawlFormat webcrawlFixturesPage"
-	});
-
-	if (!segment) {
-		res.status(404).send(`No competition found with segment id '${_segment}'`);
-		return false;
-	}
-
-	const { webcrawlFormat, webcrawlUrl, webcrawlFixturesPage } = segment._parentCompetition;
-
-	//Add params
-	let params;
-	switch (webcrawlFormat) {
-		case "SL": {
-			params = {
-				ajax: 1,
-				type: "loadPlugin",
-				plugin: "match_center",
-				"params[limit]": 100000,
-				"params[compID]": segment.externalCompId,
-				"params[preview_link]": "/match-centre/preview",
-				"params[report_link]": "/match-centre/report",
-				"params[displayType]": "fixtures"
-			};
-			break;
+		if (!segment) {
+			res.status(404).send(`No competition found with segment id '${_segment}'`);
+			return false;
 		}
-		case "RFL": {
-			params = {
-				ajax_request: "match_centre",
-				load_type: "fixture",
-				start: 0,
-				qty: 10000,
-				"cms_params[fix]": "Yes",
-				"cms_params[res]": "No",
-				"cms_params[table]": "No",
-				"cms_params[comps]": segment.externalCompId
-			};
 
-			if (segment.externalDivId) {
-				params["divID"] = segment.externalDivId;
+		const { webcrawlFormat, webcrawlUrl, webcrawlFixturesPage } = segment._parentCompetition;
+
+		//Add params
+		let params;
+		switch (webcrawlFormat) {
+			case "SL": {
+				params = {
+					ajax: 1,
+					type: "loadPlugin",
+					plugin: "match_center",
+					"params[limit]": 100000,
+					"params[compID]": segment.externalCompId,
+					"params[preview_link]": "/match-centre/preview",
+					"params[report_link]": "/match-centre/report",
+					"params[displayType]": "fixtures"
+				};
+				break;
+			}
+			case "RFL": {
+				params = {
+					ajax_request: "match_centre",
+					load_type: "fixture",
+					start: 0,
+					qty: 10000,
+					"cms_params[fix]": "Yes",
+					"cms_params[res]": "No",
+					"cms_params[table]": "No",
+					"cms_params[comps]": segment.externalCompId
+				};
+
+				if (segment.externalDivId) {
+					params["divID"] = segment.externalDivId;
+				}
 			}
 		}
-	}
 
-	//Build URL
-	const paramString = encodeURI(_.map(params, (val, key) => `${key}=${val}`).join("&"));
-	const url = `${webcrawlUrl}${webcrawlFixturesPage}?${paramString}`;
+		//Build URL
+		const paramString = encodeURI(_.map(params, (val, key) => `${key}=${val}`).join("&"));
+		const url = `${webcrawlUrl}${webcrawlFixturesPage}?${paramString}`;
 
-	//Load HTML
-	let html;
-	try {
+		//Load HTML
 		const httpsAgent = new https.Agent({
 			rejectUnauthorized: false
 		});
 		const { data } = await axios.get(url, { httpsAgent });
-		html = parse(data);
-	} catch (e) {
-		res.status(500).send({ toLog: e });
-		return;
-	}
+		const html = parse(data);
 
-	//Get empty object to store games
-	const games = [];
+		//Get empty object to store games
+		const games = [];
 
-	//Loop through the rows
-	switch (webcrawlFormat) {
-		case "SL": {
-			let date;
-			html.querySelector(".row.matches div").childNodes.forEach(row => {
-				//Add Date
-				if (row.tagName === "H3") {
-					//Convert Date to Array
-					const dateAsArray = row.rawText.split(" ");
+		//Loop through the rows
+		switch (webcrawlFormat) {
+			case "SL": {
+				let date;
+				html.querySelector(".row.matches div").childNodes.forEach(row => {
+					//Add Date
+					if (row.tagName === "H3") {
+						//Convert Date to Array
+						const dateAsArray = row.rawText.split(" ");
+
+						//Remove day of week
+						dateAsArray.shift();
+
+						//Remove ordinal suffix
+						dateAsArray[0] = dateAsArray[0].replace(/\D/g, "");
+
+						//Create day string
+						date = dateAsArray.join(" ");
+					} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
+						//Check for teams
+						const [home, away] = row
+							.querySelectorAll(".team-name")
+							.map(e => e && e.rawText && e.rawText.trim());
+
+						if (home && away) {
+							//Create Game Object
+							const game = { home, away };
+
+							//Get Datetime
+							const time = row
+								.querySelector(".fixture-wrap .middle")
+								.rawText.trim()
+								//Split by "UK: " and pop to get the local time for intl games
+								.split("UK: ")
+								.pop();
+
+							game.date = new Date(`${date} ${time}:00`);
+
+							//Get External ID
+							game.externalId = row.querySelector("a").attributes.href.replace(/\D/g, "");
+
+							//Get Round
+							const roundString = row.querySelector(".fixture-footer").rawText.match(/Round: \d+/);
+							if (roundString) {
+								game.round = roundString[0].replace(/\D/g, "");
+							}
+
+							//Look for broadcasters
+							game.broadcasters = row.querySelectorAll(".fixture-footer img").map(e => e.attributes.src);
+
+							//Add game to array
+							games.push(game);
+						}
+					}
+				});
+				break;
+			}
+			case "RFL": {
+				//Each 'section' contains a date anda list of games for that date
+				html.querySelectorAll("section.competition").forEach(section => {
+					//Get the date
+					const dateAsArray = section.childNodes.find(n => n.tagName === "H2").rawText.split(" ");
 
 					//Remove day of week
 					dateAsArray.shift();
@@ -389,106 +436,55 @@ export async function crawlNewGames(req, res) {
 					//Remove ordinal suffix
 					dateAsArray[0] = dateAsArray[0].replace(/\D/g, "");
 
-					//Create day string
-					date = dateAsArray.join(" ");
-				} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
-					//Check for teams
-					const [home, away] = row
-						.querySelectorAll(".team-name")
-						.map(e => e && e.rawText && e.rawText.trim());
+					//Create date string
+					const date = dateAsArray.join(" ");
 
-					if (home && away) {
-						//Create Game Object
-						const game = { home, away };
+					//Loop Games
+					section.querySelectorAll("li").forEach(row => {
+						const game = {};
 
-						//Get Datetime
-						const time = row
-							.querySelector(".fixture-wrap .middle")
-							.rawText.trim()
-							//Split by "UK: " and pop to get the local time for intl games
-							.split("UK: ")
-							.pop();
-
-						game.date = new Date(`${date} ${time}:00`);
+						//Get Teams
+						game.home = row.querySelector(".home").rawText.trim();
+						game.away = row.querySelector(".away").rawText.trim();
 
 						//Get External ID
 						game.externalId = row.querySelector("a").attributes.href.replace(/\D/g, "");
 
 						//Get Round
-						const roundString = row.querySelector(".fixture-footer").rawText.match(/Round: \d+/);
+						const roundString = row.querySelector(".left").rawText.match(/Round: \d+/);
 						if (roundString) {
 							game.round = roundString[0].replace(/\D/g, "");
 						}
 
-						//Look for broadcasters
-						game.broadcasters = row.querySelectorAll(".fixture-footer img").map(e => e.attributes.src);
+						//Get Time
+						const timeElements = row.querySelectorAll(".ko").map(e => e.rawText.trim());
 
-						//Add game to array
-						games.push(game);
-					}
-				}
-			});
-			break;
-		}
-		case "RFL": {
-			//Each 'section' contains a date anda list of games for that date
-			html.querySelectorAll("section.competition").forEach(section => {
-				//Get the date
-				const dateAsArray = section.childNodes.find(n => n.tagName === "H2").rawText.split(" ");
-
-				//Remove day of week
-				dateAsArray.shift();
-
-				//Remove ordinal suffix
-				dateAsArray[0] = dateAsArray[0].replace(/\D/g, "");
-
-				//Create date string
-				const date = dateAsArray.join(" ");
-
-				//Loop Games
-				section.querySelectorAll("li").forEach(row => {
-					const game = {};
-
-					//Get Teams
-					game.home = row.querySelector(".home").rawText.trim();
-					game.away = row.querySelector(".away").rawText.trim();
-
-					//Get External ID
-					game.externalId = row.querySelector("a").attributes.href.replace(/\D/g, "");
-
-					//Get Round
-					const roundString = row.querySelector(".left").rawText.match(/Round: \d+/);
-					if (roundString) {
-						game.round = roundString[0].replace(/\D/g, "");
-					}
-
-					//Get Time
-					const timeElements = row.querySelectorAll(".ko").map(e => e.rawText.trim());
-
-					//Check for games with multiple timezones
-					let time = "00:00";
-					if (timeElements.length === 1) {
-						time = timeElements[0];
-					} else {
-						const ukTimeElem = timeElements.find(e => e.match(" UK"));
-						if (ukTimeElem) {
-							const ukTime = ukTimeElem.match(/\d+:\d+/);
-							if (ukTime) {
-								time = ukTime[0];
+						//Check for games with multiple timezones
+						let time = "00:00";
+						if (timeElements.length === 1) {
+							time = timeElements[0];
+						} else {
+							const ukTimeElem = timeElements.find(e => e.match(" UK"));
+							if (ukTimeElem) {
+								const ukTime = ukTimeElem.match(/\d+:\d+/);
+								if (ukTime) {
+									time = ukTime[0];
+								}
 							}
 						}
-					}
 
-					game.date = new Date(`${date} ${time}:00`);
+						game.date = new Date(`${date} ${time}:00`);
 
-					games.push(game);
+						games.push(game);
+					});
 				});
-			});
-			break;
+				break;
+			}
 		}
+		res.send(games);
+	} catch (err) {
+		res.status(500).send({ toLog: err.toString() });
 	}
-
-	res.send(games);
 }
 
 //Get League Table Data
