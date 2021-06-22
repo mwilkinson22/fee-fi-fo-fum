@@ -496,10 +496,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 			if (webcrawlFormat == "SL") {
 				results = html.querySelectorAll(".matchreportheader .col-2 h2").map(e => Number(e.text));
 			} else if (webcrawlFormat == "RFL") {
-				results = html
-					.querySelector(".overview h3")
-					.text.match(/\d+/g)
-					.map(Number);
+				results = html.querySelector(".overview h3").text.match(/\d+/g).map(Number);
 			}
 		} catch (error) {
 			return { error };
@@ -571,6 +568,9 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 						};
 						for (const stat in statTypeIndexes) {
 							const index = statTypeIndexes[stat];
+							if (!index) {
+								continue;
+							}
 							const value = rowCells[rowCellCount - index].innerHTML.replace(/\D+/gi, "");
 							results[team][name].stats[stat] = Number(value || 0);
 						}
