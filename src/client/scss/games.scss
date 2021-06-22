@@ -78,6 +78,10 @@
 							&:nth-child(odd):not(:last-child) {
 								flex-direction: row-reverse;
 							}
+							//When we're on 0 days, we push "seconds" to the right column
+							&:nth-child(odd):last-child {
+								grid-column: 2;
+							}
 						}
 					}
 				}
