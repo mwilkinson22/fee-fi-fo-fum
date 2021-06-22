@@ -83,40 +83,22 @@ class AdminGameOverview extends Component {
 
 		//Validation Schema
 		const rawValidationSchema = {
-			date: Yup.date()
-				.required()
-				.label("Date"),
+			date: Yup.date().required().label("Date"),
 			dateRange: Yup.number().label("Date Range"),
-			time: Yup.string()
-				.required()
-				.label("Time"),
-			_teamType: Yup.string()
-				.required()
-				.label("Team Type"),
-			_competition: Yup.string()
-				.required()
-				.label("Competition"),
-			_opposition: Yup.string()
-				.required()
-				.label("Opposition"),
-			round: Yup.number()
-				.min(1)
-				.label("Round"),
+			time: Yup.string().required().label("Time"),
+			_teamType: Yup.string().required().label("Team Type"),
+			_competition: Yup.string().required().label("Competition"),
+			_opposition: Yup.string().required().label("Opposition"),
+			round: Yup.number().min(1).label("Round"),
 			hideGame: Yup.bool().label("Hide Game"),
 			customTitle: Yup.string().label("Title"),
-			customHashtags: Yup.string().label("Hashtags"),
-			isAway: Yup.string()
-				.required()
-				.label("Home/Away"),
+			customHashtags: Yup.array().of(Yup.string()).label("Hashtags"),
+			isAway: Yup.string().required().label("Home/Away"),
 			isNeutralGround: Yup.bool().label("Neutral Ground?"),
 			_ground: Yup.string().label("Ground"),
 			_broadcaster: Yup.string().label("Broadcaster"),
-			_referee: Yup.string()
-				.label("Referee")
-				.nullable(),
-			_video_referee: Yup.string()
-				.label("Video Referee")
-				.nullable(),
+			_referee: Yup.string().label("Referee").nullable(),
+			_video_referee: Yup.string().label("Video Referee").nullable(),
 			externalSync: Yup.bool().label("Sync Externally?"),
 			externalId: Yup.number().label("External ID")
 		};
@@ -225,6 +207,10 @@ class AdminGameOverview extends Component {
 					case "_ground":
 					case "_video_referee": {
 						value = game[key] ? game[key]._id : null;
+						break;
+					}
+					case "customHashtags": {
+						value = game[key] || [];
 						break;
 					}
 					default:
