@@ -29,13 +29,15 @@ class EmbeddedMap extends Component {
 		};
 
 		service.getDetails(request, place => {
-			const { location } = place.geometry;
-			this.setState({
-				location: {
-					lat: location.lat(),
-					lng: location.lng()
-				}
-			});
+			if (place) {
+				const { location } = place.geometry;
+				this.setState({
+					location: {
+						lat: location.lat(),
+						lng: location.lng()
+					}
+				});
+			}
 		});
 	}
 
