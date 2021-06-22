@@ -2,6 +2,7 @@ const path = require("path");
 const merge = require("webpack-merge");
 const baseConfig = require("./webpack.base");
 const LoadablePlugin = require("@loadable/webpack-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const isProduction = process.env.NODE_ENV === "production";
 
 const config = {
@@ -30,9 +31,7 @@ const config = {
 
 						// get the name. E.g. node_modules/packageName/not/this/part.js
 						// or node_modules/packageName
-						const packageName = module.context.match(
-							/[\\/]node_modules[\\/](.*?)([\\/]|$)/
-						)[1];
+						const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
 
 						//By default, we just call it "bundles"
 						let bundleName;
@@ -50,6 +49,6 @@ const config = {
 		}
 	},
 
-	plugins: [new LoadablePlugin()]
+	plugins: [new LoadablePlugin(), new NodePolyfillPlugin()]
 };
 module.exports = merge(baseConfig, config);

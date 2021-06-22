@@ -1,7 +1,7 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
@@ -100,7 +100,7 @@ module.exports = {
 					}
 				}
 			}),
-			new OptimizeCSSAssetsPlugin({})
+			new CssMinimizerPlugin()
 		]
 	}
 };
