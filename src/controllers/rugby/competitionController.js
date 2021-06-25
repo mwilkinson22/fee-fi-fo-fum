@@ -331,7 +331,8 @@ export async function crawlNewGames(req, res) {
 					"params[compID]": segment.externalCompId,
 					"params[preview_link]": "/match-centre/preview",
 					"params[report_link]": "/match-centre/report",
-					"params[displayType]": "fixtures"
+					"params[displayType]": "fixtures",
+					"params[template]": "template-custom.html"
 				};
 				break;
 			}
@@ -361,7 +362,8 @@ export async function crawlNewGames(req, res) {
 		const httpsAgent = new https.Agent({
 			rejectUnauthorized: false
 		});
-		const { data } = await axios.get(url, { httpsAgent });
+		const headers = { "X-Requested-With": "XMLHttpRequest" };
+		const { data } = await axios.get(url, { httpsAgent, headers });
 		const html = parse(data);
 
 		//Get empty object to store games
