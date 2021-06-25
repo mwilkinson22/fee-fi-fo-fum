@@ -176,10 +176,11 @@ async function getGames(firstTeam) {
 	const pregameSquadDate = now <= todayMidday ? new Date().addDays(2) : new Date().addDays(3);
 	pregameSquadDate.setHours(0, 0, 0);
 
-	//Get games for this year, up to two weeks in advance
+	//Get games for this year, up to two weeks in advance, ignoring those with a score override
 	let games = await Game.find({
 		date: { $gte: `${new Date().getFullYear()}-01-01`, $lte: new Date().addWeeks(2) },
-		hideGame: false
+		hideGame: false,
+		scoreOverride: { $exists: true, $size: 0 }
 	})
 		.sort({ date: 1 })
 		.fullGame(true, false);
