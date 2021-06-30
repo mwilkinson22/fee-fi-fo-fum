@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 
@@ -177,13 +177,35 @@ class AdminNeutralGameList extends Component {
 			games,
 			g => g.date <= new Date() && (g.homePoints === null || g.awayPoints === null)
 		);
+		let upcomingGamesSection,
+			pastGamesSection = null;
+		const upcomingGames = _.filter(games, g => g.date > new Date());
+		if (upcomingGames.length) {
+			upcomingGamesSection = (
+				<Fragment>
+					<h3>Upcoming Games</h3>
+					<NeutralGameList games={upcomingGames} />
+				</Fragment>
+			);
+		}
+		const pastGames = _.filter(games, g => g.date <= new Date());
+		if (pastGames.length) {
+			pastGamesSection = (
+				<Fragment>
+					<h3>Past Games</h3>
+					<NeutralGameList games={pastGames} />
+				</Fragment>
+			);
+		}
 
 		let gamesToEditSection;
 		if (gamesToEdit.length) {
-			gamesToEditSection = [
-				<h3 key="title">Games To Edit</h3>,
-				<NeutralGameList games={gamesToEdit} key="list" />
-			];
+			gamesToEditSection = (
+				<Fragment>
+					<h3>Games To Edit</h3>
+					<NeutralGameList games={gamesToEdit} dateDescending={true} />
+				</Fragment>
+			);
 		}
 
 		return (
@@ -207,8 +229,8 @@ class AdminNeutralGameList extends Component {
 							{isSyncing ? "Forcing" : "Force"} a sync
 						</div>
 						{gamesToEditSection}
-						<h3>All Games</h3>
-						<NeutralGameList games={games} />
+						{upcomingGamesSection}
+						{pastGamesSection}
 					</div>
 				</section>
 			</div>

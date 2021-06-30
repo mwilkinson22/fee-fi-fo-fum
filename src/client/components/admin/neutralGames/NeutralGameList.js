@@ -1,6 +1,7 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Formik, Form, FastField } from "formik";
 import { Link } from "react-router-dom";
@@ -48,7 +49,7 @@ class NeutralGameList extends Component {
 	}
 
 	render() {
-		const { competitionSegmentList, teamList } = this.props;
+		const { competitionSegmentList, dateDescending, teamList } = this.props;
 		const { games } = this.state;
 
 		const columns = [
@@ -69,7 +70,7 @@ class NeutralGameList extends Component {
 			>
 				{({ values, submitForm }) => {
 					const rows = _.chain(games)
-						.sortBy("date")
+						.orderBy("date", dateDescending ? "asc" : "desc")
 						.map(game => {
 							const competitionSegment = competitionSegmentList[game._competition];
 
@@ -185,5 +186,14 @@ function mapStateToProps({ competitions, teams }) {
 	const { teamList } = teams;
 	return { competitionSegmentList, teamList };
 }
+
+NeutralGameList.propTypes = {
+	dateDescending: PropTypes.bool,
+	games: PropTypes.arrayOf(PropTypes.object).isRequired
+};
+
+NeutralGameList.defaultProps = {
+	dateDescending: false
+};
 
 export default connect(mapStateToProps, { updateNeutralGames })(NeutralGameList);
