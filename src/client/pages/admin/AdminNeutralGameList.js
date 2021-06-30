@@ -3,12 +3,16 @@ import _ from "lodash";
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
+import Select from "react-select";
 
 //Components
 import LoadingPage from "../../components/LoadingPage";
 import NeutralGameList from "../../components/admin/neutralGames/NeutralGameList";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import SubMenu from "../../components/SubMenu";
+
+//Constants
+import selectStyling from "~/constants/selectStyling";
 
 //Actions
 import {
@@ -33,7 +37,10 @@ class AdminNeutralGameList extends Component {
 		}
 
 		this.state = {
-			isSyncingGames: false
+			isSyncingGames: false,
+			allTeams: [],
+			teamFilters: [],
+			filteredGames: []
 		};
 	}
 
@@ -49,6 +56,7 @@ class AdminNeutralGameList extends Component {
 			activeTeamType,
 			setActiveTeamType
 		} = nextProps;
+		const { teamFilter } = prevState;
 
 		if (!competitionSegmentList || !neutralGameYears || !teamList) {
 			return {};
@@ -107,6 +115,37 @@ class AdminNeutralGameList extends Component {
 			.filter(g => g._teamType == newState.teamType._id)
 			.value();
 
+		//Reset Teams and Filters on year change
+		if (
+			newState.year !== prevState.year ||
+			!prevState.teamType ||
+			newState.teamType._id !== prevState.teamType._id
+		) {
+			newState.allTeams = _.chain(newState.games)
+				.map(g => [g._homeTeam, g._awayTeam])
+				.flatten()
+				.uniq()
+				.map(id => ({ value: id, label: teamList[id].name.long }))
+				.sortBy("label")
+				.value();
+			newState.teamFilter = [];
+		}
+
+		//Filter Games
+		newState.filteredGames = _.filter(newState.games, game => {
+			if (!teamFilter || teamFilter.length === 0) {
+				return true;
+			}
+			const filteredTeamIds = teamFilter.map(t => t.value);
+			//If we only have one team, simply filter by whether that team is included
+			if (filteredTeamIds.length === 1) {
+				return [game._homeTeam, game._awayTeam].includes(filteredTeamIds[0]);
+			}
+
+			//Otherwise, loop through the teams and make sure both teams are part of the filter
+			return filteredTeamIds.includes(game._homeTeam) && filteredTeamIds.includes(game._awayTeam);
+		});
+
 		return newState;
 	}
 
@@ -163,7 +202,7 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { year, games, teamTypeRedirect, isLoadingGames, isSyncing } = this.state;
+		const { year, filteredGames, teamTypeRedirect, isLoadingGames, isSyncing, allTeams, teamFilter } = this.state;
 
 		if (!year || isLoadingGames) {
 			return <LoadingPage />;
@@ -173,13 +212,14 @@ class AdminNeutralGameList extends Component {
 			return <Redirect to={`/admin/neutralGames/${year}/${teamTypeRedirect}`} />;
 		}
 
+		const now = new Date();
 		const gamesToEdit = _.filter(
-			games,
-			g => g.date <= new Date() && (g.homePoints === null || g.awayPoints === null)
+			filteredGames,
+			g => g.date <= now && (g.homePoints === null || g.awayPoints === null)
 		);
 		let upcomingGamesSection,
 			pastGamesSection = null;
-		const upcomingGames = _.filter(games, g => g.date > new Date());
+		const upcomingGames = _.filter(filteredGames, g => g.date > now);
 		if (upcomingGames.length) {
 			upcomingGamesSection = (
 				<Fragment>
@@ -188,7 +228,7 @@ class AdminNeutralGameList extends Component {
 				</Fragment>
 			);
 		}
-		const pastGames = _.filter(games, g => g.date <= new Date());
+		const pastGames = _.filter(filteredGames, g => g.date <= now);
 		if (pastGames.length) {
 			pastGamesSection = (
 				<Fragment>
@@ -228,6 +268,16 @@ class AdminNeutralGameList extends Component {
 						>
 							{isSyncing ? "Forcing" : "Force"} a sync
 						</div>
+						<h3>Filter By Team</h3>
+						<Select
+							isMulti={true}
+							isSearchable={false}
+							value={teamFilter}
+							options={allTeams}
+							onChange={teamFilter => this.setState({ teamFilter })}
+							styles={selectStyling}
+						/>
+						<br />
 						{gamesToEditSection}
 						{upcomingGamesSection}
 						{pastGamesSection}

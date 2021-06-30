@@ -134,7 +134,9 @@ class NeutralGameList extends Component {
 							return {
 								key: game._id,
 								data,
-								className: values[game._id].delete ? "disabled" : ""
+								//This renders twice on filter change, so we need to check it has a formik "value"
+								//before we reference the delete property
+								className: values[game._id] && values[game._id].delete ? "disabled" : ""
 							};
 						})
 						.value();
