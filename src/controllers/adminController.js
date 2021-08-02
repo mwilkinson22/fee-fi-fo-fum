@@ -17,6 +17,9 @@ export async function getDashboardData(req, res) {
 	//Get the localTeam
 	const localTeamObject = await Team.findById(localTeam, "squads coaches").lean();
 
+	//Determine whether to get local games for the whole year
+	const { entireYear } = req.query;
+
 	//Get the first team
 	const teamTypes = await TeamType.find({}).sort({ sortOrder: 1 }).lean();
 	const firstTeam = teamTypes[0]._id.toString();
@@ -24,7 +27,7 @@ export async function getDashboardData(req, res) {
 	//Create an object with all the data we need
 	const promises = {
 		birthdays: getBirthdays(localTeamObject),
-		gamesWithIssues: getGames(firstTeam),
+		gamesWithIssues: getGames(firstTeam, entireYear === "true"),
 		missingPlayerDetails: getPlayersWithMissingData(localTeamObject, firstTeam),
 		teamsWithoutGrounds: getTeamsWithoutGrounds()
 	};
@@ -164,7 +167,7 @@ async function getPlayersWithMissingData(team, firstTeam) {
 	);
 }
 
-async function getGames(firstTeam) {
+async function getGames(firstTeam, entireYear = false) {
 	//Work out the date where we would expect games to have pregame squads.
 	//So first, work out if we're past midday
 	const now = new Date();
@@ -177,8 +180,16 @@ async function getGames(firstTeam) {
 	pregameSquadDate.setHours(0, 0, 0);
 
 	//Get games for this year, up to two weeks in advance, ignoring those with a score override
+	const dateFilter = { $lte: new Date().addWeeks(2) };
+	if (entireYear) {
+		dateFilter["$gte"] = `${new Date().getFullYear()}-01-01`;
+	} else {
+		dateFilter["$gte"] = `${new Date().addWeeks(-2)}`;
+	}
+
+	//Get Games
 	let games = await Game.find({
-		date: { $gte: `${new Date().getFullYear()}-01-01`, $lte: new Date().addWeeks(2) },
+		date: dateFilter,
 		hideGame: false,
 		scoreOverride: { $exists: true, $size: 0 }
 	})

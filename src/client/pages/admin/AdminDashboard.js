@@ -21,7 +21,7 @@ class AdminDashboard extends Component {
 	constructor(props) {
 		super(props);
 
-		const { neutralGames, fetchNeutralGames, fetchAdminDashboardData } = props;
+		const { neutralGames, fetchNeutralGames } = props;
 
 		const thisYear = new Date().getFullYear();
 		if (!neutralGames || !neutralGames[thisYear]) {
@@ -29,13 +29,7 @@ class AdminDashboard extends Component {
 		}
 
 		//Set State
-		this.state = { extraDataLoaded: false };
-
-		//Get dashboard data from server
-		//Check "window" to prevent calling twice from SSR
-		if (typeof window != "undefined") {
-			fetchAdminDashboardData().then(data => this.setState({ ...data, extraDataLoaded: true }));
-		}
+		this.state = { extraDataLoaded: false, entireYearLoaded: false };
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -53,9 +47,36 @@ class AdminDashboard extends Component {
 		return newState;
 	}
 
+	componentDidMount() {
+		//Get dashboard data from server
+		//Check "window" to prevent calling twice from SSR
+		if (typeof window != "undefined") {
+			this.loadData(false);
+		}
+	}
+
+	loadData(entireYear) {
+		const { fetchAdminDashboardData } = this.props;
+
+		this.setState({
+			extraDataLoaded: false
+		});
+
+		fetchAdminDashboardData(entireYear).then(data =>
+			this.setState({ ...data, extraDataLoaded: true, entireYearLoaded: entireYear })
+		);
+	}
+
 	render() {
 		const { neutralGames, teamList, teamTypes } = this.props;
-		const { birthdays, gamesWithIssues, isLoading, missingPlayerDetails, teamsWithoutGrounds } = this.state;
+		const {
+			birthdays,
+			gamesWithIssues,
+			isLoading,
+			missingPlayerDetails,
+			teamsWithoutGrounds,
+			entireYearLoaded
+		} = this.state;
 
 		//Await dependencies
 		if (isLoading) {
@@ -88,6 +109,21 @@ class AdminDashboard extends Component {
 				);
 			}
 		}).filter(_.identity);
+
+		//Conditionally add "Entire Year" selector
+		if (!entireYearLoaded) {
+			content.unshift(
+				<div className="card-wrapper" key="full-year-selector">
+					<div className="form-card">
+						<span>By default, Admin Dashboard only checks for the last 2 weeks' worth of games. </span>
+						<span className="pseudo-link" onClick={() => this.loadData(true)}>
+							Click Here{" "}
+						</span>
+						<span>to check for the entire year. This may take some time.</span>
+					</div>
+				</div>
+			);
+		}
 
 		return (
 			<section className="admin-dashboard-page">
