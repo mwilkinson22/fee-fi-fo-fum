@@ -139,6 +139,7 @@ const gameSchema = new Schema(
 			],
 			default: []
 		},
+		scoreOnly: { type: Boolean, default: false },
 
 		//Temporary score override where squads/details are unavailable
 		scoreOverride: [
@@ -151,7 +152,7 @@ const gameSchema = new Schema(
 	{
 		toJSON: {
 			virtuals: true,
-			transform: function(doc, ret) {
+			transform: function (doc, ret) {
 				delete ret._competition.instances;
 				if (ret.playerStats) {
 					ret.playerStats.forEach(({ stats }) => delete stats._id);
@@ -172,7 +173,7 @@ mongooseDebug(gameSchema);
 getGameVirtuals(gameSchema);
 
 //Methods
-gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType }) {
+gameSchema.statics.generateSlug = async function ({ _opposition, date, _teamType }) {
 	//Get Team
 	const Team = mongoose.model("teams");
 	const team = await Team.findById(_opposition, "name.short");
@@ -215,11 +216,11 @@ gameSchema.statics.generateSlug = async function({ _opposition, date, _teamType 
 };
 
 //Queries
-gameSchema.query.forList = function() {
+gameSchema.query.forList = function () {
 	return this.select("date _teamType slug _competition _opposition dateRange isAway");
 };
 
-gameSchema.query.fullGame = function(forGamePage, forAdmin) {
+gameSchema.query.fullGame = function (forGamePage, forAdmin) {
 	let model;
 
 	//Select
@@ -298,7 +299,7 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		});
 };
 
-gameSchema.query.crawl = function() {
+gameSchema.query.crawl = function () {
 	return this.select("externalId _competition playerStats date isAway _opposition")
 		.populate({
 			path: "playerStats._player",
@@ -314,7 +315,7 @@ gameSchema.query.crawl = function() {
 		});
 };
 
-gameSchema.query.eventImage = function() {
+gameSchema.query.eventImage = function () {
 	return this.select({
 		slug: 0,
 		_referee: 0,

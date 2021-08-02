@@ -70,7 +70,7 @@ export function convertPlayerStatsToScore(playerStats) {
 
 //Apply Virtuals
 export default gameSchema => {
-	gameSchema.virtual("score").get(function() {
+	gameSchema.virtual("score").get(function () {
 		if (!this.squadsAnnounced || !this.playerStats || !this.playerStats.length) {
 			return undefined;
 		} else {
@@ -78,15 +78,15 @@ export default gameSchema => {
 		}
 	});
 
-	gameSchema.virtual("hashtags").get(function() {
+	gameSchema.virtual("hashtags").get(function () {
 		return getHashtags(this);
 	});
 
-	gameSchema.virtual("_competition.instance").get(function() {
+	gameSchema.virtual("_competition.instance").get(function () {
 		return getInstance(this);
 	});
 
-	gameSchema.virtual("images.logo").get(function() {
+	gameSchema.virtual("images.logo").get(function () {
 		const { images } = this;
 		if (!images) {
 			return null;
@@ -104,7 +104,7 @@ export default gameSchema => {
 		return null;
 	});
 
-	gameSchema.virtual("title").get(function() {
+	gameSchema.virtual("title").get(function () {
 		const { round, customTitle } = this;
 		if (customTitle) {
 			return customTitle;
@@ -131,8 +131,8 @@ export default gameSchema => {
 		}
 	});
 
-	gameSchema.virtual("status").get(function() {
-		const { pregameSquads, playerStats, squadsAnnounced } = this;
+	gameSchema.virtual("status").get(function () {
+		const { pregameSquads, playerStats, squadsAnnounced, scoreOnly } = this;
 		const instance = getInstance(this);
 		if (instance) {
 			const { usesPregameSquads } = instance;
@@ -144,7 +144,7 @@ export default gameSchema => {
 				return 0;
 			} else if (Object.keys(_.groupBy(playerStats, "_team")).length < 2 || !squadsAnnounced) {
 				return 1;
-			} else if (!instance.scoreOnly && !_.sumBy(playerStats, "stats.TK")) {
+			} else if (!instance.scoreOnly && !scoreOnly && !_.sumBy(playerStats, "stats.TK")) {
 				return 2;
 			} else {
 				return 3;
@@ -155,7 +155,7 @@ export default gameSchema => {
 	});
 
 	//Get Shared Squads
-	gameSchema.virtual("sharedSquads").get(function() {
+	gameSchema.virtual("sharedSquads").get(function () {
 		const { _opposition } = this;
 		const instance = getInstance(this);
 		if (instance && instance.sharedSquads) {
@@ -168,7 +168,7 @@ export default gameSchema => {
 	});
 
 	//Get winner of player of the match
-	gameSchema.virtual("fan_potm_winners").get(function() {
+	gameSchema.virtual("fan_potm_winners").get(function () {
 		const { fan_potm } = this;
 
 		if (fan_potm && fan_potm.deadline && fan_potm.votes.length) {
@@ -181,10 +181,7 @@ export default gameSchema => {
 					.map((votes, player) => ({ player, voteCount: votes.length }))
 					.value();
 
-				const maxVotes = _.chain(votes)
-					.map("voteCount")
-					.max()
-					.value();
+				const maxVotes = _.chain(votes).map("voteCount").max().value();
 
 				return votes.filter(({ voteCount }) => voteCount === maxVotes).map(p => p.player);
 			}
@@ -192,7 +189,7 @@ export default gameSchema => {
 	});
 
 	//Check if the game is set to midnight, i.e. an unknown time
-	gameSchema.virtual("hasTime").get(function() {
+	gameSchema.virtual("hasTime").get(function () {
 		if (!this.date) {
 			return false;
 		} else {

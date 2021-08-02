@@ -49,18 +49,17 @@ class AdminGamePostGame extends Component {
 			attendance: Yup.number().label("Attendance"),
 			extraTime: Yup.boolean().label("Game went to extra time?"),
 			_potm: Yup.string().label(`${newState.game.genderedString} of the Match`),
-			fan_potm_options: Yup.array()
-				.of(Yup.string())
-				.label("Nominees"),
+			fan_potm_options: Yup.array().of(Yup.string()).label("Nominees"),
 			fan_potm_deadline_date: Yup.string().label("Deadline Date"),
-			fan_potm_deadline_time: Yup.string().label("Deadline Time")
+			fan_potm_deadline_time: Yup.string().label("Deadline Time"),
+			scoreOnly: Yup.boolean().label("Scores Only (No Stats)")
 		};
 
 		if (newState.manOfSteel) {
 			const manOfSteelValidation = {};
 			for (let i = 1; i <= 3; i++) {
 				manOfSteelValidation[`${i}points`] = Yup.mixed()
-					.test("isUnique", "Player selected twice", function(option) {
+					.test("isUnique", "Player selected twice", function (option) {
 						//No worries if the value is empty
 						if (!option || !option.value) {
 							return true;
@@ -92,7 +91,8 @@ class AdminGamePostGame extends Component {
 			fan_potm_link: "",
 			fan_potm_options: [],
 			fan_potm_deadline_date: "",
-			fan_potm_deadline_time: ""
+			fan_potm_deadline_time: "",
+			scoreOnly: false
 		};
 
 		if (manOfSteel) {
@@ -164,6 +164,11 @@ class AdminGamePostGame extends Component {
 				]
 			}
 		];
+
+		//Add score-only bool, if not already determined by the competition
+		if (!game._competition.instance.scoreOnly) {
+			fieldGroups.push({ fields: [{ name: "scoreOnly", type: fieldTypes.boolean }] });
+		}
 
 		//Add Man Of Steel, if necessary
 		if (manOfSteel) {

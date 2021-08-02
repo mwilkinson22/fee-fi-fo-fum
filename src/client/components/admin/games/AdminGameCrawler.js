@@ -20,7 +20,7 @@ class AdminGameCrawler extends Component {
 	renderErrors() {
 		const { crawlData } = this.state;
 		const { game, teamList, teams } = this.props;
-		const { scoreOnly } = game._competition.instance;
+		const scoreOnly = game._competition.instance.scoreOnly || game.scoreOnly;
 
 		//Check For Inconsistencies in teams
 		const errors = [];
