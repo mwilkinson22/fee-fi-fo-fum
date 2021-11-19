@@ -63,7 +63,7 @@ class AdminGamePage extends Component {
 
 			if (newState.game) {
 				//Once we have the game, we then get the gameList for adjacent links
-				//If it's the current year, we'll also want fixtures
+				//If it's in the future, we'll also want fixtures
 				const year = newState.game.date.getFullYear();
 
 				//First we set the value to false, and then override it if we're missing anything
@@ -77,7 +77,7 @@ class AdminGamePage extends Component {
 						fetchGameListByYear(year);
 					}
 				}
-				if (year === new Date().getFullYear() && !gameYears.fixtures) {
+				if (year >= new Date().getFullYear() && !gameYears.fixtures) {
 					newState.isLoadingList = true;
 					if (!prevState.isLoadingList) {
 						fetchGameListByYear("fixtures");
@@ -145,7 +145,7 @@ class AdminGamePage extends Component {
 				>
 					<span>{adjacentGame.date.toString("ddd dS MMM")}</span>
 					<TeamImage team={team} size="small" />
-					<span>{type == "last" ? "\u25c0" : "\u25b6"}</span>
+					<span>{type === "last" ? "\u25c0" : "\u25b6"}</span>
 				</Link>
 			);
 		});
