@@ -31,7 +31,7 @@
 		"@loadable/component": "^5.13.1",
 		"@loadable/server": "^5.13.1",
 		"assert": "^2.0.0",
-		"axios": "^0.21.1",
+		"axios": "^0.21.2",
 		"bcryptjs": "^2.4.3",
 		"body-parser": "^1.19.0",
 		"braces": "^2.3.2",
