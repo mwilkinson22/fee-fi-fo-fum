@@ -328,12 +328,21 @@ export async function crawlNewGames(req, res) {
 					type: "loadPlugin",
 					plugin: "match_center",
 					"params[limit]": 100000,
-					"params[compID]": segment.externalCompId,
+					"params[comps]": segment.externalCompId,
+					"params[teamID]": "",
+					"params[teamView]": "",
+					"params[advert_group]": 100000,
+					"params[load-more-button]": "yes",
+					"params[type]": "loadmore",
 					"params[preview_link]": "/match-centre/preview",
 					"params[report_link]": "/match-centre/report",
 					"params[displayType]": "fixtures",
-					"params[template]": "template-custom.html"
+					"params[template]": "template.twig",
+					"params[startRow]": 0
 				};
+				if (segment.externalDivId) {
+					params["params[compID]"] = segment.externalDivId;
+				}
 				break;
 			}
 			case "RFL": {
@@ -373,7 +382,7 @@ export async function crawlNewGames(req, res) {
 		switch (webcrawlFormat) {
 			case "SL": {
 				let date;
-				html.querySelector(".row.matches div").childNodes.forEach(row => {
+				html.childNodes.forEach(row => {
 					//Add Date
 					if (row.tagName === "H3") {
 						//Convert Date to Array
