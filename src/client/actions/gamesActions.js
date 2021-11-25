@@ -260,7 +260,7 @@ export const previewFixtureListImage = (year, competitions, fixturesOnly, dateBr
 };
 
 export const postFixtureListImage = data => async (dispatch, getState, api) => {
-	const res = await api.post("/games/images/fixtureListImage/", data);
+	const res = await api.post("/games/images/fixtureList/", data);
 	if (res.data) {
 		toast.success("Fixture Image posted");
 		return res.data;
