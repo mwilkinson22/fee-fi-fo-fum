@@ -14,7 +14,7 @@ export const fetchBroadcasters = () => async (dispatch, getState, api) => {
 };
 
 export const updateBroadcaster = (id, data) => async (dispatch, getState, api) => {
-	const res = await api.post(`/broadcasters/${id}`, data);
+	const res = await api.put(`/broadcasters/${id}`, data);
 	toast.success("Broadcaster Updated");
 	dispatch({ type: FETCH_BROADCASTER, payload: res.data });
 };
