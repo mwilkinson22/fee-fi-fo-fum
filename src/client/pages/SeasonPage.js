@@ -156,7 +156,7 @@ class SeasonPage extends Component {
 				fetchGames(gamesToLoad);
 				newState.isLoadingGames = true;
 			} else if (!gamesToLoad.length) {
-				newState.games = gamesRequired.map(g => fullGames[g._id]);
+				newState.games = gamesRequired.map(g => fullGames[g._id]).filter(g => g.status >= 2);
 				newState.isLoadingGames = false;
 			}
 		}
@@ -191,7 +191,14 @@ class SeasonPage extends Component {
 	}
 
 	generatePageMenu() {
-		const { teamType, year } = this.state;
+		const { teamType, year, games } = this.state;
+		if (games == null) {
+			return <LoadingPage />;
+		}
+		if (!games.length) {
+			return null;
+		}
+
 		const pages = [
 			{ slug: "overview", label: "Overview" },
 			{ slug: "player-stats", label: "Player Stats" },

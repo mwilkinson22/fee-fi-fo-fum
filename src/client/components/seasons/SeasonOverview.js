@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -166,12 +166,21 @@ class SeasonOverview extends Component {
 			return <LoadingPage />;
 		}
 
-		return (
-			<section className="season-overview">
-				<div className="container">
+		let content;
+		if (games.length) {
+			content = (
+				<Fragment>
 					{this.renderOverviewTable()}
 					{this.renderLeagueTables()}
-				</div>
+				</Fragment>
+			);
+		} else {
+			content = <div className="form-card">No Game Data was found for this Team Type.</div>;
+		}
+
+		return (
+			<section className="season-overview">
+				<div className="container">{content}</div>
 			</section>
 		);
 	}
