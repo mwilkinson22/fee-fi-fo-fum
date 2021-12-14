@@ -84,18 +84,41 @@ class AdminTeamSquadsEdit extends Component {
 	getFieldGroups() {
 		const { squad } = this.state;
 
-		const columns = [
-			{ key: "player", label: "Player", dataUsesTh: true },
-			{ key: "number", label: "#" },
-			{ key: "onLoan", label: "On Loan" },
-			{ key: "from", label: "From" },
-			{ key: "to", label: "To" },
-			{ key: "deletePlayer", label: "Delete" }
-		];
-
 		return [
 			{
-				render: values => {
+				render: (values, formik) => {
+					const columns = [
+						{ key: "player", label: "Player", dataUsesTh: true },
+						{ key: "number", label: "#" },
+						{ key: "onLoan", label: "On Loan" },
+						{ key: "from", label: "From" },
+						{ key: "to", label: "To" }
+					];
+
+					//Add a bulk "delete/undelete all" button
+					let deleteIsTrueForAll = true;
+					for (const id in values) {
+						if (!values[id].deletePlayer) {
+							deleteIsTrueForAll = false;
+							break;
+						}
+					}
+					const bulkDeleteAction = () => {
+						for (const id in values) {
+							formik.setFieldValue(`${id}.deletePlayer`, !deleteIsTrueForAll);
+						}
+					};
+
+					columns.push({
+						key: "deletePlayer",
+						label: (
+							<span>
+								<input type="checkbox" onChange={bulkDeleteAction} checked={deleteIsTrueForAll} />{" "}
+								Delete
+							</span>
+						)
+					});
+
 					const rows = _.chain(squad.players)
 						//_.sortBy behaves strangely on a mix of numbers and strings,
 						//so we do two calculations
