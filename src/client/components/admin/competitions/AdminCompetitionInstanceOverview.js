@@ -121,7 +121,7 @@ class AdminCompetitionInstanceOverview extends Component {
 			//we pull the values from the existing segment
 
 			instance = instanceToCopy || instance;
-			return _.mapValues(defaultValues, (defaultValue, key) => {
+			const values = _.mapValues(defaultValues, (defaultValue, key) => {
 				let value;
 				switch (key) {
 					case "year":
@@ -145,6 +145,21 @@ class AdminCompetitionInstanceOverview extends Component {
 				}
 				return value != null ? value : defaultValue;
 			});
+
+			//If there's an instance to copy, we also grab the additional fields not listed in the overview
+			if (instanceToCopy) {
+				const extraFields = _.pick(instanceToCopy, ["specialRounds", "customStyling", "leagueTableColours"]);
+				extraFields.specialRounds.forEach(round => {
+					if (!round.hashtag) {
+						round.hashtag = [];
+					}
+					delete round._id;
+				});
+				Object.assign(values, extraFields);
+			}
+
+			console.log(values);
+			return values;
 		}
 	}
 

@@ -34,16 +34,13 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 		}
 
 		//Create Validation Schema
+		//Note, any change to this structure may need addressing in AdminCompetitionInstanceOverview,
+		//for when we copy existing instances
 		newState.validationSchema = Yup.object().shape({
 			specialRounds: Yup.array().of(
 				Yup.object().shape({
-					round: Yup.number()
-						.min("1")
-						.required()
-						.label("Round"),
-					name: Yup.string()
-						.required()
-						.label("Name"),
+					round: Yup.number().min("1").required().label("Round"),
+					name: Yup.string().required().label("Name"),
 					hashtag: Yup.string().label("Hashtags"),
 					overwriteBaseHashtag: Yup.string().label("Overwrite Base Hashtag")
 				})
