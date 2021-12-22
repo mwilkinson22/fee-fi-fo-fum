@@ -17,7 +17,7 @@ function fixDates(person) {
 	}
 }
 
-export default function(state = { fullPeople: {}, slugMap: {} }, action) {
+export default function (state = { fullPeople: {}, slugMap: {} }, action) {
 	switch (action.type) {
 		case FETCH_PERSON:
 			fixDates(action.payload);

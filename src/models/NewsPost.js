@@ -26,7 +26,7 @@ const newsPostSchema = new Schema({
 
 mongooseDebug(newsPostSchema);
 
-newsPostSchema.query.forList = function() {
+newsPostSchema.query.forList = function () {
 	return this.select({
 		slug: 1,
 		title: 1,
@@ -37,7 +37,7 @@ newsPostSchema.query.forList = function() {
 	}).lean();
 };
 
-newsPostSchema.query.fullPost = function() {
+newsPostSchema.query.fullPost = function () {
 	return this.populate({
 		path: "_author",
 		select: "name frontendName twitter image"

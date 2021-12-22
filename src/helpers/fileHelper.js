@@ -90,9 +90,7 @@ export async function uploadImageToGoogle(
 	const uploadedImage = await uploadToGoogle(file, path, cacheMaxAge);
 
 	if (webPConvert) {
-		const buffer = await sharp(file.buffer)
-			.webp()
-			.toBuffer();
+		const buffer = await sharp(file.buffer).webp().toBuffer();
 		const webPData = {
 			originalname: fileName + ".webp",
 			buffer,

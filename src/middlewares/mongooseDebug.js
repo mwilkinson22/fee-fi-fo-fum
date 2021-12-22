@@ -2,11 +2,11 @@ import { logMongooseTimings } from "~/config/keys";
 
 export function mongooseDebug(schema, logEverything = false) {
 	if (logMongooseTimings || logEverything) {
-		schema.pre("find", function() {
+		schema.pre("find", function () {
 			this._startTime = Date.now();
 		});
 
-		schema.post("find", function() {
+		schema.post("find", function () {
 			if (this._startTime != null) {
 				const collectionName = this.mongooseCollection.name;
 				const query = this._conditions;

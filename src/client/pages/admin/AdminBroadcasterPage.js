@@ -49,12 +49,8 @@ class AdminBroadcasterPage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			image: Yup.string()
-				.required()
-				.label("Image")
+			name: Yup.string().required().label("Name"),
+			image: Yup.string().required().label("Image")
 		});
 
 		//Get Current Broadcaster

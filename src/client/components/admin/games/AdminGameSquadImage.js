@@ -78,15 +78,9 @@ class AdminGameSquadImage extends Component {
 
 		//Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			_profile: Yup.mixed()
-				.required()
-				.label("Profile"),
-			team: Yup.mixed()
-				.required()
-				.label("Team"),
-			tweet: Yup.string()
-				.required()
-				.label("Tweet"),
+			_profile: Yup.mixed().required().label("Profile"),
+			team: Yup.mixed().required().label("Team"),
+			tweet: Yup.string().required().label("Tweet"),
 			replyTweet: Yup.string().label("Reply Tweet ID")
 		});
 

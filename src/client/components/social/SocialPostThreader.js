@@ -550,9 +550,7 @@ class SocialPostThreader extends Component {
 
 		//Validation Schema
 		const rawValidationSchema = {
-			_profile: Yup.string()
-				.label("Profile")
-				.required(),
+			_profile: Yup.string().label("Profile").required(),
 			channels: Yup.array()
 				.of(Yup.string())
 				.label(`${enforceTwitter ? "Additional " : ""}Channels`),

@@ -26,15 +26,9 @@ class AdminNewsPostTags extends Component {
 		}
 
 		const validationSchema = Yup.object().shape({
-			tags: Yup.array()
-				.of(Yup.mixed())
-				.label("Custom Tags"),
-			_people: Yup.array()
-				.of(Yup.mixed())
-				.label("People"),
-			_teams: Yup.array()
-				.of(Yup.mixed())
-				.label("Teams")
+			tags: Yup.array().of(Yup.mixed()).label("Custom Tags"),
+			_people: Yup.array().of(Yup.mixed()).label("People"),
+			_teams: Yup.array().of(Yup.mixed()).label("Teams")
 		});
 
 		this.state = { validationSchema };

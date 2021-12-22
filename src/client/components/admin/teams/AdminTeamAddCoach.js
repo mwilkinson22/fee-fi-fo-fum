@@ -35,18 +35,10 @@ class AdminTeamAddCoach extends Component {
 			}))
 		};
 		const validationSchema = Yup.object().shape({
-			_person: Yup.mixed()
-				.required()
-				.label("Person"),
-			_teamType: Yup.mixed()
-				.required()
-				.label("Team Type"),
-			role: Yup.mixed()
-				.required()
-				.label("Role"),
-			from: Yup.date()
-				.required()
-				.label("From"),
+			_person: Yup.mixed().required().label("Person"),
+			_teamType: Yup.mixed().required().label("Team Type"),
+			role: Yup.mixed().required().label("Role"),
+			from: Yup.date().required().label("From"),
 			to: Yup.date().label("To")
 		});
 		this.state = { options, validationSchema, showNonCoaches: false };
@@ -130,16 +122,10 @@ class AdminTeamAddCoach extends Component {
 		if (addNewCoachDialog) {
 			const validationSchema = Yup.object().shape({
 				name: Yup.object().shape({
-					first: Yup.string()
-						.label("First Name")
-						.required(),
-					last: Yup.string()
-						.label("Last Name")
-						.required()
+					first: Yup.string().label("First Name").required(),
+					last: Yup.string().label("Last Name").required()
 				}),
-				gender: Yup.string()
-					.label("Gender")
-					.required()
+				gender: Yup.string().label("Gender").required()
 			});
 
 			const fieldGroups = [

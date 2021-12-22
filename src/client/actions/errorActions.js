@@ -1,6 +1,6 @@
 import { FETCH_ERRORS, CLEAR_ERRORS, SEND_ERROR } from "./types";
 
-export const fetchErrors = (includeArchived = false) => async (dispatch, getState, api) => {
+export const fetchErrors = includeArchived => async (dispatch, getState, api) => {
 	//Clear out errors (in case of a refresh)
 	dispatch({ type: CLEAR_ERRORS, payload: false });
 

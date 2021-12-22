@@ -322,15 +322,9 @@ class AdminPersonImageCardEditor extends Component {
 		}
 
 		const validationSchema = Yup.object().shape({
-			alignment: Yup.string()
-				.required()
-				.label("Alignment"),
-			lineHeight: Yup.number()
-				.required()
-				.label("Line Height"),
-			imageType: Yup.string()
-				.required()
-				.label("Image Type"),
+			alignment: Yup.string().required().label("Alignment"),
+			lineHeight: Yup.number().required().label("Line Height"),
+			imageType: Yup.string().required().label("Image Type"),
 			includeName: Yup.bool().label("Include Name"),
 			globalSize: Yup.number().label("Global Size")
 		});

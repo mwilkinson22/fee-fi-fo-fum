@@ -49,10 +49,7 @@ export async function getSettings(req, res) {
 	if (adminOnlySettings.length && !req.user.isAdmin) {
 		res.status(403).send(`Only admins can view ${adminOnlySettings.map(s => s.name).join(", ")}`);
 	} else {
-		const results = _.chain(settings)
-			.keyBy("name")
-			.mapValues("value")
-			.value();
+		const results = _.chain(settings).keyBy("name").mapValues("value").value();
 
 		res.send(results);
 	}

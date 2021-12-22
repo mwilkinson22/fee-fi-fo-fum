@@ -31,7 +31,7 @@ const userSchema = new Schema(
 
 mongooseDebug(userSchema);
 
-userSchema.virtual("name.full").get(function() {
+userSchema.virtual("name.full").get(function () {
 	return this.name.first + " " + this.name.last;
 });
 
@@ -41,12 +41,12 @@ userSchema.statics.generateHash = password => {
 };
 
 //Check Password
-userSchema.methods.validatePassword = function(password) {
+userSchema.methods.validatePassword = function (password) {
 	return bcrypt.compareSync(password, this.password);
 };
 
 //For List
-userSchema.query.noPassword = function() {
+userSchema.query.noPassword = function () {
 	return this.select({ password: 0 });
 };
 

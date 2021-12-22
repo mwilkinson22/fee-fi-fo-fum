@@ -19,7 +19,7 @@ const groundSchema = new Schema({
 	image: { type: String, default: null }
 });
 
-groundSchema.query.forList = function() {
+groundSchema.query.forList = function () {
 	return this.populate({
 		path: "address._city",
 		populate: {

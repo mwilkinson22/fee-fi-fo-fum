@@ -96,7 +96,7 @@ export function getSegmentBasicTitle(doc) {
 	}
 }
 
-competitionSegmentSchema.virtual("basicTitle").get(function() {
+competitionSegmentSchema.virtual("basicTitle").get(function () {
 	return getSegmentBasicTitle(this);
 });
 

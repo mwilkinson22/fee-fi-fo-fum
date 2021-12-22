@@ -16,13 +16,8 @@ import { fetchHomePageLeagueTableData } from "../actions/competitionActions";
 class HomePage extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			homePageGames,
-			fetchHomePageGames,
-			fullGames,
-			homePageLeagueTable,
-			fetchHomePageLeagueTableData
-		} = props;
+		const { homePageGames, fetchHomePageGames, fullGames, homePageLeagueTable, fetchHomePageLeagueTableData } =
+			props;
 
 		//Get League Table Data
 		if (homePageLeagueTable === undefined) {
@@ -55,11 +50,7 @@ class HomePage extends Component {
 		}
 
 		//Get latest news posts
-		newState.newsPosts = _.chain(postList)
-			.orderBy("dateCreated", "desc")
-			.chunk(3)
-			.value()
-			.shift();
+		newState.newsPosts = _.chain(postList).orderBy("dateCreated", "desc").chunk(3).value().shift();
 
 		//Set League Table Details
 		newState.leagueTableDetails = homePageLeagueTable;

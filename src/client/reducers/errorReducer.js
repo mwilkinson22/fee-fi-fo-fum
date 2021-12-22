@@ -1,6 +1,6 @@
 import { FETCH_ERRORS, SEND_ERROR, CLEAR_ERRORS } from "../actions/types";
 
-export default function(state = { sentErrors: [] }, action) {
+export default function (state = { sentErrors: [] }, action) {
 	switch (action.type) {
 		case FETCH_ERRORS:
 			return {

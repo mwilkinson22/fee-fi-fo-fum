@@ -164,11 +164,7 @@ class BasicForm extends Component {
 		const fieldGroups = this.getFieldGroups(fValues);
 
 		//Get flat field list
-		const fields = _.chain(fieldGroups)
-			.map("fields")
-			.flatten()
-			.keyBy("name")
-			.value();
+		const fields = _.chain(fieldGroups).map("fields").flatten().keyBy("name").value();
 
 		//Process values (pull value from select fields, convert empty strings to null, etc)
 		let values = this.processValues(_.cloneDeep(fValues), fields);
@@ -276,14 +272,8 @@ class BasicForm extends Component {
 	}
 
 	renderSubmitButtons(formHasChanged, isSubmitting) {
-		let {
-			isInitialValid,
-			itemType,
-			replaceResetButton,
-			enforceDisable,
-			submitButtonText,
-			useFormCard
-		} = this.props;
+		let { isInitialValid, itemType, replaceResetButton, enforceDisable, submitButtonText, useFormCard } =
+			this.props;
 		const { disableRedirect, enableRedirectBoolean, isNew, readOnly } = this.state;
 
 		if (readOnly) {

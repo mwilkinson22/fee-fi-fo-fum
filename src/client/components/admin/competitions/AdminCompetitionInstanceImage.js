@@ -82,9 +82,7 @@ class AdminCompetitionInstanceImages extends Component {
 		}
 
 		const validationSchema = {
-			imageType: Yup.string()
-				.required()
-				.label("Image Type")
+			imageType: Yup.string().required().label("Image Type")
 		};
 
 		return (

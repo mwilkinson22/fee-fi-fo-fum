@@ -9,7 +9,7 @@ const idLinkSchema = new Schema({
 	sqlId: Number
 });
 
-idLinkSchema.statics.convertId = async function(sqlId, collectionName) {
+idLinkSchema.statics.convertId = async function (sqlId, collectionName) {
 	const idLink = await this.findOne({ sqlId, collectionName });
 	return idLink._id;
 };

@@ -81,16 +81,15 @@ const teamSchema = new Schema({
 
 mongooseDebug(teamSchema);
 
-teamSchema.query.forList = function() {
+teamSchema.query.forList = function () {
 	return this.select("name colours images");
 };
 
-teamSchema.query.fullTeam = function(fullData) {
+teamSchema.query.fullTeam = function (fullData) {
 	if (fullData) {
 		return this.populate({
 			path: "squads.players._player",
-			select:
-				"name position playingPositions isPlayer isCoach images.main images.player twitter gender slug contractedUntil removeFromOocList"
+			select: "name position playingPositions isPlayer isCoach images.main images.player twitter gender slug contractedUntil removeFromOocList"
 		}).populate({
 			path: "coaches._person",
 			select: "name slug images.main images.coach gender"

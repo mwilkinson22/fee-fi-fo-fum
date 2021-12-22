@@ -186,9 +186,7 @@ class AdminGamePostGameEvents extends Component {
 				}
 			],
 			initialValue: null,
-			validation: Yup.string()
-				.label("Player")
-				.required()
+			validation: Yup.string().label("Player").required()
 		};
 
 		//Set some basics for the stat dropdowns
@@ -210,10 +208,7 @@ class AdminGamePostGameEvents extends Component {
 				}
 			],
 			initialValue: [],
-			validation: Yup.array()
-				.of(Yup.string())
-				.min(1)
-				.label("Stats")
+			validation: Yup.array().of(Yup.string()).min(1).label("Stats")
 		};
 
 		//Player Stats
@@ -230,11 +225,7 @@ class AdminGamePostGameEvents extends Component {
 				}
 			],
 			initialValue: [],
-			validation: Yup.array()
-				.of(Yup.string())
-				.min(1)
-				.max(10)
-				.label("Stats")
+			validation: Yup.array().of(Yup.string()).min(1).max(10).label("Stats")
 		};
 
 		// We'll have two "playersAndStats" field types. One will be fixed (where
@@ -250,9 +241,7 @@ class AdminGamePostGameEvents extends Component {
 				}
 			],
 			initialValue: "",
-			validation: Yup.string()
-				.label("Custom Header")
-				.nullable()
+			validation: Yup.string().label("Custom Header").nullable()
 		};
 
 		//Map in the key
@@ -342,13 +331,8 @@ class AdminGamePostGameEvents extends Component {
 		const validation = Yup.array()
 			.of(
 				Yup.object().shape({
-					_player: Yup.string()
-						.required()
-						.label("Player"),
-					stats: Yup.array()
-						.of(Yup.string())
-						.min(1)
-						.label("Stats")
+					_player: Yup.string().required().label("Player"),
+					stats: Yup.array().of(Yup.string()).min(1).label("Stats")
 				})
 			)
 			.min(1);

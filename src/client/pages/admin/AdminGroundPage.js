@@ -45,30 +45,16 @@ class AdminGroundPage extends Component {
 		};
 
 		const validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
+			name: Yup.string().required().label("Name"),
 			addThe: Yup.boolean().label("Add 'the'"),
 			address: Yup.object().shape({
-				street: Yup.string()
-					.required()
-					.label("Street"),
+				street: Yup.string().required().label("Street"),
 				street2: Yup.string().label("Street 2"),
-				_city: Yup.string()
-					.label("City")
-					.required(),
-				postcode: Yup.string()
-					.required()
-					.label("Postcode"),
-				googlePlaceId: Yup.string()
-					.required()
-					.label("Google Place ID"),
-				newCityName: Yup.string()
-					.when("_city", newCityTest)
-					.label("New City Name"),
-				newCityCountry: Yup.string()
-					.when("_city", newCityTest)
-					.label("New City Country")
+				_city: Yup.string().label("City").required(),
+				postcode: Yup.string().required().label("Postcode"),
+				googlePlaceId: Yup.string().required().label("Google Place ID"),
+				newCityName: Yup.string().when("_city", newCityTest).label("New City Name"),
+				newCityCountry: Yup.string().when("_city", newCityTest).label("New City Country")
 			}),
 			parking: Yup.string().label("Parking"),
 			image: Yup.string().label("Image")

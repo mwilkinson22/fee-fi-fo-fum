@@ -158,8 +158,9 @@ class AwardPage extends Component {
 				<HelmetBuilder
 					title={`${year}5Fs Awards`}
 					description={`Vote in the ${year}${site_name} Fan Awards!`}
-					cardImage={`${bucketPaths.imageRoot}awards/socialCards/${currentAwards.socialCard ||
-						"default.jpg"}`}
+					cardImage={`${bucketPaths.imageRoot}awards/socialCards/${
+						currentAwards.socialCard || "default.jpg"
+					}`}
 				/>
 				<section className="page-header">
 					<div className="container">

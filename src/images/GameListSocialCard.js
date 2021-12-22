@@ -75,10 +75,7 @@ export default class GameListSocialCard extends Canvas {
 		}
 
 		//First, load games
-		this.games = await Game.find(query)
-			.fullGame(true, false)
-			.limit(4)
-			.sort(sort);
+		this.games = await Game.find(query).fullGame(true, false).limit(4).sort(sort);
 
 		if (this.games.length) {
 			//Get extra info

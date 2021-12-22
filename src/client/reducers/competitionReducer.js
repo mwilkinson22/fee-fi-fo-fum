@@ -9,7 +9,7 @@ import {
 	FETCH_LEAGUE_TABLE_DATA
 } from "../actions/types";
 
-export default function(state = { leagueTableData: {} }, action) {
+export default function (state = { leagueTableData: {} }, action) {
 	switch (action.type) {
 		case FETCH_ALL_COMPETITIONS:
 			return {

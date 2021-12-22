@@ -25,15 +25,8 @@ class NewsListPage extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const {
-			fetchNewsPostPageCount,
-			pageCount,
-			fetchNewsPostPage,
-			pages,
-			postList,
-			fetchPostList,
-			match
-		} = nextProps;
+		const { fetchNewsPostPageCount, pageCount, fetchNewsPostPage, pages, postList, fetchPostList, match } =
+			nextProps;
 
 		const newState = {
 			category: match.params.category,

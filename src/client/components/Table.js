@@ -72,12 +72,7 @@ class Table extends Component {
 							<th
 								key={column.key}
 								onClick={isSortable ? () => this.handleSort(column.key) : null}
-								className={
-									classNames
-										.filter(Boolean)
-										.join(" ")
-										.trim() || null
-								}
+								className={classNames.filter(Boolean).join(" ").trim() || null}
 								title={column.title || null}
 								style={headerStyling}
 								colSpan={i === 0 ? initialHeaderSpan : 1}
@@ -154,11 +149,7 @@ class Table extends Component {
 									classNames.push(column.className);
 								}
 
-								cellProps.className =
-									classNames
-										.filter(Boolean)
-										.join(" ")
-										.trim() || null;
+								cellProps.className = classNames.filter(Boolean).join(" ").trim() || null;
 
 								//Handle missing values
 								if (data === undefined) {

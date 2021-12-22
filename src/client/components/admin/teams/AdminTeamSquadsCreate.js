@@ -31,7 +31,7 @@ class AdminTeamSquadsCreate extends Component {
 				.label("Year"),
 			_teamType: Yup.mixed()
 				.required()
-				.test("isUniqueCombo", "A squad already exists for this year and team type", function(teamType) {
+				.test("isUniqueCombo", "A squad already exists for this year and team type", function (teamType) {
 					const { year } = this.parent;
 					//Ensure all values are loaded
 					if (year && teamType) {

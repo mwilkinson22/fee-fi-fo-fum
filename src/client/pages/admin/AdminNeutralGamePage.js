@@ -29,13 +29,8 @@ import { getNeutralGame, getDynamicOptions } from "~/helpers/gameHelper";
 class AdminNeutralGamePage extends Component {
 	constructor(props) {
 		super(props);
-		const {
-			competitionSegmentList,
-			fetchCompetitionSegments,
-			neutralGames,
-			fetchNeutralGamesFromId,
-			match
-		} = props;
+		const { competitionSegmentList, fetchCompetitionSegments, neutralGames, fetchNeutralGamesFromId, match } =
+			props;
 
 		if (!competitionSegmentList) {
 			fetchCompetitionSegments();
@@ -79,9 +74,7 @@ class AdminNeutralGamePage extends Component {
 		//Determine validation for date
 		let dateValidation;
 		if (newState.isNew) {
-			dateValidation = Yup.date()
-				.required()
-				.label("Date");
+			dateValidation = Yup.date().required().label("Date");
 		} else {
 			const year = new Date(newState.game.date).getFullYear();
 			const yearError = `Only dates in ${year} are valid for this game`;
@@ -96,36 +89,24 @@ class AdminNeutralGamePage extends Component {
 		newState.validationSchema = Yup.object().shape({
 			externalSync: Yup.boolean().label("External Sync"),
 			externalId: Yup.number()
-				.test("externalSync", "An ID is required for External Sync", function(externalId) {
+				.test("externalSync", "An ID is required for External Sync", function (externalId) {
 					const { externalSync } = this.parent;
 					return !externalSync || externalId;
 				})
 				.label("External Id"),
-			time: Yup.string()
-				.required()
-				.label("Time"),
-			_teamType: Yup.string()
-				.required()
-				.label("Team Type"),
-			_competition: Yup.string()
-				.required()
-				.label("Competition"),
-			_homeTeam: Yup.mixed()
-				.required()
-				.label("Home Team"),
+			time: Yup.string().required().label("Time"),
+			_teamType: Yup.string().required().label("Team Type"),
+			_competition: Yup.string().required().label("Competition"),
+			_homeTeam: Yup.mixed().required().label("Home Team"),
 			_awayTeam: Yup.mixed()
-				.test("isUnique", "Home Team and Away Team cannot match", function(_awayTeam) {
+				.test("isUnique", "Home Team and Away Team cannot match", function (_awayTeam) {
 					const { _homeTeam } = this.parent;
 					return _homeTeam != _awayTeam;
 				})
 				.required()
 				.label("Away Team"),
-			homePoints: Yup.number()
-				.min(0)
-				.label("Home Points"),
-			awayPoints: Yup.number()
-				.min(0)
-				.label("Away Points"),
+			homePoints: Yup.number().min(0).label("Home Points"),
+			awayPoints: Yup.number().min(0).label("Away Points"),
 			date: dateValidation
 		});
 

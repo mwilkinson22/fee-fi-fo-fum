@@ -20,7 +20,7 @@ import {
 //Helpers
 import { fixDates, getNeutralGame } from "~/helpers/gameHelper";
 
-export default function(state = { gameList: {}, fullGames: {}, gameYears: {}, slugMap: {}, teamForm: {} }, action) {
+export default function (state = { gameList: {}, fullGames: {}, gameYears: {}, slugMap: {}, teamForm: {} }, action) {
 	if (!action || !action.payload) {
 		return state;
 	}

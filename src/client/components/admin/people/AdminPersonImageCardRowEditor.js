@@ -172,18 +172,10 @@ class AdminPersonImageCardRowEditor extends Component {
 			segments: Yup.array()
 				.of(
 					Yup.object().shape({
-						text: Yup.string()
-							.required()
-							.label("Text"),
-						font: Yup.string()
-							.required()
-							.label("Font"),
-						size: Yup.number()
-							.required()
-							.label("Size"),
-						colour: Yup.string()
-							.required()
-							.label("Colour")
+						text: Yup.string().required().label("Text"),
+						font: Yup.string().required().label("Font"),
+						size: Yup.number().required().label("Size"),
+						colour: Yup.string().required().label("Colour")
 					})
 				)
 				.min(1)

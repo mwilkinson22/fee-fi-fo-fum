@@ -34,12 +34,7 @@ class AdminGameOverrideGameStar extends Component {
 		//Get Players By Team, sorted by team
 		newState.playersByTeam = _.chain(newState.game.playerStats)
 			.groupBy("_team")
-			.mapValues(players =>
-				_.chain(players)
-					.sortBy("position")
-					.map("_player")
-					.value()
-			)
+			.mapValues(players => _.chain(players).sortBy("position").map("_player").value())
 			.value();
 
 		//Create validation schema
@@ -58,9 +53,7 @@ class AdminGameOverrideGameStar extends Component {
 						}
 
 						//Validation for this player
-						const validation = Yup.array()
-							.of(Yup.string())
-							.label(label);
+						const validation = Yup.array().of(Yup.string()).label(label);
 
 						//Return as an array which we can convert to an object
 						return [id, validation];

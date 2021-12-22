@@ -43,31 +43,14 @@ class AdminCoachDetails extends Component {
 		const validationSchema = Yup.object().shape({
 			additionalCoachStats: Yup.array().of(
 				Yup.object().shape({
-					_team: Yup.string()
-						.label("Team")
-						.required(),
-					_teamType: Yup.string()
-						.label("Team Type")
-						.required(),
-					role: Yup.string()
-						.label("Role")
-						.required(),
-					from: Yup.date()
-						.label("From")
-						.required(),
+					_team: Yup.string().label("Team").required(),
+					_teamType: Yup.string().label("Team Type").required(),
+					role: Yup.string().label("Role").required(),
+					from: Yup.date().label("From").required(),
 					to: Yup.date().label("To"),
-					w: Yup.number()
-						.label("Wins")
-						.min(0)
-						.required(),
-					d: Yup.number()
-						.label("Draws")
-						.min(0)
-						.required(),
-					l: Yup.number()
-						.label("Losses")
-						.min(0)
-						.required()
+					w: Yup.number().label("Wins").min(0).required(),
+					d: Yup.number().label("Draws").min(0).required(),
+					l: Yup.number().label("Losses").min(0).required()
 				})
 			)
 		});

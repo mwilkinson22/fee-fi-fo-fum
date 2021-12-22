@@ -43,18 +43,10 @@ class AdminAwardOverview extends Component {
 				.required()
 				.label("Year"),
 			socialCard: Yup.string().label("Social Media Card"),
-			votingBeginsDate: Yup.date()
-				.required()
-				.label("Voting Begins (Date)"),
-			votingBeginsTime: Yup.date()
-				.required()
-				.label("Voting Begins (Time)"),
-			votingEndsDate: Yup.date()
-				.required()
-				.label("Voting Ends (Date)"),
-			votingEndsTime: Yup.date()
-				.required()
-				.label("Voting Ends (Time)"),
+			votingBeginsDate: Yup.date().required().label("Voting Begins (Date)"),
+			votingBeginsTime: Yup.date().required().label("Voting Begins (Time)"),
+			votingEndsDate: Yup.date().required().label("Voting Ends (Date)"),
+			votingEndsTime: Yup.date().required().label("Voting Ends (Time)"),
 			categories: Yup.array().of(Yup.string().required())
 		});
 

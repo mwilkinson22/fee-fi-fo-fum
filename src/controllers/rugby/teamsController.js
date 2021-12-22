@@ -137,9 +137,7 @@ export async function deleteTeam(req, res) {
 }
 
 export async function getList(req, res) {
-	const teams = await Team.find({})
-		.forList()
-		.lean();
+	const teams = await Team.find({}).forList().lean();
 	const teamList = _.keyBy(teams, "_id");
 	res.send({ teamList });
 }
@@ -483,7 +481,5 @@ export async function deleteTeamType(req, res) {
 }
 
 export async function getMainTeamType(fields = null) {
-	return TeamType.findOne({}, fields)
-		.lean()
-		.sort({ sortOrder: 1 });
+	return TeamType.findOne({}, fields).lean().sort({ sortOrder: 1 });
 }

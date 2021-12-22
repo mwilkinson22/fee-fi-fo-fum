@@ -9,13 +9,7 @@ class AuthorImage extends Component {
 		let src = bucketPaths.images.users + author.image;
 
 		//Determine if it's a raster
-		const isRaster =
-			["png", "jpg", "jpeg"].indexOf(
-				src
-					.split(".")
-					.pop()
-					.toLowerCase()
-			) > -1;
+		const isRaster = ["png", "jpg", "jpeg"].indexOf(src.split(".").pop().toLowerCase()) > -1;
 
 		if (isRaster) {
 			//If a size is defined, look in the corresponding folder

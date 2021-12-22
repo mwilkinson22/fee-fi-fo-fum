@@ -69,14 +69,8 @@ class AdminDashboard extends Component {
 
 	render() {
 		const { neutralGames, teamList, teamTypes } = this.props;
-		const {
-			birthdays,
-			gamesWithIssues,
-			isLoading,
-			missingPlayerDetails,
-			teamsWithoutGrounds,
-			entireYearLoaded
-		} = this.state;
+		const { birthdays, gamesWithIssues, isLoading, missingPlayerDetails, teamsWithoutGrounds, entireYearLoaded } =
+			this.state;
 
 		//Await dependencies
 		if (isLoading) {

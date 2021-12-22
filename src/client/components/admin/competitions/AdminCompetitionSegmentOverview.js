@@ -42,18 +42,10 @@ class AdminCompetitionSegmentOverview extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			type: Yup.mixed()
-				.required()
-				.label("Type"),
-			_teamType: Yup.mixed()
-				.required()
-				.label("Team Type"),
-			hashtagPrefix: Yup.string()
-				.required()
-				.label("Hashtag Prefix"),
+			name: Yup.string().required().label("Name"),
+			type: Yup.mixed().required().label("Type"),
+			_teamType: Yup.mixed().required().label("Team Type"),
+			hashtagPrefix: Yup.string().required().label("Hashtag Prefix"),
 			appendCompetitionName: Yup.boolean().label("Append Competition Name?"),
 			externalCompId: Yup.number().label("External Competition Id"),
 			externalDivId: Yup.number().label("External Division Id"),

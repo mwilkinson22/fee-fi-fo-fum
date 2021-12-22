@@ -33,12 +33,7 @@ class AwardsVotingForm extends Component {
 
 		//Validation Schema
 		const validationSchema = _.fromPairs(
-			currentAwards.categories.map(c => [
-				c._id,
-				Yup.string()
-					.required()
-					.label(c.name)
-			])
+			currentAwards.categories.map(c => [c._id, Yup.string().required().label(c.name)])
 		);
 		newState.validationSchema = Yup.object().shape(validationSchema);
 

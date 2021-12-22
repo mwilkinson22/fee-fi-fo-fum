@@ -27,9 +27,7 @@ class AdminPrivacyPolicy extends Component {
 
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
-			privacyPolicy: Yup.string()
-				.required()
-				.label("Privacy Policy")
+			privacyPolicy: Yup.string().required().label("Privacy Policy")
 		});
 
 		this.state = { validationSchema };

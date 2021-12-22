@@ -136,9 +136,7 @@ class AdminPlayerDetails extends Component {
 
 		//Get games
 		if (person.playedGames) {
-			const pregameOnly = _.chain(person.playedGames)
-				.groupBy("pregameOnly")
-				.value();
+			const pregameOnly = _.chain(person.playedGames).groupBy("pregameOnly").value();
 			const gamesPlayedString = [];
 			if (pregameOnly.false) {
 				gamesPlayedString.push(

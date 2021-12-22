@@ -37,18 +37,10 @@ class AdminTwitterAppPage extends Component {
 
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
-			twitter_consumer_key: Yup.string()
-				.required()
-				.label("Consumer Key"),
-			twitter_consumer_secret: Yup.string()
-				.required()
-				.label("Consumer Secret"),
-			twitter_access_token: Yup.string()
-				.required()
-				.label("Default Access Token"),
-			twitter_access_token_secret: Yup.string()
-				.required()
-				.label("Default Access Token Secret")
+			twitter_consumer_key: Yup.string().required().label("Consumer Key"),
+			twitter_consumer_secret: Yup.string().required().label("Consumer Secret"),
+			twitter_access_token: Yup.string().required().label("Default Access Token"),
+			twitter_access_token_secret: Yup.string().required().label("Default Access Token Secret")
 		});
 
 		this.state = { validationSchema };

@@ -1,6 +1,6 @@
 import { FETCH_BROADCASTER, FETCH_BROADCASTERS, DELETE_BROADCASTER } from "../actions/types";
 
-export default function(state = {}, action) {
+export default function (state = {}, action) {
 	switch (action.type) {
 		case FETCH_BROADCASTER: {
 			return {

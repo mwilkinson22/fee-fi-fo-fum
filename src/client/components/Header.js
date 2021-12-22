@@ -57,10 +57,7 @@ class Header extends Component {
 					header: "News",
 					headerLink: "/news/",
 					subMenuRootLink: "/news/category/",
-					subMenu: _.chain(newsCategories)
-						.keyBy("name")
-						.mapValues("slug")
-						.value()
+					subMenu: _.chain(newsCategories).keyBy("name").mapValues("slug").value()
 				},
 				{
 					header: "Seasons",

@@ -129,15 +129,8 @@ class ShareDialog extends Component {
 	}
 
 	renderDialog() {
-		const {
-			authorisedAccounts,
-			fetchingPreview,
-			images,
-			isSubmitting,
-			service,
-			services,
-			submittedPost
-		} = this.state;
+		const { authorisedAccounts, fetchingPreview, images, isSubmitting, service, services, submittedPost } =
+			this.state;
 
 		if (service) {
 			let content;

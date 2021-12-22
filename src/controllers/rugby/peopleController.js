@@ -330,11 +330,7 @@ export async function parsePlayerList(req, res) {
 		} else {
 			//Create a Regex that matches first initial and last name
 			const firstInitial = name.substr(0, 1);
-			const lastName = unfilteredName
-				.split(" ")
-				.pop()
-				.replace(regEx, "")
-				.toLowerCase();
+			const lastName = unfilteredName.split(" ").pop().replace(regEx, "").toLowerCase();
 			const approxRegex = new RegExp(`^${firstInitial}.+ ${lastName}$`, "ig");
 
 			//Find anyone who matches the regex
@@ -408,10 +404,7 @@ export async function deletePerson(req, res) {
 				})
 				.fromPairs()
 				.value();
-			const squadCount = _.chain(toLog.teams)
-				.values()
-				.flatten()
-				.value().length;
+			const squadCount = _.chain(toLog.teams).values().flatten().value().length;
 
 			errors.push(
 				`part of ${squadCount} ${squadCount === 1 ? "squad" : "squads"} in ${teams.length} ${

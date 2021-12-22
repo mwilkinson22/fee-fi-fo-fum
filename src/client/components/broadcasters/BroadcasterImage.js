@@ -6,13 +6,7 @@ class BroadcasterImage extends Component {
 		const { broadcaster, bucketPaths, useWebp, className } = this.props;
 		const { name, image } = broadcaster;
 
-		const isRaster =
-			["png", "jpg", "jpeg"].indexOf(
-				image
-					.split(".")
-					.pop()
-					.toLowerCase()
-			) > -1;
+		const isRaster = ["png", "jpg", "jpeg"].indexOf(image.split(".").pop().toLowerCase()) > -1;
 		const webp = image.substr(0, image.lastIndexOf(".")) + ".webp";
 
 		return (
