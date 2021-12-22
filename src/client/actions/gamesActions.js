@@ -248,16 +248,13 @@ export const submitPostGameEvents = (id, values) => async (dispatch, getState, a
 	}
 };
 
-export const previewFixtureListImage = (year, competitions, fixturesOnly, dateBreakdown) => async (
-	dispatch,
-	getState,
-	api
-) => {
-	const res = await api.get(
-		`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}&dateBreakdown=${dateBreakdown.toString()}`
-	);
-	return res.data;
-};
+export const previewFixtureListImage =
+	(year, competitions, fixturesOnly, dateBreakdown) => async (dispatch, getState, api) => {
+		const res = await api.get(
+			`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}&dateBreakdown=${dateBreakdown.toString()}`
+		);
+		return res.data;
+	};
 
 export const postFixtureListImage = data => async (dispatch, getState, api) => {
 	const res = await api.post("/games/images/fixtureList/", data);
