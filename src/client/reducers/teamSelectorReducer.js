@@ -3,7 +3,7 @@ import { FETCH_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_LIST, DELETE_TEAM_SELECTOR } f
 
 import { teamSelectors as listProperties } from "~/constants/listProperties";
 
-export default function(state = { selectors: {}, haveLoadedAll: false }, action) {
+export default function (state = { selectors: {}, haveLoadedAll: false }, action) {
 	switch (action.type) {
 		case FETCH_TEAM_SELECTOR: {
 			return {

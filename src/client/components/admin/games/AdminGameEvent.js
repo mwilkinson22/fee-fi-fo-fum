@@ -32,14 +32,10 @@ class AdminGameEvent extends Component {
 		}
 
 		const validationSchema = Yup.object().shape({
-			_profile: Yup.mixed()
-				.required()
-				.label("Profile"),
-			event: Yup.mixed()
-				.required()
-				.label("Event"),
+			_profile: Yup.mixed().required().label("Profile"),
+			event: Yup.mixed().required().label("Event"),
 			player: Yup.mixed()
-				.test("isRequired", "Please select a player", function(player) {
+				.test("isRequired", "Please select a player", function (player) {
 					const { event } = this.parent;
 					const { isPlayerEvent } = gameEvents[event];
 					return !isPlayerEvent || player;

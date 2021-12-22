@@ -114,7 +114,7 @@ class TweetComposer extends Component {
 		if (!variables || !variables.length) {
 			return null;
 		} else {
-			const options = variables.map(function(obj) {
+			const options = variables.map(function (obj) {
 				return (
 					<option key={obj.value} value={obj.value}>
 						{obj.label}

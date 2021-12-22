@@ -7,7 +7,7 @@ const fixDates = award => ({
 	votingEnds: new Date(award.votingEnds)
 });
 
-export default function(state = {}, action) {
+export default function (state = {}, action) {
 	switch (action.type) {
 		case FETCH_CURRENT_AWARDS:
 			return {

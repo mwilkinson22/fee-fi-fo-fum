@@ -63,9 +63,7 @@ class BasicSocialForm extends Component {
 		//Create Validation Schema
 		const rawValidationSchema = {
 			...additionalFieldValidationSchema,
-			content: Yup.string()
-				.required()
-				.label("Content")
+			content: Yup.string().required().label("Content")
 		};
 
 		//Create dropdown options

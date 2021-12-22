@@ -37,12 +37,7 @@ class AdminGamePregameSquads extends Component {
 		//Validation Schema
 		newState.validationSchema = Yup.object().shape(
 			_.chain(newState.teams)
-				.map(id => [
-					id,
-					Yup.array()
-						.of(Yup.string())
-						.label(teamList[id].name.long)
-				])
+				.map(id => [id, Yup.array().of(Yup.string()).label(teamList[id].name.long)])
 				.fromPairs()
 				.value()
 		);

@@ -88,11 +88,7 @@ class SquadSelector extends Component {
 		potentialRowCount.push(highestCurrentPosition);
 
 		//Return the biggest value
-		return _.chain(potentialRowCount)
-			.map(Number)
-			.filter(_.identity)
-			.max()
-			.value();
+		return _.chain(potentialRowCount).map(Number).filter(_.identity).max().value();
 	}
 
 	setNextActivePosition(values, hasMounted = true) {

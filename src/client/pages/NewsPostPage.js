@@ -356,16 +356,8 @@ class NewsPostPage extends Component {
 }
 
 function mapStateToProps({ config, games, news }) {
-	const {
-		authUser,
-		baseUrl,
-		bucketPaths,
-		facebookApp,
-		fansCanAttend,
-		site_name,
-		social_account,
-		ticketLink
-	} = config;
+	const { authUser, baseUrl, bucketPaths, facebookApp, fansCanAttend, site_name, social_account, ticketLink } =
+		config;
 	const { fullGames } = games;
 	const { fullPosts, postList, slugMap } = news;
 

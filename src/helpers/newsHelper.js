@@ -17,13 +17,7 @@ export function fixDates(posts) {
 export function getHeaderImage(post, bucketPaths, useWebp, size = null) {
 	let src = post.image;
 
-	const isRaster =
-		["png", "jpg", "jpeg"].indexOf(
-			src
-				.split(".")
-				.pop()
-				.toLowerCase()
-		) > -1;
+	const isRaster = ["png", "jpg", "jpeg"].indexOf(src.split(".").pop().toLowerCase()) > -1;
 
 	if (isRaster) {
 		//If a size is defined, look in the corresponding folder

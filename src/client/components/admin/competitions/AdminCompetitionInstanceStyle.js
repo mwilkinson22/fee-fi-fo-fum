@@ -42,12 +42,8 @@ class AdminCompetitionInstanceStyle extends Component {
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
 			customStyling: Yup.object().shape({
-				backgroundColor: Yup.string()
-					.required()
-					.label("Background Colour"),
-				color: Yup.string()
-					.required()
-					.label("Text Colour")
+				backgroundColor: Yup.string().required().label("Background Colour"),
+				color: Yup.string().required().label("Text Colour")
 			}),
 			leagueTableColours: Yup.array().of(Yup.string())
 		});

@@ -10,13 +10,7 @@ class GameLogo extends Component {
 			let src = bucketPaths.root + game.images.logo;
 
 			//Determine if it's a raster
-			const isRaster =
-				["png", "jpg", "jpeg"].indexOf(
-					game.images.logo
-						.split(".")
-						.pop()
-						.toLowerCase()
-				) > -1;
+			const isRaster = ["png", "jpg", "jpeg"].indexOf(game.images.logo.split(".").pop().toLowerCase()) > -1;
 
 			if (isRaster) {
 				//If a size is defined, look in the corresponding folder

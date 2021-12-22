@@ -25,10 +25,7 @@ async function getOAuthClient(req, res, service) {
 			let settings = await Settings.find({
 				name: { $in: ["twitter_consumer_key", "twitter_consumer_secret"] }
 			}).lean();
-			settings = _.chain(settings)
-				.keyBy("name")
-				.mapValues("value")
-				.value();
+			settings = _.chain(settings).keyBy("name").mapValues("value").value();
 
 			return new OAuth(
 				"https://api.twitter.com/oauth/request_token",

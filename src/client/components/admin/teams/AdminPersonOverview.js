@@ -36,17 +36,11 @@ class AdminPersonOverview extends Component {
 
 		const validationSchema = Yup.object().shape({
 			name: Yup.object().shape({
-				first: Yup.string()
-					.required()
-					.label("First Name"),
-				last: Yup.string()
-					.required()
-					.label("Last Name")
+				first: Yup.string().required().label("First Name"),
+				last: Yup.string().required().label("Last Name")
 			}),
 			nickname: Yup.string().label("Nickname"),
-			gender: Yup.string()
-				.required()
-				.label("Gender"),
+			gender: Yup.string().required().label("Gender"),
 			dateOfBirth: Yup.date().label("Date of Birth"),
 			_hometown: Yup.mixed().label("Hometown"),
 			_represents: Yup.mixed().label("Represents"),

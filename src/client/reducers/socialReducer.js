@@ -5,7 +5,7 @@ import {
 	SET_DEFAULT_SOCIAL_PROFILE
 } from "../actions/types";
 
-export default function(state = {}, action) {
+export default function (state = {}, action) {
 	switch (action.type) {
 		case FETCH_SOCIAL_PROFILES:
 			return { ...state, profiles: action.payload };

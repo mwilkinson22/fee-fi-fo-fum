@@ -8,7 +8,7 @@ const countrySchema = new Schema({
 	demonym: { type: String, unique: true, required: true }
 });
 
-countrySchema.statics.generateSlug = async function(name) {
+countrySchema.statics.generateSlug = async function (name) {
 	const coreSlugText = name
 		.toLowerCase()
 		.replace(/(?![a-z-\s])./gi, "")

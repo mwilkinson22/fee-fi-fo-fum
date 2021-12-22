@@ -41,15 +41,9 @@ class AdminTeamCurrentCoaches extends Component {
 					_person: Yup.string().required(),
 					_teamType: Yup.string().required(),
 					deleteCoach: Yup.bool(),
-					from: Yup.string()
-						.required()
-						.label(`${label} - From Date`),
-					to: Yup.string()
-						.label(`${label} - To Date`)
-						.nullable(),
-					role: Yup.mixed()
-						.required()
-						.label(`${label} - Role`)
+					from: Yup.string().required().label(`${label} - From Date`),
+					to: Yup.string().label(`${label} - To Date`).nullable(),
+					role: Yup.mixed().required().label(`${label} - Role`)
 				})
 			];
 		});

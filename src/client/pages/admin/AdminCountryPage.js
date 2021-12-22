@@ -44,12 +44,8 @@ class AdminCountryPage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			demonym: Yup.string()
-				.required()
-				.label("Demonym")
+			name: Yup.string().required().label("Name"),
+			demonym: Yup.string().required().label("Demonym")
 		});
 
 		//Get Current Country

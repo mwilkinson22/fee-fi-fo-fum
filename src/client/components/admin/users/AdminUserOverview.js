@@ -35,20 +35,13 @@ class AdminUserOverview extends Component {
 				.matches(/^[a-zA-Z0-9_-]+$/, "Login ID can only consist of letters, numbers, hyphens and underscores")
 				.label("Login ID"),
 			name: Yup.object().shape({
-				first: Yup.string()
-					.required()
-					.label("First Name"),
-				last: Yup.string()
-					.required()
-					.label("Last Name")
+				first: Yup.string().required().label("First Name"),
+				last: Yup.string().required().label("Last Name")
 			}),
 			frontendName: Yup.string().label("Frontend Name"),
 			twitter: Yup.string().label("Twitter Handle"),
 			image: Yup.string().label("Image"),
-			email: Yup.string()
-				.email()
-				.required()
-				.label("Email Address"),
+			email: Yup.string().email().required().label("Email Address"),
 			isAdmin: Yup.boolean().label("Admin Rights?")
 		};
 

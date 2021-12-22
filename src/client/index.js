@@ -33,10 +33,10 @@ const axiosInstance = axios.create({
 });
 //Assign it custom error handling
 axiosInstance.interceptors.response.use(
-	function(response) {
+	function (response) {
 		return response;
 	},
-	function(error) {
+	function (error) {
 		if (error.response) {
 			const { status, statusText } = error.response;
 			let errorMessage;

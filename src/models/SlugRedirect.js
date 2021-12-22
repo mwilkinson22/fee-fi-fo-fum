@@ -11,7 +11,7 @@ const slugRedirectSchema = new Schema({
 
 mongooseDebug(slugRedirectSchema);
 
-slugRedirectSchema.statics.getSlugMap = async function(collectionName) {
+slugRedirectSchema.statics.getSlugMap = async function (collectionName) {
 	const result = await this.find({ collectionName });
 	return _.chain(result)
 		.keyBy("oldSlug")

@@ -22,21 +22,11 @@ class AdminBrandingPage extends Component {
 
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
-			site_name: Yup.string()
-				.required()
-				.label("Website Name"),
-			site_social: Yup.string()
-				.required()
-				.label("Social Media Handle"),
-			site_logo: Yup.string()
-				.required()
-				.label("Site Logo"),
-			site_header_logo: Yup.string()
-				.required()
-				.label("Site Header Logo"),
-			site_default_description: Yup.string()
-				.required()
-				.label("Default Page Description")
+			site_name: Yup.string().required().label("Website Name"),
+			site_social: Yup.string().required().label("Social Media Handle"),
+			site_logo: Yup.string().required().label("Site Logo"),
+			site_header_logo: Yup.string().required().label("Site Header Logo"),
+			site_default_description: Yup.string().required().label("Default Page Description")
 		});
 
 		this.state = { validationSchema };

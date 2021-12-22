@@ -8,8 +8,6 @@ export function toRgba(c, a) {
 		case "ie":
 			return c;
 		default:
-			return Colour(c)
-				.alpha(a)
-				.rgb();
+			return Colour(c).alpha(a).rgb();
 	}
 }

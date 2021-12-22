@@ -53,16 +53,9 @@ class AdminFixtureListImagePage extends Component {
 
 		//Validation Schema
 		const validationSchema = Yup.object().shape({
-			_competitions: Yup.array()
-				.of(Yup.mixed())
-				.min(1)
-				.label("Competitions"),
-			_profile: Yup.mixed()
-				.required()
-				.label("Profile"),
-			tweet: Yup.string()
-				.required()
-				.label("Tweet"),
+			_competitions: Yup.array().of(Yup.mixed()).min(1).label("Competitions"),
+			_profile: Yup.mixed().required().label("Profile"),
+			tweet: Yup.string().required().label("Tweet"),
 			fixturesOnly: Yup.bool().label("Fixtures Only?"),
 			dateBreakdown: Yup.bool().label("Include Date Breakdown")
 		});

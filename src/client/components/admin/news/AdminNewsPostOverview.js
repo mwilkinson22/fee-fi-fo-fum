@@ -37,18 +37,12 @@ class AdminNewsPostOverview extends Component {
 		}
 
 		const validationSchema = Yup.object().shape({
-			title: Yup.string()
-				.required()
-				.label("Title"),
-			_author: Yup.mixed()
-				.required()
-				.label("Author"),
+			title: Yup.string().required().label("Title"),
+			_author: Yup.mixed().required().label("Author"),
 			subtitle: Yup.string().label("Sub-title"),
-			category: Yup.mixed()
-				.required()
-				.label("Category"),
+			category: Yup.mixed().required().label("Category"),
 			_game: Yup.mixed()
-				.test("isRequired", "A game is required for this category", function(value) {
+				.test("isRequired", "A game is required for this category", function (value) {
 					const category = this.parent.category;
 					if (category && (category.value === "recaps" || category.value === "previews")) {
 						return value;
@@ -58,9 +52,7 @@ class AdminNewsPostOverview extends Component {
 				})
 				.label("Game"),
 			slug: validateSlug(),
-			image: Yup.string()
-				.required()
-				.label("Header Image"),
+			image: Yup.string().required().label("Header Image"),
 			dateCreated: Yup.date().label("Date Created"),
 			timeCreated: Yup.string().label("Time Created"),
 			isPublished: Yup.boolean().label("Published?")

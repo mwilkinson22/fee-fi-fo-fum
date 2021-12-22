@@ -89,7 +89,7 @@ const personSchema = new Schema(
 
 mongooseDebug(personSchema);
 
-personSchema.statics.generateSlug = async function(firstName, lastName) {
+personSchema.statics.generateSlug = async function (firstName, lastName) {
 	const coreSlugText = (firstName + " " + lastName)
 		.replace(/\s/g, "-")
 		.replace(/[^A-Za-z-]/gi, "")
@@ -115,7 +115,7 @@ personSchema.statics.generateSlug = async function(firstName, lastName) {
 	}
 };
 
-personSchema.virtual("name.full").get(function() {
+personSchema.virtual("name.full").get(function () {
 	return this.name.first + " " + this.name.last;
 });
 

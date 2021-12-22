@@ -8,7 +8,7 @@ const citySchema = new Schema({
 	_country: { type: Schema.Types.ObjectId, ref: "countries" }
 });
 
-citySchema.statics.generateSlug = async function({ name, _country }) {
+citySchema.statics.generateSlug = async function ({ name, _country }) {
 	//Get Country
 	const Country = mongoose.model("countries");
 	const country = await Country.findById(_country, "slug");
@@ -43,7 +43,7 @@ citySchema.statics.generateSlug = async function({ name, _country }) {
 
 mongooseDebug(citySchema);
 
-citySchema.query.populated = function() {
+citySchema.query.populated = function () {
 	return this.populate({
 		path: "_country",
 		select: "name"

@@ -1,6 +1,6 @@
 import { FETCH_CURRENT_USER, GET_CORE_CONFIG, LOGOUT, TRANSFER_SITE_OWNER, GET_SETTINGS } from "../actions/types";
 
-export default function(state = {}, action) {
+export default function (state = {}, action) {
 	switch (action.type) {
 		case FETCH_CURRENT_USER:
 			return { ...state, authUser: action.payload || false };

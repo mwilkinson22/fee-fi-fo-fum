@@ -75,13 +75,8 @@ class AdminTeamSelectorOverview extends Component {
 
 		//Validation Schema
 		const validationSchema = {
-			title: Yup.string()
-				.required()
-				.label("Title"),
-			interchanges: Yup.number()
-				.min(0)
-				.required()
-				.label("Interchanges"),
+			title: Yup.string().required().label("Title"),
+			interchanges: Yup.number().min(0).required().label("Interchanges"),
 			slug: validateSlug(),
 			numberFromTeam: Yup.mixed().label("Team"),
 			numberFromSquad: Yup.mixed().label("Squad"),

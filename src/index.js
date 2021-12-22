@@ -158,9 +158,7 @@ app.get("*", async (req, res) => {
 	]);
 
 	//Set active team type
-	const activeTeamType = _.chain(store.getState().teams.teamTypes)
-		.sortBy("sortOrder")
-		.value()[0]._id;
+	const activeTeamType = _.chain(store.getState().teams.teamTypes).sortBy("sortOrder").value()[0]._id;
 	await store.dispatch(setActiveTeamType(activeTeamType));
 
 	//Wait on page-specific promises

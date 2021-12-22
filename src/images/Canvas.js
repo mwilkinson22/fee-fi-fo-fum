@@ -122,10 +122,7 @@ export default class Canvas {
 	}
 
 	async googleToCanvas(file, withSharp) {
-		const fileType = file
-			.split(".")
-			.pop()
-			.toLowerCase();
+		const fileType = file.split(".").pop().toLowerCase();
 
 		//Ensure no trailing slash
 		file = file.replace(/^\//, "");
@@ -154,6 +151,7 @@ export default class Canvas {
 			return await loadImage(buffer);
 		}
 	}
+
 	fit(contain, src, dx, dy, dw, dh, options) {
 		let { xAlign, yAlign, ctx, zoom } = options;
 

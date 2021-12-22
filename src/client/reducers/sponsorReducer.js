@@ -1,6 +1,6 @@
 import { DELETE_SPONSOR, FETCH_SPONSOR, FETCH_SPONSORS } from "../actions/types";
 
-export default function(state = {}, action) {
+export default function (state = {}, action) {
 	switch (action.type) {
 		case FETCH_SPONSORS:
 			return {

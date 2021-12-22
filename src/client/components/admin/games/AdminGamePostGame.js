@@ -225,7 +225,10 @@ class AdminGamePostGame extends Component {
 						buttons.push(
 							<button
 								//Can't use a standard () => {} or i will always be 4
-								onClick={(days => () => setValue(days))(i)}
+								onClick={(
+									days => () =>
+										setValue(days)
+								)(i)}
 								type="button"
 								key={i}
 							>

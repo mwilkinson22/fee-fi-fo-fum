@@ -220,8 +220,8 @@ export const deleteGameEvent = (id, event, params) => async (dispatch, getState,
 	return res.data.fullGames[id].events;
 };
 
-export const getPregameImage = (id, query = "") => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/images/pregame/${id}${query}`);
+export const getPregameImage = (id, query) => async (dispatch, getState, api) => {
+	const res = await api.get(`/games/images/pregame/${id}${query || ""}`);
 	return res.data;
 };
 

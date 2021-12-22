@@ -42,15 +42,9 @@ class AdminCompetitionOverview extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			type: Yup.mixed()
-				.required()
-				.label("Type"),
-			interchangeLimit: Yup.number()
-				.min(0)
-				.label("Maximum Interchanges"),
+			name: Yup.string().required().label("Name"),
+			type: Yup.mixed().required().label("Type"),
+			interchangeLimit: Yup.number().min(0).label("Maximum Interchanges"),
 			useAllSquads: Yup.boolean().label("Use All Squads"),
 			webcrawlFormat: Yup.mixed().label("Format"),
 			webcrawlUrl: Yup.string().label("Root URL"),

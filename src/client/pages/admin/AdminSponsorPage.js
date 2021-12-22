@@ -49,9 +49,7 @@ class AdminCountryPage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
+			name: Yup.string().required().label("Name"),
 			url: Yup.string().label("URL"),
 			twitter: Yup.string().label("Twitter Handle"),
 			image: Yup.string().label("Logo")

@@ -29,23 +29,15 @@ class AdminAwardCategories extends Component {
 
 		//Get validation schema
 		const validationSchema = {
-			name: Yup.string()
-				.required()
-				.label("Name"),
-			awardType: Yup.string()
-				.required()
-				.label("Type"),
+			name: Yup.string().required().label("Name"),
+			awardType: Yup.string().required().label("Type"),
 			description: Yup.string().label("Description"),
 			nominees: Yup.array()
 				.of(
 					Yup.object().shape({
 						description: Yup.string().label("Description"),
-						nominee: Yup.string()
-							.required()
-							.label("Nominee"),
-						stats: Yup.array()
-							.of(Yup.string())
-							.label("Stats")
+						nominee: Yup.string().required().label("Nominee"),
+						stats: Yup.array().of(Yup.string()).label("Stats")
 					})
 				)
 				.min(2, "Please provide at least two nominees")

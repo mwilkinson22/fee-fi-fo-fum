@@ -31,12 +31,8 @@ class AdminFacebookAppPage extends Component {
 
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
-			facebook_app_id: Yup.string()
-				.required()
-				.label("App ID"),
-			facebook_app_secret: Yup.string()
-				.required()
-				.label("App Secret")
+			facebook_app_id: Yup.string().required().label("App ID"),
+			facebook_app_secret: Yup.string().required().label("App Secret")
 		});
 
 		this.state = { validationSchema };

@@ -206,11 +206,7 @@ export default class MultiplePlayerStats extends Canvas {
 		const imageBoxHeight = height - statBoxHeight;
 
 		//Flatten eligible players
-		const eligiblePlayers = _.chain(game.eligiblePlayers)
-			.values()
-			.flatten()
-			.keyBy("_id")
-			.value();
+		const eligiblePlayers = _.chain(game.eligiblePlayers).values().flatten().keyBy("_id").value();
 
 		for (let { _player, stats } of players) {
 			//Draw empty box with shadow

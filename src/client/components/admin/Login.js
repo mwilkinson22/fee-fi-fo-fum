@@ -17,12 +17,8 @@ class Login extends Component {
 		super(props);
 
 		const validationSchema = Yup.object().shape({
-			username: Yup.string()
-				.required()
-				.label("Username"),
-			password: Yup.string()
-				.required()
-				.label("Password")
+			username: Yup.string().required().label("Username"),
+			password: Yup.string().required().label("Password")
 		});
 
 		this.state = { validationSchema };

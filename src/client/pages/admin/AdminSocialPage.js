@@ -57,21 +57,13 @@ class AdminProfilePage extends Component {
 
 		//Create Validation Schema
 		newState.validationSchema = Yup.object().shape({
-			name: Yup.string()
-				.required()
-				.label("Name"),
+			name: Yup.string().required().label("Name"),
 			archived: Yup.boolean().label("Archived"),
 			twitter: Yup.object().shape({
-				access_token: Yup.string()
-					.required()
-					.label("Access Token"),
-				access_token_secret: Yup.string()
-					.required()
-					.label("Access Token Secret")
+				access_token: Yup.string().required().label("Access Token"),
+				access_token_secret: Yup.string().required().label("Access Token Secret")
 			}),
-			iftttKey: Yup.string()
-				.required()
-				.label("IFTTT Key")
+			iftttKey: Yup.string().required().label("IFTTT Key")
 		});
 
 		return newState;

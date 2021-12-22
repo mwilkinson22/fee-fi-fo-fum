@@ -35,6 +35,7 @@ $transition: all 300ms;
 	font-weight: 600;
 	text-transform: uppercase;
 }
+
 @mixin link {
 	text-decoration: none;
 	cursor: pointer;
@@ -50,6 +51,7 @@ $transition: all 300ms;
 		display: none !important;
 	}
 }
+
 @mixin desktopOnly {
 	@media #{$mobile-and-tablet} {
 		display: none !important;
@@ -394,9 +396,11 @@ body {
 	transition: box-shadow 200ms;
 	-webkit-font-smoothing: antialiased;
 }
+
 a.card:hover {
 	box-shadow: 4pt 4pt 8pt rgba(0, 0, 0, 0.5);
 }
+
 .single-stat-boxes {
 	display: grid;
 	grid-gap: 20pt;
@@ -638,6 +642,7 @@ button,
 		}
 	}
 }
+
 .info-table {
 	padding: 16pt;
 	background: #f4f4f4;

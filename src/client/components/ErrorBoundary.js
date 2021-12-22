@@ -43,16 +43,8 @@ class ErrorBoundary extends Component {
 	}
 
 	componentDidCatch(error, info) {
-		const {
-			authUser,
-			browser,
-			deviceType,
-			sendError,
-			sentErrors,
-			parentProps,
-			parentState,
-			additionalData
-		} = this.props;
+		const { authUser, browser, deviceType, sendError, sentErrors, parentProps, parentState, additionalData } =
+			this.props;
 
 		//Get the uri where the error occurred
 		const page = this.props.location.pathname;

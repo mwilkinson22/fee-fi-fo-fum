@@ -55,11 +55,7 @@ class AdminCompetitionInstanceAdjustments extends Component {
 		newState.teams = _.sortBy(newState.instance.teams, id => teamList[id].name.long);
 
 		//Create Validation Schema
-		const adjustmentFields = _.mapValues(prevState.columns, label =>
-			Yup.number()
-				.required()
-				.label(label)
-		);
+		const adjustmentFields = _.mapValues(prevState.columns, label => Yup.number().required().label(label));
 
 		newState.validationSchema = Yup.object().shape({
 			adjustments: Yup.array().of(

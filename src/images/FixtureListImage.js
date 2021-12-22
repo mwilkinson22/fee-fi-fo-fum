@@ -102,10 +102,7 @@ export default class FixtureListImage extends Canvas {
 	}
 
 	async getTeamImages() {
-		const teams = _.chain(this.games)
-			.map("_opposition")
-			.uniqBy("_id")
-			.value();
+		const teams = _.chain(this.games).map("_opposition").uniqBy("_id").value();
 
 		this.images = {};
 		for (const team of teams) {

@@ -34,17 +34,12 @@ class AdminTeamSquadBulkAdderResults extends Component {
 		//Validation Schema
 		const validationSchema = _.mapValues(p =>
 			Yup.object().shape({
-				_player: Yup.mixed()
-					.label(`${p.original} Name`)
-					.required(),
+				_player: Yup.mixed().label(`${p.original} Name`).required(),
 				name: Yup.object().shape({
 					first: Yup.string().label(`${p.original} First Name`),
 					last: Yup.string().label(`${p.original} Last Name`)
 				}),
-				number: Yup.number()
-					.min(1)
-					.max(99)
-					.label(`${p.original} Number`),
+				number: Yup.number().min(1).max(99).label(`${p.original} Number`),
 				from: Yup.string().label(`${p.original} From`),
 				to: Yup.string().label(`${p.original} To`),
 				onLoan: Yup.boolean().label(`${p.original} On Loan`)

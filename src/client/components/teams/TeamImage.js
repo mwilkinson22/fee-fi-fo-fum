@@ -9,13 +9,7 @@ class TeamImage extends Component {
 		let src = images[variant] || images.main;
 
 		//Determine if it's a raster
-		const isRaster =
-			["png", "jpg", "jpeg"].indexOf(
-				src
-					.split(".")
-					.pop()
-					.toLowerCase()
-			) > -1;
+		const isRaster = ["png", "jpg", "jpeg"].indexOf(src.split(".").pop().toLowerCase()) > -1;
 
 		if (isRaster) {
 			//If a size is defined, look in the corresponding folder

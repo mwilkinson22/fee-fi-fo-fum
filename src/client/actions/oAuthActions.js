@@ -1,6 +1,6 @@
 import { FETCH_OAUTH_ACCOUNTS } from "./types";
 
-export const getAuthorisedAccounts = (includeSecret = false) => async (dispatch, getState, api) => {
+export const getAuthorisedAccounts = includeSecret => async (dispatch, getState, api) => {
 	//includeSecret should only be set for admin users setting up
 	//a social profile. We validate user admin status server-side,
 	//setting it to true for non-admin users will have no effect

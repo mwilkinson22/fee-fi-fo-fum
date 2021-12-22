@@ -26,9 +26,7 @@ class AdminUserTransferSiteOwnership extends Component {
 		const newState = { authUser, user };
 
 		newState.validationSchema = Yup.object().shape({
-			password: Yup.string()
-				.required()
-				.label("Password")
+			password: Yup.string().required().label("Password")
 		});
 
 		return newState;

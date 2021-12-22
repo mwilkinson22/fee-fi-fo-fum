@@ -28,44 +28,23 @@ class AdminTeamOverview extends Component {
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
 			name: Yup.object().shape({
-				long: Yup.string()
-					.required()
-					.label("Full Name"),
-				short: Yup.string()
-					.required()
-					.label("Short Name")
+				long: Yup.string().required().label("Full Name"),
+				short: Yup.string().required().label("Short Name")
 			}),
-			nickname: Yup.string()
-				.required()
-				.label("Nickname"),
+			nickname: Yup.string().required().label("Nickname"),
 			playerNickname: Yup.string().label("Single Player Nickname"),
-			hashtagPrefix: Yup.string()
-				.required()
-				.length(3)
-				.label("Hashtag Prefix"),
-			_defaultGround: Yup.string()
-				.required()
-				.label("Default Ground"),
+			hashtagPrefix: Yup.string().required().length(3).label("Hashtag Prefix"),
+			_defaultGround: Yup.string().required().label("Default Ground"),
 			images: Yup.object().shape({
-				main: Yup.string()
-					.required()
-					.label("Main"),
+				main: Yup.string().required().label("Main"),
 				light: Yup.string().label("Light Variant"),
 				dark: Yup.string().label("Dark Variant")
 			}),
 			colours: Yup.object().shape({
-				main: Yup.string()
-					.required()
-					.label("Main"),
-				text: Yup.string()
-					.required()
-					.label("Text"),
-				trim1: Yup.string()
-					.required()
-					.label("Trim 1"),
-				trim2: Yup.string()
-					.required()
-					.label("Trim 2"),
+				main: Yup.string().required().label("Main"),
+				text: Yup.string().required().label("Text"),
+				trim1: Yup.string().required().label("Trim 1"),
+				trim2: Yup.string().required().label("Trim 2"),
 				customPitchColour: Yup.boolean().label("Custom Pitch Colour?"),
 				customStatBarColour: Yup.boolean().label("Custom Stat Bar Colour?"),
 				pitchColour: Yup.string().label("Pitch"),

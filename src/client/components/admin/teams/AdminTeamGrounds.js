@@ -27,9 +27,7 @@ class AdminTeamGrounds extends Component {
 
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
-			_defaultGround: Yup.string()
-				.required()
-				.label("Default Ground"),
+			_defaultGround: Yup.string().required().label("Default Ground"),
 			_grounds: Yup.object().shape(_.mapValues(teamTypes, ({ name }) => Yup.string().label(name)))
 		});
 
