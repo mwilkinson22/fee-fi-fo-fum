@@ -115,10 +115,11 @@ function mapStateToProps({ config, teams, teamSelectors }) {
 	return { authUser, selectors, selectorList, teamTypes };
 }
 
-async function loadData(store) {
+async function loadData(store, path) {
 	await store.dispatch(fetchAllTeamSelectors());
 
-	const { item } = matchSlugToItem(match.params.slug, store.getState().teamSelectors.selectorList);
+	const slug = path.split("/")[2];
+	const { item } = matchSlugToItem(slug, store.getState().teamSelectors.selectorList);
 
 	if (item) {
 		return store.dispatch(fetchTeamSelector(item._id));
