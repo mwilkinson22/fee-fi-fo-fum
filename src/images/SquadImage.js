@@ -304,7 +304,7 @@ export default class SquadImage extends Canvas {
 		this.squad = players.map(player => {
 			const { name, nickname, displayNicknameInCanvases } = player;
 			return {
-				displayName: displayNicknameInCanvases && nickname ? nickname : name.last,
+				displayName: displayNicknameInCanvases ? nickname || name.first : name.last,
 				...player
 			};
 		});

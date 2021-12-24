@@ -27,7 +27,7 @@ class AdminPlayerDetails extends Component {
 			position1: Yup.mixed().label("Main Position"),
 			position2: Yup.mixed().label("Secondary Position"),
 			otherPositions: Yup.mixed().label("Other Positions"),
-			displayNicknameInCanvases: Yup.boolean().label("Display Nickname In Canvases"),
+			displayNicknameInCanvases: Yup.boolean().label("Display Nickname (or First Name) In Canvases"),
 			squadNameWhenDuplicate: Yup.string().label("Squad Name (when duplicate is found)"),
 			externalName: Yup.string().label("External Name")
 		});
