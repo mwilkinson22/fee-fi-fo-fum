@@ -118,6 +118,7 @@ export const getCoreConfig = req => async dispatch => {
 		people: "people",
 		sponsors: "sponsors",
 		teams: "teams",
+		teamSelectors: "team-selectors",
 		users: "users"
 	};
 	config.bucketPaths.images = {};
