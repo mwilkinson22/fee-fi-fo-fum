@@ -73,7 +73,11 @@ class TeamSelectorPage extends Component {
 
 		return (
 			<section className="page-header">
-				<HelmetBuilder title={selector.title} cardImage={selector.socialCard} />
+				<HelmetBuilder
+					title={selector.title}
+					cardImage={selector.socialCard}
+					description="Select your team and share it with the world!"
+				/>
 				<div className="container">
 					<h1>{selector.title}</h1>
 					{adminLink}
@@ -111,9 +115,20 @@ function mapStateToProps({ config, teams, teamSelectors }) {
 	return { authUser, selectors, selectorList, teamTypes };
 }
 
+async function loadData(store) {
+	await store.dispatch(fetchAllTeamSelectors());
+
+	const { item } = matchSlugToItem(match.params.slug, store.getState().teamSelectors.selectorList);
+
+	if (item) {
+		return store.dispatch(fetchTeamSelector(item._id));
+	}
+}
+
 export default {
 	component: connect(mapStateToProps, {
 		fetchAllTeamSelectors,
 		fetchTeamSelector
-	})(TeamSelectorPage)
+	})(TeamSelectorPage),
+	loadData
 };
