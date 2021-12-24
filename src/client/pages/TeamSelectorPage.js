@@ -59,7 +59,7 @@ class TeamSelectorPage extends Component {
 	}
 
 	renderHeader() {
-		const { authUser } = this.props;
+		const { authUser, bucketPaths } = this.props;
 		const { selector } = this.state;
 
 		let adminLink;
@@ -75,7 +75,7 @@ class TeamSelectorPage extends Component {
 			<section className="page-header">
 				<HelmetBuilder
 					title={selector.title}
-					cardImage={selector.socialCard}
+					cardImage={bucketPaths.images.teamSelectors + selector.socialCard}
 					description="Select your team and share it with the world!"
 				/>
 				<div className="container">
@@ -109,10 +109,10 @@ class TeamSelectorPage extends Component {
 }
 
 function mapStateToProps({ config, teams, teamSelectors }) {
-	const { authUser } = config;
+	const { authUser, bucketPaths } = config;
 	const { teamTypes } = teams;
 	const { selectors, selectorList } = teamSelectors;
-	return { authUser, selectors, selectorList, teamTypes };
+	return { authUser, bucketPaths, selectors, selectorList, teamTypes };
 }
 
 async function loadData(store, path) {
