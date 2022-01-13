@@ -465,20 +465,32 @@ async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
 }
 
 async function getTeamForm(game, gameLimit, allCompetitions) {
-	const match = {
-		_teamType: game._teamType,
-		date: { $lt: game.date }
-		// hideGame: { $in: [false, null] }
+	const firstOfYear = new Date(`${new Date(game.date).getFullYear()}-01-01`);
+	const matchParams = limitToThisYear => {
+		const params = {
+			_teamType: game._teamType,
+			date: { $lt: game.date },
+			hideGame: { $in: [false, null] }
+		};
+
+		if (!allCompetitions) {
+			params._competition = game._competition._id;
+		}
+
+		if (limitToThisYear) {
+			params.date.$gte = firstOfYear;
+		}
+		return params;
 	};
-	if (!allCompetitions) {
-		match._competition = game._competition._id;
-	}
 
 	//First, we get the last five local games
-	const localteamFormQuery = Game.find(match).fullGame(false, false).sort({ date: -1 }).limit(gameLimit);
+	const localteamFormQuery = Game.find(matchParams(true)).fullGame(false, false).sort({ date: -1 }).limit(gameLimit);
 
 	//Then the last five head to heads
-	const headToHeadFormQuery = Game.find({ ...match, _opposition: game._opposition._id })
+	const headToHeadFormQuery = Game.find({
+		...matchParams(false),
+		_opposition: game._opposition._id
+	})
 		.fullGame(false, false)
 		.sort({ date: -1 })
 		.limit(gameLimit);
@@ -486,7 +498,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	//And the last 5 neutral games for the opponent
 	const neutralMatch = {
 		_teamType: game._teamType,
-		date: { $lt: game.date },
+		date: { $lt: game.date, $gte: firstOfYear },
 		$or: [{ _homeTeam: game._opposition._id }, { _awayTeam: game._opposition._id }]
 	};
 
@@ -498,8 +510,8 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	}
 	const neutralGameQuery = NeutralGame.find(neutralMatch, "date _homeTeam _awayTeam homePoints awayPoints")
 		.sort({ date: -1 })
-		.populate({ path: "_homeTeam", select: "name images.main" })
-		.populate({ path: "_awayTeam", select: "name images.main" })
+		.populate({ path: "_homeTeam", select: "name images.main images.dark" })
+		.populate({ path: "_awayTeam", select: "name images.main images.dark" })
 		.limit(gameLimit)
 		.lean();
 
@@ -542,7 +554,11 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	//just "opposition"
 	const formatTeamSpecificForm = (games, _team) => {
 		return games
-			.filter(g => [g._homeTeam._id.toString(), g._awayTeam._id.toString()].includes(_team))
+			.filter(
+				g =>
+					[g._homeTeam._id.toString(), g._awayTeam._id.toString()].includes(_team) &&
+					new Date(g.date) >= firstOfYear
+			)
 			.map(g => {
 				const { _homeTeam, _awayTeam, ...game } = g;
 				let opposition, isAway;

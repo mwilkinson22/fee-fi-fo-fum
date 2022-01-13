@@ -1874,6 +1874,7 @@ section.match-squads {
 		}
 		@media #{$desktop-and-tablet} {
 			margin: 10pt;
+			width: 100%;
 			.games {
 				flex-direction: row-reverse;
 				.game {
