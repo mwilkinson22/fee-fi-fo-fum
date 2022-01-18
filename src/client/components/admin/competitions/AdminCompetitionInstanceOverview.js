@@ -158,7 +158,6 @@ class AdminCompetitionInstanceOverview extends Component {
 				Object.assign(values, extraFields);
 			}
 
-			console.log(values);
 			return values;
 		}
 	}
