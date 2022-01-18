@@ -130,7 +130,7 @@ export async function crawlAndUpdate(req, res) {
 		select: "_parentCompetition externalCompId externalDivId",
 		populate: {
 			path: "_parentCompetition",
-			select: "webcrawlFormat webcrawlUrl webcrawlReportPage"
+			select: "webcrawlFormat"
 		}
 	});
 

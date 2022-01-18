@@ -9,6 +9,7 @@ import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 
 //Constants
 const playerStatTypes = require("~/constants/playerStatTypes");
+import webcrawlData from "~/constants/webcrawlData";
 
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
@@ -458,7 +459,8 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 	//Get Data
 	const id = game.externalId;
 	const { instance, _parentCompetition } = game._competition;
-	const { webcrawlFormat, webcrawlUrl, webcrawlReportPage } = _parentCompetition;
+	const { webcrawlFormat } = _parentCompetition;
+	const { webcrawlUrl, webcrawlReportPage } = webcrawlData[webcrawlFormat];
 	const nameRegex = new RegExp(/[^A-Za-z\s]/, "gi");
 
 	//Build URL
@@ -496,7 +498,9 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 			if (webcrawlFormat == "SL") {
 				results = html.querySelectorAll(".matchreportheader .col-2 h2").map(e => Number(e.text));
 			} else if (webcrawlFormat == "RFL") {
-				results = html.querySelector(".overview h3").text.match(/\d+/g).map(Number);
+				results = [html.querySelector(".home-score"), html.querySelector(".away-score")].map(e =>
+					parseInt(e.text)
+				);
 			}
 		} catch (error) {
 			return { error };
@@ -529,167 +533,100 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 
 		//Convert to object
 		const results = {};
-		switch (webcrawlFormat) {
-			case "SL":
-				for (const ha in teams) {
-					const team = teams[ha];
+		const hasStatsTable = html.querySelector("table.home-team");
+		for (const ha in teams) {
+			const team = teams[ha];
 
-					//Create nested object
-					results[team] = {};
+			//Create nested object
+			results[team] = {};
 
-					//Get Table Element
-					const table = html.querySelector(`table.${ha}-team`);
-
-					//Get column index. We go nth from the right due to inconsistent colspan
-					const tableHeaderCells = table.querySelectorAll("thead th");
-					const tableHeaderCellCount = tableHeaderCells.length;
-					for (const stat in statTypeIndexes) {
-						for (let i = 1; i <= tableHeaderCellCount; i++) {
-							if (tableHeaderCells[tableHeaderCellCount - i].innerHTML.trim() == stat) {
-								statTypeIndexes[stat] = i;
-								break;
-							}
+			if (hasStatsTable) {
+				//Get table Element
+				const table = html.querySelector(`table.${ha}-team`);
+				//Get column index. We go nth from the right due to inconsistent colspan
+				const tableHeaderCells = table.querySelectorAll("thead th");
+				const tableHeaderCellCount = tableHeaderCells.length;
+				for (const stat in statTypeIndexes) {
+					for (let i = 1; i <= tableHeaderCellCount; i++) {
+						if (tableHeaderCells[tableHeaderCellCount - i].innerHTML.trim() == stat) {
+							statTypeIndexes[stat] = i;
+							break;
 						}
 					}
+				}
 
-					//Loop Players
-					const playerRows = table.querySelectorAll("tbody tr");
-					for (const row of playerRows) {
-						const rowCells = row.querySelectorAll("td");
-						const rowCellCount = rowCells.length;
+				//Loop Players
+				const playerRows = table.querySelectorAll("tbody tr");
+				for (const row of playerRows) {
+					const rowCells = row.querySelectorAll("td");
+					const rowCellCount = rowCells.length;
 
-						if (!rowCellCount) {
+					if (!rowCellCount) {
+						continue;
+					}
+
+					const name = rowCells[1].innerHTML.trim();
+					results[team][name] = {
+						stats: {}
+					};
+					for (const stat in statTypeIndexes) {
+						const index = statTypeIndexes[stat];
+						if (!index) {
 							continue;
 						}
-
-						const name = rowCells[1].innerHTML.trim();
-						results[team][name] = {
-							stats: {}
-						};
-						for (const stat in statTypeIndexes) {
-							const index = statTypeIndexes[stat];
-							if (!index) {
-								continue;
-							}
-							const value = rowCells[rowCellCount - index].innerHTML.replace(/\D+/gi, "");
-							results[team][name].stats[stat] = Number(value || 0);
-						}
+						const value = rowCells[rowCellCount - index].innerHTML.replace(/\D+/gi, "");
+						results[team][name].stats[stat] = Number(value || 0);
 					}
 				}
-				break;
-			case "RFL":
-				{
-					//Check if we have a stats table
-					const hasStats = html.querySelector(`#home table`);
+			} else {
+				//Otherwise, parse top of page
+				//First, get the team short name for use later
+				const teamPrefix = html.querySelector(`.${ha}-short-team`).rawText.trim() + ": ";
+				const teamPrefixRegex = new RegExp(`^${teamPrefix}`);
 
-					for (const ha in teams) {
-						const team = teams[ha];
+				const scoreSections = html.querySelector(".scorers").childNodes;
+				scoreSections.forEach(scoreSection => {
+					if (scoreSection.querySelector) {
+						const label = scoreSection.querySelector(".scoretype-label").rawText.trim();
+						let statKey;
+						switch (label) {
+							case "Tries":
+								statKey = "T";
+								break;
+							case "Goals":
+								statKey = "CN";
+								break;
+							case "D Goals":
+								statKey = "DG";
+								break;
+							default:
+								throw `Unknown score type detected on ${url}: ${label}`;
+						}
 
-						//Create nested object
-						results[team] = {};
+						const scorersRow = scoreSection
+							.querySelectorAll("p")
+							.find(p => p.rawText && p.rawText.trim().match(teamPrefixRegex));
+						if (scorersRow) {
+							scorersRow.text
+								.replace(teamPrefix, "")
+								.split(", ")
+								.forEach(p => {
+									const playerAndCount = p.split(/ x(\d+)/);
+									const player = playerAndCount[0];
+									const count = parseInt(playerAndCount[1] || 1);
 
-						if (hasStats) {
-							//Get Table Element
-							const table = html.querySelector(`#${ha} table`);
-
-							//Get column index. We go nth from the right due to inconsistent colspan
-							const tableHeaderCells = table.querySelectorAll("th a");
-							const tableHeaderCellCount = tableHeaderCells.length;
-
-							for (const stat in statTypeIndexes) {
-								for (let i = 1; i <= tableHeaderCellCount; i++) {
-									if (tableHeaderCells[tableHeaderCellCount - i].innerHTML.trim() == stat) {
-										statTypeIndexes[stat] = i;
-										break;
+									if (!results[team][player]) {
+										results[team][player] = {
+											stats: {}
+										};
 									}
-								}
-							}
 
-							//Loop Players
-							const playerRows = table.querySelectorAll("tr");
-							for (const i in playerRows) {
-								if (i == 0) {
-									//Skip header
-									continue;
-								}
-								const row = playerRows[i];
-								const rowCells = row.querySelectorAll("td");
-								const rowCellCount = rowCells.length;
-
-								if (!rowCellCount) {
-									continue;
-								}
-
-								const name = rowCells[0].rawText.trim();
-								results[team][name] = {
-									stats: {}
-								};
-								for (const stat in statTypeIndexes) {
-									const index = statTypeIndexes[stat];
-									const cell = rowCells[rowCellCount - index];
-									let value;
-									if (cell) {
-										value = cell.innerHTML.replace(/\D+/gi, "");
-									}
-									results[team][name].stats[stat] = Number(value || 0);
-								}
-							}
-						} else {
-							//Get Rows
-							const lists = html.querySelectorAll(".tryScorersRow ul");
-							const rows = lists[ha == "home" ? 0 : 1].querySelectorAll("li");
-							for (const row of rows) {
-								const title = row.querySelector("h4 span");
-								if (title) {
-									let stat;
-									//Get Key From Text
-									switch (title.rawText.trim()) {
-										case "Tries":
-											stat = "T";
-											break;
-										case "Goals":
-											stat = "G";
-											break;
-										case "Drop Goals":
-											stat = "DG";
-											break;
-									}
-									const statList = row.text
-										.replace(new RegExp(`^${title.rawText.trim()}`, "gi"), "")
-										.trim();
-									if (stat && statList.length) {
-										statList.split(",").forEach(s => {
-											let [name] = s.split(/(?=\d)/);
-											const count = s.match(/\d+/);
-
-											//Get Name
-											name = name.trim();
-											if (!name) {
-												return true;
-											}
-
-											//Get Total
-											let total;
-											if (count) {
-												total = Number(count[0].replace(/\D/gi, ""));
-											} else {
-												total = 1;
-											}
-
-											if (!results[team][name]) {
-												results[team][name] = { stats: {} };
-											}
-											results[team][name].stats[stat] = total;
-										});
-									}
-								}
-							}
+									results[team][player].stats[statKey] = count;
+								});
 						}
 					}
-				}
-				break;
-			default:
-				return false;
+				});
+			}
 		}
 
 		//Process Names
