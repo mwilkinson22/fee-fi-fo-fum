@@ -9,6 +9,7 @@ import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 
 //Constants
 const playerStatTypes = require("~/constants/playerStatTypes");
+import webcrawlData from "~/constants/webcrawlData";
 
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
@@ -458,7 +459,8 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 	//Get Data
 	const id = game.externalId;
 	const { instance, _parentCompetition } = game._competition;
-	const { webcrawlFormat, webcrawlUrl, webcrawlReportPage } = _parentCompetition;
+	const { webcrawlFormat } = _parentCompetition;
+	const { webcrawlUrl, webcrawlReportPage } = webcrawlData[webcrawlFormat];
 	const nameRegex = new RegExp(/[^A-Za-z\s]/, "gi");
 
 	//Build URL

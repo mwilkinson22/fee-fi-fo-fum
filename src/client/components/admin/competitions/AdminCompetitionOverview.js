@@ -46,10 +46,7 @@ class AdminCompetitionOverview extends Component {
 			type: Yup.mixed().required().label("Type"),
 			interchangeLimit: Yup.number().min(0).label("Maximum Interchanges"),
 			useAllSquads: Yup.boolean().label("Use All Squads"),
-			webcrawlFormat: Yup.mixed().label("Format"),
-			webcrawlUrl: Yup.string().label("Root URL"),
-			webcrawlFixturesPage: Yup.string().label("Fixtures Page"),
-			webcrawlReportPage: Yup.string().label("Report Page")
+			webcrawlFormat: Yup.mixed().label("Webcrawl Format")
 		});
 
 		return newState;
@@ -62,10 +59,7 @@ class AdminCompetitionOverview extends Component {
 			type: "",
 			interchangeLimit: "",
 			useAllSquads: false,
-			webcrawlFormat: "",
-			webcrawlUrl: "",
-			webcrawlFixturesPage: "",
-			webcrawlReportPage: ""
+			webcrawlFormat: ""
 		};
 
 		if (isNew) {
@@ -92,30 +86,13 @@ class AdminCompetitionOverview extends Component {
 						name: "interchangeLimit",
 						type: fieldTypes.number
 					},
-					{ name: "useAllSquads", type: fieldTypes.boolean }
-				]
-			},
-			{
-				label: "Web Crawling",
-				fields: [
+					{ name: "useAllSquads", type: fieldTypes.boolean },
 					{
 						name: "webcrawlFormat",
 						type: fieldTypes.select,
 						options: options.webcrawlFormat,
 						isClearable: true,
 						placeholder: "None"
-					},
-					{
-						name: "webcrawlUrl",
-						type: fieldTypes.text
-					},
-					{
-						name: "webcrawlFixturesPage",
-						type: fieldTypes.text
-					},
-					{
-						name: "webcrawlReportPage",
-						type: fieldTypes.text
 					}
 				]
 			}

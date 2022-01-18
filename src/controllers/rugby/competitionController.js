@@ -19,6 +19,7 @@ import MinMaxLeagueTable from "~/images/MinMaxLeagueTable";
 
 //Constants
 import { localTeam } from "~/config/keys";
+import webcrawlData from "~/constants/webcrawlData";
 
 //Helpers
 import { postToSocial } from "../oAuthController";
@@ -309,7 +310,7 @@ export async function crawlNewGames(req, res) {
 			"_parentCompetition"
 		]).populate({
 			path: "_parentCompetition",
-			select: "webcrawlUrl webcrawlFormat webcrawlFixturesPage"
+			select: "webcrawlFormat"
 		});
 
 		if (!segment) {
@@ -317,7 +318,8 @@ export async function crawlNewGames(req, res) {
 			return false;
 		}
 
-		const { webcrawlFormat, webcrawlUrl, webcrawlFixturesPage } = segment._parentCompetition;
+		const { webcrawlFormat } = segment._parentCompetition;
+		const { webcrawlUrl, webcrawlFixturesPage } = webcrawlData[webcrawlFormat];
 
 		//Add params
 		let params;
