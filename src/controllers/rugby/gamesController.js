@@ -911,7 +911,7 @@ export async function addCrawledGames(req, res) {
 
 		//Pull new games
 		const list = await processList(req.user && req.user.isAdmin);
-		const games = await Game.find({ _id: { $in: _.values(result.insertedIds) } }).fullGame(true, true);
+		const games = await Game.find({ _id: { $in: Object.values(result.insertedIds) } }).fullGame(true, true);
 		const fullGames = await getExtraGameInfo(games, true, true);
 
 		//Return new games
@@ -921,7 +921,7 @@ export async function addCrawledGames(req, res) {
 		};
 
 		//Generate social media cards for the crawled games & update the gamelist card
-		Object.keys(fullGames).map(id => updateSocialMediaCard(id));
+		fullGames.map(({ _id }) => updateSocialMediaCard(_id));
 		updateAllGameListSocialCards(req, { send: () => {} });
 	}
 

@@ -92,8 +92,8 @@ export const deleteCompetitionInstance = (segment, instance) => async (dispatch,
 	}
 };
 
-export const crawlNewFixtures = segment => async (dispatch, getState, api) => {
-	const res = await api.get(`/competitions/segments/${segment}/crawlNewGames`);
+export const crawlNewFixtures = (segment, results) => async (dispatch, getState, api) => {
+	const res = await api.get(`/competitions/segments/${segment}/crawlNewGames?results=${results ? 1 : 0}`);
 	return res.data || false;
 };
 

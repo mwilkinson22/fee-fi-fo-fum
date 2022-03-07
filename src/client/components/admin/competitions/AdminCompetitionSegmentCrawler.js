@@ -29,7 +29,8 @@ class AdminCompetitionSegmentCrawler extends Component {
 		}
 
 		this.state = {
-			autoPickGround: true
+			autoPickGround: true,
+			getResults: false
 		};
 	}
 
@@ -57,6 +58,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 	resetState(isCrawling) {
 		this.setState({
 			isCrawling,
+			isSubmitting: false,
 			teamMap: null,
 			teamMapConfirmed: false,
 			filteredGames: null,
@@ -65,7 +67,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 	}
 
 	renderCrawlAction() {
-		const { gamesRequiringInstances, isCrawling } = this.state;
+		const { gamesRequiringInstances, getResults, isCrawling } = this.state;
 
 		let loadingDialog;
 		if (isCrawling) {
@@ -89,10 +91,18 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 		return (
 			<div>
-				<div className="form-card">
-					<button type="button" onClick={() => this.handleCrawlAction()} disabled={isCrawling}>
-						Crawl Fixtures
-					</button>
+				<div className="form-card grid">
+					<label>Get Results?</label>
+					<BooleanSlider
+						value={getResults}
+						onChange={() => this.setState({ getResults: !getResults })}
+						name="getResults"
+					/>
+					<div className="buttons">
+						<button type="button" onClick={() => this.handleCrawlAction()} disabled={isCrawling}>
+							Crawl Fixtures
+						</button>
+					</div>
 					{instanceError}
 				</div>
 				{loadingDialog}
@@ -102,13 +112,13 @@ class AdminCompetitionSegmentCrawler extends Component {
 
 	async handleCrawlAction() {
 		const { crawlNewFixtures } = this.props;
-		const { teamOptions, segment } = this.state;
+		const { getResults, teamOptions, segment } = this.state;
 
 		//Set crawling status and clear out any existing data
 		this.resetState(true);
 
 		//Crawl
-		const games = await crawlNewFixtures(segment._id);
+		const games = await crawlNewFixtures(segment._id, getResults);
 
 		if (!games) {
 			this.resetState(false);

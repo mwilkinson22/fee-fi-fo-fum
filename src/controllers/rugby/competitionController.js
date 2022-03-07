@@ -302,6 +302,7 @@ export async function deleteInstance(req, res) {
 
 export async function crawlNewGames(req, res) {
 	const { _segment } = req.params;
+	const getResults = req.query.results == "1";
 	try {
 		//Get Segment model
 		const segment = await Segment.findById(_segment, [
@@ -337,7 +338,7 @@ export async function crawlNewGames(req, res) {
 			"params[type]": "loadmore",
 			"params[preview_link]": "/match-centre/preview",
 			"params[report_link]": webcrawlReportsPage,
-			"params[displayType]": "fixtures",
+			"params[displayType]": getResults ? "results" : "fixtures",
 			"params[template]": webcrawlTemplate,
 			"params[startRow]": 0
 		};
@@ -379,20 +380,30 @@ export async function crawlNewGames(req, res) {
 				date = dateAsArray.join(" ");
 			} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
 				//Check for teams
-				const home = row.querySelector(".left .team-name").rawText.trim();
-				const away = row.querySelector(".right .team-name").rawText.trim();
+				const teamTypeRegex = /(Reserves|Academy|Women|U19)/;
+				const home = row.querySelector(".left .team-name").rawText.replace(teamTypeRegex, "").trim();
+				const away = row.querySelector(".right .team-name").rawText.replace(teamTypeRegex, "").trim();
 
 				if (home && away) {
 					//Create Game Object
 					const game = { home, away };
 
 					//Get Datetime
-					const time = row
-						.querySelector(".fixture-wrap .middle")
-						.rawText.trim()
-						//Split by "UK: " and pop to get the local time for intl games
-						.split("UK: ")
-						.pop();
+					let time;
+
+					if (getResults) {
+						//For results, we have to guess the time, as it's not displayed.
+						const dayOfWeek = new Date(date).getDay();
+						const isWeekend = dayOfWeek === 0 || dayOfWeek === 1;
+						time = isWeekend ? "15:00" : "20:00";
+					} else {
+						time = row
+							.querySelector(".fixture-wrap .middle")
+							.rawText.trim()
+							//Split by "UK: " and pop to get the local time for intl games
+							.split("UK: ")
+							.pop();
+					}
 
 					game.date = new Date(`${date} ${time}:00`);
 
