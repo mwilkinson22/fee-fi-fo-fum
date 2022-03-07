@@ -57,6 +57,7 @@ class AdminCompetitionSegmentCrawler extends Component {
 	resetState(isCrawling) {
 		this.setState({
 			isCrawling,
+			isSubmitting: false,
 			teamMap: null,
 			teamMapConfirmed: false,
 			filteredGames: null,

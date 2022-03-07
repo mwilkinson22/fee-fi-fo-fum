@@ -379,8 +379,9 @@ export async function crawlNewGames(req, res) {
 				date = dateAsArray.join(" ");
 			} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
 				//Check for teams
-				const home = row.querySelector(".left .team-name").rawText.trim();
-				const away = row.querySelector(".right .team-name").rawText.trim();
+				const teamTypeRegex = /(Reserves|Academy|Women|U19)/;
+				const home = row.querySelector(".left .team-name").rawText.replace(teamTypeRegex, "").trim();
+				const away = row.querySelector(".right .team-name").rawText.replace(teamTypeRegex, "").trim();
 
 				if (home && away) {
 					//Create Game Object
