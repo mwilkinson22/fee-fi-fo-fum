@@ -20,7 +20,7 @@ function GameGround({ bucketPaths, ground, webp }) {
 		ground.address._city.name,
 		ground.address._city._country.name
 	]
-		.filter(a => a != null)
+		.filter(a => a != null && a != "")
 		.map((a, i) => <li key={i}>{a}</li>);
 
 	return (
