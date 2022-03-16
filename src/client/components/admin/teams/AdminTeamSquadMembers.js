@@ -70,7 +70,7 @@ class AdminTeamSquadMembers extends Component {
 			.map(player => {
 				const playerLabel = name => `${player._player.name.full} - ${name}`;
 				const schema = Yup.object().shape({
-					playingPositions: Yup.string().label(playerLabel("Positions")),
+					playingPositions: Yup.array().of(Yup.string()).label(playerLabel("Positions")),
 					_sponsor: Yup.string().label(playerLabel("Sponsor")),
 					twitter: Yup.string().label(playerLabel("Twitter")),
 					instagram: Yup.string().label(playerLabel("Instagram")),
