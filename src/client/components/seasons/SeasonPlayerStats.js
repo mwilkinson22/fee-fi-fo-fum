@@ -267,7 +267,7 @@ class SeasonPlayerStats extends Component {
 			<section className="game-filters" key="filters">
 				<div className="container">
 					<GameFilters
-						addToFromDates={year === "All"}
+						addExtraFilters={year === "All"}
 						games={games}
 						onFilterChange={filteredGames => this.setState({ filteredGames })}
 						friendliesByDefault={false}

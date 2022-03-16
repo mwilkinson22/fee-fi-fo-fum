@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import Table from "../Table";
 
 //Constants
-import playerStatTypes from "../../../constants/playerStatTypes";
+import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
 import { getTotalsAndAverages, resolveStatObject, statToString } from "~/helpers/statsHelper";

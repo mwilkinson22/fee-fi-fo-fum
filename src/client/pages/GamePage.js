@@ -511,12 +511,13 @@ class GamePage extends Component {
 	}
 }
 
-function mapStateToProps({ games, config, teams, news }) {
+function mapStateToProps({ games, config, teams, news }, connectedProps) {
 	const { fullGames, redirects, slugMap } = games;
 	const { localTeam, authUser, bucketPaths, fansCanAttend } = config;
 	const { fullTeams } = teams;
 	const { postList } = news;
 	return {
+		key: connectedProps.match.params.slug,
 		fullGames,
 		redirects,
 		postList,

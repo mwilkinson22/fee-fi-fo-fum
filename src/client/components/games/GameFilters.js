@@ -1,9 +1,17 @@
+//Modules
 import React, { Component } from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import Select from "react-select";
-import selectStyling from "~/constants/selectStyling";
+
+//Components
 import LoadingPage from "~/client/components/LoadingPage";
+
+//Constants
+import selectStyling from "~/constants/selectStyling";
+
+//Helpers
+import { winLossOrDraw } from "~/helpers/gameHelper";
 
 class GameFilters extends Component {
 	constructor(props) {
@@ -14,7 +22,7 @@ class GameFilters extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { games, friendliesByDefault, onFilterChange, addToFromDates } = nextProps;
+		const { games, friendliesByDefault, onFilterChange, addExtraFilters } = nextProps;
 		let { activeFilters } = prevState;
 		let newState = {};
 
@@ -75,7 +83,7 @@ class GameFilters extends Component {
 				venue: allOption
 			};
 
-			if (addToFromDates) {
+			if (addExtraFilters) {
 				filters.fromDate = {
 					name: "From",
 					type: "date"
@@ -84,13 +92,22 @@ class GameFilters extends Component {
 					name: "To",
 					type: "date"
 				};
+				filters.result = {
+					name: "Result",
+					options: [
+						{ label: "Win", value: "W" },
+						{ label: "Draw", value: "D" },
+						{ label: "Loss", value: "L" }
+					],
+					isMulti: true
+				};
 			}
 
 			newState = { games, filters, activeFilters };
 		}
 
 		//Pass filtered games into callback
-		const { _competition, _opposition, venue, fromDate, toDate } = activeFilters;
+		const { _competition, _opposition, venue, fromDate, toDate, result } = activeFilters;
 		newState.filteredGames = games.filter(g => {
 			let isValid = true;
 
@@ -119,6 +136,12 @@ class GameFilters extends Component {
 			}
 			if (isValid && toDate) {
 				isValid = new Date(toDate) > g.date;
+			}
+
+			//Result filter
+			if (isValid && result) {
+				const gameResult = winLossOrDraw(g);
+				isValid = result.find(({ value }) => value == gameResult);
 			}
 
 			return isValid;
@@ -178,14 +201,14 @@ class GameFilters extends Component {
 	}
 
 	render() {
-		const { addToFromDates } = this.props;
+		const { addExtraFilters } = this.props;
 		const { filters } = this.state;
 		if (!filters) {
 			return <LoadingPage />;
 		}
 
 		return (
-			<div className={`list-filters${addToFromDates ? " with-dates" : ""}`}>
+			<div className={`list-filters${addExtraFilters ? " with-extras" : ""}`}>
 				{Object.keys(filters).map(key => this.renderFilter(key))}
 			</div>
 		);
@@ -193,14 +216,14 @@ class GameFilters extends Component {
 }
 
 GameFilters.propTypes = {
-	addToFromDates: PropTypes.bool,
+	addExtraFilters: PropTypes.bool,
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
 	onFilterChange: PropTypes.func.isRequired,
 	friendliesByDefault: PropTypes.bool
 };
 
 GameFilters.defaultProps = {
-	addToFromDates: false,
+	addExtraFilters: false,
 	friendliesByDefault: true
 };
 
