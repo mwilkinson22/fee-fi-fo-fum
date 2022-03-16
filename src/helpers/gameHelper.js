@@ -10,6 +10,7 @@ import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 //Constants
 const playerStatTypes = require("~/constants/playerStatTypes");
 import webcrawlData from "~/constants/webcrawlData";
+import { localTeam } from "~/config/keys";
 
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
@@ -895,4 +896,18 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 			}
 		})
 		.filter(_.identity);
+}
+
+export function winLossOrDraw(game) {
+	if (game.status < 2 || !game.score) {
+		return null;
+	}
+
+	if (game.score[localTeam] > game.score[game._opposition._id]) {
+		return "W";
+	} else if (game.score[localTeam] < game.score[game._opposition._id]) {
+		return "L";
+	} else {
+		return "D";
+	}
 }
