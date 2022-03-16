@@ -29,6 +29,7 @@ function AdminDashboardGames({ gamesWithIssues, teamList, teamTypes }) {
 					break;
 				case statuses.STEEL.M:
 				case statuses.STEEL.F:
+				case statuses.ATTENDANCE:
 					url += "post-game";
 			}
 
