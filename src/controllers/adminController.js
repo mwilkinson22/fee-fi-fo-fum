@@ -214,7 +214,8 @@ async function getGames(firstTeam, entireYear = false) {
 				pregameSquads,
 				squadsAnnounced,
 				_teamType,
-				_referee
+				_referee,
+				attendance
 			} = game;
 			const date = new Date(game.date);
 			const teams = [localTeam, _opposition._id];
@@ -268,6 +269,12 @@ async function getGames(firstTeam, entireYear = false) {
 			//Check for referees
 			if (date < now && _teamType == firstTeam && !_referee) {
 				result.error = gameStatuses.REFEREE;
+				return result;
+			}
+
+			//Check for attendance
+			if (date < now && _teamType == firstTeam && !attendance) {
+				result.error = gameStatuses.ATTENDANCE;
 				return result;
 			}
 
