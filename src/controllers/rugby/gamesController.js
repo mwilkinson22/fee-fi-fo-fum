@@ -527,7 +527,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	const localgamesNormalised = _.chain([localteamForm, headToHeadForm])
 		.flatten()
 		.uniqBy(g => g._id.toString())
-		.map(({ _id, date, isAway, _opposition, score, slug, title }) => {
+		.map(({ _id, date, isAway, _opposition, score, scoreOverride, slug, title }) => {
 			const _homeTeam = isAway ? _opposition : localTeamObject;
 			const _awayTeam = isAway ? localTeamObject : _opposition;
 			let homePoints = null;
@@ -535,6 +535,17 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 			if (score) {
 				homePoints = score[_homeTeam._id];
 				awayPoints = score[_awayTeam._id];
+			} else if (scoreOverride) {
+				const homeScoreOverride = scoreOverride.find(
+					({ _team }) => _team.toString() == _homeTeam._id.toString()
+				);
+				const awayScoreOverride = scoreOverride.find(
+					({ _team }) => _team.toString() == _awayTeam._id.toString()
+				);
+				if (homeScoreOverride && awayScoreOverride) {
+					homePoints = homeScoreOverride.points;
+					awayPoints = awayScoreOverride.points;
+				}
 			}
 			return { homePoints, awayPoints, _homeTeam, _awayTeam, date, slug, title, _id };
 		})
