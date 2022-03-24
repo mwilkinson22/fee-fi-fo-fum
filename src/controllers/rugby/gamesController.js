@@ -441,9 +441,11 @@ async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
 
 			const players = _.chain(playersAndCoaches)
 				.filter(({ _id }) => teams.find(t => t == _id))
-				.map(s => s.players)
-				.flatten()
+				.flatMap(s => s.players)
 				.filter(_.identity)
+				//In case of multiple entries, prioritise by those with a squad number
+				.sortBy(p => (p.number == null ? 1 : 0))
+				.uniqBy(p => p._id.toString())
 				.each(({ name }) => (name.full = `${name.first} ${name.last}`))
 				.value();
 
