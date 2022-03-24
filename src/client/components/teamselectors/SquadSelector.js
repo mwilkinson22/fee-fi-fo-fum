@@ -54,7 +54,8 @@ class SquadSelector extends Component {
 			followWithAGap,
 			players,
 			positionsByNumber,
-			nameFilter: ""
+			nameFilter: "",
+			highlightedAvailablePlayerIndex: -1
 		};
 	}
 
@@ -139,7 +140,7 @@ class SquadSelector extends Component {
 		}
 
 		//Clear out the name filter
-		this.setState({ nameFilter: "" });
+		this.setState({ nameFilter: "", highlightedAvailablePlayerIndex: -1 });
 
 		//Scroll card wrapper to top
 		this.cardWrapper.current.scrollTop = 0;
@@ -236,11 +237,19 @@ class SquadSelector extends Component {
 	}
 
 	renderAvailablePlayers(formik) {
-		const { activePosition, cardStyling, interchangeFilter, players, positionsByNumber, nameFilter } = this.state;
+		const {
+			activePosition,
+			cardStyling,
+			highlightedAvailablePlayerIndex,
+			interchangeFilter,
+			players,
+			positionsByNumber,
+			nameFilter
+		} = this.state;
 		const { values } = formik;
 
 		//Render available players as cards
-		let cards, dropdown, instructionString;
+		let cards, dropdown, instructionString, searchInput;
 		if (activePosition) {
 			//Get an array of selected player ids
 			const selectedPlayers = _.filter(values, _.identity);
@@ -260,15 +269,59 @@ class SquadSelector extends Component {
 				);
 			}
 
+			const unselectedAndNotInDropdown = unselectedPlayers.filter(p => !p.showInDropdown);
+
+			//Create a name filter
+			searchInput = (
+				<input
+					onChange={ev => {
+						const nameFilter = ev.target.value;
+						this.setState({ nameFilter, highlightedAvailablePlayerIndex: nameFilter ? 0 : -1 });
+					}}
+					onKeyDown={ev => {
+						switch (ev.key) {
+							case "ArrowUp": {
+								if (highlightedAvailablePlayerIndex) {
+									this.setState({
+										highlightedAvailablePlayerIndex: highlightedAvailablePlayerIndex - 1
+									});
+								}
+								ev.preventDefault();
+								break;
+							}
+							case "ArrowDown": {
+								if (highlightedAvailablePlayerIndex < unselectedAndNotInDropdown.length - 1) {
+									this.setState({
+										highlightedAvailablePlayerIndex: highlightedAvailablePlayerIndex + 1
+									});
+								}
+								ev.preventDefault();
+								break;
+							}
+							case "Enter": {
+								if (highlightedAvailablePlayerIndex > -1) {
+									this.assignPlayerToPosition(
+										formik,
+										unselectedAndNotInDropdown[highlightedAvailablePlayerIndex]._player._id,
+										activePosition
+									);
+								}
+								ev.preventDefault();
+							}
+						}
+					}}
+					placeholder="Search"
+					value={nameFilter}
+				/>
+			);
+
 			//Work out if there are any unselected players in this position
 			let forActivePosition = [];
 			if (activePosition) {
 				const positionKey =
 					activePosition <= 13 ? positionsByNumber[activePosition].key : interchangeFilter || "I";
 
-				forActivePosition = unselectedPlayers
-					//Filter by those not in dropdown
-					.filter(p => !p.showInDropdown)
+				forActivePosition = unselectedAndNotInDropdown
 					//Check for any players who play this position
 					.filter(({ _player }) => {
 						return _player.playingPositions && _player.playingPositions.indexOf(positionKey) > -1;
@@ -278,8 +331,7 @@ class SquadSelector extends Component {
 			}
 
 			//Convert to cards
-			cards = _.chain(unselectedPlayers)
-				.reject("showInDropdown")
+			cards = _.chain(unselectedAndNotInDropdown)
 				//Move forActivePosition players to the top
 				//Otherwise, sort by name & number
 				.sortBy([
@@ -295,6 +347,7 @@ class SquadSelector extends Component {
 
 					return (
 						<SquadSelectorCard
+							isHighlighted={i === highlightedAvailablePlayerIndex}
 							includePositions={true}
 							key={_id}
 							onClick={() => this.assignPlayerToPosition(formik, _id, activePosition)}
@@ -355,15 +408,13 @@ class SquadSelector extends Component {
 				<h6>Available Players</h6>
 				<div className="active-position-instruction">
 					{instructionString}
-					<input
-						onChange={ev => this.setState({ nameFilter: ev.target.value })}
-						placeholder="Search"
-						value={nameFilter}
-					/>
+					{searchInput}
 					{interchangeFilterDropdown}
 				</div>
 				<div className="cards-wrapper" ref={this.cardWrapper}>
-					<div className="cards">{cards}</div>
+					<div className={`cards ${highlightedAvailablePlayerIndex > -1 ? "with-highlight" : ""}`}>
+						{cards}
+					</div>
 				</div>
 				{dropdown}
 			</div>

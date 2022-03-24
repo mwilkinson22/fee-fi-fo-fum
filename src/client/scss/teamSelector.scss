@@ -149,15 +149,16 @@
 			}
 		}
 		@media #{$desktop-and-tablet} {
-			.cards:hover {
+			.cards:hover,
+			.cards.with-highlight {
 				.squad-selector-card.clickable {
-					&:not(:hover) {
-						opacity: 0.95;
+					&:not(:hover):not(.highlighted) {
+						opacity: 0.9;
 					}
 				}
 			}
 			.squad-selector-card {
-				transition: opacity 200ms;
+				transition: opacity 100ms;
 			}
 		}
 	}

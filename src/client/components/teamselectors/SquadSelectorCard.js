@@ -16,7 +16,7 @@ class SquadSelectorCard extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		return _.pick(nextProps, ["isActivePosition", "onClick", "withGap"]);
+		return _.pick(nextProps, ["isActivePosition", "onClick", "withGap", "isHighlighted"]);
 	}
 
 	handleMainBarClick() {
@@ -122,7 +122,7 @@ class SquadSelectorCard extends Component {
 
 	render() {
 		const { readOnly, style } = this.props;
-		const { onClick, showActionsInMobile, withGap } = this.state;
+		const { isHighlighted, onClick, showActionsInMobile, withGap } = this.state;
 
 		const classNames = ["card", "squad-selector-card"];
 
@@ -140,6 +140,10 @@ class SquadSelectorCard extends Component {
 
 		if (readOnly) {
 			classNames.push("read-only");
+		}
+
+		if (isHighlighted) {
+			classNames.push("highlighted");
 		}
 
 		return (
