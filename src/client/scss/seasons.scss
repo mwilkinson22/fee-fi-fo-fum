@@ -41,6 +41,9 @@
 			&.highlight {
 				border-left: solid 5pt $trimColour;
 				font-weight: 600;
+				.position {
+					border-right: solid 5pt transparent;
+				}
 			}
 			th {
 				font-weight: 600;
@@ -51,6 +54,10 @@
 					text-align: left;
 					width: 100%;
 				}
+				&.position {
+					text-align: center;
+					background: rgba(black, 0.05);
+				}
 			}
 			td {
 				text-align: center;
@@ -60,20 +67,20 @@
 			}
 		}
 	}
+	.competition-logo {
+		position: absolute;
+		padding: 6pt;
+		z-index: 2;
+		max-height: 100%;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		margin: auto;
+	}
 	@media #{$desktop-and-tablet} {
 		thead th {
 			padding-top: 16pt;
 			padding-bottom: 16pt;
-			.competition-logo {
-				position: absolute;
-				padding: 6pt;
-				z-index: 2;
-				max-height: 100%;
-				left: 0;
-				top: 0;
-				bottom: 0;
-				margin: auto;
-			}
 		}
 		.team-badge {
 			img {
@@ -83,9 +90,13 @@
 	}
 	@media #{$mobile-only} {
 		font-size: 0.9em;
+		thead th {
+			padding-top: 10pt;
+			padding-bottom: 10pt;
+		}
 		td,
 		th {
-			padding: 4pt;
+			padding: 2pt;
 			&.team-badge {
 				padding-left: 0;
 				padding-right: 0;
@@ -94,13 +105,7 @@
 				}
 			}
 		}
-		.team-name,
-		.Pld,
-		.F,
-		.A {
-			display: none;
-		}
-		.competition-logo {
+		.team-name {
 			display: none;
 		}
 	}
