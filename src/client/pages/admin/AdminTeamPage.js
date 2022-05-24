@@ -9,6 +9,7 @@ import AdminTeamCoaches from "../../components/admin/teams/AdminTeamCoaches";
 import AdminTeamGrounds from "../../components/admin/teams/AdminTeamGrounds";
 import AdminTeamOverview from "../../components/admin/teams/AdminTeamOverview";
 import AdminTeamSquadsPage from "../../components/admin/teams/AdminTeamSquadsPage";
+import AdminTeamPreviousIdentities from "../../components/admin/teams/AdminTeamPreviousIdentities";
 import LoadingPage from "../../components/LoadingPage";
 import HelmetBuilder from "../../components/HelmetBuilder";
 import NotFoundPage from "../NotFoundPage";
@@ -74,7 +75,8 @@ class AdminTeamPage extends Component {
 				{ label: "Overview", slug: "", isExact: true },
 				{ label: "Grounds", slug: "grounds" },
 				{ label: "Squads", slug: "squads" },
-				{ label: "Coaches", slug: "coaches" }
+				{ label: "Coaches", slug: "coaches" },
+				{ label: "Previous Identities", slug: "previous-identities" }
 			];
 
 			submenu = (
@@ -116,6 +118,7 @@ class AdminTeamPage extends Component {
 					<Switch>
 						<Route path="/admin/teams/new" component={AdminTeamOverview} />
 
+						<Route path="/admin/teams/:_id/previous-identities" component={AdminTeamPreviousIdentities} />
 						<Route path="/admin/teams/:_id/coaches" component={AdminTeamCoaches} />
 						<Route path="/admin/teams/:teamId/squads/:squadId" component={AdminTeamSquadsPage} />
 						<Route exact path="/admin/teams/:teamId/squads" component={AdminTeamSquadsPage} />

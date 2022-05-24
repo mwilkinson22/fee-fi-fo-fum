@@ -26,7 +26,7 @@ export const propTypes = {
 	]).isRequired,
 	initialValues: PropTypes.object.isRequired,
 	isInitialValid: PropTypes.bool,
-	isNew: PropTypes.bool.isRequired,
+	isNew: PropTypes.bool,
 	itemType: PropTypes.string.isRequired,
 	onDelete: PropTypes.func, // Action
 	onReset: PropTypes.func,
@@ -51,6 +51,7 @@ export const defaultProps = {
 	enforceDisable: false,
 	fastFieldByDefault: true,
 	isInitialValid: false,
+	isNew: false,
 	promptOnExit: true,
 	readOnly: false,
 	redirectOnDelete: `/admin/`,

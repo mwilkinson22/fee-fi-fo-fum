@@ -4,21 +4,11 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 import coachTypes from "~/constants/coachTypes";
 
-const teamSchema = new Schema({
+const identityFields = {
 	name: {
 		long: { type: String, required: true },
 		short: { type: String, required: true }
 	},
-	nickname: { type: String, required: true },
-	playerNickname: { type: String, default: null },
-	_defaultGround: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
-	_grounds: [
-		{
-			_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
-			_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true }
-		}
-	],
-	hashtagPrefix: { type: String, required: true },
 	colours: {
 		main: { type: String, required: true },
 		trim1: { type: String, required: true },
@@ -27,6 +17,32 @@ const teamSchema = new Schema({
 		pitchColour: { type: String, default: null },
 		statBarColour: { type: String, default: null }
 	},
+	hashtagPrefix: { type: String, required: true },
+	images: {
+		main: { type: String, required: true },
+		light: { type: String, default: null },
+		dark: { type: String, default: null }
+	},
+	nickname: { type: String, required: true },
+	playerNickname: { type: String, default: null }
+};
+
+const teamSchema = new Schema({
+	...identityFields,
+	_defaultGround: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+	_grounds: [
+		{
+			_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+			_teamType: { type: Schema.Types.ObjectId, ref: "teamTypes", required: true }
+		}
+	],
+	previousIdentities: [
+		{
+			...identityFields,
+			fromYear: { type: Number, required: true },
+			toYear: { type: Number, required: true }
+		}
+	],
 	squads: {
 		type: [
 			{
@@ -63,11 +79,6 @@ const teamSchema = new Schema({
 			]
 		}
 	],
-	images: {
-		main: { type: String, required: true },
-		light: { type: String, default: null },
-		dark: { type: String, default: null }
-	},
 	coaches: [
 		{
 			_person: { type: Schema.Types.ObjectId, ref: "people", required: true },
