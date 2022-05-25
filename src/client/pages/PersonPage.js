@@ -182,10 +182,14 @@ class PersonPage extends Component {
 
 		if (dateOfBirth) {
 			const today = new Date();
-			const age = Math.abs(today.getTime() - dateOfBirth.getTime());
+			const age = Math.floor(Math.abs(today.getTime() - dateOfBirth.getTime()) / (1000 * 3600 * 24 * 365));
 
 			data["Date of Birth"] = dateOfBirth.toString("dS MMMM yyyy");
-			data["Age"] = Math.floor(age / (1000 * 3600 * 24 * 365));
+
+			// We only show the age if under 80, so we don't need to introduce a morbid 'isDead' property
+			if (age < 80) {
+				data["Age"] = age;
+			}
 		}
 
 		if (nickname) {
