@@ -263,8 +263,13 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 		let label;
 
 		if (key == "POTM") {
-			valueString = game.genderedString;
-			label = "of the Match";
+			if (game.customPotmTitle) {
+				valueString = game.customPotmTitle.label;
+				label = " Winner";
+			} else {
+				valueString = game.genderedString;
+				label = "of the Match";
+			}
 		} else if (key == "FAN_POTM") {
 			valueString = "Fans'";
 			label = `${game.genderedString} of the Match`;
@@ -788,15 +793,44 @@ export function formatPlayerStatsForImage(game, player, statTypes, textStyles, c
 			let row;
 			//Standard stat types
 			switch (key) {
-				case "potm":
+				case "potm": {
+					//Ensure the player has the award in question
+					if (game._potm != player) {
+						return null;
+					}
+					const { customPotmTitle } = game;
+					if (customPotmTitle) {
+						row = [
+							{
+								text: customPotmTitle.label.toUpperCase(),
+								colour: colours.gold,
+								font: textStyles.statsValue.string
+							}
+						];
+					} else {
+						row = [
+							{
+								text: game.genderedString.toUpperCase(),
+								colour: colours.gold,
+								font: textStyles.statsValue.string
+							},
+							{
+								text: " OF THE ",
+								colour: "#FFF",
+								font: textStyles.statsLabel.string
+							},
+							{
+								text: "MATCH",
+								colour: colours.gold,
+								font: textStyles.statsValue.string
+							}
+						];
+					}
+					break;
+				}
 				case "fan_potm": {
 					//Ensure the player has the award in question
-					if (key === "potm" && game._potm != player) {
-						return null;
-					} else if (
-						key === "fan_potm" &&
-						(!game.fan_potm_winners || game.fan_potm_winners.indexOf(player) === -1)
-					) {
+					if (!game.fan_potm_winners || game.fan_potm_winners.indexOf(player) === -1) {
 						return null;
 					}
 					row = [

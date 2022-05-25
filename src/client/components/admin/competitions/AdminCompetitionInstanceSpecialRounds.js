@@ -13,6 +13,7 @@ import { updateCompetitionInstance } from "~/client/actions/competitionActions";
 
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
+import playerOfTheMatchTitles from "~/constants/playerOfTheMatchTitles";
 import DeleteButtons from "../../fields/DeleteButtons";
 
 class AdminCompetitionInstanceSpecialRounds extends Component {
@@ -42,7 +43,8 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 					round: Yup.number().min("1").required().label("Round"),
 					name: Yup.string().required().label("Name"),
 					hashtag: Yup.string().label("Hashtags"),
-					overwriteBaseHashtag: Yup.string().label("Overwrite Base Hashtag")
+					overwriteBaseHashtag: Yup.string().label("Overwrite Base Hashtag"),
+					playerOfTheMatchTitle: Yup.string().label("Player Of The Match Title")
 				})
 			)
 		});
@@ -57,6 +59,7 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 		if (instance.specialRounds) {
 			values = instance.specialRounds.map(({ hashtag, ...round }) => ({
 				...round,
+				playerOfTheMatchTitle: round.playerOfTheMatchTitle || "",
 				hashtag: hashtag ? hashtag.join(" ") : ""
 			}));
 		}
@@ -75,6 +78,12 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 						{
 							name: `specialRounds.${i}.overwriteBaseHashtag`,
 							type: fieldTypes.boolean
+						},
+						{
+							name: `specialRounds.${i}.playerOfTheMatchTitle`,
+							type: fieldTypes.select,
+							options: _.map(playerOfTheMatchTitles, (label, value) => ({ label, value })),
+							isClearable: true
 						}
 					]
 				},

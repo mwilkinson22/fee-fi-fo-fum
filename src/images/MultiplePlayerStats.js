@@ -283,6 +283,7 @@ export default class MultiplePlayerStats extends Canvas {
 				steel: textStyles.statsValue.size * 0.8,
 				fan_potm: textStyles.statsValue.size * 0.78
 			});
+			rows.forEach(row => row.forEach(segment => (segment.maxWidth = width * 0.95)));
 
 			this.textBuilder(rows, x + width / 2, y + imageBoxHeight + statBoxHeight / 2, {
 				lineHeight: statRowPadding * 1.25

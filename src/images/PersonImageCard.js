@@ -449,28 +449,98 @@ export default class PersonImageCard extends Canvas {
 				]);
 				break;
 			case "potm":
-				rows.push(
-					[
-						{
-							text: options.game.genderedString,
-							size: size * 0.8
-						}
-					],
-					[
-						{
-							text: "OF THE",
-							size: size * 0.4,
-							colour: "#FFF"
-						}
-					],
-					[
-						{
-							text: "MATCH",
-							colour: this.colours.gold,
-							size: size * 0.8
-						}
-					]
-				);
+				if (options.game.customPotmTitle) {
+					switch (options.game.customPotmTitle.key) {
+						case "harrySunderland":
+							rows.push(
+								[
+									{
+										text: "HARRY SUNDERLAND",
+										size: size * 0.55
+									}
+								],
+								[
+									{
+										text: "TROPHY",
+										colour: this.colours.white
+									}
+								],
+								[
+									{
+										text: "WINNER",
+										size: size * 0.8,
+										colour: this.colours.gold
+									}
+								]
+							);
+							break;
+						case "lanceTodd":
+							rows.push(
+								[
+									{
+										text: "LANCE TODD",
+										size: size * 0.8
+									}
+								],
+								[
+									{
+										text: "TROPHY",
+										size: size * 0.6,
+										colour: this.colours.white
+									}
+								],
+								[
+									{
+										text: "WINNER",
+										size: size * 0.8,
+										colour: this.colours.gold
+									}
+								]
+							);
+							break;
+
+						default:
+							rows.push(
+								[
+									{
+										text: options.game.customPotmTitle.label,
+										size: size * 0.8,
+										maxWidth: cWidth * 0.5
+									}
+								],
+								[
+									{
+										text: "WINNER",
+										colour: this.colours.white
+									}
+								]
+							);
+							break;
+					}
+				} else {
+					rows.push(
+						[
+							{
+								text: options.game.genderedString,
+								size: size * 0.8
+							}
+						],
+						[
+							{
+								text: "OF THE",
+								size: size * 0.4,
+								colour: this.colours.white
+							}
+						],
+						[
+							{
+								text: "MATCH",
+								size: size * 0.8,
+								colour: this.colours.gold
+							}
+						]
+					);
+				}
 				break;
 		}
 

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { localTeam } from "~/config/keys";
+import playerOfTheMatchTitles from "~/constants/playerOfTheMatchTitles";
 
 //Helper Functions
 function getInstance(doc) {
@@ -17,7 +18,6 @@ function getInstance(doc) {
 
 	const instanceFields = _.pick(instance, [
 		"image",
-		"specialRounds",
 		"specialRounds",
 		"sponsor",
 		"manOfSteelPoints",
@@ -40,6 +40,15 @@ function getInstance(doc) {
 		...instanceFields,
 		title: _.filter(titleArr, _.identity).join(" ")
 	};
+}
+
+function getSpecialRound(doc) {
+	const instance = getInstance(doc);
+	const { specialRounds } = instance;
+
+	if (specialRounds) {
+		return specialRounds.find(sr => sr.round == doc.round);
+	}
 }
 
 function getHashtags(doc) {
@@ -114,16 +123,13 @@ export default gameSchema => {
 				return null;
 			}
 
-			const { specialRounds, title } = instance;
+			const { title } = instance;
 
 			let roundString = "";
-			if (specialRounds) {
-				const filteredRound = _.find(specialRounds, sr => sr.round == round);
-				if (filteredRound) {
-					roundString = " " + filteredRound.name;
-				}
-			}
-			if (!roundString && round) {
+			const specialRound = getSpecialRound(this);
+			if (specialRound) {
+				roundString = " " + specialRound.name;
+			} else if (round) {
 				roundString = ` Round ${round}`;
 			}
 
@@ -194,6 +200,18 @@ export default gameSchema => {
 			return false;
 		} else {
 			return new Date(this.date).toString("H:mm") !== "0:00";
+		}
+	});
+
+	//Pulls the custom player of the match title
+	gameSchema.virtual("customPotmTitle").get(function () {
+		const specialRound = getSpecialRound(this);
+
+		if (specialRound && specialRound.playerOfTheMatchTitle) {
+			return {
+				key: specialRound.playerOfTheMatchTitle,
+				label: playerOfTheMatchTitles[specialRound.playerOfTheMatchTitle]
+			};
 		}
 	});
 };
