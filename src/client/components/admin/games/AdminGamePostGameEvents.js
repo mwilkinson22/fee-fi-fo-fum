@@ -92,7 +92,10 @@ class AdminGamePostGameEvents extends Component {
 		//
 		// The standard playerStatType entries,
 		// grouped by Scoring, Attack and Defence
-		const allGameStats = getTotalsAndAverages(game.playerStats.map(p => p.stats));
+		const allGameStats = getTotalsAndAverages(
+			game.playerStats.map(p => p.stats),
+			game.date.getFullYear()
+		);
 		options.teamStats = _.chain(playerStatTypes)
 			.mapValues((stat, value) => ({
 				value,

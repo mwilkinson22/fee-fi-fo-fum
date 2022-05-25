@@ -180,7 +180,7 @@ class StatsTables extends Component {
 	}
 
 	renderFoot() {
-		const { customStatTypes, showTotal, showAverage } = this.props;
+		const { customStatTypes, showTotal, showAverage, yearForPoints } = this.props;
 		const { groupedStatTypes, activeTab, rowData } = this.state;
 		if (rowData.length < 2 || (!showTotal && !showAverage)) {
 			return null;
@@ -198,7 +198,7 @@ class StatsTables extends Component {
 				});
 			});
 
-			const summedStats = getTotalsAndAverages(data, customStatTypes);
+			const summedStats = getTotalsAndAverages(data, yearForPoints, customStatTypes);
 
 			//Get Labels
 			const first = [];
@@ -302,6 +302,7 @@ StatsTables.propTypes = {
 	showAverage: PropTypes.bool,
 	showTotal: PropTypes.bool,
 	addGames: PropTypes.bool,
+	yearForPoints: PropTypes.number,
 
 	//E.g. [ { key: "M100", type: "Milestones", singular: "Player Over 100m", plural: "Players over 100m" } ]
 	customStatTypes: PropTypes.arrayOf(

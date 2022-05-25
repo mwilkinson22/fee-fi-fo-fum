@@ -201,7 +201,10 @@ export function getGameStarStats(game, player, overwriteThreshold = {}) {
 		.value();
 
 	//Process player stats
-	const processedStats = calculateAdditionalStats(game.playerStats.find(p => p._player == player._id).stats);
+	const processedStats = calculateAdditionalStats(
+		game.playerStats.find(p => p._player == player._id).stats,
+		new Date(game.date).getFullYear()
+	);
 
 	//Check for overrideGameStarStats defined at a game level;
 	let overrideData;
@@ -787,7 +790,7 @@ export function convertGameToCalendarString(game, options, teamTypes, localTeamN
 
 export function formatPlayerStatsForImage(game, player, statTypes, textStyles, colours, sizes) {
 	const { stats } = game.playerStats.find(({ _player }) => _player._id == player);
-	const processedStats = calculateAdditionalStats(stats);
+	const processedStats = calculateAdditionalStats(stats, new Date(game.date).getFullYear());
 	return statTypes
 		.map(key => {
 			let row;
@@ -960,4 +963,22 @@ export function winLossOrDraw(game) {
 	} else {
 		return "D";
 	}
+}
+
+export function calculatePoints(year, T, CN, PK, DG) {
+	let points = 0;
+
+	//Add Tries
+	points += T * (year < 1983 ? 3 : 4);
+
+	//Add Conversions
+	points += CN * 2;
+
+	//Add Penalties
+	points += PK * (year < 1897 ? 3 : 2);
+
+	//Add Drop Goals
+	points += DG * (year < 1897 ? 4 : year < 1971 ? 2 : 1);
+
+	return points;
 }

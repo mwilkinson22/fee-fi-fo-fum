@@ -28,7 +28,7 @@ class HeadToHeadStats extends Component {
 			.mapValues(obj => {
 				const stats = _.map(obj, "stats");
 				const summedStats = _.fromPairs(keys.map(key => [key, _.sumBy(stats, key)]));
-				return calculateAdditionalStats(summedStats);
+				return calculateAdditionalStats(summedStats, game.date.getFullYear());
 			})
 			.value();
 

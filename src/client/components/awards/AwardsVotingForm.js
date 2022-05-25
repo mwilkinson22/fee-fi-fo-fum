@@ -109,7 +109,7 @@ class AwardsVotingForm extends Component {
 				.value();
 
 			//Get Stats
-			const summedStats = getTotalsAndAverages(rawStats);
+			const summedStats = getTotalsAndAverages(rawStats, currentAwards.year);
 			const renderedStats = nomineeObject.stats.map(key => {
 				let averageSpan;
 				if (!playerStatTypes[key].isAverage) {

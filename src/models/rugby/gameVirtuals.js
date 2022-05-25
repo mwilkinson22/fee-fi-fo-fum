@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { localTeam } from "~/config/keys";
 import playerOfTheMatchTitles from "~/constants/playerOfTheMatchTitles";
+import { calculatePoints } from "~/helpers/gameHelper";
 
 //Helper Functions
 function getInstance(doc) {
@@ -64,7 +65,7 @@ function getHashtags(doc) {
 	return hashtags;
 }
 
-export function convertPlayerStatsToScore(playerStats) {
+export function convertPlayerStatsToScore(playerStats, year) {
 	return _.chain(playerStats)
 		.groupBy("_team")
 		.mapValues(statSet => {
@@ -72,7 +73,7 @@ export function convertPlayerStatsToScore(playerStats) {
 			const conversions = _.sumBy(statSet, "stats.CN");
 			const pens = _.sumBy(statSet, "stats.PK");
 			const dropgoals = _.sumBy(statSet, "stats.DG");
-			return tries * 4 + conversions * 2 + pens * 2 + dropgoals;
+			return calculatePoints(year, tries, conversions, pens, dropgoals);
 		})
 		.value();
 }
@@ -83,7 +84,7 @@ export default gameSchema => {
 		if (!this.squadsAnnounced || !this.playerStats || !this.playerStats.length) {
 			return undefined;
 		} else {
-			return convertPlayerStatsToScore(this.playerStats);
+			return convertPlayerStatsToScore(this.playerStats, new Date(this.date).getFullYear());
 		}
 	});
 
