@@ -118,12 +118,12 @@ export function getScoreString(game, useLongNames = false) {
 	if (score) {
 		const { _opposition, isAway } = game;
 
-		//Get the scores for each team;
-		const localScore = score[localTeam._id];
-		const oppositionScore = score[_opposition._id];
-
 		//Get local team object
 		const localTeamObject = game.teams.find(t => t._id != _opposition._id);
+
+		//Get the scores for each team;
+		const localScore = score[localTeamObject._id];
+		const oppositionScore = score[_opposition._id];
 
 		//Get Local Team Name
 		const localTeamName = useLongNames ? localTeamObject.name.long : localTeamObject.nickname;
