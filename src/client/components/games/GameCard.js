@@ -1,7 +1,6 @@
 //Modules
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Components
@@ -22,7 +21,7 @@ class GameCard extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { game, localTeam, fullTeams, isLarge } = nextProps;
+		const { game, isLarge } = nextProps;
 		const newState = { isLarge };
 
 		//Get date
@@ -36,7 +35,7 @@ class GameCard extends Component {
 		newState.isFixture = isFixture;
 
 		//Score
-		newState.scoreString = getScoreString(game, fullTeams[localTeam]);
+		newState.scoreString = getScoreString(game);
 
 		//Include countdown?
 		newState.includeCountdown = nextProps.includeCountdown && isFixture;
@@ -139,10 +138,4 @@ GameCard.defaultProps = {
 	isLarge: false
 };
 
-function mapStateToProps({ config, teams }) {
-	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
-}
-
-export default connect(mapStateToProps)(GameCard);
+export default GameCard;

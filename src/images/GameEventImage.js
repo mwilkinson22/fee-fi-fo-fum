@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const Team = mongoose.model("teams");
 const Settings = mongoose.model("settings");
 import { localTeam } from "~/config/keys";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 export default class GameEventImage extends Canvas {
 	constructor(game, event, player = null) {
@@ -71,8 +72,12 @@ export default class GameEventImage extends Canvas {
 
 	async getTeamInfo() {
 		const { game } = this;
-		const teams = await Team.find({ _id: { $in: [localTeam, this.game._opposition._id] } }, "images colours");
+		const teams = await Team.find(
+			{ _id: { $in: [localTeam, this.game._opposition._id] } },
+			"images colours previousIdentities"
+		);
 		for (const team of teams) {
+			applyPreviousIdentity(new Date(game.date).getFullYear(), team);
 			team.badge = await this.googleToCanvas(`images/teams/${team.images.light || team.images.main}`);
 		}
 		const awayTeam = game.isAway ? localTeam : game._opposition._id;

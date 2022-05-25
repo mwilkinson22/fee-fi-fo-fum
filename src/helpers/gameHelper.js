@@ -11,6 +11,7 @@ import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
 const playerStatTypes = require("~/constants/playerStatTypes");
 import webcrawlData from "~/constants/webcrawlData";
 import { localTeam } from "~/config/keys";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
@@ -28,6 +29,18 @@ export function fixDates(games) {
 	return _.mapValues(games, game => {
 		if (game) {
 			game.date = new Date(game.date);
+		}
+		return game;
+	});
+}
+
+export function fixLocalGames(games, localTeam) {
+	return _.mapValues(fixDates(games), game => {
+		const localTeamObject = { ...localTeam };
+		applyPreviousIdentity(game.date.getFullYear(), localTeamObject);
+		game.teams = [localTeamObject, game._opposition];
+		if (game.isAway) {
+			game.teams.reverse();
 		}
 		return game;
 	});
@@ -99,7 +112,7 @@ export function getDateString(date) {
 	}
 }
 
-export function getScoreString(game, localTeam, useLongNames = false) {
+export function getScoreString(game, useLongNames = false) {
 	//Check we have a score
 	const score = game.score || game.scoreOverride;
 	if (score) {
@@ -109,8 +122,11 @@ export function getScoreString(game, localTeam, useLongNames = false) {
 		const localScore = score[localTeam._id];
 		const oppositionScore = score[_opposition._id];
 
+		//Get local team object
+		const localTeamObject = game.teams.find(t => t._id != _opposition._id);
+
 		//Get Local Team Name
-		const localTeamName = useLongNames ? localTeam.name.long : localTeam.nickname;
+		const localTeamName = useLongNames ? localTeamObject.name.long : localTeamObject.nickname;
 		const oppositionName = _opposition.name[useLongNames ? "long" : "short"];
 
 		//Ensure no null values

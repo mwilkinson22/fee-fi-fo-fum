@@ -20,9 +20,6 @@ class AdminTeamPreviousIdentities extends Component {
 	constructor(props) {
 		super(props);
 
-		const { fullTeams, match } = props;
-		const team = fullTeams[match.params._id];
-
 		//Create Validation Schema
 		const validationSchema = Yup.object().shape({
 			previousIdentities: Yup.array().of(
@@ -40,7 +37,13 @@ class AdminTeamPreviousIdentities extends Component {
 			)
 		});
 
-		this.state = { team, validationSchema };
+		this.state = { validationSchema };
+	}
+
+	static getDerivedStateFromProps(nextProps) {
+		const { fullTeams, match } = nextProps;
+		const team = fullTeams[match.params._id];
+		return { team };
 	}
 
 	getInitialValues() {
@@ -124,7 +127,9 @@ class AdminTeamPreviousIdentities extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		values.previousIdentities.forEach(teamIdentityFormData.alterValuesBeforeSubmit);
+		if (values.previousIdentities) {
+			values.previousIdentities.forEach(teamIdentityFormData.alterValuesBeforeSubmit);
+		}
 	}
 
 	render() {

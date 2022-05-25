@@ -91,18 +91,13 @@ class AdminGamePage extends Component {
 
 	getPageTitle() {
 		const { game } = this.state;
-		const { fullTeams, localTeam } = this.props;
 
 		//Use helper to try and get a score string
-		let string = getScoreString(game, fullTeams[localTeam]);
+		let string = getScoreString(game);
 
 		//If this fails (i.e. if there are no scores), create a simple H vs A
 		if (!string) {
-			const teams = [fullTeams[localTeam].nickname, "vs", game._opposition.name.short];
-			if (game.isAway) {
-				teams.reverse();
-			}
-			string = teams.join(" ");
+			string = game.teams.map(t => t.name.short).join(" vs ");
 		}
 
 		return `${string} - ${game.date.toString("dd/MM/yyyy")}`;
@@ -277,10 +272,9 @@ class AdminGamePage extends Component {
 	}
 }
 
-function mapStateToProps({ config, games, teams }) {
+function mapStateToProps({ games, teams }) {
 	const { fullGames, gameList, gameYears } = games;
-	const { fullTeams, teamTypes, teamList } = teams;
-	const { localTeam } = config;
-	return { localTeam, fullGames, teamList, gameList, gameYears, teamTypes, fullTeams };
+	const { teamTypes, teamList } = teams;
+	return { fullGames, teamList, gameList, gameYears, teamTypes };
 }
 export default connect(mapStateToProps, { fetchGames, reloadGames, fetchGameListByYear })(AdminGamePage);

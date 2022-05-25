@@ -26,6 +26,7 @@ import { postToSocial } from "../oAuthController";
 import { getMainTeamType } from "~/controllers/rugby/teamsController";
 import { getGamesByAggregate } from "~/controllers/rugby/gamesController";
 import { getSegmentBasicTitle } from "~/models/rugby/CompetitionSegment";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 function getGameQuery(_competition, year = null) {
 	const query = { _competition };
@@ -564,7 +565,7 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 
 	//Get team names and image
 	//For minmax also get colours
-	let teamSelectString = "name images";
+	let teamSelectString = "name images previousIdentities";
 	if (forMinMaxTable) {
 		teamSelectString += " colours";
 	}
@@ -610,6 +611,7 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 		Game.find(localGameWithScoreOverrideMatch, "_opposition isAway scoreOverride").lean(),
 		NeutralGame.find(neutralGameMatch, "_homeTeam _awayTeam homePoints awayPoints").lean()
 	]);
+	teams.forEach(team => applyPreviousIdentity(year, team));
 	teams = _.keyBy(teams, "_id");
 
 	//Standardise game array

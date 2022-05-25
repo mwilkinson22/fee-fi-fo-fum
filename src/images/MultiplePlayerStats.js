@@ -9,6 +9,7 @@ import { localTeam } from "~/config/keys";
 
 //Helpers
 import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 export default class MultiplePlayerStats extends Canvas {
 	constructor(game, playersAndStats, eventType, options = {}) {
@@ -235,6 +236,7 @@ export default class MultiplePlayerStats extends Canvas {
 					yAlign: "top"
 				});
 			} else {
+				applyPreviousIdentity(new Date(game.date).getFullYear(), game._opposition);
 				const teamImages = game._opposition.images;
 				const image = await this.googleToCanvas(`images/teams/${teamImages.dark || teamImages.main}`);
 				const margin = imageBoxHeight * 0.1;

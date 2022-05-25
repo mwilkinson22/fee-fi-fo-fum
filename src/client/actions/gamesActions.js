@@ -14,6 +14,11 @@ import {
 import { toast } from "react-toastify";
 import _ from "lodash";
 
+function getLocalTeam(getState) {
+	const { config, teams } = getState();
+	return teams.fullTeams[config.localTeam];
+}
+
 export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) => {
 	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
 		dataLevel = "basic";
@@ -30,7 +35,7 @@ export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) =>
 	const results = await Promise.all(queries);
 	const payload = _.merge(...results.map(({ data }) => data));
 
-	dispatch({ type: FETCH_GAMES, payload });
+	dispatch({ type: FETCH_GAMES, payload, localTeam: getLocalTeam(getState) });
 };
 
 export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {
@@ -47,7 +52,7 @@ export const fetchGameFromSlug = slug => async (dispatch, getState, api) => {
 	//Handle retrieved game
 	if (!errorFound) {
 		//Add game before adding slug, to prevent errors
-		dispatch({ type: FETCH_GAMES, payload: res.data });
+		dispatch({ type: FETCH_GAMES, payload: res.data, localTeam: getLocalTeam(getState) });
 		//Get ID
 		const _id = Object.keys(res.data)[0];
 		dispatch({ type: ADD_GAME_SLUG, payload: { [slug]: _id } });
@@ -75,7 +80,7 @@ export const fetchHomePageGames = () => async (dispatch, getState, api) => {
 	}
 
 	if (Object.keys(gamesToAdd).length) {
-		dispatch({ type: FETCH_GAMES, payload: gamesToAdd });
+		dispatch({ type: FETCH_GAMES, payload: gamesToAdd, localTeam: getLocalTeam(getState) });
 	}
 
 	//Then update the homepage entry
@@ -92,11 +97,11 @@ export const reloadGames = (ids, dataLevel) => async (dispatch, getState, api) =
 		.map(id => [id, undefined])
 		.fromPairs()
 		.value();
-	dispatch({ type: FETCH_GAMES, payload: deleters });
+	dispatch({ type: FETCH_GAMES, payload: deleters, localTeam: getLocalTeam(getState) });
 
 	//Get reloaded games
 	const res = await api.get(`/games/${dataLevel}/${ids.join(",")}`);
-	dispatch({ type: FETCH_GAMES, payload: res.data });
+	dispatch({ type: FETCH_GAMES, payload: res.data, localTeam: getLocalTeam(getState) });
 	toast.success(`${ids.length} games refreshed`);
 };
 
@@ -152,7 +157,7 @@ export const fetchGameListByYear = year => async (dispatch, getState, api) => {
 export const createGame = values => async (dispatch, getState, api) => {
 	const res = await api.post(`/games/`, values);
 	if (res.data) {
-		dispatch({ type: UPDATE_GAME, payload: res.data });
+		dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 		toast.success("Game created");
 		return res.data.id;
 	}
@@ -161,7 +166,7 @@ export const createGame = values => async (dispatch, getState, api) => {
 export const updateGame = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/`, values);
 	toast.success("Game updated");
-	await dispatch({ type: UPDATE_GAME, payload: res.data });
+	await dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 };
 
 export const deleteGame = id => async (dispatch, getState, api) => {
@@ -177,18 +182,18 @@ export const deleteGame = id => async (dispatch, getState, api) => {
 export const setSquad = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/squad/`, values);
 	toast.success("Squad saved");
-	dispatch({ type: UPDATE_GAME, payload: res.data });
+	dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 };
 
 export const markSquadAsAnnounced = (id, announced) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/squadsAnnounced`, { announced });
-	dispatch({ type: UPDATE_GAME, payload: res.data });
+	dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 };
 
 export const postGameEvent = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/event/`, values);
 	if (res.data) {
-		dispatch({ type: UPDATE_GAME, payload: res.data });
+		dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 		if (values.postTweet) {
 			toast.success("Tweet Sent");
 		} else {
@@ -208,14 +213,14 @@ export const crawlGame = (id, includeScoringStats) => async (dispatch, getState,
 
 export const setStats = (id, values) => async (dispatch, getState, api) => {
 	const res = await api.put(`/games/${id}/stats`, values);
-	dispatch({ type: UPDATE_GAME, payload: res.data });
+	dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 	toast.success("Stats saved");
 };
 
 export const deleteGameEvent = (id, event, params) => async (dispatch, getState, api) => {
 	const query = _.map(params, (val, key) => `${key}=${val.toString()}`).join("&");
 	const res = await api.delete(`/games/${id}/event/${event}?${query}`);
-	dispatch({ type: UPDATE_GAME, payload: res.data });
+	dispatch({ type: UPDATE_GAME, payload: res.data, localTeam: getLocalTeam(getState) });
 	toast.success("Event deleted");
 	return res.data.fullGames[id].events;
 };
@@ -280,7 +285,7 @@ export const addCrawledGames = games => async (dispatch, getState, api) => {
 
 		const { local, neutral } = res.data;
 		if (local) {
-			dispatch({ type: UPDATE_GAME, payload: local });
+			dispatch({ type: UPDATE_GAME, payload: local, localTeam: getLocalTeam(getState) });
 			gameCount.push(`${local.fullGames.length} local ${local.fullGames.length === 1 ? "game" : "games"}`);
 		}
 

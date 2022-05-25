@@ -22,6 +22,7 @@ import { getMainTeamType } from "~/controllers/rugby/teamsController";
 import { postToSocial } from "../oAuthController";
 import { getUpdatedNeutralGames } from "./neutralGamesController";
 import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 import {
 	parseExternalGame,
@@ -45,6 +46,30 @@ import MinMaxLeagueTable from "~/images/MinMaxLeagueTable";
 import GameListSocialCard from "~/images/GameListSocialCard";
 
 //Utility Functions
+export async function getFullGames(query, forGamePage, forAdmin, options = { sort: {}, limit: null }) {
+	const promise = Game.find(query).fullGame(forGamePage, forAdmin);
+	if (options.sort) {
+		promise.sort(options.sort);
+	}
+
+	if (options.limit) {
+		promise.limit(options.limit);
+	}
+	const games = await promise;
+
+	//Update opposition based on previous identity
+	games.forEach(game => {
+		applyPreviousIdentity(new Date(game.date).getFullYear(), game._opposition);
+	});
+
+	return games;
+}
+
+export async function getFullGameById(_id, forGamePage, forAdmin, options) {
+	const games = await getFullGames({ _id }, forGamePage, forAdmin, options);
+	return games[0];
+}
+
 async function validateGame(_id, res, promise = null) {
 	//This allows us to populate specific fields if necessary
 	const game = await (promise || Game.findById(_id));
@@ -486,16 +511,19 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	};
 
 	//First, we get the last five local games
-	const localteamFormQuery = Game.find(matchParams(true)).fullGame(false, false).sort({ date: -1 }).limit(gameLimit);
+	const sortAndLimitParams = { sort: { date: -1 }, limit: gameLimit };
+	const localteamFormQuery = getFullGames(matchParams(true), false, false, sortAndLimitParams);
 
 	//Then the last five head to heads
-	const headToHeadFormQuery = Game.find({
-		...matchParams(false),
-		_opposition: game._opposition._id
-	})
-		.fullGame(false, false)
-		.sort({ date: -1 })
-		.limit(gameLimit);
+	const headToHeadFormQuery = getFullGames(
+		{
+			...matchParams(false),
+			_opposition: game._opposition._id
+		},
+		false,
+		false,
+		sortAndLimitParams
+	);
 
 	//And the last 5 neutral games for the opponent
 	const neutralMatch = {
@@ -505,15 +533,15 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	};
 
 	//Pull the local team object
-	const localTeamQuery = Team.findById(localTeam, "name images.main").lean();
+	const localTeamQuery = Team.findById(localTeam, "name images.main previousIdentities").lean();
 
 	if (!allCompetitions) {
 		neutralMatch._competition = game._competition._id;
 	}
 	const neutralGameQuery = NeutralGame.find(neutralMatch, "date _homeTeam _awayTeam homePoints awayPoints")
 		.sort({ date: -1 })
-		.populate({ path: "_homeTeam", select: "name images.main images.dark" })
-		.populate({ path: "_awayTeam", select: "name images.main images.dark" })
+		.populate({ path: "_homeTeam", select: "name images.main images.dark previousIdentities" })
+		.populate({ path: "_awayTeam", select: "name images.main images.dark previousIdentities" })
 		.limit(gameLimit)
 		.lean();
 
@@ -556,10 +584,13 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	//And create one big array
 	const allGames = _.chain([localgamesNormalised, neutralGames])
 		.flatten()
-		.map(g => ({
-			...g,
-			date: new Date(g.date)
-		}))
+		.map(g => {
+			g.date = new Date(g.date);
+			const year = g.date.getFullYear();
+			applyPreviousIdentity(year, g._homeTeam);
+			applyPreviousIdentity(year, g._awayTeam);
+			return g;
+		})
 		.orderBy("date", "desc")
 		.value();
 
@@ -608,7 +639,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 
 async function getUpdatedGame(id, res, refreshSocialImages = false) {
 	//Get Full Game
-	const game = await Game.findById(id).fullGame(true, true);
+	const game = await getFullGameById(id, true, true);
 
 	//This only gets called after an admin action, so it's safe to assume we want the full admin data
 	const games = await getExtraGameInfo([game], true, true);
@@ -734,7 +765,7 @@ async function getGames(req, res, forGamePage, forAdmin) {
 		res.status(413).send(`Cannot fetch more than ${fetchGameLimit} games at one time`);
 	}
 
-	let games = await Game.find({ _id: { $in: ids } }).fullGame(forGamePage, forAdmin);
+	let games = await getFullGames({ _id: { $in: ids } }, forGamePage, forAdmin);
 
 	games = await getExtraGameInfo(games, forGamePage, forAdmin);
 
@@ -924,7 +955,7 @@ export async function addCrawledGames(req, res) {
 
 		//Pull new games
 		const list = await processList(req.user && req.user.isAdmin);
-		const games = await Game.find({ _id: { $in: Object.values(result.insertedIds) } }).fullGame(true, true);
+		const games = await getFullGames({ _id: { $in: Object.values(result.insertedIds) } }, true, true);
 		const fullGames = await getExtraGameInfo(games, true, true);
 
 		//Return new games
@@ -1441,13 +1472,17 @@ async function generateFixtureListImage(year, competitions, fixturesOnly, dateBr
 		fromDate = `${year}-01-01`;
 	}
 
-	const games = await Game.find({
-		date: { $gte: fromDate, $lt: `${Number(year) + 1}-01-01` },
-		_competition: {
-			$in: competitions
+	const games = await getFullGames(
+		{
+			date: { $gte: fromDate, $lt: `${Number(year) + 1}-01-01` },
+			_competition: {
+				$in: competitions
+			},
+			hideGame: false
 		},
-		hideGame: false
-	}).fullGame();
+		false,
+		false
+	);
 
 	if (games.length) {
 		return new FixtureListImage(games, year, dateBreakdown);
@@ -1737,7 +1772,7 @@ export async function getCalendar(req, res) {
 	const localTeamName = await Team.findById(localTeam, "name").lean();
 
 	//Get Games
-	let games = await Game.find(query).fullGame();
+	let games = await getFullGames(query, false, false);
 	games = JSON.parse(JSON.stringify(games));
 
 	//Create Event Data
@@ -1851,7 +1886,7 @@ export async function saveFanPotmVote(req, res) {
 //Get values for corresponding team selectors
 export async function getTeamSelectorValues(_id, res) {
 	//Load the game
-	const basicGame = await validateGame(_id, res, Game.findById(_id).fullGame(true, false));
+	const basicGame = await validateGame(_id, res, getFullGameById(_id, true, false));
 	const [game] = await getExtraGameInfo([basicGame], true, true);
 	game.date = new Date(game.date);
 

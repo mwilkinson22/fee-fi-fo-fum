@@ -3,32 +3,10 @@ const { mongooseDebug } = require("~/middlewares/mongooseDebug");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 import coachTypes from "~/constants/coachTypes";
-
-const identityFields = {
-	name: {
-		long: { type: String, required: true },
-		short: { type: String, required: true }
-	},
-	colours: {
-		main: { type: String, required: true },
-		trim1: { type: String, required: true },
-		trim2: { type: String, required: true },
-		text: { type: String, required: true },
-		pitchColour: { type: String, default: null },
-		statBarColour: { type: String, default: null }
-	},
-	hashtagPrefix: { type: String, required: true },
-	images: {
-		main: { type: String, required: true },
-		light: { type: String, default: null },
-		dark: { type: String, default: null }
-	},
-	nickname: { type: String, required: true },
-	playerNickname: { type: String, default: null }
-};
+import teamIdentityFields from "~/constants/teamIdentityFields";
 
 const teamSchema = new Schema({
-	...identityFields,
+	...teamIdentityFields,
 	_defaultGround: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
 	_grounds: [
 		{
@@ -38,7 +16,7 @@ const teamSchema = new Schema({
 	],
 	previousIdentities: [
 		{
-			...identityFields,
+			...teamIdentityFields,
 			fromYear: { type: Number, required: true },
 			toYear: { type: Number, required: true }
 		}
@@ -106,7 +84,7 @@ teamSchema.query.fullTeam = function (fullData) {
 			select: "name slug images.main images.coach gender"
 		});
 	} else {
-		return this.select("name nickname playerNickname colours images");
+		return this.select("name nickname playerNickname colours images previousIdentities");
 	}
 };
 

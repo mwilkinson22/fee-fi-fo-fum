@@ -1,6 +1,7 @@
 import Canvas from "./Canvas";
 import _ from "lodash";
 import mongoose from "mongoose";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 const Settings = mongoose.model("settings");
 const { localTeam } = require("../config/keys");
 
@@ -345,15 +346,16 @@ export default class PregameImage extends Canvas {
 	}
 
 	async render(forTwitter = false) {
-		const { ctx, cWidth, positions, teamIds, options } = this;
+		const { ctx, cWidth, game, positions, teamIds, options } = this;
 
 		//Get Logo
 		await this.getBranding();
 
 		//Populate Teams
 		const Team = mongoose.model("teams");
-		const teams = await Team.find({ _id: { $in: teamIds } }, "name colours images").lean();
-		this.teams = _.map(teamIds, id => _.find(teams, t => t._id == id));
+		const teams = await Team.find({ _id: { $in: teamIds } }, "name colours images previousIdentities").lean();
+		this.teams = teamIds.map(id => teams.find(t => t._id == id));
+		this.teams.forEach(team => applyPreviousIdentity(new Date(game.date).getFullYear(), team));
 
 		//BG
 		this.drawBackground();

@@ -13,6 +13,7 @@ import { localTeam } from "~/config/keys";
 
 //Helpers
 import { formatPlayerStatsForImage } from "~/helpers/gameHelper";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 export default class PersonImageCard extends Canvas {
 	constructor(_id, options = {}) {
@@ -77,7 +78,11 @@ export default class PersonImageCard extends Canvas {
 
 	async loadTeamBadges() {
 		if (!this.teamBadges) {
-			const teams = await Team.find({ _id: { $in: [localTeam, this.options.game._opposition._id] } }, "images");
+			const teams = await Team.find(
+				{ _id: { $in: [localTeam, this.options.game._opposition._id] } },
+				"images previousIdentities"
+			).lean();
+			teams.forEach(team => applyPreviousIdentity(new Date(this.options.game.date).getFullYear(), team));
 			this.teamBadges = {};
 			for (const team of teams) {
 				const { _id, images } = team;

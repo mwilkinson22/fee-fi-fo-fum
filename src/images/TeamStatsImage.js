@@ -12,6 +12,7 @@ import playerStatTypes from "~/constants/playerStatTypes";
 
 //Helpers
 import { calculateAdditionalStats, statToString } from "~/helpers/statsHelper";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 export default class TeamStatsImage extends Canvas {
 	constructor(game, statTypes) {
@@ -66,10 +67,14 @@ export default class TeamStatsImage extends Canvas {
 	}
 
 	async getTeamInfo() {
-		const { isAway, _opposition } = this.game;
+		const { date, isAway, _opposition } = this.game;
 
-		//Get the localteam object
-		const localTeamObject = await Team.findById(localTeam, "name images colours").lean();
+		//Get the local team object
+		const localTeamObject = await Team.findById(localTeam, "name images colours previousIdentities").lean();
+
+		const gameYear = new Date(date).getFullYear();
+		applyPreviousIdentity(gameYear, localTeamObject);
+		applyPreviousIdentity(gameYear, _opposition);
 
 		//Get team images. The background colour should correspond
 		//to the local team, so we can just use the main image
