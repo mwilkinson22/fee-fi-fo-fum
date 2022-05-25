@@ -58,9 +58,9 @@ class MatchSquadList extends Component {
 					//Handle Rows
 					const rowIndex = newRowPositions.indexOf(position);
 					if (rowIndex > -1 || position == squad.length) {
-						const order = position == squad.length ? 999 : rowIndex + 1;
+						const order = position <= 13 ? rowIndex + 1 : 999;
 						rows.push(
-							<div className={`row ${position < 13 ? "main" : "extra"}`} key={order} style={{ order }}>
+							<div className={`row ${position <= 13 ? "main" : "extra"}`} key={order} style={{ order }}>
 								{row}
 							</div>
 						);
