@@ -62,7 +62,12 @@ class SeasonGameStats extends Component {
 					//Group the stats by local and opposition
 					game.stats = _.chain(game.playerStats)
 						.groupBy(({ _team }) => (_team === localTeam ? "local" : "opposition"))
-						.mapValues(playerStatArray => getTotalsAndAverages(playerStatArray.map(s => s.stats)))
+						.mapValues(playerStatArray =>
+							getTotalsAndAverages(
+								playerStatArray.map(s => s.stats),
+								game.date.getFullYear()
+							)
+						)
 						.value();
 
 					return game;
@@ -157,7 +162,7 @@ class SeasonGameStats extends Component {
 					break;
 				case options.teamToLoad.Combined: {
 					//Use getTotalsAndAverages to recalculate the best and total for each stat
-					const reaggregatedStats = getTotalsAndAverages(_.values(aggregateStats));
+					const reaggregatedStats = getTotalsAndAverages(_.values(aggregateStats), game.date.getFullYear());
 
 					//Depending on totalOrIndividual, pull off the correct value.
 					//For total, we want the "total" property, i.e. both teams combined
@@ -181,7 +186,7 @@ class SeasonGameStats extends Component {
 			}
 
 			//Recalculate non-db stats
-			stats = calculateAdditionalStats(stats);
+			stats = calculateAdditionalStats(stats, game.date.getFullYear());
 
 			//Work out milestone stats
 			if (totalOrIndividual === options.totalOrIndividual.Total) {
@@ -202,7 +207,7 @@ class SeasonGameStats extends Component {
 
 					customStatTypes.TS95 = "Had a 95% Tackle Rate (min. 20 tackles)";
 					statsToProcess.TS95 = game.playerStats.filter(p => {
-						const processedStats = calculateAdditionalStats(p.stats);
+						const processedStats = calculateAdditionalStats(p.stats, game.date.getFullYear());
 						return processedStats.TS > 95 && processedStats.TK + processedStats.MI >= 20;
 					});
 				}
@@ -260,6 +265,7 @@ class SeasonGameStats extends Component {
 				rowData={rowData}
 				showTotal={true}
 				showAverage={totalOrIndividual === options.totalOrIndividual.Total}
+				yearForPoints={Math.max(...gamesWithProcessedStats.map(g => g.date.getFullYear()))}
 			/>
 		);
 	}

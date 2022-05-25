@@ -73,7 +73,10 @@ class SeasonPlayerStats extends Component {
 				//Pull off only the stats for each player
 				.mapValues(a => a.map(p => p.stats))
 				//Convert to an array with the _player id, to ease sorting
-				.map((s, _player) => ({ _player, stats: getTotalsAndAverages(s) }))
+				.map((s, _player) => ({
+					_player,
+					stats: getTotalsAndAverages(s, Math.max(...filteredGames.map(g => g.date.getFullYear())))
+				}))
 				.value();
 
 			//Loop through the processedStats to see if we have any players not in the
@@ -182,7 +185,7 @@ class SeasonPlayerStats extends Component {
 	}
 
 	renderStatTables() {
-		const { players, statType, processedStats } = this.state;
+		const { players, statType, processedStats, games } = this.state;
 
 		const rows = processedStats.map(({ _player, stats }) => {
 			//Generate first column
@@ -221,6 +224,7 @@ class SeasonPlayerStats extends Component {
 				showTotal={statType === "total"}
 				showAverage={false}
 				addGames={statType !== "best"}
+				yearForPoints={Math.max(...games.map(g => g.date.getFullYear()))}
 			/>
 		);
 	}

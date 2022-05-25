@@ -221,7 +221,10 @@ class PlayerStatSection extends Component {
 			Defence: ["TK", "MT", "TS", "P"]
 		};
 
-		const totalStats = getTotalsAndAverages(_.map(filteredGames, game => game.playerStats[0].stats));
+		const totalStats = getTotalsAndAverages(
+			_.map(filteredGames, game => game.playerStats[0].stats),
+			Math.max(..._.map(filteredGames, game => game.date.getFullYear()))
+		);
 
 		const statBoxes = _.map(statBoxStats, (keys, category) => {
 			const header = <h2 key={category}>{category}</h2>;
@@ -449,6 +452,7 @@ class PlayerStatSection extends Component {
 					listType="player"
 					rowData={rowData}
 					firstColumnHeader="Games"
+					yearForPoints={Math.max(...filteredGames.map(g => g.date.getFullYear()))}
 				/>
 			</div>
 		);

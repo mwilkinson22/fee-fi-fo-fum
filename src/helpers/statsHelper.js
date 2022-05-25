@@ -1,14 +1,16 @@
 import _ from "lodash";
 import playerStatTypes from "~/constants/playerStatTypes";
+import { calculatePoints } from "~/helpers/gameHelper";
 
 /**
  * Adds the "dynamic" additional stats that we don't store in the DB,
  * i.e. Average Gain, Tackle Success, Goals, Kicking Success and total Points
  *
  * @param { object } stats - A stat collection
+ * @param { Number } year - The year of the game
  * @returns { object } stat collection with extra stats added
  */
-export function calculateAdditionalStats(stats) {
+export function calculateAdditionalStats(stats, year) {
 	const { T, CN, PK, DG, MG, TK, MI, M, C } = stats;
 
 	//Average Gain
@@ -25,7 +27,7 @@ export function calculateAdditionalStats(stats) {
 	if (G + MG > 0) stats.KS = Number(((G / (G + MG)) * 100).toFixed(2));
 
 	//Points
-	stats.PT = T * 4 + CN * 2 + PK * 2 + DG;
+	stats.PT = calculatePoints(year, T, CN, PK, DG);
 	return stats;
 }
 
@@ -94,15 +96,16 @@ export function resolveStatObject(keyOrStatObject, customStatTypes = []) {
  * for every game passed in, but be missing metres and tackles for cup games
  *
  * @param { Array } arrayOfStats - An array of stat collection objects
+ * @param { Number } year - The year to calculate the points totals.
  * @param { Array } customStatTypes
  */
-export function getTotalsAndAverages(arrayOfStats, customStatTypes = []) {
+export function getTotalsAndAverages(arrayOfStats, year, customStatTypes = []) {
 	//First, calculate which stats we need,
 	//creating an array of stat keys
 	const allFoundStatKeys = _.flatten(
 		arrayOfStats.map(statCollection => {
 			//For each stat object, ensure we have average gain, tackle success, etc
-			const fullStatCollection = calculateAdditionalStats(statCollection);
+			const fullStatCollection = calculateAdditionalStats(statCollection, year);
 			//Return the stat keys
 			return Object.keys(fullStatCollection);
 		})
@@ -145,7 +148,7 @@ export function getTotalsAndAverages(arrayOfStats, customStatTypes = []) {
 	//will be incorrect (they'll be averages of averages), so we recalculate them
 	//and update both the average and total properties accordingly
 	const summedStatTotals = _.mapValues(summedStats, stat => stat.total);
-	const summedStatsWithFixedTotals = calculateAdditionalStats(summedStatTotals);
+	const summedStatsWithFixedTotals = calculateAdditionalStats(summedStatTotals, year);
 	for (const key in summedStats) {
 		const statObject = resolveStatObject(key, customStatTypes);
 		if (statObject && statObject.isAverage) {

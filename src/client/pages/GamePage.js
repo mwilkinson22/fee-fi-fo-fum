@@ -376,7 +376,7 @@ class GamePage extends Component {
 					};
 				}
 
-				const calculatedStats = calculateAdditionalStats(stats);
+				const calculatedStats = calculateAdditionalStats(stats, filteredGame.date.getFullYear());
 
 				const data = {
 					first,
@@ -395,7 +395,7 @@ class GamePage extends Component {
 						onChange={statTableTeam => this.setState({ statTableTeam })}
 						options={tableSelectorOptions}
 					/>
-					<StatsTables rowData={rowData} firstColumnHeader="Player" />
+					<StatsTables rowData={rowData} firstColumnHeader="Player" yearForPoints={game.date.getFullYear()} />
 				</div>
 			</section>
 		);
