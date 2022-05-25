@@ -686,7 +686,8 @@
 			font-size: 1.1em;
 		}
 		.event-label,
-		.scorers {
+		.scorers,
+		.details {
 			height: 100%;
 			border-top: solid thin #ccc;
 			display: flex;
@@ -705,6 +706,23 @@
 				max-height: 40pt;
 			}
 		}
+
+		.details {
+			grid-column: 1 / -1;
+			div {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				font-size: 0.9em;
+				&:not(:last-child) {
+					border-bottom: solid thin #ccc;
+				}
+				h6 {
+					padding-right: 8pt;
+				}
+			}
+		}
+
 		@media #{$mobile-only} {
 			grid-template-columns: 1fr 1fr;
 			grid-auto-flow: dense;

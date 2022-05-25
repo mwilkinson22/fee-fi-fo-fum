@@ -211,7 +211,7 @@ class GamePage extends Component {
 			return (
 				<section className="game-events">
 					<div className="container">
-						<GameEvents game={game} />
+						<GameEvents game={game} includeDetails={true} />
 					</div>
 				</section>
 			);
