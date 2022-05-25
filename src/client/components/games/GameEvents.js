@@ -40,7 +40,7 @@ class GameEvents extends Component {
 	}
 
 	renderEvents(events) {
-		const { localTeam } = this.props;
+		const { localTeam, includeDetails } = this.props;
 		const { game } = this.state;
 
 		const elements = [];
@@ -103,6 +103,45 @@ class GameEvents extends Component {
 			);
 		});
 
+		// Add Details
+		if (includeDetails) {
+			const details = {};
+			if (game.attendance) {
+				details.Attendance = game.attendance.toLocaleString();
+			}
+			if (game._referee) {
+				details.Referee = game._referee.name.full;
+			}
+			if (game._video_referee) {
+				details.Referee = game._video_referee.name.full;
+			}
+			if (game._potm) {
+				let potm = _.flatten(Object.values(game.eligiblePlayers)).find(p => p._id == game._potm);
+				if (potm) {
+					const potmLabel = game.customPotmTitle
+						? game.customPotmTitle.label
+						: `${game.genderedString} of the Match`;
+					details[potmLabel] = potm.name.full;
+				}
+			}
+			if (Object.values(details).length) {
+				const detailRows = [];
+				for (const key in details) {
+					detailRows.push(
+						<div key={key}>
+							<h6>{key}</h6>
+							{details[key]}
+						</div>
+					);
+				}
+				elements.push(
+					<div key="details" className="details">
+						{detailRows}
+					</div>
+				);
+			}
+		}
+
 		return (
 			<div className="game-events-wrapper">
 				<div className="events">{elements}</div>
@@ -121,7 +160,12 @@ class GameEvents extends Component {
 }
 
 GameEvents.propTypes = {
-	game: PropTypes.object.isRequired
+	game: PropTypes.object.isRequired,
+	includeDetails: PropTypes.bool
+};
+
+GameEvents.defaultProps = {
+	includeDetails: false
 };
 
 function mapStateToProps({ config }) {
