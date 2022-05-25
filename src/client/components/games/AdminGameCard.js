@@ -1,6 +1,5 @@
 //Modules
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 //Components
@@ -17,10 +16,10 @@ class AdminGameCard extends Component {
 
 	static getDerivedStateFromProps(nextProps) {
 		const newState = {};
-		const { game, localTeam, fullTeams } = nextProps;
+		const { game } = nextProps;
 
 		//Score
-		newState.scoreString = getScoreString(game, fullTeams[localTeam]);
+		newState.scoreString = getScoreString(game);
 
 		return newState;
 	}
@@ -71,10 +70,4 @@ class AdminGameCard extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
-	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
-}
-
-export default connect(mapStateToProps)(AdminGameCard);
+export default AdminGameCard;

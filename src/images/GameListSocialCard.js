@@ -1,9 +1,8 @@
 import Canvas from "./Canvas";
 import mongoose from "mongoose";
-import { getExtraGameInfo } from "~/controllers/rugby/gamesController";
+import { getExtraGameInfo, getFullGames } from "~/controllers/rugby/gamesController";
 import { localTeam } from "~/config/keys";
 const Team = mongoose.model("teams");
-const Game = mongoose.model("games");
 
 export default class GameListSocialCard extends Canvas {
 	constructor(isFixtures, teamType) {
@@ -75,7 +74,7 @@ export default class GameListSocialCard extends Canvas {
 		}
 
 		//First, load games
-		this.games = await Game.find(query).fullGame(true, false).limit(4).sort(sort);
+		this.games = await getFullGames(query, true, false, { limit: 4, sort });
 
 		if (this.games.length) {
 			//Get extra info

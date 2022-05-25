@@ -17,20 +17,17 @@ class TeamFormPerTeam extends Component {
 		this.state = { formObject };
 	}
 
-	renderTable(renderLocalTeam) {
+	renderTable(team) {
 		const { formObject } = this.state;
-		const { localTeam, game, fullTeams } = this.props;
+		const { localTeam } = this.props;
 
 		//Choose relevant games
-		const games = formObject[renderLocalTeam ? "local" : "opposition"];
+		const games = formObject[team._id == localTeam ? "local" : "opposition"];
 
 		//Ensure we have at least one game
 		if (!games || !games.length) {
 			return null;
 		}
-
-		//Get the team info
-		const team = renderLocalTeam ? fullTeams[localTeam] : game._opposition;
 
 		//Render games
 		const renderedGames = games.map(g => {
@@ -107,14 +104,10 @@ class TeamFormPerTeam extends Component {
 			header = <h2>Form</h2>;
 		}
 
-		//Work out if game is away
-		const { isAway } = game;
-
 		return (
 			<div className="per-team-form">
 				{header}
-				{this.renderTable(!isAway)}
-				{this.renderTable(isAway)}
+				{game.teams.map(team => this.renderTable(team))}
 			</div>
 		);
 	}
@@ -131,10 +124,9 @@ TeamFormPerTeam.defaultProps = {
 	includeHeader: true
 };
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(TeamFormPerTeam);

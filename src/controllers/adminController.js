@@ -1,13 +1,12 @@
 //Mongoose
 import _ from "lodash";
 import mongoose from "mongoose";
-const Game = mongoose.model("games");
 const Person = mongoose.model("people");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
 
 //Helpers
-import { getExtraGameInfo } from "./rugby/gamesController";
+import { getExtraGameInfo, getFullGames } from "./rugby/gamesController";
 
 //Constants
 import { localTeam } from "~/config/keys";
@@ -188,13 +187,16 @@ async function getGames(firstTeam, entireYear = false) {
 	}
 
 	//Get Games
-	let games = await Game.find({
-		date: dateFilter,
-		hideGame: false,
-		scoreOverride: { $exists: true, $size: 0 }
-	})
-		.sort({ date: 1 })
-		.fullGame(true, false);
+	let games = await getFullGames(
+		{
+			date: dateFilter,
+			hideGame: false,
+			scoreOverride: { $exists: true, $size: 0 }
+		},
+		true,
+		false,
+		{ sort: { date: 1 } }
+	);
 
 	//Convert to JSON
 	games = JSON.parse(JSON.stringify(games));

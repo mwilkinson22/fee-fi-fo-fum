@@ -273,7 +273,7 @@ gameSchema.query.fullGame = function (forGamePage, forAdmin) {
 	return model
 		.populate({
 			path: "_opposition",
-			select: "name colours hashtagPrefix images"
+			select: "name colours hashtagPrefix images previousIdentities"
 		})
 		.populate({
 			path: "_broadcaster"
@@ -345,7 +345,7 @@ gameSchema.query.eventImage = function () {
 		})
 		.populate({
 			path: "_opposition",
-			select: "images hashtagPrefix colours"
+			select: "images hashtagPrefix colours previousIdentities"
 		});
 };
 

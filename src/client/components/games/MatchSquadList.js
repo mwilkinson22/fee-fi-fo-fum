@@ -2,6 +2,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 import Colour from "color";
 
 //Components
@@ -27,12 +28,9 @@ class MatchSquadList extends Component {
 	}
 
 	renderTeamBlocks() {
+		const { localTeam } = this.props;
 		const { game } = this.state;
-		const { localTeam, fullTeams } = this.props;
-		let teams = [fullTeams[localTeam], game._opposition];
-		if (game.isAway) {
-			teams = teams.reverse();
-		}
+		const { teams } = game;
 		const newRowPositions = [1, 5, 7, 13, 12, 10];
 		const content = _.chain(teams)
 			.map(team => {
@@ -273,10 +271,13 @@ class MatchSquadList extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+MatchSquadList.propTypes = {
+	game: PropTypes.object.isRequired
+};
+
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(MatchSquadList);

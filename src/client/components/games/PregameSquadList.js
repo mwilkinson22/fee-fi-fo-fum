@@ -43,7 +43,7 @@ class PregameSquadList extends Component {
 	}
 
 	renderDueDate(singleTeam) {
-		const { fullTeams, localTeam, game } = this.props;
+		const { game } = this.props;
 
 		//Create due date - 2 days before kick off
 		const dueDate = new Date(game.date).addDays(-2);
@@ -55,7 +55,7 @@ class PregameSquadList extends Component {
 		//Create full string
 		let str;
 		if (singleTeam) {
-			const teamObject = singleTeam == localTeam ? fullTeams[localTeam] : game._opposition;
+			const teamObject = game.teams.find(t => t._id == singleTeam);
 			str = `${teamObject.name.short} squad due ${dateString}`;
 		} else {
 			str = `Squads due ${dateString}`;
@@ -69,11 +69,8 @@ class PregameSquadList extends Component {
 	}
 
 	renderSquads() {
-		const { localTeam, fullTeams, game } = this.props;
-		let teams = [fullTeams[localTeam], game._opposition];
-		if (game.isAway) {
-			teams = teams.reverse();
-		}
+		const { localTeam, game } = this.props;
+		const { teams } = game;
 		const teamsWithSquads = teams.filter(team => this.getSquadList(team._id));
 
 		if (!teamsWithSquads.length) {
@@ -165,14 +162,13 @@ class PregameSquadList extends Component {
 	}
 
 	render() {
-		const { localTeam, game } = this.props;
+		const { game } = this.props;
 		const content = [];
 
 		//Bool to affect section classname
 		let squadsFound = false;
 
-		const teams = [localTeam, game._opposition._id];
-		const teamsHavePregameSquads = _.chain(teams)
+		const teamsHavePregameSquads = _.chain(game.teams)
 			.map(_team => {
 				return { _team, hasSquad: Boolean(this.getSquadList(_team)) };
 			})
@@ -201,10 +197,9 @@ class PregameSquadList extends Component {
 	}
 }
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(PregameSquadList);

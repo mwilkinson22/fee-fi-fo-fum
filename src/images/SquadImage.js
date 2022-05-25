@@ -2,6 +2,7 @@ import _ from "lodash";
 import Canvas from "./Canvas";
 import { localTeam } from "~/config/keys";
 import mongoose from "mongoose";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 const Settings = mongoose.model("settings");
 
 export default class SquadImage extends Canvas {
@@ -113,7 +114,12 @@ export default class SquadImage extends Canvas {
 		const { game, options } = this;
 		//Get Team Badges
 		const Team = mongoose.model("teams");
-		const localTeamObject = await Team.findById(localTeam, "images").lean();
+		const localTeamObject = await Team.findById(localTeam, "images previousIdentities").lean();
+
+		//Apply previous identities
+		const gameYear = new Date(game.date).getFullYear();
+		applyPreviousIdentity(gameYear, localTeamObject);
+		applyPreviousIdentity(gameYear, game._opposition);
 
 		//First, load the 'dark' image to be shown in the sidebar
 		this.teamBadges[localTeam].dark = await this.googleToCanvas(

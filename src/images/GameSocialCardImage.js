@@ -6,6 +6,7 @@ import sharp from "sharp";
 const Team = mongoose.model("teams");
 
 import { formatDate } from "~/helpers/gameHelper";
+import { applyPreviousIdentity } from "~/helpers/teamHelper";
 
 export default class GameSocialCardImage extends Canvas {
 	constructor(game) {
@@ -55,8 +56,12 @@ export default class GameSocialCardImage extends Canvas {
 
 	async getTeamInfo() {
 		const { game } = this;
-		const teams = await Team.find({ _id: { $in: [localTeam, this.game._opposition._id] } }, "images colours");
+		const teams = await Team.find(
+			{ _id: { $in: [localTeam, this.game._opposition._id] } },
+			"images colours previousIdentities"
+		);
 		for (const team of teams) {
+			applyPreviousIdentity(new Date(game.date).getFullYear(), team);
 			team.badge = await this.googleToCanvas(`images/teams/${team.images.light || team.images.main}`);
 		}
 		const awayTeam = game.isAway ? localTeam : game._opposition._id;
@@ -72,9 +77,15 @@ export default class GameSocialCardImage extends Canvas {
 		const gameLogoWidth = badgeWidth * 0.7;
 
 		//Determine whether to show the score
-		const showScores = game.status >= 2;
+		let scores = null;
+		if (game.status >= 2) {
+			scores = game.score;
+		} else if (game.scoreOverride && game.scoreOverride.length > 1) {
+			scores = _.fromPairs(game.scoreOverride.map(({ _team, points }) => [_team, points]));
+		}
+
 		let badgeOffset, scoreOffset, badgeHeight;
-		if (showScores) {
+		if (scores != null) {
 			badgeHeight = Math.round(cHeight * 0.25);
 			badgeOffset = Math.round(cWidth * 0.2);
 			scoreOffset = Math.round(cWidth * 0.17);
@@ -104,12 +115,12 @@ export default class GameSocialCardImage extends Canvas {
 			);
 
 			//Add Score
-			if (showScores) {
+			if (scores != null) {
 				ctx.textAlign = i === 0 ? "right" : "left";
 				ctx.fillStyle = team.colours.text;
 				ctx.font = textStyles.score.string;
 				ctx.fillText(
-					game.score[team._id],
+					scores[team._id],
 					cWidth * 0.5 + (i === 0 ? 0 - scoreOffset : scoreOffset),
 					(bannerHeight - bannerTrimHeight) / 2 + bannerTop + textStyles.score.size * 0.35
 				);

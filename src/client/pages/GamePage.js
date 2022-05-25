@@ -31,7 +31,6 @@ import TeamImage from "~/client/components/teams/TeamImage";
 
 //Actions
 import { fetchGames, fetchGameFromSlug } from "../actions/gamesActions";
-import { fetchTeam } from "../actions/teamsActions";
 import { fetchPostList } from "~/client/actions/newsActions";
 
 //Helpers
@@ -142,15 +141,8 @@ class GamePage extends Component {
 
 	generateTeamBanners() {
 		const { game } = this.state;
-		const { isAway, _opposition } = game;
 		const score = game.score || game.scoreOverride;
-		const { localTeam, fullTeams } = this.props;
-		let teams = [fullTeams[localTeam], _opposition];
-		if (isAway) {
-			teams = teams.reverse();
-		}
-
-		return teams.map(team => <TeamBanner key={team._id} team={team} score={score ? score[team._id] : null} />);
+		return game.teams.map(team => <TeamBanner key={team._id} team={team} score={score ? score[team._id] : null} />);
 	}
 
 	generateEditLink() {
@@ -229,9 +221,10 @@ class GamePage extends Component {
 	}
 
 	generateManOfSteel() {
-		const { manOfSteel, _competition } = this.state.game;
+		const { game } = this.state;
+		const { manOfSteel, _competition } = game;
 		if (_competition.instance.manOfSteelPoints && manOfSteel && manOfSteel.length) {
-			return <ManOfSteelPoints game={this.state.game} />;
+			return <ManOfSteelPoints game={game} />;
 		} else {
 			return null;
 		}
@@ -278,19 +271,14 @@ class GamePage extends Component {
 	}
 
 	getPageTitle() {
-		const { fullTeams, localTeam } = this.props;
 		const { game } = this.state;
 
 		//Use helper to try and get a score string
-		let string = getScoreString(game, fullTeams[localTeam], true);
+		let string = getScoreString(game, true);
 
 		//If this fails (i.e. if there are no scores), create a simple H vs A
 		if (!string) {
-			const teams = [fullTeams[localTeam].name.long, "vs", game._opposition.name.long];
-			if (game.isAway) {
-				teams.reverse();
-			}
-			string = teams.join(" ");
+			string = game.teams.map(t => t.name.long).join(" vs ");
 		}
 
 		return `${string} - ${game.date.toString("dd/MM/yyyy")}`;
@@ -335,14 +323,14 @@ class GamePage extends Component {
 	}
 
 	generateStatsTableSection() {
-		const { localTeam, fullTeams } = this.props;
 		const { game, statTableTeam } = this.state;
+		const { teams } = game;
 
 		//Generate Team Selector Data
 		let tableSelectorOptions = [
-			{ value: localTeam, label: fullTeams[localTeam].name.short },
+			{ value: teams[0]._id, label: teams[0].name.short },
 			{ value: "both", label: "Both Teams" },
-			{ value: game._opposition._id, label: game._opposition.name.short }
+			{ value: teams[1]._id, label: teams[1].name.short }
 		];
 		if (game.isAway) {
 			tableSelectorOptions = tableSelectorOptions.reverse();
@@ -367,12 +355,7 @@ class GamePage extends Component {
 				let first;
 				const firstContent = [
 					<div className="badge-wrapper" key="image">
-						<TeamImage
-							team={_team == _opposition._id ? _opposition : fullTeams[localTeam]}
-							variant="dark"
-							size="medium"
-							key="image"
-						/>
+						<TeamImage team={teams.find(t => t._id == _team)} variant="dark" size="medium" key="image" />
 					</div>,
 					<div key="name" className="name">
 						<div>{`${number ? `${number}. ` : ""}${name.first}`}</div>
@@ -419,8 +402,7 @@ class GamePage extends Component {
 	}
 
 	generateLeagueTable() {
-		const { localTeam } = this.props;
-		const { _competition, date, status, _opposition } = this.state.game;
+		const { _competition, date, status, teams } = this.state.game;
 		if (status >= 2 && _competition.type == "League") {
 			const dayOfWeek = date.getDay();
 			let toDate;
@@ -441,7 +423,7 @@ class GamePage extends Component {
 						competition={_competition._id}
 						year={date.getFullYear()}
 						toDate={toDate}
-						highlightTeams={[localTeam, _opposition._id]}
+						highlightTeams={teams.map(t => t._id)}
 					/>
 				);
 			}
@@ -511,10 +493,9 @@ class GamePage extends Component {
 	}
 }
 
-function mapStateToProps({ games, config, teams, news }, connectedProps) {
+function mapStateToProps({ games, config, news }, connectedProps) {
 	const { fullGames, redirects, slugMap } = games;
 	const { localTeam, authUser, bucketPaths, fansCanAttend } = config;
-	const { fullTeams } = teams;
 	const { postList } = news;
 	return {
 		key: connectedProps.match.params.slug,
@@ -525,7 +506,6 @@ function mapStateToProps({ games, config, teams, news }, connectedProps) {
 		authUser,
 		bucketPaths,
 		slugMap,
-		fullTeams,
 		fansCanAttend
 	};
 }
@@ -538,7 +518,6 @@ async function loadData(store, path) {
 export default {
 	component: connect(mapStateToProps, {
 		fetchGames,
-		fetchTeam,
 		fetchPostList,
 		fetchGameFromSlug
 	})(GamePage),

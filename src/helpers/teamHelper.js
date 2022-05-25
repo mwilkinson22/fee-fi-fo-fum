@@ -1,6 +1,9 @@
 //Modules
 import _ from "lodash";
 
+//Constants
+import teamIdentityFields from "~/constants/teamIdentityFields";
+
 export const getPlayersByYearAndGender = (teamId, year, teamType) => (dispatch, getState) => {
 	//Get Squads
 	const { squads } = getState().teams.fullTeams[teamId];
@@ -51,4 +54,16 @@ export function getSquadsAsDropdown(squads, teamTypes) {
 		}))
 		.sortBy("order")
 		.value();
+}
+
+export function applyPreviousIdentity(year, team) {
+	if (team.previousIdentities) {
+		const identity = team.previousIdentities.find(({ toYear, fromYear }) => toYear >= year && fromYear <= year);
+
+		if (identity) {
+			Object.keys(teamIdentityFields).forEach(field => (team[field] = identity[field]));
+		}
+
+		delete team.previousIdentities;
+	}
 }

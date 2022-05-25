@@ -18,7 +18,7 @@ import {
 } from "../actions/types";
 
 //Helpers
-import { fixDates, getNeutralGame } from "~/helpers/gameHelper";
+import { fixLocalGames, getNeutralGame, fixDates } from "~/helpers/gameHelper";
 
 export default function (state = { gameList: {}, fullGames: {}, gameYears: {}, slugMap: {}, teamForm: {} }, action) {
 	if (!action || !action.payload) {
@@ -37,7 +37,7 @@ export default function (state = { gameList: {}, fullGames: {}, gameYears: {}, s
 				...state,
 				fullGames: {
 					...state.fullGames,
-					...fixDates(action.payload)
+					...fixLocalGames(action.payload, action.localTeam)
 				}
 			};
 
@@ -102,10 +102,10 @@ export default function (state = { gameList: {}, fullGames: {}, gameYears: {}, s
 				...state,
 				fullGames: {
 					...state.fullGames,
-					...fixDates(action.payload.fullGames)
+					...fixLocalGames(action.payload.fullGames, action.localTeam)
 				},
 				gameList: {
-					...fixDates(action.payload.gameList)
+					...fixLocalGames(action.payload.gameList, action.localTeam)
 				},
 				redirects: {
 					...action.payload.redirects

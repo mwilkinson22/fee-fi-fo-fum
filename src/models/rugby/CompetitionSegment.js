@@ -2,7 +2,9 @@ const { mongooseDebug } = require("~/middlewares/mongooseDebug");
 
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+
 const competitionTypes = require("../../constants/competitionTypes");
+import playerOfTheMatchTitles from "~/constants/playerOfTheMatchTitles";
 
 const competitionSegmentSchema = new Schema(
 	{
@@ -30,6 +32,11 @@ const competitionSegmentSchema = new Schema(
 						overwriteBaseHashtag: {
 							type: Boolean,
 							default: false
+						},
+						playerOfTheMatchTitle: {
+							type: String,
+							enum: Object.keys(playerOfTheMatchTitles),
+							default: null
 						}
 					}
 				],

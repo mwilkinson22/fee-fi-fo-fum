@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 //Components
 import TeamImage from "../teams/TeamImage";
 
-function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
+function TeamFormHeadToHead({ allCompetitions, game, localTeam }) {
 	//Get form object
 	const headToHeadGames = game.teamForm[allCompetitions ? "allCompetitions" : "singleCompetition"].headToHead;
 
@@ -15,9 +15,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 	const opposition = game._opposition;
 
 	//Get Team Objects
-	const teamObjects = {};
-	teamObjects[localTeam] = fullTeams[localTeam];
-	teamObjects[opposition._id] = opposition;
+	const teamObjects = _.keyBy(game.teams, "_id");
 
 	//Aggregate Stats
 	const results = {
@@ -61,7 +59,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 				//Use that data to update results + colours
 				if (winningTeam === localTeam) {
 					results["W"]++;
-					dateColours = fullTeams[localTeam].colours;
+					dateColours = teamObjects[localTeam].colours;
 				} else if (winningTeam === opposition._id) {
 					results["L"]++;
 					dateColours = opposition.colours;
@@ -107,7 +105,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 			<div className="games">{links}</div>
 			<div className="summary">
 				<div>
-					{fullTeams[localTeam].name.short} wins: {results.W}
+					{teamObjects[localTeam].name.short} wins: {results.W}
 				</div>
 				{drawsDiv}
 				<div>
@@ -116,7 +114,7 @@ function TeamFormHeadToHead({ allCompetitions, game, localTeam, fullTeams }) {
 			</div>
 			<div className="summary">
 				<div>
-					{fullTeams[localTeam].name.short} points: {points[localTeam]}
+					{teamObjects[localTeam].name.short} points: {points[localTeam]}
 				</div>
 				<div>
 					{opposition.name.short} points: {points[opposition._id]}
@@ -135,10 +133,9 @@ TeamFormHeadToHead.defaultProps = {
 	allCompetitions: true
 };
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(TeamFormHeadToHead);

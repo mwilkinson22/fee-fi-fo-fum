@@ -2,7 +2,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 
 //Constants
 import playerStatTypes from "~/constants/playerStatTypes";
@@ -17,17 +16,12 @@ class HeadToHeadStats extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps) {
-		const { game, localTeam, fullTeams } = nextProps;
-		const newState = { game };
-		newState.teams = [fullTeams[localTeam], game._opposition];
-		if (game.isAway) {
-			newState.teams = newState.teams.reverse();
-		}
-		return newState;
+		const { game } = nextProps;
+		return { game };
 	}
 
 	processStats(keys) {
-		const { game, teams } = this.state;
+		const { game } = this.state;
 
 		const processedStats = _.chain(game.playerStats)
 			.groupBy("_team")
@@ -46,7 +40,7 @@ class HeadToHeadStats extends Component {
 				}
 
 				//Get values
-				const values = _.chain(teams)
+				const values = _.chain(game.teams)
 					.map(({ _id }) => [_id, processedStats[_id][key]])
 					.fromPairs()
 					.value();
@@ -67,12 +61,12 @@ class HeadToHeadStats extends Component {
 
 	render() {
 		const { header, statTypes } = this.props;
-		const { teams } = this.state;
+		const { game } = this.state;
 		const stats = this.processStats(statTypes);
 
 		const rows = stats.map(({ key, values }) => {
-			const homeValue = values[teams[0]._id];
-			const awayValue = values[teams[1]._id];
+			const homeValue = values[game.teams[0]._id];
+			const awayValue = values[game.teams[1]._id];
 
 			//Determine value to highlight
 			const { moreIsBetter } = playerStatTypes[key];
@@ -93,7 +87,7 @@ class HeadToHeadStats extends Component {
 			}
 
 			//Get Colours
-			const statBarColours = _.map(teams, ({ colours }) => colours.statBarColour || colours.main);
+			const statBarColours = _.map(game.teams, ({ colours }) => colours.statBarColour || colours.main);
 
 			return [
 				<div className={`value${homeHighlight ? " highlighted" : ""}`} key="homeValue">
@@ -135,10 +129,4 @@ HeadToHeadStats.propTypes = {
 
 HeadToHeadStats.defaultProps = {};
 
-function mapStateToProps({ config, teams }) {
-	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
-}
-
-export default connect(mapStateToProps)(HeadToHeadStats);
+export default HeadToHeadStats;

@@ -40,12 +40,9 @@ class GameEvents extends Component {
 	}
 
 	renderEvents(events) {
-		const { localTeam, fullTeams } = this.props;
+		const { localTeam } = this.props;
 		const { game } = this.state;
-		let teams = [fullTeams[localTeam], game._opposition];
-		if (game.isAway) {
-			teams = teams.reverse();
-		}
+
 		const elements = [];
 
 		//Add Events
@@ -56,7 +53,7 @@ class GameEvents extends Component {
 				</div>
 			);
 			elements.push(
-				_.map(teams, team => {
+				_.map(game.teams, team => {
 					const players = stats[team._id] || [];
 					const playerElements = _.chain(players)
 						.map(({ _player, total }) => {
@@ -127,10 +124,9 @@ GameEvents.propTypes = {
 	game: PropTypes.object.isRequired
 };
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config }) {
 	const { localTeam } = config;
-	const { fullTeams } = teams;
-	return { localTeam, fullTeams };
+	return { localTeam };
 }
 
 export default connect(mapStateToProps)(GameEvents);
