@@ -45,10 +45,12 @@ function getInstance(doc) {
 
 function getSpecialRound(doc) {
 	const instance = getInstance(doc);
-	const { specialRounds } = instance;
+	if (instance) {
+		const { specialRounds } = instance;
 
-	if (specialRounds) {
-		return specialRounds.find(sr => sr.round == doc.round);
+		if (specialRounds) {
+			return specialRounds.find(sr => sr.round == doc.round);
+		}
 	}
 }
 
