@@ -118,7 +118,7 @@ class GamePage extends Component {
 			<span key="title">{game.title}</span>
 		];
 
-		if (game.hashtags && game.hashtags.length) {
+		if (game.date.getFullYear() > 2006 && game.hashtags && game.hashtags.length) {
 			fields.push(
 				<span key="hashtag" className="hashtag">
 					#{game.hashtags[0]}
