@@ -258,7 +258,7 @@ class GameList extends Component {
 
 		//Get Card Image
 		const cardImage =
-			year === 1953
+			parseInt(year) === 1953
 				? "results-1953"
 				: `${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg?t=${timeStamp}`;
 
