@@ -256,6 +256,12 @@ class GameList extends Component {
 		}
 		const pageTitle = titleArray.join(" ");
 
+		//Get Card Image
+		const cardImage =
+			year === 1953
+				? "results-1953"
+				: `${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg?t=${timeStamp}`;
+
 		//New Game Link
 		let adminLinks;
 		if (isAdmin) {
@@ -284,11 +290,7 @@ class GameList extends Component {
 
 		return (
 			<div className="game-list-page">
-				<HelmetBuilder
-					title={pageTitle}
-					canonical={`${rootUrl}/${teamType.slug}`}
-					cardImage={`${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg?t=${timeStamp}`}
-				/>
+				<HelmetBuilder title={pageTitle} canonical={`${rootUrl}/${teamType.slug}`} cardImage={cardImage} />
 				<section className="page-header no-margin">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
