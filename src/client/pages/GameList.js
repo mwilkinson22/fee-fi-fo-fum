@@ -258,9 +258,7 @@ class GameList extends Component {
 
 		//Get Card Image
 		const cardImage =
-			parseInt(year) === 1953
-				? "results-1953"
-				: `${bucketPaths.images.games}social/gamelist/${listType}-${teamType._id}.jpg?t=${timeStamp}`;
+			parseInt(year) === 1953 ? "results-1953.jpg" : `${listType}-${teamType._id}.jpg?t=${timeStamp}`;
 
 		//New Game Link
 		let adminLinks;
@@ -290,7 +288,11 @@ class GameList extends Component {
 
 		return (
 			<div className="game-list-page">
-				<HelmetBuilder title={pageTitle} canonical={`${rootUrl}/${teamType.slug}`} cardImage={cardImage} />
+				<HelmetBuilder
+					title={pageTitle}
+					canonical={`${rootUrl}/${teamType.slug}`}
+					cardImage={`${bucketPaths.images.games}social/gamelist/${cardImage}`}
+				/>
 				<section className="page-header no-margin">
 					<div className="container">
 						<h1>{this.generatePageHeader()}</h1>
