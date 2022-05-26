@@ -340,7 +340,7 @@ export async function loadData(store, path) {
 		if (listType === "fixtures") {
 			yearToSearch = "fixtures";
 		} else {
-			const yearsWithResults = Object.keys(store.getState().games.gameYears).filter(parseInt);
+			const yearsWithResults = Object.keys(store.getState().games.gameYears).filter(parseInt).map(parseInt);
 			const yearInUrl = splitPath.length > 3 ? splitPath[3] : null;
 			yearToSearch = yearsWithResults.includes(Number(yearInUrl)) ? yearInUrl : Math.max(...yearsWithResults);
 		}
