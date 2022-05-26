@@ -15,7 +15,7 @@ import SquadImage from "~/images/SquadImage";
 
 //Helper
 import { postToSocial } from "./oAuthController";
-import { getTeamSelectorValues as getValuesFromGame } from "./rugby/gamesController";
+import { getFullGameById, getTeamSelectorValues as getValuesFromGame } from "./rugby/gamesController";
 
 export async function fetchTeamSelector(_id, res, returnAsMongooseObject) {
 	if (!_id) {
@@ -245,6 +245,14 @@ export async function generateImage(req, res, selector) {
 		squadNumbers = squad ? squad.players : [];
 	}
 
+	//Try to get a game
+	let game;
+	if (selector._game) {
+		game = await getFullGameById(selector._game);
+	}
+
+	console.log(game);
+
 	const players = squad.map(playerId => {
 		//Player Data
 		const player = playerData.find(({ _id }) => _id.toString() == playerId);
@@ -259,5 +267,5 @@ export async function generateImage(req, res, selector) {
 		};
 	});
 
-	return new SquadImage(players, { selector, siteUrl: req.get("host") });
+	return new SquadImage(players, { selector, siteUrl: req.get("host"), game });
 }

@@ -85,6 +85,7 @@ export default class SquadImage extends Canvas {
 
 		//Variables
 		this.players = players;
+		console.log("OG", options.game);
 		this.game = options.game;
 		this.selector = options.selector;
 		this.options = options;
@@ -117,9 +118,11 @@ export default class SquadImage extends Canvas {
 		const localTeamObject = await Team.findById(localTeam, "images previousIdentities").lean();
 
 		//Apply previous identities
-		const gameYear = new Date(game.date).getFullYear();
-		applyPreviousIdentity(gameYear, localTeamObject);
-		applyPreviousIdentity(gameYear, game._opposition);
+		if (game) {
+			const gameYear = new Date(game.date).getFullYear();
+			applyPreviousIdentity(gameYear, localTeamObject);
+			applyPreviousIdentity(gameYear, game._opposition);
+		}
 
 		//First, load the 'dark' image to be shown in the sidebar
 		this.teamBadges[localTeam].dark = await this.googleToCanvas(
@@ -222,7 +225,7 @@ export default class SquadImage extends Canvas {
 			bannerText.push([{ text: game.title }]);
 
 			//Date/Time
-			const date = new Date(this.game.date);
+			const date = new Date(game.date);
 			bannerText.push([
 				{ text: date.toString("HH:mm "), colour: "#FC0" },
 				{ text: date.toString("dS MMMM yyyy"), colour: "#FFF" }
