@@ -80,7 +80,7 @@
 		"redux": "^4.0.5",
 		"redux-thunk": "^2.3.0",
 		"serialize-javascript": "^4.0.0",
-		"sharp": "^0.29.3",
+		"sharp": "^0.30.5",
 		"source-map-support": "^0.5.19",
 		"svg2img": "^0.9.2",
 		"twit": "^2.2.11",
