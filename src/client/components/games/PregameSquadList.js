@@ -55,7 +55,7 @@ class PregameSquadList extends Component {
 		//Create full string
 		let str;
 		if (singleTeam) {
-			const teamObject = game.teams.find(t => t._id == singleTeam);
+			const teamObject = game.teams.find(t => t._id == singleTeam._id);
 			str = `${teamObject.name.short} squad due ${dateString}`;
 		} else {
 			str = `Squads due ${dateString}`;
@@ -170,7 +170,7 @@ class PregameSquadList extends Component {
 
 		const teamsHavePregameSquads = _.chain(game.teams)
 			.map(_team => {
-				return { _team, hasSquad: Boolean(this.getSquadList(_team)) };
+				return { _team, hasSquad: Boolean(this.getSquadList(_team._id)) };
 			})
 			.groupBy("hasSquad")
 			.mapValues(o => _.map(o, "_team"))
