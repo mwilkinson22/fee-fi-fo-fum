@@ -36,14 +36,6 @@ export function fixDates(games) {
 
 export function fixLocalGames(games, localTeam) {
 	return _.mapValues(fixDates(games), game => {
-		// We've had an error on 2022-05-27, in which game was a valid object but it had no date.
-		// Can't reproduce and it really makes no sense, so I'm adding some logging in case it happens again
-		try {
-			game.date.getFullYear();
-		} catch (e) {
-			console.log({ games, game });
-			throw new Error(e);
-		}
 		const localTeamObject = { ...localTeam };
 		applyPreviousIdentity(game.date.getFullYear(), localTeamObject);
 		game.teams = [localTeamObject, game._opposition];

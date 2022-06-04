@@ -19,7 +19,13 @@ export async function getIdFromSlug(collectionName, slug) {
 	if (!result) {
 		const redirect = await SlugRedirect.findOne({ collectionName, oldSlug: slug }, "itemId").lean();
 		if (redirect) {
-			return redirect.itemId.toString();
+			const id = redirect.itemId.toString();
+
+			//We need to check the main collection to ensure the redirected item hasn't been deleted.
+			const redirectedItem = await Collection.findById(id, "_id").lean();
+			if (redirectedItem) {
+				return id;
+			}
 		}
 	}
 }
