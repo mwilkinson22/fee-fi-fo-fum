@@ -345,7 +345,7 @@ export async function crawlNewGames(req, res) {
 		};
 
 		if (segment.externalDivId) {
-			params["params[divID]"] = segment.externalDivId;
+			params["params[divisionID]"] = segment.externalDivId;
 		}
 
 		//Build URL
@@ -381,9 +381,16 @@ export async function crawlNewGames(req, res) {
 				date = dateAsArray.join(" ");
 			} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
 				//Check for teams
-				const teamTypeRegex = /(Reserves|Academy|Women|U19)/;
-				const home = row.querySelector(".left .team-name").rawText.replace(teamTypeRegex, "").trim();
-				const away = row.querySelector(".right .team-name").rawText.replace(teamTypeRegex, "").trim();
+				const teamTypeRegex = /(Reserves|Academy|Women|U19|Ladies)/;
+				const getName = className => {
+					const names = row.querySelectorAll(className);
+					if(names && names.length){
+						return names.pop().rawText.replace(teamTypeRegex, "").trim();
+					}
+				}
+
+				const home = getName(".left .team-name");
+				const away = getName(".right .team-name");
 
 				if (home && away) {
 					//Create Game Object
