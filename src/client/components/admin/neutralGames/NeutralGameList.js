@@ -93,7 +93,7 @@ class NeutralGameList extends Component {
 											);
 											break;
 										case "_competition":
-											result = competitionSegment.name;
+											result = competitionSegment.basicTitle;
 											break;
 										case "date":
 											result = {

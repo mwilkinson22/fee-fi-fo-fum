@@ -40,6 +40,7 @@ class AdminNeutralGameList extends Component {
 			isSyncingGames: false,
 			allTeams: [],
 			teamFilters: [],
+			competitionFilter: [],
 			filteredGames: []
 		};
 	}
@@ -56,7 +57,7 @@ class AdminNeutralGameList extends Component {
 			activeTeamType,
 			setActiveTeamType
 		} = nextProps;
-		const { teamFilter } = prevState;
+		const { teamFilter, competitionFilter } = prevState;
 
 		if (!competitionSegmentList || !neutralGameYears || !teamList) {
 			return {};
@@ -128,22 +129,42 @@ class AdminNeutralGameList extends Component {
 				.map(id => ({ value: id, label: teamList[id].name.long }))
 				.sortBy("label")
 				.value();
+			newState.allCompetitions = _.chain(newState.games)
+				.map(g => g._competition)
+				.uniq()
+				.map(value => ({ label: competitionSegmentList[value].basicTitle, value }))
+				.sortBy("label")
+				.value();
 			newState.teamFilter = [];
+			newState.competitionFilter = [];
 		}
 
 		//Filter Games
 		newState.filteredGames = _.filter(newState.games, game => {
-			if (!teamFilter || teamFilter.length === 0) {
-				return true;
-			}
-			const filteredTeamIds = teamFilter.map(t => t.value);
-			//If we only have one team, simply filter by whether that team is included
-			if (filteredTeamIds.length === 1) {
-				return [game._homeTeam, game._awayTeam].includes(filteredTeamIds[0]);
+			if (teamFilter && teamFilter.length) {
+				const filteredTeamIds = teamFilter.map(t => t.value);
+				if (filteredTeamIds.length === 1) {
+					//If we only have one team filter, we simply show every game they're in
+					if (![game._homeTeam, game._awayTeam].includes(filteredTeamIds[0])) {
+						return false;
+					}
+				} else {
+					//If we have more than one team filter, we ensure that both the home and away team belong to that filter
+					if (!filteredTeamIds.includes(game._homeTeam) || !filteredTeamIds.includes(game._awayTeam)) {
+						return false;
+					}
+				}
 			}
 
-			//Otherwise, loop through the teams and make sure both teams are part of the filter
-			return filteredTeamIds.includes(game._homeTeam) && filteredTeamIds.includes(game._awayTeam);
+			if (competitionFilter && competitionFilter.length) {
+				const filteredCompetitionIds = competitionFilter.map(c => c.value);
+
+				if (!filteredCompetitionIds.includes(game._competition)) {
+					return false;
+				}
+			}
+
+			return true;
 		});
 
 		return newState;
@@ -202,7 +223,17 @@ class AdminNeutralGameList extends Component {
 	}
 
 	render() {
-		const { year, filteredGames, teamTypeRedirect, isLoadingGames, isSyncing, allTeams, teamFilter } = this.state;
+		const {
+			year,
+			filteredGames,
+			teamTypeRedirect,
+			isLoadingGames,
+			isSyncing,
+			allTeams,
+			allCompetitions,
+			teamFilter,
+			competitionFilter
+		} = this.state;
 
 		if (!year || isLoadingGames) {
 			return <LoadingPage />;
@@ -268,16 +299,28 @@ class AdminNeutralGameList extends Component {
 						>
 							{isSyncing ? "Forcing" : "Force"} a sync
 						</div>
-						<h3>Filter By Team</h3>
-						<Select
-							isMulti={true}
-							isSearchable={false}
-							value={teamFilter}
-							options={allTeams}
-							onChange={teamFilter => this.setState({ teamFilter })}
-							styles={selectStyling}
-						/>
-						<br />
+						<div className="form-card">
+							<h3>Filter By Team</h3>
+							<Select
+								isMulti={true}
+								isSearchable={false}
+								value={teamFilter}
+								options={allTeams}
+								onChange={teamFilter => this.setState({ teamFilter })}
+								styles={selectStyling}
+							/>
+							<br />
+							<h3>Filter By Competition</h3>
+							<Select
+								isMulti={true}
+								isSearchable={false}
+								value={competitionFilter}
+								options={allCompetitions}
+								onChange={competitionFilter => this.setState({ competitionFilter })}
+								styles={selectStyling}
+							/>
+							<br />
+						</div>
 						{gamesToEditSection}
 						{upcomingGamesSection}
 						{pastGamesSection}
