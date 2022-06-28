@@ -1400,6 +1400,7 @@ section.match-squads {
 	color: black;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
+	grid-auto-rows: min-content; /* Fixes iOS overflow */
 	text-align: center;
 	flex-grow: 1;
 

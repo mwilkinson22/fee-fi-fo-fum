@@ -223,8 +223,12 @@
 					font-size: 1.5em;
 				}
 				.leaderboards {
+					@include visibleMobileScrollbars;
 					max-height: 70vh;
 					overflow: auto;
+					padding: 8pt;
+					background: rgba(black, 0.1);
+					border-radius: 10px;
 					.leaderboard {
 						z-index: 1;
 						flex-direction: column;

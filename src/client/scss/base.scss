@@ -163,6 +163,7 @@ h1 {
 		background: transparent;
 		border: none;
 		outline: none;
+		-webkit-appearance: menulist; /* Ensures we keep the dropdown arrow in iOS */
 		option {
 			font-size: initial;
 		}
