@@ -521,7 +521,11 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 		let results;
 		try {
 			if (webcrawlFormat == "SL") {
-				results = html.querySelectorAll(".matchreportheader .col-2 h2").map(e => Number(e.text));
+				// Look for "full time" confirmation
+				const fullTimeIndicator = html.querySelector(".matchreportheader .full-time");
+				if(fullTimeIndicator){
+					results = html.querySelectorAll(".matchreportheader .score").map(e => Number(e.text));
+				}
 			} else if (webcrawlFormat == "RFL") {
 				results = [html.querySelector(".home-score"), html.querySelector(".away-score")].map(e =>
 					parseInt(e.text)
@@ -590,7 +594,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 						continue;
 					}
 
-					const name = rowCells[1].innerHTML.trim();
+					const name = rowCells[1].innerHTML.replace(/<br[\s\/]*>/, " ").trim();
 					results[team][name] = {
 						stats: {}
 					};

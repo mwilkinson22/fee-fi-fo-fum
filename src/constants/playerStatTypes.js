@@ -152,6 +152,16 @@ module.exports = {
 		requiredForGameStar: 3,
 		isAverage: false
 	},
+	KGP: {
+		singular: "Kick In General Play",
+		plural: "Kicks In General Play",
+		storedInDatabase: true,
+		moreIsBetter: true,
+		type: "Attack",
+		scoreOnly: false,
+		requiredForGameStar: null,
+		isAverage: false
+	},
 	AT: {
 		singular: "Attacking Kick",
 		plural: "Attacking Kicks",
