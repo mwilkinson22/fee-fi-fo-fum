@@ -95,6 +95,7 @@ module.exports = {
 		minimizer: [
 			new TerserJSPlugin({
 				terserOptions: {
+					safari10: true,
 					output: {
 						comments: false
 					}
