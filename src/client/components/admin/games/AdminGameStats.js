@@ -1,6 +1,6 @@
 //Modules
 import _ from "lodash";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import * as Yup from "yup";
@@ -25,7 +25,9 @@ class AdminGameStats extends Component {
 		super(props);
 
 		//Set Stat Types
-		this.state = {};
+		this.state = {
+			incrementMode: false
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps) {
@@ -102,7 +104,7 @@ class AdminGameStats extends Component {
 
 	getFieldGroups() {
 		const { scoreOnly, teamList } = this.props;
-		const { game, teams } = this.state;
+		const { game, teams, incrementMode } = this.state;
 
 		const tables = teams.map(_team => ({
 			label: teamList[_team].name.long,
@@ -112,13 +114,14 @@ class AdminGameStats extends Component {
 		return [
 			{
 				render: (values, formik) => (
-					<AdminGameCrawler
-						key="game-crawler"
-						formikProps={formik}
-						game={game}
-						scoreOnly={scoreOnly}
-						teams={teams}
-					/>
+					<Fragment key="game-crawler-and-increment">
+						<div className="form-card">
+							<button type="button" onClick={() => this.setState({ incrementMode: !incrementMode })}>
+								{incrementMode ? "Disable" : "Enable"} Increment Mode
+							</button>
+						</div>
+						<AdminGameCrawler formikProps={formik} game={game} scoreOnly={scoreOnly} teams={teams} />
+					</Fragment>
 				)
 			},
 			...tables
@@ -126,7 +129,7 @@ class AdminGameStats extends Component {
 	}
 
 	renderTeamTable(formikProps, team) {
-		const { game, statTypes } = this.state;
+		const { game, statTypes, incrementMode } = this.state;
 
 		//Create Columns
 		const statColumns = _.chain(statTypes)
@@ -168,15 +171,40 @@ class AdminGameStats extends Component {
 
 				//Get Stat Inputs
 				const statInputs = _.mapValues(statTypes, (obj, key) => {
+					const fieldName = `${player._id}.${key}`;
+
 					//Check for an error
 					const error = errors && errors[key];
-
-					return renderInput({
-						name: `${player._id}.${key}`,
-						type: fieldTypes.number,
-						title: error || `${player.name.full} ${playerStatTypes[key].plural}`,
-						className: error ? "error" : ""
-					});
+					if (incrementMode) {
+						const value = formikProps.values[player._id][key];
+						return (
+							<div className="score-incrementer-wrapper">
+								{value}
+								<div className="score-incrementer-buttons">
+									<button
+										type="button"
+										disabled={value === 0}
+										onClick={() => formikProps.setFieldValue(fieldName, value - 1)}
+									>
+										-
+									</button>
+									<button
+										type="button"
+										onClick={() => formikProps.setFieldValue(fieldName, value + 1)}
+									>
+										+
+									</button>
+								</div>
+							</div>
+						);
+					} else {
+						return renderInput({
+							name: fieldName,
+							type: fieldTypes.number,
+							title: error || `${player.name.full} ${playerStatTypes[key].plural}`,
+							className: error ? "error" : ""
+						});
+					}
 				});
 
 				return {
