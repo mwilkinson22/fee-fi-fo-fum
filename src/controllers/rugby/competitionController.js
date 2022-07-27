@@ -27,6 +27,7 @@ import { getMainTeamType } from "~/controllers/rugby/teamsController";
 import { getGamesByAggregate } from "~/controllers/rugby/gamesController";
 import { getSegmentBasicTitle } from "~/models/rugby/CompetitionSegment";
 import { applyPreviousIdentity } from "~/helpers/teamHelper";
+import { scoreOverrideToScore } from "~/helpers/gameHelper";
 
 function getGameQuery(_competition, year = null) {
 	const query = { _competition };
@@ -384,10 +385,10 @@ export async function crawlNewGames(req, res) {
 				const teamTypeRegex = /(Reserves|Academy|Women|U19|Ladies)/;
 				const getName = className => {
 					const names = row.querySelectorAll(className);
-					if(names && names.length){
+					if (names && names.length) {
 						return names.pop().rawText.replace(teamTypeRegex, "").trim();
 					}
-				}
+				};
 
 				const home = getName(".left .team-name");
 				const away = getName(".right .team-name");
@@ -601,7 +602,6 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 	const localGameWithScoreOverrideMatch = {
 		date,
 		_competition: { $in: competitions },
-		squadsAnnounced: false,
 		"scoreOverride.1": { $exists: true }
 	};
 	//Define match param for neutral games
@@ -615,11 +615,26 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 	let [teams, localGames, localGameWithScoreOverride, neutralGames] = await Promise.all([
 		Team.find({ _id: { $in: instance.teams } }, teamSelectString).lean(),
 		getGamesByAggregate(localGameMatch),
-		Game.find(localGameWithScoreOverrideMatch, "_opposition isAway scoreOverride").lean(),
+		Game.find(localGameWithScoreOverrideMatch, "_id _opposition isAway scoreOverride").lean(),
 		NeutralGame.find(neutralGameMatch, "_homeTeam _awayTeam homePoints awayPoints").lean()
 	]);
 	teams.forEach(team => applyPreviousIdentity(year, team));
 	teams = _.keyBy(teams, "_id");
+
+	//Loop games with a scoreOverride and add them to the local game list
+	for (const game of localGameWithScoreOverride) {
+		const score = scoreOverrideToScore(game.scoreOverride);
+
+		//If we already have this game in localGames, simply update the score, since our mongodb aggregation won't
+		//have factored in the override.
+		const existingLocalGame = localGames.find(g => g._id.toString() == game._id.toString());
+		if (existingLocalGame) {
+			existingLocalGame.score = score;
+		} else {
+			game.score = score;
+			localGames.push(game);
+		}
+	}
 
 	//Standardise game array
 	//First, handle normal local games
@@ -634,25 +649,6 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 			awayPoints: g.score[_awayTeam]
 		};
 	});
-
-	//Then, add games with a scoreOverride
-	for (const game of localGameWithScoreOverride) {
-		//Ensure we don't already have this game as part of
-		//localGames. Shouldn't be possible but no harm in checking
-		if (localGames.find(g => g._id == game._id)) {
-			continue;
-		}
-		const score = _.fromPairs(game.scoreOverride.map(({ _team, points }) => [_team, points]));
-		const _opposition = Object.keys(score).find(id => id !== localTeam);
-		const _homeTeam = game.isAway ? _opposition : localTeam;
-		const _awayTeam = game.isAway ? localTeam : _opposition;
-		games.push({
-			_homeTeam,
-			_awayTeam,
-			homePoints: score[_homeTeam],
-			awayPoints: score[_awayTeam]
-		});
-	}
 
 	//Finally, add neutral games
 	games.push(

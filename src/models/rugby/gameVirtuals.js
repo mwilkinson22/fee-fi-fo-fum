@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { localTeam } from "~/config/keys";
 import playerOfTheMatchTitles from "~/constants/playerOfTheMatchTitles";
-import { calculatePoints } from "~/helpers/gameHelper";
+import { calculatePoints, scoreOverrideToScore } from "~/helpers/gameHelper";
 
 //Helper Functions
 function getInstance(doc) {
@@ -81,8 +81,13 @@ export function convertPlayerStatsToScore(playerStats, year) {
 }
 
 //Apply Virtuals
+
 export default gameSchema => {
 	gameSchema.virtual("score").get(function () {
+		if (this.scoreOverride && this.scoreOverride.length > 1) {
+			return scoreOverrideToScore(this.scoreOverride);
+		}
+
 		if (!this.squadsAnnounced || !this.playerStats || !this.playerStats.length) {
 			return undefined;
 		} else {

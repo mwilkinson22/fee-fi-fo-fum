@@ -77,15 +77,10 @@ export default class GameSocialCardImage extends Canvas {
 		const gameLogoWidth = badgeWidth * 0.7;
 
 		//Determine whether to show the score
-		let scores = null;
-		if (game.status >= 2) {
-			scores = game.score;
-		} else if (game.scoreOverride && game.scoreOverride.length > 1) {
-			scores = _.fromPairs(game.scoreOverride.map(({ _team, points }) => [_team, points]));
-		}
+		const { score } = game;
 
 		let badgeOffset, scoreOffset, badgeHeight;
-		if (scores != null) {
+		if (score != null) {
 			badgeHeight = Math.round(cHeight * 0.25);
 			badgeOffset = Math.round(cWidth * 0.2);
 			scoreOffset = Math.round(cWidth * 0.17);
@@ -115,12 +110,12 @@ export default class GameSocialCardImage extends Canvas {
 			);
 
 			//Add Score
-			if (scores != null) {
+			if (score != null) {
 				ctx.textAlign = i === 0 ? "right" : "left";
 				ctx.fillStyle = team.colours.text;
 				ctx.font = textStyles.score.string;
 				ctx.fillText(
-					scores[team._id],
+					score[team._id],
 					cWidth * 0.5 + (i === 0 ? 0 - scoreOffset : scoreOffset),
 					(bannerHeight - bannerTrimHeight) / 2 + bannerTop + textStyles.score.size * 0.35
 				);

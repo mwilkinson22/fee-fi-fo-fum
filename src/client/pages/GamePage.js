@@ -141,7 +141,7 @@ class GamePage extends Component {
 
 	generateTeamBanners() {
 		const { game } = this.state;
-		const score = game.score || game.scoreOverride;
+		const { score } = game;
 		return game.teams.map(team => <TeamBanner key={team._id} team={team} score={score ? score[team._id] : null} />);
 	}
 

@@ -28,7 +28,8 @@ import {
 	parseExternalGame,
 	convertGameToCalendarString,
 	calendarStringOptions,
-	formatDate
+	formatDate,
+	scoreOverrideToScore
 } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
@@ -111,7 +112,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
 		if (game.scoreOverride && game.scoreOverride.length) {
-			game.scoreOverride = _.chain(game.scoreOverride).keyBy("_team").mapValues("points").value();
+			game.scoreOverride = scoreOverrideToScore(game.scoreOverride);
 		}
 
 		//Convert fan_potm votes to simple count
@@ -557,7 +558,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	const localgamesNormalised = _.chain([localteamForm, headToHeadForm])
 		.flatten()
 		.uniqBy(g => g._id.toString())
-		.map(({ _id, date, isAway, _opposition, score, scoreOverride, slug, title }) => {
+		.map(({ _id, date, isAway, _opposition, score, slug, title }) => {
 			const _homeTeam = isAway ? _opposition : localTeamObject;
 			const _awayTeam = isAway ? localTeamObject : _opposition;
 			let homePoints = null;
@@ -565,17 +566,6 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 			if (score) {
 				homePoints = score[_homeTeam._id];
 				awayPoints = score[_awayTeam._id];
-			} else if (scoreOverride) {
-				const homeScoreOverride = scoreOverride.find(
-					({ _team }) => _team.toString() == _homeTeam._id.toString()
-				);
-				const awayScoreOverride = scoreOverride.find(
-					({ _team }) => _team.toString() == _awayTeam._id.toString()
-				);
-				if (homeScoreOverride && awayScoreOverride) {
-					homePoints = homeScoreOverride.points;
-					awayPoints = awayScoreOverride.points;
-				}
 			}
 			return { homePoints, awayPoints, _homeTeam, _awayTeam, date, slug, title, _id };
 		})

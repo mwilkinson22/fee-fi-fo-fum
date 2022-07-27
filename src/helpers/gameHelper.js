@@ -114,7 +114,7 @@ export function getDateString(date) {
 
 export function getScoreString(game, useLongNames = false) {
 	//Check we have a score
-	const score = game.score || game.scoreOverride;
+	const { score } = game;
 	if (score) {
 		const { _opposition, isAway } = game;
 
@@ -146,6 +146,10 @@ export function getScoreString(game, useLongNames = false) {
 
 	//Otherwise return false
 	return false;
+}
+
+export function scoreOverrideToScore(override) {
+	return _.chain(override).keyBy("_team").mapValues("points").value();
 }
 
 export function getLastGame(id, gameList, limitToSameYear = false) {
@@ -523,7 +527,7 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 			if (webcrawlFormat == "SL") {
 				// Look for "full time" confirmation
 				const fullTimeIndicator = html.querySelector(".matchreportheader .full-time");
-				if(fullTimeIndicator){
+				if (fullTimeIndicator) {
 					results = html.querySelectorAll(".matchreportheader .score").map(e => Number(e.text));
 				}
 			} else if (webcrawlFormat == "RFL") {
