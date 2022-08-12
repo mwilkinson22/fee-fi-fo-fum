@@ -269,7 +269,29 @@ class SquadSelector extends Component {
 				);
 			}
 
-			const unselectedAndNotInDropdown = unselectedPlayers.filter(p => !p.showInDropdown);
+			let unselectedAndNotInDropdown = unselectedPlayers.filter(p => !p.showInDropdown);
+
+			//Work out if there are any unselected players in this position
+			let forActivePosition = [];
+			if (activePosition) {
+				const positionKey =
+					activePosition <= 13 ? positionsByNumber[activePosition].key : interchangeFilter || "I";
+
+				forActivePosition = unselectedAndNotInDropdown
+					//Check for any players who play this position
+					.filter(({ _player }) => {
+						return _player.playingPositions && _player.playingPositions.indexOf(positionKey) > -1;
+					})
+					//Map to ID
+					.map(({ _player }) => _player._id);
+			}
+
+			//Move forActivePosition players to the top
+			//Otherwise, sort by name & number
+			unselectedAndNotInDropdown = _.sortBy(unselectedAndNotInDropdown, [
+				p => (forActivePosition.indexOf(p._player._id) > -1 ? 0 : 1),
+				p => p.number || p._player.name.full
+			]);
 
 			//Create a name filter
 			searchInput = (
@@ -315,49 +337,25 @@ class SquadSelector extends Component {
 				/>
 			);
 
-			//Work out if there are any unselected players in this position
-			let forActivePosition = [];
-			if (activePosition) {
-				const positionKey =
-					activePosition <= 13 ? positionsByNumber[activePosition].key : interchangeFilter || "I";
-
-				forActivePosition = unselectedAndNotInDropdown
-					//Check for any players who play this position
-					.filter(({ _player }) => {
-						return _player.playingPositions && _player.playingPositions.indexOf(positionKey) > -1;
-					})
-					//Map to ID
-					.map(({ _player }) => _player._id);
-			}
-
 			//Convert to cards
-			cards = _.chain(unselectedAndNotInDropdown)
-				//Move forActivePosition players to the top
-				//Otherwise, sort by name & number
-				.sortBy([
-					p => (forActivePosition.indexOf(p._player._id) > -1 ? 0 : 1),
-					p => p.number || p._player.name.full
-				])
-				.map((p, i) => {
-					const { _id } = p._player;
+			cards = unselectedAndNotInDropdown.map((p, i) => {
+				const { _id } = p._player;
+				//Only show a gap if the player is the last in
+				//the forActivePosition list
+				const withGap = forActivePosition.length > 0 && i === forActivePosition.length - 1;
 
-					//Only show a gap if the player is the last in
-					//the forActivePosition list
-					const withGap = forActivePosition.length > 0 && i === forActivePosition.length - 1;
-
-					return (
-						<SquadSelectorCard
-							isHighlighted={i === highlightedAvailablePlayerIndex}
-							includePositions={true}
-							key={_id}
-							onClick={() => this.assignPlayerToPosition(formik, _id, activePosition)}
-							player={p}
-							style={cardStyling}
-							withGap={withGap}
-						/>
-					);
-				})
-				.value();
+				return (
+					<SquadSelectorCard
+						isHighlighted={i === highlightedAvailablePlayerIndex}
+						includePositions={true}
+						key={_id}
+						onClick={() => this.assignPlayerToPosition(formik, _id, activePosition)}
+						player={p}
+						style={cardStyling}
+						withGap={withGap}
+					/>
+				);
+			});
 
 			//Create a dropdown of remaining players
 			dropdown = this.renderDropdown(unselectedPlayers);
