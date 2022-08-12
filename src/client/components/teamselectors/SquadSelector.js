@@ -93,16 +93,33 @@ class SquadSelector extends Component {
 	}
 
 	setNextActivePosition(values, hasMounted = true) {
+		let currentActivePosition = false;
+		if (hasMounted && this.state) {
+			currentActivePosition = this.state.activePosition;
+		}
+
 		let activePosition = false;
 
 		//Row Count
 		const rowCount = this.getSelectedRowCount(values);
 
-		//Get Currently Active Position
-		for (let i = 1; i <= rowCount; i++) {
-			if (!values[i]) {
-				activePosition = i;
-				break;
+		if (currentActivePosition != false) {
+			// Start a loop after the current position
+			for (let i = currentActivePosition; i <= rowCount; i++) {
+				if (!values[i]) {
+					activePosition = i;
+					break;
+				}
+			}
+		}
+
+		// If we don't find anything, go back to the start
+		if (activePosition === false) {
+			for (let i = 1; i <= rowCount; i++) {
+				if (!values[i]) {
+					activePosition = i;
+					break;
+				}
 			}
 		}
 
