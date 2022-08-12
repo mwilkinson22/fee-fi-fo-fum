@@ -50,7 +50,7 @@ class AdminTeamSquadsPage extends Component {
 	}
 
 	renderSquadSelector() {
-		const { squad, team } = this.state;
+		const { team } = this.state;
 		const { match, history, teamTypes } = this.props;
 		const { squadId } = match.params;
 
@@ -59,10 +59,8 @@ class AdminTeamSquadsPage extends Component {
 
 		//Get Default
 		let value;
-		if (squadId === "new") {
-			value = newOption;
-		} else if (squad) {
-			value = { label: `${squad.year} ${teamTypes[squad._teamType].name}`, value: squad._id };
+		if (squadId) {
+			value = _.flatMap(options, o => o.options || o).find(squad => squad.value == squadId);
 		}
 
 		return (
@@ -70,7 +68,7 @@ class AdminTeamSquadsPage extends Component {
 				<Select
 					styles={selectStyling}
 					options={options}
-					isSearchable={false}
+					isSearchable={true}
 					onChange={({ value }) => {
 						if (value !== match.params.squad) {
 							history.push(`/admin/teams/${team._id}/squads/${value}`);

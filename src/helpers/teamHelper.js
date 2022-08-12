@@ -49,7 +49,7 @@ export function getSquadsAsDropdown(squads, teamTypes) {
 			order: teamTypes[_teamType].sortOrder,
 			options: _.chain(squads)
 				.orderBy("year", "desc")
-				.map(squad => ({ label: squad.year, value: squad._id }))
+				.map(squad => ({ label: `${squad.year} ${teamTypes[_teamType].name}`, value: squad._id }))
 				.value()
 		}))
 		.sortBy("order")
