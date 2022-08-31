@@ -35,7 +35,7 @@ const competitionSegmentSchema = new Schema(
 						},
 						playerOfTheMatchTitle: {
 							type: String,
-							enum: Object.keys(playerOfTheMatchTitles),
+							enum: Object.keys(playerOfTheMatchTitles).concat([null]), // We need to do this concat to accept new null values
 							default: null
 						}
 					}
