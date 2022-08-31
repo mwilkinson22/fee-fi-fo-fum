@@ -153,6 +153,9 @@ class AdminCompetitionInstanceOverview extends Component {
 					if (!round.hashtag) {
 						round.hashtag = [];
 					}
+					if (!round.playerOfTheMatchTitle) {
+						delete round.playerOfTheMatchTitle;
+					}
 					delete round._id;
 				});
 				Object.assign(values, extraFields);
