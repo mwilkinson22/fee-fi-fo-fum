@@ -40,8 +40,13 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 		newState.validationSchema = Yup.object().shape({
 			specialRounds: Yup.array().of(
 				Yup.object().shape({
-					round: Yup.number().min("1").required().label("Round"),
-					name: Yup.string().required().label("Name"),
+					round: Yup.number()
+						.min("1")
+						.required()
+						.label("Round"),
+					name: Yup.string()
+						.required()
+						.label("Name"),
 					hashtag: Yup.string().label("Hashtags"),
 					overwriteBaseHashtag: Yup.string().label("Overwrite Base Hashtag"),
 					playerOfTheMatchTitle: Yup.string().label("Player Of The Match Title")
@@ -126,12 +131,14 @@ class AdminCompetitionInstanceSpecialRounds extends Component {
 	}
 
 	alterValuesBeforeSubmit(values) {
-		values.specialRounds.map(round => {
-			if (round.hashtag) {
-				round.hashtag = round.hashtag.split(" ");
-			}
-			return round;
-		});
+		if (values.specialRounds) {
+			values.specialRounds.map(round => {
+				if (round.hashtag) {
+					round.hashtag = round.hashtag.split(" ");
+				}
+				return round;
+			});
+		}
 	}
 
 	render() {

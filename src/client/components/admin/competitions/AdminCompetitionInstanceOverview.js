@@ -149,6 +149,9 @@ class AdminCompetitionInstanceOverview extends Component {
 			//If there's an instance to copy, we also grab the additional fields not listed in the overview
 			if (instanceToCopy) {
 				const extraFields = _.pick(instanceToCopy, ["specialRounds", "customStyling", "leagueTableColours"]);
+				if (!extraFields.specialRounds) {
+					extraFields.specialRounds = [];
+				}
 				extraFields.specialRounds.forEach(round => {
 					if (!round.hashtag) {
 						round.hashtag = [];
