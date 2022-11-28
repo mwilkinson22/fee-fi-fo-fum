@@ -1650,24 +1650,23 @@ section.match-squads {
 	.basic-or-custom-wrapper {
 		display: grid;
 		grid-gap: 10pt;
+		grid-template-columns: 1fr;
 		text-align: center;
+		font-size: 0.9em;
+
+		h6 {
+			margin: 0;
+		}
 
 		& > div {
 			cursor: pointer;
 			padding: 10pt;
 			border: 1pt solid #eee;
 			border-radius: 4pt;
+			background: #eee;
 			&:hover {
-				background: #eee;
+				background: #ddd;
 			}
-		}
-
-		@media #{$desktop-and-tablet} {
-			grid-template-columns: 1fr 1fr;
-		}
-		@media #{$mobile-only} {
-			grid-template-columns: 1fr;
-			flex-direction: column;
 		}
 	}
 
@@ -1693,6 +1692,10 @@ section.match-squads {
 				pointer-events: none;
 			}
 		}
+	}
+
+	button:disabled {
+		opacity: 0.6;
 	}
 
 	.disabled {

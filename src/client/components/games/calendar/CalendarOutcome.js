@@ -15,7 +15,15 @@ class CalendarOutcome extends Component {
 	}
 
 	renderCopyDialog() {
-		const { baseUrl, options, selectedTeamTypes, showAllTeamTypes, teamTypes, useCustomOptions } = this.props;
+		const {
+			baseUrl,
+			options,
+			selectedTeamTypes,
+			showAllTeamTypes,
+			teamTypes,
+			useCustomOptions,
+			firstTeamOnly
+		} = this.props;
 		const { enableCopyButton } = this.state;
 
 		//Convert this to a full url
@@ -33,6 +41,8 @@ class CalendarOutcome extends Component {
 			//Create query string
 			const query = _.map(queryOptions, (val, key) => `${key}=${val.toString()}`).join("&");
 			url += `?${query}`;
+		} else if (firstTeamOnly) {
+			url += "?teamTypes=first";
 		}
 
 		//Get Copy Button data
@@ -48,12 +58,12 @@ class CalendarOutcome extends Component {
 				//Copy
 				document.execCommand("copy");
 
-				//Focus on button so we don't pop up the keyboard on mobile
+				//Focus on button, so we don't pop up the keyboard on mobile
 				e.target.focus();
 
 				//Disable copy button for 1s
 				this.setState({ enableCopyButton: false });
-				setTimeout(() => this.setState({ enableCopyButton: true }), 1000);
+				setTimeout(() => this.setState({ enableCopyButton: true }), 2000);
 			};
 		} else {
 			buttonProps.children = "Copied!";
@@ -133,7 +143,8 @@ CalendarOutcome.propTypes = {
 	options: PropTypes.object,
 	selectedTeamTypes: PropTypes.arrayOf(PropTypes.string),
 	showAllTeamTypes: PropTypes.bool,
-	useCustomOptions: PropTypes.bool
+	useCustomOptions: PropTypes.bool,
+	firstTeamOnly: PropTypes.bool
 };
 
 function mapStateToProps({ config, games, teams }) {

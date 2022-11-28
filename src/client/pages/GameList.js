@@ -35,6 +35,7 @@ class GameList extends Component {
 			fullGames,
 			teamTypes,
 			match,
+			location,
 			fetchGames,
 			gameYears,
 			activeTeamType,
@@ -139,6 +140,14 @@ class GameList extends Component {
 		if (!gamesToLoad.length) {
 			newState.games = _.map(gameIds, id => fullGames[id]);
 			newState.isLoadingGames = false;
+
+			//Set calendar
+			if (newState.listType === "fixtures") {
+				if (location.search.includes("calendar") && !prevState.hasAutoLoadedCalendar) {
+					newState.hasAutoLoadedCalendar = true;
+					newState.showCalendarDialog = true;
+				}
+			}
 		} else if (prevState.isLoadingGames !== gamesToLoadString) {
 			fetchGames(gamesToLoad);
 			newState.isLoadingGames = gamesToLoadString;
@@ -233,11 +242,13 @@ class GameList extends Component {
 	}
 
 	render() {
-		const { bucketPaths, gameList, fullTeams, localTeam } = this.props;
+		const { bucketPaths, gameList, fullTeams, localTeam, location } = this.props;
 		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin, timeStamp } = this.state;
 
 		if (teamTypeRedirect) {
-			return <Redirect to={`${rootUrl}/${teamTypeRedirect}`} />;
+			console.log("TEST");
+			console.log(location);
+			return <Redirect to={`${rootUrl}/${teamTypeRedirect}${location.search}`} />;
 		}
 
 		if (!teamType || !gameList) {
@@ -344,7 +355,9 @@ export async function loadData(store, path) {
 		if (listType === "fixtures") {
 			yearToSearch = "fixtures";
 		} else {
-			const yearsWithResults = Object.keys(store.getState().games.gameYears).filter(parseInt).map(parseInt);
+			const yearsWithResults = Object.keys(store.getState().games.gameYears)
+				.filter(parseInt)
+				.map(parseInt);
 			const yearInUrl = splitPath.length > 3 ? splitPath[3] : null;
 			yearToSearch = yearsWithResults.includes(Number(yearInUrl)) ? yearInUrl : Math.max(...yearsWithResults);
 		}
