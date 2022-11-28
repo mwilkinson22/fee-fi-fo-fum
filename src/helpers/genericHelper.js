@@ -73,8 +73,24 @@ export function stringToProper(string, everyWord = false) {
 	const fixSingleWord = str => str.substr(0, 1).toUpperCase() + str.substr(1).toLowerCase();
 
 	if (everyWord) {
-		return string.split(" ").map(fixSingleWord).join(" ");
+		return string
+			.split(" ")
+			.map(fixSingleWord)
+			.join(" ");
 	} else {
 		return fixSingleWord(string);
 	}
+}
+
+export function arrayToList(originalArray) {
+	// Clone array.
+	const array = [...originalArray];
+
+	if (array.length === 1) {
+		return array[0];
+	}
+
+	const lastEntry = array.pop();
+
+	return array.join(", ") + " & " + lastEntry;
 }

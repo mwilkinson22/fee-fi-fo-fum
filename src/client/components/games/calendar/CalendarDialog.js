@@ -20,12 +20,21 @@ class CalendarDialog extends Component {
 	}
 
 	renderContentDialog() {
-		const { selectedTeamTypes, showAllTeamTypes, editTeamTypes, options, editOptions, useCustomOptions } =
-			this.state;
+		const {
+			selectedTeamTypes,
+			showAllTeamTypes,
+			editTeamTypes,
+			options,
+			editOptions,
+			useCustomOptions,
+			firstTeamOnly
+		} = this.state;
 
 		if (useCustomOptions === null) {
 			return (
-				<CalendarSimpleOrAdvancedSelector onNext={useCustomOptions => this.setState({ useCustomOptions })} />
+				<CalendarSimpleOrAdvancedSelector
+					onNext={(useCustomOptions, firstTeamOnly) => this.setState({ useCustomOptions, firstTeamOnly })}
+				/>
 			);
 		}
 
@@ -65,7 +74,8 @@ class CalendarDialog extends Component {
 		const calendarOutcomeProps = {
 			selectedTeamTypes,
 			showAllTeamTypes,
-			useCustomOptions
+			useCustomOptions,
+			firstTeamOnly
 		};
 		if (useCustomOptions) {
 			calendarOutcomeProps.options = options;
