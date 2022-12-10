@@ -45,7 +45,7 @@
 		"detect-browser": "^4.8.0",
 		"draft-js": "^0.11.7",
 		"es6-promise": "^4.2.8",
-		"express": "^4.17.1",
+		"express": "^4.17.3",
 		"express-useragent": "^1.0.15",
 		"formik": "^2.2.0",
 		"google-maps-react": "^2.0.6",
