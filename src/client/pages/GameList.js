@@ -246,8 +246,6 @@ class GameList extends Component {
 		const { listType, games, year, teamType, teamTypeRedirect, rootUrl, isAdmin, timeStamp } = this.state;
 
 		if (teamTypeRedirect) {
-			console.log("TEST");
-			console.log(location);
 			return <Redirect to={`${rootUrl}/${teamTypeRedirect}${location.search}`} />;
 		}
 

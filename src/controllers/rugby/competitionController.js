@@ -322,8 +322,13 @@ export async function crawlNewGames(req, res) {
 		}
 
 		const { webcrawlFormat } = segment._parentCompetition;
-		const { webcrawlUrl, webcrawlFixturesPage, webcrawlReportsPage, webcrawlTemplate } =
-			webcrawlData[webcrawlFormat];
+		const {
+			webcrawlUrl,
+			webcrawlFixturesPage,
+			webcrawlReportPage,
+			webcrawlTemplate,
+			pageClassNames
+		} = webcrawlData[webcrawlFormat];
 
 		//Add params
 		const params = {
@@ -339,7 +344,7 @@ export async function crawlNewGames(req, res) {
 			"params[load-more-button]": "yes",
 			"params[type]": "loadmore",
 			"params[preview_link]": "/match-centre/preview",
-			"params[report_link]": webcrawlReportsPage,
+			"params[report_link]": webcrawlReportPage,
 			"params[displayType]": getResults ? "results" : "fixtures",
 			"params[template]": webcrawlTemplate,
 			"params[startRow]": 0
@@ -380,18 +385,19 @@ export async function crawlNewGames(req, res) {
 
 				//Create day string
 				date = dateAsArray.join(" ");
-			} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
+			} else if (row.tagName === "DIV" && row.classNames.includes(pageClassNames.gameWrapper)) {
+				console.log("GAME");
 				//Check for teams
 				const teamTypeRegex = /(Reserves|Academy|Women|U19|Ladies)/;
-				const getName = className => {
+				const getTeamName = className => {
 					const names = row.querySelectorAll(className);
 					if (names && names.length) {
 						return names.pop().rawText.replace(teamTypeRegex, "").trim();
 					}
 				};
 
-				const home = getName(".left .team-name");
-				const away = getName(".right .team-name");
+				const home = getTeamName(pageClassNames.homeTeamName);
+				const away = getTeamName(pageClassNames.awayTeamName);
 
 				if (home && away) {
 					//Create Game Object
@@ -406,12 +412,20 @@ export async function crawlNewGames(req, res) {
 						const isWeekend = dayOfWeek === 0 || dayOfWeek === 1;
 						time = isWeekend ? "15:00" : "20:00";
 					} else {
-						time = row
-							.querySelector(".fixture-wrap .middle")
-							.rawText.trim()
-							//Split by "UK: " and pop to get the local time for intl games
-							.split("UK: ")
-							.pop();
+						const timeStr = row.querySelector(pageClassNames.time).rawText.trim();
+						if (webcrawlFormat === "SL") {
+							time = timeStr.replace("UK", "").trim();
+						} else {
+							time = timeStr
+								//Split by "UK: " and pop to get the local time for intl games
+								.split("UK: ")
+								.pop();
+						}
+
+						if (time.includes("P")) {
+							//Postponed
+							return;
+						}
 					}
 
 					game.date = new Date(`${date} ${time}:00`);
@@ -420,13 +434,13 @@ export async function crawlNewGames(req, res) {
 					game.externalId = row.querySelector("a").attributes.href.replace(/\D/g, "");
 
 					//Get Round
-					const roundString = row.querySelector(".fixture-footer").rawText.match(/Round: \d+/);
+					const roundString = row.querySelector(pageClassNames.round).rawText.match(/Round: \d+/);
 					if (roundString) {
 						game.round = roundString[0].replace(/\D/g, "");
 					}
 
 					//Look for broadcasters
-					game.broadcasters = row.querySelectorAll(".fixture-footer img").map(e => e.attributes.src);
+					game.broadcasters = row.querySelectorAll(pageClassNames.broadcasters).map(e => e.attributes.src);
 
 					//Add game to array
 					games.push(game);
