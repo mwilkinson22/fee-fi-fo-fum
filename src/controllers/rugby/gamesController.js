@@ -1691,6 +1691,30 @@ export async function submitPostGameEvents(req, res) {
 
 //Calendar
 export async function getCalendar(req, res) {
+	try {
+		const NetworkRequest = mongoose.model("networkRequests");
+		const networkRequestData = JSON.stringify(
+			_.pick(req, [
+				"useragent",
+				"body",
+				"params",
+				"query",
+				"originalUrl",
+				"_parsedUrl",
+				"statusCode",
+				"statusMessage",
+				"method",
+				"url",
+				"headers",
+				"rawHeaders"
+			])
+		);
+		const networkRequestToLog = new NetworkRequest({ page: "CalendarUrl", data: networkRequestData });
+		await networkRequestToLog.save();
+	} catch (e) {
+		console.log(e);
+	}
+
 	const query = {
 		date: { $gt: new Date("2020-01-01") },
 		hideGame: { $in: [false, null] }
