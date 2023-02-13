@@ -73,7 +73,8 @@ const competitionSegmentSchema = new Schema(
 					}
 				],
 				totalRounds: { type: Number, default: null },
-				usesWinPc: { type: Boolean, default: false }
+				usesWinPc: { type: Boolean, default: false },
+				usesExtraInterchange: { type: Boolean, default: false }
 			}
 		],
 		externalCompId: { type: Number, default: null },
@@ -103,7 +104,7 @@ export function getSegmentBasicTitle(doc) {
 	}
 }
 
-competitionSegmentSchema.virtual("basicTitle").get(function () {
+competitionSegmentSchema.virtual("basicTitle").get(function() {
 	return getSegmentBasicTitle(this);
 });
 

@@ -109,6 +109,7 @@ export async function getTeamSelectorForGame(req, res) {
 	const selector = await TeamSelector.findOne({ _game }, "_id").lean();
 	if (selector) {
 		req.params._id = selector._id;
+		await updateGameSelector(_game);
 	} else {
 		//Fill with dummy data, as this will be dynamically populated by the API
 		const values = {
@@ -145,7 +146,7 @@ export async function updateGameSelector(_game) {
 
 	if (selector) {
 		const values = await getValuesFromGame(_game);
-		await TeamSelector.update({ _game }, values);
+		await TeamSelector.updateOne({ _game }, values);
 	}
 }
 
@@ -250,8 +251,6 @@ export async function generateImage(req, res, selector) {
 	if (selector._game) {
 		game = await getFullGameById(selector._game);
 	}
-
-	console.log(game);
 
 	const players = squad.map(playerId => {
 		//Player Data

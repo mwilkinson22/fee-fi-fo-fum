@@ -89,6 +89,7 @@ class AdminGameSquads extends Component {
 				<SquadSelector
 					currentSquad={this.getCurrentSquad(team)}
 					maxInterchanges={game._competition._parentCompetition.interchangeLimit}
+					usesExtraInterchange={game._competition.instance.usesExtraInterchange}
 					onSubmit={values => this.handleSubmit(team, values)}
 					players={this.getAllPlayers(team)}
 					requireFullTeam={false}

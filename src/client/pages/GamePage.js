@@ -35,8 +35,8 @@ import { fetchPostList } from "~/client/actions/newsActions";
 
 //Helpers
 import { calculateAdditionalStats } from "~/helpers/statsHelper";
-import { scrollToElement } from "~/helpers/genericHelper";
-import { formatDate, getScoreString } from "~/helpers/gameHelper";
+import { getOrdinalNumber, scrollToElement } from "~/helpers/genericHelper";
+import { isUnusedExtraInterchange, formatDate, getScoreString } from "~/helpers/gameHelper";
 
 class GamePage extends Component {
 	constructor(props) {
@@ -346,26 +346,35 @@ class GamePage extends Component {
 		const rowData = _.chain(filteredGame.playerStats)
 			.map(p => ({ ...p, isAway: p._team == _opposition._id ? !isAway : isAway }))
 			.orderBy(["isAway", "position"], ["asc", "asc"])
+			.filter(p => !isUnusedExtraInterchange(p))
 			.map((p, sortValue) => {
-				const { _player, _team, stats } = p;
+				const { _player, _team, stats, isExtraInterchange, position } = p;
 				const player = eligiblePlayers[_team].find(p => p._id == _player);
 
 				const { number, name, slug } = player;
 
-				let first;
+				let nameFirstRow = `${number ? `${number}. ` : ""}${name.first}`;
+				let nameSecondRow;
+				if (isExtraInterchange) {
+					nameFirstRow += ` ${name.last}`;
+					nameSecondRow = `(${getOrdinalNumber(position)} ${game.gender == "M" ? "Man" : "Woman"})`;
+				} else {
+					nameSecondRow = name.last;
+				}
 				const firstContent = [
 					<div className="badge-wrapper" key="image">
 						<TeamImage team={teams.find(t => t._id == _team)} variant="dark" size="medium" key="image" />
 					</div>,
 					<div key="name" className="name">
-						<div>{`${number ? `${number}. ` : ""}${name.first}`}</div>
-						<div>{name.last}</div>
+						<div>{nameFirstRow}</div>
+						<div>{nameSecondRow}</div>
 					</div>
 				];
 
+				let first;
 				if (_team == _opposition._id) {
 					first = {
-						content: <span>{firstContent}</span>,
+						content: <div>{firstContent}</div>,
 						sortValue
 					};
 				} else {
@@ -408,10 +417,15 @@ class GamePage extends Component {
 			let toDate;
 			if (dayOfWeek == 1) {
 				//If it's a Monday, advance to tuesday
-				toDate = _.clone(date).next().tuesday();
+				toDate = _.clone(date)
+					.next()
+					.tuesday();
 			} else {
 				//Otherwise get midnight the next monday
-				toDate = _.clone(date).next().monday().at("00:00:00");
+				toDate = _.clone(date)
+					.next()
+					.monday()
+					.at("00:00:00");
 			}
 
 			let content;

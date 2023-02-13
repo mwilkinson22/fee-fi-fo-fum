@@ -20,8 +20,11 @@ export function calculateAdditionalStats(stats, year) {
 	if (TK + MI > 0) stats.TS = Number(((TK / (TK + MI)) * 100).toFixed(2));
 
 	//Goals
-	const G = PK + CN;
-	stats.G = G;
+	let G = null;
+	if (PK != null || CN != null) {
+		G = PK + CN;
+		stats.G = G;
+	}
 
 	//Kicking Success
 	if (G + MG > 0) stats.KS = Number(((G / (G + MG)) * 100).toFixed(2));

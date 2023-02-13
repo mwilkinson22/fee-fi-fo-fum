@@ -7,7 +7,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: 2,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	},
 	TA: {
 		singular: "Assist",
@@ -17,7 +18,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: false,
 		requiredForGameStar: 2,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	CN: {
 		singular: "Conversion",
@@ -27,7 +29,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	},
 	PK: {
 		singular: "Penalty Goal",
@@ -37,7 +40,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	},
 	DG: {
 		singular: "Drop Goal",
@@ -47,7 +51,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	},
 	MG: {
 		singular: "Missed Goal",
@@ -57,7 +62,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	},
 	G: {
 		singular: "Goal",
@@ -67,7 +73,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	KS: {
 		singular: "Kicking Success",
@@ -78,7 +85,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: false,
 		requiredForGameStar: 100,
-		isAverage: true
+		isAverage: true,
+		defaultsToZero: false
 	},
 	PT: {
 		singular: "Point",
@@ -88,7 +96,8 @@ module.exports = {
 		type: "Scoring",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	M: {
 		singular: "Metre",
@@ -99,7 +108,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 100,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	C: {
 		singular: "Carry",
@@ -109,7 +119,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 15,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	AG: {
 		singular: "Average Gain",
@@ -120,7 +131,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 10,
-		isAverage: true
+		isAverage: true,
+		defaultsToZero: false
 	},
 	TB: {
 		singular: "Tackle Bust",
@@ -130,7 +142,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 4,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	CB: {
 		singular: "Clean Break",
@@ -140,7 +153,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 2,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	OF: {
 		singular: "Offload",
@@ -150,7 +164,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 3,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	KGP: {
 		singular: "Kick In General Play",
@@ -160,7 +175,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	AT: {
 		singular: "Attacking Kick",
@@ -170,7 +186,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	DR: {
 		singular: "Dummy Run",
@@ -180,7 +197,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 10,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	FT: {
 		singular: "40/20",
@@ -190,7 +208,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 1,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	TF: {
 		singular: "20/40",
@@ -200,7 +219,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: 1,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	E: {
 		singular: "Error",
@@ -210,7 +230,8 @@ module.exports = {
 		type: "Attack",
 		scoreOnly: false,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	TK: {
 		singular: "Tackle",
@@ -220,7 +241,8 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: false,
 		requiredForGameStar: 30,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	MT: {
 		singular: "Marker Tackle",
@@ -230,7 +252,8 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: false,
 		requiredForGameStar: 10,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	MI: {
 		singular: "Missed Tackle",
@@ -240,7 +263,8 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: false,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	TS: {
 		singular: "Tackle Success",
@@ -251,7 +275,8 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: false,
 		requiredForGameStar: 96.5,
-		isAverage: true
+		isAverage: true,
+		defaultsToZero: false
 	},
 	P: {
 		singular: "Penalty",
@@ -261,7 +286,8 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: false,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: false
 	},
 	YC: {
 		singular: "Yellow Card",
@@ -271,7 +297,8 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	},
 	RC: {
 		singular: "Red Card",
@@ -281,6 +308,7 @@ module.exports = {
 		type: "Defence",
 		scoreOnly: true,
 		requiredForGameStar: null,
-		isAverage: false
+		isAverage: false,
+		defaultsToZero: true
 	}
 };

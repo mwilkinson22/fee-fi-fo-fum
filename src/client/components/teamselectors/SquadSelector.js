@@ -12,6 +12,7 @@ import PopUpDialog from "../PopUpDialog";
 //Constants
 import playerPositions from "~/constants/playerPositions";
 import selectStyling from "~/constants/selectStyling";
+import { getOrdinalNumber } from "~/helpers/genericHelper";
 
 class SquadSelector extends Component {
 	constructor(props) {
@@ -48,6 +49,10 @@ class SquadSelector extends Component {
 		//Determine which positions need to be followed by a gap in the list
 		const followWithAGap = [1, 5, 7, 10, 13];
 
+		if (props.maxInterchanges && props.usesExtraInterchange) {
+			followWithAGap.push(13 + props.maxInterchanges);
+		}
+
 		this.state = {
 			activePosition,
 			cardStyling,
@@ -60,7 +65,7 @@ class SquadSelector extends Component {
 	}
 
 	getSelectedRowCount(values) {
-		const { maxInterchanges } = this.props;
+		const { maxInterchanges, usesExtraInterchange } = this.props;
 
 		//We work out how many rows to render
 		//by picking the highest of a series of values
@@ -69,7 +74,11 @@ class SquadSelector extends Component {
 		//Sets a defined limit based on maxInterchanges
 		if (maxInterchanges != null) {
 			//If maxInterchanges is defined, then we simply add that + 13
-			potentialRowCount.push(maxInterchanges + 13);
+			let numToAdd = maxInterchanges + 13;
+			if (usesExtraInterchange) {
+				numToAdd++;
+			}
+			potentialRowCount.push(numToAdd);
 		} else {
 			//When we have unlimited interchanges, we show at least 17
 			potentialRowCount.push(17);
@@ -89,7 +98,11 @@ class SquadSelector extends Component {
 		potentialRowCount.push(highestCurrentPosition);
 
 		//Return the biggest value
-		return _.chain(potentialRowCount).map(Number).filter(_.identity).max().value();
+		return _.chain(potentialRowCount)
+			.map(Number)
+			.filter(_.identity)
+			.max()
+			.value();
 	}
 
 	setNextActivePosition(values, hasMounted = true) {
@@ -174,7 +187,11 @@ class SquadSelector extends Component {
 		const cards = [];
 		for (let i = 1; i <= rowCount; i++) {
 			//Get position string. If it's not listed, it's an interchange
-			const positionString = positionsByNumber[i] ? positionsByNumber[i].key : "I";
+			let positionString = positionsByNumber[i] ? positionsByNumber[i].key : "I";
+
+			if (this.numberIsExtraInterchange(i)) {
+				positionString += "+";
+			}
 
 			//Get the player object
 			const currentPlayerId = values[i];
@@ -385,6 +402,9 @@ class SquadSelector extends Component {
 				let activePositionString = positionsByNumber[activePosition]
 					? positionsByNumber[activePosition].name
 					: "Interchange";
+				if (this.numberIsExtraInterchange(activePosition)) {
+					activePositionString = `Extra Interchange (${getOrdinalNumber(activePosition)} Player)`;
+				}
 				//Conditionally add left/right
 				if ([2, 3, 8, 11].includes(activePosition)) {
 					activePositionString = "Right " + activePositionString;
@@ -436,6 +456,11 @@ class SquadSelector extends Component {
 		);
 	}
 
+	numberIsExtraInterchange(num) {
+		const { maxInterchanges, usesExtraInterchange } = this.props;
+		return maxInterchanges && usesExtraInterchange && num === 13 + maxInterchanges + 1;
+	}
+
 	renderDropdown(unselectedPlayers) {
 		const { players } = this.state;
 		const dropdownPlayers = _.chain(unselectedPlayers)
@@ -469,11 +494,14 @@ class SquadSelector extends Component {
 	}
 
 	validate(values) {
-		const { maxInterchanges, requireFullTeam } = this.props;
+		const { maxInterchanges, requireFullTeam, usesExtraInterchange } = this.props;
 		let errors = {};
 
 		if (requireFullTeam) {
-			const requiredPlayerCount = 13 + maxInterchanges;
+			let requiredPlayerCount = 13 + maxInterchanges;
+			if (maxInterchanges && usesExtraInterchange) {
+				requiredPlayerCount++;
+			}
 			for (let i = 1; i <= requiredPlayerCount; i++) {
 				if (!values[i]) {
 					errors[i] = `Position #${i} is required`;
@@ -584,14 +612,16 @@ SquadSelector.propTypes = {
 	readOnly: PropTypes.bool,
 	requireFullTeam: PropTypes.bool,
 	submitText: PropTypes.string,
-	team: PropTypes.object.isRequired
+	team: PropTypes.object.isRequired,
+	usesExtraInterchange: PropTypes.bool
 };
 
 SquadSelector.defaultProps = {
 	customValidation: false,
 	maxInterchanges: 4,
 	readOnly: false,
-	submitText: "Update Squad"
+	submitText: "Update Squad",
+	usesExtraInterchange: false
 };
 
 export default SquadSelector;

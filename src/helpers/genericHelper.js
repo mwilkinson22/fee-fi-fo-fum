@@ -94,3 +94,27 @@ export function arrayToList(originalArray) {
 
 	return array.join(", ") + " & " + lastEntry;
 }
+
+export function getOrdinalNumber(num) {
+	const numberAsString = num.toString();
+
+	// 11, 12 and 13 use th.
+	const isTens = numberAsString.length > 1 && numberAsString[numberAsString.length - 2] === "1";
+
+	let suffix = "th";
+	if (!isTens) {
+		switch (numberAsString[numberAsString.length - 1]) {
+			case "1":
+				suffix = "st";
+				break;
+			case "2":
+				suffix = "nd";
+				break;
+			case "3":
+				suffix = "rd";
+				break;
+		}
+	}
+
+	return num.toLocaleString() + suffix;
+}

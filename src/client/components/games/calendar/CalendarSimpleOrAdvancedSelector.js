@@ -6,7 +6,6 @@ import { connect } from "react-redux";
 import { arrayToList } from "~/helpers/genericHelper";
 
 function CalendarSimpleOrAdvancedSelector({ localTeam, fullTeams, onNext, teamTypes }) {
-	console.log(teamTypes);
 	return (
 		<div>
 			<p>

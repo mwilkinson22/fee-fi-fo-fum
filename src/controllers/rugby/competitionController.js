@@ -386,13 +386,15 @@ export async function crawlNewGames(req, res) {
 				//Create day string
 				date = dateAsArray.join(" ");
 			} else if (row.tagName === "DIV" && row.classNames.includes(pageClassNames.gameWrapper)) {
-				console.log("GAME");
 				//Check for teams
 				const teamTypeRegex = /(Reserves|Academy|Women|U19|Ladies)/;
 				const getTeamName = className => {
 					const names = row.querySelectorAll(className);
 					if (names && names.length) {
-						return names.pop().rawText.replace(teamTypeRegex, "").trim();
+						return names
+							.pop()
+							.rawText.replace(teamTypeRegex, "")
+							.trim();
 					}
 				};
 

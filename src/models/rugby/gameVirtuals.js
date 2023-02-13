@@ -27,7 +27,8 @@ function getInstance(doc) {
 		"usesPregameSquads",
 		"sharedSquads",
 		"totalRounds",
-		"leagueTableColours"
+		"leagueTableColours",
+		"usesExtraInterchange"
 	]);
 
 	//Custom Title
@@ -83,7 +84,7 @@ export function convertPlayerStatsToScore(playerStats, year) {
 //Apply Virtuals
 
 export default gameSchema => {
-	gameSchema.virtual("score").get(function () {
+	gameSchema.virtual("score").get(function() {
 		if (this.scoreOverride && this.scoreOverride.length > 1) {
 			return scoreOverrideToScore(this.scoreOverride);
 		}
@@ -95,15 +96,15 @@ export default gameSchema => {
 		}
 	});
 
-	gameSchema.virtual("hashtags").get(function () {
+	gameSchema.virtual("hashtags").get(function() {
 		return getHashtags(this);
 	});
 
-	gameSchema.virtual("_competition.instance").get(function () {
+	gameSchema.virtual("_competition.instance").get(function() {
 		return getInstance(this);
 	});
 
-	gameSchema.virtual("images.logo").get(function () {
+	gameSchema.virtual("images.logo").get(function() {
 		const { images } = this;
 		if (!images) {
 			return null;
@@ -121,7 +122,7 @@ export default gameSchema => {
 		return null;
 	});
 
-	gameSchema.virtual("title").get(function () {
+	gameSchema.virtual("title").get(function() {
 		const { round, customTitle } = this;
 		if (customTitle) {
 			return customTitle;
@@ -145,7 +146,7 @@ export default gameSchema => {
 		}
 	});
 
-	gameSchema.virtual("status").get(function () {
+	gameSchema.virtual("status").get(function() {
 		const { pregameSquads, playerStats, squadsAnnounced, scoreOnly } = this;
 		const instance = getInstance(this);
 		if (instance) {
@@ -169,7 +170,7 @@ export default gameSchema => {
 	});
 
 	//Get Shared Squads
-	gameSchema.virtual("sharedSquads").get(function () {
+	gameSchema.virtual("sharedSquads").get(function() {
 		const { _opposition } = this;
 		const instance = getInstance(this);
 		if (instance && instance.sharedSquads) {
@@ -182,7 +183,7 @@ export default gameSchema => {
 	});
 
 	//Get winner of player of the match
-	gameSchema.virtual("fan_potm_winners").get(function () {
+	gameSchema.virtual("fan_potm_winners").get(function() {
 		const { fan_potm } = this;
 
 		if (fan_potm && fan_potm.deadline && fan_potm.votes.length) {
@@ -195,7 +196,10 @@ export default gameSchema => {
 					.map((votes, player) => ({ player, voteCount: votes.length }))
 					.value();
 
-				const maxVotes = _.chain(votes).map("voteCount").max().value();
+				const maxVotes = _.chain(votes)
+					.map("voteCount")
+					.max()
+					.value();
 
 				return votes.filter(({ voteCount }) => voteCount === maxVotes).map(p => p.player);
 			}
@@ -203,7 +207,7 @@ export default gameSchema => {
 	});
 
 	//Check if the game is set to midnight, i.e. an unknown time
-	gameSchema.virtual("hasTime").get(function () {
+	gameSchema.virtual("hasTime").get(function() {
 		if (!this.date) {
 			return false;
 		} else {
@@ -212,7 +216,7 @@ export default gameSchema => {
 	});
 
 	//Pulls the custom player of the match title
-	gameSchema.virtual("customPotmTitle").get(function () {
+	gameSchema.virtual("customPotmTitle").get(function() {
 		const specialRound = getSpecialRound(this);
 
 		if (specialRound && specialRound.playerOfTheMatchTitle) {

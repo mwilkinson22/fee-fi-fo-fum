@@ -277,7 +277,14 @@ class PersonPage extends Component {
 		}
 
 		const playedGames = person.playedGames
-			.filter(g => !g.pregameOnly && g.forLocalTeam && g.squadsAnnounced && new Date(g.date) < new Date())
+			.filter(
+				g =>
+					!g.pregameOnly &&
+					g.forLocalTeam &&
+					!g.isUnusedExtraInterchange &&
+					g.squadsAnnounced &&
+					new Date(g.date) < new Date()
+			)
 			.map(g => g._id);
 
 		if (playedGames.length) {

@@ -29,7 +29,8 @@ import {
 	convertGameToCalendarString,
 	calendarStringOptions,
 	formatDate,
-	scoreOverrideToScore
+	scoreOverrideToScore,
+	getDefaultPlayerStatsObject
 } from "~/helpers/gameHelper";
 import { uploadBase64ImageToGoogle } from "~/helpers/fileHelper";
 
@@ -117,7 +118,10 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 
 		//Convert fan_potm votes to simple count
 		if (game.fan_potm && game.fan_potm.votes && game.fan_potm.votes.length) {
-			game.fan_potm.votes = _.chain(game.fan_potm.votes).groupBy("choice").mapValues("length").value();
+			game.fan_potm.votes = _.chain(game.fan_potm.votes)
+				.groupBy("choice")
+				.mapValues("length")
+				.value();
 		}
 
 		return game;
@@ -189,7 +193,9 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		asyncCalls.unshift(allCompetitionQuery, singleCompetitionQuery);
 
 		//Get news posts
-		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id").sort({ date: 1 }).lean();
+		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id")
+			.sort({ date: 1 })
+			.lean();
 		asyncCalls.unshift(newsPostQuery);
 
 		//Ensure all async calls are run
@@ -652,7 +658,9 @@ async function processList(userIsAdmin, query = {}) {
 	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };
 	}
-	const games = await Game.find(query).forList().lean();
+	const games = await Game.find(query)
+		.forList()
+		.lean();
 
 	return _.keyBy(games, "_id");
 }
@@ -1053,10 +1061,22 @@ export async function markSquadsAsAnnounced(req, res) {
 
 export async function setSquads(req, res) {
 	const { _id } = req.params;
-	const game = await validateGame(_id, res);
+	const game = await validateGame(_id, res, getFullGameById(_id, true, false));
+
 	if (game) {
 		const { team, squad } = req.body;
-		const PlayerStatsCollection = require("../../models/rugby/PlayerStatsCollection");
+
+		//We need to know the identity of the "Extra" interchange, if we have one, to prevent us adding default stats.
+		//This object needs to be separate to the normal game object, as otherwise s._player becomes a string and it breaks our
+		//the mongoose query
+		const [gameExtras] = await getExtraGameInfo([game], true, false);
+
+		const { interchangeLimit } = gameExtras._competition._parentCompetition;
+		const { usesExtraInterchange } = gameExtras._competition.instance;
+		let extraInterchangePosition;
+		if (interchangeLimit && usesExtraInterchange) {
+			extraInterchangePosition = 13 + interchangeLimit + 1;
+		}
 
 		//Rather than simply apply the values
 		//We loop through and update the position, where possible
@@ -1084,7 +1104,8 @@ export async function setSquads(req, res) {
 							filter: { _id },
 							update: {
 								$set: {
-									"playerStats.$[elem].position": position
+									"playerStats.$[elem].position": position,
+									"playerStats.$[elem].isExtraInterchange": position == extraInterchangePosition
 								}
 							},
 							arrayFilters: [{ "elem._player": { $eq: s._player } }]
@@ -1100,6 +1121,7 @@ export async function setSquads(req, res) {
 			.map((_player, position) => ({ _player, position }))
 			.reject(({ _player }) => !_player || _.find(game.playerStats, s => s._player == _player))
 			.each(({ _player, position }) => {
+				const isExtraInterchange = position == extraInterchangePosition;
 				bulkOperation.push({
 					updateOne: {
 						filter: { _id },
@@ -1108,8 +1130,9 @@ export async function setSquads(req, res) {
 								playerStats: {
 									_player,
 									_team: team,
-									position: position,
-									stats: PlayerStatsCollection
+									position,
+									stats: getDefaultPlayerStatsObject(isExtraInterchange),
+									isExtraInterchange
 								}
 							}
 						}
@@ -1576,7 +1599,10 @@ async function generatePostGameEventImage(game, data, res) {
 				const date = new Date(game.date);
 				const options = {
 					fromDate: `${date.getFullYear()}-01-01`,
-					toDate: date.next().tuesday().toString("yyyy-MM-dd")
+					toDate: date
+						.next()
+						.tuesday()
+						.toString("yyyy-MM-dd")
 				};
 				return new LeagueTable(
 					game._competition._id,
@@ -1915,6 +1941,7 @@ export async function getTeamSelectorValues(_id, res) {
 	//Create a basic values object
 	const values = {
 		interchanges: 4,
+		extraInterchange: game._competition.instance.usesExtraInterchange,
 		slug: game.slug,
 		defaultSocialText: `Check out my Starting 17 for #${game.hashtags[0]}!\n\nvia {site_social}\n{url}`,
 		numberFromTeam: localTeam

@@ -11,10 +11,11 @@ import { Link } from "react-router-dom";
 import PersonImage from "~/client/components/people/PersonImage";
 
 //Helpers
-import { getGameStarStats } from "~/helpers/gameHelper";
+import { getGameStarStats, isUnusedExtraInterchange } from "~/helpers/gameHelper";
 
 //Constants
 import coachTypes from "~/constants/coachTypes";
+import { getOrdinalNumber } from "~/helpers/genericHelper";
 
 class MatchSquadList extends Component {
 	constructor(props) {
@@ -32,6 +33,7 @@ class MatchSquadList extends Component {
 		const { game } = this.state;
 		const { teams } = game;
 		const newRowPositions = [1, 5, 7, 13, 12, 10];
+
 		const content = _.chain(teams)
 			.map(team => {
 				//Get Team Squad Object
@@ -39,6 +41,12 @@ class MatchSquadList extends Component {
 					.filter(({ _team }) => _team == team._id)
 					.sortBy("position")
 					.value();
+				const newRowPositionsForThisTeam = [...newRowPositions];
+
+				const extraInterchange = squad.find(p => p.isExtraInterchange);
+				if (extraInterchange) {
+					newRowPositionsForThisTeam.push(extraInterchange.position - 1);
+				}
 
 				//Create rows
 				const rows = [];
@@ -56,9 +64,9 @@ class MatchSquadList extends Component {
 					row.push(this.renderPlayer(player, team));
 
 					//Handle Rows
-					const rowIndex = newRowPositions.indexOf(position);
-					if (rowIndex > -1 || position == squad.length) {
-						const order = position <= 13 ? rowIndex + 1 : 999;
+					const newRowIndex = newRowPositionsForThisTeam.indexOf(position);
+					if (newRowIndex > -1 || position == squad.length) {
+						const order = position <= 13 ? newRowIndex + 1 : 999;
 						rows.push(
 							<div className={`row ${position <= 13 ? "main" : "extra"}`} key={order} style={{ order }}>
 								{row}
@@ -69,6 +77,21 @@ class MatchSquadList extends Component {
 							row.push(
 								<div className="header" key="ih" style={{ color: team.colours.text }}>
 									Interchanges
+								</div>
+							);
+						}
+						if (extraInterchange && position == extraInterchange.position - 1) {
+							// At this point we're preparing the extra interchange row, but p is the last "normal" interchange.
+							const extraInterchange = squad.find(p => p.isExtraInterchange);
+							const extraInterchangeStringParts = [
+								getOrdinalNumber(extraInterchange.position),
+								game.gender == "M" ? "Man" : "Woman",
+								isUnusedExtraInterchange(extraInterchange) ? "(Unused)" : "(Used)"
+							];
+
+							row.push(
+								<div className="header" key="eih" style={{ color: team.colours.text }}>
+									{extraInterchangeStringParts.join(" ")}
 								</div>
 							);
 						}

@@ -19,6 +19,9 @@ import { fetchTeamList } from "~/client/actions/teamsActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 
+//Helpers
+import { getOrdinalNumber } from "~/helpers/genericHelper";
+
 class AdminCompetitionInstanceOverview extends Component {
 	constructor(props) {
 		super(props);
@@ -78,7 +81,8 @@ class AdminCompetitionInstanceOverview extends Component {
 			manOfSteelPointsGoneDark: Yup.bool().label("Have Points 'Gone Dark'?"),
 			scoreOnly: Yup.bool().label("Score Only"),
 			usesPregameSquads: Yup.bool().label("Uses Pregame Squads"),
-			usesWinPc: Yup.bool().label("Uses Win Percentage?")
+			usesWinPc: Yup.bool().label("Uses Win Percentage?"),
+			usesExtraInterchange: Yup.bool().label("Uses Extra Interchange?")
 		});
 
 		//Convert teamlist to dropdown options
@@ -106,7 +110,8 @@ class AdminCompetitionInstanceOverview extends Component {
 			scoreOnly: true,
 			usesPregameSquads: false,
 			image: "",
-			usesWinPc: false
+			usesWinPc: false,
+			usesExtraInterchange: false
 		};
 
 		//Check if we have an instance to copy, for new items
@@ -175,10 +180,19 @@ class AdminCompetitionInstanceOverview extends Component {
 			{ name: "year", type: fieldTypes.number },
 			{ name: "sponsor", type: fieldTypes.text },
 			{ name: "totalRounds", type: fieldTypes.number },
-			{ name: "usesPregameSquads", type: fieldTypes.boolean },
+			{ name: "usesPregameSquads", type: fieldTypes.boolean }
+		];
+
+		if (segment._parentCompetition.interchangeLimit) {
+			const extraInterchangeNumber = segment._parentCompetition.interchangeLimit + 1;
+			const label = `Allow Extra Interchange (${getOrdinalNumber(13 + extraInterchangeNumber)} Player)`;
+			fields.push({ name: "usesExtraInterchange", type: fieldTypes.boolean, label });
+		}
+
+		fields.push(
 			{ name: "scoreOnly", type: fieldTypes.boolean },
 			{ name: "manOfSteelPoints", type: fieldTypes.boolean }
-		];
+		);
 
 		if (values.manOfSteelPoints) {
 			fields.push({ name: "manOfSteelPointsGoneDark", type: fieldTypes.boolean });

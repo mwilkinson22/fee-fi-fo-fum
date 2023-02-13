@@ -20,6 +20,7 @@ import StatTableGameCell from "../games/StatTableGameCell";
 
 //Constants
 import playerPositions from "~/constants/playerPositions";
+import { getOrdinalNumber } from "~/helpers/genericHelper";
 
 class PlayerStatSection extends Component {
 	constructor(props) {
@@ -125,14 +126,20 @@ class PlayerStatSection extends Component {
 		return newState;
 	}
 
-	getPositionString(number) {
+	getPositionString(playerStatEntry) {
+		const { person } = this.props;
+		const { position } = playerStatEntry;
+		if (playerStatEntry.isExtraInterchange) {
+			return `${getOrdinalNumber(playerStatEntry.position)} ${person.gender == "M" ? "Man" : "Woman"}`;
+		}
+
 		const positions = _.chain(playerPositions)
 			.map(positionObject => positionObject.numbers.map(n => [n, positionObject.name]))
 			.flatten()
 			.fromPairs()
 			.value();
 
-		return positions[Math.min(number, 14)];
+		return positions[Math.min(position, 14)];
 	}
 
 	getHeader() {
@@ -196,7 +203,7 @@ class PlayerStatSection extends Component {
 		const { filteredGames } = this.state;
 		const { localTeam } = this.props;
 		const positions = _.chain(filteredGames)
-			.map(game => this.getPositionString(game.playerStats[0].position))
+			.map(game => this.getPositionString(game.playerStats[0]))
 			.groupBy()
 			.map((arr, position) => ({ position, count: arr.length }))
 			.sortBy("count")
@@ -328,7 +335,7 @@ class PlayerStatSection extends Component {
 				content: (
 					<div>
 						<div>#{position}</div>
-						<div>{this.getPositionString(position)}</div>
+						<div>{this.getPositionString(game.playerStats[0])}</div>
 					</div>
 				),
 				sortValue: position

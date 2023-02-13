@@ -149,7 +149,10 @@ export function getScoreString(game, useLongNames = false) {
 }
 
 export function scoreOverrideToScore(override) {
-	return _.chain(override).keyBy("_team").mapValues("points").value();
+	return _.chain(override)
+		.keyBy("_team")
+		.mapValues("points")
+		.value();
 }
 
 export function getLastGame(id, gameList, limitToSameYear = false) {
@@ -974,6 +977,8 @@ export function winLossOrDraw(game) {
 }
 
 export function calculatePoints(year, T, CN, PK, DG) {
+	if (T == null && CN == null && PK == null && DG == null) return null;
+
 	let points = 0;
 
 	//Add Tries
@@ -989,4 +994,19 @@ export function calculatePoints(year, T, CN, PK, DG) {
 	points += DG * (year < 1897 ? 4 : year < 1971 ? 2 : 1);
 
 	return points;
+}
+
+export function getDefaultPlayerStatsObject(enforceNullForAll) {
+	return _.mapValues(playerStatTypes, content => (content.defaultsToZero && !enforceNullForAll ? 0 : null));
+}
+
+export function isUnusedExtraInterchange(playerStat) {
+	if (!playerStat || !playerStat.isExtraInterchange) {
+		return false;
+	}
+
+	const statsObject = { ...playerStat.stats };
+	delete statsObject._id;
+
+	return Object.values(statsObject).filter(val => val != null).length === 0;
 }

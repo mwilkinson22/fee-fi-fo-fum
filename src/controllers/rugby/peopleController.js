@@ -17,6 +17,7 @@ const { fetchPeopleLimit, localTeam } = require("~/config/keys");
 import PersonImageCard from "~/images/PersonImageCard";
 import { postToSocial } from "~/controllers/oAuthController";
 import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
+import { isUnusedExtraInterchange } from "~/helpers/gameHelper";
 
 async function validatePerson(_id, res) {
 	if (!_id) {
@@ -69,10 +70,7 @@ async function getPlayedGames(_id) {
 	const query = {
 		$or: [{ "playerStats._player": _id }, { "pregameSquads.squad": _id }]
 	};
-	const playedGames = await Game.find(
-		query,
-		"playerStats._player playerStats._team pregameSquads date squadsAnnounced"
-	).lean();
+	const playedGames = await Game.find(query, "playerStats pregameSquads date squadsAnnounced").lean();
 
 	return playedGames.map(game => {
 		const playerStatEntry = game.playerStats.find(({ _player }) => _player == _id);
@@ -95,7 +93,8 @@ async function getPlayedGames(_id) {
 			pregameOnly,
 			forLocalTeam,
 			date: game.date,
-			squadsAnnounced: game.squadsAnnounced
+			squadsAnnounced: game.squadsAnnounced,
+			isUnusedExtraInterchange: isUnusedExtraInterchange(playerStatEntry)
 		};
 	});
 }
@@ -330,7 +329,11 @@ export async function parsePlayerList(req, res) {
 		} else {
 			//Create a Regex that matches first initial and last name
 			const firstInitial = name.substr(0, 1);
-			const lastName = unfilteredName.split(" ").pop().replace(regEx, "").toLowerCase();
+			const lastName = unfilteredName
+				.split(" ")
+				.pop()
+				.replace(regEx, "")
+				.toLowerCase();
 			const approxRegex = new RegExp(`^${firstInitial}.+ ${lastName}$`, "ig");
 
 			//Find anyone who matches the regex
@@ -404,7 +407,10 @@ export async function deletePerson(req, res) {
 				})
 				.fromPairs()
 				.value();
-			const squadCount = _.chain(toLog.teams).values().flatten().value().length;
+			const squadCount = _.chain(toLog.teams)
+				.values()
+				.flatten()
+				.value().length;
 
 			errors.push(
 				`part of ${squadCount} ${squadCount === 1 ? "squad" : "squads"} in ${teams.length} ${
