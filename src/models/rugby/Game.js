@@ -341,7 +341,7 @@ gameSchema.query.eventImage = function() {
 			select: "name _parentCompetition instances instance hashtagPrefix",
 			populate: {
 				path: "_parentCompetition",
-				select: "name useAllSquads"
+				select: "name useAllSquads interchangeLimit"
 			}
 		})
 		.populate({

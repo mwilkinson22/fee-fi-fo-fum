@@ -3,6 +3,7 @@ import Canvas from "./Canvas";
 import { localTeam } from "~/config/keys";
 import mongoose from "mongoose";
 import { applyPreviousIdentity } from "~/helpers/teamHelper";
+import { getOrdinalNumber } from "~/helpers/genericHelper";
 const Settings = mongoose.model("settings");
 
 export default class SquadImage extends Canvas {
@@ -46,15 +47,17 @@ export default class SquadImage extends Canvas {
 		this.setTextStyles(textStyles);
 
 		const sideBarWidth = Math.round(cWidth * 0.28);
-		const sideBarIconX = Math.round(sideBarWidth * 0.1);
+		const sideBarIconWidth = Math.round(sideBarWidth * 0.3);
 		const dividerWidth = Math.round(cWidth * 0.06);
 		const mainPanelOffset = sideBarWidth + dividerWidth;
 		this.positions = {
 			sideBarWidth,
-			sideBarIconX,
-			sideBarIconWidth: sideBarWidth - sideBarIconX * 2,
-			sideBarGameIconY: Math.round(cHeight * 0.03),
-			sideBarGameIconHeight: Math.round(cHeight * 0.15),
+			sideBarIconWidth,
+			sideBarIconX: Math.round(sideBarWidth / 2 - sideBarIconWidth / 2),
+			sideBarIconY: Math.round(cHeight * 0.045),
+			sideBarIconHeight: Math.round(cHeight * 0.12),
+			rightBrandIconWidth: Math.round(cWidth * 0.1),
+			rightBrandIconHeight: Math.round(cWidth * 0.05),
 			dividerWidth,
 			mainPanelOffset,
 			mainPanelWidth: cWidth - mainPanelOffset,
@@ -64,8 +67,9 @@ export default class SquadImage extends Canvas {
 			playerNameBarHeight: Math.round(cHeight * 0.04),
 			playerNameBarRadius: Math.round(cHeight * 0.01),
 			playerNameBarNumberWidth: Math.round(cWidth * 0.025),
-			interchangeHeaderY: Math.round(cHeight * 0.5),
-			interchangeHeader: Math.round(cHeight * 0.05)
+			interchangeHeaderY: Math.round(cHeight * 0.52),
+			interchangeHeader: Math.round(cHeight * 0.05),
+			standardInterchangeYGap: Math.round(cHeight * 0.062)
 		};
 		this.positions.players = [
 			[0.5, 0.1], //FB
@@ -85,16 +89,30 @@ export default class SquadImage extends Canvas {
 
 		//Variables
 		this.players = players;
-		console.log("OG", options.game);
 		this.game = options.game;
 		this.selector = options.selector;
 		this.options = options;
 		this.teamBadges = {};
 		this.teamBadges[localTeam] = {};
+
+		this.usesExtraInterchange = false;
 		if (this.game) {
 			this.teamBadges[this.game._opposition._id] = {};
+			this.usesExtraInterchange = this.game._competition.instance.usesExtraInterchange;
 		}
-		this.extraInterchanges = players.length > 17;
+
+		this.expectedTeamLength = this.usesExtraInterchange ? 18 : 17;
+
+		//If we have the expected team length including an extra interchange
+		this.hasExtraInterchange = this.usesExtraInterchange && players.length == this.expectedTeamLength;
+
+		//If we have more than the expected team length
+		this.compressInterchangeList = players.length > this.expectedTeamLength;
+
+		if (!this.compressInterchangeList && !this.hasExtraInterchange) {
+			this.positions.interchangeHeaderY += Math.round(cHeight * 0.03);
+			this.positions.standardInterchangeYGap += Math.round(this.positions.standardInterchangeYGap * 0.2);
+		}
 	}
 
 	async getBranding() {
@@ -167,7 +185,7 @@ export default class SquadImage extends Canvas {
 			cWidth,
 			cHeight,
 			teamBadges,
-			extraInterchanges,
+			compressInterchangeList,
 			players,
 			options,
 			selector,
@@ -178,9 +196,11 @@ export default class SquadImage extends Canvas {
 			sideBarWidth,
 			sideBarIconX,
 			sideBarIconWidth,
-			sideBarGameIconY,
-			sideBarGameIconHeight,
-			interchangeHeaderY
+			sideBarIconY,
+			sideBarIconHeight,
+			interchangeHeaderY,
+			rightBrandIconWidth,
+			rightBrandIconHeight
 		} = this.positions;
 
 		//Determine whether we need to show interchanges
@@ -197,12 +217,14 @@ export default class SquadImage extends Canvas {
 
 			//We have a mainIcon so we place the brandIcon on the right
 			if (brandIcon) {
+				const border = Math.round(cHeight * 0.04);
 				this.contain(
 					brandIcon,
-					cWidth - sideBarIconWidth / 2,
-					sideBarGameIconY / 0.6,
-					sideBarIconWidth / 2,
-					sideBarGameIconHeight * 0.6
+					cWidth - rightBrandIconWidth - border,
+					border,
+					rightBrandIconWidth,
+					rightBrandIconHeight,
+					{ xAlign: "right", yAlign: "top" }
 				);
 			}
 		} else {
@@ -211,7 +233,19 @@ export default class SquadImage extends Canvas {
 		}
 
 		if (mainIcon) {
-			this.contain(mainIcon, sideBarIconX, sideBarGameIconY, sideBarIconWidth, sideBarGameIconHeight);
+			this.contain(mainIcon, sideBarIconX, sideBarIconY, sideBarIconWidth, sideBarIconHeight);
+		}
+
+		//Add team badges
+		if (game) {
+			let badges = [teamBadges[localTeam].dark, teamBadges[game._opposition._id].dark];
+			if (game.isAway) {
+				badges = badges.reverse();
+			}
+			badges.map((badge, i) => {
+				const x = i == 0 ? sideBarIconX - sideBarIconWidth : sideBarIconX + sideBarIconWidth;
+				this.contain(badge, x, sideBarIconY, sideBarIconWidth, sideBarIconHeight);
+			});
 		}
 
 		//Text Banners
@@ -268,38 +302,8 @@ export default class SquadImage extends Canvas {
 			lineHeight: 2.7
 		});
 
-		//Team Badges (limit to 17-man squads)
-		if (!extraInterchanges) {
-			let teamIconHeight = Math.round(cHeight * 0.15);
-			let teamBadgeY = cHeight - teamIconHeight - sideBarGameIconY;
-
-			//Adjust if we don't show interchanges
-			if (!game && !showInterchanges) {
-				teamIconHeight += teamIconHeight;
-				teamBadgeY -= teamIconHeight * 0.8;
-			}
-
-			if (game) {
-				let badges = [teamBadges[localTeam].dark, teamBadges[game._opposition._id].dark];
-				if (game.isAway) {
-					badges = badges.reverse();
-				}
-				badges.map((badge, i) => {
-					this.contain(
-						badge,
-						(i === 0 ? 0 : sideBarIconWidth / 2) + sideBarIconX,
-						teamBadgeY,
-						sideBarIconWidth / 2,
-						teamIconHeight
-					);
-				});
-			} else {
-				this.contain(teamBadges[localTeam].dark, sideBarIconX, teamBadgeY, sideBarIconWidth, teamIconHeight);
-			}
-		}
-
-		//Interchanges Header
-		if (showInterchanges) {
+		//Interchanges Header, for normal interchange display
+		if (showInterchanges && !compressInterchangeList) {
 			ctx.fillStyle = this.colours.claret;
 			ctx.font = textStyles.interchangeHeader.string;
 			ctx.fillText("INTERCHANGES", sideBarWidth / 2, interchangeHeaderY);
@@ -307,7 +311,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSquad() {
-		const { ctx, colours, cHeight, positions, players } = this;
+		const { ctx, colours, cHeight, game, positions, players, textStyles } = this;
 
 		//Create Squad Object
 		this.squad = players.map(player => {
@@ -336,19 +340,29 @@ export default class SquadImage extends Canvas {
 		});
 
 		//Draw Players
-		let interchangeY = Math.round(cHeight * 0.565);
-		for (const i in this.squad) {
+		let interchangeY = positions.interchangeHeaderY;
+		for (let i in this.squad) {
+			i = Number(i);
 			const player = this.squad[i];
 			if (i < 13) {
 				await this.drawStartingSquadMember(player, i);
-			} else if (!this.extraInterchanges) {
+			} else if (!this.compressInterchangeList) {
+				//Add the extra interchange label if necessary
+				if (this.usesExtraInterchange && i == this.expectedTeamLength - 1) {
+					const extraInterchangeLabel = `${getOrdinalNumber(i + 1)} ${game.genderedString}`;
+					interchangeY += Math.round(positions.standardInterchangeYGap * 1.3);
+					ctx.textAlign = "center";
+					ctx.font = textStyles.interchangeHeader.string;
+					ctx.fillText(extraInterchangeLabel.toUpperCase(), positions.sideBarWidth / 2, interchangeY);
+				}
+
+				interchangeY += positions.standardInterchangeYGap;
 				this.drawInterchange(player, interchangeY);
-				interchangeY += Math.round(cHeight * 0.065);
 			}
 		}
 
 		//Longer interchange list
-		if (this.extraInterchanges) {
+		if (this.compressInterchangeList) {
 			const interchangeList = _.chain(this.squad)
 				.map(({ number, name }, i) => {
 					if (i < 13) {
@@ -364,6 +378,9 @@ export default class SquadImage extends Canvas {
 				})
 				.filter(_.identity)
 				.value();
+			//We add the header here so it's automatically positioned
+			interchangeList.unshift([{ text: "INTERCHANGES", font: (ctx.font = this.textStyles.interchangeHeader) }]);
+
 			ctx.fillStyle = colours.claret;
 			this.textBuilder(interchangeList, positions.sideBarWidth * 0.5, Math.round(cHeight * 0.74), {
 				lineHeight: 1.8
