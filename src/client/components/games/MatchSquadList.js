@@ -85,7 +85,7 @@ class MatchSquadList extends Component {
 							const extraInterchange = squad.find(p => p.isExtraInterchange);
 							const extraInterchangeStringParts = [
 								getOrdinalNumber(extraInterchange.position),
-								game.gender == "M" ? "Man" : "Woman",
+								game.genderedString,
 								isUnusedExtraInterchange(extraInterchange) ? "(Unused)" : "(Used)"
 							];
 

@@ -474,13 +474,11 @@
 
 	section.head-to-head {
 		.container {
-			display: flex;
-			justify-content: space-between;
-			align-items: flex-start;
-			flex-wrap: wrap;
-			@media #{$mobile-and-tablet} {
-				flex-direction: column;
-				align-items: stretch;
+			display: grid;
+			align-items: start;
+			@media #{$desktop-only} {
+				grid-auto-columns: 1fr;
+				grid-auto-flow: column;
 			}
 		}
 	}

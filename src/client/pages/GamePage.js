@@ -357,7 +357,7 @@ class GamePage extends Component {
 				let nameSecondRow;
 				if (isExtraInterchange) {
 					nameFirstRow += ` ${name.last}`;
-					nameSecondRow = `(${getOrdinalNumber(position)} ${game.gender == "M" ? "Man" : "Woman"})`;
+					nameSecondRow = `(${getOrdinalNumber(position)} ${game.genderedString})`;
 				} else {
 					nameSecondRow = name.last;
 				}
