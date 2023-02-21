@@ -63,7 +63,7 @@ export default class SquadImage extends Canvas {
 			mainPanelWidth: cWidth - mainPanelOffset,
 			bannerY: Math.round(cHeight * 0.32),
 			playerHeight: Math.round(cHeight * 0.17),
-			playerWidth: Math.round(cWidth * 0.07),
+			playerWidth: Math.round(cWidth * 0.095),
 			playerNameBarHeight: Math.round(cHeight * 0.04),
 			playerNameBarRadius: Math.round(cHeight * 0.01),
 			playerNameBarNumberWidth: Math.round(cWidth * 0.025),
@@ -421,6 +421,7 @@ export default class SquadImage extends Canvas {
 			const sh = playerImage.width / (playerWidth / playerHeight);
 			ctx.shadowBlur = 15;
 			ctx.shadowColor = "black";
+
 			ctx.drawImage(playerImage, sx, sy, sw, sh, dx, dy, playerWidth, playerHeight);
 		}
 
