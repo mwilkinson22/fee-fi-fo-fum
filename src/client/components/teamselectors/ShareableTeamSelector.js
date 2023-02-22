@@ -158,6 +158,7 @@ class ShareableTeamSelector extends Component {
 						submitText="Save Choices"
 						readOnly={selector.activeUserChoices && !editMode}
 						team={fullTeams[localTeam]}
+						usesExtraInterchange={selector.usesExtraInterchange}
 					/>
 				</div>
 			</div>

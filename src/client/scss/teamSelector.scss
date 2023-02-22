@@ -49,9 +49,14 @@
 
 		.position {
 			box-sizing: content-box;
-			min-width: 18pt;
+			width: 18pt;
 			border-left-width: 8pt;
 			border-left-style: solid;
+
+			// 18th man
+			sup {
+				font-size: 0.6em;
+			}
 		}
 
 		&:hover .position,

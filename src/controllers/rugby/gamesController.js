@@ -1939,11 +1939,17 @@ export async function getTeamSelectorValues(_id, res) {
 	const [teamType, team] = await Promise.all([teamTypeQuery, teamQuery]);
 
 	//Create a basic values object
+	const mainHashtag = game.hashtags.shift();
+	let extraHashtags = "";
+	if (game.hashtags.length) {
+		extraHashtags = "\n\n" + game.hashtags.map(h => "#" + h).join(" ");
+	}
+
 	const values = {
 		interchanges: 4,
-		extraInterchange: game._competition.instance.usesExtraInterchange,
+		usesExtraInterchange: game._competition.instance.usesExtraInterchange,
 		slug: game.slug,
-		defaultSocialText: `Check out my Starting 17 for #${game.hashtags[0]}!\n\nvia {site_social}\n{url}`,
+		defaultSocialText: `Check out my squad for #${mainHashtag}!\n\nvia {site_social}\n{url} ${extraHashtags}`,
 		numberFromTeam: localTeam
 	};
 

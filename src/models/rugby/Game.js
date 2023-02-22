@@ -346,7 +346,7 @@ gameSchema.query.eventImage = function() {
 		})
 		.populate({
 			path: "_opposition",
-			select: "images hashtagPrefix colours previousIdentities"
+			select: "images hashtagPrefix colours previousIdentities name"
 		});
 };
 

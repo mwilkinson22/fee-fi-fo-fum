@@ -95,7 +95,7 @@ export function arrayToList(originalArray) {
 	return array.join(", ") + " & " + lastEntry;
 }
 
-export function getOrdinalNumber(num) {
+export function getOrdinalNumber(num, suffixOnly = false) {
 	const numberAsString = num.toString();
 
 	// 11, 12 and 13 use th.
@@ -114,6 +114,10 @@ export function getOrdinalNumber(num) {
 				suffix = "rd";
 				break;
 		}
+	}
+
+	if (suffixOnly) {
+		return suffix;
 	}
 
 	return num.toLocaleString() + suffix;

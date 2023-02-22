@@ -190,7 +190,12 @@ class SquadSelector extends Component {
 			let positionString = positionsByNumber[i] ? positionsByNumber[i].key : "I";
 
 			if (this.numberIsExtraInterchange(i)) {
-				positionString += "+";
+				positionString = (
+					<span>
+						{i}
+						<sup>{getOrdinalNumber(i, true).toUpperCase()}</sup>
+					</span>
+				);
 			}
 
 			//Get the player object
