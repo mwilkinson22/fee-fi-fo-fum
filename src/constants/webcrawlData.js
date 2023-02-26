@@ -22,7 +22,7 @@ export default {
 		pageClassNames: {
 			gameWrapper: "fixture-card",
 			homeTeamName: ".left .team-name",
-			awayTeamName: ".away .team-name",
+			awayTeamName: ".right .team-name",
 			time: ".fixture-wrap .middle",
 			round: ".fixture-footer",
 			broadcasters: ".fixture-footer img"
