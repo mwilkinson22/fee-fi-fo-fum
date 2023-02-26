@@ -369,6 +369,18 @@ export async function crawlNewGames(req, res) {
 		//Get empty object to store games
 		const games = [];
 
+		//Callback function to get team names
+		const getTeamName = (row, className) => {
+			const teamTypeRegex = /(Reserves|Academy|Women|U19|Ladies)/;
+			const names = row.querySelectorAll(className);
+			if (names && names.length) {
+				return names
+					.pop()
+					.rawText.replace(teamTypeRegex, "")
+					.trim();
+			}
+		};
+
 		//Loop through the rows
 		let date;
 		html.childNodes.forEach(row => {
@@ -386,20 +398,8 @@ export async function crawlNewGames(req, res) {
 				//Create day string
 				date = dateAsArray.join(" ");
 			} else if (row.tagName === "DIV" && row.classNames.includes(pageClassNames.gameWrapper)) {
-				//Check for teams
-				const teamTypeRegex = /(Reserves|Academy|Women|U19|Ladies)/;
-				const getTeamName = className => {
-					const names = row.querySelectorAll(className);
-					if (names && names.length) {
-						return names
-							.pop()
-							.rawText.replace(teamTypeRegex, "")
-							.trim();
-					}
-				};
-
-				const home = getTeamName(pageClassNames.homeTeamName);
-				const away = getTeamName(pageClassNames.awayTeamName);
+				const home = getTeamName(row, pageClassNames.homeTeamName);
+				const away = getTeamName(row, pageClassNames.awayTeamName);
 
 				if (home && away) {
 					//Create Game Object
@@ -407,7 +407,6 @@ export async function crawlNewGames(req, res) {
 
 					//Get Datetime
 					let time;
-
 					if (getResults) {
 						//For results, we have to guess the time, as it's not displayed.
 						const dayOfWeek = new Date(date).getDay();
