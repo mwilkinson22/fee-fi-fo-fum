@@ -42,8 +42,16 @@ class SeasonPlayerStats extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fetchPeople, fullPeople, games, localTeam, fullTeams, year, teamType, getPlayersByYearAndGender } =
-			nextProps;
+		const {
+			fetchPeople,
+			fullPeople,
+			games,
+			localTeam,
+			fullTeams,
+			year,
+			teamType,
+			getPlayersByYearAndGender
+		} = nextProps;
 
 		const { filteredGames } = prevState;
 		const newState = { games, isLoadingTeam: false };
@@ -187,35 +195,41 @@ class SeasonPlayerStats extends Component {
 	renderStatTables() {
 		const { players, statType, processedStats, games } = this.state;
 
-		const rows = processedStats.map(({ _player, stats }) => {
-			//Generate first column
-			const p = players[_player];
-			const sortValue = p.number ? ("00" + p.number).slice(-3) : `999-${p._player.name.last}`;
-			const first = {
-				content: (
-					<Link to={`/players/${p._player.slug}`}>
-						{p.number ? `${p.number}. ` : ""}
-						{p._player.name.full}
-					</Link>
-				),
-				sortValue,
-				className: "mobile-wrap"
-			};
+		const rows = processedStats
+			.map(({ _player, stats }) => {
+				//Generate first column
+				const p = players[_player];
+				const sortValue = p.number ? ("00" + p.number).slice(-3) : `999-${p._player.name.last}`;
+				const first = {
+					content: (
+						<Link to={`/players/${p._player.slug}`}>
+							{p.number ? `${p.number}. ` : ""}
+							{p._player.name.full}
+						</Link>
+					),
+					sortValue,
+					className: "mobile-wrap"
+				};
 
-			//Stat Columns
-			const statData = _.mapValues(stats, data => data[statType]);
+				//Stat Columns
+				const statData = _.mapValues(stats, data => data[statType]);
 
-			const games = _.chain(stats).map("gameCount").max().value();
+				const games = _.chain(stats)
+					.map("gameCount")
+					.max()
+					.value();
 
-			return {
-				key: _player,
-				data: {
-					first,
-					games,
-					...statData
-				}
-			};
-		});
+				return {
+					key: _player,
+					data: {
+						first,
+						games,
+						...statData
+					}
+				};
+			})
+			// Remove players with 0 games - "18th man" players who never featured
+			.filter(row => row.data.games);
 
 		return (
 			<StatsTables
