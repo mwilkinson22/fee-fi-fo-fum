@@ -26,7 +26,7 @@ class AdminGameStats extends Component {
 
 		//Set Stat Types
 		this.state = {
-			incrementMode: false
+			incrementMode: props.scoreOnly
 		};
 	}
 

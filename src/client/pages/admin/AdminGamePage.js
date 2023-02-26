@@ -223,8 +223,14 @@ class AdminGamePage extends Component {
 					<Route path={`${path}/post-game-events`} component={AdminGamePostGameEvents} />
 					<Route path={`${path}/post-game`} component={AdminGamePostGame} />
 					<Route path={`${path}/override-gamestar`} component={AdminGameOverrideGameStar} />
-					<Route path={`${path}/stats`} render={() => <AdminGameStats scoreOnly={scoreOnly} />} />
-					<Route path={`${path}/scores`} render={() => <AdminGameStats scoreOnly={true} />} />
+					<Route
+						path={`${path}/stats`}
+						render={() => <AdminGameStats scoreOnly={scoreOnly} key="fullStatsStatPage" />}
+					/>
+					<Route
+						path={`${path}/scores`}
+						render={() => <AdminGameStats scoreOnly={true} key="scoreOnlyStatsPage" />}
+					/>
 					<Route path={`${path}/event`} component={AdminGameEvent} />
 					<Route path={`${path}/kickers`} component={AdminGameKickers} />
 					<Route path={`${path}/squad-images`} component={AdminGameSquadImage} />
