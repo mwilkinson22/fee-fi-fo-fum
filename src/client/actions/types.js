@@ -31,8 +31,6 @@ export const FETCH_NEUTRAL_GAME_YEARS = "fetch_neutral_game_years";
 export const FETCH_NEUTRAL_GAMES = "fetch_neutral_games";
 export const UPDATE_NEUTRAL_GAMES = "update_neutral_games";
 export const DELETE_NEUTRAL_GAME = "delete_neutral_game";
-export const CRAWL_LOCAL_GAMES = "crawl_local_games";
-export const CRAWL_NEUTRAL_GAMES = "crawl_neutral_games";
 export const DELETE_GAME = "delete_game";
 export const SAVE_FAN_POTM_VOTE = "save_fan_potm_vote";
 

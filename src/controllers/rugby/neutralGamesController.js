@@ -113,17 +113,28 @@ export async function deleteGame(req, res) {
 }
 
 //External Getters
-export async function crawlAndUpdate(req, res) {
-	const games = await NeutralGame.find(
+export async function crawlAndUpdateGame(req, res) {
+	const { _id } = req.params;
+	const query = { _id };
+	await crawlAndUpdateGames(query, res);
+}
+export async function crawlAndUpdateRecent(req, res) {
+	await crawlAndUpdateGames(
 		{
 			externalSync: true,
-			externalId: { $ne: null },
 			date: {
 				$gt: new Date().addDays(-30),
 				$lte: new Date().addHours(-2)
 			},
 			$or: [{ homePoints: null }, { awayPoints: null }]
 		},
+		res
+	);
+}
+
+async function crawlAndUpdateGames(query, res) {
+	const games = await NeutralGame.find(
+		{ ...query, externalId: { $ne: null } },
 		"_id externalId _competition"
 	).populate({
 		path: "_competition",

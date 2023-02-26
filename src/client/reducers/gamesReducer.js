@@ -5,8 +5,6 @@ import {
 	DELETE_GAME,
 	FETCH_GAME_LIST_BY_IDS,
 	FETCH_NEUTRAL_GAMES,
-	CRAWL_LOCAL_GAMES,
-	CRAWL_NEUTRAL_GAMES,
 	UPDATE_NEUTRAL_GAMES,
 	DELETE_NEUTRAL_GAME,
 	FETCH_NEUTRAL_GAME_YEARS,
@@ -20,7 +18,7 @@ import {
 //Helpers
 import { fixLocalGames, getNeutralGame, fixDates } from "~/helpers/gameHelper";
 
-export default function (state = { gameList: {}, fullGames: {}, gameYears: {}, slugMap: {}, teamForm: {} }, action) {
+export default function(state = { gameList: {}, fullGames: {}, gameYears: {}, slugMap: {}, teamForm: {} }, action) {
 	if (!action || !action.payload) {
 		return state;
 	}
@@ -186,18 +184,6 @@ export default function (state = { gameList: {}, fullGames: {}, gameYears: {}, s
 				}
 			};
 		}
-
-		case CRAWL_LOCAL_GAMES:
-			return {
-				...state,
-				crawledLocalGames: action.payload
-			};
-
-		case CRAWL_NEUTRAL_GAMES:
-			return {
-				...state,
-				crawledNeutralGames: action.payload
-			};
 
 		case SAVE_FAN_POTM_VOTE: {
 			const { gameId, choice } = action.payload;

@@ -1,11 +1,5 @@
 import _ from "lodash";
-import {
-	FETCH_NEUTRAL_GAMES,
-	CRAWL_NEUTRAL_GAMES,
-	UPDATE_NEUTRAL_GAMES,
-	DELETE_NEUTRAL_GAME,
-	FETCH_NEUTRAL_GAME_YEARS
-} from "./types";
+import { FETCH_NEUTRAL_GAMES, UPDATE_NEUTRAL_GAMES, DELETE_NEUTRAL_GAME, FETCH_NEUTRAL_GAME_YEARS } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchNeutralGames = year => async (dispatch, getState, api) => {
@@ -45,9 +39,16 @@ export const deleteNeutralGame = id => async (dispatch, getState, api) => {
 	}
 };
 
-export const crawlNeutralGames = () => async (dispatch, getState, api) => {
-	const res = await api.get(`/neutralGames/crawl`);
-	dispatch({ type: CRAWL_NEUTRAL_GAMES, payload: res.data });
+export const crawlAndUpdateNeutralGame = _id => async (dispatch, getState, api) => {
+	toast.success("Updating game...");
+	const res = await api.get(`/neutralGames/crawl/update/${_id}`);
+	const gameCount = _.flatten(_.map(res.data, games => _.values(games))).length;
+	if (gameCount === 0) {
+		toast.success("Could not update game");
+	} else {
+		dispatch({ type: UPDATE_NEUTRAL_GAMES, payload: res.data });
+		toast.success("Updated game");
+	}
 };
 
 export const crawlAndUpdateNeutralGames = () => async (dispatch, getState, api) => {
