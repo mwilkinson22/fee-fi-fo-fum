@@ -22,6 +22,8 @@ export default (req, store, context) => {
 	);
 	const content = renderToString(app);
 
+	const { googleSiteVerification } = store.getState().config;
+
 	const helmet = Helmet.renderStatic();
 	return `
 		<!DOCTYPE html>
@@ -30,6 +32,7 @@ export default (req, store, context) => {
 				<meta charset="utf-8">
    				<link rel="preload" as="style" rel="stylesheet" href="${googleFontUrl}">
     			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    			<meta name="google-site-verification" content="${googleSiteVerification}" />
     			<meta name="theme-color" content="#751432">
 				<link rel="stylesheet" type="text/css" href="/styles.css" />
 				${helmet.title.toString()}

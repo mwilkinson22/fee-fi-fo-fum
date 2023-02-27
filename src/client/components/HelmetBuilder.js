@@ -69,7 +69,7 @@ class HelmetBuilder extends Component {
 				title={title}
 				link={[
 					{ rel: "canonical", href: url },
-					{ rel: "icon shortcut", href: `${bucketPaths.imageRoot}favicon.png` }
+					{ rel: "icon", href: `${bucketPaths.imageRoot}favicon.png` }
 				]}
 				meta={meta}
 			/>

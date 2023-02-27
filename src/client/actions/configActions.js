@@ -16,7 +16,8 @@ import {
 	trimColour,
 	newsPostsPerPage,
 	fetchPeopleLimit,
-	fetchGameLimit
+	fetchGameLimit,
+	googleSiteVerification
 } from "../../config/keys";
 import { toast } from "react-toastify";
 
@@ -57,6 +58,9 @@ export const getCoreConfig = req => async dispatch => {
 
 		//Google Maps API Key
 		googleMapsKey,
+
+		//Google Site Verification
+		googleSiteVerification,
 
 		//Prod or Dev
 		environment: process.env.NODE_ENV,
