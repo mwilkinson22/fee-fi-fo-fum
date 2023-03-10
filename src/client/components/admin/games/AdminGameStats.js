@@ -205,11 +205,11 @@ class AdminGameStats extends Component {
 						const value = formikProps.values[player._id][key];
 						return (
 							<div className="score-incrementer-wrapper">
-								{value}
+								{value === "" ? "-" : value}
 								<div className="score-incrementer-buttons">
 									<button
 										type="button"
-										disabled={value === 0}
+										disabled={!value}
 										onClick={() => formikProps.setFieldValue(fieldName, value - 1)}
 									>
 										-
