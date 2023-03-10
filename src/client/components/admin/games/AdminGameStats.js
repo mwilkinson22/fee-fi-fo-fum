@@ -16,9 +16,11 @@ import { setStats } from "../../../actions/gamesActions";
 //Constants
 import * as fieldTypes from "~/constants/formFieldTypes";
 import playerStatTypes from "~/constants/playerStatTypes";
+import playerPositions from "~/constants/playerPositions";
 
 //Helpers
 import { renderInput } from "~/helpers/formHelper";
+import { getOrdinalNumber } from "~/helpers/genericHelper";
 
 class AdminGameStats extends Component {
 	constructor(props) {
@@ -161,8 +163,32 @@ class AdminGameStats extends Component {
 				const player = game.eligiblePlayers[team].find(({ _id }) => _id == p._player);
 
 				//Create Name Cell
+				let position;
+				if (p.isExtraInterchange) {
+					position = (
+						<Fragment>
+							{p.position}
+							<sup>{getOrdinalNumber(p.position, true)}</sup>
+						</Fragment>
+					);
+				} else {
+					position = "I";
+					for (let key in playerPositions) {
+						if (playerPositions[key].numbers.includes(p.position)) {
+							position = key;
+						}
+					}
+				}
+
+				const positionElement = <span className="position">{position}</span>;
+
 				const name = {
-					content: (player.number ? `${player.number}. ` : "") + player.name.full,
+					content: (
+						<Fragment>
+							{positionElement}
+							{(player.number ? `${player.number}. ` : "") + player.name.full}
+						</Fragment>
+					),
 					sortValue: p.position
 				};
 

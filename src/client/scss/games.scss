@@ -1193,6 +1193,20 @@ section.match-squads {
 						opacity: 1;
 					}
 				}
+
+				.position {
+					background: $mainColour;
+					color: white;
+					display: inline-flex;
+					justify-content: center;
+					align-items: center;
+					text-align: center;
+					width: 30px;
+					height: 30px;
+					border-radius: 100%;
+					font-size: 0.8em;
+					margin-right: 10px;
+				}
 			}
 		}
 
