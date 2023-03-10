@@ -152,6 +152,13 @@ class AdminGameStats extends Component {
 			...statColumns
 		];
 
+		const teamTotals = {
+			T: 0,
+			CN: 0,
+			PK: 0,
+			DG: 0
+		};
+
 		//Loop through all players
 		const rows = _.chain(game.playerStats)
 			//Filter by team
@@ -199,10 +206,14 @@ class AdminGameStats extends Component {
 				const statInputs = _.mapValues(statTypes, (obj, key) => {
 					const fieldName = `${player._id}.${key}`;
 
+					const value = formikProps.values[player._id][key];
+					if (teamTotals[key] != null && value) {
+						teamTotals[key] += value;
+					}
+
 					//Check for an error
 					const error = errors && errors[key];
 					if (incrementMode) {
-						const value = formikProps.values[player._id][key];
 						return (
 							<div className="score-incrementer-wrapper">
 								{value === "" ? "-" : value}
@@ -243,6 +254,10 @@ class AdminGameStats extends Component {
 			})
 			.value();
 
+		let totalConversionError;
+		if (teamTotals.CN > teamTotals.T) {
+			totalConversionError = <span className="error">More conversions than tries - are you sure?</span>;
+		}
 		return (
 			<div key={team} className="stat-tables">
 				<div className="stat-table-wrapper no-max-height">
@@ -253,6 +268,17 @@ class AdminGameStats extends Component {
 						sortBy={{ key: "name", asc: true }}
 						stickyHead={true}
 					/>
+				</div>
+				<div className="card form-card grid stat-summary">
+					<label>Total Tries</label>
+					<span>{teamTotals.T}</span>
+					<label>Total Conversions</label>
+					<span>{teamTotals.CN}</span>
+					{totalConversionError}
+					<label>Total Penalties</label>
+					<span>{teamTotals.PK}</span>
+					<label>Total Drop Goals</label>
+					<span>{teamTotals.DG}</span>
 				</div>
 			</div>
 		);
