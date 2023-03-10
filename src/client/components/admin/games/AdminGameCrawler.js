@@ -205,10 +205,14 @@ class AdminGameCrawler extends Component {
 						delete stats.G;
 					}
 
-					newValues[_id] = {
-						...formikProps.values[_id],
-						...stats
-					};
+					newValues[_id] = { ...formikProps.values[_id] };
+
+					for (const stat in stats) {
+						const value = stats[stat];
+						if (value != null) {
+							newValues[_id][stat] = value;
+						}
+					}
 				}
 			});
 

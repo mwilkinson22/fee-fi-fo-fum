@@ -613,6 +613,13 @@ export async function parseExternalGame(game, justGetScores = false, includeScor
 						const value = rowCells[rowCellCount - index].innerHTML.replace(/\D+/gi, "");
 						results[team][name].stats[stat] = Number(value || 0);
 					}
+
+					//If everything is 0, they probably didn't play, so we set it all to null
+					if (Object.values(results[team][name].stats).filter(val => val).length === 0) {
+						for (const stat in results[team][name].stats) {
+							results[team][name].stats[stat] = null;
+						}
+					}
 				}
 			} else {
 				//Otherwise, parse top of page
