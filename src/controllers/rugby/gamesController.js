@@ -5,6 +5,7 @@ const Game = mongoose.model(collectionName);
 const NeutralGame = mongoose.model("neutralGames");
 const Team = mongoose.model("teams");
 const TeamType = mongoose.model("teamTypes");
+const TeamSelector = mongoose.model("teamSelectors");
 const SlugRedirect = mongoose.model("slugRedirect");
 const NewsPost = mongoose.model("newsPosts");
 
@@ -19,6 +20,7 @@ import gameEvents from "~/constants/gameEvents";
 
 //Helpers
 import { getMainTeamType } from "~/controllers/rugby/teamsController";
+import { updateGameSelector } from "~/controllers/teamSelectorController";
 import { postToSocial } from "../oAuthController";
 import { getUpdatedNeutralGames } from "./neutralGamesController";
 import { getIdFromSlug } from "~/helpers/routeHelperSERVER";
@@ -1002,6 +1004,7 @@ export async function deleteGame(req, res) {
 			});
 		} else {
 			await game.remove();
+			await TeamSelector.deleteOne({ _game: _id });
 			res.send({});
 		}
 	}
@@ -1029,6 +1032,9 @@ export async function updateGame(req, res) {
 					itemId: _id
 				});
 				await slugRedirect.save();
+
+				//Auto-generated team selectors depend on the slug, so we update the value here if we have one.
+				await updateGameSelector(_id);
 			}
 		}
 

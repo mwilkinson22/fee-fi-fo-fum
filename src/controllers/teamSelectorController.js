@@ -111,10 +111,20 @@ export async function getTeamSelectorForGame(req, res) {
 		req.params._id = selector._id;
 		await updateGameSelector(_game);
 	} else {
+		//Title and slug are unique fields, so we need to ensure we don't have any selectors with these values
+		let title = `game-${game.slug}`;
+		let slug = game.slug;
+		const existingSelector = await TeamSelector.findOne({ $or: [{ title }, { slug }] }, "id").lean();
+		if (existingSelector) {
+			const suffix = `-${_game}`;
+			title += suffix;
+			slug += suffix;
+		}
+
 		//Fill with dummy data, as this will be dynamically populated by the API
 		const values = {
-			title: `game-${game.slug}`,
-			slug: game.slug,
+			title,
+			slug,
 			players: [],
 			_game
 		};
