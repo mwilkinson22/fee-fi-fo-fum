@@ -207,7 +207,11 @@ export default class MultiplePlayerStats extends Canvas {
 		const imageBoxHeight = height - statBoxHeight;
 
 		//Flatten eligible players
-		const eligiblePlayers = _.chain(game.eligiblePlayers).values().flatten().keyBy("_id").value();
+		const eligiblePlayers = _.chain(game.eligiblePlayers)
+			.values()
+			.flatten()
+			.keyBy("_id")
+			.value();
 
 		for (let { _player, stats } of players) {
 			//Draw empty box with shadow
@@ -236,7 +240,7 @@ export default class MultiplePlayerStats extends Canvas {
 					yAlign: "top"
 				});
 			} else {
-				applyPreviousIdentity(new Date(game.date).getFullYear(), game._opposition);
+				game._opposition = applyPreviousIdentity(new Date(game.date).getFullYear(), game._opposition);
 				const teamImages = game._opposition.images;
 				const image = await this.googleToCanvas(`images/teams/${teamImages.dark || teamImages.main}`);
 				const margin = imageBoxHeight * 0.1;

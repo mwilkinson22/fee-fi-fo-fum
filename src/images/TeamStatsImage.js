@@ -67,14 +67,14 @@ export default class TeamStatsImage extends Canvas {
 	}
 
 	async getTeamInfo() {
-		const { date, isAway, _opposition } = this.game;
+		const { date, isAway } = this.game;
 
 		//Get the local team object
-		const localTeamObject = await Team.findById(localTeam, "name images colours previousIdentities").lean();
+		let localTeamObject = await Team.findById(localTeam, "name images colours previousIdentities").lean();
 
 		const gameYear = new Date(date).getFullYear();
-		applyPreviousIdentity(gameYear, localTeamObject);
-		applyPreviousIdentity(gameYear, _opposition);
+		localTeamObject = applyPreviousIdentity(gameYear, localTeamObject);
+		const _opposition = applyPreviousIdentity(gameYear, this.game._opposition);
 
 		//Get team images. The background colour should correspond
 		//to the local team, so we can just use the main image

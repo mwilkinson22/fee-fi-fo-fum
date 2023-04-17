@@ -354,8 +354,12 @@ export default class PregameImage extends Canvas {
 		//Populate Teams
 		const Team = mongoose.model("teams");
 		const teams = await Team.find({ _id: { $in: teamIds } }, "name colours images previousIdentities").lean();
-		this.teams = teamIds.map(id => teams.find(t => t._id == id));
-		this.teams.forEach(team => applyPreviousIdentity(new Date(game.date).getFullYear(), team));
+		this.teams = teamIds.map(id =>
+			applyPreviousIdentity(
+				new Date(game.date).getFullYear(),
+				teams.find(t => t._id == id)
+			)
+		);
 
 		//BG
 		this.drawBackground();

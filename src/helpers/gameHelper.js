@@ -36,8 +36,7 @@ export function fixDates(games) {
 
 export function fixLocalGames(games, localTeam) {
 	return _.mapValues(fixDates(games), game => {
-		const localTeamObject = { ...localTeam };
-		applyPreviousIdentity(game.date.getFullYear(), localTeamObject);
+		const localTeamObject = applyPreviousIdentity(game.date.getFullYear(), localTeam);
 		game.teams = [localTeamObject, game._opposition];
 		if (game.isAway) {
 			game.teams.reverse();

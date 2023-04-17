@@ -57,13 +57,18 @@ export function getSquadsAsDropdown(squads, teamTypes) {
 }
 
 export function applyPreviousIdentity(year, team) {
+	// Always return a clone.
+	const newTeam = _.cloneDeep(team);
+
 	if (team.previousIdentities) {
 		const identity = team.previousIdentities.find(({ toYear, fromYear }) => toYear >= year && fromYear <= year);
 
 		if (identity) {
-			Object.keys(teamIdentityFields).forEach(field => (team[field] = identity[field]));
+			Object.keys(teamIdentityFields).forEach(field => (newTeam[field] = identity[field]));
 		}
 
-		delete team.previousIdentities;
+		delete newTeam.previousIdentities;
 	}
+
+	return newTeam;
 }

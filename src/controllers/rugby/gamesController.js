@@ -63,7 +63,7 @@ export async function getFullGames(query, forGamePage, forAdmin, options = { sor
 
 	//Update opposition based on previous identity
 	games.forEach(game => {
-		applyPreviousIdentity(new Date(game.date).getFullYear(), game._opposition);
+		game._opposition = applyPreviousIdentity(new Date(game.date).getFullYear(), game._opposition);
 	});
 
 	return games;
@@ -585,8 +585,8 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 		.map(g => {
 			g.date = new Date(g.date);
 			const year = g.date.getFullYear();
-			applyPreviousIdentity(year, g._homeTeam);
-			applyPreviousIdentity(year, g._awayTeam);
+			g._homeTeam = applyPreviousIdentity(year, g._homeTeam);
+			g._awayTeam = applyPreviousIdentity(year, g._awayTeam);
 			return g;
 		})
 		.orderBy("date", "desc")

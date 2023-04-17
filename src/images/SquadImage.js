@@ -96,7 +96,7 @@ export default class SquadImage extends Canvas {
 		this.teamBadges[localTeam] = {};
 
 		// Sometimes this is defined in the selector settings. If not, we check the game.
-		this.usesExtraInterchange = this.selector.usesExtraInterchange;
+		this.usesExtraInterchange = this.selector ? this.selector.usesExtraInterchange : false;
 
 		if (this.game) {
 			this.teamBadges[this.game._opposition._id] = {};
@@ -137,13 +137,13 @@ export default class SquadImage extends Canvas {
 		const { game, options } = this;
 		//Get Team Badges
 		const Team = mongoose.model("teams");
-		const localTeamObject = await Team.findById(localTeam, "images previousIdentities").lean();
+		let localTeamObject = await Team.findById(localTeam, "images previousIdentities").lean();
 
 		//Apply previous identities
 		if (game) {
 			const gameYear = new Date(game.date).getFullYear();
-			applyPreviousIdentity(gameYear, localTeamObject);
-			applyPreviousIdentity(gameYear, game._opposition);
+			localTeamObject = applyPreviousIdentity(gameYear, localTeamObject);
+			game._opposition = applyPreviousIdentity(gameYear, game._opposition);
 		}
 
 		//First, load the 'dark' image to be shown in the sidebar

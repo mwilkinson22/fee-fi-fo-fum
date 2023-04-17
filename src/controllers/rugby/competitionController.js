@@ -633,8 +633,10 @@ export async function processLeagueTableData(segmentId, year, options = {}, forM
 		Game.find(localGameWithScoreOverrideMatch, "_id _opposition isAway scoreOverride").lean(),
 		NeutralGame.find(neutralGameMatch, "_homeTeam _awayTeam homePoints awayPoints").lean()
 	]);
-	teams.forEach(team => applyPreviousIdentity(year, team));
-	teams = _.keyBy(teams, "_id");
+	teams = _.keyBy(
+		teams.map(team => applyPreviousIdentity(year, team)),
+		"_id"
+	);
 
 	//Loop games with a scoreOverride and add them to the local game list
 	for (const game of localGameWithScoreOverride) {

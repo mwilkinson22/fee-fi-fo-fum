@@ -76,9 +76,10 @@ export default class GameEventImage extends Canvas {
 			{ _id: { $in: [localTeam, this.game._opposition._id] } },
 			"images colours previousIdentities"
 		);
-		for (const team of teams) {
-			applyPreviousIdentity(new Date(game.date).getFullYear(), team);
+		for (const i in teams) {
+			const team = applyPreviousIdentity(new Date(game.date).getFullYear(), teams[i]);
 			team.badge = await this.googleToCanvas(`images/teams/${team.images.light || team.images.main}`);
+			teams[i] = team;
 		}
 		const awayTeam = game.isAway ? localTeam : game._opposition._id;
 		this.teams = _.sortBy(teams, t => t._id == awayTeam);

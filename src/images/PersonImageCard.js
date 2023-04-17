@@ -78,11 +78,11 @@ export default class PersonImageCard extends Canvas {
 
 	async loadTeamBadges() {
 		if (!this.teamBadges) {
-			const teams = await Team.find(
+			let teams = await Team.find(
 				{ _id: { $in: [localTeam, this.options.game._opposition._id] } },
 				"images previousIdentities"
 			).lean();
-			teams.forEach(team => applyPreviousIdentity(new Date(this.options.game.date).getFullYear(), team));
+			teams = teams.map(team => applyPreviousIdentity(new Date(this.options.game.date).getFullYear(), team));
 			this.teamBadges = {};
 			for (const team of teams) {
 				const { _id, images } = team;
@@ -221,6 +221,7 @@ export default class PersonImageCard extends Canvas {
 		}
 		const { ctx, cWidth, cHeight, _id, options, textStyles, positions } = this;
 		let squadNumber, firstName, lastName, image;
+		let isTeamBadge = false;
 		//Save time by pulling data from game, if possible
 		if (options.game) {
 			const { _team } = _.find(options.game.playerStats, ({ _player }) => _player._id == _id);
@@ -230,6 +231,9 @@ export default class PersonImageCard extends Canvas {
 			lastName = name.last;
 			if ((images.player || images.main) && _team == localTeam) {
 				image = await this.googleToCanvas(`images/people/full/${images.player || images.main}`);
+			} else {
+				image = this.teamBadges[_team];
+				isTeamBadge = true;
 			}
 		} else {
 			const person = await Person.findById(_id, "name images").lean();
@@ -284,10 +288,20 @@ export default class PersonImageCard extends Canvas {
 		}
 
 		if (image) {
-			this.cover(image, 0, Math.round(cHeight * 0.06), Math.round(cWidth * 0.5), Math.round(cHeight * 0.94), {
-				xAlign: "right",
-				yAlign: "top"
-			});
+			if (isTeamBadge) {
+				this.contain(
+					image,
+					0,
+					Math.round(cHeight * 0.06),
+					Math.round(cWidth * 0.5),
+					Math.round(cHeight * 0.94)
+				);
+			} else {
+				this.cover(image, 0, Math.round(cHeight * 0.06), Math.round(cWidth * 0.5), Math.round(cHeight * 0.94), {
+					xAlign: "right",
+					yAlign: "top"
+				});
+			}
 		}
 
 		this.personDataRendered = true;
@@ -614,8 +628,6 @@ export default class PersonImageCard extends Canvas {
 		this.textBuilder(rows, cWidth * 0.97, cHeight * 0.31, { xAlign: "right", lineHeight });
 		this.resetShadow();
 	}
-
-	drawSteelPoints() {}
 
 	async render(forTwitter = false) {
 		if (!this.personDataRendered) {
