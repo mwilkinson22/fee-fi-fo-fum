@@ -904,6 +904,7 @@ section.match-squads {
 					padding-top: 4pt;
 					width: 100%;
 					border-top: 1pt solid;
+					z-index: 1;
 				}
 			}
 			.person-wrapper {
@@ -996,7 +997,6 @@ section.match-squads {
 				.row {
 					width: 100%;
 					justify-content: center;
-					z-index: 1;
 					&:nth-child(4) {
 						//Halfbacks
 						margin: 8pt 0;
