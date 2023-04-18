@@ -1748,7 +1748,7 @@ export async function getCalendar(req, res) {
 	}
 
 	const query = {
-		date: { $gt: new Date("2020-01-01") },
+		date: { $gt: `${new Date().getFullYear()}-01-01` },
 		hideGame: { $in: [false, null] }
 	};
 
