@@ -16,7 +16,7 @@ import { applyPreviousIdentity } from "~/helpers/teamHelper";
 export function validateGameDate(game, listType, year = null) {
 	const now = new Date();
 
-	if (listType === "results" && year) {
+	if (listType === "results" && year && year != "all") {
 		return game.date <= now && game.date.getFullYear() == year;
 	} else if (listType === "results") {
 		return game.date <= now;

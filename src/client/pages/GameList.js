@@ -15,10 +15,11 @@ import AdminGameCard from "~/client/components/games/AdminGameCard";
 import CalendarDialog from "../components/games/calendar/CalendarDialog";
 
 //Actions
-import { fetchGames, fetchGameListByYear } from "../actions/gamesActions";
+import { fetchGames, fetchGameListByYear, fetchEntireGameList } from "../actions/gamesActions";
 import { setActiveTeamType } from "../actions/teamsActions";
 
 //Helpers
+import { stringToProper } from "~/helpers/genericHelper";
 import { getYearsWithResults, validateGameDate } from "~/helpers/gameHelper";
 
 class GameList extends Component {
@@ -40,7 +41,9 @@ class GameList extends Component {
 			gameYears,
 			activeTeamType,
 			setActiveTeamType,
-			fetchGameListByYear
+			fetchGameListByYear,
+			fetchEntireGameList,
+			authUser
 		} = nextProps;
 
 		//Determine Admin Status
@@ -57,24 +60,40 @@ class GameList extends Component {
 		//Enforce string so we can be consistent with match.params
 		newState.years = getYearsWithResults(gameYears).map(y => y.toString());
 
+		//Add all results for admins
+		if (authUser && authUser.isAdmin) {
+			newState.years.unshift("all");
+		}
+
 		//Get Active Year
 		newState.year = match.params.year;
 
 		if (!newState.year || !newState.years.includes(newState.year)) {
-			newState.year = newState.listType === "fixtures" ? "fixtures" : newState.years[0];
+			// Either use "fixtures" or the first numeric year, depending on list type.
+			newState.year = newState.listType === "fixtures" ? "fixtures" : newState.years.find(year => parseInt(year));
 		}
 
 		//Add "fixtures" back to the list
 		newState.years.unshift("fixtures");
 
-		//Update gameList for this year
-		if (!gameYears[newState.year]) {
+		let missingRelevantGameList;
+		if (newState.year == "all") {
+			// For all, see if any of our numeric years are missing from the gameYears object.
+			missingRelevantGameList = newState.years.some(year => parseInt(year) && !gameYears[year]);
+		} else if (!gameYears[newState.year]) {
+			// Otherwise, just check we have our list for this current year.
+			missingRelevantGameList = !gameYears[newState.year];
+		}
+
+		if (missingRelevantGameList) {
+			// Prevent duplicate server calls
 			if (prevState.isLoadingList !== newState.year) {
-				fetchGameListByYear(newState.year);
+				newState.year == "all" ? fetchEntireGameList() : fetchGameListByYear(newState.year);
+				newState.isLoadingList = newState.year;
 			}
-			newState.isLoadingList = newState.year;
 			return newState;
 		}
+		// If we get here, we have our gameList.
 		newState.isLoadingList = false;
 
 		//Get Valid Team Types for this year
@@ -161,13 +180,11 @@ class GameList extends Component {
 		const { years, teamType, isAdmin } = this.state;
 
 		//Otherwise we dynamically render a select
-		const options = _.map(years, year => {
-			return (
-				<option key={year} value={year}>
-					{year === "fixtures" ? "All Fixtures" : `${year} Results`}
-				</option>
-			);
-		});
+		const options = _.map(years, year => (
+			<option key={year} value={year}>
+				{year === "fixtures" ? "All Fixtures" : `${stringToProper(year.toString())} Results`}
+			</option>
+		));
 
 		//Create Select
 		let rootUrl;
@@ -326,10 +343,11 @@ class GameList extends Component {
 }
 
 function mapStateToProps({ games, teams, config }) {
-	const { bucketPaths, localTeam } = config;
+	const { bucketPaths, localTeam, authUser } = config;
 	const { gameList, fullGames, gameYears } = games;
 	const { fullTeams, teamTypes, activeTeamType } = teams;
 	return {
+		authUser,
 		bucketPaths,
 		localTeam,
 		gameList,
@@ -369,6 +387,7 @@ export default {
 	component: connect(mapStateToProps, {
 		fetchGames,
 		fetchGameListByYear,
+		fetchEntireGameList,
 		setActiveTeamType
 	})(GameList),
 	loadData
