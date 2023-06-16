@@ -30,7 +30,6 @@ import "./models/SlugRedirect";
 import "./models/Sponsor";
 import "./models/NewsPost";
 import "./models/User";
-import "./models/TempNetworkRequest";
 
 //Frontend
 import Routes from "./client/Routes";
