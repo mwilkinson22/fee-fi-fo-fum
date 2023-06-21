@@ -186,7 +186,6 @@ class AdminGamePostGame extends Component {
 					name: `manOfSteel.${i}points`,
 					type: fieldTypes.select,
 					options: options.players.bothTeams,
-					isSearchable: false,
 					isClearable: true,
 					isNested: true
 				});
