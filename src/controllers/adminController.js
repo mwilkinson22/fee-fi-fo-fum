@@ -182,7 +182,8 @@ async function getGames(firstTeam) {
 		{
 			date: { $lte: new Date().addWeeks(2), $gte: `${new Date().getFullYear()}-01-01` },
 			hideGame: false,
-			scoreOverride: { $exists: true, $size: 0 }
+			scoreOverride: { $exists: true, $size: 0 },
+			excludeFromAdminDashboard: false
 		},
 		true,
 		false,

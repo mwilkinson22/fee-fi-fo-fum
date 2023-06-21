@@ -48,6 +48,7 @@ const gameSchema = new Schema(
 		customTitle: { type: String, default: null },
 		externalId: { type: Number, default: null },
 		externalSync: { type: Boolean, default: false },
+		excludeFromAdminDashboard: { type: Boolean, default: false },
 		round: { type: Number, default: null },
 		pregameSquads: {
 			type: [
@@ -229,7 +230,14 @@ gameSchema.query.fullGame = function(forGamePage, forAdmin) {
 		model = this;
 	} else {
 		//Things to remove for all non-admin loads
-		let propsToRemove = ["events", "externalId", "externalSync", "extraTime", "_kickers"];
+		let propsToRemove = [
+			"events",
+			"externalId",
+			"externalSync",
+			"extraTime",
+			"_kickers",
+			"excludeFromAdminDashboard"
+		];
 
 		//Things to remove for basics
 		if (!forGamePage) {
