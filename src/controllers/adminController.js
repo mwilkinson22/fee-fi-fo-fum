@@ -16,17 +16,16 @@ export async function getDashboardData(req, res) {
 	//Get the localTeam
 	const localTeamObject = await Team.findById(localTeam, "squads coaches").lean();
 
-	//Determine whether to get local games for the whole year
-	const { entireYear } = req.query;
-
 	//Get the first team
-	const teamTypes = await TeamType.find({}).sort({ sortOrder: 1 }).lean();
+	const teamTypes = await TeamType.find({})
+		.sort({ sortOrder: 1 })
+		.lean();
 	const firstTeam = teamTypes[0]._id.toString();
 
 	//Create an object with all the data we need
 	const promises = {
 		birthdays: getBirthdays(localTeamObject),
-		gamesWithIssues: getGames(firstTeam, entireYear === "true"),
+		gamesWithIssues: getGames(firstTeam),
 		missingPlayerDetails: getPlayersWithMissingData(localTeamObject, firstTeam),
 		teamsWithoutGrounds: getTeamsWithoutGrounds()
 	};
@@ -166,7 +165,7 @@ async function getPlayersWithMissingData(team, firstTeam) {
 	);
 }
 
-async function getGames(firstTeam, entireYear = false) {
+async function getGames(firstTeam) {
 	//Work out the date where we would expect games to have pregame squads.
 	//So first, work out if we're past midday
 	const now = new Date();
@@ -179,17 +178,9 @@ async function getGames(firstTeam, entireYear = false) {
 	pregameSquadDate.setHours(0, 0, 0);
 
 	//Get games for this year, up to two weeks in advance, ignoring those with a score override
-	const dateFilter = { $lte: new Date().addWeeks(2) };
-	if (entireYear) {
-		dateFilter["$gte"] = `${new Date().getFullYear()}-01-01`;
-	} else {
-		dateFilter["$gte"] = `${new Date().addWeeks(-2)}`;
-	}
-
-	//Get Games
 	let games = await getFullGames(
 		{
-			date: dateFilter,
+			date: { $lte: new Date().addWeeks(2), $gte: `${new Date().getFullYear()}-01-01` },
 			hideGame: false,
 			scoreOverride: { $exists: true, $size: 0 }
 		},
@@ -202,7 +193,7 @@ async function getGames(firstTeam, entireYear = false) {
 	games = JSON.parse(JSON.stringify(games));
 
 	//Get eligible players and additional info
-	games = await getExtraGameInfo(games, true, true);
+	games = await getExtraGameInfo(games, true, true, false);
 
 	//Filter out those with issues
 	return games
@@ -282,7 +273,10 @@ async function getGames(firstTeam, entireYear = false) {
 
 			//Check for man/woman of steel
 			if (game._competition.instance.manOfSteelPoints && !game._competition.instance.manOfSteelPointsGoneDark) {
-				const nextMondayAfternoon = new Date(date).next().monday().setHours(16, 0, 0);
+				const nextMondayAfternoon = new Date(date)
+					.next()
+					.monday()
+					.setHours(16, 0, 0);
 
 				const pointsRequired = !game.manOfSteel || game.manOfSteel.length < 3;
 

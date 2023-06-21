@@ -1,4 +1,4 @@
-export const fetchAdminDashboardData = entireYear => async (dispatch, getState, api) => {
-	const res = await api.get(`/admin/dashboard${entireYear ? "?entireYear=true" : ""}`);
+export const fetchAdminDashboardData = () => async (dispatch, getState, api) => {
+	const res = await api.get("/admin/dashboard");
 	return res.data;
 };

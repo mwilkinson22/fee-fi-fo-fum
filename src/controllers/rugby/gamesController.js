@@ -110,7 +110,7 @@ async function checkFanPotmVote(req, _id) {
 	return game.fan_potm.votes.find(v => v.ip == ipAddress || v.session == session.id);
 }
 
-export async function getExtraGameInfo(games, forGamePage, forAdmin) {
+export async function getExtraGameInfo(games, forGamePage, forAdmin, includeTeamForm = true) {
 	//Convert to JSON and fix scoreOverride and fan_potm.votes
 	games = games.map(g => {
 		const game = JSON.parse(JSON.stringify(g));
@@ -190,9 +190,11 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 			asyncCalls.push(lastSquadLoaded);
 		}
 
-		const allCompetitionQuery = getTeamForm(game, 5, true);
-		const singleCompetitionQuery = getTeamForm(game, 5, false);
-		asyncCalls.unshift(allCompetitionQuery, singleCompetitionQuery);
+		if (includeTeamForm) {
+			const allCompetitionQuery = getTeamForm(game, 5, true);
+			const singleCompetitionQuery = getTeamForm(game, 5, false);
+			asyncCalls.unshift(allCompetitionQuery, singleCompetitionQuery);
+		}
 
 		//Get news posts
 		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id")
@@ -201,7 +203,8 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		asyncCalls.unshift(newsPostQuery);
 
 		//Ensure all async calls are run
-		const [newsPosts, allCompetitions, singleCompetition] = await Promise.all(asyncCalls);
+		const asyncResults = await Promise.all(asyncCalls);
+		const newsPosts = asyncResults[0];
 
 		//Add news posts
 		if (newsPosts && newsPosts.length) {
@@ -209,7 +212,9 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin) {
 		}
 
 		//Add team form to game object
-		game.teamForm = { allCompetitions, singleCompetition };
+		if (includeTeamForm) {
+			game.teamForm = { allCompetitions: asyncResults[1], singleCompetition: asyncResults[2] };
+		}
 
 		//Add variables to help govern reloading
 		game.pageData = true;
