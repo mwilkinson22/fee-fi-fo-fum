@@ -12,6 +12,7 @@ const SlugRedirect = mongoose.model("slugRedirect");
 
 //Constants
 const { fetchPeopleLimit, localTeam } = require("~/config/keys");
+import nameSuffixes from "~/constants/nameSuffixes";
 
 //Images
 import PersonImageCard from "~/images/PersonImageCard";
@@ -305,7 +306,26 @@ export async function parsePlayerList(req, res) {
 	const { names, gender } = req.body;
 
 	//Regex to normalise names
-	const regEx = new RegExp("[^a-zA-Z]", "gi");
+	const suffixRegex = new RegExp("\\s(" + nameSuffixes.join("|") + ").?$", "i");
+	const extractSuffix = name => {
+		const match = name.match(suffixRegex);
+		return match
+			? match[0]
+					.replace(".", "")
+					.trim()
+					.toLowerCase()
+					// this allows us to match jnr to jr, etc
+					.replace("n", "")
+			: null;
+	};
+	const normaliseName = name =>
+		name
+			.toLowerCase()
+			//Remove special characters
+			.replace(/[^a-z ]/gi, "")
+			//Replace Suffix
+			.replace(suffixRegex, "")
+			.trim();
 
 	//Get full people list
 	let people = await Person.find({ gender }, "name isPlayer isCoach isReferee").lean();
@@ -314,26 +334,38 @@ export async function parsePlayerList(req, res) {
 		return {
 			...p,
 			name,
-			filteredName: name.replace(regEx, "").toLowerCase()
+			filteredName: normaliseName(name)
 		};
 	});
 
 	//Get Matches
 	const matches = [];
 	for (const unfilteredName of names) {
-		const name = unfilteredName.replace(regEx, "").toLowerCase();
+		const name = normaliseName(unfilteredName);
 
-		const exact = people.filter(p => p.filteredName === name);
+		let exact = people.filter(p => p.filteredName === name);
 		if (exact.length) {
-			matches.push({ exact: exact.length == 1 && exact[0].isPlayer, results: exact });
+			let isExact = exact.length == 1;
+
+			// Check for an exact match with a suffix
+			const submittedSuffix = extractSuffix(unfilteredName);
+			if (submittedSuffix) {
+				const matchesWithSameSuffix = exact.filter(person => {
+					const en = extractSuffix(person.name);
+					return en == submittedSuffix;
+				});
+
+				isExact = matchesWithSameSuffix.length == 1;
+				if (isExact) {
+					exact = matchesWithSameSuffix;
+				}
+			}
+
+			matches.push({ exact: isExact && exact[0].isPlayer, results: exact });
 		} else {
 			//Create a Regex that matches first initial and last name
 			const firstInitial = name.substr(0, 1);
-			const lastName = unfilteredName
-				.split(" ")
-				.pop()
-				.replace(regEx, "")
-				.toLowerCase();
+			const lastName = normaliseName(unfilteredName.split(" ").pop());
 			const approxRegex = new RegExp(`^${firstInitial}.+ ${lastName}$`, "ig");
 
 			//Find anyone who matches the regex
