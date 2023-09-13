@@ -1805,7 +1805,7 @@ export async function getCalendar(req, res) {
 	//Create Event Data
 	const events = games.map(g => {
 		//Set Basic Variables
-		const { _ground, slug, title, dateRange, hasTime } = g;
+		const { _ground, slug, title, dateRange, hasTime, _id } = g;
 
 		//Create date object
 		g.date = new Date(g.date);
@@ -1814,7 +1814,9 @@ export async function getCalendar(req, res) {
 		const calObject = {
 			title: convertGameToCalendarString(g, options, _.keyBy(teamTypes, "_id"), localTeamName.name),
 			description: title,
-			url: `${req.protocol}://${req.get("host")}/games/${slug}`
+			url: `${req.protocol}://${req.get("host")}/games/${slug}`,
+			//Add today's date as a daily cache buster
+			uid: _id + slug + new Date().getDate()
 		};
 
 		//Set date and duration
@@ -1870,9 +1872,9 @@ export async function getCalendar(req, res) {
 		res.status(500).send(error);
 	} else {
 		//Set header
-		res.set({
-			"Content-Disposition": `attachment; filename="${localTeamName.name.long} Fixture Calendar.ics"`
-		});
+		// res.set({
+		// 	"Content-Disposition": `attachment; filename="${localTeamName.name.long} Fixture Calendar.ics"`
+		// });
 		res.send(value);
 	}
 }
