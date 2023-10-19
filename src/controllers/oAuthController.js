@@ -2,6 +2,7 @@
 import _ from "lodash";
 import axios from "axios";
 import { OAuth } from "oauth";
+import { EUploadMimeType } from "twitter-api-v2";
 
 //Mongoose
 import mongoose from "mongoose";
@@ -25,7 +26,10 @@ async function getOAuthClient(req, res, service) {
 			let settings = await Settings.find({
 				name: { $in: ["twitter_consumer_key", "twitter_consumer_secret"] }
 			}).lean();
-			settings = _.chain(settings).keyBy("name").mapValues("value").value();
+			settings = _.chain(settings)
+				.keyBy("name")
+				.mapValues("value")
+				.value();
 
 			return new OAuth(
 				"https://api.twitter.com/oauth/request_token",
@@ -64,7 +68,7 @@ export async function getAuthorisedAccounts(req, res) {
 				case "twitter": {
 					try {
 						client = await twitter(null, keys);
-						const user = await client.get("account/verify_credentials");
+						const user = await client.v1.verifyCredentials();
 						if (user && user.data) {
 							data = _.pick(user.data, ["name", "screen_name", "id_str", "profile_image_url_https"]);
 							break;
@@ -153,7 +157,6 @@ export async function postToSocial(service, text, options = {}) {
 	if (!options._profile && !options.keys) {
 		return { success: false, error: "Social Profile ID or Keys must be included" };
 	}
-
 	switch (service) {
 		case "twitter": {
 			//Only one of these options will be required
@@ -162,11 +165,9 @@ export async function postToSocial(service, text, options = {}) {
 			//First, upload the images
 			const media_ids = [];
 			if (options.images && options.images.length) {
-				for (const media_data of options.images) {
-					const upload = await client.post("media/upload", {
-						media_data
-					});
-					media_ids.push(upload.data.media_id_string);
+				for (const mediaData of options.images) {
+					const mediaIdString = await client.v1.uploadMedia(mediaData, { mimeType: EUploadMimeType.Jpeg });
+					media_ids.push(mediaIdString);
 				}
 			}
 			if (options.media_strings && options.media_strings.length) {
@@ -174,27 +175,31 @@ export async function postToSocial(service, text, options = {}) {
 			}
 
 			//Post Tweet
-			let postedTweet, error;
-			try {
-				postedTweet = await client.post("statuses/update", {
-					status: text,
-					in_reply_to_status_id: options.replyTweet,
-					auto_populate_reply_metadata: true,
-					tweet_mode: "extended",
-					media_ids
-				});
-			} catch (e) {
-				error = e;
-			}
 
-			if (error) {
-				return { success: false, error };
-			} else {
+			try {
+				const tweetSettings = { text };
+				if (options.replyTweet) {
+					tweetSettings.reply = {
+						in_reply_to_tweet_id: options.replyTweet
+					};
+				}
+
+				if (media_ids && media_ids.length) {
+					tweetSettings.media = { media_ids };
+				}
+
+				const postedTweet = await client.v2.tweet(tweetSettings);
+
 				return { success: true, post: postedTweet.data };
+			} catch (error) {
+				return { success: false, error };
 			}
 		}
 
 		case "facebook": {
+			// IFTTT seems to be broken. Temporarily disbling Facebook posting.
+			return;
+
 			//Get Profile
 			const profile = await SocialProfile.findById(options._profile).lean();
 
@@ -251,10 +256,10 @@ export async function postToSocial(service, text, options = {}) {
 			}
 			//If there's no image, check for a link
 			else {
+				event += "_with_link";
 				const matches = data.value1.match(urlRegex);
 				if (matches && matches.length === 1) {
 					const [url] = matches;
-					event += "_with_link";
 					data.value1 = data.value1.replace(url, "").trim();
 					data.value2 = url;
 				}

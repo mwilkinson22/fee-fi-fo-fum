@@ -1,5 +1,5 @@
 import _ from "lodash";
-import Twitter from "twit";
+import { TwitterApi } from "twitter-api-v2";
 import mongoose from "mongoose";
 const Settings = mongoose.model("settings");
 const SocialProfile = mongoose.model("socialProfiles");
@@ -34,10 +34,10 @@ export default async (_profile, keys = null) => {
 	const { access_token, access_token_secret } = accessKeys;
 
 	//Get Client
-	return new Twitter({
-		consumer_key,
-		consumer_secret,
-		access_token,
-		access_token_secret
+	return new TwitterApi({
+		appKey: consumer_key,
+		appSecret: consumer_secret,
+		accessToken: access_token,
+		accessSecret: access_token_secret
 	});
 };

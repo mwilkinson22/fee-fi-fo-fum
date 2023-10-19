@@ -2,7 +2,6 @@
 import _ from "lodash";
 import { parse } from "node-html-parser";
 import axios from "axios";
-import twitter from "~/services/twitter";
 import https from "https";
 
 //Mongoose
@@ -822,45 +821,24 @@ export async function postCompetitionInstanceImage(req, res) {
 		//Validate instance
 		const instance = await validateInstance(segment, _instance);
 		if (instance) {
-			//Get Twitter Client for uploading images
-			const twitterClient = await twitter(_profile);
-
 			//Get Base64 Image
 			const image = await generateCompetitionInstanceImage(imageType, segment, instance, res);
 			if (image) {
 				const media_data = await image.render(true);
 
-				//Upload to twitter
-				const upload = await twitterClient.post("media/upload", {
-					media_data
+				const twitterResult = await postToSocial("twitter", content, {
+					_profile,
+					images: [media_data],
+					replyTweet
 				});
 
-				//Get Media Id String
-				const { media_id_string } = upload.data;
-				const media_ids = [media_id_string];
-
-				//Post Tweet
-				let postedTweet, tweetError;
-				try {
-					postedTweet = await twitterClient.post("statuses/update", {
-						status: content,
-						in_reply_to_status_id: replyTweet,
-						auto_populate_reply_metadata: true,
-						tweet_mode: "extended",
-						media_ids
-					});
-				} catch (e) {
-					tweetError = e;
+				if (!twitterResult.success) {
+					const { error } = twitterResult;
+					return res.status(error.statusCode).send(`(Twitter) - ${error.message}`);
 				}
-
-				if (tweetError) {
-					res.status(tweetError.statusCode).send(`(Twitter) - ${tweetError.message}`);
-					return;
-				}
-
 				//Post to Facebook
 				if (channels.find(c => c == "facebook")) {
-					const tweetMediaObject = postedTweet.data.entities.media;
+					const tweetMediaObject = twitterResult.post.data.entities.media;
 					const images = tweetMediaObject.map(t => t.media_url);
 					await postToSocial("facebook", content, { _profile, images });
 				}

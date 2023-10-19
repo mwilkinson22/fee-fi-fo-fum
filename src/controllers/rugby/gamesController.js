@@ -1207,10 +1207,8 @@ export async function handleEvent(req, res) {
 		if (postTweet) {
 			//Get updated game
 			game = await Game.findById(_id).eventImage();
-			const twitterClient = await twitter(_profile);
-
 			//Create Image
-			let media_ids = null;
+			const images = [];
 			if (event !== "none") {
 				let image;
 				if (gameEvents[event].isPlayerEvent) {
@@ -1238,38 +1236,29 @@ export async function handleEvent(req, res) {
 					}
 				}
 
-				const media_data = image ? await image.render(true) : null;
-				const upload = await twitterClient.post("media/upload", {
-					media_data
-				});
-				const { media_id_string } = upload.data;
-				media_ids = [media_id_string];
+				if (image) {
+					images.push(await image.render(true));
+				}
 			}
 
-			//Post Tweet
-			let postedTweet, tweetError;
-			try {
-				postedTweet = await twitterClient.post("statuses/update", {
-					status: tweet,
-					in_reply_to_status_id: replyTweet,
-					auto_populate_reply_metadata: true,
-					tweet_mode: "extended",
-					media_ids
-				});
-			} catch (e) {
-				tweetError = e;
+			const twitterResult = await postToSocial("twitter", tweet, {
+				_profile,
+				replyTweet,
+				images
+			});
+
+			if (!twitterResult.success) {
+				const { error } = twitterResult;
+				return res.status(error.statusCode).send(`(Twitter) - ${error.message}`);
 			}
 
-			if (tweetError) {
-				res.status(tweetError.statusCode).send(`(Twitter) - ${tweetError.message}`);
-				return;
-			}
+			const postedTweet = twitterResult.post;
 
 			eventObject.tweet_text = tweet;
-			eventObject.tweet_id = postedTweet.data.id_str;
+			eventObject.tweet_id = postedTweet.id;
 			eventObject._profile = _profile;
 
-			const tweetMediaObject = postedTweet.data.entities.media;
+			const tweetMediaObject = postedTweet?.entities?.media;
 			if (tweetMediaObject) {
 				eventObject.tweet_image = tweetMediaObject[0].media_url;
 			}
@@ -1311,7 +1300,7 @@ export async function deleteEvent(req, res) {
 			//Delete Tweet
 			if (deleteTweet && tweet_id) {
 				const twitterClient = await twitter(_profile);
-				await twitterClient.post(`statuses/destroy/${tweet_id}`);
+				await twitterClient.v2.deleteTweet(tweet_id);
 			}
 
 			//Undo DB Data
@@ -1532,7 +1521,6 @@ export async function fetchFixtureListImage(req, res) {
 
 export async function postFixtureListImage(req, res) {
 	const { year, _competitions, _profile, tweet, fixturesOnly, dateBreakdown } = req.body;
-	const twitterClient = await twitter(_profile);
 
 	//Render Image
 	const imageClass = await generateFixtureListImage(year, _competitions, fixturesOnly, dateBreakdown);
@@ -1544,31 +1532,17 @@ export async function postFixtureListImage(req, res) {
 
 	const image = await imageClass.render(true);
 
-	//Upload image
-	const upload = await twitterClient.post("media/upload", {
-		media_data: image
+	const twitterResult = await postToSocial("twitter", tweet, {
+		_profile,
+		images: [image]
 	});
-	const { media_id_string } = upload.data;
-	const media_ids = [media_id_string];
 
-	//Post Tweet
-	let postedTweet, tweetError;
-	try {
-		postedTweet = await twitterClient.post("statuses/update", {
-			status: tweet,
-			tweet_mode: "extended",
-			media_ids
-		});
-	} catch (e) {
-		tweetError = e;
+	if (!twitterResult.success) {
+		const { error } = twitterResult;
+		return res.status(error.statusCode).send(`(Twitter) - ${error.message}`);
 	}
 
-	if (tweetError) {
-		res.status(tweetError.statusCode).send(`(Twitter) - ${tweetError.message}`);
-		return;
-	}
-
-	const tweetMediaObject = postedTweet.data.entities.media;
+	const tweetMediaObject = twitterResult.post.data.entities.media;
 	if (tweetMediaObject) {
 		await postToSocial("facebook", tweet, {
 			_profile,
@@ -1654,11 +1628,7 @@ export async function submitPostGameEvents(req, res) {
 		const [game] = await getExtraGameInfo([basicGame], true, true);
 		let { replyTweet, _profile, channels, posts } = req.body;
 
-		//Get Twitter Client for uploading images
-		const twitterClient = await twitter(_profile);
-
 		//Loop through posts and render images for twitter
-		const images = {};
 		for (const i in posts) {
 			const post = posts[i];
 			if (post.type !== "text-only") {
@@ -1667,58 +1637,30 @@ export async function submitPostGameEvents(req, res) {
 				const image = await generatePostGameEventImage(game, posts[i].additionalValues);
 				const media_data = await image.render(true);
 
-				console.info(`Uploading Image...`);
-				//Upload it to twitter
-				const upload = await twitterClient.post("media/upload", {
-					media_data
-				});
-
-				//Save the media_id_string
-				console.info(`Image uploaded!`);
-				images[i] = upload.data.media_id_string;
-			}
-		}
-
-		//Post Tweets
-		const imageUrls = {};
-		for (const i in posts) {
-			const { content } = posts[i];
-
-			const media_strings = [];
-			if (images[i]) {
-				media_strings.push(images[i]);
-			}
-			console.info(`Posting Tweet #${Number(i) + 1} of ${posts.length}...`);
-			const result = await postToSocial("twitter", content, {
-				_profile,
-				media_strings,
-				replyTweet
-			});
-
-			if (result.success) {
-				//Update reply tweet to continue thread
-				replyTweet = result.post.id_str;
-
-				//Get image URLs, for Facebook
-				const tweetMediaObject = result.post.entities.media;
-				if (tweetMediaObject) {
-					imageUrls[i] = tweetMediaObject[0].media_url;
-				}
-			}
-		}
-
-		//Handle facebook
-		if (channels.find(c => c === "facebook")) {
-			for (const i in posts) {
-				const images = [];
-				if (imageUrls[i]) {
-					images.push(imageUrls[i]);
-				}
-				console.info(`Posting Facebook Post #${Number(i) + 1} of ${posts.length}...`);
-				await postToSocial("facebook", posts[i].content, {
+				console.info(`Posting Tweet #${Number(i) + 1} of ${posts.length}...`);
+				const twitterResult = await postToSocial("twitter", post.content, {
 					_profile,
-					images
+					images: [media_data],
+					replyTweet
 				});
+
+				if (twitterResult.success) {
+					//Update reply tweet to continue thread
+					replyTweet = twitterResult.post.id;
+
+					// Handle facebook
+					if (channels.find(c => c === "facebook")) {
+						console.info(`Posting Facebook Post #${Number(i) + 1} of ${posts.length}...`);
+						const fbImages = [];
+						if (twitterResult?.post?.entities?.media?.length) {
+							fbImages.push(twitterResult.post.entities.media[0].media_url);
+						}
+						await postToSocial("facebook", posts[i].content, {
+							_profile,
+							images: fbImages
+						});
+					}
+				}
 			}
 		}
 

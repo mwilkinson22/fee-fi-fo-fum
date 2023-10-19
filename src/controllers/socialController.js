@@ -84,7 +84,7 @@ export async function validateTwitterCredentials(req, res) {
 	const twitterClient = await twitter(null, req.body);
 	let error, result;
 	try {
-		result = await twitterClient.get("account/settings");
+		result = await twitterClient.v1.verifyCredentials();
 	} catch (e) {
 		error = e;
 	}
@@ -96,7 +96,7 @@ export async function validateTwitterCredentials(req, res) {
 	} else {
 		res.send({
 			authenticated: true,
-			user: result.data.screen_name
+			user: result.screen_name
 		});
 	}
 }

@@ -122,7 +122,10 @@ export default class Canvas {
 	}
 
 	async googleToCanvas(file, withSharp) {
-		const fileType = file.split(".").pop().toLowerCase();
+		const fileType = file
+			.split(".")
+			.pop()
+			.toLowerCase();
 
 		//Ensure no trailing slash
 		file = file.replace(/^\//, "");
@@ -438,7 +441,7 @@ export default class Canvas {
 			case "base64":
 				return canvas.toDataURL();
 			case "twitter":
-				return canvas.toDataURL().split("base64,")[1];
+				return canvas.toBuffer();
 			default:
 				console.error(`Invalid render type: '${type}'`);
 				return null;
