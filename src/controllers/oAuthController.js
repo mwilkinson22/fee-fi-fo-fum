@@ -69,8 +69,8 @@ export async function getAuthorisedAccounts(req, res) {
 					try {
 						client = await twitter(null, keys);
 						const user = await client.v1.verifyCredentials();
-						if (user && user.data) {
-							data = _.pick(user.data, ["name", "screen_name", "id_str", "profile_image_url_https"]);
+						if (user) {
+							data = _.pick(user, ["name", "screen_name", "id_str", "profile_image_url_https"]);
 							break;
 						}
 					} catch (e) {
@@ -197,8 +197,10 @@ export async function postToSocial(service, text, options = {}) {
 		}
 
 		case "facebook": {
-			// IFTTT seems to be broken. Temporarily disbling Facebook posting.
-			return;
+			// IFTTT seems to be broken. Temporarily disabling Facebook posting.
+			// Using a bool to stop "unreachable code" error in IDE
+			const iftttBroken = true;
+			if (iftttBroken) return;
 
 			//Get Profile
 			const profile = await SocialProfile.findById(options._profile).lean();

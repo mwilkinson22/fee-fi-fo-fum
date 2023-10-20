@@ -129,8 +129,15 @@ class ShareDialog extends Component {
 	}
 
 	renderDialog() {
-		const { authorisedAccounts, fetchingPreview, images, isSubmitting, service, services, submittedPost } =
-			this.state;
+		const {
+			authorisedAccounts,
+			fetchingPreview,
+			images,
+			isSubmitting,
+			service,
+			services,
+			submittedPost
+		} = this.state;
 
 		if (service) {
 			let content;
@@ -172,9 +179,9 @@ class ShareDialog extends Component {
 					case "twitter": {
 						url = [
 							"https://twitter.com",
-							submittedPost.user.screen_name,
+							authorisedAccounts[service].screen_name,
 							"status",
-							submittedPost.id_str
+							submittedPost.id
 						].join("/");
 					}
 				}
