@@ -150,7 +150,6 @@ class ShareDialog extends Component {
 				} else if (!images.length) {
 					this.fetchPreview();
 				} else {
-					content = this.renderImagePreview();
 					content = (
 						<div>
 							{this.renderImagePreview()}
@@ -210,7 +209,12 @@ class ShareDialog extends Component {
 				content = this.renderComposer();
 			}
 
-			return <div className="dialog">{content}</div>;
+			return (
+				<div className="dialog">
+					{content}
+					{this.renderImagePreview()}
+				</div>
+			);
 		}
 	}
 
@@ -373,13 +377,13 @@ class ShareDialog extends Component {
 			<div>
 				{userInfo}
 				{composer}
-				{this.renderImagePreview()}
 			</div>
 		);
 	}
 
 	renderImagePreview() {
 		const { onFetchImage } = this.props;
+		console.log("HELLO");
 		const { images, fetchingPreview } = this.state;
 		if (images.length) {
 			const list = images.map((src, i) => (
