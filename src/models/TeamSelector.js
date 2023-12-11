@@ -7,6 +7,7 @@ const teamSelectorSchema = new Schema({
 	title: { type: String, required: true },
 	slug: { type: String, required: true, unique: true },
 	interchanges: { type: Number, required: true, default: 0 },
+	usesExtraInterchange: { type: Boolean, default: false },
 	players: [{ type: Schema.Types.ObjectId, ref: "people" }],
 	numberFromTeam: { type: Schema.Types.ObjectId, ref: "teams", default: null },
 	numberFromSquad: { type: Schema.Types.ObjectId, ref: "teams.squads", default: null },

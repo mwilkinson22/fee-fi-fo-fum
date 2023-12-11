@@ -75,8 +75,14 @@ class AdminTeamSelectorOverview extends Component {
 
 		//Validation Schema
 		const validationSchema = {
-			title: Yup.string().required().label("Title"),
-			interchanges: Yup.number().min(0).required().label("Interchanges"),
+			title: Yup.string()
+				.required()
+				.label("Title"),
+			interchanges: Yup.number()
+				.min(0)
+				.required()
+				.label("Interchanges"),
+			usesExtraInterchange: Yup.bool().label("Use Extra Interchange?"),
 			slug: validateSlug(),
 			numberFromTeam: Yup.mixed().label("Team"),
 			numberFromSquad: Yup.mixed().label("Squad"),
@@ -96,6 +102,7 @@ class AdminTeamSelectorOverview extends Component {
 		const defaultValues = {
 			title: "",
 			interchanges: "",
+			usesExtraInterchange: false,
 			slug: "",
 			numberFromTeam: "",
 			numberFromSquad: "",
@@ -129,6 +136,7 @@ class AdminTeamSelectorOverview extends Component {
 				fields: [
 					{ name: "title", type: fieldTypes.text },
 					{ name: "interchanges", type: fieldTypes.number },
+					{ name: "usesExtraInterchange", type: fieldTypes.boolean },
 					{ name: "slug", type: fieldTypes.text }
 				]
 			},

@@ -353,7 +353,8 @@ export default class SquadImage extends Canvas {
 			} else if (!this.compressInterchangeList) {
 				//Add the extra interchange label if necessary
 				if (this.usesExtraInterchange && i == this.expectedTeamLength - 1) {
-					const extraInterchangeLabel = `${getOrdinalNumber(i + 1)} ${game.genderedString}`;
+					const genderedString = game ? game.genderedString : "Player";
+					const extraInterchangeLabel = `${getOrdinalNumber(i + 1)} ${genderedString}`;
 					interchangeY += Math.round(positions.standardInterchangeYGap * 1.3);
 					ctx.textAlign = "center";
 					ctx.font = textStyles.interchangeHeader.string;
