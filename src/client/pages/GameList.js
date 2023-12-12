@@ -173,6 +173,7 @@ class GameList extends Component {
 			newState.games = undefined;
 		}
 
+		console.log(newState);
 		return newState;
 	}
 

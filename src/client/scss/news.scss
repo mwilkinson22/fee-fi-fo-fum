@@ -78,7 +78,22 @@
 
 		&.image-wrapper {
 			margin-bottom: 10pt;
-			position: relative;
+			display: flex;
+			justify-content: center;
+			text-align: center;
+			line-height: 0; // Required to stop captions overflowing
+			.image {
+				position: relative;
+				img {
+					max-width: 100%;
+					@media #{$mobile-only} {
+						max-height: 80vh;
+					}
+					@media #{$desktop-and-tablet} {
+						max-height: 80vh;
+					}
+				}
+			}
 			.caption-wrapper {
 				position: absolute;
 				bottom: 0;
@@ -89,6 +104,10 @@
 				align-items: center;
 				margin: auto;
 				line-height: 1;
+
+				&:empty {
+					display: none !important;
+				}
 
 				&.right-align {
 					justify-content: flex-end;

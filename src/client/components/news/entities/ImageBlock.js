@@ -17,7 +17,7 @@ class ImageBlock extends Component {
 
 	renderCaption() {
 		const { caption } = this.props.data;
-		if (caption) {
+		if (caption && caption.value) {
 			const { value, rightAlign, firstWordIsWhite, formatAsHeader } = caption;
 			let element;
 			if (formatAsHeader) {
@@ -43,8 +43,10 @@ class ImageBlock extends Component {
 		const { bucketPaths } = this.props;
 		return (
 			<div className="custom-block image-wrapper">
-				<img src={`${bucketPaths.imageRoot}news/inline/${this.props.data.src}`} alt="" />
-				{this.renderCaption()}
+				<div className="image">
+					<img src={`${bucketPaths.imageRoot}news/inline/${this.props.data.src}`} alt="" />
+					{this.renderCaption()}
+				</div>
 			</div>
 		);
 	}
