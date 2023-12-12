@@ -383,6 +383,7 @@ class ShareDialog extends Component {
 
 	renderImagePreview() {
 		const { onFetchImage } = this.props;
+		console.log("HELLO");
 		const { images, fetchingPreview } = this.state;
 		if (images.length) {
 			const list = images.map((src, i) => (
