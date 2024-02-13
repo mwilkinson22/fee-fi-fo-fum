@@ -261,6 +261,15 @@ class NewsPostPage extends Component {
 			size: 34
 		};
 
+		let comments = null;
+		if (post.isPublished) {
+			comments = (
+				<div className="post-comments">
+					<Comments href={this.getUrl()} width="100%" mobile={true} />
+				</div>
+			);
+		}
+
 		return (
 			<div className="container">
 				{this.renderEditLink()}
@@ -296,12 +305,7 @@ class NewsPostPage extends Component {
 						</div>
 						<div className="post-content">
 							{this.prependArticle()}
-							<MegadraftEditor
-								editorState={post.editorState}
-								readOnly={true}
-								onChange={() => {}}
-								plugins={newsPlugins(post)}
-							/>
+							<MegadraftEditor editorState={post.editorState} readOnly={true} onChange={() => {}} plugins={newsPlugins(post)} />
 							{this.appendArticle()}
 						</div>
 					</div>
@@ -311,9 +315,7 @@ class NewsPostPage extends Component {
 						</li>
 						{this.formatSidebar()}
 					</ul>
-					<div className="post-comments">
-						<Comments href={this.getUrl()} width="100%" mobile={true} />
-					</div>
+					{comments}
 				</div>
 			</div>
 		);
@@ -356,8 +358,7 @@ class NewsPostPage extends Component {
 }
 
 function mapStateToProps({ config, games, news }) {
-	const { authUser, baseUrl, bucketPaths, facebookApp, fansCanAttend, site_name, social_account, ticketLink } =
-		config;
+	const { authUser, baseUrl, bucketPaths, facebookApp, fansCanAttend, site_name, social_account, ticketLink } = config;
 	const { fullGames } = games;
 	const { fullPosts, postList, slugMap } = news;
 
