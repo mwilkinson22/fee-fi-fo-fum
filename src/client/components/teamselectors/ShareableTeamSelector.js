@@ -10,7 +10,7 @@ import ShareDialog from "../social/ShareDialog";
 import LoadingPage from "../LoadingPage";
 
 //Actions
-import { fetchPreviewImage, saveTeamSelectorChoices, shareTeamSelector } from "~/client/actions/teamSelectorActions";
+import { fetchPreviewImage, saveTeamSelectorChoices, shareTeamSelector, fetchTeamSelectorChoices } from "~/client/actions/teamSelectorActions";
 import { fetchTeam } from "~/client/actions/teamsActions";
 
 class ShareableTeamSelector extends Component {
@@ -21,7 +21,7 @@ class ShareableTeamSelector extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const { fetchTeam, fullTeams, selector } = nextProps;
+		const { fetchTeam, fullTeams, selector, fetchTeamSelectorChoices } = nextProps;
 		const newState = { selector };
 
 		//Ensure we have all dependencies
@@ -48,14 +48,19 @@ class ShareableTeamSelector extends Component {
 		//from the selector, and then revisits the page), we
 		//enforce edit mode
 		const { activeUserChoices, players } = newState.selector;
-		if (activeUserChoices) {
+		if (activeUserChoices != null) {
 			const missingPlayers = _.difference(
 				activeUserChoices,
 				players.map(p => p._id)
 			);
+
 			if (missingPlayers.length) {
-				newState.editMode = true;
+				newState.enforceEditMode = true;
 			}
+			newState.isLoadingChoices = false;
+		} else if (!prevState.isLoadingChoices) {
+			fetchTeamSelectorChoices(newState.selector._id);
+			newState.isLoadingChoices = true;
 		}
 
 		return newState;
@@ -67,30 +72,35 @@ class ShareableTeamSelector extends Component {
 
 		saveTeamSelectorChoices(selector._id, values);
 
-		this.setState({ editMode: false });
+		this.setState({ enforceEditMode: false });
+	}
+
+	selectionIsComplete() {
+		const { enforceEditMode, selector } = this.state;
+		return !enforceEditMode && selector.activeUserChoices != null && selector.activeUserChoices.length > 0;
 	}
 
 	renderSecondColumn() {
-		const { baseUrl, fetchPreviewImage, shareTeamSelector, site_social, urlFormatter } = this.props;
-		const { editMode, selector } = this.state;
+		if (this.selectionIsComplete()) {
+			const { baseUrl, fetchPreviewImage, shareTeamSelector, site_social, urlFormatter } = this.props;
+			const { selector } = this.state;
 
-		//Get Initial Share Values
-		let initialContent = selector.defaultSocialText || "";
+			//Get Initial Share Values
+			let initialContent = selector.defaultSocialText || "";
 
-		//Get Tokens
-		const url = `${baseUrl}/${urlFormatter(selector)}`;
+			//Get Tokens
+			const url = `${baseUrl}/${urlFormatter(selector)}`;
 
-		//Replace tokens
-		initialContent = initialContent.replace(/{url}/gi, url).replace(/@*{site_social}/gi, "@" + site_social);
+			//Replace tokens
+			initialContent = initialContent.replace(/{url}/gi, url).replace(/@*{site_social}/gi, "@" + site_social);
 
-		if (selector.activeUserChoices && !editMode) {
 			return (
 				<div>
 					<div className="confirmation">
 						<p>Thank you, your choices have been saved!</p>
 						<p>
 							{"Want to make a change? "}
-							<span className="pseudo-link" onClick={() => this.setState({ editMode: true })}>
+							<span className="pseudo-link" onClick={() => this.setState({ enforceEditMode: true })}>
 								Click Here
 							</span>
 							{" to edit your team"}
@@ -109,9 +119,9 @@ class ShareableTeamSelector extends Component {
 
 	render() {
 		const { fullTeams, localTeam } = this.props;
-		const { editMode, isLoadingTeam, selector, squadNumbers } = this.state;
+		const { isLoadingTeam, isLoadingChoices, selector, squadNumbers } = this.state;
 
-		if (isLoadingTeam) {
+		if (isLoadingTeam || isLoadingChoices) {
 			return <LoadingPage />;
 		}
 
@@ -129,7 +139,7 @@ class ShareableTeamSelector extends Component {
 
 		//Get current squad
 		let currentSquad = {};
-		if (selector.activeUserChoices) {
+		if (selector.activeUserChoices && selector.activeUserChoices.length) {
 			currentSquad = _.chain(selector.activeUserChoices)
 				.map((_player, i) => {
 					//Get Position
@@ -156,7 +166,7 @@ class ShareableTeamSelector extends Component {
 						players={players}
 						requireFullTeam={true}
 						submitText="Save Choices"
-						readOnly={selector.activeUserChoices && !editMode}
+						readOnly={this.selectionIsComplete()}
 						team={fullTeams[localTeam]}
 						usesExtraInterchange={selector.usesExtraInterchange}
 					/>
@@ -175,14 +185,16 @@ ShareableTeamSelector.defaultProps = {
 	urlFormatter: s => `team-selectors/${s.slug}`
 };
 
-function mapStateToProps({ config, teams }) {
+function mapStateToProps({ config, teams, teamSelectors }) {
 	const { baseUrl, localTeam, site_social } = config;
 	const { fullTeams } = teams;
-	return { baseUrl, fullTeams, localTeam, site_social };
+	const { selectors } = teamSelectors;
+	return { baseUrl, fullTeams, localTeam, site_social, selectors };
 }
 
 export default connect(mapStateToProps, {
 	fetchPreviewImage,
+	fetchTeamSelectorChoices,
 	saveTeamSelectorChoices,
 	shareTeamSelector,
 	fetchTeam

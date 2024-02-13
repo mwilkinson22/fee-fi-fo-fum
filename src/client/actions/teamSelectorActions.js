@@ -1,10 +1,17 @@
-import { FETCH_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_LIST, DELETE_TEAM_SELECTOR } from "./types";
+import { FETCH_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_LIST, FETCH_TEAM_SELECTOR_CHOICES, DELETE_TEAM_SELECTOR } from "./types";
 import { toast } from "react-toastify";
 
 export const fetchTeamSelector = id => async (dispatch, getState, api) => {
 	const res = await api.get(`/teamSelectors/${id}`);
 	if (res.data) {
 		dispatch({ type: FETCH_TEAM_SELECTOR, payload: res.data });
+	}
+};
+
+export const fetchTeamSelectorChoices = id => async (dispatch, getState, api) => {
+	const res = await api.get(`/teamSelectors/${id}/choices`);
+	if (res.data) {
+		dispatch({ type: FETCH_TEAM_SELECTOR_CHOICES, payload: { id, choices: res.data } });
 	}
 };
 

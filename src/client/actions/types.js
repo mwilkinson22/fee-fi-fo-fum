@@ -103,6 +103,7 @@ export const SEND_ERROR = "send_error";
 //Team Selectors
 export const FETCH_TEAM_SELECTOR_LIST = "fetch_team_selector_list";
 export const FETCH_TEAM_SELECTOR = "fetch_team_selector";
+export const FETCH_TEAM_SELECTOR_CHOICES = "fetch_team_selector_choices";
 export const DELETE_TEAM_SELECTOR = "delete_team_selector";
 
 //OAuth

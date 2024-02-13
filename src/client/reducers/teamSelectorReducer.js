@@ -1,9 +1,9 @@
 import _ from "lodash";
-import { FETCH_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_LIST, DELETE_TEAM_SELECTOR } from "../actions/types";
+import { FETCH_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_LIST, DELETE_TEAM_SELECTOR, FETCH_TEAM_SELECTOR_CHOICES } from "../actions/types";
 
 import { teamSelectors as listProperties } from "~/constants/listProperties";
 
-export default function (state = { selectors: {}, haveLoadedAll: false }, action) {
+export default function(state = { selectors: {}, haveLoadedAll: false }, action) {
 	switch (action.type) {
 		case FETCH_TEAM_SELECTOR: {
 			return {
@@ -15,6 +15,18 @@ export default function (state = { selectors: {}, haveLoadedAll: false }, action
 				selectorList: {
 					...state.selectorList,
 					[action.payload._id]: _.pick(action.payload, listProperties)
+				}
+			};
+		}
+		case FETCH_TEAM_SELECTOR_CHOICES: {
+			return {
+				...state,
+				selectors: {
+					...state.selectors,
+					[action.payload.id]: {
+						...state.selectors[action.payload.id],
+						activeUserChoices: action.payload.choices
+					}
 				}
 			};
 		}

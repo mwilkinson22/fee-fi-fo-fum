@@ -59,18 +59,23 @@ export async function getTeamSelector(req, res) {
 	const selector = await fetchTeamSelector(_id, res);
 
 	if (selector) {
-		//Set choices for active user
-		const activeUserChoices = selector.choices.find(({ ip }) => ip == req.ipAddress);
-		if (activeUserChoices) {
-			selector.activeUserChoices = activeUserChoices.squad;
-		}
-
-		//Remove other choices for non-admins
+		//Remove choices for non-admins
 		if (!req.user || !req.user.isAdmin) {
 			delete selector.choices;
 		}
 
 		res.send(selector);
+	}
+}
+
+export async function getTeamSelectorChoicesByIp(req, res) {
+	// We do this separately to the main call as IP detection just doesn't work with SSR.
+	const { _id } = req.params;
+
+	const selector = await fetchTeamSelector(_id, res);
+	if (selector) {
+		const activeUserChoices = selector.choices.find(({ ip }) => ip == req.ipAddress);
+		res.send(activeUserChoices ? activeUserChoices.squad : []);
 	}
 }
 
@@ -190,10 +195,7 @@ export async function submitUserChoices(req, res) {
 		const squad = _.values(req.body);
 
 		if (currentVote) {
-			await TeamSelector.updateOne(
-				{ _id, "choices._id": currentVote._id },
-				{ $set: { "choices.$.squad": squad } }
-			);
+			await TeamSelector.updateOne({ _id, "choices._id": currentVote._id }, { $set: { "choices.$.squad": squad } });
 		} else {
 			selector.choices.push({ ip: ipAddress, squad });
 			await selector.save();
@@ -243,10 +245,7 @@ export async function generateImage(req, res, selector) {
 	const { squad } = activeUserChoices;
 
 	//Get main player info
-	const playerData = await Person.find(
-		{ _id: { $in: squad } },
-		"name images nickname displayNicknameInCanvases squadNameWhenDuplicate gender"
-	).lean();
+	const playerData = await Person.find({ _id: { $in: squad } }, "name images nickname displayNicknameInCanvases squadNameWhenDuplicate gender").lean();
 
 	//Get squad numbers
 	let squadNumbers = [];

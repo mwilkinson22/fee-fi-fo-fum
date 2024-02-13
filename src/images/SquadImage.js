@@ -285,7 +285,7 @@ export default class SquadImage extends Canvas {
 		}
 
 		this.textBuilder(bannerText, sideBarWidth * 0.5, bannerY, {
-			lineHeight: 2.8
+			lineHeight: 2.9
 		});
 
 		//Interchanges Header, for normal interchange display
