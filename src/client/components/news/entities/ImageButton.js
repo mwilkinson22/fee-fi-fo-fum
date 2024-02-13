@@ -21,7 +21,7 @@ class ImageButton extends Component {
 
 		this.state = {
 			showFileUploader: false,
-			showCaptionOptions: false,
+			showOptions: false,
 			caption: {
 				value: "",
 				rightAlign: false,
@@ -29,6 +29,7 @@ class ImageButton extends Component {
 				formatAsHeader: true
 			},
 			slug,
+			url: "",
 			src: null
 		};
 		this.initialState = this.state;
@@ -38,24 +39,18 @@ class ImageButton extends Component {
 		this.setState(this.initialState);
 	}
 
-	renderCaptionOptions() {
-		const { caption, src } = this.state;
+	renderOptions() {
+		const { caption, src, url } = this.state;
 		const { value, rightAlign, formatAsHeader, firstWordIsWhite } = caption;
 
 		return (
 			<PopUpDialog onDestroy={() => this.onDestroy()} asGrid={true}>
+				<label>Url</label>
+				<input type="text" value={url} onChange={ev => this.setState({ url: ev.target.value })} />
 				<label>Caption</label>
-				<input
-					type="text"
-					value={value}
-					onChange={ev => this.setState({ caption: { ...caption, value: ev.target.value } })}
-				/>
+				<input type="text" value={value} onChange={ev => this.setState({ caption: { ...caption, value: ev.target.value } })} />
 				<label>Right-Align</label>
-				<BooleanSlider
-					name="rightAlign"
-					value={rightAlign}
-					onChange={() => this.setState({ caption: { ...caption, rightAlign: !rightAlign } })}
-				/>
+				<BooleanSlider name="rightAlign" value={rightAlign} onChange={() => this.setState({ caption: { ...caption, rightAlign: !rightAlign } })} />
 				<label>Use header styling</label>
 				<BooleanSlider
 					name="captionAsHeader"
@@ -70,10 +65,7 @@ class ImageButton extends Component {
 					disabled={!formatAsHeader}
 				/>
 				<div className="buttons">
-					<button
-						type="button"
-						onClick={() => this.setState({ showCaptionOptions: false, showFileUploader: true })}
-					>
+					<button type="button" onClick={() => this.setState({ showOptions: false, showFileUploader: true })}>
 						Back
 					</button>
 					<button
@@ -83,6 +75,7 @@ class ImageButton extends Component {
 								insertDataBlock(this.props.editorState, {
 									src,
 									caption,
+									url,
 									type: "image"
 								})
 							);
@@ -110,7 +103,7 @@ class ImageButton extends Component {
 				isImage={true}
 				resize={{ defaultSize: { width: 760 } }}
 				path="images/news/inline/"
-				onComplete={src => this.setState({ src, showCaptionOptions: true, showFileUploader: false })}
+				onComplete={src => this.setState({ src, showOptions: true, showFileUploader: false })}
 				onDestroy={() => this.onDestroy()}
 				destroyOnComplete={false}
 			/>
@@ -118,20 +111,15 @@ class ImageButton extends Component {
 	}
 
 	render() {
-		const { showCaptionOptions, showFileUploader } = this.state;
+		const { showOptions, showFileUploader } = this.state;
 
 		if (showFileUploader) {
 			return this.renderFileUploader();
-		} else if (showCaptionOptions) {
-			return this.renderCaptionOptions();
+		} else if (showOptions) {
+			return this.renderOptions();
 		} else {
 			return (
-				<button
-					className={this.props.className}
-					type="button"
-					onClick={() => this.setState({ showFileUploader: true })}
-					title={this.props.title}
-				>
+				<button className={this.props.className} type="button" onClick={() => this.setState({ showFileUploader: true })} title={this.props.title}>
 					<icons.ImageIcon className="sidemenu__button__icon" />
 				</button>
 			);

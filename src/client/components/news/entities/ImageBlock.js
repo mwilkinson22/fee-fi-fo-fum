@@ -1,11 +1,11 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import icons from "megadraft/lib/icons";
 
 class ImageBlock extends Component {
 	constructor(props) {
 		super(props);
-
 		this.actions = [
 			{
 				key: "delete",
@@ -40,15 +40,21 @@ class ImageBlock extends Component {
 	}
 
 	render() {
-		const { bucketPaths } = this.props;
-		return (
-			<div className="custom-block image-wrapper">
-				<div className="image">
-					<img src={`${bucketPaths.imageRoot}news/inline/${this.props.data.src}`} alt="" />
-					{this.renderCaption()}
-				</div>
+		const { bucketPaths, data } = this.props;
+		const { url } = data;
+
+		let content = (
+			<div className="image">
+				<img src={`${bucketPaths.imageRoot}news/inline/${this.props.data.src}`} alt="" />
+				{this.renderCaption()}
 			</div>
 		);
+
+		if (url) {
+			content = <Link to={url}>{content}</Link>;
+		}
+
+		return <div className="custom-block image-wrapper">{content}</div>;
 	}
 }
 
