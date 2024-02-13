@@ -139,9 +139,7 @@ class ShareDialog extends Component {
 			if (service === "share") {
 				if (fetchingPreview) {
 					content = <LoadingPage />;
-				} else if (!images.length) {
-					this.fetchPreview();
-				} else {
+				} else if (images.length) {
 					content = (
 						<div>
 							<button className="navigator-share-btn" type="button" onClick={() => this.shareViaNavigator()}>
