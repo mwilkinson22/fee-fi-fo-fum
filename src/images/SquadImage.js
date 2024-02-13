@@ -147,9 +147,7 @@ export default class SquadImage extends Canvas {
 		}
 
 		//First, load the 'dark' image to be shown in the sidebar
-		this.teamBadges[localTeam].dark = await this.googleToCanvas(
-			`images/teams/${localTeamObject.images.dark || localTeamObject.images.main}`
-		);
+		this.teamBadges[localTeam].dark = await this.googleToCanvas(`images/teams/${localTeamObject.images.dark || localTeamObject.images.main}`);
 
 		//If it's directly linked to a game, then we also load the
 		//opposition dark image
@@ -182,19 +180,7 @@ export default class SquadImage extends Canvas {
 	}
 
 	async drawSidebar() {
-		const {
-			ctx,
-			game,
-			textStyles,
-			cWidth,
-			cHeight,
-			teamBadges,
-			compressInterchangeList,
-			players,
-			options,
-			selector,
-			branding
-		} = this;
+		const { ctx, game, textStyles, cWidth, cHeight, teamBadges, compressInterchangeList, players, options, selector, branding } = this;
 		const {
 			bannerY,
 			sideBarWidth,
@@ -222,14 +208,10 @@ export default class SquadImage extends Canvas {
 			//We have a mainIcon so we place the brandIcon on the right
 			if (brandIcon) {
 				const border = Math.round(cHeight * 0.04);
-				this.contain(
-					brandIcon,
-					cWidth - rightBrandIconWidth - border,
-					border,
-					rightBrandIconWidth,
-					rightBrandIconHeight,
-					{ xAlign: "right", yAlign: "top" }
-				);
+				this.contain(brandIcon, cWidth - rightBrandIconWidth - border, border, rightBrandIconWidth, rightBrandIconHeight, {
+					xAlign: "right",
+					yAlign: "top"
+				});
 			}
 		} else {
 			//Otherwise, we use the brandIcon as the main icon
@@ -303,7 +285,7 @@ export default class SquadImage extends Canvas {
 		}
 
 		this.textBuilder(bannerText, sideBarWidth * 0.5, bannerY, {
-			lineHeight: 2.7
+			lineHeight: 2.8
 		});
 
 		//Interchanges Header, for normal interchange display
@@ -395,14 +377,7 @@ export default class SquadImage extends Canvas {
 
 	async drawStartingSquadMember(player, position) {
 		const { ctx, positions, textStyles, colours, options, teamBadges, game } = this;
-		const {
-			playerHeight,
-			playerWidth,
-			players,
-			playerNameBarHeight,
-			playerNameBarRadius,
-			playerNameBarNumberWidth
-		} = positions;
+		const { playerHeight, playerWidth, players, playerNameBarHeight, playerNameBarRadius, playerNameBarNumberWidth } = positions;
 		const [x, y] = players[position];
 		const { images, displayName, number, gender } = player;
 
@@ -410,13 +385,7 @@ export default class SquadImage extends Canvas {
 		const dx = x - playerWidth / 2;
 		const dy = y - playerHeight / 2;
 		if (options.showOpposition) {
-			this.contain(
-				teamBadges[game._opposition._id].light,
-				dx,
-				dy + playerNameBarHeight / 2,
-				playerWidth,
-				playerHeight - playerNameBarHeight
-			);
+			this.contain(teamBadges[game._opposition._id].light, dx, dy + playerNameBarHeight / 2, playerWidth, playerHeight - playerNameBarHeight);
 		} else {
 			const playerImageName = images.player || images.main || `blank-${gender}.png`;
 			const playerImage = await this.googleToCanvas(`images/people/full/${playerImageName}`);
@@ -516,12 +485,7 @@ export default class SquadImage extends Canvas {
 		if (number) {
 			//Add Box
 			ctx.fillStyle = colours.claret;
-			ctx.fillRect(
-				numberBoxXCentre - numberBoxSize / 2,
-				y - numberBoxSize / 2 - textStyles.interchange.size * 0.3,
-				numberBoxSize,
-				numberBoxSize
-			);
+			ctx.fillRect(numberBoxXCentre - numberBoxSize / 2, y - numberBoxSize / 2 - textStyles.interchange.size * 0.3, numberBoxSize, numberBoxSize);
 
 			//Add Number
 			ctx.textAlign = "center";
