@@ -144,7 +144,6 @@ class ShareDialog extends Component {
 				} else {
 					content = (
 						<div>
-							{this.renderImagePreview()}
 							<button className="navigator-share-btn" type="button" onClick={() => this.shareViaNavigator()}>
 								Share
 							</button>
