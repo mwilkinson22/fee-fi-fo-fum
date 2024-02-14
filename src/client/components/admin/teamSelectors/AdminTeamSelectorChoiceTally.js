@@ -23,11 +23,27 @@ class AdminTeamSelectorChoiceTally extends Component {
 		//Get Current Selector
 		newState.selector = selectors[match.params._id];
 
+		// Customise playerPositions
+		newState.playerPositions = { ...playerPositions };
+		newState.playerPositions.I.numbers = [];
+		for (let i = 1; i <= newState.selector.interchanges; i++) {
+			newState.playerPositions.I.numbers.push(13 + i);
+		}
+
+		if (newState.selector.usesExtraInterchange) {
+			newState.playerPositions.EI = {
+				name: "Extra Interchange",
+				type: "Interchange",
+				numbers: [13 + newState.selector.interchanges + 1]
+			};
+		}
+
 		return newState;
 	}
 
 	renderSummaryTable(positions) {
-		const { choices, players } = this.state.selector;
+		const { playerPositions, selector } = this.state;
+		const { choices, players, usesExtraInterchange } = selector;
 
 		//Get simple { id: total } object
 		const totals = _.chain(choices)
@@ -35,6 +51,10 @@ class AdminTeamSelectorChoiceTally extends Component {
 			.map(squad => {
 				if (positions) {
 					return squad.filter((id, pos) => positions.indexOf(pos + 1) > -1);
+				} else if (usesExtraInterchange) {
+					// If we haven't specified certain positions, we're tracking all votes
+					// If we have an extra interchange, exclude that here.
+					return squad.filter((id, pos) => pos + 1 != playerPositions.EI.numbers[0]);
 				} else {
 					return squad;
 				}
@@ -47,7 +67,8 @@ class AdminTeamSelectorChoiceTally extends Component {
 		//Get Table Columns
 		const columns = [
 			{ key: "total", label: "Total Votes" },
-			{ key: "player", label: "Player " }
+			{ key: "player", label: "Player" },
+			{ key: "pc", label: "% of Votes" }
 		];
 
 		//Loop through players
@@ -60,11 +81,14 @@ class AdminTeamSelectorChoiceTally extends Component {
 				key: _id,
 				data: {
 					total,
+					pc: ((total / choices.length) * 100).toFixed(2) + "%",
 					player: name.full
 				}
 			}));
 
-		return <Table columns={columns} defaultSortable={false} rows={rows} sortBy={{ key: "total", asc: false }} />;
+		if (rows.length) {
+			return <Table columns={columns} defaultSortable={false} rows={rows} sortBy={{ key: "total", asc: false }} />;
+		}
 	}
 
 	renderTotalVotes() {
@@ -80,11 +104,9 @@ class AdminTeamSelectorChoiceTally extends Component {
 	}
 
 	renderVotesByPosition() {
-		return _.map(playerPositions, (position, key) => {
-			if (!this.state.selector.interchanges && key == "I") {
-				return null;
-			}
+		const { playerPositions } = this.state;
 
+		return _.map(playerPositions, (position, key) => {
 			return (
 				<div className="form-card" key={key}>
 					<h6>{position.name}</h6>
@@ -92,6 +114,36 @@ class AdminTeamSelectorChoiceTally extends Component {
 				</div>
 			);
 		});
+	}
+
+	renderIndividualPicks() {
+		const { selector, playerPositions } = this.state;
+		const { choices, interchanges, players } = selector;
+		const columns = [];
+		const totalPositions = 13 + interchanges;
+		for (let i = 0; i < totalPositions; i++) {
+			const positionStr = Object.values(playerPositions).find(({ numbers }) => numbers.includes(i + 1)).name;
+			columns.push({ key: "player" + i, label: positionStr });
+		}
+
+		const rows = [];
+		choices.forEach(({ squad, ip }) => {
+			const row = { key: ip, data: {} };
+			squad.forEach((_player, i) => {
+				const player = players.find(({ _id }) => _id == _player);
+				row.data["player" + i] = player.name.full;
+			});
+			rows.push(row);
+		});
+
+		return (
+			<div className="form-card">
+				<h6>All Votes</h6>
+				<div className="all-selector-votes-wrapper">
+					<Table columns={columns} defaultSortable={true} rows={rows} stickyHead={true} />
+				</div>
+			</div>
+		);
 	}
 
 	render() {
@@ -103,6 +155,7 @@ class AdminTeamSelectorChoiceTally extends Component {
 				<div className="container">
 					{this.renderTotalVotes()}
 					{this.renderVotesByPosition()}
+					{this.renderIndividualPicks()}
 				</div>
 			);
 		} else {
