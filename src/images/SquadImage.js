@@ -96,7 +96,7 @@ export default class SquadImage extends Canvas {
 		this.teamBadges[localTeam] = {};
 
 		// Sometimes this is defined in the selector settings. If not, we check the game.
-		this.usesExtraInterchange = this.selector ? this.selector.usesExtraInterchange : false;
+		this.usesExtraInterchange = this.selector ? this.selector.usesExtraInterchange : null;
 
 		if (this.game) {
 			this.teamBadges[this.game._opposition._id] = {};
