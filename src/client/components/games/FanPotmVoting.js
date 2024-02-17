@@ -195,9 +195,7 @@ class FanPotmVoting extends Component {
 		const { options } = game.fan_potm;
 
 		let description = votingClosed ? "We asked you to choose" : "Choose";
-		description += ` your ${game.genderedString} of the Match from the ${options.length} ${
-			options.length === 1 ? "player" : "players"
-		} below!`;
+		description += ` your ${game.genderedString} of the Match from the ${options.length} ${options.length === 1 ? "player" : "players"} below!`;
 
 		return (
 			<div className="fan-potm-voting">
