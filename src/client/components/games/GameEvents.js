@@ -57,10 +57,7 @@ class GameEvents extends Component {
 					const players = stats[team._id] || [];
 					const playerElements = _.chain(players)
 						.map(({ _player, total }) => {
-							const { name, slug, number } = _.find(
-								game.eligiblePlayers[team._id],
-								p => p._id == _player
-							);
+							const { name, slug, number } = _.find(game.eligiblePlayers[team._id], p => p._id == _player);
 							return {
 								id: _player,
 								name: name.full,
@@ -113,14 +110,12 @@ class GameEvents extends Component {
 				details.Referee = game._referee.name.full;
 			}
 			if (game._video_referee) {
-				details.Referee = game._video_referee.name.full;
+				details["Video Referee"] = game._video_referee.name.full;
 			}
 			if (game._potm) {
 				let potm = _.flatten(Object.values(game.eligiblePlayers)).find(p => p._id == game._potm);
 				if (potm) {
-					const potmLabel = game.customPotmTitle
-						? game.customPotmTitle.label
-						: `${game.genderedString} of the Match`;
+					const potmLabel = game.customPotmTitle ? game.customPotmTitle.label : `${game.genderedString} of the Match`;
 					details[potmLabel] = potm.name.full;
 				}
 			}

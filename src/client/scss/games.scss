@@ -1539,8 +1539,13 @@ section.match-squads {
 
 			.details {
 				background: $mainColour;
+				padding: 10pt;
+				display: flex;
+				flex-direction: column;
+				gap: 4pt;
+				min-height: 60pt;
+				justify-content: center;
 				h6 {
-					padding: 10pt 10pt 0;
 					font-size: 1.3em;
 					color: white;
 					span {
@@ -1552,7 +1557,6 @@ section.match-squads {
 				}
 
 				.stats {
-					padding: 4pt 10pt 10pt;
 					.statgroup {
 						display: block;
 						span {
