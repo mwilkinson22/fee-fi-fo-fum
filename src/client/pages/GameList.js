@@ -173,7 +173,6 @@ class GameList extends Component {
 			newState.games = undefined;
 		}
 
-		console.log(newState);
 		return newState;
 	}
 
@@ -240,9 +239,7 @@ class GameList extends Component {
 					return <AdminGameCard key={game._id} game={game} />;
 				} else {
 					const isLarge = i === 0 || (i === filteredGames.length - 1 && i % 2);
-					return (
-						<GameCard key={game._id} game={game} includeCountdown={i === 0} isLarge={Boolean(isLarge)} />
-					);
+					return <GameCard key={game._id} game={game} includeCountdown={i === 0} isLarge={Boolean(isLarge)} />;
 				}
 			});
 
@@ -284,8 +281,7 @@ class GameList extends Component {
 		const pageTitle = titleArray.join(" ");
 
 		//Get Card Image
-		const cardImage =
-			parseInt(year) === 1953 ? "results-1953.jpg" : `${listType}-${teamType._id}.jpg?t=${timeStamp}`;
+		const cardImage = parseInt(year) === 1953 ? "results-1953.jpg" : `${listType}-${teamType._id}.jpg?t=${timeStamp}`;
 
 		//New Game Link
 		let adminLinks;
@@ -330,10 +326,7 @@ class GameList extends Component {
 				</section>
 				<section className="game-filters">
 					<div className="container">
-						<GameFilters
-							games={games || []}
-							onFilterChange={filteredGames => this.setState({ filteredGames })}
-						/>
+						<GameFilters games={games || []} onFilterChange={filteredGames => this.setState({ filteredGames })} />
 					</div>
 				</section>
 				{this.renderCalendarDialog()}
@@ -372,9 +365,7 @@ export async function loadData(store, path) {
 		if (listType === "fixtures") {
 			yearToSearch = "fixtures";
 		} else {
-			const yearsWithResults = Object.keys(store.getState().games.gameYears)
-				.filter(parseInt)
-				.map(parseInt);
+			const yearsWithResults = Object.keys(store.getState().games.gameYears).filter(parseInt).map(parseInt);
 			const yearInUrl = splitPath.length > 3 ? splitPath[3] : null;
 			yearToSearch = yearsWithResults.includes(Number(yearInUrl)) ? yearInUrl : Math.max(...yearsWithResults);
 		}
