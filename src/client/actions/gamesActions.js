@@ -19,6 +19,17 @@ function getLocalTeam(getState) {
 	return teams.fullTeams[config.localTeam];
 }
 
+async function chunkedIdQueries(limit, ids, queryCallback) {
+	const queries = _.chain(ids)
+		.uniq()
+		.chunk(limit || 99999999999)
+		.map(chunkedIds => queryCallback(chunkedIds))
+		.value();
+
+	const results = await Promise.all(queries);
+	return _.merge(...results.map(({ data }) => data));
+}
+
 export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) => {
 	if (dataLevel !== "admin" && dataLevel !== "gamePage") {
 		dataLevel = "basic";
@@ -26,14 +37,7 @@ export const fetchGames = (ids, dataLevel) => async (dispatch, getState, api) =>
 
 	//Enforce limit
 	const { fetchGameLimit } = getState().config;
-	const queries = _.chain(ids)
-		.uniq()
-		.chunk(fetchGameLimit || 99999999999)
-		.map(chunkedIds => api.get(`/games/${dataLevel}/${chunkedIds.join(",")}`))
-		.value();
-
-	const results = await Promise.all(queries);
-	const payload = _.merge(...results.map(({ data }) => data));
+	const payload = await chunkedIdQueries(fetchGameLimit, ids, chunkedIds => api.get(`/games/${dataLevel}/${chunkedIds.join(",")}`));
 
 	dispatch({ type: FETCH_GAMES, payload, localTeam: getLocalTeam(getState) });
 };
@@ -112,8 +116,9 @@ export const fetchEntireGameList = () => async (dispatch, getState, api) => {
 };
 
 export const fetchGameListByIds = ids => async (dispatch, getState, api) => {
-	const res = await api.get(`/games/listByIds/${ids.join(",")}`);
-	dispatch({ type: FETCH_GAME_LIST_BY_IDS, payload: res.data });
+	const { fetchGameLimit } = getState().config;
+	const payload = await chunkedIdQueries(fetchGameLimit, ids, chunkedIds => api.get(`/games/listByIds/${chunkedIds.join(",")}`));
+	dispatch({ type: FETCH_GAME_LIST_BY_IDS, payload });
 };
 
 export const fetchGameListByYear = year => async (dispatch, getState, api) => {
@@ -253,13 +258,12 @@ export const submitPostGameEvents = (id, values) => async (dispatch, getState, a
 	}
 };
 
-export const previewFixtureListImage =
-	(year, competitions, fixturesOnly, dateBreakdown) => async (dispatch, getState, api) => {
-		const res = await api.get(
-			`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}&dateBreakdown=${dateBreakdown.toString()}`
-		);
-		return res.data;
-	};
+export const previewFixtureListImage = (year, competitions, fixturesOnly, dateBreakdown) => async (dispatch, getState, api) => {
+	const res = await api.get(
+		`/games/images/fixtureList/${year}/${competitions}?fixturesOnly=${fixturesOnly.toString()}&dateBreakdown=${dateBreakdown.toString()}`
+	);
+	return res.data;
+};
 
 export const postFixtureListImage = data => async (dispatch, getState, api) => {
 	const res = await api.post("/games/images/fixtureList/", data);
