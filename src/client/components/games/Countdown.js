@@ -4,10 +4,19 @@ import PropTypes from "prop-types";
 class Countdown extends Component {
 	constructor(props) {
 		super(props);
-		this.state = this.getCountdownValues();
-		this.interval = setInterval(() => {
-			this.setState(this.getCountdownValues());
-		}, 1000);
+		this.state = {
+			seconds: "-",
+			minutes: "-",
+			hours: "-",
+			days: "-"
+		};
+
+		//Don't render actual numbers on server-side, to prevent "jumps"
+		if (typeof window !== "undefined") {
+			this.interval = setInterval(() => {
+				this.setState(this.getCountdownValues());
+			}, 1000);
+		}
 	}
 
 	componentWillUnmount() {
@@ -47,11 +56,6 @@ class Countdown extends Component {
 				valueFound = true;
 			} else if (!valueFound) {
 				return false;
-			}
-
-			//Don't render actual numbers on server-side, to prevent "jumps"
-			if (typeof window === "undefined") {
-				value = "-";
 			}
 
 			elements.push(
