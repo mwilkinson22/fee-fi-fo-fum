@@ -10,6 +10,8 @@ const SlugRedirect = mongoose.model("slugRedirect");
 const NewsPost = mongoose.model("newsPosts");
 
 //Modules
+import path from "path";
+import fs from "fs";
 import _ from "lodash";
 const ics = require("ics");
 import twitter from "~/services/twitter";
@@ -120,10 +122,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin, includeTeam
 
 		//Convert fan_potm votes to simple count
 		if (game.fan_potm && game.fan_potm.votes && game.fan_potm.votes.length) {
-			game.fan_potm.votes = _.chain(game.fan_potm.votes)
-				.groupBy("choice")
-				.mapValues("length")
-				.value();
+			game.fan_potm.votes = _.chain(game.fan_potm.votes).groupBy("choice").mapValues("length").value();
 		}
 
 		return game;
@@ -179,8 +178,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin, includeTeam
 				.sort({ date: -1 })
 				.then(lastGame => {
 					if (lastGame) {
-						const lastPregame =
-							lastGame.pregameSquads && lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
+						const lastPregame = lastGame.pregameSquads && lastGame.pregameSquads.find(({ _team }) => _team == localTeam);
 
 						if (lastPregame) {
 							game.previousPregameSquad = lastPregame.squad;
@@ -197,9 +195,7 @@ export async function getExtraGameInfo(games, forGamePage, forAdmin, includeTeam
 		}
 
 		//Get news posts
-		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id")
-			.sort({ date: 1 })
-			.lean();
+		const newsPostQuery = NewsPost.find({ _game: game._id }, "_id").sort({ date: 1 }).lean();
 		asyncCalls.unshift(newsPostQuery);
 
 		//Ensure all async calls are run
@@ -439,10 +435,7 @@ async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
 							$mergeObjects: [
 								{ number: "$$this.number" },
 								{
-									$arrayElemAt: [
-										"$playerInfo",
-										{ $indexOfArray: ["$playerInfo._id", "$$this._player"] }
-									]
+									$arrayElemAt: ["$playerInfo", { $indexOfArray: ["$playerInfo._id", "$$this._player"] }]
 								}
 							]
 						}
@@ -455,10 +448,7 @@ async function getPlayersAndCoaches(game, forAdmin, teamTypes) {
 							$mergeObjects: [
 								{ role: "$$this.role" },
 								{
-									$arrayElemAt: [
-										"$coachInfo",
-										{ $indexOfArray: ["$coachInfo._id", "$$this._person"] }
-									]
+									$arrayElemAt: ["$coachInfo", { $indexOfArray: ["$coachInfo._id", "$$this._person"] }]
 								}
 							]
 						}
@@ -601,11 +591,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 	//just "opposition"
 	const formatTeamSpecificForm = (games, _team) => {
 		return games
-			.filter(
-				g =>
-					[g._homeTeam._id.toString(), g._awayTeam._id.toString()].includes(_team) &&
-					new Date(g.date) >= firstOfYear
-			)
+			.filter(g => [g._homeTeam._id.toString(), g._awayTeam._id.toString()].includes(_team) && new Date(g.date) >= firstOfYear)
 			.map(g => {
 				const { _homeTeam, _awayTeam, ...game } = g;
 				let opposition, isAway;
@@ -631,11 +617,7 @@ async function getTeamForm(game, gameLimit, allCompetitions) {
 			g._awayTeam = g._awayTeam._id.toString();
 			return g;
 		})
-		.filter(
-			g =>
-				[g._homeTeam, g._awayTeam].includes(localTeam) &&
-				[g._homeTeam, g._awayTeam].includes(game._opposition._id)
-		)
+		.filter(g => [g._homeTeam, g._awayTeam].includes(localTeam) && [g._homeTeam, g._awayTeam].includes(game._opposition._id))
 		.slice(0, gameLimit);
 	return { local, opposition, headToHead };
 }
@@ -665,9 +647,7 @@ async function processList(userIsAdmin, query = {}) {
 	if (!userIsAdmin) {
 		query.hideGame = { $in: [false, null] };
 	}
-	const games = await Game.find(query)
-		.forList()
-		.lean();
+	const games = await Game.find(query).forList().lean();
 
 	return _.keyBy(games, "_id");
 }
@@ -681,11 +661,7 @@ export async function getGameYears(req, res) {
 	}
 
 	//Get all years
-	const aggregatedYearQuery = Game.aggregate([
-		{ $match: query },
-		{ $project: { _id: 0, year: { $year: "$date" } } },
-		{ $group: { _id: "$year" } }
-	]);
+	const aggregatedYearQuery = Game.aggregate([{ $match: query }, { $project: { _id: 0, year: { $year: "$date" } } }, { $group: { _id: "$year" } }]);
 
 	//Work out if we have any fixtures
 	const fixtureQuery = Game.findOne({ date: { $gt: now } }, "_id").lean();
@@ -933,6 +909,7 @@ export async function addGame(req, res) {
 
 	await game.save();
 	await getUpdatedGame(game._id, res, true);
+	clearCachedIcals();
 }
 
 export async function addCrawledGames(req, res) {
@@ -989,6 +966,7 @@ export async function addCrawledGames(req, res) {
 	}
 
 	res.send(savedData);
+	clearCachedIcals();
 }
 
 //Delete Game
@@ -1002,9 +980,7 @@ export async function deleteGame(req, res) {
 
 		if (posts.length) {
 			res.status(409).send({
-				error: `Could not delete game as ${posts.length} news ${
-					posts.length == 1 ? "post depends" : "posts depend"
-				} on it`,
+				error: `Could not delete game as ${posts.length} news ${posts.length == 1 ? "post depends" : "posts depend"} on it`,
 				toLog: { posts }
 			});
 		} else {
@@ -1012,6 +988,7 @@ export async function deleteGame(req, res) {
 			await TeamSelector.deleteOne({ _game: _id });
 			res.send({});
 		}
+		clearCachedIcals();
 	}
 }
 
@@ -1056,6 +1033,7 @@ export async function updateGame(req, res) {
 		//Update values
 		await game.updateOne(values);
 
+		clearCachedIcals();
 		await getUpdatedGame(_id, res, true);
 	}
 }
@@ -1584,17 +1562,9 @@ async function generatePostGameEventImage(game, data, res) {
 				const date = new Date(game.date);
 				const options = {
 					fromDate: `${date.getFullYear()}-01-01`,
-					toDate: date
-						.next()
-						.tuesday()
-						.toString("yyyy-MM-dd")
+					toDate: date.next().tuesday().toString("yyyy-MM-dd")
 				};
-				return new LeagueTable(
-					game._competition._id,
-					new Date(game.date).getFullYear(),
-					teamsToHighlight,
-					options
-				);
+				return new LeagueTable(game._competition._id, new Date(game.date).getFullYear(), teamsToHighlight, options);
 			}
 			case "min-max-league-table": {
 				return new MinMaxLeagueTable(game._competition._id, new Date(game.date).getFullYear());
@@ -1669,7 +1639,40 @@ export async function submitPostGameEvents(req, res) {
 }
 
 //Calendar
+const getIcalDir = () => path.resolve(process.cwd(), "icals");
 export async function getCalendar(req, res) {
+	const identifier =
+		_.chain(req.query)
+			.toPairs()
+			.sortBy(arr => arr[0])
+			.map(arr => arr.join("-"))
+			.join("_")
+			.value() || "basic";
+
+	const icalDir = getIcalDir();
+
+	if (!fs.existsSync(icalDir)) {
+		fs.mkdirSync(icalDir);
+	}
+
+	const icalPath = path.resolve(icalDir, identifier + ".ics");
+
+	const localTeamName = await Team.findById(localTeam, "name").lean();
+
+	if (!fs.existsSync(icalPath)) {
+		const success = await createIcal(req, res, icalPath, localTeamName);
+		if (!success) {
+			return;
+		}
+	}
+
+	res.set({
+		"Content-Disposition": `attachment; filename="${localTeamName.name.long} Fixture Calendar.ics"`
+	});
+	res.sendFile(icalPath);
+}
+
+async function createIcal(req, res, icalPath, localTeamName) {
 	const query = {
 		date: { $gt: `${new Date().getFullYear()}-01-01` },
 		hideGame: { $in: [false, null] }
@@ -1727,18 +1730,11 @@ export async function getCalendar(req, res) {
 			if (calendarStringOptions[option].indexOf(value) > -1) {
 				options[option] = value;
 			} else {
-				res.status(404).send(
-					`Invalid value for parameter '${option}'. Must be one of: ${calendarStringOptions[option]
-						.map(o => `"${o}"`)
-						.join(", ")}`
-				);
+				res.status(404).send(`Invalid value for parameter '${option}'. Must be one of: ${calendarStringOptions[option].map(o => `"${o}"`).join(", ")}`);
 				return;
 			}
 		}
 	}
-
-	//Get Local Team Name
-	const localTeamName = await Team.findById(localTeam, "name").lean();
 
 	//Get Games
 	let games = await getFullGames(query, false, false);
@@ -1796,13 +1792,7 @@ export async function getCalendar(req, res) {
 		if (_ground) {
 			const { address } = _ground;
 
-			const locationArr = [
-				_ground.name,
-				address.street,
-				address.street2,
-				address._city.name,
-				address._city._country.name
-			];
+			const locationArr = [_ground.name, address.street, address.street2, address._city.name, address._city._country.name];
 			calObject.location = _.filter(locationArr, _.identity).join(", ");
 		}
 		return calObject;
@@ -1812,13 +1802,16 @@ export async function getCalendar(req, res) {
 	const { error, value } = ics.createEvents(events);
 	if (error) {
 		res.status(500).send(error);
+		return false;
 	} else {
-		//Set header
-		// res.set({
-		// 	"Content-Disposition": `attachment; filename="${localTeamName.name.long} Fixture Calendar.ics"`
-		// });
-		res.send(value);
+		fs.writeFileSync(icalPath, value);
+		return true;
 	}
+}
+
+function clearCachedIcals() {
+	const icalDir = getIcalDir();
+	fs.readdirSync(icalDir).forEach(file => fs.unlinkSync(path.resolve(icalDir, file)));
 }
 
 //Fan POTM
@@ -1840,10 +1833,7 @@ export async function saveFanPotmVote(req, res) {
 		};
 
 		if (currentVote) {
-			await Game.updateOne(
-				{ _id: _game, "fan_potm.votes._id": currentVote._id },
-				{ $set: { "fan_potm.votes.$": vote } }
-			);
+			await Game.updateOne({ _id: _game, "fan_potm.votes._id": currentVote._id }, { $set: { "fan_potm.votes.$": vote } });
 		} else {
 			game.fan_potm.votes.push(vote);
 			await game.save();
@@ -1902,9 +1892,7 @@ export async function getTeamSelectorValues(_id, res) {
 	values.players = players.map(p => _.pick(p, ["_id", "name", "playingPositions"]));
 
 	//Add squad for numbers
-	const correspondingSquad = team.squads.find(
-		({ year, _teamType }) => year == game.date.getFullYear() && _teamType == game._teamType
-	);
+	const correspondingSquad = team.squads.find(({ year, _teamType }) => year == game.date.getFullYear() && _teamType == game._teamType);
 	if (correspondingSquad) {
 		values.numberFromSquad = correspondingSquad._id;
 	}
@@ -1922,22 +1910,8 @@ export async function updateAllGameListSocialCards(req, res) {
 async function updateGameListSocialCards(teamType) {
 	const { fixtures, results } = await generateGameListSocialCards(teamType);
 	return Promise.all([
-		uploadBase64ImageToGoogle(
-			fixtures,
-			"images/games/social/gamelist/",
-			false,
-			`fixtures-${teamType._id}`,
-			"jpg",
-			86400
-		),
-		uploadBase64ImageToGoogle(
-			results,
-			"images/games/social/gamelist/",
-			false,
-			`results-${teamType._id}`,
-			"jpg",
-			86400
-		)
+		uploadBase64ImageToGoogle(fixtures, "images/games/social/gamelist/", false, `fixtures-${teamType._id}`, "jpg", 86400),
+		uploadBase64ImageToGoogle(results, "images/games/social/gamelist/", false, `results-${teamType._id}`, "jpg", 86400)
 	]);
 }
 
