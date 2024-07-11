@@ -43,8 +43,7 @@ class ErrorBoundary extends Component {
 	}
 
 	componentDidCatch(error, info) {
-		const { authUser, browser, deviceType, sendError, sentErrors, parentProps, parentState, additionalData } =
-			this.props;
+		const { authUser, browser, deviceType, sendError, sentErrors, parentProps, parentState, additionalData } = this.props;
 
 		//Get the uri where the error occurred
 		const page = this.props.location.pathname;
@@ -62,24 +61,24 @@ class ErrorBoundary extends Component {
 		this.setState({ message, componentStack, page, file });
 
 		//Save the error to the database
-		if (!sentErrors.find(path => path == page)) {
-			const errorObject = {
-				page,
-				message,
-				file,
-				componentStack,
-				browser,
-				deviceType
-			};
+		// if (!sentErrors.find(path => path == page)) {
+		const errorObject = {
+			page,
+			message,
+			file,
+			componentStack,
+			browser,
+			deviceType
+		};
 
-			//Log user
-			if (authUser) {
-				errorObject._user = authUser._id;
-			}
-
-			//Send to server
-			sendError(errorObject);
+		//Log user
+		if (authUser) {
+			errorObject._user = authUser._id;
 		}
+
+		//Send to server
+		sendError(errorObject);
+		// }
 
 		//Send error to airbrake
 		if (this.airbrake) {
