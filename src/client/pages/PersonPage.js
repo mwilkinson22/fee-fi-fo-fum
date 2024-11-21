@@ -74,26 +74,14 @@ class PersonPage extends Component {
 
 		if (twitter) {
 			social.push(
-				<a
-					key="twitter"
-					href={`https://www.twitter.com/${twitter}`}
-					className="twitter"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
+				<a key="twitter" href={`https://www.twitter.com/${twitter}`} className="twitter" target="_blank" rel="noopener noreferrer">
 					<img src={`${bucketPaths.images.layout}icons/twitter.svg`} alt="Twitter Logo" />@{twitter}
 				</a>
 			);
 		}
 		if (instagram) {
 			social.push(
-				<a
-					key="insta"
-					href={`https://www.instagram.com/${instagram}`}
-					className="instagram"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
+				<a key="insta" href={`https://www.instagram.com/${instagram}`} className="instagram" target="_blank" rel="noopener noreferrer">
 					<img src={`${bucketPaths.images.layout}icons/instagram.svg`} alt="Instagram Logo" />@{instagram}
 				</a>
 			);
@@ -224,13 +212,7 @@ class PersonPage extends Component {
 			let twitter;
 			if (_sponsor.twitter) {
 				twitter = (
-					<a
-						key="twitter"
-						href={`https://www.twitter.com/${_sponsor.twitter}`}
-						className="twitter"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
+					<a key="twitter" href={`https://www.twitter.com/${_sponsor.twitter}`} className="twitter" target="_blank" rel="noopener noreferrer">
 						<img src={`${bucketPaths.images.layout}icons/twitter.svg`} alt="Twitter Logo" />
 					</a>
 				);
@@ -277,23 +259,12 @@ class PersonPage extends Component {
 		}
 
 		const playedGames = person.playedGames
-			.filter(
-				g =>
-					!g.pregameOnly &&
-					g.forLocalTeam &&
-					!g.isUnusedExtraInterchange &&
-					g.squadsAnnounced &&
-					new Date(g.date) < new Date()
-			)
+			.filter(g => !g.pregameOnly && g.forLocalTeam && !g.isUnusedExtraInterchange && g.squadsAnnounced && new Date(g.date) < new Date())
 			.map(g => g._id);
 
 		if (playedGames.length) {
 			return (
-				<ErrorBoundary
-					parentState={this.state}
-					parentProps={this.props}
-					additionalData={{ person, playedGames }}
-				>
+				<ErrorBoundary parentState={this.state} parentProps={this.props} additionalData={{ person, playedGames }}>
 					<PlayerStatSection person={person} playedGames={playedGames} />
 				</ErrorBoundary>
 			);
@@ -340,9 +311,7 @@ class PersonPage extends Component {
 						<div
 							className="background"
 							style={{
-								backgroundImage: `url('${bucketPaths.images.layout}john-smiths${
-									useWebp ? ".webp" : "jpg"
-								}')`
+								backgroundImage: `url('${bucketPaths.images.layout}john-smiths${useWebp ? ".webp" : ".jpg"}')`
 							}}
 						/>
 						<div className="container">
